@@ -14,9 +14,9 @@ import { NavLink } from 'react-router-dom';
 const drawerWidth = 220;
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
-  { text: 'Products', icon: <InventoryIcon />, path: '/products' },
+  { text: 'Главное', icon: <DashboardIcon />, path: '/' },
+  { text: 'Категории', icon: <CategoryIcon />, path: '/categories' },
+  { text: 'Продукты', icon: <InventoryIcon />, path: '/products' },
 ];
 
 export default function Sidebar() {
