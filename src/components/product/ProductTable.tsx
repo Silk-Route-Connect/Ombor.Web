@@ -19,7 +19,7 @@ import ConfirmDialog from '../shared/ConfirmDialog';
 import { ProductDto } from '../../models/ProductDto';
 
 const ProductTable: React.FC = observer(() => {
-  const { productStore, categoryStore } = useStore();
+  const { productStore } = useStore();
   const { enqueueSnackbar } = useSnackbar();
 
   const [deleteTarget, setDeleteTarget] = useState<ProductDto | null>(null);

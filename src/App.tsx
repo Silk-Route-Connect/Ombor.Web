@@ -1,13 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
-import DashboardPage from './pages/DashboardPage';
 import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
-import { stores } from './stores/RootStore';
-import { StoreContext, useStore } from './stores/StoreContext';
 import { SnackbarProvider } from 'notistack';
 import { JSX, useEffect } from 'react';
 import { seedData } from './seedData';
+import { useStore } from './stores/StoreContext';
 
 function App(): JSX.Element {
   const { categoryStore, productStore } = useStore();

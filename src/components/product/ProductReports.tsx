@@ -18,8 +18,6 @@ import {
   CartesianGrid,
   Tooltip as ReTooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
 } from 'recharts';
 import { useStore } from '../../stores/StoreContext';
 import { formatUZS } from '../../utils/formatCurrency';
@@ -27,10 +25,6 @@ import { formatUZS } from '../../utils/formatCurrency';
 interface SalesEntry {
   date: string;
   units: number;
-}
-interface PurchaseEntry {
-  date: string;
-  price: number;
 }
 
 const presets = [
@@ -85,20 +79,6 @@ const ProductReports: React.FC<ProductReportsProps> = ({ productId }) => {
     () => productStore.products.find((p) => p.id === productId),
     [productId, productStore.products]
   );
-
-  const purchaseHistory = useMemo<PurchaseEntry[]>(() => {
-    if (!product) return [];
-    const history: PurchaseEntry[] = [];
-    const now = new Date();
-    for (let i = 0; i < 5; i++) {
-      const d = new Date(now.getTime() - i * 864000000);
-      history.push({
-        date: d.toISOString().slice(0, 10),
-        price: product.incomePrice - i * 5000,
-      });
-    }
-    return history;
-  }, [product]);
 
   // ─── Early return after hooks ───
   if (!product) {
