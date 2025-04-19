@@ -4,28 +4,37 @@ import DashboardPage from './pages/DashboardPage';
 import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
 import { stores } from './stores/RootStore';
-import { StoreContext } from './stores/StoreContext';
+import { StoreContext, useStore } from './stores/StoreContext';
 import { SnackbarProvider } from 'notistack';
+import { JSX, useEffect } from 'react';
+import { seedData } from './seedData';
 
-function App() {
+function App(): JSX.Element {
+  const { categoryStore, productStore } = useStore();
+
+  useEffect(() => {
+    // seed fake data for both categories and products
+    seedData();
+
+    // if you still want to load real/mock-API data afterwards:
+    // categoryStore.loadCategories();
+    // productStore.loadProducts();
+  }, [categoryStore, productStore]);
+
   return (
-    <StoreContext.Provider value={stores}>
-      <SnackbarProvider
-        maxSnack={3}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<AppLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="categories" element={<CategoryPage />} />
-              <Route path="products" element={<ProductPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </SnackbarProvider>
-    </StoreContext.Provider>
+    <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AppLayout />}>
+            <Route index element={<CategoryPage />} />
+            <Route path="categories" element={<CategoryPage />} />
+            <Route path="products" element={<ProductPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </SnackbarProvider>
   );
 }
 
 export default App;
+
