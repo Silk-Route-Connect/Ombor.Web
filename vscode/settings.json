@@ -6,5 +6,24 @@
     "source.organizeImports": true
   },
   "eslint.validate": ["javascript","javascriptreact","typescript","typescriptreact"],
-  "eslint.alwaysShowStatus": true
+  "eslint.alwaysShowStatus": true,
+  "editor.insertSpaces": false,
+  "editor.detectIndentation": false,
+
+  "[javascript]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 2
+  },
+  "[javascriptreact]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 2
+  },
+  "[typescript]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 2
+  }
 }
