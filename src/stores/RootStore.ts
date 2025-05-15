@@ -1,9 +1,15 @@
-import categoryStore from './CategoryStore';
-import productStore from './ProductStore';
+import { CategoryStore } from "./CategoryStore";
+import { NotificationStore } from "./NotificationStore";
 
-export const stores = {
-    categoryStore,
-    productStore
-};
+export class RootStore {
+	notificationStore: NotificationStore;
+	categoryStore: CategoryStore;
 
-export type RootStoreType = typeof stores;
+	constructor() {
+		this.notificationStore = new NotificationStore();
+		this.categoryStore = new CategoryStore(this.notificationStore);
+	}
+}
+
+export const rootStore = new RootStore();
+export type RootStoreType = typeof rootStore;

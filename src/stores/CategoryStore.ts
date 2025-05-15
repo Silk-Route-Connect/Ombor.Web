@@ -1,91 +1,156 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import { MockCategoryApi } from '../api/mocks/MockCategoryApi';
-import { CategoryDto } from '../models/CategoryDto';
+import { makeAutoObservable, runInAction } from "mobx";
 
-export class CategoryStore {
-  categories: CategoryDto[] = [];
-  selectedCategory: CategoryDto | null = null;
-  isLoading = false;
-  searchQuery = '';
-  isFormModalOpen = false;
+import { Loadable, tryRun } from "../helpers/helpers";
+import { translate } from "../i18n/i18n";
+import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../models/category";
+import CategoryApi from "../services/api/CategoryApi";
+import { NotificationStore } from "./NotificationStore";
 
-  private categoryApi = new MockCategoryApi();
+export interface ICategoryStore {
+	categories: Loadable<Category[]>;
+	filteredCategories: Loadable<Category[]>;
+	selectedCategory: Loadable<Category | null>;
+	searchQuery: string;
+	isFormModalOpen: boolean;
 
-  constructor() {
-    makeAutoObservable(this);
-  }
-
-  openFormModal(category: CategoryDto | null) {
-    this.selectedCategory = category;
-    this.isFormModalOpen = true;
-  }
-
-  closeFormModal() {
-    this.selectedCategory = null;
-    this.isFormModalOpen = false;
-  }
-
-  async loadCategories() {
-    this.isLoading = true;
-    try {
-      const response = await this.categoryApi.apiCategoryGet();
-      runInAction(() => {
-        this.categories = response;
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  }
-
-  get filteredCategories() {
-    const q = this.searchQuery.toLowerCase();
-    return this.categories.filter((c) => c.name.toLowerCase().includes(q));
-  }
-
-  selectCategory(category: CategoryDto | null) {
-    this.selectedCategory = category;
-  }
-
-  clearSelection() {
-    this.selectedCategory = null;
-  }
-
-  setSearchQuery(query: string) {
-    this.searchQuery = query;
-  }
-
-  async createCategory(category: Omit<CategoryDto, 'id'>) {
-    // fake API delay + new ID
-    const newCategory: CategoryDto = {
-      ...category,
-      id: Math.floor(Math.random() * 10000),
-    };
-
-    runInAction(() => {
-      this.categories.push(newCategory);
-    });
-  }
-
-  async updateCategory(category: CategoryDto) {
-    runInAction(() => {
-      const index = this.categories.findIndex((c) => c.id === category.id);
-      if (index !== -1) {
-        this.categories[index] = category;
-      }
-    });
-  }
-
-  async deleteCategory(id: number) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    runInAction(() => {
-      this.categories = this.categories.filter((c) => c.id !== id);
-    });
-  }
+	openFormModal(category?: Category): void;
+	closeFormModal(): void;
+	selectCategory(category: Category): void;
+	clearSelection(): void;
+	filterCategories(query: string): void;
+	loadCategories(): Promise<void>;
+	createCategory(category: CreateCategoryRequest): Promise<void>;
+	updateCategory(category: UpdateCategoryRequest): Promise<void>;
+	deleteCategory(id: number): Promise<void>;
 }
 
-const categoryStore = new CategoryStore();
+export class CategoryStore implements ICategoryStore {
+	categories: Loadable<Category[]> = [];
+	selectedCategory: Loadable<Category | null> = null;
+	searchQuery = "";
+	isFormModalOpen = false;
 
-export default categoryStore;
+	private readonly notificationStore: NotificationStore;
+
+	constructor(notificationStore: NotificationStore) {
+		this.notificationStore = notificationStore;
+
+		makeAutoObservable(this);
+	}
+
+	get filteredCategories(): Loadable<Category[]> {
+		if (this.categories === "loading") {
+			return "loading";
+		}
+
+		if (!this.searchQuery) {
+			return this.categories;
+		}
+
+		if (this.categories.length === 0) {
+			return [];
+		}
+
+		const query = this.searchQuery.toLowerCase();
+		return this.categories.filter(
+			(category) =>
+				category.name.toLowerCase().includes(query) ||
+				category?.description?.toLowerCase().includes(query),
+		);
+	}
+
+	openFormModal(category?: Category) {
+		this.selectedCategory = category ?? null;
+		this.isFormModalOpen = true;
+	}
+
+	closeFormModal() {
+		this.selectedCategory = null;
+		this.isFormModalOpen = false;
+	}
+
+	selectCategory(category: Category | null) {
+		this.selectedCategory = category;
+	}
+
+	clearSelection() {
+		this.selectedCategory = null;
+	}
+
+	filterCategories(query: string) {
+		this.searchQuery = query;
+	}
+
+	async loadCategories() {
+		this.categories = "loading";
+		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchQuery }));
+
+		if (result.status === "fail") {
+			this.categories = [];
+			this.notificationStore.error(translate("loadCategoriesError") + `: ${result.error}`);
+			return;
+		}
+
+		this.categories = result.data;
+	}
+
+	async createCategory(request: CreateCategoryRequest): Promise<void> {
+		const result = await tryRun(() => CategoryApi.create(request));
+
+		if (result.status === "fail") {
+			// Handle error (e.g., show a notification)
+			return;
+		}
+
+		runInAction(() => {
+			if (this.categories === "loading") {
+				return;
+			}
+
+			this.categories.unshift(result.data);
+			this.selectedCategory = result.data;
+			this.isFormModalOpen = false;
+		});
+	}
+
+	async updateCategory(request: UpdateCategoryRequest): Promise<void> {
+		const result = await tryRun(() => CategoryApi.update(request));
+
+		if (result.status === "fail") {
+			// Handle error (e.g., show a notification)
+			return;
+		}
+
+		runInAction(() => {
+			if (this.categories === "loading") {
+				return;
+			}
+
+			this.categories = this.categories.map((category) =>
+				category.id === result.data.id ? result.data : category,
+			);
+			this.selectedCategory = result.data;
+			this.isFormModalOpen = false;
+		});
+	}
+
+	async deleteCategory(id: number): Promise<void> {
+		const result = await tryRun(() => CategoryApi.delete(id));
+
+		if (result.status === "fail") {
+			// Handle error (e.g., show a notification)
+			return;
+		}
+
+		runInAction(() => {
+			if (this.categories === "loading") {
+				return;
+			}
+
+			this.categories = this.categories.filter((category) => category.id !== id);
+			this.selectedCategory = null;
+		});
+	}
+}
+
+export default CategoryStore;
