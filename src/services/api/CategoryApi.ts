@@ -8,6 +8,12 @@ import { toQueryString } from "../../utils/toQueryParameters";
 import http from "../api/http";
 
 class CategoryApi {
+	private readonly baseUrl: string = "";
+
+	constructor() {
+		this.baseUrl = "/api/categories";
+	}
+
 	async getAll(request: GetCategoriesRequest): Promise<Category[]> {
 		const url = this.getUrl(request);
 		const response = await http.get<Category[]>(url);
@@ -41,19 +47,20 @@ class CategoryApi {
 		await http.delete(url);
 	}
 
-	private getUrl<TRequest>(request?: TRequest): string {
+	private getUrl(request?: GetCategoriesRequest): string {
 		if (!request) {
-			return "/api/categories";
+			return this.baseUrl;
 		}
 
 		const query = toQueryString(request);
-		return `/api/categories?${query}`;
+
+		return query ? `${this.baseUrl}?${query}` : this.baseUrl;
 	}
 
 	private getUrlWithId(id: number): string {
-		return `/api/categories/${id}`;
+		return `${this.baseUrl}/${id}`;
 	}
 }
 
-const api = new CategoryApi();
-export default api;
+const categoryApi = new CategoryApi();
+export default categoryApi;

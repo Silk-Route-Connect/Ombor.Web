@@ -107,7 +107,7 @@ export class CategoryStore implements ICategoryStore {
 				return;
 			}
 
-			this.categories.unshift(result.data);
+			this.categories = [result.data, ...this.categories];
 			this.selectedCategory = result.data;
 			this.isFormModalOpen = false;
 		});

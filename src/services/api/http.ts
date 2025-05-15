@@ -15,7 +15,7 @@ const http = axios.create({
 
 http.interceptors.response.use(
 	(res) => res,
-	(error) => {
+	(error: Error) => {
 		console.error("API call failed:", error);
 		return Promise.reject(error);
 	},

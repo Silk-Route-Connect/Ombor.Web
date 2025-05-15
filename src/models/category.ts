@@ -1,13 +1,10 @@
 export type Category = {
 	id: number;
 	name: string;
-	description: string;
+	description?: string;
 };
 
-export type CreateCategoryRequest = {
-	name: string;
-	description: string;
-};
+export type CreateCategoryRequest = Omit<Category, "id">;
 
 export type UpdateCategoryRequest = Category;
 
