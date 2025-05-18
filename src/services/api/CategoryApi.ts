@@ -8,11 +8,7 @@ import { toQueryString } from "../../utils/toQueryParameters";
 import http from "../api/http";
 
 class CategoryApi {
-	private readonly baseUrl: string = "";
-
-	constructor() {
-		this.baseUrl = "/api/categories";
-	}
+	private readonly baseUrl: string = "/api/categories";
 
 	async getAll(request: GetCategoriesRequest): Promise<Category[]> {
 		const url = this.getUrl(request);

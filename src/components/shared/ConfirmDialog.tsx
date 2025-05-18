@@ -1,28 +1,27 @@
-import { JSX } from "react";
+import React from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
 interface ConfirmDialogProps {
 	isOpen: boolean;
 	title: string;
-	content?: JSX.Element;
+	content?: React.ReactNode;
 	confirmLabel?: string;
 	cancelLabel?: string;
-
 	onConfirm: () => void;
 	onCancel: () => void;
 }
 
-const ConfirmDialog = ({
-	isOpen: open,
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+	isOpen,
 	title,
 	content,
 	confirmLabel = "Confirm",
 	cancelLabel = "Cancel",
-	onCancel,
 	onConfirm,
-}: ConfirmDialogProps) => {
+	onCancel,
+}) => {
 	return (
-		<Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
+		<Dialog open={isOpen} onClose={onCancel} maxWidth="xs" fullWidth>
 			<DialogTitle>{title}</DialogTitle>
 			<DialogContent>{content}</DialogContent>
 			<DialogActions>

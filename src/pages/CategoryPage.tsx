@@ -1,4 +1,4 @@
-import React, { JSX, useEffect } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import CategoryFormModal, {
@@ -12,11 +12,9 @@ import { Column, DataTable, SortOrder } from "../components/shared/DataTable/Dat
 import { Category } from "../models/category";
 import { useStore } from "../stores/StoreContext";
 
-type FormState = "open" | "close";
-
 const CategoryPage: React.FC = observer(() => {
-	const [formState, setFormState] = React.useState<FormState>("close");
-	const [dialogState, setDialogState] = React.useState<FormState>("close");
+	const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
 	const { categoryStore } = useStore();
 
@@ -45,12 +43,12 @@ const CategoryPage: React.FC = observer(() => {
 
 	const onCreate = (): void => {
 		setSelectedCategory(null);
-		setFormState("open");
+		setIsFormOpen(true);
 	};
 
 	const onEdit = (category: Category) => {
 		setSelectedCategory(category);
-		setFormState("open");
+		setIsFormOpen(true);
 	};
 
 	const onFormSave = (payload: CategoryFormPayload): void => {
@@ -67,16 +65,16 @@ const CategoryPage: React.FC = observer(() => {
 			});
 		}
 
-		setFormState("close");
+		setIsFormOpen(false);
 	};
 
 	const onDelete = (category: Category) => {
-		setDialogState("open");
+		setIsDeleteDialogOpen(true);
 		setSelectedCategory(category);
 	};
 
 	const onDeleteConfirmed = (): void => {
-		setDialogState("close");
+		setIsDeleteDialogOpen(false);
 
 		if (selectedCategory) {
 			categoryStore.deleteCategory(selectedCategory.id);
@@ -111,18 +109,18 @@ const CategoryPage: React.FC = observer(() => {
 			/>
 
 			<CategoryFormModal
-				isOpen={formState === "open"}
+				isOpen={isFormOpen}
 				category={selectedCategory}
-				onClose={() => setFormState("close")}
+				onClose={() => setIsFormOpen(false)}
 				onSave={onFormSave}
 			/>
 			<ConfirmDialog
-				isOpen={dialogState === "open"}
+				isOpen={isDeleteDialogOpen}
 				title="Подтвердите удаление"
 				content={getConfirmationContent()}
 				confirmLabel="Удалить"
 				cancelLabel="Отмена"
-				onCancel={() => setDialogState("close")}
+				onCancel={() => setIsDeleteDialogOpen(false)}
 				onConfirm={onDeleteConfirmed}
 			/>
 		</Box>

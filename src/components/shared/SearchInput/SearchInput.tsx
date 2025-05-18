@@ -4,8 +4,6 @@ import { SxProps } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 
-import styles from "./SearchInput.module.scss";
-
 export interface SearchInputProps {
 	value: string;
 	onChange: (value: string) => void;
@@ -23,7 +21,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
 	return (
 		<TextField
-			className={`${styles.searchInput} ${className}`}
+			className={className}
 			variant="outlined"
 			size="small"
 			sx={sx}

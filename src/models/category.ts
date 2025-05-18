@@ -6,7 +6,9 @@ export type Category = {
 
 export type CreateCategoryRequest = Omit<Category, "id">;
 
-export type UpdateCategoryRequest = Category;
+export type UpdateCategoryRequest = CreateCategoryRequest & {
+	id: number;
+};
 
 export type GetCategoriesRequest = {
 	searchTerm?: string;

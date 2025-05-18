@@ -12,10 +12,6 @@ export interface ICategoryStore {
 	searchQuery: string;
 	isFormModalOpen: boolean;
 
-	openFormModal(category: Category | null): void;
-	closeFormModal(): void;
-	selectCategory(category: Category): void;
-	clearSelection(): void;
 	search(query: string): void;
 	sort(field: keyof Category, order: "asc" | "desc"): void;
 	loadCategories(): Promise<void>;
@@ -56,27 +52,8 @@ export class CategoryStore implements ICategoryStore {
 		return this.allCategories.filter(
 			(category) =>
 				category.name.toLowerCase().includes(query) ||
-				category?.description?.toLowerCase().includes(query),
+				category.description?.toLowerCase().includes(query),
 		);
-	}
-
-	openFormModal(category: Category | null) {
-		runInAction(() => {
-			this.selectedCategory = category;
-			this.isFormModalOpen = true;
-		});
-	}
-
-	closeFormModal() {
-		runInAction(() => (this.isFormModalOpen = false));
-	}
-
-	selectCategory(category: Category | null) {
-		runInAction(() => (this.selectedCategory = category));
-	}
-
-	clearSelection() {
-		runInAction(() => (this.selectedCategory = null));
 	}
 
 	search(query: string) {

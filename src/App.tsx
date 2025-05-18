@@ -1,4 +1,4 @@
-import React, { JSX } from "react";
+import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
 
@@ -15,7 +15,7 @@ function SnackbarInjector({ children }: Readonly<{ children: React.ReactNode }>)
 	return <>{children}</>;
 }
 
-function App(): JSX.Element {
+function App() {
 	return (
 		<SnackbarProvider
 			maxSnack={3}

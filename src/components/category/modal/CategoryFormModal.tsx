@@ -9,8 +9,6 @@ import {
 } from "@mui/material";
 import { Category } from "models/category";
 
-import styles from "./CategoryFormModal.module.scss";
-
 export type CategoryFormPayload = {
 	name: string;
 	description?: string;
@@ -34,11 +32,10 @@ const CategoryFormModal: React.FC<IProps> = ({ isOpen, category, onClose, onSave
 		}
 	}, [isOpen, category]);
 
-	const handleSave = async () => {
+	const handleSave = () => {
 		if (!name.trim()) {
 			return;
 		}
-
 		onSave({ name, description });
 	};
 
@@ -48,7 +45,7 @@ const CategoryFormModal: React.FC<IProps> = ({ isOpen, category, onClose, onSave
 	return (
 		<Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
 			<DialogTitle>{title}</DialogTitle>
-			<DialogContent className={styles.content}>
+			<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
 				<TextField
 					label="Название"
 					value={name}
@@ -67,7 +64,7 @@ const CategoryFormModal: React.FC<IProps> = ({ isOpen, category, onClose, onSave
 					multiline
 				/>
 			</DialogContent>
-			<DialogActions className={styles.actions}>
+			<DialogActions sx={{ p: 2 }}>
 				<Button onClick={onClose}>Отмена</Button>
 				<Button onClick={handleSave} variant="contained" color="primary" disabled={!name.trim()}>
 					{saveLabel}

@@ -15,7 +15,7 @@ export default function AppLayout() {
 				sx={{
 					flexGrow: 1,
 					p: 3,
-					backgroundColor: "#f5f7fa",
+					bgcolor: "background.default",
 					minHeight: "100vh",
 				}}
 			>

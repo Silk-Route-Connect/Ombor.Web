@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo } from "react";
-import { Box, TableSortLabel } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
+import {
+	Box,
+	CircularProgress,
+	Paper,
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TablePagination,
+	TableRow,
+	TableSortLabel,
+} from "@mui/material";
 import { Loadable } from "helpers/Loading";
-
-import styles from "./DataTable.module.scss";
 
 export type SortOrder = "asc" | "desc";
 
@@ -50,86 +51,66 @@ export function DataTable<T extends { id: string | number }>({
 	const [order, setOrder] = React.useState<SortOrder>("asc");
 
 	useEffect(() => {
-		const maxPage = Math.ceil(rows.length / rowsPerPage) - 1;
-
-		if (page > maxPage) {
-			setPage(Math.max(0, maxPage));
+		if (rows !== "loading") {
+			const maxPage = Math.ceil(rows.length / rowsPerPage) - 1;
+			if (page > maxPage) {
+				setPage(Math.max(0, maxPage));
+			}
 		}
-	}, [rows.length, rowsPerPage]);
+	}, [rows, rowsPerPage, page]);
 
-	const displayedRows = useMemo(() => {
-		if (rows === "loading") {
-			return "loading";
-		}
-
+	const displayedRows = useMemo<Loadable<T[]>>(() => {
+		if (rows === "loading") return "loading";
 		return pagination ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows;
 	}, [rows, page, rowsPerPage, pagination]);
 
-	const isSelectable = useMemo(() => {
-		if (onRowClick) {
-			return true;
-		}
-		return false;
-	}, [onRowClick]);
+	const isSelectable = Boolean(onRowClick);
 
 	const handleRequestSort = (field?: keyof T) => {
-		if (!field || !onSort) {
-			return;
-		}
-
+		if (!field || !onSort) return;
 		const isAsc = orderBy === field && order === "asc";
-		setOrder(isAsc ? "desc" : "asc");
+		const newOrder: SortOrder = isAsc ? "desc" : "asc";
+		setOrder(newOrder);
 		setOrderBy(field);
-
-		onSort(field, isAsc ? "desc" : "asc");
+		onSort(field, newOrder);
 	};
 
-	const handlePageChange = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+	const handlePageChange = (_: unknown, newPage: number) => {
 		setPage(newPage);
 	};
 
-	const handleRowsPerPageChange = (
-		event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-	) => {
+	const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
 	};
 
 	const handleRowClick = (row: T) => {
-		if (onRowClick) {
-			onRowClick(row);
-		}
+		onRowClick?.(row);
 	};
 
 	const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTableRowElement>, row: T) => {
-		if (onRowClick && e.key === "Enter") {
-			onRowClick(row);
+		if (e.key === "Enter") {
+			onRowClick?.(row);
 		}
 	};
 
-	const rendercell = (row: T, col: Column<T>) => {
-		if (col.renderCell) {
-			return col.renderCell(row);
-		}
-
-		if (col.field != null) {
-			return row[col.field] as unknown as React.ReactNode;
-		}
-
+	const renderCell = (row: T, col: Column<T>) => {
+		if (col.renderCell) return col.renderCell(row);
+		if (col.field != null) return row[col.field] as unknown as React.ReactNode;
 		return null;
 	};
 
 	if (displayedRows === "loading") {
 		return (
-			<div className={styles.loadingContainer}>
+			<Box display="flex" justifyContent="center" p={2}>
 				<CircularProgress />
-			</div>
+			</Box>
 		);
 	}
 
 	return (
 		<>
-			<TableContainer component={Paper} className={`${styles.tableContainer} ${className}`}>
+			<TableContainer component={Paper} className={className}>
 				<Table>
 					<TableHead>
 						<TableRow>
@@ -138,6 +119,7 @@ export function DataTable<T extends { id: string | number }>({
 									key={col.key}
 									sortDirection={col.sortable && orderBy === col.field ? order : false}
 									sx={col.width ? { width: col.width } : undefined}
+									align={col.align ?? "left"}
 								>
 									{col.sortable && col.field ? (
 										<TableSortLabel
@@ -159,14 +141,14 @@ export function DataTable<T extends { id: string | number }>({
 							<TableRow
 								key={row.id}
 								hover={isSelectable}
-								className={isSelectable ? styles.selectableRow : ""}
 								onClick={() => handleRowClick(row)}
 								tabIndex={onRowClick ? 0 : undefined}
 								onKeyDown={(e) => handleOnKeyDown(e, row)}
+								sx={isSelectable ? { cursor: "pointer" } : undefined}
 							>
 								{columns.map((col) => (
 									<TableCell key={`${row.id}-${col.key}`} align={col.align ?? "left"}>
-										{rendercell(row, col)}
+										{renderCell(row, col)}
 									</TableCell>
 								))}
 							</TableRow>
@@ -175,13 +157,13 @@ export function DataTable<T extends { id: string | number }>({
 				</Table>
 			</TableContainer>
 
-			{rows.length === 0 && (
+			{rows !== "loading" && rows.length === 0 && (
 				<Box p={4} textAlign="center">
 					Нет записей
 				</Box>
 			)}
 
-			{pagination && (
+			{pagination && rows !== "loading" && (
 				<TablePagination
 					component="div"
 					count={rows.length}
