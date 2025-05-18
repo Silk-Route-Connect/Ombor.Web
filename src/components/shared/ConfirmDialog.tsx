@@ -1,51 +1,38 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from '@mui/material';
+import { JSX } from "react";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
 interface ConfirmDialogProps {
-  open: boolean;
-  title: string;
-  content: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  loading?: boolean;
+	isOpen: boolean;
+	title: string;
+	content?: JSX.Element;
+	confirmLabel?: string;
+	cancelLabel?: string;
+
+	onConfirm: () => void;
+	onCancel: () => void;
 }
 
 const ConfirmDialog = ({
-  open,
-  title,
-  content,
-  onConfirm,
-  onCancel,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
-  loading = false,
+	isOpen: open,
+	title,
+	content,
+	confirmLabel = "Confirm",
+	cancelLabel = "Cancel",
+	onCancel,
+	onConfirm,
 }: ConfirmDialogProps) => {
-  return (
-    <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent dividers>{content}</DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel} disabled={loading}>
-          {cancelLabel}
-        </Button>
-        <Button
-          onClick={onConfirm}
-          color="error"
-          variant="contained"
-          disabled={loading}
-        >
-          {loading ? 'Deleting...' : confirmLabel}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+	return (
+		<Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
+			<DialogTitle>{title}</DialogTitle>
+			<DialogContent>{content}</DialogContent>
+			<DialogActions>
+				<Button onClick={onCancel}>{cancelLabel}</Button>
+				<Button onClick={onConfirm} color="error" variant="contained">
+					{confirmLabel}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
 };
 
 export default ConfirmDialog;

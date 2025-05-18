@@ -1,0 +1,13 @@
+.tableContainer {
+  width: 100%;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.selectableRow {
+  cursor: pointer;
+}
