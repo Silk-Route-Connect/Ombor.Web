@@ -4,11 +4,10 @@ import { SnackbarProvider, useSnackbar } from "notistack";
 
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
-import ProductPage from "./pages/ProductPage";
 import { rootStore } from "./stores/RootStore";
 import { StoreProvider } from "./stores/StoreContext";
 
-function SnackbarInjector({ children }: { children: React.ReactNode }) {
+function SnackbarInjector({ children }: Readonly<{ children: React.ReactNode }>) {
 	const { enqueueSnackbar } = useSnackbar();
 	React.useEffect(() => {
 		rootStore.notificationStore.inject(enqueueSnackbar);
@@ -32,7 +31,6 @@ function App(): JSX.Element {
 							<Route path="/" element={<AppLayout />}>
 								<Route index element={<CategoryPage />} />
 								<Route path="categories" element={<CategoryPage />} />
-								<Route path="products" element={<ProductPage />} />
 							</Route>
 						</Routes>
 					</BrowserRouter>

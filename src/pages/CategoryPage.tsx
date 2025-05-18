@@ -1,85 +1,132 @@
-import { useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import { InputAdornment } from '@mui/material';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import { useStore } from '../stores/StoreContext';
-import CategoryTable from '../components/category/CategoryTable';
-import CategoryFormModal from '../components/category/CategoryFormModal';
+import React, { JSX, useEffect } from "react";
+import { Box, Typography } from "@mui/material";
+import CategoryHeader from "components/category/Header/CategoryHeader";
+import CategoryFormModal, {
+	CategoryFormPayload,
+} from "components/category/modal/CategoryFormModal";
+import ConfirmDialog from "components/shared/ConfirmDialog";
+import { observer } from "mobx-react-lite";
 
-const CategoryPage = observer(() => {
-  const { categoryStore } = useStore();
+import { ActionCell } from "../components/shared/ActionCell/ActionCell";
+import { Column, DataTable, SortOrder } from "../components/shared/DataTable/DataTable";
+import { Category } from "../models/category";
+import { useStore } from "../stores/StoreContext";
 
-  useEffect(() => {
-    categoryStore.loadCategories();
-  }, [categoryStore]);
+type FormState = "open" | "close";
 
-  return (
-    <Box>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-        flexWrap="wrap"
-      >
-        <Typography variant="h5">Категории</Typography>
-        <Stack
-          direction="row"
-          spacing={2}
-          alignItems="center"
-          mt={{ xs: 2, sm: 0 }}
-        >
-          <TextField
-            variant="outlined"
-            size="small"
-            placeholder="Поиск категорий..."
-            value={categoryStore.searchQuery}
-            onChange={(e) => categoryStore.setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: 'action.active' }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              backgroundColor: '#fff',
-              borderRadius: 1,
-              minWidth: 250,
-            }}
-          />
+const CategoryPage: React.FC = observer(() => {
+	const [formState, setFormState] = React.useState<FormState>("close");
+	const [dialogState, setDialogState] = React.useState<FormState>("close");
+	const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
+	const { categoryStore } = useStore();
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => categoryStore.openFormModal(null)}
-            sx={{ whiteSpace: 'nowrap' }}
-          >
-            Добавить
-          </Button>
-        </Stack>
-      </Stack>
+	useEffect(() => {
+		categoryStore.loadCategories();
+	}, []);
 
-      {categoryStore.isLoading ? (
-        <Box display="flex" justifyContent="center" py={5}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <CategoryTable />
-      )}
+	const columns: Column<Category>[] = [
+		{ key: "name", field: "name", headerName: "Название", width: "30%", sortable: true },
+		{
+			key: "description",
+			field: "description",
+			headerName: "Описание",
+			width: "60%",
+			sortable: true,
+		},
+		{
+			key: "actions",
+			headerName: "",
+			width: "10%",
+			renderCell: (category: Category) => (
+				<ActionCell onEdit={() => onEdit(category)} onDelete={() => onDelete(category)} />
+			),
+		},
+	];
 
-      <CategoryFormModal />
-    </Box>
-  );
+	const onCreate = (): void => {
+		setSelectedCategory(null);
+		setFormState("open");
+	};
+
+	const onEdit = (category: Category) => {
+		setSelectedCategory(category);
+		setFormState("open");
+	};
+
+	const onFormSave = (payload: CategoryFormPayload): void => {
+		if (selectedCategory) {
+			categoryStore.updateCategory({
+				id: selectedCategory.id,
+				name: payload.name,
+				description: payload.description,
+			});
+		} else {
+			categoryStore.createCategory({
+				name: payload.name,
+				description: payload.description,
+			});
+		}
+
+		setFormState("close");
+	};
+
+	const onDelete = (category: Category) => {
+		setDialogState("open");
+		setSelectedCategory(category);
+	};
+
+	const onDeleteConfirmed = (): void => {
+		setDialogState("close");
+
+		if (selectedCategory) {
+			categoryStore.deleteCategory(selectedCategory.id);
+		}
+	};
+
+	const getConfirmationContent = (): JSX.Element => {
+		if (!selectedCategory) {
+			return <Typography>Вы уверены, что хотите удалить эту категорию?</Typography>;
+		}
+
+		return (
+			<Typography>
+				Вы уверены, что хотите удалить категорию <strong>{selectedCategory.name}</strong>?
+			</Typography>
+		);
+	};
+
+	return (
+		<Box>
+			<CategoryHeader
+				title={"Категории"}
+				searchValue={categoryStore.searchQuery}
+				onSearch={(value) => categoryStore.search(value)}
+				onCreate={onCreate}
+			/>
+			<DataTable
+				rows={categoryStore.filteredCategories}
+				columns={columns}
+				pagination
+				onSort={(field: keyof Category, order: SortOrder) => categoryStore.sort(field, order)}
+			/>
+
+			<CategoryFormModal
+				isOpen={formState === "open"}
+				category={selectedCategory}
+				onClose={() => setFormState("close")}
+				onSave={onFormSave}
+			/>
+			<ConfirmDialog
+				isOpen={dialogState === "open"}
+				title="Подтвердите удаление"
+				content={getConfirmationContent()}
+				confirmLabel="Удалить"
+				cancelLabel="Отмена"
+				onCancel={() => setDialogState("close")}
+				onConfirm={onDeleteConfirmed}
+			/>
+		</Box>
+	);
 });
 
 export default CategoryPage;
