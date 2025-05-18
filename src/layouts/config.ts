@@ -21,7 +21,7 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-	{ label: "Dashboard", to: "/", icon: DashboardOutlinedIcon },
+	{ label: "Главное", to: "/", icon: DashboardOutlinedIcon },
 
 	{
 		label: "Продукция",

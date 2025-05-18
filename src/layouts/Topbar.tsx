@@ -1,32 +1,157 @@
-import AccountCircleIcon from "@mui/icons-material/AccountCircleOutlined";
+import React, { MouseEvent, useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import LanguageIcon from "@mui/icons-material/Language";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import { AppBar, Badge, Box, IconButton, Toolbar, Typography } from "@mui/material";
+import WarehouseIcon from "@mui/icons-material/Warehouse";
+import {
+	AppBar,
+	Avatar,
+	Badge,
+	Box,
+	IconButton,
+	Menu,
+	MenuItem,
+	SxProps,
+	Theme,
+	Toolbar,
+	Tooltip,
+	Typography,
+	useTheme,
+} from "@mui/material";
 
-export default function Topbar() {
+const Topbar: React.FC = () => {
+	const theme = useTheme();
+
+	const [quickAnchor, setQuickAnchor] = useState<HTMLElement | null>(null);
+	const handleQuickOpen = (e: MouseEvent<HTMLElement>) => setQuickAnchor(e.currentTarget);
+	const handleQuickClose = () => setQuickAnchor(null);
+
+	const [langAnchor, setLangAnchor] = useState<HTMLElement | null>(null);
+	const handleLangOpen = (e: MouseEvent<HTMLElement>) => setLangAnchor(e.currentTarget);
+	const handleLangClose = () => setLangAnchor(null);
+
+	const [userAnchor, setUserAnchor] = useState<HTMLElement | null>(null);
+	const handleUserOpen = (e: MouseEvent<HTMLElement>) => setUserAnchor(e.currentTarget);
+	const handleUserClose = () => setUserAnchor(null);
+
+	const [darkMode, setDarkMode] = useState(false);
+	const toggleDarkMode = () => setDarkMode((m) => !m);
+
+	const iconSx: SxProps<Theme> = { color: theme.palette.text.primary, ml: 1 };
+
 	return (
 		<AppBar
 			position="fixed"
-			elevation={0}
+			elevation={1}
 			sx={{
-				zIndex: (theme) => theme.zIndex.drawer + 1,
-				bgcolor: "background.paper",
-				borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-				color: "text.primary",
+				zIndex: theme.zIndex.drawer + 1,
+				bgcolor: theme.palette.background.paper,
 			}}
 		>
 			<Toolbar sx={{ justifyContent: "space-between" }}>
-				<Typography variant="h6">Inventory Management</Typography>
-				<Box sx={{ display: "flex", gap: 2 }}>
-					<IconButton color="inherit">
-						<Badge badgeContent={3} color="error">
-							<NotificationsNoneIcon />
-						</Badge>
-					</IconButton>
-					<IconButton color="inherit">
-						<AccountCircleIcon />
-					</IconButton>
+				<Box display="flex" alignItems="center">
+					<WarehouseIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
+
+					<Typography variant="h6" color="text.primary">
+						Inventory Management
+					</Typography>
+				</Box>
+
+				<Box display="flex" alignItems="center">
+					<Tooltip title="Quick actions" arrow>
+						<IconButton onClick={handleQuickOpen} sx={iconSx}>
+							<AddIcon />
+						</IconButton>
+					</Tooltip>
+					<Menu
+						anchorEl={quickAnchor}
+						open={Boolean(quickAnchor)}
+						onClose={handleQuickClose}
+						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+						transformOrigin={{ vertical: "top", horizontal: "right" }}
+					>
+						<MenuItem onClick={handleQuickClose}>Продажа</MenuItem>
+						<MenuItem onClick={handleQuickClose}>Покупка</MenuItem>
+						<MenuItem onClick={handleQuickClose}>Заказ</MenuItem>
+					</Menu>
+
+					<Tooltip title="Notifications" arrow>
+						<IconButton sx={iconSx}>
+							<Badge badgeContent={3} color="error">
+								<NotificationsNoneIcon />
+							</Badge>
+						</IconButton>
+					</Tooltip>
+
+					<Tooltip title="Messages" arrow>
+						<IconButton sx={iconSx}>
+							<Badge badgeContent={5} color="secondary">
+								<MailOutlineIcon />
+							</Badge>
+						</IconButton>
+					</Tooltip>
+
+					<Tooltip title="Help Center" arrow>
+						<IconButton sx={iconSx}>
+							<HelpOutlineIcon />
+						</IconButton>
+					</Tooltip>
+
+					<Tooltip title={darkMode ? "Light mode" : "Dark mode"} arrow>
+						<IconButton onClick={toggleDarkMode} sx={iconSx}>
+							{darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+						</IconButton>
+					</Tooltip>
+
+					<Tooltip title="Language" arrow>
+						<IconButton onClick={handleLangOpen} sx={iconSx}>
+							<LanguageIcon />
+						</IconButton>
+					</Tooltip>
+					<Menu
+						anchorEl={langAnchor}
+						open={Boolean(langAnchor)}
+						onClose={handleLangClose}
+						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+						transformOrigin={{ vertical: "top", horizontal: "right" }}
+					>
+						<MenuItem onClick={handleLangClose}>RU</MenuItem>
+						<MenuItem onClick={handleLangClose}>UZ</MenuItem>
+					</Menu>
+
+					<Tooltip title="User menu" arrow>
+						<IconButton onClick={handleUserOpen} sx={iconSx}>
+							<Avatar
+								sx={{
+									width: 30,
+									height: 30,
+									bgcolor: theme.palette.primary.main,
+									color: theme.palette.primary.contrastText,
+								}}
+							>
+								BS
+							</Avatar>
+						</IconButton>
+					</Tooltip>
+					<Menu
+						anchorEl={userAnchor}
+						open={Boolean(userAnchor)}
+						onClose={handleUserClose}
+						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+						transformOrigin={{ vertical: "top", horizontal: "right" }}
+					>
+						<MenuItem onClick={handleUserClose}>Profile</MenuItem>
+						<MenuItem onClick={handleUserClose}>Settings</MenuItem>
+						<MenuItem onClick={handleUserClose}>Logout</MenuItem>
+					</Menu>
 				</Box>
 			</Toolbar>
 		</AppBar>
 	);
-}
+};
+
+export default Topbar;
