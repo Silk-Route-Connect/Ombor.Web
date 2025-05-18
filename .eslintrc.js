@@ -34,7 +34,7 @@ module.exports = {
 	  "jsx-quotes": ["error", "prefer-double"],
 	  "semi": ["error", "always"],
 	  "comma-dangle": ["error", "always-multiline"],
-	  "max-len": ["warn", { code: 100, ignoreUrls: true, ignoreStrings: true, ignoreComments: true }],
+	  "max-len": ["warn", { code: 120, ignoreUrls: true, ignoreStrings: true, ignoreComments: true }],
 	  "simple-import-sort/imports": ["error", {
 		groups: [
 		  ["^react", "^@?\\w"],
@@ -49,5 +49,5 @@ module.exports = {
 	settings: {
 	  react: { version: "detect" }
 	}
-  };
+};
   
