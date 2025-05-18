@@ -7,17 +7,17 @@ import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ICategoryStore {
-	categories: Loadable<Category[]>;
 	filteredCategories: Loadable<Category[]>;
-	selectedCategory: Loadable<Category | null>;
+	selectedCategory: Category | null;
 	searchQuery: string;
 	isFormModalOpen: boolean;
 
-	openFormModal(category?: Category): void;
+	openFormModal(category: Category | null): void;
 	closeFormModal(): void;
 	selectCategory(category: Category): void;
 	clearSelection(): void;
-	filterCategories(query: string): void;
+	search(query: string): void;
+	sort(field: keyof Category, order: "asc" | "desc"): void;
 	loadCategories(): Promise<void>;
 	createCategory(category: CreateCategoryRequest): Promise<void>;
 	updateCategory(category: UpdateCategoryRequest): Promise<void>;
@@ -25,8 +25,8 @@ export interface ICategoryStore {
 }
 
 export class CategoryStore implements ICategoryStore {
-	categories: Loadable<Category[]> = [];
-	selectedCategory: Loadable<Category | null> = null;
+	allCategories: Loadable<Category[]> = [];
+	selectedCategory: Category | null = null;
 	searchQuery = "";
 	isFormModalOpen = false;
 
@@ -39,117 +39,148 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
-		if (this.categories === "loading") {
+		if (this.allCategories === "loading") {
 			return "loading";
 		}
 
 		if (!this.searchQuery) {
-			return this.categories;
+			return this.allCategories;
 		}
 
-		if (this.categories.length === 0) {
+		if (this.allCategories.length === 0) {
 			return [];
 		}
 
 		const query = this.searchQuery.toLowerCase();
-		return this.categories.filter(
+
+		return this.allCategories.filter(
 			(category) =>
 				category.name.toLowerCase().includes(query) ||
 				category?.description?.toLowerCase().includes(query),
 		);
 	}
 
-	openFormModal(category?: Category) {
-		this.selectedCategory = category ?? null;
-		this.isFormModalOpen = true;
+	openFormModal(category: Category | null) {
+		runInAction(() => {
+			this.selectedCategory = category;
+			this.isFormModalOpen = true;
+		});
 	}
 
 	closeFormModal() {
-		this.selectedCategory = null;
-		this.isFormModalOpen = false;
+		runInAction(() => (this.isFormModalOpen = false));
 	}
 
 	selectCategory(category: Category | null) {
-		this.selectedCategory = category;
+		runInAction(() => (this.selectedCategory = category));
 	}
 
 	clearSelection() {
-		this.selectedCategory = null;
+		runInAction(() => (this.selectedCategory = null));
 	}
 
-	filterCategories(query: string) {
+	search(query: string) {
 		this.searchQuery = query;
 	}
 
+	sort(field: keyof Category, order: "asc" | "desc") {
+		if (this.allCategories === "loading") {
+			return;
+		}
+
+		const sorted = [...this.allCategories].sort((a, b) => {
+			const aVal = a[field] ?? "";
+			const bVal = b[field] ?? "";
+
+			if (aVal < bVal) {
+				return order === "asc" ? -1 : 1;
+			}
+
+			if (aVal > bVal) {
+				return order === "asc" ? 1 : -1;
+			}
+
+			return 0;
+		});
+
+		runInAction(() => (this.allCategories = sorted));
+	}
+
 	async loadCategories() {
-		this.categories = "loading";
+		this.allCategories = "loading";
 		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchQuery }));
 
 		if (result.status === "fail") {
-			this.categories = [];
+			this.allCategories = [];
 			this.notificationStore.error(translate("loadCategoriesError") + `: ${result.error}`);
 			return;
 		}
 
-		this.categories = result.data;
+		this.allCategories = result.data;
 	}
 
 	async createCategory(request: CreateCategoryRequest): Promise<void> {
 		const result = await tryRun(() => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			// Handle error (e.g., show a notification)
+			this.notificationStore.error(translate("createCategoryError") + `: ${result.error}`);
 			return;
 		}
 
 		runInAction(() => {
-			if (this.categories === "loading") {
+			if (this.allCategories === "loading") {
 				return;
 			}
 
-			this.categories = [result.data, ...this.categories];
+			this.allCategories = [result.data, ...this.allCategories];
 			this.selectedCategory = result.data;
 			this.isFormModalOpen = false;
 		});
+
+		this.notificationStore.success(translate("createCategorySuccess"));
 	}
 
 	async updateCategory(request: UpdateCategoryRequest): Promise<void> {
 		const result = await tryRun(() => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			// Handle error (e.g., show a notification)
+			this.notificationStore.error(translate("updateCategoryError") + `: ${result.error}`);
 			return;
 		}
 
 		runInAction(() => {
-			if (this.categories === "loading") {
+			if (this.allCategories === "loading") {
 				return;
 			}
 
-			this.categories = this.categories.map((category) =>
+			this.allCategories = this.allCategories.map((category) =>
 				category.id === result.data.id ? result.data : category,
 			);
 			this.selectedCategory = result.data;
 			this.isFormModalOpen = false;
 		});
+
+		this.notificationStore.success(translate("updateCategorySuccess"));
 	}
 
 	async deleteCategory(id: number): Promise<void> {
 		const result = await tryRun(() => CategoryApi.delete(id));
 
 		if (result.status === "fail") {
-			// Handle error (e.g., show a notification)
+			this.notificationStore.error(translate("deleteCategoryError") + `: ${result.error}`);
 			return;
 		}
 
 		runInAction(() => {
-			if (this.categories === "loading") {
+			if (this.allCategories === "loading") {
 				return;
 			}
 
-			this.categories = this.categories.filter((category) => category.id !== id);
+			this.allCategories = this.allCategories.filter((category) => category.id !== id);
 			this.selectedCategory = null;
 		});
+
+		this.notificationStore.success(translate("deleteCategorySuccess"));
 	}
 }
 

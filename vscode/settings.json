@@ -25,5 +25,7 @@
   "[typescriptreact]": {
     "editor.insertSpaces": false,
     "editor.tabSize": 2
-  }
+  },
+  "typescript.format.enable": false,
+  "javascript.format.enable": false
 }

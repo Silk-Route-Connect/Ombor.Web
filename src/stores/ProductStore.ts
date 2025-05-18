@@ -1,128 +1,125 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import { ProductDto } from '../models/ProductDto';
-import { MockProductApi } from '../api/mocks/MockProductApi';
-import categoryStore from './CategoryStore';
+import { makeAutoObservable, runInAction } from "mobx";
+
+import { CreateProductRequest, ProductDto, UpdateProductRequest } from "../models/product";
+import { ProductApi } from "../services/api/ProductApi";
+import { ICategoryStore } from "./CategoryStore";
 
 export class ProductStore {
-  products: ProductDto[] = [];
-  selectedProduct: ProductDto | null = null;
-  isLoading = false;
-  searchQuery = '';
-  page = 1;
-  pageSize = 10;
-  isFormModalOpen = false;
-  isSidePaneOpen = false;              // renamed
+	products: ProductDto[] = [];
+	selectedProduct: ProductDto | null = null;
+	isLoading = false;
+	searchQuery = "";
+	page = 1;
+	pageSize = 10;
+	isFormModalOpen = false;
+	isSidePaneOpen = false; // renamed
+	private categoryStore: ICategoryStore;
 
-  private productApi = new MockProductApi();
+	private productApi = new ProductApi();
 
-  constructor() {
-    makeAutoObservable(this);
-  }
+	constructor(categoryStore: ICategoryStore) {
+		this.categoryStore = categoryStore;
 
-  openFormModal(product: ProductDto | null): void {
-    this.selectedProduct = product;
-    this.isFormModalOpen = true;
-  }
+		makeAutoObservable(this);
+	}
 
-  closeFormModal(): void {
-    this.selectedProduct = null;
-    this.isFormModalOpen = false;
-  }
+	openFormModal(product: ProductDto | null): void {
+		this.selectedProduct = product;
+		this.isFormModalOpen = true;
+	}
 
-  /** renamed from openDrawer */
-  openSidePane(product: ProductDto): void {
-    this.selectedProduct = product;
-    this.isSidePaneOpen = true;
-  }
+	closeFormModal(): void {
+		this.selectedProduct = null;
+		this.isFormModalOpen = false;
+	}
 
-  /** renamed from closeDrawer */
-  closeSidePane(): void {
-    this.selectedProduct = null;
-    this.isSidePaneOpen = false;
-  }
+	/** renamed from openDrawer */
+	openSidePane(product: ProductDto): void {
+		this.selectedProduct = product;
+		this.isSidePaneOpen = true;
+	}
 
-  async loadProducts(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await this.productApi.getProducts();
-      runInAction(() => {
-        this.products = response;
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  }
+	/** renamed from closeDrawer */
+	closeSidePane(): void {
+		this.selectedProduct = null;
+		this.isSidePaneOpen = false;
+	}
 
-  async createProduct(data: Omit<ProductDto, 'id'>): Promise<void> {
-    const newProduct: ProductDto = {
-      id: Math.floor(Math.random() * 1_000_000),
-      ...data,
-    };
-    await new Promise((r) => setTimeout(r, 400));
-    runInAction(() => {
-      this.products.unshift(newProduct);
-    });
-  }
+	async loadProducts(): Promise<void> {
+		this.isLoading = true;
+		try {
+			const response = await this.productApi.getAll();
+			runInAction(() => {
+				this.products = response;
+			});
+		} finally {
+			runInAction(() => {
+				this.isLoading = false;
+			});
+		}
+	}
 
-  async updateProduct(updated: ProductDto): Promise<void> {
-    await new Promise((r) => setTimeout(r, 400));
-    runInAction(() => {
-      const idx = this.products.findIndex((p) => p.id === updated.id);
-      if (idx !== -1) {
-        this.products[idx] = updated;
-      }
-    });
-  }
+	async createProduct(data: CreateProductRequest): Promise<void> {
+		const createdProduct = await this.productApi.create(data);
 
-  async deleteProduct(id: number): Promise<void> {
-    await new Promise((r) => setTimeout(r, 300));
-    runInAction(() => {
-      this.products = this.products.filter((p) => p.id !== id);
-    });
-  }
+		runInAction(() => {
+			this.products.unshift(createdProduct);
+		});
+	}
 
-  setSearchQuery(query: string): void {
-    this.searchQuery = query;
-    this.page = 1;
-  }
+	async updateProduct(updated: UpdateProductRequest): Promise<void> {
+		const updatedProduct = await this.productApi.update(updated);
 
-  setPage(page: number): void {
-    this.page = page;
-  }
+		runInAction(() => {
+			const index = this.products.findIndex((p) => p.id === updated.id);
+			if (index !== -1) {
+				this.products[index] = updatedProduct;
+			}
+		});
+	}
 
-  get filteredProducts(): ProductDto[] {
-    const q = this.searchQuery.toLowerCase();
-    return this.products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.barcode.includes(q),
-    );
-  }
+	async deleteProduct(id: number): Promise<void> {
+		await this.productApi.delete(id);
 
-  get paginatedProducts(): ProductDto[] {
-    const start = (this.page - 1) * this.pageSize;
-    return this.filteredProducts.slice(start, start + this.pageSize);
-  }
+		runInAction(() => {
+			this.products = this.products.filter((p) => p.id !== id);
+		});
+	}
 
-  get totalPages(): number {
-    return Math.ceil(this.filteredProducts.length / this.pageSize);
-  }
+	setSearchQuery(query: string): void {
+		this.searchQuery = query;
+		this.page = 1;
+	}
 
-  formatUZS(value: number): string {
-    return value.toLocaleString('ru-RU', {
-      style: 'currency',
-      currency: 'UZS',
-      maximumFractionDigits: 0,
-    });
-  }
+	setPage(page: number): void {
+		this.page = page;
+	}
 
-  getCategoryName(categoryId: number): string {
-    const c = categoryStore.categories.find((c) => c.id === categoryId);
-    return c?.name ?? '—';
-  }
+	get filteredProducts(): ProductDto[] {
+		const q = this.searchQuery.toLowerCase();
+		return this.products.filter((p) => p.name.toLowerCase().includes(q) || p.barcode?.includes(q));
+	}
+
+	get paginatedProducts(): ProductDto[] {
+		const start = (this.page - 1) * this.pageSize;
+		return this.filteredProducts.slice(start, start + this.pageSize);
+	}
+
+	get totalPages(): number {
+		return Math.ceil(this.filteredProducts.length / this.pageSize);
+	}
+
+	formatUZS(value: number): string {
+		return value.toLocaleString("ru-RU", {
+			style: "currency",
+			currency: "UZS",
+			maximumFractionDigits: 0,
+		});
+	}
+
+	getCategoryName(categoryId: number): string {
+		return "";
+	}
 }
 
-const productStore = new ProductStore();
-export default productStore;
+export default ProductStore;
