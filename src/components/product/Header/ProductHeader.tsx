@@ -10,7 +10,6 @@ export type CategoryOption = {
 };
 
 interface Props {
-	title?: string;
 	searchValue: string;
 	categoryOptions: CategoryOption[];
 	selectedCategory: number | null;
