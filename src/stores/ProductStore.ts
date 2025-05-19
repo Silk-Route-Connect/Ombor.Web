@@ -1,124 +1,143 @@
+// src/stores/ProductStore.ts
 import { makeAutoObservable, runInAction } from "mobx";
 
+import { Loadable, tryRun } from "../helpers/helpers";
+import { translate } from "../i18n/i18n";
 import { CreateProductRequest, ProductDto, UpdateProductRequest } from "../models/product";
-import { ProductApi } from "../services/api/ProductApi";
-import { ICategoryStore } from "./CategoryStore";
+import ProductApi from "../services/api/ProductApi";
+import { NotificationStore } from "./NotificationStore";
 
-export class ProductStore {
-	products: ProductDto[] = [];
-	selectedProduct: ProductDto | null = null;
-	isLoading = false;
-	searchQuery = "";
-	page = 1;
-	pageSize = 10;
-	isFormModalOpen = false;
-	isSidePaneOpen = false; // renamed
-	private categoryStore: ICategoryStore;
+export interface IProductStore {
+	allProducts: Loadable<ProductDto[]>;
+	searchTerm: string;
+	categoryFilter: number | null;
+	filteredProducts: Loadable<ProductDto[]>;
 
-	private productApi = new ProductApi();
+	setSearch(term: string): void;
+	setCategory(categoryId: number | null): void;
+	loadProducts(): Promise<void>;
+	createProduct(request: CreateProductRequest): Promise<void>;
+	updateProduct(request: UpdateProductRequest): Promise<void>;
+	deleteProduct(id: number): Promise<void>;
+}
 
-	constructor(categoryStore: ICategoryStore) {
-		this.categoryStore = categoryStore;
+export class ProductStore implements IProductStore {
+	allProducts: Loadable<ProductDto[]> = [];
+	searchTerm = "";
+	categoryFilter: number | null = null;
 
+	private notificationStore: NotificationStore;
+
+	constructor(notificationStore: NotificationStore) {
+		this.notificationStore = notificationStore;
 		makeAutoObservable(this);
 	}
 
-	openFormModal(product: ProductDto | null): void {
-		this.selectedProduct = product;
-		this.isFormModalOpen = true;
+	get filteredProducts(): Loadable<ProductDto[]> {
+		if (this.allProducts === "loading") {
+			return "loading";
+		}
+
+		let products = this.allProducts as ProductDto[];
+
+		if (this.searchTerm) {
+			const q = this.searchTerm.toLowerCase();
+			products = products.filter((p) => {
+				return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+			});
+		}
+
+		if (this.categoryFilter !== null) {
+			products = products.filter((p) => {
+				return p.categoryId === this.categoryFilter;
+			});
+		}
+
+		return products;
 	}
 
-	closeFormModal(): void {
-		this.selectedProduct = null;
-		this.isFormModalOpen = false;
+	setSearch(term: string): void {
+		this.searchTerm = term;
 	}
 
-	/** renamed from openDrawer */
-	openSidePane(product: ProductDto): void {
-		this.selectedProduct = product;
-		this.isSidePaneOpen = true;
-	}
-
-	/** renamed from closeDrawer */
-	closeSidePane(): void {
-		this.selectedProduct = null;
-		this.isSidePaneOpen = false;
+	setCategory(categoryId: number | null): void {
+		this.categoryFilter = categoryId;
 	}
 
 	async loadProducts(): Promise<void> {
-		this.isLoading = true;
-		try {
-			const response = await this.productApi.getAll();
-			runInAction(() => {
-				this.products = response;
-			});
-		} finally {
-			runInAction(() => {
-				this.isLoading = false;
-			});
-		}
-	}
+		this.allProducts = "loading";
+		const params = {
+			searchTerm: this.searchTerm,
+			categoryId: this.categoryFilter ?? undefined,
+		};
+		const result = await tryRun(() => ProductApi.getAll(params));
 
-	async createProduct(data: CreateProductRequest): Promise<void> {
-		const createdProduct = await this.productApi.create(data);
+		if (result.status === "fail") {
+			runInAction(() => {
+				this.allProducts = [];
+			});
+			this.notificationStore.error(translate("loadProductsError") + `: ${result.error}`);
+			return;
+		}
 
 		runInAction(() => {
-			this.products.unshift(createdProduct);
+			this.allProducts = result.data;
 		});
 	}
 
-	async updateProduct(updated: UpdateProductRequest): Promise<void> {
-		const updatedProduct = await this.productApi.update(updated);
+	async createProduct(request: CreateProductRequest): Promise<void> {
+		const result = await tryRun(() => ProductApi.create(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("createProductError") + `: ${result.error}`);
+			return;
+		}
 
 		runInAction(() => {
-			const index = this.products.findIndex((p) => p.id === updated.id);
-			if (index !== -1) {
-				this.products[index] = updatedProduct;
+			if (this.allProducts !== "loading") {
+				this.allProducts = [result.data, ...(this.allProducts as ProductDto[])];
 			}
 		});
+		this.notificationStore.success(translate("createProductSuccess"));
+	}
+
+	async updateProduct(request: UpdateProductRequest): Promise<void> {
+		const result = await tryRun(() => ProductApi.update(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("updateProductError") + `: ${result.error}`);
+			return;
+		}
+
+		runInAction(() => {
+			if (this.allProducts !== "loading") {
+				this.allProducts = (this.allProducts as ProductDto[]).map((p) => {
+					if (p.id === result.data.id) {
+						return result.data;
+					}
+					return p;
+				});
+			}
+		});
+		this.notificationStore.success(translate("updateProductSuccess"));
 	}
 
 	async deleteProduct(id: number): Promise<void> {
-		await this.productApi.delete(id);
+		const result = await tryRun(() => ProductApi.delete(id));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("deleteProductError") + `: ${result.error}`);
+			return;
+		}
 
 		runInAction(() => {
-			this.products = this.products.filter((p) => p.id !== id);
+			if (this.allProducts !== "loading") {
+				this.allProducts = (this.allProducts as ProductDto[]).filter((p) => {
+					return p.id !== id;
+				});
+			}
 		});
-	}
-
-	setSearchQuery(query: string): void {
-		this.searchQuery = query;
-		this.page = 1;
-	}
-
-	setPage(page: number): void {
-		this.page = page;
-	}
-
-	get filteredProducts(): ProductDto[] {
-		const q = this.searchQuery.toLowerCase();
-		return this.products.filter((p) => p.name.toLowerCase().includes(q) || p.barcode?.includes(q));
-	}
-
-	get paginatedProducts(): ProductDto[] {
-		const start = (this.page - 1) * this.pageSize;
-		return this.filteredProducts.slice(start, start + this.pageSize);
-	}
-
-	get totalPages(): number {
-		return Math.ceil(this.filteredProducts.length / this.pageSize);
-	}
-
-	formatUZS(value: number): string {
-		return value.toLocaleString("ru-RU", {
-			style: "currency",
-			currency: "UZS",
-			maximumFractionDigits: 0,
-		});
-	}
-
-	getCategoryName(categoryId: number): string {
-		return "";
+		this.notificationStore.success(translate("deleteProductSuccess"));
 	}
 }
 

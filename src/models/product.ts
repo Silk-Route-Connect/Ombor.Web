@@ -1,4 +1,4 @@
-export interface ProductDto {
+export type ProductDto = {
 	id: number;
 	categoryId: number;
 	categoryName: string;
@@ -15,9 +15,9 @@ export interface ProductDto {
 	expireDate?: string; // use ISO string, e.g. "2025-06-01"
 	isLowStock: boolean;
 	isExpirationClose: boolean;
-}
+};
 
-export interface CreateProductRequest {
+export type CreateProductRequest = {
 	categoryId: number;
 	name: string;
 	sku: string;
@@ -30,8 +30,13 @@ export interface CreateProductRequest {
 	quantityInStock: number;
 	lowStockThreshold: number;
 	expireDate?: string;
-}
+};
 
-export interface UpdateProductRequest extends CreateProductRequest {
+export type UpdateProductRequest = CreateProductRequest & {
 	id: number;
-}
+};
+
+export type GetProductsRequest = {
+	searchTerm?: string;
+	categoryId?: number;
+};

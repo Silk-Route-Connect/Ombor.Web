@@ -13,5 +13,6 @@ export function useStore(): RootStoreType {
 	if (!store) {
 		throw new Error("useStore must be used within a StoreProvider");
 	}
+
 	return store;
 }

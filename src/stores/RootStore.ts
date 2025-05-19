@@ -1,13 +1,16 @@
-import { CategoryStore } from "./CategoryStore";
+import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import { NotificationStore } from "./NotificationStore";
+import ProductStore, { IProductStore } from "./ProductStore";
 
 export class RootStore {
 	notificationStore: NotificationStore;
-	categoryStore: CategoryStore;
+	categoryStore: ICategoryStore;
+	productStore: IProductStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
 		this.categoryStore = new CategoryStore(this.notificationStore);
+		this.productStore = new ProductStore(this.notificationStore);
 	}
 }
 

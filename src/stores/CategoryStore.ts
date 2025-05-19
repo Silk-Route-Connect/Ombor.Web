@@ -7,6 +7,7 @@ import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ICategoryStore {
+	allCategories: Loadable<Category[]>;
 	filteredCategories: Loadable<Category[]>;
 	selectedCategory: Category | null;
 	searchQuery: string;
