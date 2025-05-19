@@ -1,0 +1,9 @@
+{
+  "loadProductsError":      "Не удалось загрузить товары",
+  "createProductSuccess":   "Товар успешно создан",
+  "createProductError":     "Не удалось создать товар",
+  "updateProductSuccess":   "Товар успешно обновлён",
+  "updateProductError":     "Не удалось обновить товар",
+  "deleteProductSuccess":   "Товар успешно удалён",
+  "deleteProductError":     "Не удалось удалить товар"
+}

@@ -1,0 +1,9 @@
+{
+  "loadProductsError":      "Mahsulotlarni yuklab bo'lmadi",
+  "createProductSuccess":   "Mahsulot muvaffaqiyatli yaratildi",
+  "createProductError":     "Mahsulot yaratib bo'lmadi",
+  "updateProductSuccess":   "Mahsulot muvaffaqiyatli yangilandi",
+  "updateProductError":     "Mahsulot yangilab bo'lmadi",
+  "deleteProductSuccess":   "Mahsulot muvaffaqiyatli o'chirildi",
+  "deleteProductError":     "Mahsulot o'chirib bo'lmadi"
+}

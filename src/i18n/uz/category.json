@@ -1,0 +1,9 @@
+{
+  "loadCategoriesError":    "Kategoriyalarni yuklab bo'lmadi",
+  "createCategorySuccess":  "Kategoriya muvaffaqiyatli yaratildi",
+  "createCategoryError":    "Kategoriya yaratib bo'lmadi",
+  "updateCategorySuccess":  "Kategoriya muvaffaqiyatli yangilandi",
+  "updateCategoryError":    "Kategoriya yangilab bo'lmadi",
+  "deleteCategorySuccess":  "Kategoriya muvaffaqiyatli o'chirildi",
+  "deleteCategoryError":    "Kategoriya o'chirib bo'lmadi"
+}
