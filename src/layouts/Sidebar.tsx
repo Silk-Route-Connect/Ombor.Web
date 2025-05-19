@@ -35,7 +35,7 @@ export default function Sidebar() {
 
 	const commonSx = {
 		mx: 1,
-		borderRadius: 2, // theme.spacing(2)
+		borderRadius: 2,
 		"&.active": { bgcolor: "action.selected" },
 	};
 
@@ -56,7 +56,6 @@ export default function Sidebar() {
 			<List>
 				{menuItems.map((item) => (
 					<Fragment key={item.label}>
-						{/* Parent item */}
 						<ListItemButton
 							{...(item.to
 								? { component: NavLink, to: item.to }
@@ -70,7 +69,6 @@ export default function Sidebar() {
 							{item.children && (openGroups[item.label] ? <ExpandLess /> : <ExpandMore />)}
 						</ListItemButton>
 
-						{/* Child items (no icons) */}
 						{item.children && (
 							<Collapse in={openGroups[item.label]} timeout="auto" unmountOnExit>
 								<List component="div" disablePadding>
