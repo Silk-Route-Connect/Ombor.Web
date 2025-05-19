@@ -21,12 +21,7 @@ const CategoryHeader: React.FC<IProps> = ({
 		<Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap">
 			<Typography variant="h5">{title}</Typography>
 			<Box display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }}>
-				<SearchInput
-					value={searchValue}
-					onChange={onSearch}
-					placeholder="Поиск категорий..."
-					sx={{ width: { xs: "100%", sm: 300 } }}
-				/>
+				<SearchInput value={searchValue} onChange={onSearch} placeholder="Поиск категорий..." />
 				<Box ml={2}>
 					<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 						Добавить

@@ -17,7 +17,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 	onChange,
 	placeholder,
 	className = "",
-	sx,
+	sx = { width: { xs: "100%", sm: 300 } },
 }) => {
 	return (
 		<TextField

@@ -11,7 +11,6 @@ export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 export const HEADER_CONTAINER_SX: SxProps<Theme> = {
 	position: "sticky",
 	top: 0,
-	bgcolor: "grey.100",
 };
 
 export const HEADER_CELL_SX: SxProps<Theme> = {
@@ -19,12 +18,18 @@ export const HEADER_CELL_SX: SxProps<Theme> = {
 	borderColor: "divider",
 	fontWeight: 600,
 	typography: "subtitle2",
+	bgcolor: "grey.100",
 };
 
 export const BODY_CELL_SX: SxProps<Theme> = {
 	py: 1,
 	px: 2,
 	typography: "body2",
+};
+
+export const ROW_STRIPE_SX: SxProps<Theme> = {
+	"&:nth-of-type(odd)": { bgcolor: "grey.50" },
+	"&:hover": { bgcolor: "action.selected" },
 };
 
 export const LOADING_CONTAINER_HEIGHT = 200;

@@ -20,6 +20,7 @@ import {
 	HEADER_CELL_SX,
 	HEADER_CONTAINER_SX,
 	LOADING_CONTAINER_HEIGHT,
+	ROW_STRIPE_SX,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
 } from "./tableConfigs";
@@ -176,8 +177,7 @@ export function DataTable<T extends { id: string | number }>({
 							tabIndex={onRowClick ? 0 : undefined}
 							onKeyDown={(e) => handleOnKeyDown(e, row)}
 							sx={{
-								"&:nth-of-type(odd)": { bgcolor: "grey.50" },
-								"&:hover": { bgcolor: "action.selected" },
+								...ROW_STRIPE_SX,
 								cursor: isSelectable ? "pointer" : "default",
 							}}
 						>
