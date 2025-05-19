@@ -1,0 +1,90 @@
+// src/components/product/productTableConfig.tsx
+import React from "react";
+import { Box, Tooltip } from "@mui/material";
+import { Column } from "components/shared/DataTable/DataTable";
+import { ProductDto } from "models/product";
+
+/**
+ * Columns for the Products table:
+ * - name, sku, category
+ * - sale price formatted
+ * - stock: numeric with tooltip+color
+ * - expiration: date with tooltip+color
+ */
+export const productColumns: Column<ProductDto>[] = [
+	{
+		key: "name",
+		field: "name",
+		headerName: "Название",
+		sortable: true,
+		width: 200,
+	},
+	{
+		key: "sku",
+		field: "sku",
+		headerName: "Артикул",
+		sortable: true,
+		width: 120,
+	},
+	{
+		key: "category",
+		field: "categoryName",
+		headerName: "Категория",
+		sortable: true,
+		width: 150,
+	},
+	{
+		key: "salePrice",
+		field: "salePrice",
+		headerName: "Прод. цена",
+		align: "right",
+		sortable: true,
+		width: 120,
+		renderCell: (p) => <Box component="span">{p.salePrice.toLocaleString()}</Box>,
+	},
+	{
+		key: "stock",
+		field: "quantityInStock",
+		headerName: "Остаток",
+		sortable: true,
+		align: "right",
+		width: 100,
+		renderCell: (p) => {
+			const title = p.isLowStock ? "Low stock" : "In stock";
+			const color = p.isLowStock ? "warning.main" : "text.primary";
+			return (
+				<Tooltip title={title} arrow>
+					<Box component="span" sx={{ color }}>
+						{p.quantityInStock}
+					</Box>
+				</Tooltip>
+			);
+		},
+	},
+	{
+		key: "expiration",
+		field: "expireDate",
+		headerName: "Срок годности",
+		sortable: true,
+		width: 120,
+		renderCell: (p) => {
+			if (!p.expireDate) {
+				return (
+					<Box component="span" color="text.secondary">
+						—
+					</Box>
+				);
+			}
+			const dateStr = new Date(p.expireDate).toLocaleDateString();
+			const title = p.isExpirationClose ? "Expiring soon" : "OK";
+			const color = p.isExpirationClose ? "error.main" : "text.primary";
+			return (
+				<Tooltip title={title} arrow>
+					<Box component="span" sx={{ color }}>
+						{dateStr}
+					</Box>
+				</Tooltip>
+			);
+		},
+	},
+];
