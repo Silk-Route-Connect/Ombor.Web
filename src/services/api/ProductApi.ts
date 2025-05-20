@@ -3,7 +3,7 @@ import { toQueryString } from "utils/toQueryParameters";
 import {
 	CreateProductRequest,
 	GetProductsRequest,
-	ProductDto,
+	Product,
 	UpdateProductRequest,
 } from "../../models/product";
 import http from "./http";
@@ -11,30 +11,30 @@ import http from "./http";
 export class ProductApi {
 	private readonly baseUrl: string = "/api/products";
 
-	async getAll(request: GetProductsRequest): Promise<ProductDto[]> {
+	async getAll(request: GetProductsRequest): Promise<Product[]> {
 		const url = this.getUrl(request);
-		const response = await http.get<ProductDto[]>(url);
+		const response = await http.get<Product[]>(url);
 
 		return response.data;
 	}
 
-	async getById(id: number): Promise<ProductDto> {
+	async getById(id: number): Promise<Product> {
 		const url = this.getUrlWithId(id);
-		const response = await http.get<ProductDto>(url);
+		const response = await http.get<Product>(url);
 
 		return response.data;
 	}
 
-	async create(request: CreateProductRequest): Promise<ProductDto> {
+	async create(request: CreateProductRequest): Promise<Product> {
 		const url = this.getUrl();
-		const response = await http.post<ProductDto>(url, request);
+		const response = await http.post<Product>(url, request);
 
 		return response.data;
 	}
 
-	async update(request: UpdateProductRequest): Promise<ProductDto> {
+	async update(request: UpdateProductRequest): Promise<Product> {
 		const url = this.getUrlWithId(request.id);
-		const response = await http.put<ProductDto>(url, request);
+		const response = await http.put<Product>(url, request);
 
 		return response.data;
 	}

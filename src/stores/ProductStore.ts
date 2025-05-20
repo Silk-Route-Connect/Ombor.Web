@@ -3,15 +3,15 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import { translate } from "../i18n/i18n";
-import { CreateProductRequest, ProductDto, UpdateProductRequest } from "../models/product";
+import { CreateProductRequest, Product, UpdateProductRequest } from "../models/product";
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
 
 export interface IProductStore {
-	allProducts: Loadable<ProductDto[]>;
+	allProducts: Loadable<Product[]>;
 	searchTerm: string;
 	categoryFilter: number | null;
-	filteredProducts: Loadable<ProductDto[]>;
+	filteredProducts: Loadable<Product[]>;
 
 	setSearch(term: string): void;
 	setCategory(categoryId: number | null): void;
@@ -22,7 +22,7 @@ export interface IProductStore {
 }
 
 export class ProductStore implements IProductStore {
-	allProducts: Loadable<ProductDto[]> = [];
+	allProducts: Loadable<Product[]> = [];
 	searchTerm = "";
 	categoryFilter: number | null = null;
 
@@ -33,12 +33,12 @@ export class ProductStore implements IProductStore {
 		makeAutoObservable(this);
 	}
 
-	get filteredProducts(): Loadable<ProductDto[]> {
+	get filteredProducts(): Loadable<Product[]> {
 		if (this.allProducts === "loading") {
 			return "loading";
 		}
 
-		let products = this.allProducts as ProductDto[];
+		let products = this.allProducts as Product[];
 
 		if (this.searchTerm) {
 			const q = this.searchTerm.toLowerCase();
@@ -95,7 +95,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = [result.data, ...(this.allProducts as ProductDto[])];
+				this.allProducts = [result.data, ...(this.allProducts as Product[])];
 			}
 		});
 		this.notificationStore.success(translate("createProductSuccess"));
@@ -111,7 +111,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = (this.allProducts as ProductDto[]).map((p) => {
+				this.allProducts = (this.allProducts as Product[]).map((p) => {
 					if (p.id === result.data.id) {
 						return result.data;
 					}
@@ -132,7 +132,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = (this.allProducts as ProductDto[]).filter((p) => {
+				this.allProducts = (this.allProducts as Product[]).filter((p) => {
 					return p.id !== id;
 				});
 			}
