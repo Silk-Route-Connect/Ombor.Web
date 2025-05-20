@@ -1,10 +1,10 @@
-export type ProductDto = {
+export type Product = {
 	id: number;
 	categoryId: number;
 	categoryName: string;
 	name: string;
 	sku: string;
-	measurement: string;
+	measurement: Measurement;
 	description?: string;
 	barcode?: string;
 	salePrice: number;
@@ -12,16 +12,14 @@ export type ProductDto = {
 	retailPrice: number;
 	quantityInStock: number;
 	lowStockThreshold: number;
-	expireDate?: string; // use ISO string, e.g. "2025-06-01"
 	isLowStock: boolean;
-	isExpirationClose: boolean;
 };
 
 export type CreateProductRequest = {
 	categoryId: number;
 	name: string;
 	sku: string;
-	measurement: string;
+	measurement: Measurement;
 	description?: string;
 	barcode?: string;
 	supplyPrice: number;
@@ -29,7 +27,6 @@ export type CreateProductRequest = {
 	retailPrice: number;
 	quantityInStock: number;
 	lowStockThreshold: number;
-	expireDate?: string;
 };
 
 export type UpdateProductRequest = CreateProductRequest & {
@@ -40,3 +37,5 @@ export type GetProductsRequest = {
 	searchTerm?: string;
 	categoryId?: number;
 };
+
+export type Measurement = "Gram" | "Kilogram" | "Ton" | "Piece" | "Box" | "Unit" | "None";
