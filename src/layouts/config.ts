@@ -27,8 +27,8 @@ export const menuItems: MenuItem[] = [
 		label: "Продукция",
 		icon: Inventory2OutlinedIcon,
 		children: [
-			{ label: "Категории", to: "/categories" },
 			{ label: "Товары", to: "/products" },
+			{ label: "Категории", to: "/categories" },
 			{ label: "Теги", to: "/tags" },
 		],
 	},
