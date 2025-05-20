@@ -1,10 +1,8 @@
 import React, { MouseEvent, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import LanguageIcon from "@mui/icons-material/Language";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
@@ -55,7 +53,6 @@ const Topbar: React.FC = () => {
 			<Toolbar sx={{ justifyContent: "space-between" }}>
 				<Box display="flex" alignItems="center">
 					<WarehouseIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
-
 					<Typography variant="h6" color="text.primary">
 						Inventory Management
 					</Typography>
@@ -63,7 +60,15 @@ const Topbar: React.FC = () => {
 
 				<Box display="flex" alignItems="center">
 					<Tooltip title="Quick actions" arrow>
-						<IconButton onClick={handleQuickOpen} sx={iconSx}>
+						<IconButton
+							onClick={handleQuickOpen}
+							sx={{
+								bgcolor: "primary.main",
+								color: "primary.contrastText",
+								"&:hover": { bgcolor: "primary.dark" },
+								ml: 1,
+							}}
+						>
 							<AddIcon />
 						</IconButton>
 					</Tooltip>
@@ -84,20 +89,6 @@ const Topbar: React.FC = () => {
 							<Badge badgeContent={3} color="error">
 								<NotificationsNoneIcon />
 							</Badge>
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip title="Messages" arrow>
-						<IconButton sx={iconSx}>
-							<Badge badgeContent={5} color="secondary">
-								<MailOutlineIcon />
-							</Badge>
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip title="Help Center" arrow>
-						<IconButton sx={iconSx}>
-							<HelpOutlineIcon />
 						</IconButton>
 					</Tooltip>
 
@@ -129,8 +120,8 @@ const Topbar: React.FC = () => {
 								sx={{
 									width: 30,
 									height: 30,
-									bgcolor: theme.palette.primary.main,
-									color: theme.palette.primary.contrastText,
+									bgcolor: "secondary.main",
+									color: "secondary.contrastText",
 								}}
 							>
 								BS

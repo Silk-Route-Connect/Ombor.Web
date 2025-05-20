@@ -42,7 +42,7 @@ export default function ProductDetailsDrawer({
 			sx={(theme) => ({
 				zIndex: theme.zIndex.drawer + 2,
 				"& .MuiDrawer-paper": {
-					width: 800,
+					width: 900,
 					boxSizing: "border-box",
 				},
 			})}

@@ -13,18 +13,18 @@ import { Product } from "models/product";
  */
 export const productColumns: Column<Product>[] = [
 	{
-		key: "name",
-		field: "name",
-		headerName: "Название",
-		sortable: true,
-		width: 200,
-	},
-	{
 		key: "sku",
 		field: "sku",
 		headerName: "Артикул",
 		sortable: true,
 		width: 120,
+	},
+	{
+		key: "name",
+		field: "name",
+		headerName: "Название",
+		sortable: true,
+		width: 200,
 	},
 	{
 		key: "category",
@@ -41,6 +41,15 @@ export const productColumns: Column<Product>[] = [
 		sortable: true,
 		width: 120,
 		renderCell: (p) => <Box component="span">{p.salePrice.toLocaleString()}</Box>,
+	},
+	{
+		key: "supplyPrice",
+		field: "supplyPrice",
+		headerName: "Зак. цена",
+		align: "right",
+		sortable: true,
+		width: 120,
+		renderCell: (p) => <Box component="span">{p.supplyPrice.toLocaleString()}</Box>,
 	},
 	{
 		key: "stock",
