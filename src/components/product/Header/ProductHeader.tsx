@@ -45,6 +45,7 @@ export const ProductHeader: React.FC<Props> = ({
 				displayEmpty
 				size="small"
 				sx={{ minWidth: 160 }}
+				MenuProps={{ PaperProps: { style: { maxHeight: 350 } } }}
 			>
 				<MenuItem value="">Все категории</MenuItem>
 				{categoryOptions.map((cat) => (

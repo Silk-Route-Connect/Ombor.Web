@@ -2,7 +2,7 @@
 import React from "react";
 import { Box, Tooltip } from "@mui/material";
 import { Column } from "components/shared/DataTable/DataTable";
-import { ProductDto } from "models/product";
+import { Product } from "models/product";
 
 /**
  * Columns for the Products table:
@@ -11,7 +11,7 @@ import { ProductDto } from "models/product";
  * - stock: numeric with tooltip+color
  * - expiration: date with tooltip+color
  */
-export const productColumns: Column<ProductDto>[] = [
+export const productColumns: Column<Product>[] = [
 	{
 		key: "name",
 		field: "name",
@@ -56,32 +56,6 @@ export const productColumns: Column<ProductDto>[] = [
 				<Tooltip title={title} arrow>
 					<Box component="span" sx={{ color }}>
 						{p.quantityInStock}
-					</Box>
-				</Tooltip>
-			);
-		},
-	},
-	{
-		key: "expiration",
-		field: "expireDate",
-		headerName: "Срок годности",
-		sortable: true,
-		width: 120,
-		renderCell: (p) => {
-			if (!p.expireDate) {
-				return (
-					<Box component="span" color="text.secondary">
-						—
-					</Box>
-				);
-			}
-			const dateStr = new Date(p.expireDate).toLocaleDateString();
-			const title = p.isExpirationClose ? "Expiring soon" : "OK";
-			const color = p.isExpirationClose ? "error.main" : "text.primary";
-			return (
-				<Tooltip title={title} arrow>
-					<Box component="span" sx={{ color }}>
-						{dateStr}
 					</Box>
 				</Tooltip>
 			);
