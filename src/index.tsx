@@ -12,7 +12,7 @@ import reportWebVitals from "./reportWebVitals";
 import theme from "./theme";
 
 Sentry.init({
-	dsn: "https://84bb737c6cfcd8d390525efba2411f35@o4508670634557440.ingest.de.sentry.io/4509377451655248",
+	dsn: process.env.REACT_APP_OMBOR_SENTRY_DSN,
 	// Setting this option to true will send default PII data to Sentry.
 	// For example, automatic IP address collection on events
 	sendDefaultPii: true,

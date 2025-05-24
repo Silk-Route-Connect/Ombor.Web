@@ -20,25 +20,21 @@ const ProductPage: React.FC = observer(() => {
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 	const { productStore, categoryStore } = useStore();
 
-	throw new Error("This is your first error!");
+	throw new Error("REACT_APP_OMBOR_API_BASE_URL must be defined");
 
-	// Initial load
 	useEffect(() => {
 		categoryStore.loadCategories();
 		productStore.loadProducts();
 	}, [categoryStore, productStore]);
 
-	// Reload on filter changes
 	useEffect(() => {
 		productStore.loadProducts();
 	}, [productStore.searchTerm, productStore.categoryFilter]);
 
-	// Prepare rows for table
 	const rows = useMemo<Loadable<Product[]>>(() => {
 		return productStore.filteredProducts;
 	}, [productStore.filteredProducts]);
 
-	// Handlers
 	const handleEdit = useCallback((p: Product) => {
 		setSelectedProduct(p);
 		setIsFormOpen(true);
