@@ -20,6 +20,8 @@ const ProductPage: React.FC = observer(() => {
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 	const { productStore, categoryStore } = useStore();
 
+	throw new Error("This is your first error!");
+
 	// Initial load
 	useEffect(() => {
 		categoryStore.loadCategories();
