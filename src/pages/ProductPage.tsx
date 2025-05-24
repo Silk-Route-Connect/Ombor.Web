@@ -20,8 +20,6 @@ const ProductPage: React.FC = observer(() => {
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 	const { productStore, categoryStore } = useStore();
 
-	throw new Error("REACT_APP_OMBOR_API_BASE_URL must be defined");
-
 	useEffect(() => {
 		categoryStore.loadCategories();
 		productStore.loadProducts();
