@@ -5,9 +5,9 @@ import ProductFormModal, { ProductFormPayload } from "components/product/Form/Pr
 import { CategoryOption, ProductHeader } from "components/product/Header/ProductHeader";
 import { productColumns } from "components/product/productTableConfig";
 import ProductSidePane from "components/product/SidePane/ProductSidePane";
-import { ActionCell } from "components/shared/ActionCell/ActionCell";
+import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
 import ConfirmDialog from "components/shared/ConfirmDialog";
-import { DataTable } from "components/shared/DataTable/DataTable";
+import { Column, DataTable } from "components/shared/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -51,6 +51,15 @@ const ProductPage: React.FC = observer(() => {
 		[productStore],
 	);
 
+	const handleArchive = useCallback(
+		(product: Product) => {
+			if (product) {
+				console.log("Archive product:", product);
+			}
+		},
+		[productStore],
+	);
+
 	const handleSave = useCallback(
 		(payload: ProductFormPayload) => {
 			if (selectedProduct) {
@@ -89,15 +98,20 @@ const ProductPage: React.FC = observer(() => {
 		setSelectedProduct(null);
 	};
 
-	const columns = useMemo(
+	const columns = useMemo<Column<Product>[]>(
 		() => [
 			...productColumns,
 			{
 				key: "actions",
 				headerName: "",
-				width: 100,
+				width: 80,
+				align: "right",
 				renderCell: (p: Product) => (
-					<ActionCell onEdit={() => handleEdit(p)} onDelete={() => handleDelete(p)} />
+					<ActionMenuCell
+						onEdit={() => handleEdit(p)}
+						onArchive={() => handleArchive(p)}
+						onDelete={() => handleDelete(p)}
+					/>
 				),
 			},
 		],

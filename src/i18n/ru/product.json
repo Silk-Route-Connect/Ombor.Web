@@ -70,7 +70,17 @@
   "fieldTotal":              "Сумма",
   "fieldSupplier":       "Поставщик",
   "fieldTotalCost":      "Сумма закупки",
+  "fieldType": "Тип",
+  "fieldAttachments": "Закрепленные файлы",
   "suppliesTotalCost":   "Общие затраты",
+  "type.Sale":       "Только продажа",
+  "type.Supply":     "Только закупка",
+  "type.All":        "Все",
+
+  "validationRequired":        "{0} обязательно",
+  "validationNonNegative":     "Значение не может быть отрицательным",
+  "validationSaleGteSupply":   "Цена продажи ≥ закупочной",
+  "validationRetailGteSupply": "Розничная цена ≥ закупочной",
 
   "close":                       "Закрыть"
 }
