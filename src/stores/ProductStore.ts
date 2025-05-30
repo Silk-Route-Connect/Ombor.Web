@@ -65,7 +65,12 @@ export class ProductStore implements IProductStore {
 	}
 
 	async loadProducts(): Promise<void> {
-		this.allProducts = "loading";
+		if (this.allProducts === "loading") {
+			return; // Prevent multiple calls
+		}
+
+		runInAction(() => (this.allProducts = "loading"));
+
 		const params = {
 			searchTerm: this.searchTerm,
 			categoryId: this.categoryFilter ?? undefined,
@@ -73,16 +78,12 @@ export class ProductStore implements IProductStore {
 		const result = await tryRun(() => ProductApi.getAll(params));
 
 		if (result.status === "fail") {
-			runInAction(() => {
-				this.allProducts = [];
-			});
+			runInAction(() => (this.allProducts = []));
 			this.notificationStore.error(translate("loadProductsError") + `: ${result.error}`);
 			return;
 		}
 
-		runInAction(() => {
-			this.allProducts = result.data;
-		});
+		runInAction(() => (this.allProducts = result.data));
 	}
 
 	async createProduct(request: CreateProductRequest): Promise<void> {
