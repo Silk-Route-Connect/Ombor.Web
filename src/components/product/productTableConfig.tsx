@@ -2,6 +2,7 @@
 import React from "react";
 import { Box, Tooltip } from "@mui/material";
 import { Column } from "components/shared/DataTable/DataTable";
+import { translate } from "i18n/i18n";
 import { Product } from "models/product";
 
 /**
@@ -17,7 +18,7 @@ export const productColumns: Column<Product>[] = [
 		field: "sku",
 		headerName: "Артикул",
 		sortable: true,
-		width: 120,
+		width: 100,
 	},
 	{
 		key: "name",
@@ -32,6 +33,14 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Категория",
 		sortable: true,
 		width: 150,
+	},
+	{
+		key: "type",
+		field: "type",
+		headerName: "Тип",
+		sortable: true,
+		width: 100,
+		renderCell: (p) => <Box component="span">{translate(`type.${p.type}`)}</Box>,
 	},
 	{
 		key: "salePrice",
@@ -50,6 +59,15 @@ export const productColumns: Column<Product>[] = [
 		sortable: true,
 		width: 120,
 		renderCell: (p) => <Box component="span">{p.supplyPrice.toLocaleString()}</Box>,
+	},
+	{
+		key: "retailPrice",
+		field: "retailPrice",
+		headerName: "Розн. цена",
+		align: "right",
+		sortable: true,
+		width: 120,
+		renderCell: (p) => <Box component="span">{p.retailPrice.toLocaleString()}</Box>,
 	},
 	{
 		key: "stock",
