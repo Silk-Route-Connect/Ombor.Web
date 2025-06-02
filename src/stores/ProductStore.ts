@@ -103,6 +103,7 @@ export class ProductStore implements IProductStore {
 	}
 
 	async updateProduct(request: UpdateProductRequest): Promise<void> {
+		console.log("Updating product:", request);
 		const result = await tryRun(() => ProductApi.update(request));
 
 		if (result.status === "fail") {

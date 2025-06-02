@@ -1,8 +1,6 @@
-// src/components/product/Form/ProductFormModal.tsx
 import React, { useCallback, useEffect, useState } from "react";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import {
 	Box,
@@ -21,11 +19,10 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
+import { CategoryOption } from "components/product/Header/ProductHeader";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
-import { Measurement, Product, ProductType } from "models/product";
-
-import { CategoryOption } from "../Header/ProductHeader";
+import { Measurement, Product, ProductImage, ProductType } from "models/product";
 
 export type ProductFormPayload = {
 	categoryId: number;
@@ -41,6 +38,7 @@ export type ProductFormPayload = {
 	measurement: Measurement;
 	type: ProductType;
 	attachments?: File[];
+	deletedImageIds?: number[];
 };
 
 export interface ProductFormModalProps {
@@ -54,6 +52,15 @@ export interface ProductFormModalProps {
 const MEASUREMENTS: Measurement[] = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"];
 const TYPES: ProductType[] = ["All", "Sale", "Supply"];
 
+// trim trailing slashes from base, leading from path
+const IMAGE_BASE_URL = process.env.REACT_APP_OMBOR_API_BASE_URL ?? "";
+function getFullUrl(path?: string): string | undefined {
+	if (!path) return undefined;
+	const base = IMAGE_BASE_URL.replace(/\/+$/, "");
+	const p = path.replace(/^\/+/, "");
+	return `${base}/${p}`;
+}
+
 const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	isOpen,
 	product,
@@ -61,6 +68,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
+	// form fields
 	const [name, setName] = useState("");
 	const [categoryId, setCategoryId] = useState(0);
 	const [measurement, setMeasurement] = useState<Measurement>("None");
@@ -73,8 +81,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	const [quantityInStock, setQuantityInStock] = useState(0);
 	const [lowStockThreshold, setLowStockThreshold] = useState(0);
 	const [description, setDescription] = useState("");
-	const [attachments, setAttachments] = useState<File[]>([]);
 
+	// attachments
+	const [attachments, setAttachments] = useState<File[]>([]);
+	const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+	const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
+
+	// initialize on open
 	useEffect(() => {
 		if (!isOpen) return;
 		setName(product?.name ?? "");
@@ -90,8 +103,11 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 		setLowStockThreshold(product?.lowStockThreshold ?? 0);
 		setDescription(product?.description ?? "");
 		setAttachments([]);
+		setExistingImages(product?.images ?? []);
+		setDeletedImageIds([]);
 	}, [isOpen, product, categories]);
 
+	// clear dependent prices
 	useEffect(() => {
 		if (type === "Sale") setSupplyPrice(0);
 		if (type === "Supply") {
@@ -105,22 +121,21 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	}, []);
 
 	const handleAttachmentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (!e.target.files) {
-			return;
-		}
-
-		const files = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"));
-
+		if (!e.target.files) return;
+		const files = Array.from(e.target.files).filter((f) => f.type.startsWith("image/"));
 		if (files.length < e.target.files.length) {
 			alert("Only image files are allowed.");
 		}
-
 		setAttachments((prev) => [...prev, ...files]);
 	};
 
-	const handleRemoveAttachment = (index: number) => {
-		setAttachments((prev) => prev.filter((_, i) => i !== index));
+	const handleRemoveExisting = (id: number) => {
+		setExistingImages((prev) => prev.filter((img) => img.id !== id));
+		setDeletedImageIds((prev) => [...prev, id]);
 	};
+
+	const handleRemoveNew = (idx: number) =>
+		setAttachments((prev) => prev.filter((_, i) => i !== idx));
 
 	const handleSave = () => {
 		onSave({
@@ -136,7 +151,8 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 			lowStockThreshold,
 			measurement,
 			type,
-			attachments: attachments.length ? attachments : undefined,
+			attachments: attachments.length ? attachments : [],
+			deletedImageIds: deletedImageIds.length ? deletedImageIds : [],
 		});
 	};
 
@@ -154,7 +170,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
-
 			<DialogContent dividers>
 				<Grid container rowSpacing={4} columnSpacing={{ xs: 2, sm: 3 }}>
 					{/* 1. Name */}
@@ -166,7 +181,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							fullWidth
 						/>
 					</Grid>
-
 					{/* 2. Category */}
 					<Grid size={{ xs: 12, sm: 4 }}>
 						<FormControl fullWidth>
@@ -185,7 +199,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							</Select>
 						</FormControl>
 					</Grid>
-
 					{/* 3. Measurement */}
 					<Grid size={{ xs: 12, sm: 4 }}>
 						<FormControl fullWidth>
@@ -203,7 +216,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							</Select>
 						</FormControl>
 					</Grid>
-
 					{/* 4. SKU */}
 					<Grid size={{ xs: 12, sm: 6 }}>
 						<TextField
@@ -224,7 +236,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							}}
 						/>
 					</Grid>
-
 					{/* 5. Barcode */}
 					<Grid size={{ xs: 12, sm: 6 }}>
 						<TextField
@@ -234,7 +245,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							fullWidth
 						/>
 					</Grid>
-
 					{/* 6. Type */}
 					<Grid size={{ xs: 12, sm: 3 }}>
 						<FormControl fullWidth>
@@ -252,8 +262,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							</Select>
 						</FormControl>
 					</Grid>
-
-					{/* 7–9. Prices */}
+					{/* 7. Supply Price */}
 					<Grid size={{ xs: 12, sm: 3 }}>
 						<NumericField
 							label={translate("fieldSupplyPrice")}
@@ -262,6 +271,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							disabled={type === "Sale"}
 						/>
 					</Grid>
+					{/* 8. Sale Price */}
 					<Grid size={{ xs: 12, sm: 3 }}>
 						<NumericField
 							label={translate("fieldSalePrice")}
@@ -270,6 +280,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							disabled={type === "Supply"}
 						/>
 					</Grid>
+					{/* 9. Retail Price */}
 					<Grid size={{ xs: 12, sm: 3 }}>
 						<NumericField
 							label={translate("fieldRetailPrice")}
@@ -278,8 +289,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							disabled={type === "Supply"}
 						/>
 					</Grid>
-
-					{/* 10–11. Stock */}
+					{/* 10. Quantity In Stock */}
 					<Grid size={{ xs: 12, sm: 6 }}>
 						<NumericField
 							label={translate("fieldQuantityInStock")}
@@ -287,6 +297,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							onChange={(e) => setQuantityInStock(+e.target.value)}
 						/>
 					</Grid>
+					{/* 11. Low Stock Threshold */}
 					<Grid size={{ xs: 12, sm: 6 }}>
 						<NumericField
 							label={translate("fieldLowStockThreshold")}
@@ -294,7 +305,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							onChange={(e) => setLowStockThreshold(+e.target.value)}
 						/>
 					</Grid>
-
 					{/* 12. Description */}
 					<Grid size={12}>
 						<TextField
@@ -307,7 +317,39 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 						/>
 					</Grid>
 
-					{/* 13. Attachments (button + list) */}
+					{/* 13. Existing Images (above attachments) */}
+					{existingImages.length > 0 && (
+						<Grid container size={12} columnSpacing={2} alignItems="center">
+							<Grid size={12}>
+								<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+									{existingImages.map((img) => (
+										<Box key={img.id} sx={{ position: "relative" }}>
+											<Box
+												component="img"
+												src={getFullUrl(img.thumbnailUrl ?? img.originalUrl)}
+												alt={img.name}
+												sx={{ width: 80, height: 80, objectFit: "cover", borderRadius: 1 }}
+											/>
+											<IconButton
+												size="small"
+												onClick={() => handleRemoveExisting(img.id)}
+												sx={{
+													position: "absolute",
+													top: -8,
+													right: -8,
+													bgcolor: "background.paper",
+												}}
+											>
+												<CloseIcon fontSize="small" color="error" />
+											</IconButton>
+										</Box>
+									))}
+								</Box>
+							</Grid>
+						</Grid>
+					)}
+
+					{/* 14. Attachments */}
 					<Grid container size={12} columnSpacing={2} alignItems="flex-start">
 						<Grid size={{ xs: 12, sm: 4 }}>
 							<Button variant="outlined" startIcon={<UploadFileIcon />} component="label" fullWidth>
@@ -322,33 +364,23 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 							</Button>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 8 }}>
-							{attachments.length > 0 ? (
-								<Box>
-									{attachments.map((file, idx) => (
-										<Box
-											key={`${file.name}-${idx}`}
-											sx={{
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												p: 1,
-												borderBottom: 1,
-												borderColor: "divider",
-											}}
-										>
-											<Typography noWrap>{file.name}</Typography>
-											<IconButton size="small" onClick={() => handleRemoveAttachment(idx)}>
-												<DeleteIcon fontSize="small" color="error" />
-											</IconButton>
-										</Box>
-									))}
-								</Box>
-							) : null}
+							<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+								{attachments.map((file, idx) => (
+									<Box
+										key={`${file.name}-${idx}`}
+										sx={{ display: "flex", alignItems: "center", gap: 1 }}
+									>
+										<Typography noWrap>{file.name}</Typography>
+										<IconButton size="small" onClick={() => handleRemoveNew(idx)}>
+											<CloseIcon fontSize="small" color="error" />
+										</IconButton>
+									</Box>
+								))}
+							</Box>
 						</Grid>
 					</Grid>
 				</Grid>
 			</DialogContent>
-
 			<DialogActions>
 				<Button onClick={onClose}>{translate("cancel")}</Button>
 				<Button onClick={handleSave} variant="contained" color="primary">

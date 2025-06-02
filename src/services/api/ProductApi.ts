@@ -8,6 +8,15 @@ import {
 } from "../../models/product";
 import http from "./http";
 
+const formHeaders = {
+	headers: {
+		"Content-Type": "multipart/form-data",
+		Accept: "application/json",
+	},
+};
+
+const primitiveTypes = ["string", "number", "boolean"];
+
 export class ProductApi {
 	private readonly baseUrl: string = "/api/products";
 
@@ -27,14 +36,16 @@ export class ProductApi {
 
 	async create(request: CreateProductRequest): Promise<Product> {
 		const url = this.getUrl();
-		const response = await http.post<Product>(url, request);
+		const form = this.getFormData(request);
 
+		const response = await http.post<Product>(url, form, formHeaders);
 		return response.data;
 	}
 
 	async update(request: UpdateProductRequest): Promise<Product> {
 		const url = this.getUrlWithId(request.id);
-		const response = await http.put<Product>(url, request);
+		const form = this.getFormData(request);
+		const response = await http.put<Product>(url, form, formHeaders);
 
 		return response.data;
 	}
@@ -56,6 +67,24 @@ export class ProductApi {
 
 	private getUrlWithId(id: number): string {
 		return `${this.baseUrl}/${id}`;
+	}
+
+	private getFormData(request: CreateProductRequest | UpdateProductRequest): FormData {
+		const form = new FormData();
+
+		const { attachments, imagesToDelete, ...rest } = request as UpdateProductRequest;
+
+		Object.entries(rest).forEach(([key, val]) => {
+			if (val !== null && primitiveTypes.includes(typeof val)) {
+				form.append(key, String(val));
+			}
+		});
+
+		attachments?.forEach((file) => form.append("attachments", file));
+		console.log("Images to delete:", imagesToDelete);
+		imagesToDelete?.forEach((imgId) => form.append("imagesToDelete", String(imgId)));
+
+		return form;
 	}
 }
 

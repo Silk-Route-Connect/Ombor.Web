@@ -71,7 +71,7 @@
   "fieldSupplier":       "Поставщик",
   "fieldTotalCost":      "Сумма закупки",
   "fieldType": "Тип",
-  "fieldAttachments": "Закрепленные файлы",
+  "fieldAttachments": "Загрузить файлы",
   "suppliesTotalCost":   "Общие затраты",
   "type.Sale":       "Только продажа",
   "type.Supply":     "Только закупка",

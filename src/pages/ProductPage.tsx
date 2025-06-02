@@ -39,6 +39,7 @@ const ProductPage: React.FC = observer(() => {
 	}, []);
 
 	const handleClose = () => {
+		console.log("Close form");
 		setSelectedProduct(null);
 		setIsFormOpen(false);
 	};
@@ -60,19 +61,20 @@ const ProductPage: React.FC = observer(() => {
 		[productStore],
 	);
 
-	const handleSave = useCallback(
-		(payload: ProductFormPayload) => {
-			if (selectedProduct) {
-				productStore.updateProduct({ ...payload, id: selectedProduct.id });
-			} else {
-				productStore.createProduct({ ...payload });
-			}
+	const handleSave = (payload: ProductFormPayload): void => {
+		if (selectedProduct) {
+			productStore.updateProduct({
+				...payload,
+				id: selectedProduct.id,
+				imagesToDelete: payload.deletedImageIds,
+			});
+		} else {
+			productStore.createProduct({ ...payload });
+		}
 
-			setIsFormOpen(false);
-			setSelectedProduct(null);
-		},
-		[productStore],
-	);
+		setIsFormOpen(false);
+		setSelectedProduct(null);
+	};
 
 	const handleRowClick = useCallback(
 		(product: Product) => {

@@ -30,10 +30,12 @@ export type CreateProductRequest = {
 	lowStockThreshold: number;
 	measurement: Measurement;
 	type: ProductType;
+	attachments?: File[];
 };
 
 export type UpdateProductRequest = CreateProductRequest & {
 	id: number;
+	imagesToDelete?: number[]; // IDs of images to delete
 };
 
 export type GetProductsRequest = {
