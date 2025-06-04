@@ -6,6 +6,7 @@ export type Supplier = {
 	phoneNumbers: string[];
 	companyName?: string;
 	isActive: boolean;
+	balance: number;
 };
 
 export type CreateSupplierRequest = Omit<Supplier, "id">;
