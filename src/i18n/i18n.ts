@@ -1,13 +1,15 @@
 import categoryRu from "./ru/category.json";
 import productRu from "./ru/product.json";
+import supplierRu from "./ru/supplier.json";
 import categoryUz from "./uz/category.json";
 import productUz from "./uz/product.json";
+import supplierUz from "./uz/supplier.json";
 
 export type Locale = "ru" | "uz";
 
 const messages: Record<Locale, Record<string, string>> = {
-	ru: { ...categoryRu, ...productRu },
-	uz: { ...categoryUz, ...productUz },
+	ru: { ...categoryRu, ...productRu, ...supplierRu },
+	uz: { ...categoryUz, ...productUz, ...supplierUz },
 };
 
 let currentLocale: Locale = "ru";
