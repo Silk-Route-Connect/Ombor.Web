@@ -36,6 +36,8 @@ export class SupplyStore implements ISupplyStore {
 					{ id: 201, productId, quantity: 5, unitPrice: 4000 },
 					{ id: 202, productId: 999, quantity: 2, unitPrice: 3500 },
 				],
+				totalDue: 0,
+				totalPaid: 0,
 			},
 			{
 				id: 102,
@@ -43,6 +45,8 @@ export class SupplyStore implements ISupplyStore {
 				supplierId: 302,
 				date: new Date("2025-05-11"),
 				items: [{ id: 203, productId, quantity: 3, unitPrice: 4500 }],
+				totalDue: 0,
+				totalPaid: 0,
 			},
 			{
 				id: 103,
@@ -53,6 +57,8 @@ export class SupplyStore implements ISupplyStore {
 					{ id: 204, productId, quantity: 1, unitPrice: 5000 },
 					{ id: 205, productId, quantity: 4, unitPrice: 4200 },
 				],
+				totalDue: 0,
+				totalPaid: 0,
 			},
 		];
 

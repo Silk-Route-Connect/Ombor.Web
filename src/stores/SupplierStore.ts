@@ -7,17 +7,27 @@ import {
 	Supplier,
 	UpdateSupplierRequest,
 } from "models/supplier";
+import { Supply } from "models/supply";
 import SupplierApi from "services/api/SupplierApi";
 
 import { NotificationStore } from "./NotificationStore";
 
+export type GetSuppliesRequest = {
+	supplierId?: number;
+	from?: Date;
+	to?: Date;
+	searchTerm?: string;
+};
+
 export interface ISupplierStore {
 	allSuppliers: Loadable<Supplier[]>;
+	supplies: Loadable<Supply[]>;
 	searchTerm: string;
 	filteredSuppliers: Loadable<Supplier[]>;
 
-	setSearch(term: string): void;
 	loadSuppliers(request?: GetSuppliersRequest): Promise<void>;
+	loadSupplies(request?: GetSuppliesRequest): Promise<void>;
+	setSearch(term: string): void;
 	createSupplier(request: CreateSupplierRequest): Promise<void>;
 	updateSupplier(request: UpdateSupplierRequest): Promise<void>;
 	deleteSupplier(id: number): Promise<void>;
@@ -25,6 +35,7 @@ export interface ISupplierStore {
 
 export class SupplierStore implements ISupplierStore {
 	allSuppliers: Loadable<Supplier[]> = [];
+	supplies: Loadable<Supply[]> = [];
 	searchTerm = "";
 
 	private readonly notificationStore: NotificationStore;
@@ -60,6 +71,20 @@ export class SupplierStore implements ISupplierStore {
 		const data = result.status === "success" ? result.data : [];
 
 		runInAction(() => (this.allSuppliers = data));
+	}
+
+	async loadSupplies(request?: GetSuppliesRequest): Promise<void> {
+		console.warn("loadSupplies is not implemented in SupplierStore");
+		this.supplies = "loading";
+
+		const result = await tryRun(() => SupplierApi.getSupplies(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error("Failed to load supplies");
+			return;
+		}
+
+		runInAction(() => (this.supplies = result.data));
 	}
 
 	async createSupplier(request: CreateSupplierRequest): Promise<void> {
