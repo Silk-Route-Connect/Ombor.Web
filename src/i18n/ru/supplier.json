@@ -44,5 +44,9 @@
   "fieldQuantity": "Количество",
   "fieldUnitPrice": "Цена за единицу",
   "fieldTotalPrice": "Итоговая сумма",
-  "fieldSupplyId": "Поставка"
+  "fieldSupplyId": "Поставка",
+  "download": "Скачать",
+  "downloadAsPDF": "Как PDF",
+  "downloadAsCSV": "Как CSV",
+  "downloadAsPNG": "Как PNG"
 }
