@@ -86,7 +86,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	// If the total row count changes, ensure current page is valid
 	useEffect(() => {
 		if (rows === "loading") return;
-		const allRows = rows as T[];
+		const allRows = rows;
 		const total = allRows.length;
 		const maxPage = Math.max(0, Math.ceil(total / rowsPerPage) - 1);
 		if (page > maxPage) {
@@ -99,7 +99,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		if (rows === "loading") {
 			return "loading";
 		}
-		const allRows = rows as T[];
+		const allRows = rows;
 		if (!pagination) {
 			return allRows;
 		}
@@ -184,7 +184,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		);
 	}
 
-	const allRows = rows === "loading" ? [] : (rows as T[]);
+	const allRows = rows === "loading" ? [] : rows;
 	const totalRows = allRows.length;
 	const hasNoData = totalRows === 0 && rows !== "loading";
 
@@ -193,7 +193,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 			<Table stickyHeader size="small">
 				<TableHead sx={HEADER_CONTAINER_SX}>
 					<TableRow>
-						{renderExpanded && <TableCell sx={HEADER_CELL_SX} align="center" width={40} />}
+						{renderExpanded && <TableCell padding="checkbox" sx={HEADER_CELL_SX} />}
 						{columns.map((col) => (
 							<TableCell
 								key={col.key}
@@ -215,12 +215,13 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 							</TableCell>
 						</TableRow>
 					) : (
-						(displayedRows as T[]).map((row, index) => {
+						displayedRows.map((row, index) => {
 							const isOpen = renderExpanded ? expandedRows.has(row.id) : false;
 
 							// Determine stripe color using the index
 							const isOdd = index % 2 === 0; // zero‐based: 0 = first row (odd background)
-							const backgroundColor = isOdd ? theme.palette.grey[50] : "inherit";
+							const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
+							const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
 
 							return (
 								<React.Fragment key={row.id}>
@@ -236,14 +237,14 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 										{renderExpanded && (
 											<TableCell padding="checkbox">
 												<IconButton
-													size="small"
+													size="medium"
 													sx={{ p: 0 }}
 													onClick={() => toggleExpandRow(row.id)}
 												>
 													{isOpen ? (
-														<KeyboardArrowUpIcon fontSize="small" />
+														<KeyboardArrowUpIcon fontSize="medium" />
 													) : (
-														<KeyboardArrowDownIcon fontSize="small" />
+														<KeyboardArrowDownIcon fontSize="medium" />
 													)}
 												</IconButton>
 											</TableCell>

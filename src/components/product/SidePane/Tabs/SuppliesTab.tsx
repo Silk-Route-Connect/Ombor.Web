@@ -41,7 +41,7 @@ export const SuppliesTab: React.FC<{ productId: number }> = ({ productId }) => {
 
 	// 2) reload on filter change
 	useEffect(() => {
-		supplyStore.loadSupplies({ productId, from: fromDate, to: toDate });
+		supplyStore.loadSupplies();
 	}, [productId, fromDate, toDate, supplyStore]);
 
 	// 3) define table columns
