@@ -138,6 +138,8 @@ function generateFakeSupplies(): Supply[] {
 			totalDue,
 			totalPaid,
 			items,
+			paymentType: "card",
+			currency: "uzs",
 			...(notes ? { notes } : {}),
 		});
 	}
