@@ -26,7 +26,7 @@ export class ProductStore implements IProductStore {
 	searchTerm = "";
 	categoryFilter: number | null = null;
 
-	private notificationStore: NotificationStore;
+	private readonly notificationStore: NotificationStore;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -38,7 +38,7 @@ export class ProductStore implements IProductStore {
 			return "loading";
 		}
 
-		let products = this.allProducts as Product[];
+		let products = this.allProducts;
 
 		if (this.searchTerm) {
 			const q = this.searchTerm.toLowerCase();
@@ -84,6 +84,7 @@ export class ProductStore implements IProductStore {
 		}
 
 		runInAction(() => (this.allProducts = result.data));
+		console.log([...this.allProducts]);
 	}
 
 	async createProduct(request: CreateProductRequest): Promise<void> {
@@ -103,7 +104,6 @@ export class ProductStore implements IProductStore {
 	}
 
 	async updateProduct(request: UpdateProductRequest): Promise<void> {
-		console.log("Updating product:", request);
 		const result = await tryRun(() => ProductApi.update(request));
 
 		if (result.status === "fail") {
@@ -113,7 +113,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = (this.allProducts as Product[]).map((p) => {
+				this.allProducts = this.allProducts.map((p) => {
 					if (p.id === result.data.id) {
 						return result.data;
 					}

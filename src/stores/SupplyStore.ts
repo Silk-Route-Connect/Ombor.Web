@@ -1,18 +1,29 @@
-// src/stores/SupplyStore.ts
 import { makeAutoObservable, runInAction } from "mobx";
+import supplyApi from "services/api/SupplyApi";
 
-import { Loadable } from "../helpers/helpers";
-import { Supply } from "../models/supply";
+import { Loadable, tryRun } from "../helpers/helpers";
+import { CreateSupplyRequest, Supply, UpdateSupplyRequest } from "../models/supply";
+import { NotificationStore } from "./NotificationStore";
+import { GetSuppliesRequest } from "./SupplierStore";
 
 export interface ISupplyStore {
+	allSupplies: Loadable<Supply[]>;
 	filteredSupplies: Loadable<Supply[]>;
-	loadSupplies(params: { productId: number; from: string; to: string }): Promise<void>;
+	setSearch(term: string): void;
+	loadSupplies(supplierId?: number, fromDate?: Date, toDate?: Date): Promise<void>;
+	createSupply(supply: CreateSupplyRequest): Promise<void>;
+	updateSupply(supply: UpdateSupplyRequest): Promise<void>;
+	deleteSupply(id: number): Promise<void>;
 }
 
 export class SupplyStore implements ISupplyStore {
+	private readonly notificationStore: NotificationStore;
 	allSupplies: Loadable<Supply[]> = [];
+	searchTerm = "";
 
-	constructor() {
+	constructor(notificationStore: NotificationStore) {
+		this.notificationStore = notificationStore;
+
 		makeAutoObservable(this);
 	}
 
@@ -20,52 +31,47 @@ export class SupplyStore implements ISupplyStore {
 		return this.allSupplies;
 	}
 
-	async loadSupplies(params: { productId: number; from: string; to: string }) {
-		const { productId, from, to } = params;
-		console.log(from, to);
-		this.allSupplies = "loading";
-		await new Promise((r) => setTimeout(r, 500));
+	setSearch(term: string): void {
+		runInAction(() => (this.searchTerm = term));
+	}
 
-		const mock: Supply[] = [
-			{
-				id: 101,
-				supplierName: "ООО «Поставщик»",
-				supplierId: 301,
-				date: new Date("2025-05-05"),
-				items: [
-					{ id: 201, productId, quantity: 5, unitPrice: 4000 },
-					{ id: 202, productId: 999, quantity: 2, unitPrice: 3500 },
-				],
-				totalDue: 0,
-				totalPaid: 0,
-			},
-			{
-				id: 102,
-				supplierName: "ЗАО «Импортер»",
-				supplierId: 302,
-				date: new Date("2025-05-11"),
-				items: [{ id: 203, productId, quantity: 3, unitPrice: 4500 }],
-				totalDue: 0,
-				totalPaid: 0,
-			},
-			{
-				id: 103,
-				supplierName: "ЧП «Локальный»",
-				supplierId: 303,
-				date: new Date("2025-05-14"),
-				items: [
-					{ id: 204, productId, quantity: 1, unitPrice: 5000 },
-					{ id: 205, productId, quantity: 4, unitPrice: 4200 },
-				],
-				totalDue: 0,
-				totalPaid: 0,
-			},
-		];
+	async loadSupplies(supplierId?: number, fromDate?: Date, toDate?: Date): Promise<void> {
+		if (this.allSupplies === "loading") {
+			return;
+		}
 
-		const filtered = mock.filter((s) => s.items.some((i) => i.productId === productId));
+		runInAction(() => (this.allSupplies = "loading"));
 
-		runInAction(() => {
-			this.allSupplies = filtered;
-		});
+		const request: GetSuppliesRequest = { supplierId, from: fromDate, to: toDate };
+		const result = await tryRun(() => supplyApi.getAll(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error("Failed to load supplies");
+			runInAction(() => (this.allSupplies = []));
+			return;
+		}
+
+		runInAction(() => (this.allSupplies = result.data));
+	}
+
+	async createSupply(supply: CreateSupplyRequest): Promise<void> {
+		console.log("Creating supply:", supply);
+		// Implementation for creating a supply
+	}
+
+	async updateSupply(supply: UpdateSupplyRequest): Promise<void> {
+		console.log("Updating supply:", supply);
+		// Implementation for updating a supply
+	}
+
+	async deleteSupply(id: number): Promise<void> {
+		console.log("Deleting supply with ID:", id);
+		// Implementation for deleting a supply
+	}
+
+	async getSupplyById(id: number): Promise<Supply | null> {
+		console.log("Fetching supply by ID:", id);
+		// Implementation for fetching a supply by ID
+		return null; // Placeholder return
 	}
 }
