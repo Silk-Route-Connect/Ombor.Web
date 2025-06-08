@@ -1,0 +1,23 @@
+{
+  "createTitle": "Taqdimot qo'shish",
+  "updateTitle": "Taqdimotni tahrirlash",
+  "stepDetails": "Tafsilotlar",
+  "stepPayment": "To'lov",
+  "fieldUnitPrice": "Narxi",
+  "fieldQuantity": "Miqdori",
+  "fieldDiscount": "Chegirma",
+  "fieldTotalPrice": "Jami",
+  "noItems": "Mahsulot qo'shilmagan",
+  "totalDue": "Jami",
+  "fieldPaymentAmount": "To'langan",
+  "fieldDebt": "Qarz",
+  "fieldPaymentType": "To'lov turi",
+  "fieldCurrency": "Valyuta",
+  "fieldExchangeRate": "Kurs",
+  "fieldAttachments": "Fayllar",
+  "confirmClose": "Formani yopmoqchimisiz? Saqlanmagan ma'lumotlar yo'qoladi.",
+  "fieldSupplier": "Yetkazib beruvchi",
+  "dialogTitle": "Shablonni saqlash",
+  "fieldName": "Shablon nomi",
+  "nameRequired": "Nomi majburiy"
+}
