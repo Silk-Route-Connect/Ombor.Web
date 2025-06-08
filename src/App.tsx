@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import ProductPage from "pages/ProductPage";
 import SupplierPage from "pages/SupplierPage";
+import SupplyPage from "pages/SupplyPage";
 
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
@@ -35,6 +36,7 @@ function App() {
 								<Route path="categories" element={<CategoryPage />} />
 								<Route path="products" element={<ProductPage />} />
 								<Route path="suppliers" element={<SupplierPage />} />
+								<Route path="supplies" element={<SupplyPage />} />
 							</Route>
 						</Routes>
 					</BrowserRouter>
