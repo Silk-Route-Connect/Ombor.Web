@@ -3,69 +3,47 @@ import {
 	GetTemplateByIdRequest,
 	GetTemplatesRequest,
 	Template,
-	TemplateItem,
 	UpdateTemplateRequest,
 } from "models/template";
 
-const MOCK_DELAY = () => new Promise((r) => setTimeout(r, 500 + Math.random() * 500));
+import BaseApi from "./BaseApi";
+import http from "./http";
 
-const _templates: Template[] = [
-	{
-		id: 1,
-		name: "Дмитрий поставка регулярная",
-		partnerName: "Дмитрий Георгиев",
-		partnerId: 2,
-		type: "supply",
-		items: [
-			{ id: 1, productId: 5, productName: "Paper", quantity: 10, unitPrice: 1.2, discount: 0 },
-			{ id: 2, productId: 9, productName: "Ink", quantity: 2, unitPrice: 15, discount: 0 },
-		],
-	},
-];
+class TemplateApi extends BaseApi {
+	constructor() {
+		super("/api/templates");
+	}
 
-class TemplateApi {
 	async getAll(request: GetTemplatesRequest): Promise<Template[]> {
-		await MOCK_DELAY();
-		return _templates.filter((t) => t.type === request.type);
+		const url = this.getUrl(request);
+		const response = await http.get<Template[]>(url);
+
+		return response.data;
 	}
 
 	async getById(request: GetTemplateByIdRequest): Promise<Template> {
-		console.log(request);
+		const url = this.getUrlWithId(request.id);
+		const response = await http.get<Template>(url);
 
-		return null!;
+		return response.data;
 	}
 
 	async create(request: CreateTemplateRequest): Promise<Template> {
-		await MOCK_DELAY();
-		const id = Date.now();
+		const response = await http.post<Template>(this.baseUrl, request);
 
-		const items: TemplateItem[] = request.items.map(
-			(i) =>
-				({
-					...i,
-					productName: "",
-				}) as TemplateItem,
-		);
-		const template: Template = {
-			id,
-			...request,
-			partnerId: Math.random(),
-			partnerName: "John Doe",
-			items,
-		};
-		_templates.push(template);
-
-		return template;
+		return response.data;
 	}
 
 	async update(request: UpdateTemplateRequest): Promise<Template> {
-		console.log(request);
+		const url = this.getUrlWithId(request.id);
+		const response = await http.put<Template>(url, request);
 
-		return null!;
+		return response.data;
 	}
 
 	async delete(id: number): Promise<void> {
-		console.log(id);
+		const url = this.getUrlWithId(id);
+		await http.delete(url);
 	}
 }
 
