@@ -78,7 +78,7 @@ const SupplyFormModal: React.FC<Props> = observer(
 	}) => {
 		useEffect(() => {
 			productStore.loadProducts();
-			templateStore.load("supply");
+			templateStore.load();
 			supplierStore.loadSuppliers?.();
 		}, [productStore, templateStore, supplierStore]);
 

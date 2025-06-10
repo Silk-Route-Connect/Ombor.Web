@@ -15,7 +15,7 @@ const TemplateAutocomplete: React.FC<Props> = ({ value, onChange }) => {
 	const options =
 		templateStore.allTemplates === "loading"
 			? []
-			: templateStore.allTemplates.filter((t) => t.type === "supply");
+			: templateStore.allTemplates.filter((t) => t.type === "Supply");
 
 	return (
 		<EntityAutocomplete<Template>
