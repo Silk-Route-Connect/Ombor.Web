@@ -16,6 +16,8 @@ import { NotificationStore } from "./NotificationStore";
 export interface ITemplateStore {
 	allTemplates: Loadable<Template[]>;
 	filteredTemplates: Loadable<Template[]>;
+	supplyTemplates: Loadable<Template[]>;
+	saleTemplates: Loadable<Template[]>;
 	setSearch(searchTerm: string): void;
 	load(type?: TemplateType): Promise<void>;
 	getById(templateId: number): Promise<Template | null>;
@@ -34,6 +36,22 @@ export class TemplateStore implements ITemplateStore {
 		this.notificationStore = notificationStore;
 
 		makeAutoObservable(this);
+	}
+
+	get supplyTemplates(): Loadable<Template[]> {
+		if (this.allTemplates === "loading") {
+			return "loading";
+		}
+
+		return this.allTemplates.filter((el) => el.type === "Supply");
+	}
+
+	get saleTemplates(): Loadable<Template[]> {
+		if (this.allTemplates === "loading") {
+			return "loading";
+		}
+
+		return this.allTemplates.filter((el) => el.type === "Sale");
 	}
 
 	setSearch(searchTerm: string): void {
@@ -63,6 +81,7 @@ export class TemplateStore implements ITemplateStore {
 
 		const request: GetTemplatesRequest = { type };
 		const result = await tryRun(() => TemplateApi.getAll(request));
+		console.log(result);
 
 		if (result.status === "fail") {
 			this.notificationStore.error("Could not load templates.");
