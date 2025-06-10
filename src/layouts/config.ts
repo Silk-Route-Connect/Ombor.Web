@@ -48,6 +48,7 @@ export const menuItems: MenuItem[] = [
 		children: [
 			{ label: "Продажи", to: "/sales" },
 			{ label: "Поставки", to: "/supplies" },
+			{ label: "Шаблоны", to: "/templates" },
 		],
 	},
 

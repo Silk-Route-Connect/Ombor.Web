@@ -19,7 +19,6 @@ export default function Sidebar() {
 	const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 	const location = useLocation();
 
-	// Auto-expand based on current URL
 	useEffect(() => {
 		const newOpen: Record<string, boolean> = {};
 		menuItems.forEach((item) => {

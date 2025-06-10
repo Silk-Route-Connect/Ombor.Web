@@ -1,4 +1,4 @@
-export type TemplateType = "supply" | "sale";
+export type TemplateType = "Supply" | "Sale";
 
 export type Template = {
 	id: number;
