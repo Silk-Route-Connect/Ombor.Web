@@ -1,3 +1,4 @@
+import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -18,7 +19,8 @@ export interface ITemplateStore {
 	filteredTemplates: Loadable<Template[]>;
 	supplyTemplates: Loadable<Template[]>;
 	saleTemplates: Loadable<Template[]>;
-	setSearch(searchTerm: string): void;
+	search(searchTerm: string): void;
+	sort(field: keyof Template, order: SortOrder): void;
 	load(type?: TemplateType): Promise<void>;
 	getById(templateId: number): Promise<Template | null>;
 	create(request: CreateTemplateRequest): Promise<void>;
@@ -54,8 +56,12 @@ export class TemplateStore implements ITemplateStore {
 		return this.allTemplates.filter((el) => el.type === "Sale");
 	}
 
-	setSearch(searchTerm: string): void {
+	search(searchTerm: string): void {
 		runInAction(() => (this.searchTerm = searchTerm));
+	}
+
+	sort(field: keyof Template, order: SortOrder): void {
+		console.log(order, field);
 	}
 
 	get filteredTemplates(): Loadable<Template[]> {
