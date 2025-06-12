@@ -44,7 +44,6 @@ export type CreateTemplateItemRequest = {
 export type UpdateTemplateRequest = {
 	id: number;
 	name: string;
-	partnerName: string;
 	partnerId: number;
 	type: TemplateType;
 	items: UpdateTemplateItemRequest[];
