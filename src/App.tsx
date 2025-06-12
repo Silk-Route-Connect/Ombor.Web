@@ -4,6 +4,7 @@ import { SnackbarProvider, useSnackbar } from "notistack";
 import ProductPage from "pages/ProductPage";
 import SupplierPage from "pages/SupplierPage";
 import SupplyPage from "pages/SupplyPage";
+import TemplatePage from "pages/TemplatePage";
 
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
@@ -37,6 +38,7 @@ function App() {
 								<Route path="products" element={<ProductPage />} />
 								<Route path="suppliers" element={<SupplierPage />} />
 								<Route path="supplies" element={<SupplyPage />} />
+								<Route path="templates" element={<TemplatePage />} />
 							</Route>
 						</Routes>
 					</BrowserRouter>
