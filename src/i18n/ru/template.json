@@ -1,0 +1,21 @@
+{
+  "loadTemplatesError": "Не удалось загрузить шаблоны",
+  "createTemplateSuccess": "Шаблон успешно создан",
+  "createTemplateError": "Не удалось создать шаблон",
+  "updateTemplateSuccess": "Шаблон успешно обновлен",
+  "updateTemplateError": "Не удалось обновить шаблон",
+  "deleteTemplateSuccess": "Шаблон успешно удалена",
+  "deleteTemplateError": "Не удалось удалить шаблон",
+  "templateFieldName": "Название",
+  "templateFieldType": "Тип шаблона",
+  "templatesTitle": "Шаблоны",
+  "searchTemplatesPlaceholder": "Поиск шаблонов",
+  "createTemplateTitle": "Создать шабон",
+  "editTemplateTitle": "Изменить шаблон",
+  "unsavedChangesTitle": "Есть несохранённые изменения",
+  "unsavedChangesContent": "Вы уверены, что хотите закрыть форму? Все изменения будут потеряны.",
+  "discard": "Отменить",
+  "keepEditing": "Продолжить редактирование",
+  "templateType.Sale": "Продажа",
+  "templateType.Supply": "Поставка" 
+}
