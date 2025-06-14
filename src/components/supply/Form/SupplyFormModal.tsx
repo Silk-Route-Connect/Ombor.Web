@@ -16,8 +16,8 @@ import {
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Supply } from "models/supply";
+import { IPartnerStore } from "stores/PartnerStore";
 import { IProductStore } from "stores/ProductStore";
-import { ISupplierStore } from "stores/SupplierStore";
 import { ISupplyStore } from "stores/SupplyStore";
 import { ITemplateStore } from "stores/TemplateStore";
 
@@ -60,7 +60,7 @@ interface Props {
 	onSave(p: SupplyFormPayload): Promise<void>;
 	onSaveTemplate(t: SupplyTemplatePayload): Promise<void>;
 	supplyStore: ISupplyStore;
-	supplierStore: ISupplierStore;
+	partnersStore: IPartnerStore;
 	templateStore: ITemplateStore;
 	productStore: IProductStore;
 }
@@ -72,15 +72,15 @@ const SupplyFormModal: React.FC<Props> = observer(
 		onClose,
 		onSave,
 		onSaveTemplate,
-		supplierStore,
+		partnersStore,
 		templateStore,
 		productStore,
 	}) => {
 		useEffect(() => {
 			productStore.loadProducts();
 			templateStore.load();
-			supplierStore.loadSuppliers?.();
-		}, [productStore, templateStore, supplierStore]);
+			partnersStore.loadSuppliers?.();
+		}, [productStore, templateStore, partnersStore]);
 
 		const form = useSupplyForm(supply, templateStore, productStore);
 		const [activeStep, setActiveStep] = useState(0);
@@ -140,7 +140,7 @@ const SupplyFormModal: React.FC<Props> = observer(
 				<DialogContent dividers sx={{ minHeight: CONTENT_HEIGHT }}>
 					{/* step bar removed per request */}
 					{activeStep === 0 ? (
-						<DetailsStep form={form} productStore={productStore} supplierStore={supplierStore} />
+						<DetailsStep form={form} productStore={productStore} partnersStore={partnersStore} />
 					) : (
 						<PaymentStep form={form} />
 					)}

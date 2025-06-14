@@ -1,82 +1,42 @@
-import React from "react";
-import { Box, Tooltip } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Column } from "components/shared/DataTable/DataTable";
 import { translate } from "i18n/i18n";
-import { Supplier } from "models/supplier";
+import { Partner } from "models/partner";
+import { formatNumberWithCommas } from "utils/helpers";
 
-/**
- * Columns for the Suppliers table:
- * - name
- * - companyName
- * - address
- * - email
- * - phoneNumbers (comma-separated)
- * - isActive (boolean with tooltip)
- */
-export const supplierColumns: Column<Supplier>[] = [
+export const partnerColumns: Column<Partner>[] = [
 	{
 		key: "name",
 		field: "name",
-		headerName: translate("fieldName"),
+		headerName: translate("partner.name"),
 		sortable: true,
-		width: 200,
+		width: "30%",
+	},
+	{
+		key: "balance",
+		field: "balance",
+		headerName: translate("partner.balance"),
+		sortable: true,
+		width: "30%",
+		renderCell: (p) => {
+			const textColor = p.balance < 0 ? "success.main" : "text.primary";
+			return <Typography sx={{ color: textColor }}>{formatNumberWithCommas(p.balance)}</Typography>;
+		},
 	},
 	{
 		key: "companyName",
 		field: "companyName",
-		headerName: translate("fieldCompanyName"),
+		headerName: translate("partner.company"),
 		sortable: true,
-		width: 200,
-		renderCell: (s) => s.companyName ?? "—",
-	},
-	{
-		key: "address",
-		field: "address",
-		headerName: translate("fieldAddress"),
-		sortable: false,
-		width: 250,
-		renderCell: (s) => s.address ?? "—",
-	},
-	{
-		key: "email",
-		field: "email",
-		headerName: translate("fieldEmail"),
-		sortable: false,
-		width: 200,
-		renderCell: (s) => s.email ?? "—",
+		width: "20%",
+		renderCell: (p) => p.companyName ?? "—",
 	},
 	{
 		key: "phoneNumbers",
 		field: "phoneNumbers",
-		headerName: translate("fieldPhoneNumbers"),
+		headerName: translate("partner.phoneNumber"),
 		sortable: false,
-		width: 200,
-		renderCell: (s) => ((s.phoneNumbers?.length ?? 0) > 0 ? s.phoneNumbers.join(", ") : "—"),
-	},
-	{
-		key: "isActive",
-		field: "isActive",
-		headerName: translate("fieldIsActive"),
-		sortable: true,
-		width: 100,
-		align: "center",
-		renderCell: (s) => {
-			const title = s.isActive ? translate("active") : translate("inactive");
-			const color = s.isActive ? "success.main" : "error.main";
-			return (
-				<Tooltip title={title} arrow>
-					<Box
-						component="span"
-						sx={{
-							display: "inline-block",
-							bgcolor: color,
-							width: 12,
-							height: 12,
-							borderRadius: "50%",
-						}}
-					/>
-				</Tooltip>
-			);
-		},
+		width: "20%",
+		renderCell: (p) => (p.phoneNumbers?.length ? p.phoneNumbers[0] : "—"),
 	},
 ];

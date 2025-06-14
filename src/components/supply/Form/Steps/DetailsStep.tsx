@@ -2,35 +2,34 @@ import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Grid, IconButton, TextField } from "@mui/material";
+import PartnerAutocomplete from "components/shared/Autocomplete/PartnerAutocomplete";
 import ProductAutocomplete from "components/shared/Autocomplete/ProductAutocomplete";
-import SupplierAutocomplete from "components/shared/Autocomplete/SupplierAutocomplete";
 import TemplateAutocomplete from "components/shared/Autocomplete/TemplateAutocomplete";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+import { IPartnerStore } from "stores/PartnerStore";
 import { IProductStore } from "stores/ProductStore";
-import { ISupplierStore } from "stores/SupplierStore";
 
 import { SupplyFormState } from "../useSupplyForm";
 
 interface Props {
 	form: SupplyFormState;
 	productStore: IProductStore;
-	supplierStore: ISupplierStore;
+	partnersStore: IPartnerStore;
 }
 
-const LIST_HEIGHT = 260;
+const LIST_HEIGHT = 300;
 
-const DetailsStep: React.FC<Props> = observer(({ form, productStore, supplierStore }) => (
+const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersStore }) => (
 	<Grid container rowSpacing={3} columnSpacing={2}>
-		{/* supplier / date / template */}
 		<Grid container columnSpacing={2} size={{ xs: 12 }}>
 			<Grid size={{ xs: 12, sm: 4 }}>
-				<SupplierAutocomplete
+				<PartnerAutocomplete
 					value={
-						supplierStore.allSuppliers === "loading"
+						partnersStore.allSuppliers === "loading"
 							? null
-							: (supplierStore.allSuppliers.find((s) => s.id === form.supplierId) ?? null)
+							: (partnersStore.allSuppliers.find((s) => s.id === form.supplierId) ?? null)
 					}
 					onChange={(s) => form.setSupplierId(s?.id ?? null)}
 				/>
@@ -52,7 +51,6 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, supplierSto
 			</Grid>
 		</Grid>
 
-		{/* product selector / add */}
 		<Grid container columnSpacing={2} alignItems="flex-end" size={{ xs: 12 }}>
 			<Grid size={{ xs: 12, sm: 8 }}>
 				<ProductAutocomplete
@@ -86,7 +84,6 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, supplierSto
 			</Grid>
 		</Grid>
 
-		{/* items list */}
 		<Grid size={{ xs: 12 }}>
 			<Box
 				mt={2}
@@ -104,9 +101,8 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, supplierSto
 				) : (
 					<Grid container rowSpacing={2}>
 						{" "}
-						{/* ← adds space between rows */}
 						{form.items.map((it, idx) => (
-							<Grid container key={idx} columnSpacing={1} alignItems="center">
+							<Grid container key={`${it.productId}-${idx}`} columnSpacing={1} alignItems="center">
 								<Grid size={{ xs: 12, sm: 4 }}>
 									<TextField
 										value={it.productName}

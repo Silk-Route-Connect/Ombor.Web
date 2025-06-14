@@ -16,8 +16,8 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
+import PartnerAutocomplete from "components/shared/Autocomplete/PartnerAutocomplete";
 import ProductAutocomplete from "components/shared/Autocomplete/ProductAutocomplete";
-import SupplierAutocomplete from "components/shared/Autocomplete/SupplierAutocomplete";
 import ConfirmDialog from "components/shared/ConfirmDialog";
 import { translate } from "i18n/i18n";
 import { Template, TemplateItem, TemplateType } from "models/template";
@@ -41,7 +41,7 @@ interface Props {
 }
 
 const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave }) => {
-	const { supplierStore } = useStore();
+	const { partnersStore: supplierStore } = useStore();
 
 	// form state
 	const [name, setName] = useState("");
@@ -200,7 +200,7 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 							</TextField>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 4 }}>
-							<SupplierAutocomplete
+							<PartnerAutocomplete
 								value={suppliers.find((p) => p.id === partnerId) || null}
 								onChange={(s) => setPartnerId(s?.id ?? 0)}
 							/>
