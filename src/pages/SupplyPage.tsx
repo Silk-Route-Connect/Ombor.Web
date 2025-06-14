@@ -14,7 +14,7 @@ import { useStore } from "stores/StoreContext";
 import { formatPrice } from "utils/supplyUtils";
 
 const SupplyPage: React.FC = observer(() => {
-	const { supplyStore, productStore, templateStore, supplierStore } = useStore();
+	const { supplyStore, productStore, templateStore, partnersStore: supplierStore } = useStore();
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);

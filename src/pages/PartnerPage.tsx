@@ -3,30 +3,30 @@ import { Typography } from "@mui/material";
 import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
 import ConfirmDialog from "components/shared/ConfirmDialog";
 import { Column, DataTable } from "components/shared/DataTable/DataTable";
-import SupplierFormModal, { SupplierFormPayload } from "components/supplier/Form/SupplierFormModal";
-import SupplierHeader from "components/supplier/Header/SupplierHeader";
-import SupplierSidePane from "components/supplier/SidePane/SupplierSidePane";
-import { supplierColumns } from "components/supplier/supplierTableConfig";
+import PartnerFormModal, { PartnerFormPayload } from "components/supplier/Form/PartnerFormModal";
+import PartnerHeader from "components/supplier/Header/PartnerHeader";
+import { partnerColumns } from "components/supplier/partnerTableConfigs";
+import PartnerSidePane from "components/supplier/SidePane/PartnerSidePane";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import { Supplier } from "models/supplier";
+import { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
 
-const SupplierPage: React.FC = observer(() => {
+const PartnerPage: React.FC = observer(() => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
-	const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+	const [selectedSupplier, setSelectedSupplier] = useState<Partner | null>(null);
+	const [selectedType, setSelectedType] = useState<PartnerType>("All");
 
-	const { supplierStore } = useStore();
+	const { partnersStore: supplierStore } = useStore();
 
-	// 1. Load suppliers on mount and whenever searchTerm changes
 	useEffect(() => {
 		supplierStore.loadSuppliers();
 	}, [supplierStore, supplierStore.searchTerm]);
 
-	const rows = useMemo<Loadable<Supplier[]>>(
+	const rows = useMemo<Loadable<Partner[]>>(
 		() => supplierStore.filteredSuppliers,
 		[supplierStore.filteredSuppliers],
 	);
@@ -36,12 +36,12 @@ const SupplierPage: React.FC = observer(() => {
 		setIsFormOpen(true);
 	}, []);
 
-	const handleEdit = useCallback((s: Supplier) => {
+	const handleEdit = useCallback((s: Partner) => {
 		setSelectedSupplier(s);
 		setIsFormOpen(true);
 	}, []);
 
-	const handleDelete = useCallback((s: Supplier) => {
+	const handleDelete = useCallback((s: Partner) => {
 		setSelectedSupplier(s);
 		setIsDeleteDialogOpen(true);
 	}, []);
@@ -54,7 +54,7 @@ const SupplierPage: React.FC = observer(() => {
 		setSelectedSupplier(null);
 	};
 
-	const handleSave = (payload: SupplierFormPayload) => {
+	const handleSave = (payload: PartnerFormPayload) => {
 		if (selectedSupplier) {
 			supplierStore.updateSupplier({ ...payload, id: selectedSupplier.id, balance: 100 });
 		} else {
@@ -64,7 +64,7 @@ const SupplierPage: React.FC = observer(() => {
 		setSelectedSupplier(null);
 	};
 
-	const handleRowClick = useCallback((s: Supplier) => {
+	const handleRowClick = useCallback((s: Partner) => {
 		setSelectedSupplier(s);
 		setIsSidePaneOpen(true);
 	}, []);
@@ -74,21 +74,19 @@ const SupplierPage: React.FC = observer(() => {
 		setIsSidePaneOpen(false);
 	};
 
-	const columns = useMemo<Column<Supplier>[]>(
+	const columns = useMemo<Column<Partner>[]>(
 		() => [
-			...supplierColumns,
+			...partnerColumns,
 			{
 				key: "actions",
 				headerName: "",
 				width: 80,
 				align: "right",
-				renderCell: (s: Supplier) => (
+				renderCell: (partner: Partner) => (
 					<ActionMenuCell
-						onEdit={() => handleEdit(s)}
-						onArchive={() => {
-							/* no archive logic yet */
-						}}
-						onDelete={() => handleDelete(s)}
+						onEdit={() => handleEdit(partner)}
+						onArchive={() => {}}
+						onDelete={() => handleDelete(partner)}
 					/>
 				),
 			},
@@ -98,34 +96,36 @@ const SupplierPage: React.FC = observer(() => {
 
 	const getConfirmationContent = (): JSX.Element => {
 		if (!selectedSupplier) {
-			return <Typography>{translate("confirmDeleteSupplier")}</Typography>;
+			return <Typography>{translate("partner.confirmDeleteTitle")}</Typography>;
 		}
 		return (
 			<Typography>
-				{translate("confirmDeleteSupplier")} <strong>{selectedSupplier.name}</strong>?
+				{translate("partner.confirmDeleteTitle")} <strong>{selectedSupplier.name}</strong>?
 			</Typography>
 		);
 	};
 
 	return (
 		<>
-			<SupplierHeader
+			<PartnerHeader
 				searchValue={supplierStore.searchTerm}
 				onSearch={(v) => supplierStore.setSearch(v)}
+				filterType={selectedType}
+				onTypeChange={(type) => setSelectedType(type)}
 				onCreate={handleCreate}
 			/>
 
-			<DataTable<Supplier>
+			<DataTable<Partner>
 				rows={rows}
 				columns={columns}
 				pagination
 				onRowClick={(s) => handleRowClick(s)}
 			/>
 
-			<SupplierFormModal
+			<PartnerFormModal
 				key={selectedSupplier?.id ?? "new"}
 				isOpen={isFormOpen}
-				supplier={selectedSupplier}
+				partner={selectedSupplier}
 				onClose={() => {
 					setIsFormOpen(false);
 					setSelectedSupplier(null);
@@ -135,7 +135,7 @@ const SupplierPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={isDeleteDialogOpen}
-				title={translate("deleteSupplierTitle")}
+				title={translate("partner.deleteTitle")}
 				content={getConfirmationContent()}
 				confirmLabel={translate("delete")}
 				cancelLabel={translate("cancel")}
@@ -143,13 +143,13 @@ const SupplierPage: React.FC = observer(() => {
 				onConfirm={handleConfirmDelete}
 			/>
 
-			<SupplierSidePane
+			<PartnerSidePane
 				open={isSidePaneOpen}
-				supplier={selectedSupplier}
+				partner={selectedSupplier}
 				onClose={handleSidePaneClose}
 			/>
 		</>
 	);
 });
 
-export default SupplierPage;
+export default PartnerPage;
