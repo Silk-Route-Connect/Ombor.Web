@@ -101,7 +101,7 @@ const PaymentStep: React.FC<Props> = ({ form }) => (
 					<Box display="flex" flexWrap="wrap" gap={1} mt={{ xs: 2, sm: 0 }}>
 						{form.attachments.map((f, idx) => (
 							<Chip
-								key={idx}
+								key={`${f.name}-${idx}`}
 								label={f.name}
 								onDelete={() => form.removeAttachment(idx)}
 								deleteIcon={<CloseIcon />}
