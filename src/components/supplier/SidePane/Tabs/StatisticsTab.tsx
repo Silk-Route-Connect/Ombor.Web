@@ -15,11 +15,11 @@ import {
 import { useStore } from "stores/StoreContext";
 
 export interface StatisticsTabProps {
-	supplierId: number;
+	partnerId: number;
 }
 
 export interface MonthlyStat {
-	date: string; // e.g. "2025-01"
+	date: string;
 	totalDue: number;
 	totalPaid: number;
 }
@@ -28,14 +28,14 @@ export interface SupplierStats {
 	monthly: MonthlyStat[];
 }
 
-const StatisticsTab: React.FC<StatisticsTabProps> = ({ supplierId }) => {
-	const { supplierStore } = useStore();
+const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
+	const { partnersStore: supplierStore } = useStore();
 
 	useEffect(() => {
-		if (supplierId) {
-			supplierStore.loadSupplies({ supplierId });
+		if (partnerId) {
+			supplierStore.loadSupplies({ supplierId: partnerId });
 		}
-	}, [supplierId, supplierStore]);
+	}, [partnerId, supplierStore]);
 
 	const stats = supplierStore.supplies; // either "loading" or SupplierStats
 

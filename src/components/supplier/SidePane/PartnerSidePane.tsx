@@ -2,26 +2,26 @@ import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
-import { Supplier } from "models/supplier";
+import { Partner } from "models/partner";
 
-import SupplierDetailsTab from "./Tabs/DetailsTab";
-import SupplierReportsTab from "./Tabs/ReportsTab";
-import SupplierStatisticsTab from "./Tabs/StatisticsTab";
-import SupplierSuppliesTab from "./Tabs/SuppliesTab";
+import DetailsTab from "./Tabs/DetailsTab";
+import ReportsTab from "./Tabs/ReportsTab";
+import StatisticsTab from "./Tabs/StatisticsTab";
+import SuppliesTab from "./Tabs/SuppliesTab";
 
-export interface SupplierSidePaneProps {
+export interface PartnerSidePaneProps {
 	open: boolean;
-	supplier: Supplier | null;
+	partner: Partner | null;
 	onClose: () => void;
 }
 
-const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onClose }) => {
+const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClose }) => {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [fromDate, setFromDate] = useState<Date>(new Date());
 	const [toDate, setToDate] = useState<Date>(new Date());
 
 	useEffect(() => {
-		if (open && supplier) {
+		if (open && partner) {
 			// Default to last week
 			const today = new Date();
 			const to = today.toISOString().slice(0, 10);
@@ -31,9 +31,9 @@ const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onC
 			setFromDate(new Date(from));
 			setToDate(new Date(to));
 		}
-	}, [open, supplier]);
+	}, [open, partner]);
 
-	if (!supplier) return null;
+	if (!partner) return null;
 
 	return (
 		<Drawer
@@ -51,7 +51,7 @@ const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onC
 		>
 			<Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
 				<Typography variant="h6" sx={{ flexGrow: 1 }}>
-					{supplier.name}
+					{partner.name}
 				</Typography>
 				<IconButton onClick={onClose} aria-label={translate("close")}>
 					<CloseIcon />
@@ -63,7 +63,7 @@ const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onC
 			<Tabs
 				value={tabIndex}
 				onChange={(_, newVal) => setTabIndex(newVal)}
-				aria-label="Supplier side pane tabs"
+				aria-label="partner side pane tabs"
 			>
 				<Tab label={translate("tabDetails")} />
 				<Tab label={translate("tabSupplies")} />
@@ -71,13 +71,13 @@ const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onC
 				<Tab label={translate("tabStatistics")} />
 			</Tabs>
 
-			{tabIndex === 0 && <SupplierDetailsTab supplier={supplier} />}
+			{tabIndex === 0 && <DetailsTab partner={partner} />}
 
-			{tabIndex === 1 && <SupplierSuppliesTab supplierId={supplier.id} />}
+			{tabIndex === 1 && <SuppliesTab partnerId={partner.id} />}
 
 			{tabIndex === 2 && (
-				<SupplierReportsTab
-					supplierId={supplier.id}
+				<ReportsTab
+					partnerId={partner.id}
 					from={fromDate}
 					to={toDate}
 					onDateChange={({ from, to }) => {
@@ -87,9 +87,9 @@ const SupplierSidePane: React.FC<SupplierSidePaneProps> = ({ open, supplier, onC
 				/>
 			)}
 
-			{tabIndex === 3 && <SupplierStatisticsTab supplierId={supplier.id} />}
+			{tabIndex === 3 && <StatisticsTab partnerId={partner.id} />}
 		</Drawer>
 	);
 };
 
-export default SupplierSidePane;
+export default PartnerSidePane;

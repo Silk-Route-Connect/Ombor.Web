@@ -16,11 +16,11 @@ import { formatPrice } from "utils/supplyUtils";
 import SupplyItemsTable from "./../SupplyItemsTable/SupplyItemsTable";
 
 interface SupplierSuppliesTabProps {
-	supplierId: number;
+	partnerId: number;
 }
 
-const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ supplierId }) => {
-	const { supplierStore } = useStore();
+const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ partnerId }) => {
+	const { partnersStore: supplierStore } = useStore();
 
 	// Date range state
 	const [rangeOption, setRangeOption] = useState<RangeOption>("week");
@@ -31,13 +31,13 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ supp
 
 	// Reload supplies when filters change
 	useEffect(() => {
-		if (!supplierId) return;
+		if (!partnerId) return;
 		supplierStore.loadSupplies({
-			supplierId,
+			supplierId: partnerId,
 			from: fromDate,
 			to: toDate,
 		});
-	}, [supplierId, fromDate, toDate, supplierStore]);
+	}, [partnerId, fromDate, toDate, supplierStore]);
 
 	const suppliesLoadable = supplierStore.supplies; // Loadable<Supply[]>
 

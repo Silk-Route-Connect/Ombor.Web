@@ -1,4 +1,3 @@
-// src/components/supplier/SupplyItemsTable.tsx
 import React from "react";
 import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { translate } from "i18n/i18n";

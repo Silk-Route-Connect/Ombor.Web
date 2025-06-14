@@ -9,7 +9,7 @@ import { Supply } from "models/supply";
 import { useStore } from "stores/StoreContext";
 
 export interface ReportsTabProps {
-	supplierId: number;
+	partnerId: number;
 	from: Date;
 	to: Date;
 	onDateChange: (range: { from: Date; to: Date }) => void;
@@ -17,23 +17,22 @@ export interface ReportsTabProps {
 
 export interface ConsolidatedReport {
 	id: number;
-	date: string; // ISO
+	date: string;
 	dueAmount: number;
 	paymentAmount: number;
 }
 
-const ReportsTab: React.FC<ReportsTabProps> = ({ supplierId, from, to, onDateChange }) => {
-	const { supplierStore } = useStore();
+const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChange }) => {
+	const { partnersStore } = useStore();
 
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const menuOpen = Boolean(anchorEl);
 
-	// Load whenever supplierId, from, or to changes
 	useEffect(() => {
-		if (supplierId && from && to) {
-			supplierStore.loadSupplies({ supplierId });
+		if (partnerId && from && to) {
+			partnersStore.loadSupplies({ supplierId: partnerId });
 		}
-	}, [supplierId, from, to, supplierStore]);
+	}, [partnerId, from, to, partnersStore]);
 
 	const columns: Column<Supply>[] = [
 		{
@@ -72,7 +71,7 @@ const ReportsTab: React.FC<ReportsTabProps> = ({ supplierId, from, to, onDateCha
 		},
 	];
 
-	const consolidated = supplierStore.supplies;
+	const consolidated = partnersStore.supplies;
 	const totalDue =
 		consolidated !== "loading" && Array.isArray(consolidated)
 			? consolidated.reduce((sum, r) => sum + r.totalDue, 0)
