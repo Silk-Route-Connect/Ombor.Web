@@ -9,5 +9,7 @@
   "cash": "Наличные",
   "card": "Карта",
   "transfer": "Перевод",
-  "templateSearchPlaceholder": "Поиск шаблонов..."
+  "templateSearchPlaceholder": "Поиск шаблонов...",
+  "phoneNumber": "Номер телефона",
+  "addPhoneNumber": "Добавить номер"
 }
