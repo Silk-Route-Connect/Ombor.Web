@@ -1,40 +1,29 @@
 import { GetSuppliesRequest, Supply } from "models/supply";
 
 import {
-	CreateSupplierRequest,
-	GetSuppliersRequest,
-	Supplier,
-	UpdateSupplierRequest,
-} from "../../models/supplier";
-import { toQueryString } from "../../utils/toQueryParameters";
-import http from "../api/http";
+	CreatePartnerRequest,
+	GetPartnersRequest,
+	Partner,
+	UpdateParatnerRequest,
+} from "../../models/partner";
+import BaseApi from "./BaseApi";
+import http from "./http";
 
-class SupplierApi {
-	private readonly baseUrl: string = "/api/suppliers";
-
-	async getAll(request?: GetSuppliersRequest | null): Promise<Supplier[]> {
-		console.log("Fetching suppliers with request:", request);
-		return [
-			{
-				id: 1,
-				name: "Test Supplier",
-				companyName: "Test Company",
-				address: "123 Test St",
-				email: "test@mail.com",
-				phoneNumbers: ["123-456-7890"],
-				isActive: true,
-				balance: 1000,
-			},
-		];
-		// const url = this.getUrl(request);
-		// const response = await http.get<Supplier[]>(url);
-
-		// return response.data;
+class SupplierApi extends BaseApi {
+	constructor() {
+		super("partners");
 	}
 
-	async getById(id: number): Promise<Supplier> {
+	async getAll(request?: GetPartnersRequest | null): Promise<Partner[]> {
+		const url = this.getUrl(request);
+		const response = await http.get<Partner[]>(url);
+
+		return response.data;
+	}
+
+	async getById(id: number): Promise<Partner> {
 		const url = this.getUrlWithId(id);
-		const response = await http.get<Supplier>(url);
+		const response = await http.get<Partner>(url);
 
 		return response.data;
 	}
@@ -46,16 +35,16 @@ class SupplierApi {
 		return generateFakeSupplies();
 	}
 
-	async create(request: CreateSupplierRequest): Promise<Supplier> {
+	async create(request: CreatePartnerRequest): Promise<Partner> {
 		const url = this.getUrl();
-		const response = await http.post<Supplier>(url, request);
+		const response = await http.post<Partner>(url, request);
 
 		return response.data;
 	}
 
-	async update(request: UpdateSupplierRequest): Promise<Supplier> {
+	async update(request: UpdateParatnerRequest): Promise<Partner> {
 		const url = this.getUrlWithId(request.id);
-		const response = await http.put<Supplier>(url, request);
+		const response = await http.put<Partner>(url, request);
 
 		return response.data;
 	}
@@ -63,20 +52,6 @@ class SupplierApi {
 	async delete(id: number): Promise<void> {
 		const url = this.getUrlWithId(id);
 		await http.delete(url);
-	}
-
-	private getUrl(request?: GetSuppliersRequest | null): string {
-		if (!request) {
-			return this.baseUrl;
-		}
-
-		const query = toQueryString(request);
-
-		return query ? `${this.baseUrl}?${query}` : this.baseUrl;
-	}
-
-	private getUrlWithId(id: number): string {
-		return `${this.baseUrl}/${id}`;
 	}
 }
 

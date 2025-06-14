@@ -3,8 +3,8 @@ import { toQueryString } from "utils/toQueryParameters";
 abstract class BaseApi {
 	protected readonly baseUrl: string;
 
-	constructor(baseUrl: string) {
-		this.baseUrl = baseUrl;
+	constructor(resourceUrl: string) {
+		this.baseUrl = `/api/${resourceUrl}`;
 	}
 
 	protected getUrl<TRequest>(request?: TRequest): string {

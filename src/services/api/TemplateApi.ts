@@ -11,7 +11,7 @@ import http from "./http";
 
 class TemplateApi extends BaseApi {
 	constructor() {
-		super("/api/templates");
+		super("templates");
 	}
 
 	async getAll(request: GetTemplatesRequest): Promise<Template[]> {
