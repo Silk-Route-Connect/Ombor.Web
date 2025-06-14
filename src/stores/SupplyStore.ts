@@ -4,7 +4,7 @@ import supplyApi from "services/api/SupplyApi";
 import { Loadable, tryRun } from "../helpers/helpers";
 import { CreateSupplyRequest, Supply, UpdateSupplyRequest } from "../models/supply";
 import { NotificationStore } from "./NotificationStore";
-import { GetSuppliesRequest } from "./SupplierStore";
+import { GetSuppliesRequest } from "./PartnerStore";
 
 export interface ISupplyStore {
 	allSupplies: Loadable<Supply[]>;

@@ -2,13 +2,13 @@ import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
-	CreateSupplierRequest,
-	GetSuppliersRequest,
-	Supplier,
-	UpdateSupplierRequest,
-} from "models/supplier";
+	CreatePartnerRequest,
+	GetPartnersRequest,
+	Partner,
+	UpdateParatnerRequest,
+} from "models/partner";
 import { Supply } from "models/supply";
-import SupplierApi from "services/api/SupplierApi";
+import SupplierApi from "services/api/PartnerApi";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -19,22 +19,22 @@ export type GetSuppliesRequest = {
 	searchTerm?: string;
 };
 
-export interface ISupplierStore {
-	allSuppliers: Loadable<Supplier[]>;
+export interface IPartnerStore {
+	allSuppliers: Loadable<Partner[]>;
 	supplies: Loadable<Supply[]>;
 	searchTerm: string;
-	filteredSuppliers: Loadable<Supplier[]>;
+	filteredSuppliers: Loadable<Partner[]>;
 
-	loadSuppliers(request?: GetSuppliersRequest): Promise<void>;
+	loadSuppliers(request?: GetPartnersRequest): Promise<void>;
 	loadSupplies(request?: GetSuppliesRequest): Promise<void>;
 	setSearch(term: string): void;
-	createSupplier(request: CreateSupplierRequest): Promise<void>;
-	updateSupplier(request: UpdateSupplierRequest): Promise<void>;
+	createSupplier(request: CreatePartnerRequest): Promise<void>;
+	updateSupplier(request: UpdateParatnerRequest): Promise<void>;
 	deleteSupplier(id: number): Promise<void>;
 }
 
-export class SupplierStore implements ISupplierStore {
-	allSuppliers: Loadable<Supplier[]> = [];
+export class PartnerStore implements IPartnerStore {
+	allSuppliers: Loadable<Partner[]> = [];
 	supplies: Loadable<Supply[]> = [];
 	searchTerm = "";
 
@@ -46,7 +46,7 @@ export class SupplierStore implements ISupplierStore {
 		makeAutoObservable(this);
 	}
 
-	get filteredSuppliers(): Loadable<Supplier[]> {
+	get filteredSuppliers(): Loadable<Partner[]> {
 		if (this.allSuppliers === "loading") {
 			return "loading";
 		}
@@ -60,7 +60,7 @@ export class SupplierStore implements ISupplierStore {
 		this.searchTerm = term;
 	}
 
-	async loadSuppliers(request?: GetSuppliersRequest | null): Promise<void> {
+	async loadSuppliers(request?: GetPartnersRequest | null): Promise<void> {
 		runInAction(() => (this.allSuppliers = "loading"));
 
 		const result = await tryRun(() => SupplierApi.getAll(request));
@@ -87,7 +87,7 @@ export class SupplierStore implements ISupplierStore {
 		runInAction(() => (this.supplies = result.data));
 	}
 
-	async createSupplier(request: CreateSupplierRequest): Promise<void> {
+	async createSupplier(request: CreatePartnerRequest): Promise<void> {
 		const result = await tryRun(() => SupplierApi.create(request));
 
 		if (result.status === "fail") {
@@ -108,7 +108,7 @@ export class SupplierStore implements ISupplierStore {
 		});
 	}
 
-	async updateSupplier(request: UpdateSupplierRequest): Promise<void> {
+	async updateSupplier(request: UpdateParatnerRequest): Promise<void> {
 		const result = await tryRun(() => SupplierApi.update(request));
 
 		if (result.status === "fail") {
