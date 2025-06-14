@@ -23,7 +23,7 @@ const PartnerPage: React.FC = observer(() => {
 	const { partnersStore: supplierStore } = useStore();
 
 	useEffect(() => {
-		supplierStore.loadSuppliers();
+		supplierStore.getAll();
 	}, [supplierStore, supplierStore.searchTerm]);
 
 	const rows = useMemo<Loadable<Partner[]>>(

@@ -25,7 +25,7 @@ export interface IPartnerStore {
 	searchTerm: string;
 	filteredSuppliers: Loadable<Partner[]>;
 
-	loadSuppliers(request?: GetPartnersRequest): Promise<void>;
+	getAll(request?: GetPartnersRequest): Promise<void>;
 	loadSupplies(request?: GetSuppliesRequest): Promise<void>;
 	setSearch(term: string): void;
 	createSupplier(request: CreatePartnerRequest): Promise<void>;
@@ -60,10 +60,15 @@ export class PartnerStore implements IPartnerStore {
 		this.searchTerm = term;
 	}
 
-	async loadSuppliers(request?: GetPartnersRequest | null): Promise<void> {
+	async getAll(request?: GetPartnersRequest | null): Promise<void> {
+		if (this.allSuppliers === "loading") {
+			return;
+		}
+
 		runInAction(() => (this.allSuppliers = "loading"));
 
 		const result = await tryRun(() => SupplierApi.getAll(request));
+
 		if (result.status === "fail") {
 			this.notificationStore.error("Failed to load suppliers");
 		}

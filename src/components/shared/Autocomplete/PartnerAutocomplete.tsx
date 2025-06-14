@@ -14,11 +14,12 @@ interface PartnerAutocompleteProps {
 const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ value, onChange }) => {
 	const { partnersStore } = useStore();
 	const options = partnersStore.allSuppliers === "loading" ? [] : partnersStore.allSuppliers;
+	console.log(options);
 
 	return (
 		<EntityAutocomplete<Partner>
-			label={translate("fieldSupplier")}
-			placeholder={translate("searchSuppliersPlaceholder")}
+			label={translate("partnerAutocomplete.partner")}
+			placeholder={translate("partnerAutocomplete.search")}
 			options={options}
 			value={value}
 			onChange={onChange}

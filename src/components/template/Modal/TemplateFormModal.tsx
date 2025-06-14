@@ -1,4 +1,3 @@
-// components/template/Modal/TemplateFormModal.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -22,6 +21,7 @@ import ConfirmDialog from "components/shared/ConfirmDialog";
 import { translate } from "i18n/i18n";
 import { Template, TemplateItem, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
+import { formatNumberWithCommas } from "utils/formatCurrency";
 
 const CONTENT_HEIGHT = 560;
 const TEMPLATE_TYPES: TemplateType[] = ["Supply", "Sale"];
@@ -41,22 +41,16 @@ interface Props {
 }
 
 const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave }) => {
-	const { partnersStore: supplierStore } = useStore();
+	const { partnersStore, productStore } = useStore();
 
-	// form state
 	const [name, setName] = useState("");
 	const [type, setType] = useState<TemplateType>("Supply");
 	const [partnerId, setPartnerId] = useState(0);
 	const [items, setItems] = useState<TemplateItem[]>([]);
 	const [selectedProduct, setSelectedProduct] = useState<TemplateItem | null>(null);
-
-	// saving state
 	const [saving, setSaving] = useState(false);
-
-	// confirm-close dialog
 	const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
 
-	// snapshot for dirty-check
 	const initial = useMemo(
 		() => ({
 			name: template?.name ?? "",
@@ -67,27 +61,25 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 		[template],
 	);
 
-	// initialize when opened
 	useEffect(() => {
 		if (!isOpen) return;
-		supplierStore.loadSuppliers();
+		partnersStore.getAll();
+		productStore.loadProducts();
 		setName(template?.name ?? "");
 		setType(template?.type ?? "Supply");
 		setPartnerId(template?.partnerId ?? 0);
 		setItems(template?.items ?? []);
 		setSelectedProduct(null);
-	}, [isOpen, template, supplierStore]);
+	}, [isOpen, template, partnersStore]);
 
-	// clear partner if type changed
 	useEffect(() => {
 		if (!isOpen) return;
 		if (!template || type !== template.type) {
 			setPartnerId(0);
-			supplierStore.loadSuppliers();
+			partnersStore.getAll();
 		}
-	}, [type, isOpen, template, supplierStore]);
+	}, [type, isOpen, template, partnersStore]);
 
-	// detect unsaved changes
 	const isDirty = () =>
 		name !== initial.name ||
 		type !== initial.type ||
@@ -106,7 +98,6 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 		onClose();
 	};
 
-	// add selected product to items
 	const handleAddProduct = () => {
 		if (!selectedProduct) return;
 		setItems((prev) => [
@@ -123,7 +114,6 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 		setSelectedProduct(null);
 	};
 
-	// update or remove an item
 	const updateItem = <K extends keyof TemplateItem>(
 		idx: number,
 		field: K,
@@ -133,7 +123,7 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 	};
 	const removeItem = (idx: number) => setItems((prev) => prev.filter((_, i) => i !== idx));
 
-	const suppliers = Array.isArray(supplierStore.allSuppliers) ? supplierStore.allSuppliers : [];
+	const suppliers = Array.isArray(partnersStore.allSuppliers) ? partnersStore.allSuppliers : [];
 
 	const isSaveDisabled = !name.trim() || !type || partnerId === 0 || items.length === 0;
 
@@ -143,6 +133,19 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 		setSaving(false);
 		doClose();
 	};
+
+	const calculateTotal = (item: TemplateItem): number => {
+		if (item.discount && item.discount > 0) {
+			return item.unitPrice * item.quantity - item.discount;
+		}
+
+		return item.unitPrice * item.quantity;
+	};
+
+	const totalDue = useMemo(
+		() => items.reduce((sum, item) => sum + calculateTotal(item), 0),
+		[items],
+	);
 
 	return (
 		<>
@@ -171,7 +174,6 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 						p: 2,
 					}}
 				>
-					{/* First row: 3 equal columns */}
 					<Grid container spacing={2} mb={2} alignItems="center">
 						<Grid size={{ xs: 12, sm: 4 }}>
 							<TextField
@@ -207,11 +209,11 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 						</Grid>
 					</Grid>
 
-					{/* Second row: product selector (2/3) & add button (1/3) */}
 					<Grid container spacing={2} mb={2} alignItems="center">
 						<Grid size={{ xs: 12, sm: 8 }}>
 							<ProductAutocomplete
 								value={null}
+								type={type}
 								onChange={(p) =>
 									p
 										? setSelectedProduct({
@@ -238,11 +240,10 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 						</Grid>
 					</Grid>
 
-					{/* Items table */}
 					<Box sx={{ flex: 1, overflowY: "auto" }}>
-						{items.map((it, idx) => (
+						{items.map((item, idx) => (
 							<Box
-								key={`${it.id}-${idx}`}
+								key={`${item.id}-${idx}`}
 								display="grid"
 								gridTemplateColumns="2fr 1fr 1fr 1fr auto"
 								gap={2}
@@ -250,32 +251,36 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 								mb={1}
 							>
 								<TextField
-									label={translate("product")}
-									value={it.productName}
+									label={translate("template.itemProduct")}
+									value={item.productName}
 									margin="dense"
 									fullWidth
-									disabled
+									slotProps={{
+										input: {
+											readOnly: true,
+										},
+									}}
 								/>
 								<TextField
-									label={translate("quantity")}
+									label={translate("template.itemQuantity")}
 									type="number"
-									value={it.quantity}
+									value={item.quantity}
 									margin="dense"
 									fullWidth
 									onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))}
 								/>
 								<TextField
-									label={translate("unitPrice")}
+									label={translate("template.itemUnitPrice")}
 									type="number"
-									value={it.unitPrice}
+									value={item.unitPrice}
 									margin="dense"
 									fullWidth
 									onChange={(e) => updateItem(idx, "unitPrice", Number(e.target.value))}
 								/>
 								<TextField
-									label={translate("discount")}
+									label={translate("template.itemDiscount")}
 									type="number"
-									value={it.discount ?? 0}
+									value={item.discount ?? 0}
 									margin="dense"
 									fullWidth
 									onChange={(e) => updateItem(idx, "discount", Number(e.target.value))}
@@ -288,11 +293,29 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 					</Box>
 				</DialogContent>
 
-				<DialogActions sx={{ justifyContent: "flex-end" }}>
-					<Button onClick={attemptClose}>{translate("cancel")}</Button>
-					<Button variant="contained" disabled={isSaveDisabled} onClick={handleSave}>
-						{translate("save")}
-					</Button>
+				<DialogActions
+					sx={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						px: 2,
+					}}
+				>
+					<Typography variant="subtitle1">
+						{translate("template.totalDue")}: {formatNumberWithCommas(totalDue)}
+					</Typography>
+
+					<Box>
+						<Button onClick={attemptClose}>{translate("cancel")}</Button>
+						<Button
+							variant="contained"
+							disabled={isSaveDisabled}
+							onClick={handleSave}
+							sx={{ ml: 1 }}
+						>
+							{translate("save")}
+						</Button>
+					</Box>
 				</DialogActions>
 			</Dialog>
 

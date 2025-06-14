@@ -7,11 +7,11 @@ import { translate } from "i18n/i18n";
 
 import { SupplyFormState } from "../useSupplyForm";
 
-interface Props {
+interface PaymentStepProps {
 	form: SupplyFormState;
 }
 
-const PaymentStep: React.FC<Props> = ({ form }) => (
+const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 	<Grid container rowSpacing={3} columnSpacing={2}>
 		<Grid size={{ xs: 12, sm: 4 }}>
 			<TextField
@@ -87,7 +87,6 @@ const PaymentStep: React.FC<Props> = ({ form }) => (
 			/>
 		</Grid>
 
-		{/* attachments row: button 1/3, chips 2/3 */}
 		<Grid container size={{ xs: 12 }} columnSpacing={2} alignItems="flex-start">
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<Button fullWidth variant="outlined" startIcon={<UploadFileIcon />} component="label">

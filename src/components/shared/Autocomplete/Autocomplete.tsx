@@ -1,5 +1,6 @@
 import React from "react";
 import { Autocomplete, TextField } from "@mui/material";
+import { translate } from "i18n/i18n";
 
 export interface EntityWithIdName {
 	id: number;
@@ -51,6 +52,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 					{option.name}
 				</li>
 			)}
+			noOptionsText={translate("noOptionsTitle")}
 			renderInput={(params) => (
 				<TextField {...params} label={label} placeholder={placeholder} fullWidth />
 			)}

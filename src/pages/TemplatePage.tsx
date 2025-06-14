@@ -30,20 +30,20 @@ const TemplatePage: React.FC = () => {
 		{
 			key: "name",
 			field: "name",
-			headerName: translate("templateFieldName"),
+			headerName: translate("template.name"),
 			sortable: true,
 		},
 		{
 			key: "type",
 			field: "type",
-			headerName: translate("templateType"),
+			headerName: translate("template.type"),
 			sortable: true,
 			renderCell: (tpl) => translate(tpl.type === "Supply" ? "supply" : "sale"),
 		},
 		{
 			key: "partnerName",
 			field: "partnerName",
-			headerName: translate("partner"),
+			headerName: translate("template.partner"),
 			sortable: true,
 		},
 		{

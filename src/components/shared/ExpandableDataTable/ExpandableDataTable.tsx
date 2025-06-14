@@ -170,7 +170,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		);
 	};
 
-	// Show spinner while loading
 	if (displayedRows === "loading") {
 		return (
 			<Box
@@ -208,79 +207,77 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</TableHead>
 
 				<TableBody>
-					{hasNoData ? (
-						<TableRow>
-							<TableCell colSpan={columns.length + (renderExpanded ? 1 : 0)} align="center">
-								{translate("noRecords")}
-							</TableCell>
-						</TableRow>
-					) : (
-						displayedRows.map((row, index) => {
-							const isOpen = renderExpanded ? expandedRows.has(row.id) : false;
+					{displayedRows.map((row, index) => {
+						const isOpen = renderExpanded ? expandedRows.has(row.id) : false;
 
-							// Determine stripe color using the index
-							const isOdd = index % 2 === 0; // zero‐based: 0 = first row (odd background)
-							const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
-							const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
+						// Determine stripe color using the index
+						const isOdd = index % 2 === 0; // zero‐based: 0 = first row (odd background)
+						const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
+						const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
 
-							return (
-								<React.Fragment key={row.id}>
-									<TableRow
-										hover={isSelectable || Boolean(renderExpanded)}
-										onClick={() => handleRowClickInternal(row)}
-										tabIndex={onRowClick ? 0 : undefined}
-										sx={{
-											backgroundColor,
-											cursor: isSelectable ? "pointer" : "default",
-										}}
-									>
-										{renderExpanded && (
-											<TableCell padding="checkbox">
-												<IconButton
-													size="medium"
-													sx={{ p: 0 }}
-													onClick={() => toggleExpandRow(row.id)}
-												>
-													{isOpen ? (
-														<KeyboardArrowUpIcon fontSize="medium" />
-													) : (
-														<KeyboardArrowDownIcon fontSize="medium" />
-													)}
-												</IconButton>
-											</TableCell>
-										)}
-
-										{columns.map((col) => (
-											<TableCell
-												key={`${row.id}-${col.key}`}
-												align={col.align ?? "left"}
-												sx={BODY_CELL_SX}
-											>
-												{renderCellContent(row, col)}
-											</TableCell>
-										))}
-									</TableRow>
-
+						return (
+							<React.Fragment key={row.id}>
+								<TableRow
+									hover={isSelectable || Boolean(renderExpanded)}
+									onClick={() => handleRowClickInternal(row)}
+									tabIndex={onRowClick ? 0 : undefined}
+									sx={{
+										backgroundColor,
+										cursor: isSelectable ? "pointer" : "default",
+									}}
+								>
 									{renderExpanded && (
-										<TableRow>
-											<TableCell
-												style={{ paddingBottom: 0, paddingTop: 0 }}
-												colSpan={columns.length + 1}
+										<TableCell padding="checkbox">
+											<IconButton
+												size="medium"
+												sx={{ p: 0 }}
+												onClick={() => toggleExpandRow(row.id)}
 											>
-												<Collapse in={isOpen} timeout="auto" unmountOnExit>
-													<Box sx={{ margin: 1 }}>{renderExpanded(row)}</Box>
-												</Collapse>
-											</TableCell>
-										</TableRow>
+												{isOpen ? (
+													<KeyboardArrowUpIcon fontSize="medium" />
+												) : (
+													<KeyboardArrowDownIcon fontSize="medium" />
+												)}
+											</IconButton>
+										</TableCell>
 									)}
-								</React.Fragment>
-							);
-						})
-					)}
+
+									{columns.map((col) => (
+										<TableCell
+											key={`${row.id}-${col.key}`}
+											align={col.align ?? "left"}
+											sx={BODY_CELL_SX}
+										>
+											{renderCellContent(row, col)}
+										</TableCell>
+									))}
+								</TableRow>
+
+								{renderExpanded && (
+									<TableRow>
+										<TableCell
+											style={{ paddingBottom: 0, paddingTop: 0 }}
+											colSpan={columns.length + 1}
+										>
+											<Collapse in={isOpen} timeout="auto" unmountOnExit>
+												<Box sx={{ margin: 1 }}>{renderExpanded(row)}</Box>
+											</Collapse>
+										</TableCell>
+									</TableRow>
+								)}
+							</React.Fragment>
+						);
+					})}
 				</TableBody>
 			</Table>
 
-			{pagination && totalRows > 0 && (
+			{hasNoData && (
+				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
+					{translate("noRecords")}
+				</Box>
+			)}
+
+			{pagination && (
 				<TablePagination
 					component="div"
 					count={totalRows}

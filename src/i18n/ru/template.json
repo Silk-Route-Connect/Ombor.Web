@@ -16,6 +16,14 @@
   "unsavedChangesContent": "Вы уверены, что хотите закрыть форму? Все изменения будут потеряны.",
   "discard": "Отменить",
   "keepEditing": "Продолжить редактирование",
+  "template.name": "Название",
+  "template.partner": "Партнёр",
+  "template.type": "Тип",
   "templateType.Sale": "Продажа",
-  "templateType.Supply": "Поставка" 
+  "templateType.Supply": "Поставка",
+  "template.itemProduct": "Товар",
+  "template.itemQuantity": "Кол.во",
+  "template.itemUnitPrice": "Цена за шт.",
+  "template.itemDiscount": "Скидка",
+  "template.totalDue": "Общая сумма"
 }

@@ -54,6 +54,7 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 		<Grid container columnSpacing={2} alignItems="flex-end" size={{ xs: 12 }}>
 			<Grid size={{ xs: 12, sm: 8 }}>
 				<ProductAutocomplete
+					type="Supply"
 					value={
 						form.productToAdd && productStore.allProducts !== "loading"
 							? (productStore.allProducts.find((p) => p.id === form.productToAdd) ?? null)

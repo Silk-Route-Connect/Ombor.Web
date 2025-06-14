@@ -11,5 +11,9 @@
   "transfer": "Перевод",
   "templateSearchPlaceholder": "Поиск шаблонов...",
   "phoneNumber": "Номер телефона",
-  "addPhoneNumber": "Добавить номер"
+  "addPhoneNumber": "Добавить номер",
+  "partnerAutocomplete.partner": "Партнёр",
+  "partnerAutocomplete.search": "Поиск партнёров...",
+  "noRecords": "Нет записей",
+  "noOptionsTitle": "Нет записей"
 }

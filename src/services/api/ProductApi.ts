@@ -20,7 +20,7 @@ const primitiveTypes = ["string", "number", "boolean"];
 export class ProductApi {
 	private readonly baseUrl: string = "/api/products";
 
-	async getAll(request: GetProductsRequest): Promise<Product[]> {
+	async getAll(request?: GetProductsRequest): Promise<Product[]> {
 		const url = this.getUrl(request);
 		const response = await http.get<Product[]>(url);
 

@@ -14,7 +14,7 @@ import { useStore } from "stores/StoreContext";
 import { formatPrice } from "utils/supplyUtils";
 
 const SupplyPage: React.FC = observer(() => {
-	const { supplyStore, productStore, templateStore, partnersStore: supplierStore } = useStore();
+	const { supplyStore, productStore, templateStore, partnersStore } = useStore();
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -111,7 +111,6 @@ const SupplyPage: React.FC = observer(() => {
 		);
 	}, [supplyStore.allSupplies, searchTerm]);
 
-	// When a row is clicked, we could open a side pane:
 	const handleRowClick = useCallback((row: Supply) => {
 		// TODO: implement sidepane opening (e.g. set state or call store)
 		console.log("Row clicked:", row.id);
@@ -145,7 +144,7 @@ const SupplyPage: React.FC = observer(() => {
 				onClose={handleFormClose}
 				onSave={handleFormSave}
 				productStore={productStore}
-				supplierStore={supplierStore}
+				partnersStore={partnersStore}
 				supplyStore={supplyStore}
 				templateStore={templateStore}
 				onSaveTemplate={(val) => {
