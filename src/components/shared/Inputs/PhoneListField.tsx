@@ -1,6 +1,7 @@
 import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Grid, IconButton, TextField } from "@mui/material";
+import { translate } from "i18n/i18n";
 
 export interface PhoneListInputProps {
 	values: string[];
@@ -39,7 +40,7 @@ const PhoneListField: React.FC<PhoneListInputProps> = ({ values, onChange }) => 
 						}}
 					>
 						<TextField
-							label="Phone"
+							label={translate("phoneNumber")}
 							value={phone}
 							onChange={(e) => updatePhoneAt(idx, e.target.value)}
 							fullWidth
@@ -69,7 +70,7 @@ const PhoneListField: React.FC<PhoneListInputProps> = ({ values, onChange }) => 
 			))}
 			<Grid size={{ xs: 12 }}>
 				<Button size="small" onClick={addPhoneField}>
-					Add Phone
+					{translate("addPhoneNumber")}
 				</Button>
 			</Grid>
 		</Grid>

@@ -17,14 +17,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 	onChange,
 	placeholder,
 	className = "",
-	sx = { width: { xs: "100%", sm: 300 } },
+	sx = { width: { xs: "100%", sm: 350 } },
 }) => {
 	return (
 		<TextField
 			className={className}
 			variant="outlined"
 			size="small"
-			sx={sx}
+			sx={{
+				...sx,
+			}}
 			placeholder={placeholder}
 			value={value}
 			onChange={(e) => onChange(e.target.value)}

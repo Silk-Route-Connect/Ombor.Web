@@ -1,4 +1,3 @@
-// src/components/supplier/Form/SupplierFormModal.tsx
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
@@ -8,35 +7,42 @@ import {
 	DialogActions,
 	DialogContent,
 	DialogTitle,
+	FormControl,
 	FormControlLabel,
 	Grid,
 	IconButton,
+	InputLabel,
+	MenuItem,
+	Select,
 	Switch,
 	TextField,
 } from "@mui/material";
 import PhoneListInput from "components/shared/Inputs/PhoneListField";
 import { translate } from "i18n/i18n";
-import { Supplier } from "models/supplier";
+import { Partner, PartnerType } from "models/partner";
 
-export type SupplierFormPayload = {
+export type PartnerFormPayload = {
 	name: string;
 	companyName?: string;
 	address?: string;
 	email?: string;
 	phoneNumbers: string[];
+	type: PartnerType;
 	isActive: boolean;
 };
 
-export interface SupplierFormModalProps {
+const PARTNER_TYPES: PartnerType[] = ["All", "Customer", "Supplier"];
+
+export interface PartnerFormModalProps {
 	isOpen: boolean;
-	supplier?: Supplier | null;
+	partner?: Partner | null;
 	onClose: () => void;
-	onSave: (payload: SupplierFormPayload) => void;
+	onSave: (payload: PartnerFormPayload) => void;
 }
 
-const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
+const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	isOpen,
-	supplier,
+	partner,
 	onClose,
 	onSave,
 }) => {
@@ -46,27 +52,28 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 		reset,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<SupplierFormPayload>({
+	} = useForm<PartnerFormPayload>({
 		defaultValues: {
 			name: "",
 			companyName: "",
 			address: "",
 			email: "",
 			phoneNumbers: [""],
+			type: "All",
 			isActive: true,
 		},
 	});
 
 	useEffect(() => {
 		if (!isOpen) return;
-		if (supplier) {
+		if (partner) {
 			reset({
-				name: supplier.name,
-				companyName: supplier.companyName ?? "",
-				address: supplier.address ?? "",
-				email: supplier.email ?? "",
-				phoneNumbers: supplier.phoneNumbers.length ? supplier.phoneNumbers : [""],
-				isActive: supplier.isActive,
+				name: partner.name,
+				companyName: partner.companyName ?? "",
+				address: partner.address ?? "",
+				email: partner.email ?? "",
+				phoneNumbers: partner.phoneNumbers.length > 0 ? partner.phoneNumbers : [""],
+				type: partner.type,
 			});
 		} else {
 			reset({
@@ -75,17 +82,18 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 				address: "",
 				email: "",
 				phoneNumbers: [""],
+				type: "All",
 				isActive: true,
 			});
 		}
-	}, [isOpen, supplier, reset]);
+	}, [isOpen, partner, reset]);
 
-	const onSubmit = (data: SupplierFormPayload) => {
+	const onSubmit = (data: PartnerFormPayload) => {
 		const cleanedPhones = data.phoneNumbers.filter((p) => p.trim() !== "");
 		onSave({ ...data, phoneNumbers: cleanedPhones });
 	};
 
-	const dialogTitle = supplier ? translate("editSupplier") : translate("createSupplier");
+	const dialogTitle = partner ? translate("partner.updateTitle") : translate("partner.createTitle");
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
@@ -102,36 +110,66 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent dividers>
-					<Grid container spacing={4}>
-						{/* Row 1: Name | Company Name */}
+					<Grid container spacing={3}>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<TextField
-								label={translate("fieldName")}
+								label={translate("partner.name")}
 								fullWidth
+								margin="dense"
 								{...register("name", {
-									required: translate("fieldNameRequired"),
+									required: translate("partner.nameRequired"),
 								})}
 								error={!!errors.name}
 								helperText={errors.name?.message}
 							/>
 						</Grid>
+
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<FormControl fullWidth margin="dense">
+								<InputLabel id="partner-type-label">{translate("partner.type")}</InputLabel>
+								<Controller
+									name="type"
+									control={control}
+									render={({ field }) => (
+										<Select
+											{...field}
+											labelId="partner-type-label"
+											label={translate("partner.type")}
+										>
+											{PARTNER_TYPES.map((t) => (
+												<MenuItem key={t} value={t}>
+													{translate(`partner.type.${t.toLowerCase()}`)}
+												</MenuItem>
+											))}
+										</Select>
+									)}
+								/>
+							</FormControl>
+						</Grid>
+
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<TextField
-								label={translate("fieldCompanyName")}
+								label={translate("partner.company")}
 								fullWidth
+								margin="dense"
 								{...register("companyName")}
 							/>
 						</Grid>
 
-						{/* Row 2: Address | Email */}
 						<Grid size={{ xs: 12, sm: 6 }}>
-							<TextField label={translate("fieldAddress")} fullWidth {...register("address")} />
+							<TextField
+								label={translate("fieldAddress")}
+								fullWidth
+								margin="dense"
+								{...register("address")}
+							/>
 						</Grid>
-						<Grid size={{ xs: 12, sm: 6 }}>
+						<Grid size={{ xs: 12 }}>
 							<TextField
 								label={translate("fieldEmail")}
 								type="email"
 								fullWidth
+								margin="dense"
 								{...register("email", {
 									pattern: {
 										value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -143,7 +181,6 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 							/>
 						</Grid>
 
-						{/* Row 3: Phone Numbers */}
 						<Grid size={{ xs: 12 }}>
 							<Controller
 								name="phoneNumbers"
@@ -155,25 +192,18 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 							/>
 						</Grid>
 
-						{/* Row 4: Active Switch */}
 						<Grid size={{ xs: 12 }}>
-							<Controller
-								name="isActive"
-								control={control}
-								defaultValue={true}
-								render={({ field }) => (
-									<FormControlLabel
-										control={
-											<Switch
-												{...field}
-												checked={field.value}
-												onChange={(e) => field.onChange(e.target.checked)}
-												color="primary"
-											/>
-										}
-										label={translate("fieldIsActive")}
+							<FormControlLabel
+								control={
+									<Controller
+										name="isActive"
+										control={control}
+										render={({ field }) => (
+											<Switch {...field} checked={field.value} color="primary" />
+										)}
 									/>
-								)}
+								}
+								label={translate("fieldIsActive")}
 							/>
 						</Grid>
 					</Grid>
@@ -182,7 +212,7 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 				<DialogActions>
 					<Button onClick={onClose}>{translate("cancel")}</Button>
 					<Button type="submit" variant="contained" color="primary">
-						{supplier ? translate("update") : translate("create")}
+						{partner ? translate("update") : translate("create")}
 					</Button>
 				</DialogActions>
 			</form>
@@ -190,4 +220,4 @@ const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 	);
 };
 
-export default SupplierFormModal;
+export default PartnerFormModal;
