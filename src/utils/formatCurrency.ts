@@ -17,3 +17,12 @@ export function formatUZS(value: number): string {
 		return `${value.toLocaleString("ru-RU")}`;
 	}
 }
+
+/**
+ * Formats a number with commas as thousand separators.
+ * E.g. 1500   → "1,500"
+ *       21003000 → "21,003,000"
+ */
+export function formatNumberWithCommas(value: number): string {
+	return value.toLocaleString();
+}
