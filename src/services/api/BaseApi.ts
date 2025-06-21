@@ -1,6 +1,14 @@
 import { toQueryString } from "utils/toQueryParameters";
 
+export const PrimitiveTypes = ["string", "number", "boolean", "bigint"] as readonly string[];
+
 abstract class BaseApi {
+	protected readonly formHeaders = {
+		headers: {
+			"Content-Type": "multipart/form-data",
+			Accept: "application/json",
+		},
+	};
 	protected readonly baseUrl: string;
 
 	constructor(resourceUrl: string) {
