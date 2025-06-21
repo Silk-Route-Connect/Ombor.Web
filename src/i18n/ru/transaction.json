@@ -1,0 +1,9 @@
+{
+  "transaction.id": "Номер",
+  "transaction.supply.partnerName": "Поставщик",
+  "transaction.date": "Дата",
+  "transaction.totalDue": "Общая сумма",
+  "transaction.totalPaid": "Оплачено",
+  "transaction.notes": "Комментарии",
+  "transactions.suppliesHeader": "Поставки"
+}

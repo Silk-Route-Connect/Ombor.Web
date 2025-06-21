@@ -4,6 +4,7 @@ import productRu from "./ru/product.json";
 import supplierRu from "./ru/supplier.json";
 import supplyRu from "./ru/supply.json";
 import templateRu from "./ru/template.json";
+import transactionRu from "./ru/transaction.json";
 import categoryUz from "./uz/category.json";
 import commonUz from "./uz/common.json";
 import productUz from "./uz/product.json";
@@ -14,7 +15,15 @@ import templateUz from "./uz/template.json";
 export type Locale = "ru" | "uz";
 
 const messages: Record<Locale, Record<string, string>> = {
-	ru: { ...categoryRu, ...productRu, ...supplierRu, ...supplyRu, ...commonRu, ...templateRu },
+	ru: {
+		...categoryRu,
+		...productRu,
+		...supplierRu,
+		...supplyRu,
+		...commonRu,
+		...templateRu,
+		...transactionRu,
+	},
 	uz: { ...categoryUz, ...productUz, ...supplierUz, ...supplyUz, ...commonUz, ...templateUz },
 };
 
