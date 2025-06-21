@@ -7,11 +7,17 @@ import { translate } from "i18n/i18n";
 
 interface SupplyHeaderProps {
 	searchValue: string;
+	titleCount: string;
 	onSearch: (value: string) => void;
 	onCreate: () => void;
 }
 
-const SupplyHeader: React.FC<SupplyHeaderProps> = ({ searchValue, onSearch, onCreate }) => (
+const SupplyHeader: React.FC<SupplyHeaderProps> = ({
+	searchValue,
+	titleCount,
+	onSearch,
+	onCreate,
+}) => (
 	<Box
 		display="flex"
 		flexWrap="wrap"
@@ -20,7 +26,9 @@ const SupplyHeader: React.FC<SupplyHeaderProps> = ({ searchValue, onSearch, onCr
 		mb={3}
 		sx={{ gap: 2 }}
 	>
-		<Typography variant="h5">{translate("supplies")}</Typography>
+		<Typography variant="h5">
+			{translate("transactions.suppliesHeader")} ({titleCount})
+		</Typography>
 		<Box display="flex" alignItems="center" sx={{ gap: 2 }}>
 			<SearchInput
 				value={searchValue}

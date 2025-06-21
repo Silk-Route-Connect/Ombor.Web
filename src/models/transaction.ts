@@ -16,6 +16,7 @@ export type TransactionRecord = {
 	partnerId: number;
 	partnerName: string;
 	notes?: string;
+	date: Date;
 	transactionNumber?: string;
 	totalDue: number;
 	totalPaid: number;

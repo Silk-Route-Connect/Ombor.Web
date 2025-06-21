@@ -83,6 +83,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	const [order, setOrder] = useState<SortOrder>("asc");
 	const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
 
+	console.log(rows);
+
 	// If the total row count changes, ensure current page is valid
 	useEffect(() => {
 		if (rows === "loading") return;
@@ -183,10 +185,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		);
 	}
 
-	const allRows = rows === "loading" ? [] : rows;
-	const totalRows = allRows.length;
+	const totalRows = displayedRows.length;
 	const hasNoData = totalRows === 0 && rows !== "loading";
-
 	return (
 		<TableContainer component={Paper} elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<Table stickyHeader size="small">
