@@ -138,7 +138,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 										>
 											{PARTNER_TYPES.map((t) => (
 												<MenuItem key={t} value={t}>
-													{translate(`partner.type.${t.toLowerCase()}`)}
+													{translate(`partner.type.${t}`)}
 												</MenuItem>
 											))}
 										</Select>
