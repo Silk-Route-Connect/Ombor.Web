@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link as MuiLink } from "@mui/material";
+import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
+import { SortOrder } from "components/shared/DataTable/DataTable";
 import {
 	Column,
 	ExpandableDataTable,
@@ -10,19 +12,20 @@ import SupplyItemsTable from "components/supply/Table/SupplyItemsTable";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Supply } from "models/supply";
+import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
 import { formatPrice } from "utils/supplyUtils";
 
 const SupplyPage: React.FC = observer(() => {
-	const { supplyStore, productStore, templateStore, partnersStore } = useStore();
+	const { supplyStore, productStore, templateStore, partnersStore, transactionStore } = useStore();
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
-		supplyStore.loadSupplies();
-	}, [supplyStore]);
+		transactionStore.getAll();
+	}, [supplyStore, transactionStore]);
 
 	const handleCreate = useCallback(() => {
 		console.log(selectedSupply);
@@ -31,87 +34,86 @@ const SupplyPage: React.FC = observer(() => {
 	}, []);
 
 	// Columns for the main supplies table
-	const supplyColumns: Column<Supply>[] = useMemo(
+	const supplyColumns: Column<TransactionRecord>[] = useMemo(
 		() => [
-			{
-				key: "id",
-				field: "id",
-				headerName: translate("fieldId"),
-				width: 80,
-			},
 			{
 				key: "date",
 				field: "date",
-				headerName: translate("fieldDate"),
-				width: 120,
-				renderCell: (row) => new Date(row.date).toLocaleDateString("ru-RU"),
+				headerName: translate("transaction.date"),
+				width: "20%",
+				sortable: true,
+				renderCell: (row) => new Date(row.date).toLocaleString("ru-RU"),
 			},
 			{
-				key: "supplierName",
-				field: "supplierName",
-				headerName: translate("fieldSupplierName"),
-				width: 200,
+				key: "partnerName",
+				field: "partnerName",
+				headerName: translate("transaction.supply.partnerName"),
+				width: "20%",
+				sortable: true,
 				renderCell: (row) => (
 					<MuiLink
-						href={`/suppliers/${row.supplierId}`}
+						href={`/partners/${row.partnerId}`}
 						underline="none"
 						sx={{
 							color: "primary.main",
 							"&:hover": { textDecoration: "underline" },
 						}}
 					>
-						{row.supplierName}
+						{row.partnerName}
 					</MuiLink>
 				),
 			},
 			{
 				key: "totalDue",
 				field: "totalDue",
-				headerName: translate("fieldTotalDue"),
+				headerName: translate("transaction.totalDue"),
 				align: "right",
-				width: 120,
+				width: "20%",
+				sortable: true,
 				renderCell: (row) => formatPrice(row.totalDue),
 			},
 			{
 				key: "totalPaid",
 				field: "totalPaid",
-				headerName: translate("fieldTotalPaid"),
+				headerName: translate("transaction.totalPaid"),
 				align: "right",
-				width: 120,
+				width: "20%",
+				sortable: true,
 				renderCell: (row) => formatPrice(row.totalPaid),
 			},
 			{
 				key: "notes",
 				field: "notes",
-				headerName: translate("fieldNotes"),
-				width: 200,
-				renderCell: (row) => row.notes ?? "—",
+				headerName: translate("transaction.notes"),
+				width: "15%",
+				renderCell: (row) => row.notes?.substring(0, 20) ?? "—",
+			},
+			{
+				key: "actions",
+				headerName: "",
+				width: 80,
+				align: "right",
+				renderCell: (row: TransactionRecord) => (
+					<ActionMenuCell
+						onEdit={() => onEdit(row)}
+						onArchive={() => {}}
+						onDelete={() => onDelete(row)}
+					/>
+				),
 			},
 		],
 		[],
 	);
 
-	// Filtered rows based on searchTerm.
-	// `supplyStore.supplies` is Loadable<Supply[]>.
-	const filteredSupplies = useMemo(() => {
-		const all = supplyStore.allSupplies;
-		if (all === "loading") {
-			return "loading";
-		}
-		// If there’s no search text, show all
-		if (!searchTerm.trim()) {
-			return all;
-		}
-		const lower = searchTerm.trim().toLowerCase();
-		return all.filter(
-			(s) =>
-				String(s.id).includes(lower) ||
-				s.supplierName.toLowerCase().includes(lower) ||
-				(s.notes ?? "").toLowerCase().includes(lower),
-		);
-	}, [supplyStore.allSupplies, searchTerm]);
+	const onEdit = (transaction: TransactionRecord): void => {
+		console.log(transaction);
+	};
 
-	const handleRowClick = useCallback((row: Supply) => {
+	const onDelete = (transaction: TransactionRecord): void => {
+		console.log(transaction);
+	};
+
+	const handleRowClick = useCallback((row: TransactionRecord) => {
 		// TODO: implement sidepane opening (e.g. set state or call store)
 		console.log("Row clicked:", row.id);
 	}, []);
@@ -127,16 +129,32 @@ const SupplyPage: React.FC = observer(() => {
 		return Promise.resolve();
 	};
 
+	const suppliesCount = useMemo(() => {
+		if (transactionStore.supplies === "loading") {
+			return "";
+		}
+
+		return transactionStore.supplies.length.toString();
+	}, [transactionStore.supplies]);
+
 	return (
 		<>
-			<SupplyHeader searchValue={searchTerm} onSearch={setSearchTerm} onCreate={handleCreate} />
+			<SupplyHeader
+				searchValue={searchTerm}
+				titleCount={suppliesCount}
+				onSearch={setSearchTerm}
+				onCreate={handleCreate}
+			/>
 
-			<ExpandableDataTable<Supply>
-				rows={filteredSupplies}
+			<ExpandableDataTable<TransactionRecord>
+				rows={transactionStore.supplies}
 				columns={supplyColumns}
 				pagination
+				onSort={(field: keyof TransactionRecord, order: SortOrder) =>
+					transactionStore.setSort(field, order)
+				}
 				onRowClick={handleRowClick}
-				renderExpanded={(supply) => <SupplyItemsTable items={supply.items} />}
+				renderExpanded={(tx) => <SupplyItemsTable items={tx.lines} />}
 			/>
 
 			<SupplyFormModal

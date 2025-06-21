@@ -16,6 +16,8 @@ export type SortOrder = "asc" | "desc";
 
 export interface ITransactionStore {
 	allTransactions: Loadable<TransactionRecord[]>;
+	supplies: Loadable<TransactionRecord[]>;
+	sales: Loadable<TransactionRecord[]>;
 	filteredTransactions: Loadable<TransactionRecord[]>;
 	currentTransaction: Loadable<TransactionRecord> | null;
 
@@ -106,7 +108,26 @@ export class TransactionStore implements ITransactionStore {
 			});
 		}
 
+		console.log(`returning filtered transactions: ${list.length}`);
 		return list;
+	}
+
+	get supplies(): Loadable<TransactionRecord[]> {
+		console.log("get supplies");
+		if (this.filteredTransactions === "loading") {
+			return "loading";
+		}
+
+		console.log("returning supplies:" + this.filteredTransactions.length);
+		return this.filteredTransactions.filter((el) => el.type === "Supply");
+	}
+
+	get sales(): Loadable<TransactionRecord[]> {
+		if (this.filteredTransactions === "loading") {
+			return "loading";
+		}
+
+		return this.filteredTransactions.filter((el) => el.type === "Sale");
 	}
 
 	async getAll(): Promise<void> {
@@ -122,7 +143,9 @@ export class TransactionStore implements ITransactionStore {
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
+		console.log(data);
 		runInAction(() => (this.allTransactions = data));
+		console.log(`all transactions count in get method: ${this.allTransactions.length}`);
 	}
 
 	async getById(id: number): Promise<void> {

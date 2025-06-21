@@ -61,7 +61,7 @@ export class TemplateStore implements ITemplateStore {
 	}
 
 	sort(field: keyof Template, order: SortOrder): void {
-		console.log(order, field);
+		this.isLoading = field && order ? true : false;
 	}
 
 	get filteredTemplates(): Loadable<Template[]> {

@@ -5,6 +5,7 @@ import ProductStore, { IProductStore } from "./ProductStore";
 import { ISaleStore, SaleStore } from "./SaleStore";
 import { ISupplyStore, SupplyStore } from "./SupplyStore";
 import { TemplateStore } from "./TemplateStore";
+import { ITransactionStore, TransactionStore } from "./TransactionStore";
 
 export class RootStore {
 	notificationStore: NotificationStore;
@@ -14,6 +15,7 @@ export class RootStore {
 	saleStore: ISaleStore;
 	supplyStore: ISupplyStore;
 	templateStore: TemplateStore;
+	transactionStore: ITransactionStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -23,6 +25,7 @@ export class RootStore {
 		this.saleStore = new SaleStore();
 		this.supplyStore = new SupplyStore(this.notificationStore);
 		this.templateStore = new TemplateStore(this.notificationStore);
+		this.transactionStore = new TransactionStore(this.notificationStore);
 	}
 }
 
