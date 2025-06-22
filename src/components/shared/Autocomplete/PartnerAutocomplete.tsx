@@ -12,8 +12,8 @@ interface PartnerAutocompleteProps {
 }
 
 const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ value, onChange }) => {
-	const { partnersStore } = useStore();
-	const options = partnersStore.allSuppliers === "loading" ? [] : partnersStore.allSuppliers;
+	const { partnerStore: partnersStore } = useStore();
+	const options = partnersStore.allPartners === "loading" ? [] : partnersStore.allPartners;
 	console.log(options);
 
 	return (

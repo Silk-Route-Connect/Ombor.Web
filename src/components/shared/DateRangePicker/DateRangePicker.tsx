@@ -3,21 +3,21 @@ import React, { useEffect, useState } from "react";
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { translate } from "i18n/i18n";
 
-export type RangeOption = "week" | "month" | "custom";
+export type DateRangeOption = "week" | "month" | "custom";
 
 export interface DateRangePickerProps {
 	/**
 	 * Called whenever the user changes the range.
 	 * Provides { from, to, option } as actual Date objects + selected option.
 	 */
-	onChange: (range: { from: Date; to: Date; option: RangeOption }) => void;
+	onChange: (range: { from: Date; to: Date; option: DateRangeOption }) => void;
 
 	/** Initial “from” date. Defaults to one week ago. */
 	initialFrom?: Date;
 	/** Initial “to” date. Defaults to today. */
 	initialTo?: Date;
 	/** Initial selected option: "week" | "month" | "custom". Defaults to "week". */
-	initialOption?: RangeOption;
+	initialOption?: DateRangeOption;
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -26,7 +26,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	initialTo,
 	initialOption = "week",
 }) => {
-	const [rangeOption, setRangeOption] = useState<RangeOption>(initialOption);
+	const [rangeOption, setRangeOption] = useState<DateRangeOption>(initialOption);
 	const [fromDate, setFromDate] = useState<Date>(
 		initialFrom || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
 	);
