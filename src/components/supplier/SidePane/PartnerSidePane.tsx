@@ -5,7 +5,7 @@ import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 
 import DetailsTab from "./Tabs/DetailsTab";
-import ReportsTab from "./Tabs/ReportsTab";
+import PaymentsTab from "./Tabs/PaymentsTab";
 import SalesTab from "./Tabs/SalesTab";
 import StatisticsTab from "./Tabs/StatisticsTab";
 import SuppliesTab from "./Tabs/SuppliesTab";
@@ -77,14 +77,7 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 			{
 				key: "reports",
 				label: () => translate("tabConsolidatedReport"),
-				render: ({ partner, fromDate, toDate, setDates }) => (
-					<ReportsTab
-						partnerId={partner.id}
-						from={fromDate}
-						to={toDate}
-						onDateChange={({ from, to }) => setDates(from, to)}
-					/>
-				),
+				render: ({ partner }) => <PaymentsTab partnerId={partner.id} />,
 			},
 			{
 				key: "statistics",
