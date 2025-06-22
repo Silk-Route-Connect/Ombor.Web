@@ -208,7 +208,11 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 							</TextField>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 4 }}>
-							<PartnerAutocomplete value={partner} onChange={(s) => setPartnerId(s?.id ?? 0)} />
+							<PartnerAutocomplete
+								type={type === "Sale" ? "Supplier" : "Customer"}
+								value={partner}
+								onChange={(s) => setPartnerId(s?.id ?? 0)}
+							/>
 						</Grid>
 					</Grid>
 
