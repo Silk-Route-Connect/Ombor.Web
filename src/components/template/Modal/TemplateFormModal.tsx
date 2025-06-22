@@ -41,7 +41,7 @@ interface Props {
 }
 
 const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave }) => {
-	const { partnersStore, productStore } = useStore();
+	const { partnerStore: partnersStore, productStore } = useStore();
 
 	const [name, setName] = useState("");
 	const [type, setType] = useState<TemplateType>("Supply");
@@ -123,8 +123,6 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 	};
 	const removeItem = (idx: number) => setItems((prev) => prev.filter((_, i) => i !== idx));
 
-	const suppliers = Array.isArray(partnersStore.allSuppliers) ? partnersStore.allSuppliers : [];
-
 	const isSaveDisabled = !name.trim() || !type || partnerId === 0 || items.length === 0;
 
 	const handleSave = async () => {
@@ -146,6 +144,14 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 		() => items.reduce((sum, item) => sum + calculateTotal(item), 0),
 		[items],
 	);
+
+	const partner = useMemo(() => {
+		if (partnersStore.allPartners === "loading") {
+			return null;
+		}
+
+		return partnersStore.allPartners.find((el) => el.id === partnerId) ?? null;
+	}, [partnerId]);
 
 	return (
 		<>
@@ -202,10 +208,7 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 							</TextField>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 4 }}>
-							<PartnerAutocomplete
-								value={suppliers.find((p) => p.id === partnerId) || null}
-								onChange={(s) => setPartnerId(s?.id ?? 0)}
-							/>
+							<PartnerAutocomplete value={partner} onChange={(s) => setPartnerId(s?.id ?? 0)} />
 						</Grid>
 					</Grid>
 
