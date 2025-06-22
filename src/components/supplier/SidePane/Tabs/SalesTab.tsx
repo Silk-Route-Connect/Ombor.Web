@@ -10,30 +10,46 @@ import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
+import { formatDateTime } from "utils/dateUtils";
 import { formatNotes } from "utils/stringUtils";
 import { formatPrice } from "utils/supplyUtils";
 
-import SupplyItemsTable from "./../SupplyItemsTable/SupplyItemsTable";
+import SupplyItemsTable from "../SupplyItemsTable/SupplyItemsTable";
 
-interface SupplierSuppliesTabProps {
+interface SalesTabProps {
 	partnerId: number;
 }
 
-const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ partnerId }) => {
+const SalesTab: React.FC<SalesTabProps> = observer(({ partnerId }) => {
 	const { selectedPartnerStore } = useStore();
 
-	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-	const menuOpen = Boolean(anchorEl);
-
+	/* ─────────── fetch data on mount/partner change ─────────── */
 	useEffect(() => {
-		if (!partnerId) {
-			return;
-		}
-
-		selectedPartnerStore.getSupplies();
+		if (partnerId) selectedPartnerStore.getSales();
 	}, [partnerId, selectedPartnerStore]);
 
-	const supplyColumns: Column<TransactionRecord>[] = [
+	/* ─────────── download-menu state (unchanged) ─────────── */
+	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+	const menuOpen = Boolean(anchorEl);
+	const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
+	const handleMenuClose = () => setAnchorEl(null);
+
+	/* placeholders for downloads … */
+	const handleDownloadPDF = () => {
+		handleMenuClose();
+		console.log("Download as PDF clicked");
+	};
+	const handleDownloadCSV = () => {
+		handleMenuClose();
+		console.log("Download as CSV clicked");
+	};
+	const handleDownloadPNG = () => {
+		handleMenuClose();
+		console.log("Download as PNG clicked");
+	};
+
+	/* ─────────── table definition ─────────── */
+	const saleColumns: Column<TransactionRecord>[] = [
 		{
 			key: "id",
 			field: "id",
@@ -45,9 +61,7 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 					underline="none"
 					sx={{
 						color: "#1976d2",
-						"&:hover": {
-							textDecoration: "underline",
-						},
+						"&:hover": { textDecoration: "underline" },
 					}}
 				>
 					{s.id}
@@ -59,7 +73,7 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 			field: "date",
 			headerName: translate("fieldDate"),
 			width: 120,
-			renderCell: (s) => new Date(s.date).toLocaleDateString("ru-RU"),
+			renderCell: (s) => formatDateTime(s.date),
 		},
 		{
 			key: "totalDue",
@@ -86,31 +100,10 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 		},
 	];
 
-	const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(e.currentTarget);
-	};
-	const handleMenuClose = () => {
-		setAnchorEl(null);
-	};
-
-	const handleDownloadPDF = () => {
-		handleMenuClose();
-		console.log("Download as PDF clicked");
-		// TODO: implement PDF logic (client/server)
-	};
-	const handleDownloadCSV = () => {
-		handleMenuClose();
-		console.log("Download as CSV clicked");
-		// TODO: implement CSV logic (client/server)
-	};
-	const handleDownloadPNG = () => {
-		handleMenuClose();
-		console.log("Download as PNG clicked");
-		// TODO: implement PNG logic (client/server)
-	};
-
+	/* ─────────── render ─────────── */
 	return (
 		<Box sx={{ p: 2 }}>
+			{/* header controls */}
 			<Box
 				sx={{
 					display: "flex",
@@ -121,6 +114,7 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 					gap: 2,
 				}}
 			>
+				{/* date filter */}
 				<Box sx={{ flexGrow: 1, minWidth: 240 }}>
 					<DateFilterPicker
 						value={selectedPartnerStore.dateFilter}
@@ -132,10 +126,10 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 					/>
 				</Box>
 
+				{/* download button + menu */}
 				<Button endIcon={<DownloadIcon />} onClick={handleMenuOpen} sx={{ textTransform: "none" }}>
 					{translate("download")}
 				</Button>
-
 				<Menu
 					anchorEl={anchorEl}
 					open={menuOpen}
@@ -149,14 +143,15 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 				</Menu>
 			</Box>
 
+			{/* data table */}
 			<ExpandableDataTable<TransactionRecord>
-				rows={selectedPartnerStore.filteredSupplies}
-				columns={supplyColumns}
+				rows={selectedPartnerStore.filteredSales}
+				columns={saleColumns}
 				pagination
-				renderExpanded={(supply) => <SupplyItemsTable items={supply.lines} />}
+				renderExpanded={(sale) => <SupplyItemsTable items={sale.lines} />}
 			/>
 		</Box>
 	);
 });
 
-export default SupplierSuppliesTab;
+export default SalesTab;

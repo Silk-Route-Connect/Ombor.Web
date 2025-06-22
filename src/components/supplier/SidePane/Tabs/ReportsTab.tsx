@@ -5,7 +5,7 @@ import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import { Column, DataTable } from "components/shared/DataTable/DataTable";
 import DateRangePicker from "components/shared/DateRangePicker/DateRangePicker";
 import { translate } from "i18n/i18n";
-import { Supply } from "models/supply";
+import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
 
 export interface ReportsTabProps {
@@ -23,18 +23,18 @@ export interface ConsolidatedReport {
 }
 
 const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChange }) => {
-	const { partnersStore } = useStore();
+	const { selectedPartnerStore } = useStore();
 
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const menuOpen = Boolean(anchorEl);
 
 	useEffect(() => {
 		if (partnerId && from && to) {
-			partnersStore.loadSupplies({ supplierId: partnerId });
+			selectedPartnerStore.getSales();
 		}
-	}, [partnerId, from, to, partnersStore]);
+	}, [partnerId, from, to, selectedPartnerStore]);
 
-	const columns: Column<Supply>[] = [
+	const columns: Column<TransactionRecord>[] = [
 		{
 			key: "id",
 			field: "id",
@@ -71,7 +71,7 @@ const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChan
 		},
 	];
 
-	const consolidated = partnersStore.supplies;
+	const consolidated = selectedPartnerStore.allTransactions;
 	const totalDue =
 		consolidated !== "loading" && Array.isArray(consolidated)
 			? consolidated.reduce((sum, r) => sum + r.totalDue, 0)
@@ -147,7 +147,7 @@ const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChan
 			</Box>
 
 			<Box>
-				<DataTable<Supply> rows={consolidated} columns={columns} pagination />
+				<DataTable<TransactionRecord> rows={consolidated} columns={columns} pagination />
 
 				<Box sx={{ mt: 2, textAlign: "right" }}>
 					<Typography variant="subtitle1">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
@@ -6,8 +6,37 @@ import { Partner } from "models/partner";
 
 import DetailsTab from "./Tabs/DetailsTab";
 import ReportsTab from "./Tabs/ReportsTab";
+import SalesTab from "./Tabs/SalesTab";
 import StatisticsTab from "./Tabs/StatisticsTab";
 import SuppliesTab from "./Tabs/SuppliesTab";
+
+type TabKey = "details" | "sales" | "supplies" | "reports" | "statistics";
+
+interface TabDescriptor {
+	key: TabKey;
+	hideFor?: Array<Partner["type"]>;
+	label: () => string;
+	render: (ctx: TabRenderContext) => React.ReactNode;
+}
+
+interface TabRenderContext {
+	partner: Partner;
+	fromDate: Date;
+	toDate: Date;
+	setDates: (from: Date, to: Date) => void;
+}
+
+function today(): Date {
+	const d = new Date();
+	d.setHours(0, 0, 0, 0);
+	return d;
+}
+
+function lastNDays(n: number): Date {
+	const d = today();
+	d.setDate(d.getDate() - n);
+	return d;
+}
 
 export interface PartnerSidePaneProps {
 	open: boolean;
@@ -16,24 +45,76 @@ export interface PartnerSidePaneProps {
 }
 
 const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClose }) => {
-	const [tabIndex, setTabIndex] = useState(0);
-	const [fromDate, setFromDate] = useState<Date>(new Date());
-	const [toDate, setToDate] = useState<Date>(new Date());
+	const [fromDate, setFromDate] = useState(() => lastNDays(7));
+	const [toDate, setToDate] = useState(() => today());
 
 	useEffect(() => {
 		if (open && partner) {
-			// Default to last week
-			const today = new Date();
-			const to = today.toISOString().slice(0, 10);
-			const d = new Date(today);
-			d.setDate(d.getDate() - 7);
-			const from = d.toISOString().slice(0, 10);
-			setFromDate(new Date(from));
-			setToDate(new Date(to));
+			setFromDate(lastNDays(7));
+			setToDate(today());
 		}
 	}, [open, partner]);
 
-	if (!partner) return null;
+	const tabDescriptors: TabDescriptor[] = useMemo(
+		() => [
+			{
+				key: "details",
+				label: () => translate("tabDetails"),
+				render: ({ partner }) => <DetailsTab partner={partner} />,
+			},
+			{
+				key: "sales",
+				hideFor: ["Supplier"],
+				label: () => translate("tabSales"),
+				render: ({ partner }) => <SalesTab partnerId={partner.id} />,
+			},
+			{
+				key: "supplies",
+				hideFor: ["Customer"],
+				label: () => translate("tabSupplies"),
+				render: ({ partner }) => <SuppliesTab partnerId={partner.id} />,
+			},
+			{
+				key: "reports",
+				label: () => translate("tabConsolidatedReport"),
+				render: ({ partner, fromDate, toDate, setDates }) => (
+					<ReportsTab
+						partnerId={partner.id}
+						from={fromDate}
+						to={toDate}
+						onDateChange={({ from, to }) => setDates(from, to)}
+					/>
+				),
+			},
+			{
+				key: "statistics",
+				label: () => translate("tabStatistics"),
+				render: ({ partner }) => <StatisticsTab partnerId={partner.id} />,
+			},
+		],
+		[],
+	);
+
+	const visibleTabs = useMemo(
+		() => (partner ? tabDescriptors.filter((t) => !t.hideFor?.includes(partner.type)) : []),
+		[partner, tabDescriptors],
+	);
+
+	const [selectedKey, setSelectedKey] = useState<TabKey>("details");
+
+	useEffect(() => {
+		if (!visibleTabs.some((t) => t.key === selectedKey)) {
+			setSelectedKey(visibleTabs[0]?.key ?? "details");
+		}
+	}, [selectedKey, visibleTabs]);
+
+	const selectedIndex = visibleTabs.findIndex((t) => t.key === selectedKey);
+	const handleTabChange = (_: React.SyntheticEvent, index: number) =>
+		setSelectedKey(visibleTabs[index].key);
+
+	if (!partner) {
+		return null;
+	}
 
 	return (
 		<Drawer
@@ -43,10 +124,7 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 			ModalProps={{ keepMounted: true }}
 			sx={(theme) => ({
 				zIndex: theme.zIndex.drawer + 2,
-				"& .MuiDrawer-paper": {
-					width: 900,
-					boxSizing: "border-box",
-				},
+				"& .MuiDrawer-paper": { width: 950, boxSizing: "border-box" },
 			})}
 		>
 			<Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
@@ -60,34 +138,21 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 
 			<Divider />
 
-			<Tabs
-				value={tabIndex}
-				onChange={(_, newVal) => setTabIndex(newVal)}
-				aria-label="partner side pane tabs"
-			>
-				<Tab label={translate("tabDetails")} />
-				<Tab label={translate("tabSupplies")} />
-				<Tab label={translate("tabConsolidatedReport")} />
-				<Tab label={translate("tabStatistics")} />
+			<Tabs value={selectedIndex} onChange={handleTabChange} aria-label="partner side pane tabs">
+				{visibleTabs.map((t) => (
+					<Tab key={t.key} label={t.label()} />
+				))}
 			</Tabs>
 
-			{tabIndex === 0 && <DetailsTab partner={partner} />}
-
-			{tabIndex === 1 && <SuppliesTab partnerId={partner.id} />}
-
-			{tabIndex === 2 && (
-				<ReportsTab
-					partnerId={partner.id}
-					from={fromDate}
-					to={toDate}
-					onDateChange={({ from, to }) => {
-						setFromDate(from);
-						setToDate(to);
-					}}
-				/>
-			)}
-
-			{tabIndex === 3 && <StatisticsTab partnerId={partner.id} />}
+			{visibleTabs[selectedIndex]?.render({
+				partner,
+				fromDate,
+				toDate,
+				setDates: (f, t) => {
+					setFromDate(f);
+					setToDate(t);
+				},
+			})}
 		</Drawer>
 	);
 };

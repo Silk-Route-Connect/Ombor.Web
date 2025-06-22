@@ -29,15 +29,15 @@ export interface SupplierStats {
 }
 
 const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
-	const { partnersStore: supplierStore } = useStore();
+	const { selectedPartnerStore } = useStore();
 
 	useEffect(() => {
 		if (partnerId) {
-			supplierStore.loadSupplies({ supplierId: partnerId });
+			selectedPartnerStore.getSales();
 		}
-	}, [partnerId, supplierStore]);
+	}, [partnerId, selectedPartnerStore]);
 
-	const stats = supplierStore.supplies; // either "loading" or SupplierStats
+	const stats = selectedPartnerStore.filteredSupplies; // either "loading" or SupplierStats
 
 	if (stats === "loading") {
 		return <Typography sx={{ p: 2 }}>{translate("loading")}…</Typography>;
@@ -47,7 +47,6 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
 
 	return (
 		<Box sx={{ p: 2 }}>
-			{/* Line chart: Due vs Paid */}
 			<Typography variant="subtitle2" gutterBottom>
 				{translate("chartDueVsPaid")}
 			</Typography>
@@ -67,7 +66,6 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
 				</LineChart>
 			</ResponsiveContainer>
 
-			{/* Bar chart: Monthly Payments */}
 			<Box sx={{ mt: 4 }}>
 				<Typography variant="subtitle2" gutterBottom>
 					{translate("chartMonthlyPayments")}

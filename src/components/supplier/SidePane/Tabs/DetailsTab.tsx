@@ -17,22 +17,22 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
 					<Typography>{partner.companyName ?? "—"}</Typography>
 				</Grid>
 				<Grid size={{ xs: 6 }}>
-					<Typography variant="subtitle2">{translate("fieldIsActive")}</Typography>
-					<Typography>{translate("active")}</Typography>
+					<Typography variant="subtitle2">{translate("fieldBalance")}</Typography>
+					<Typography color={partner.balance > 0 ? "success" : "error"}>
+						{formatNumberWithCommas(partner.balance)}
+					</Typography>
 				</Grid>
 				<Grid size={{ xs: 6 }}>
-					<Typography variant="subtitle2">{translate("fieldAddress")}</Typography>
-					<Typography>{partner.address ?? "—"}</Typography>
+					<Typography variant="subtitle2">{translate("fieldIsActive")}</Typography>
+					<Typography>{translate("active")}</Typography>
 				</Grid>
 				<Grid size={{ xs: 6 }}>
 					<Typography variant="subtitle2">{translate("fieldEmail")}</Typography>
 					<Typography>{partner.email ?? "—"}</Typography>
 				</Grid>
 				<Grid size={{ xs: 12 }}>
-					<Typography variant="subtitle2">{translate("fieldBalance")}</Typography>
-					<Typography color={partner.balance > 0 ? "success" : "error"}>
-						{partner.balance > 0 ? "+" : "-"} {formatNumberWithCommas(partner.balance)}
-					</Typography>
+					<Typography variant="subtitle2">{translate("fieldAddress")}</Typography>
+					<Typography>{partner.address ?? "—"}</Typography>
 				</Grid>
 				<Grid size={{ xs: 12 }}>
 					<Typography variant="subtitle2">{translate("fieldPhoneNumbers")}</Typography>
