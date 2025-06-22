@@ -23,6 +23,8 @@ export type GetSuppliesRequest = {
 
 export interface IPartnerStore {
 	allPartners: Loadable<Partner[]>;
+	suppliers: Loadable<Partner[]>;
+	customers: Loadable<Partner[]>;
 	filteredPartners: Loadable<Partner[]>;
 	selectedPartner: Partner | null;
 	searchTerm: string;
@@ -66,6 +68,22 @@ export class PartnerStore implements IPartnerStore {
 		return this.allPartners.filter((s) =>
 			s.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
 		);
+	}
+
+	get suppliers(): Loadable<Partner[]> {
+		if (this.allPartners === "loading") {
+			return "loading";
+		}
+
+		return this.allPartners.filter((el) => el.type !== "Customer");
+	}
+
+	get customers(): Loadable<Partner[]> {
+		if (this.allPartners === "loading") {
+			return "loading";
+		}
+
+		return this.allPartners.filter((el) => el.type !== "Supplier");
 	}
 
 	async getAll(request?: GetPartnersRequest | null): Promise<void> {
