@@ -63,6 +63,7 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
 	renderExpanded?: (row: T) => React.ReactNode;
+	canExpand?: (row: T) => boolean;
 	className?: string;
 }
 
@@ -74,6 +75,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	onRowClick,
 	onSort,
 	renderExpanded,
+	canExpand,
 	className,
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const theme = useTheme();
@@ -96,7 +98,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		}
 	}, [rows, rowsPerPage, page]);
 
-	// Compute which rows to actually render on this page
 	const displayedRows = useMemo<Loadable<T[]>>(() => {
 		if (rows === "loading") {
 			return "loading";
@@ -208,7 +209,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 
 				<TableBody>
 					{displayedRows.map((row, index) => {
-						const isOpen = renderExpanded ? expandedRows.has(row.id) : false;
+						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
+						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
 
 						// Determine stripe color using the index
 						const isOdd = index % 2 === 0; // zero‐based: 0 = first row (odd background)
@@ -226,7 +228,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 										cursor: isSelectable ? "pointer" : "default",
 									}}
 								>
-									{renderExpanded && (
+									{isExpandable ? (
 										<TableCell padding="checkbox">
 											<IconButton
 												size="medium"
@@ -240,6 +242,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 												)}
 											</IconButton>
 										</TableCell>
+									) : (
+										<TableCell padding="checkbox"></TableCell>
 									)}
 
 									{columns.map((col) => (
@@ -253,7 +257,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 									))}
 								</TableRow>
 
-								{renderExpanded && (
+								{isExpandable && (
 									<TableRow>
 										<TableCell
 											style={{ paddingBottom: 0, paddingTop: 0 }}
@@ -277,10 +281,10 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</Box>
 			)}
 
-			{pagination && (
+			{pagination && rows !== "loading" && (
 				<TablePagination
 					component="div"
-					count={totalRows}
+					count={rows.length}
 					page={page}
 					onPageChange={handlePageChange}
 					rowsPerPage={rowsPerPage}
