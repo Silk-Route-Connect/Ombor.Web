@@ -20,15 +20,15 @@ const PartnerPage: React.FC = observer(() => {
 	const [selectedSupplier, setSelectedSupplier] = useState<Partner | null>(null);
 	const [selectedType, setSelectedType] = useState<PartnerType>("All");
 
-	const { partnersStore: supplierStore } = useStore();
+	const { partnerStore } = useStore();
 
 	useEffect(() => {
-		supplierStore.getAll();
-	}, [supplierStore, supplierStore.searchTerm]);
+		partnerStore.getAll();
+	}, [partnerStore, partnerStore.searchTerm]);
 
 	const rows = useMemo<Loadable<Partner[]>>(
-		() => supplierStore.filteredSuppliers,
-		[supplierStore.filteredSuppliers],
+		() => partnerStore.filteredPartners,
+		[partnerStore.filteredPartners],
 	);
 
 	const handleCreate = useCallback(() => {
@@ -48,7 +48,7 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleConfirmDelete = () => {
 		if (selectedSupplier) {
-			supplierStore.deleteSupplier(selectedSupplier.id);
+			partnerStore.deleteSupplier(selectedSupplier.id);
 		}
 		setIsDeleteDialogOpen(false);
 		setSelectedSupplier(null);
@@ -56,15 +56,16 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleSave = (payload: PartnerFormPayload) => {
 		if (selectedSupplier) {
-			supplierStore.updateSupplier({ ...payload, id: selectedSupplier.id, balance: 100 });
+			partnerStore.updateSupplier({ ...payload, id: selectedSupplier.id, balance: 100 });
 		} else {
-			supplierStore.createSupplier({ ...payload, balance: 100 });
+			partnerStore.createSupplier({ ...payload, balance: 100 });
 		}
 		setIsFormOpen(false);
 		setSelectedSupplier(null);
 	};
 
 	const handleRowClick = useCallback((s: Partner) => {
+		partnerStore.setSelectedPartner(s.id);
 		setSelectedSupplier(s);
 		setIsSidePaneOpen(true);
 	}, []);
@@ -108,8 +109,8 @@ const PartnerPage: React.FC = observer(() => {
 	return (
 		<>
 			<PartnerHeader
-				searchValue={supplierStore.searchTerm}
-				onSearch={(v) => supplierStore.setSearch(v)}
+				searchValue={partnerStore.searchTerm}
+				onSearch={(v) => partnerStore.setSearch(v)}
 				filterType={selectedType}
 				onTypeChange={(type) => setSelectedType(type)}
 				onCreate={handleCreate}
