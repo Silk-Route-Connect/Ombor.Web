@@ -1,26 +1,26 @@
 import React from "react";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import type { Partner } from "models/partner";
+import type { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
 
 import EntityAutocomplete from "./Autocomplete";
 
 interface PartnerAutocompleteProps {
+	type: Exclude<PartnerType, "All">;
 	value: Partner | null;
 	onChange(v: Partner | null): void;
 }
 
-const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ value, onChange }) => {
-	const { partnerStore: partnersStore } = useStore();
-	const options = partnersStore.allPartners === "loading" ? [] : partnersStore.allPartners;
-	console.log(options);
+const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ type, value, onChange }) => {
+	const { partnerStore } = useStore();
+	const options = type === "Customer" ? partnerStore.customers : partnerStore.suppliers;
 
 	return (
 		<EntityAutocomplete<Partner>
 			label={translate("partnerAutocomplete.partner")}
 			placeholder={translate("partnerAutocomplete.search")}
-			options={options}
+			options={options === "loading" ? [] : options}
 			value={value}
 			onChange={onChange}
 		/>
