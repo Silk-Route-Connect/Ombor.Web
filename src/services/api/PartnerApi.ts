@@ -1,3 +1,4 @@
+import { Payment } from "models/payment";
 import { TransactionRecord } from "models/transaction";
 
 import {
@@ -38,6 +39,13 @@ class PartnerApi extends BaseApi {
 	async getSales(id: number): Promise<TransactionRecord[]> {
 		const url = `${this.getUrlWithId(id)}/transactions?type=Sale`;
 		const response = await http.get<TransactionRecord[]>(url);
+
+		return response.data;
+	}
+
+	async getPayments(id: number): Promise<Payment[]> {
+		const url = `${this.getUrlWithId(id)}/payments`;
+		const response = await http.get<Payment[]>(url);
 
 		return response.data;
 	}
