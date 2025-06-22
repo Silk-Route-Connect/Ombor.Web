@@ -1,5 +1,7 @@
+import { SortOrder } from "components/shared/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
+import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
 	CreatePartnerRequest,
@@ -8,7 +10,7 @@ import {
 	UpdateParatnerRequest,
 } from "models/partner";
 import { Supply } from "models/supply";
-import SupplierApi from "services/api/PartnerApi";
+import PartnerApi from "services/api/PartnerApi";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -20,23 +22,32 @@ export type GetSuppliesRequest = {
 };
 
 export interface IPartnerStore {
-	allSuppliers: Loadable<Partner[]>;
-	supplies: Loadable<Supply[]>;
+	allPartners: Loadable<Partner[]>;
+	filteredPartners: Loadable<Partner[]>;
+	selectedPartner: Partner | null;
 	searchTerm: string;
-	filteredSuppliers: Loadable<Partner[]>;
+	sortField: keyof Partner | null;
+	sortOrder: SortOrder;
 
+	// actions
 	getAll(request?: GetPartnersRequest): Promise<void>;
-	loadSupplies(request?: GetSuppliesRequest): Promise<void>;
-	setSearch(term: string): void;
 	createSupplier(request: CreatePartnerRequest): Promise<void>;
 	updateSupplier(request: UpdateParatnerRequest): Promise<void>;
 	deleteSupplier(id: number): Promise<void>;
+
+	// setters for filters & sorting
+	setSearch(term: string): void;
+	setSelectedPartner(id: number): void;
+	setSort(field: keyof Partner, order: SortOrder): void;
 }
 
 export class PartnerStore implements IPartnerStore {
-	allSuppliers: Loadable<Partner[]> = [];
+	allPartners: Loadable<Partner[]> = [];
 	supplies: Loadable<Supply[]> = [];
+	selectedPartner: Partner | null = null;
 	searchTerm = "";
+	sortField: keyof Partner | null = null;
+	sortOrder: SortOrder = "asc";
 
 	private readonly notificationStore: NotificationStore;
 
@@ -46,107 +57,113 @@ export class PartnerStore implements IPartnerStore {
 		makeAutoObservable(this);
 	}
 
-	get filteredSuppliers(): Loadable<Partner[]> {
-		if (this.allSuppliers === "loading") {
+	get filteredPartners(): Loadable<Partner[]> {
+		if (this.allPartners === "loading") {
 			return "loading";
 		}
 
-		return this.allSuppliers.filter((s) =>
+		// TODO: Add sorting
+		return this.allPartners.filter((s) =>
 			s.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
 		);
 	}
 
-	setSearch(term: string): void {
-		this.searchTerm = term;
-	}
-
 	async getAll(request?: GetPartnersRequest | null): Promise<void> {
-		if (this.allSuppliers === "loading") {
+		if (this.allPartners === "loading") {
 			return;
 		}
 
-		runInAction(() => (this.allSuppliers = "loading"));
+		runInAction(() => (this.allPartners = "loading"));
 
-		const result = await tryRun(() => SupplierApi.getAll(request));
+		const result = await tryRun(() => PartnerApi.getAll(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error("Failed to load suppliers");
+			this.notificationStore.error(translate("partners.errors.getAll"));
 		}
 
 		const data = result.status === "success" ? result.data : [];
 
-		runInAction(() => (this.allSuppliers = data));
-	}
-
-	async loadSupplies(request?: GetSuppliesRequest): Promise<void> {
-		console.warn("loadSupplies is not implemented in SupplierStore");
-		this.supplies = "loading";
-
-		const result = await tryRun(() => SupplierApi.getSupplies(request));
-
-		if (result.status === "fail") {
-			this.notificationStore.error("Failed to load supplies");
-			return;
-		}
-
-		runInAction(() => (this.supplies = result.data));
+		runInAction(() => (this.allPartners = data));
 	}
 
 	async createSupplier(request: CreatePartnerRequest): Promise<void> {
-		const result = await tryRun(() => SupplierApi.create(request));
+		const result = await tryRun(() => PartnerApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error("Failed to create supplier");
+			this.notificationStore.error(translate("partners.errors.create"));
 			return;
 		}
 
-		if (this.allSuppliers === "loading") {
+		if (this.allPartners === "loading") {
 			return;
 		}
 
 		runInAction(() => {
-			this.notificationStore.success("Supplier created successfully");
+			this.notificationStore.error(translate("partners.success.create"));
 
-			if (this.allSuppliers !== "loading") {
-				this.allSuppliers = [result.data, ...this.allSuppliers];
+			if (this.allPartners !== "loading") {
+				this.allPartners = [result.data, ...this.allPartners];
 			}
 		});
 	}
 
 	async updateSupplier(request: UpdateParatnerRequest): Promise<void> {
-		const result = await tryRun(() => SupplierApi.update(request));
+		const result = await tryRun(() => PartnerApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error("Failed to update supplier");
+			this.notificationStore.error(translate("partners.errors.update"));
 			return;
 		}
 
 		runInAction(() => {
-			this.notificationStore.success("Supplier updated successfully");
+			this.notificationStore.error(translate("partners.success.update"));
 
-			if (this.allSuppliers !== "loading") {
-				const index = this.allSuppliers.findIndex((s) => s.id === request.id);
+			if (this.allPartners !== "loading") {
+				const index = this.allPartners.findIndex((s) => s.id === request.id);
 				if (index !== -1) {
-					this.allSuppliers[index] = result.data;
+					this.allPartners[index] = result.data;
 				}
 			}
 		});
 	}
 
 	async deleteSupplier(id: number): Promise<void> {
-		const result = await tryRun(() => SupplierApi.delete(id));
+		const result = await tryRun(() => PartnerApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error("Failed to delete supplier");
+			this.notificationStore.error(translate("partners.errors.delete"));
 			return;
 		}
 
 		runInAction(() => {
-			this.notificationStore.success("Supplier deleted successfully");
+			this.notificationStore.error(translate("partners.success.delete"));
 
-			if (this.allSuppliers !== "loading") {
-				this.allSuppliers = this.allSuppliers.filter((s) => s.id !== id);
+			if (this.allPartners !== "loading") {
+				this.allPartners = this.allPartners.filter((s) => s.id !== id);
 			}
+		});
+	}
+
+	setSearch(term: string): void {
+		this.searchTerm = term;
+	}
+
+	setSelectedPartner(id: number): void {
+		if (this.allPartners === "loading") {
+			return;
+		}
+
+		const partner = this.allPartners.find((p) => p.id === id);
+
+		if (partner) {
+			runInAction(() => (this.selectedPartner = partner));
+		}
+	}
+
+	setSort(field: keyof Partner, order: SortOrder): void {
+		runInAction(() => {
+			this.sortField = field;
+			this.sortOrder = order;
 		});
 	}
 }

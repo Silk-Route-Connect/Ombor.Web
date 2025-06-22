@@ -1,3 +1,4 @@
+import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
@@ -11,8 +12,6 @@ import {
 import TransactionApi from "services/api/TransactionApi";
 
 import { NotificationStore } from "./NotificationStore";
-
-export type SortOrder = "asc" | "desc";
 
 export interface ITransactionStore {
 	allTransactions: Loadable<TransactionRecord[]>;
