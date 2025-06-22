@@ -17,5 +17,19 @@
   "noRecords": "Нет записей",
   "noOptionsTitle": "Нет записей",
   "reportRangeAll": "Весь период",
-  "reportRangeCustom": "Произвольный"
+  "reportRangeCustom": "Свой",
+
+  "paymentTypeDeposit": "Депозит",
+  "paymentTypeWithdrawal": "Снятие",
+  "paymentTypePayroll": "Зарплата",
+  "paymentTypeGeneral": "Общий",
+  "paymentTypeMixed": "Множественные платежи",
+
+  "paymentAllocationSale": "Продажа",
+  "paymentAllocationSupply": "Поставка",
+  "paymentAllocationSaleRefund": "Возврат продажи",
+  "paymentAllocationSupplyRefund": "Возврат поставки",
+
+  "fieldAllocationType": "Тип",
+  "fieldAppliedAmount": "Сумма"
 }
