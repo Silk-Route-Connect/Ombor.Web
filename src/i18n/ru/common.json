@@ -15,5 +15,7 @@
   "partnerAutocomplete.partner": "Партнёр",
   "partnerAutocomplete.search": "Поиск партнёров...",
   "noRecords": "Нет записей",
-  "noOptionsTitle": "Нет записей"
+  "noOptionsTitle": "Нет записей",
+  "reportRangeAll": "Весь период",
+  "reportRangeCustom": "Произвольный"
 }
