@@ -65,6 +65,7 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	renderExpanded?: (row: T) => React.ReactNode;
 	canExpand?: (row: T) => boolean;
 	className?: string;
+	expandedMaxHeight?: number;
 }
 
 export function ExpandableDataTable<T extends { id: string | number }>({
@@ -77,6 +78,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	renderExpanded,
 	canExpand,
 	className,
+	expandedMaxHeight = 300,
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const theme = useTheme();
 	const [page, setPage] = useState(0);
@@ -264,7 +266,9 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 											colSpan={columns.length + 1}
 										>
 											<Collapse in={isOpen} timeout="auto" unmountOnExit>
-												<Box sx={{ margin: 1 }}>{renderExpanded(row)}</Box>
+												<Box sx={{ margin: 1, maxHeight: expandedMaxHeight, overflowY: "auto" }}>
+													{renderExpanded(row)}
+												</Box>
 											</Collapse>
 										</TableCell>
 									</TableRow>

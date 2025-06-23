@@ -4,15 +4,21 @@ import { observer } from "mobx-react-lite";
 import type { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
 
-import EntityAutocomplete from "./Autocomplete";
+import EntityAutocomplete, { AutocompleteSize } from "./Autocomplete";
 
 interface PartnerAutocompleteProps {
 	type: Exclude<PartnerType, "All">;
 	value: Partner | null;
+	size?: AutocompleteSize;
 	onChange(v: Partner | null): void;
 }
 
-const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ type, value, onChange }) => {
+const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
+	type,
+	value,
+	size,
+	onChange,
+}) => {
 	const { partnerStore } = useStore();
 	const options = type === "Customer" ? partnerStore.customers : partnerStore.suppliers;
 
@@ -22,6 +28,7 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({ type, value, 
 			placeholder={translate("partnerAutocomplete.search")}
 			options={options === "loading" ? [] : options}
 			value={value}
+			size={size}
 			onChange={onChange}
 		/>
 	);
