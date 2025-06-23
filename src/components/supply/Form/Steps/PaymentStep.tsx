@@ -17,7 +17,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 			<TextField
 				label={translate("totalDue")}
 				value={form.totalDue.toLocaleString()}
-				disabled
+				aria-readonly
 				fullWidth
 			/>
 		</Grid>
@@ -34,7 +34,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 			<TextField
 				label={translate("fieldDebt")}
 				value={form.debt.toLocaleString()}
-				disabled
+				aria-readonly
 				fullWidth
 			/>
 		</Grid>

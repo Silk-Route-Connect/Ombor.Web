@@ -26,10 +26,11 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 		<Grid container columnSpacing={2} size={{ xs: 12 }}>
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<PartnerAutocomplete
+					type="Supplier"
 					value={
-						partnersStore.allPartners === "loading"
+						partnersStore.suppliers === "loading"
 							? null
-							: (partnersStore.allPartners.find((s) => s.id === form.supplierId) ?? null)
+							: (partnersStore.suppliers.find((s) => s.id === form.supplierId) ?? null)
 					}
 					onChange={(s) => form.setSupplierId(s?.id ?? null)}
 				/>
