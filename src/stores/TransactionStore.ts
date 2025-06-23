@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataT
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 import {
 	CreateTransactionRequest,
 	TransactionRecord,
@@ -39,6 +39,7 @@ export interface ITransactionStore {
 	setFilterStatus(status?: TransactionStatus | null): void;
 	setFilterPartner(partnerId?: number | null): void;
 	setSort(field: keyof TransactionRecord, order: SortOrder): void;
+	setCurrentTransaction(id: number | null): void;
 }
 
 export class TransactionStore implements ITransactionStore {
@@ -65,7 +66,7 @@ export class TransactionStore implements ITransactionStore {
 			return "loading";
 		}
 
-		let list = this.allTransactions.slice();
+		let list = this.allTransactions;
 
 		const term = this.searchTerm.trim().toLowerCase();
 		if (term) {
@@ -116,8 +117,17 @@ export class TransactionStore implements ITransactionStore {
 		if (this.filteredTransactions === "loading") {
 			return "loading";
 		}
+		const partners = this.filteredTransactions.filter(
+			(el) => el.type === "Supply" && el.partnerId === this.filterPartnerId,
+		);
+		const all = this.filteredTransactions.filter((el) => el.partnerId === this.filterPartnerId);
+		if (this.allTransactions !== "loading") {
+			const rs = this.allTransactions.filter((el) => el.partnerId === this.filterPartnerId);
+			console.log(toJS(rs));
+		}
+		console.log(toJS(partners));
+		console.log(toJS(all));
 
-		console.log("returning supplies:" + this.filteredTransactions.length);
 		return this.filteredTransactions.filter((el) => el.type === "Supply");
 	}
 
@@ -201,5 +211,22 @@ export class TransactionStore implements ITransactionStore {
 	setSort(field: keyof TransactionRecord, order: SortOrder): void {
 		this.sortField = field;
 		this.sortOrder = order;
+	}
+
+	setCurrentTransaction(id: number | null): void {
+		if (id === null) {
+			this.currentTransaction = null;
+			return;
+		}
+
+		if (this.currentTransaction === "loading") {
+			return;
+		}
+
+		if (this.allTransactions === "loading") {
+			return;
+		}
+
+		this.currentTransaction = this.allTransactions.find((tx) => tx.id === id) || null;
 	}
 }

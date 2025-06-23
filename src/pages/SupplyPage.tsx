@@ -1,16 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link as MuiLink } from "@mui/material";
-import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
+import TransactionsActionsMenu from "components/shared/ActionMenuCell/TransactionsMenuActionCell";
 import { SortOrder } from "components/shared/DataTable/DataTable";
 import {
 	Column,
 	ExpandableDataTable,
 } from "components/shared/ExpandableDataTable/ExpandableDataTable";
+import TransactionSidePane from "components/shared/TransactionSidePane/TransactionSidePane";
 import SupplyFormModal, { SupplyFormPayload } from "components/supply/Form/SupplyFormModal";
 import SupplyHeader from "components/supply/Header/SupplyHeader";
 import SupplyItemsTable from "components/supply/Table/SupplyItemsTable";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+import { Partner } from "models/partner";
 import { Supply } from "models/supply";
 import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
@@ -26,12 +28,19 @@ const SupplyPage: React.FC = observer(() => {
 	} = useStore();
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
+	const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
 		transactionStore.getAll();
 	}, [supplyStore, transactionStore]);
+
+	const handlePartnerChange = (value: Partner): void => {
+		setSelectedPartner(value);
+		transactionStore.setFilterPartner(value?.id);
+	};
 
 	const handleCreate = useCallback(() => {
 		console.log(selectedSupply);
@@ -39,7 +48,6 @@ const SupplyPage: React.FC = observer(() => {
 		setIsFormOpen(true);
 	}, []);
 
-	// Columns for the main supplies table
 	const supplyColumns: Column<TransactionRecord>[] = useMemo(
 		() => [
 			{
@@ -100,16 +108,21 @@ const SupplyPage: React.FC = observer(() => {
 				width: 80,
 				align: "right",
 				renderCell: (row: TransactionRecord) => (
-					<ActionMenuCell
+					<TransactionsActionsMenu
 						onEdit={() => onEdit(row)}
 						onArchive={() => {}}
 						onDelete={() => onDelete(row)}
+						onRefund={() => handleRefund(row)}
 					/>
 				),
 			},
 		],
 		[],
 	);
+
+	const handleRefund = (transaction: TransactionRecord): void => {
+		console.log(transaction);
+	};
 
 	const onEdit = (transaction: TransactionRecord): void => {
 		console.log(transaction);
@@ -120,8 +133,8 @@ const SupplyPage: React.FC = observer(() => {
 	};
 
 	const handleRowClick = useCallback((row: TransactionRecord) => {
-		// TODO: implement sidepane opening (e.g. set state or call store)
-		console.log("Row clicked:", row.id);
+		transactionStore.setCurrentTransaction(row.id);
+		setIsSidePaneOpen(true);
 	}, []);
 
 	const handleFormClose = (): void => {
@@ -143,12 +156,16 @@ const SupplyPage: React.FC = observer(() => {
 		return transactionStore.supplies.length.toString();
 	}, [transactionStore.supplies]);
 
+	console.log(`Number of supplies in supply page: ${transactionStore.supplies.length}`);
+
 	return (
 		<>
 			<SupplyHeader
 				searchValue={searchTerm}
 				titleCount={suppliesCount}
+				selectedParatner={selectedPartner}
 				onSearch={setSearchTerm}
+				onPartnerChange={(value) => handlePartnerChange(value)}
 				onCreate={handleCreate}
 			/>
 
@@ -175,6 +192,13 @@ const SupplyPage: React.FC = observer(() => {
 					console.log(val);
 					return Promise.resolve();
 				}}
+			/>
+
+			<TransactionSidePane
+				transaction={transactionStore.currentTransaction}
+				payments={[]}
+				isOpen={isSidePaneOpen}
+				onClose={() => setIsSidePaneOpen(false)}
 			/>
 		</>
 	);

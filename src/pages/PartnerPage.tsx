@@ -110,9 +110,9 @@ const PartnerPage: React.FC = observer(() => {
 		<>
 			<PartnerHeader
 				searchValue={partnerStore.searchTerm}
-				onSearch={(v) => partnerStore.setSearch(v)}
 				filterType={selectedType}
 				onTypeChange={(type) => setSelectedType(type)}
+				onSearch={(v) => partnerStore.setSearch(v)}
 				onCreate={handleCreate}
 			/>
 
