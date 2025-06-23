@@ -20,6 +20,7 @@ export type Payment = {
 	direction: PaymentDirection;
 	currency: PaymentCurrency;
 	type: PaymentType;
+	method: PaymentMethod;
 	allocations: PaymentAllocation[];
 };
 
@@ -28,4 +29,14 @@ export type PaymentAllocation = {
 	transactionId?: number;
 	appliedAmount: number;
 	type: PaymentAllocationType;
+};
+
+export type TransactionPayment = {
+	paymentId: number;
+	transactionId: number;
+	amount: number;
+	date: Date;
+	currency: PaymentCurrency;
+	method: PaymentMethod;
+	notes?: string;
 };
