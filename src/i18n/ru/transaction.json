@@ -5,5 +5,17 @@
   "transaction.totalDue": "Общая сумма",
   "transaction.totalPaid": "Оплачено",
   "transaction.notes": "Комментарии",
-  "transactions.suppliesHeader": "Поставки"
+  "transactions.suppliesHeader": "Поставки",
+  "transaction.partner.supplier": "Поставщик",
+  "transaction.partner.customer": "Клиент",
+  "transaction.status": "Статус",
+  "transaction.leftover": "Остаток",
+  "transaction.section.payments": "Платежи",
+  "transaction.section.payments.empty": "Нет платежей",
+  "transaction.section.allocations": "Распределения",
+  "transaction.section.lineItems": "Продукты",
+  "transaction.type.Sale": "Продажа",
+  "transaction.type.Supply": "Поставка",
+  "transaction.type.SaleRefund": "Возврат продажи",
+  "transaction.type.SupplyRefund": "Возврат поставки"
 }

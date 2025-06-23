@@ -31,5 +31,15 @@
   "paymentAllocationSupplyRefund": "Возврат поставки",
 
   "fieldAllocationType": "Тип",
-  "fieldAppliedAmount": "Сумма"
+  "fieldAppliedAmount": "Сумма",
+
+  "actionRefund": "Возврат",
+  "actionEdit": "Редактировать",
+  "actionDelete": "Удалить",
+  "actionArchive": "Архивировать",
+  "actionView": "Просмотр",
+  "actionViewAll": "Просмотреть все",
+  "actionViewDetails": "Просмотреть детали",
+  "actionViewHistory": "Просмотреть историю",
+  "actionViewReport": "Просмотреть отчёт"
 }
