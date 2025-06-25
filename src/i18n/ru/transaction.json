@@ -17,5 +17,9 @@
   "transaction.type.Sale": "Продажа",
   "transaction.type.Supply": "Поставка",
   "transaction.type.SaleRefund": "Возврат продажи",
-  "transaction.type.SupplyRefund": "Возврат поставки"
+  "transaction.type.SupplyRefund": "Возврат поставки",
+  "transaction.status.Open": "Неоплачено",
+  "transaction.status.PartiallyPaid": "Частично оплачено",
+  "transaction.status.Closed": "Оплачено",
+  "transaction.status.Refunded": "Возвращено"
 }
