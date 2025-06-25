@@ -1,6 +1,8 @@
+import { TransactionPayment } from "models/payment";
 import {
 	CreateTransactionRequest,
 	GetTransactionsRequest,
+	TransactionLine,
 	TransactionRecord,
 } from "models/transaction";
 
@@ -22,6 +24,20 @@ class TransactionApi extends BaseApi {
 	async getById(id: number): Promise<TransactionRecord> {
 		const url = this.getUrlWithId(id);
 		const response = await http.get<TransactionRecord>(url);
+
+		return response.data;
+	}
+
+	async getPayments(transactionId: number): Promise<TransactionPayment[]> {
+		const url = `${this.getUrlWithId(transactionId)}/payments`;
+		const response = await http.get<TransactionPayment[]>(url);
+
+		return response.data;
+	}
+
+	async getLines(transactionId: number): Promise<TransactionLine[]> {
+		const url = `${this.getUrlWithId(transactionId)}/lines`;
+		const response = await http.get<TransactionLine[]>(url);
 
 		return response.data;
 	}
