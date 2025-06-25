@@ -23,8 +23,9 @@ const SupplyPage: React.FC = observer(() => {
 		supplyStore,
 		productStore,
 		templateStore,
-		partnerStore: partnersStore,
+		partnerStore,
 		transactionStore,
+		selectedTransactionStore,
 	} = useStore();
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
@@ -185,7 +186,7 @@ const SupplyPage: React.FC = observer(() => {
 				onClose={handleFormClose}
 				onSave={handleFormSave}
 				productStore={productStore}
-				partnersStore={partnersStore}
+				partnersStore={partnerStore}
 				supplyStore={supplyStore}
 				templateStore={templateStore}
 				onSaveTemplate={(val) => {
@@ -196,7 +197,7 @@ const SupplyPage: React.FC = observer(() => {
 
 			<TransactionSidePane
 				transaction={transactionStore.currentTransaction}
-				payments={[]}
+				payments={selectedTransactionStore.payments}
 				isOpen={isSidePaneOpen}
 				onClose={() => setIsSidePaneOpen(false)}
 			/>

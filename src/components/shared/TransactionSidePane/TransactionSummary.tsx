@@ -34,7 +34,7 @@ const TransactionSummary: React.FC<Props> = ({ transaction }) => (
 					{translate("transaction.status")}
 				</Typography>
 				<Chip
-					label={translate(`status.${transaction.status.toLowerCase()}`)}
+					label={translate(`transaction.status.${transaction.status}`)}
 					size="small"
 					color={transaction.status === "Closed" ? "success" : "warning"}
 				/>

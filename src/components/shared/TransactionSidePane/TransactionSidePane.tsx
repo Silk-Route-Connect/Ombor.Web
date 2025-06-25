@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Box, CircularProgress, Divider, Drawer, IconButton, Typography } from "@mui/material";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
-import { TransactionPayment } from "models/payment"; // <- your new type
+import { TransactionPayment } from "models/payment";
 import { TransactionRecord } from "models/transaction";
 
 import LineItemsTable from "./Table/LineItemsTable";
@@ -23,7 +23,9 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 	payments,
 	onClose,
 }) => {
-	if (!transaction) return null;
+	if (!transaction) {
+		return null;
+	}
 
 	if (transaction === "loading") {
 		return (

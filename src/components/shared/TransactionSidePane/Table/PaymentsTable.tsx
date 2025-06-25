@@ -7,23 +7,19 @@ import { formatPrice } from "utils/supplyUtils";
 
 interface Props {
 	payments: TransactionPayment[];
-	dense?: boolean; // single-payment inline view
-	hideHeader?: boolean; // inline view
 }
 
-const PaymentsTable: React.FC<Props> = ({ payments, dense = false, hideHeader = false }) => (
-	<Table size={dense ? "small" : "medium"}>
-		{!hideHeader && (
-			<TableHead>
-				<TableRow>
-					<TableCell>{translate("fieldId")}</TableCell>
-					<TableCell>{translate("fieldDate")}</TableCell>
-					<TableCell align="right">{translate("fieldAmountLocal")}</TableCell>
-					<TableCell align="right">{translate("fieldCurrency")}</TableCell>
-					<TableCell>{translate("fieldPaymentMethod")}</TableCell>
-				</TableRow>
-			</TableHead>
-		)}
+const PaymentsTable: React.FC<Props> = ({ payments }) => (
+	<Table size={"small"}>
+		<TableHead>
+			<TableRow>
+				<TableCell>{translate("payment.id")}</TableCell>
+				<TableCell>{translate("payment.date")}</TableCell>
+				<TableCell align="right">{translate("payment.amount")}</TableCell>
+				<TableCell align="right">{translate("payment.currency")}</TableCell>
+				<TableCell>{translate("payment.method")}</TableCell>
+			</TableRow>
+		</TableHead>
 
 		<TableBody>
 			{payments.map((p) => (
@@ -36,7 +32,7 @@ const PaymentsTable: React.FC<Props> = ({ payments, dense = false, hideHeader = 
 					<TableCell>{formatDateTime(p.date)}</TableCell>
 					<TableCell align="right">{formatPrice(p.amount)}</TableCell>
 					<TableCell align="right">{p.currency}</TableCell>
-					<TableCell>{translate(`paymentMethod.${p.method.toLowerCase()}`)}</TableCell>
+					<TableCell>{translate(`payment.method.${p.method}`)}</TableCell>
 				</TableRow>
 			))}
 		</TableBody>
