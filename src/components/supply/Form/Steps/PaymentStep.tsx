@@ -4,8 +4,12 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { Box, Button, Chip, Grid, MenuItem, TextField } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
+import { PaymentCurrency, PaymentMethod } from "models/payment";
 
 import { SupplyFormState } from "../useSupplyForm";
+
+const PAYMENT_METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer"];
+const CURRENCIES: PaymentCurrency[] = ["UZS", "USD", "RUB"];
 
 interface PaymentStepProps {
 	form: SupplyFormState;
@@ -33,7 +37,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 		<Grid size={{ xs: 12, sm: 4 }}>
 			<TextField
 				label={translate("fieldDebt")}
-				value={form.debt.toLocaleString()}
+				value={form.debtAmount.toLocaleString()}
 				aria-readonly
 				fullWidth
 			/>
@@ -42,13 +46,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 		<Grid size={{ xs: 12, sm: 4 }}>
 			<TextField
 				select
-				label={translate("fieldPaymentType")}
-				value={form.paymentType}
-				onChange={(e) => form.setPaymentType(e.target.value as "cash" | "card")}
+				label={translate("payment.method")}
+				value={form.paymentMethod}
+				onChange={(e) => form.setPaymentMethod(e.target.value as PaymentMethod)}
 				fullWidth
 			>
-				<MenuItem value="cash">{translate("payment.cash")}</MenuItem>
-				<MenuItem value="card">{translate("payment.card")}</MenuItem>
+				{PAYMENT_METHODS.map((m) => (
+					<MenuItem key={m} value={m}>
+						{translate(`payment.method.${m}`)}
+					</MenuItem>
+				))}
 			</TextField>
 		</Grid>
 
@@ -57,12 +64,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 				select
 				label={translate("fieldCurrency")}
 				value={form.currency}
-				onChange={(e) => form.setCurrency(e.target.value as "uzs" | "usd" | "rub")}
+				onChange={(e) => form.setCurrency(e.target.value as PaymentCurrency)}
 				fullWidth
 			>
-				<MenuItem value="uzs">UZS</MenuItem>
-				<MenuItem value="usd">USD</MenuItem>
-				<MenuItem value="rub">RUB</MenuItem>
+				{CURRENCIES.map((c) => (
+					<MenuItem key={c} value={c}>
+						{c}
+					</MenuItem>
+				))}
 			</TextField>
 		</Grid>
 
@@ -71,7 +80,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ form }) => (
 				label={translate("fieldExchangeRate")}
 				value={form.exchangeRate}
 				onChange={(e) => form.setExchangeRate(+e.target.value)}
-				disabled={form.currency === "uzs"}
+				disabled={form.currency === "UZS"}
 			/>
 		</Grid>
 

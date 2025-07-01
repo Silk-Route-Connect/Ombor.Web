@@ -29,6 +29,7 @@ export type PartnerFormPayload = {
 	phoneNumbers: string[];
 	type: PartnerType;
 	isActive: boolean;
+	balance: number;
 };
 
 const PARTNER_TYPES: PartnerType[] = ["All", "Customer", "Supplier"];
@@ -74,6 +75,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				email: partner.email ?? "",
 				phoneNumbers: partner.phoneNumbers.length > 0 ? partner.phoneNumbers : [""],
 				type: partner.type,
+				balance: partner.balance,
 			});
 		} else {
 			reset({
@@ -90,7 +92,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 
 	const onSubmit = (data: PartnerFormPayload) => {
 		const cleanedPhones = data.phoneNumbers.filter((p) => p.trim() !== "");
-		onSave({ ...data, phoneNumbers: cleanedPhones });
+		onSave({ ...data, phoneNumbers: cleanedPhones, balance: partner?.balance ?? 0 });
 	};
 
 	const dialogTitle = partner ? translate("partner.updateTitle") : translate("partner.createTitle");

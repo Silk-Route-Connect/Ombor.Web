@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BookmarkAddOutlinedIcon from "@mui/icons-material/BookmarkAddOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -15,11 +15,8 @@ import {
 } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+import { PaymentCurrency, PaymentMethod } from "models/payment";
 import { Supply } from "models/supply";
-import { IPartnerStore } from "stores/PartnerStore";
-import { IProductStore } from "stores/ProductStore";
-import { ISupplyStore } from "stores/SupplyStore";
-import { ITemplateStore } from "stores/TemplateStore";
 
 import DetailsStep from "./Steps/DetailsStep";
 import PaymentStep from "./Steps/PaymentStep";
@@ -32,7 +29,7 @@ export type SupplyItemPayload = {
 	productName: string;
 	quantity: number;
 	unitPrice: number;
-	discount: number; // 0 if none
+	discount: number;
 };
 
 export interface SupplyFormPayload {
@@ -40,49 +37,32 @@ export interface SupplyFormPayload {
 	date: Date;
 	items: SupplyItemPayload[];
 	notes?: string;
-	paymentType: "cash" | "card" | "transfer";
-	currency: "uzs" | "usd" | "rub";
-	exchangeRate: number; // 0 when currency === "uzs"
+	paymentMethod: PaymentMethod;
+	currency: PaymentCurrency;
+	exchangeRate: number;
 	totalPaid: number;
 	attachments?: File[];
 }
 
 export interface SupplyTemplatePayload {
 	name: string;
-	partnerId: number; // same as supplierId for supply templates
+	partnerId: number;
 	items: SupplyItemPayload[];
 }
 
-interface Props {
+interface SupplyFormProps {
 	isOpen: boolean;
+	isSaving: boolean;
 	supply?: Supply | null;
+
+	onSave(payload: SupplyFormPayload): void;
+	onSaveTemplate(template: SupplyTemplatePayload): Promise<void>;
 	onClose(): void;
-	onSave(p: SupplyFormPayload): Promise<void>;
-	onSaveTemplate(t: SupplyTemplatePayload): Promise<void>;
-	supplyStore: ISupplyStore;
-	partnersStore: IPartnerStore;
-	templateStore: ITemplateStore;
-	productStore: IProductStore;
 }
 
-const SupplyFormModal: React.FC<Props> = observer(
-	({
-		isOpen,
-		supply,
-		onClose,
-		onSave,
-		onSaveTemplate,
-		partnersStore,
-		templateStore,
-		productStore,
-	}) => {
-		useEffect(() => {
-			productStore.loadProducts();
-			templateStore.load();
-			partnersStore.getAll?.();
-		}, [productStore, templateStore, partnersStore]);
-
-		const form = useSupplyForm(supply, templateStore, productStore);
+const SupplyFormModal: React.FC<SupplyFormProps> = observer(
+	({ isOpen, supply, onClose, onSave, onSaveTemplate }) => {
+		const form = useSupplyForm(supply);
 		const [activeStep, setActiveStep] = useState(0);
 		const [saving, setSaving] = useState(false);
 		const [confirmClose, setConfirmClose] = useState(false);
@@ -92,7 +72,7 @@ const SupplyFormModal: React.FC<Props> = observer(
 
 		const save = async () => {
 			setSaving(true);
-			await onSave(form.buildPayload());
+			onSave(form.buildPayload());
 			setSaving(false);
 			onClose();
 		};
@@ -138,9 +118,8 @@ const SupplyFormModal: React.FC<Props> = observer(
 				{saving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ minHeight: CONTENT_HEIGHT }}>
-					{/* step bar removed per request */}
 					{activeStep === 0 ? (
-						<DetailsStep form={form} productStore={productStore} partnersStore={partnersStore} />
+						<DetailsStep partnersStore={null!} productStore={null!} form={form} />
 					) : (
 						<PaymentStep form={form} />
 					)}
@@ -185,7 +164,6 @@ const SupplyFormModal: React.FC<Props> = observer(
 					</Box>
 				</DialogActions>
 
-				{/* confirm-close dialog */}
 				<Dialog open={confirmClose} onClose={() => setConfirmClose(false)} maxWidth="xs">
 					<DialogContent>{translate("confirmClose")}</DialogContent>
 					<DialogActions>
@@ -194,7 +172,6 @@ const SupplyFormModal: React.FC<Props> = observer(
 					</DialogActions>
 				</Dialog>
 
-				{/* template-name dialog */}
 				<Dialog
 					open={templateDialogOpen}
 					onClose={() => setTemplateDialogOpen(false)}

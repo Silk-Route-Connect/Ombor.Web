@@ -1,69 +1,78 @@
 import { useEffect, useMemo, useState } from "react";
+import { PaymentCurrency, PaymentMethod } from "models/payment";
 import { CreateSupplyItem, Supply } from "models/supply";
 import { Template } from "models/template";
-import { IProductStore } from "stores/ProductStore";
-import { ITemplateStore } from "stores/TemplateStore";
+import { useStore } from "stores/StoreContext";
 
 import { SupplyFormPayload } from "./SupplyFormModal";
-
-export type Currency = "uzs" | "usd" | "rub";
 
 export interface SupplyFormState {
 	supplierId: number | null;
 	setSupplierId(id: number | null): void;
+
 	date: Date;
 	setDate(d: Date): void;
+
 	template: Template | null;
 	setTemplate(t: Template | null): void;
-	productToAdd: number | null;
-	setProductToAdd(id: number | null): void;
+
+	selectedProductId: number | null;
+	setSelectedProductId(id: number | null): void;
+
 	items: CreateSupplyItem[];
 	addProduct(): void;
 	removeItem(idx: number): void;
 	updateItem(idx: number, patch: Partial<CreateSupplyItem>): void;
-	paymentType: "cash" | "card" | "transfer";
-	setPaymentType(t: "cash" | "card" | "transfer"): void;
-	currency: Currency;
-	setCurrency(c: "uzs" | "usd" | "rub"): void;
+
+	paymentMethod: PaymentMethod;
+	setPaymentMethod(type: PaymentMethod): void;
+
+	currency: PaymentCurrency;
+	setCurrency(c: PaymentCurrency): void;
+
 	exchangeRate: number;
 	setExchangeRate(v: number): void;
+
 	paymentAmount: number;
 	setPaymentAmount(v: number): void;
+
 	notes: string;
 	setNotes(v: string): void;
+
 	attachments: File[];
 	removeAttachment(index: number): void;
 	handleAttachmentsChange(e: React.ChangeEvent<HTMLInputElement>): void;
+
 	totalDue: number;
-	debt: number;
+	debtAmount: number;
+
 	isDetailsValid: boolean;
 	isPaymentValid: boolean;
 	buildPayload(): SupplyFormPayload;
 }
 
-export const useSupplyForm = (
-	initialSupply: Supply | null | undefined,
-	templateStore: ITemplateStore,
-	productStore: IProductStore,
-): SupplyFormState => {
+export const useSupplyForm = (initialSupply: Supply | null | undefined): SupplyFormState => {
 	const [supplierId, setSupplierId] = useState<number | null>(initialSupply?.supplierId ?? null);
 	const [date, setDate] = useState<Date>(initialSupply?.date ?? new Date());
 	const [template, setTemplate] = useState<Template | null>(null);
-	const [productToAdd, setProductToAdd] = useState<number | null>(null);
+	const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 	const [items, setItems] = useState<CreateSupplyItem[]>(
 		initialSupply?.items.map((i) => ({ ...i })) ?? [],
 	);
-	const [paymentType, setPaymentType] = useState<"cash" | "card" | "transfer">(
-		initialSupply?.paymentType ?? "cash",
-	);
-	const [currency, setCurrency] = useState<"uzs" | "usd" | "rub">(initialSupply?.currency ?? "uzs");
-	const [exchangeRate, setExchangeRate] = useState<number>(initialSupply?.exchangeRate ?? 0);
+	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Cash");
+	const [currency, setCurrency] = useState<PaymentCurrency>("UZS");
+	const [exchangeRate, setExchangeRate] = useState<number>(1);
 	const [paymentAmount, setPaymentAmount] = useState<number>(initialSupply?.totalPaid ?? 0);
 	const [notes, setNotes] = useState<string>(initialSupply?.notes ?? "");
 	const [attachments, setAttachments] = useState<File[]>([]);
 
+	const { productStore } = useStore();
+
 	useEffect(() => {
-		if (!template) return;
+		if (!template) {
+			return;
+		}
+
 		setSupplierId(template.partnerId);
 		setItems(
 			template.items.map((ti) => ({
@@ -80,12 +89,12 @@ export const useSupplyForm = (
 		() => items.reduce((sum, i) => sum + i.quantity * i.unitPrice - (i.discount ?? 0), 0),
 		[items],
 	);
-	const debt = totalDue - paymentAmount;
+	const debtAmount = totalDue - paymentAmount;
 
 	const addProduct = () => {
-		if (!productToAdd) return;
+		if (!selectedProductId) return;
 		if (productStore.allProducts === "loading") return;
-		const p = productStore.allProducts.find((x) => x.id === productToAdd);
+		const p = productStore.allProducts.find((x) => x.id === selectedProductId);
 		if (!p) return;
 		setItems((prev) => [
 			...prev,
@@ -97,7 +106,7 @@ export const useSupplyForm = (
 				discount: 0,
 			},
 		]);
-		setProductToAdd(null);
+		setSelectedProductId(null);
 	};
 
 	const removeItem = (idx: number) => setItems((prev) => prev.filter((_, i) => i !== idx));
@@ -120,7 +129,7 @@ export const useSupplyForm = (
 	};
 
 	const isDetailsValid = supplierId !== null && items.length > 0;
-	const isPaymentValid = isDetailsValid && (currency === "uzs" || exchangeRate > 0);
+	const isPaymentValid = isDetailsValid && (currency === "UZS" || exchangeRate > 0);
 
 	const buildPayload = () => ({
 		supplierId: supplierId!,
@@ -131,7 +140,7 @@ export const useSupplyForm = (
 			discount: item.discount ?? 0,
 		})),
 		notes: notes.trim() || undefined,
-		paymentType,
+		paymentMethod,
 		currency,
 		exchangeRate,
 		totalPaid: paymentAmount,
@@ -145,14 +154,14 @@ export const useSupplyForm = (
 		setDate,
 		template,
 		setTemplate,
-		productToAdd,
-		setProductToAdd,
+		selectedProductId,
+		setSelectedProductId,
 		items,
 		addProduct,
 		removeItem,
 		updateItem,
-		paymentType,
-		setPaymentType,
+		paymentMethod,
+		setPaymentMethod,
 		currency,
 		setCurrency,
 		exchangeRate,
@@ -165,7 +174,7 @@ export const useSupplyForm = (
 		removeAttachment,
 		handleAttachmentsChange,
 		totalDue,
-		debt,
+		debtAmount,
 		isDetailsValid,
 		isPaymentValid,
 		buildPayload,

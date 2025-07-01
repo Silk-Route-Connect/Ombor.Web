@@ -51,7 +51,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "id",
 			field: "id",
-			headerName: translate("fieldId"),
+			headerName: translate("payment.id"),
 			width: "5%",
 			renderCell: (s) => (
 				<Link
@@ -69,7 +69,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "type",
 			field: "type",
-			headerName: translate("fieldPaymentType"),
+			headerName: translate("payment.type"),
 			align: "right",
 			width: "20%",
 			sortable: true,
@@ -78,7 +78,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "date",
 			field: "date",
-			headerName: translate("fieldDate"),
+			headerName: translate("payment.date"),
 			width: "25%",
 			sortable: true,
 			renderCell: (s) => formatDateTime(s.date),
@@ -86,20 +86,29 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "amountLocal",
 			field: "amountLocal",
-			headerName: translate("fieldAmountLocal"),
+			headerName: translate("payment.amount"),
 			align: "right",
-			width: "35%",
+			width: "20%",
 			sortable: true,
 			renderCell: (s) => formatPrice(s.amountLocal),
 		},
 		{
 			key: "currency",
 			field: "currency",
-			headerName: translate("fieldCurrency"),
+			headerName: translate("payment.currency"),
 			align: "right",
-			width: "15%",
+			width: "5%",
 			sortable: true,
 			renderCell: (s) => s.currency,
+		},
+		{
+			key: "method",
+			field: "method",
+			headerName: translate("payment.method"),
+			align: "right",
+			width: "25%",
+			sortable: true,
+			renderCell: (s) => translate(`payment.method.${s.method}`),
 		},
 	];
 

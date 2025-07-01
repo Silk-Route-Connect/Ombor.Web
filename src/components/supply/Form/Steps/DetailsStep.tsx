@@ -57,11 +57,11 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 				<ProductAutocomplete
 					type="Supply"
 					value={
-						form.productToAdd && productStore.allProducts !== "loading"
-							? (productStore.allProducts.find((p) => p.id === form.productToAdd) ?? null)
+						form.selectedProductId && productStore.allProducts !== "loading"
+							? (productStore.allProducts.find((p) => p.id === form.selectedProductId) ?? null)
 							: null
 					}
-					onChange={(p) => form.setProductToAdd(p?.id ?? null)}
+					onChange={(p) => form.setSelectedProductId(p?.id ?? null)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
 							console.log("clicked");
@@ -79,7 +79,7 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 					startIcon={<AddIcon />}
 					onClick={form.addProduct}
 					sx={{ height: 56 }}
-					disabled={!form.productToAdd}
+					disabled={!form.selectedProductId}
 				>
 					{translate("add")}
 				</Button>
@@ -106,12 +106,7 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 						{form.items.map((it, idx) => (
 							<Grid container key={`${it.productId}-${idx}`} columnSpacing={1} alignItems="center">
 								<Grid size={{ xs: 12, sm: 4 }}>
-									<TextField
-										value={it.productName}
-										fullWidth
-										disabled
-										label={translate("fieldProduct")}
-									/>
+									<TextField value={it.productName} fullWidth aria-readonly size="medium" />
 								</Grid>
 
 								<Grid size={{ xs: 12, sm: 3 }}>

@@ -21,7 +21,11 @@ const PaymentAllocationsTable: React.FC<Props> = ({ rows }) => (
 			{rows.map((a) => (
 				<TableRow key={a.id}>
 					<TableCell>
-						<AllocationLink allocation={a} />
+						{a.type === "AdvancePayment" ? (
+							translate("transaction.advancePayment")
+						) : (
+							<AllocationLink allocation={a} />
+						)}
 					</TableCell>
 					<TableCell align="right">{formatPrice(a.appliedAmount)}</TableCell>
 				</TableRow>
