@@ -24,5 +24,14 @@ export function formatUZS(value: number): string {
  *       21003000 → "21,003,000"
  */
 export function formatNumberWithCommas(value: number): string {
-	return value.toLocaleString();
+	const sign = getSign(value);
+	return `${sign}${value.toLocaleString()}`;
+}
+
+function getSign(value: number): string {
+	if (value === 0 || value < 0) {
+		return "";
+	}
+
+	return "+";
 }
