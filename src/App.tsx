@@ -1,7 +1,10 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
+import PartnerPage from "pages/PartnerPage";
 import ProductPage from "pages/ProductPage";
+import SupplyPage from "pages/SupplyPage";
+import TemplatePage from "pages/TemplatePage";
 
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
@@ -33,6 +36,9 @@ function App() {
 								<Route index element={<CategoryPage />} />
 								<Route path="categories" element={<CategoryPage />} />
 								<Route path="products" element={<ProductPage />} />
+								<Route path="partners" element={<PartnerPage />} />
+								<Route path="supplies" element={<SupplyPage />} />
+								<Route path="templates" element={<TemplatePage />} />
 							</Route>
 						</Routes>
 					</BrowserRouter>

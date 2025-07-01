@@ -1,4 +1,3 @@
-// src/stores/ProductStore.ts
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -9,6 +8,8 @@ import { NotificationStore } from "./NotificationStore";
 
 export interface IProductStore {
 	allProducts: Loadable<Product[]>;
+	saleProducts: Loadable<Product[]>;
+	supplyProducts: Loadable<Product[]>;
 	searchTerm: string;
 	categoryFilter: number | null;
 	filteredProducts: Loadable<Product[]>;
@@ -26,7 +27,7 @@ export class ProductStore implements IProductStore {
 	searchTerm = "";
 	categoryFilter: number | null = null;
 
-	private notificationStore: NotificationStore;
+	private readonly notificationStore: NotificationStore;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -38,7 +39,7 @@ export class ProductStore implements IProductStore {
 			return "loading";
 		}
 
-		let products = this.allProducts as Product[];
+		let products = this.allProducts;
 
 		if (this.searchTerm) {
 			const q = this.searchTerm.toLowerCase();
@@ -56,6 +57,22 @@ export class ProductStore implements IProductStore {
 		return products;
 	}
 
+	get saleProducts(): Loadable<Product[]> {
+		if (this.filteredProducts === "loading") {
+			return "loading";
+		}
+
+		return this.filteredProducts.filter((el) => el.type !== "Supply");
+	}
+
+	get supplyProducts(): Loadable<Product[]> {
+		if (this.filteredProducts === "loading") {
+			return "loading";
+		}
+
+		return this.filteredProducts.filter((el) => el.type !== "Sale");
+	}
+
 	setSearch(term: string): void {
 		this.searchTerm = term;
 	}
@@ -66,24 +83,20 @@ export class ProductStore implements IProductStore {
 
 	async loadProducts(): Promise<void> {
 		if (this.allProducts === "loading") {
-			return; // Prevent multiple calls
+			return;
 		}
 
 		runInAction(() => (this.allProducts = "loading"));
 
-		const params = {
-			searchTerm: this.searchTerm,
-			categoryId: this.categoryFilter ?? undefined,
-		};
-		const result = await tryRun(() => ProductApi.getAll(params));
+		const result = await tryRun(() => ProductApi.getAll());
 
 		if (result.status === "fail") {
-			runInAction(() => (this.allProducts = []));
 			this.notificationStore.error(translate("loadProductsError") + `: ${result.error}`);
-			return;
 		}
 
-		runInAction(() => (this.allProducts = result.data));
+		const data = result.status === "success" ? result.data : [];
+
+		runInAction(() => (this.allProducts = data));
 	}
 
 	async createProduct(request: CreateProductRequest): Promise<void> {
@@ -96,14 +109,13 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = [result.data, ...(this.allProducts as Product[])];
+				this.allProducts = [result.data, ...this.allProducts];
 			}
 		});
 		this.notificationStore.success(translate("createProductSuccess"));
 	}
 
 	async updateProduct(request: UpdateProductRequest): Promise<void> {
-		console.log("Updating product:", request);
 		const result = await tryRun(() => ProductApi.update(request));
 
 		if (result.status === "fail") {
@@ -113,7 +125,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = (this.allProducts as Product[]).map((p) => {
+				this.allProducts = this.allProducts.map((p) => {
 					if (p.id === result.data.id) {
 						return result.data;
 					}
@@ -134,7 +146,7 @@ export class ProductStore implements IProductStore {
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = (this.allProducts as Product[]).filter((p) => {
+				this.allProducts = this.allProducts.filter((p) => {
 					return p.id !== id;
 				});
 			}

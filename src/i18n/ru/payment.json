@@ -1,0 +1,22 @@
+{
+  "payment.id": "Номер",
+  "payment.method": "Способ оплаты",
+  "payment.date": "Дата",
+  "payment.amount": "Сумма",
+  "payment.currency": "Валюта",
+  "payment.exchangeRate": "Курс",
+  "payment.notes": "Комментарии",
+  "payment.attachments": "Вложения",
+  "payment.status": "Статус",
+  "payment.currency.USD": "Доллар",
+  "payment.currency.EUR": "Евро",
+  "payment.currency.RUB": "Рубль",
+  "payment.currency.UZS": "Сумы",
+  "payment.method.Cash": "Наличные",
+  "payment.method.BankTransfer": "Банковский перевод",
+  "payment.method.OnlinePayment": "Онлайн-платеж",
+  "payment.method.Card": "Карта",
+  "payment.method.AccountBalance": "Снятие со счёта",
+  "payment.method.Other": "Другое",
+  "payment.type": "Тип платежа"
+}

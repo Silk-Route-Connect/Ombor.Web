@@ -1,4 +1,3 @@
-// src/pages/ProductPage.tsx
 import React, { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import { Typography } from "@mui/material";
 import ProductFormModal, { ProductFormPayload } from "components/product/Form/ProductFormModal";

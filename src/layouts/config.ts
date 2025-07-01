@@ -1,7 +1,6 @@
 import { ElementType } from "react";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
@@ -34,20 +33,13 @@ export const menuItems: MenuItem[] = [
 	},
 
 	{
-		label: "Партнёры",
-		icon: GroupOutlinedIcon,
-		children: [
-			{ label: "Клиенты", to: "/customers" },
-			{ label: "Поставщики", to: "/suppliers" },
-		],
-	},
-
-	{
 		label: "Транзакции",
 		icon: SwapHorizOutlinedIcon,
 		children: [
+			{ label: "Партнёры", to: "/partners" },
 			{ label: "Продажи", to: "/sales" },
 			{ label: "Поставки", to: "/supplies" },
+			{ label: "Шаблоны", to: "/templates" },
 		],
 	},
 
