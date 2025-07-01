@@ -21,5 +21,18 @@
   "transaction.status.Open": "Неоплачено",
   "transaction.status.PartiallyPaid": "Частично оплачено",
   "transaction.status.Closed": "Оплачено",
-  "transaction.status.Refunded": "Возвращено"
+  "transaction.status.Refunded": "Возвращено",
+  "transaction.noLines": "Нет добавленных продуктов",
+  "transaction.total": "Итого",
+  "transaction.line.unitPrice": "Цена за ед.",
+  "transaction.line.quantity": "Кол-во",
+  "transaction.line.discount": "Скидка",
+  "transaction.line.totalPrice": "Итоговая цена",
+  "transaction.debtAmount": "Долг",
+  "transaction.advancePayment": "Предоплата",
+  "transaction.discount": "Скидка",
+  "transaction.addPayment": "Оплатить",
+  "transaction.addPaymentTitle": "Добавить оплату",
+  "transaction.paidPreviously": "Уже оплачено",
+  "transaction.toBePaid": "К оплате"
 }

@@ -82,5 +82,7 @@
   "validationSaleGteSupply":   "Цена продажи ≥ закупочной",
   "validationRetailGteSupply": "Розничная цена ≥ закупочной",
 
-  "close":                       "Закрыть"
+  "close":                       "Закрыть",
+
+  "product.name": "Название продукта"
 }

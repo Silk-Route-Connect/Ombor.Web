@@ -16,5 +16,7 @@
   "payment.method.BankTransfer": "Банковский перевод",
   "payment.method.OnlinePayment": "Онлайн-платеж",
   "payment.method.Card": "Карта",
-  "payment.method.Other": "Другое"
+  "payment.method.AccountBalance": "Снятие со счёта",
+  "payment.method.Other": "Другое",
+  "payment.type": "Тип платежа"
 }
