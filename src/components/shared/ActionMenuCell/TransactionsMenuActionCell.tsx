@@ -1,45 +1,33 @@
 import React from "react";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+import PaymentIcon from "@mui/icons-material/PaymentOutlined";
 import ActionMenuCell, { RowAction } from "components/shared/ActionMenuCell/MenuActionCell";
 import { translate } from "i18n/i18n";
 
 interface Props {
-	onEdit: () => void;
-	onArchive: () => void;
-	onDelete: () => void;
+	fullyPaid: boolean;
+	onPayment: () => void;
 	onRefund: () => void;
 }
 
-const TransactionsActionsMenu: React.FC<Props> = ({ onEdit, onArchive, onDelete, onRefund }) => {
+const TransactionsActionsMenu: React.FC<Props> = ({ fullyPaid, onPayment, onRefund }) => {
 	const actions: RowAction[] = [
-		{
-			key: "edit",
-			label: translate("actionEdit"),
-			icon: <EditIcon fontSize="small" color="warning" />,
-			onClick: onEdit,
-		},
 		{
 			key: "refund",
 			label: translate("actionRefund"),
 			icon: <AssignmentReturnIcon fontSize="small" color="info" />,
 			onClick: onRefund,
 		},
-		{
-			key: "archive",
-			label: translate("actionArchive"),
-			icon: <ArchiveIcon fontSize="small" />,
-			onClick: onArchive,
-		},
-		{
-			key: "delete",
-			label: translate("actionDelete"),
-			icon: <DeleteIcon fontSize="small" color="error" />,
-			onClick: onDelete,
-		},
 	];
+
+	if (!fullyPaid) {
+		actions.push({
+			key: "payment",
+			label: translate("transaction.addPayment"),
+			icon: <PaymentIcon fontSize="small" color="success" />,
+			onClick: onPayment,
+		});
+	}
 
 	return <ActionMenuCell actions={actions} />;
 };

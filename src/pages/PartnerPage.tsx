@@ -56,9 +56,13 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleSave = (payload: PartnerFormPayload) => {
 		if (selectedSupplier) {
-			partnerStore.updateSupplier({ ...payload, id: selectedSupplier.id, balance: 100 });
+			partnerStore.updateSupplier({
+				...payload,
+				id: selectedSupplier.id,
+				balance: payload.balance,
+			});
 		} else {
-			partnerStore.createSupplier({ ...payload, balance: 100 });
+			partnerStore.createSupplier({ ...payload, balance: 0 });
 		}
 		setIsFormOpen(false);
 		setSelectedSupplier(null);
