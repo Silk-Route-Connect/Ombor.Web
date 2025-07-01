@@ -8,9 +8,6 @@ export type Supply = {
 	items: SupplyItem[];
 	notes?: string;
 	attachments?: File[];
-	paymentType: "cash" | "card";
-	currency: "uzs" | "usd" | "rub";
-	exchangeRate?: number;
 };
 
 export type SupplyItem = {

@@ -42,7 +42,7 @@ export type CreateTransactionRequest = {
 	notes?: string;
 	totalPaid: number;
 	exchangeRate: number;
-	paymentType: PaymentCurrency;
+	currency: PaymentCurrency;
 	paymentMethod: PaymentMethod;
 	lines: CreateTransactionLine[];
 	attachments?: File[];

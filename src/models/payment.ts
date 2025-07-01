@@ -1,12 +1,17 @@
 export type PaymentCurrency = "UZS" | "USD" | "RUB";
 
-export type PaymentMethod = "Cash" | "Card" | "BankTransfer";
+export type PaymentMethod = "Cash" | "Card" | "BankTransfer" | "AccountBalance";
 
 export type PaymentDirection = "Income" | "Expense";
 
 export type PaymentType = "Transaction" | "Deposit" | "Withdrawal" | "Payroll" | "General";
 
-export type PaymentAllocationType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
+export type PaymentAllocationType =
+	| "Sale"
+	| "Supply"
+	| "SaleRefund"
+	| "SupplyRefund"
+	| "AdvancePayment";
 
 export type Payment = {
 	id: number;
@@ -39,4 +44,14 @@ export type TransactionPayment = {
 	currency: PaymentCurrency;
 	method: PaymentMethod;
 	notes?: string;
+};
+
+export type CreateTransactionPaymentRequest = {
+	transactionId: number;
+	amount: number;
+	method: PaymentMethod;
+	currency: PaymentCurrency;
+	exchangeRate: number;
+	notes?: string;
+	attachments?: File[];
 };
