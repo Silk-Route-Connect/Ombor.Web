@@ -3,6 +3,7 @@ import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction, toJS } from "mobx";
+import { CreateTransactionPaymentRequest } from "models/payment";
 import {
 	CreateTransactionRequest,
 	TransactionRecord,
@@ -19,6 +20,7 @@ export interface ITransactionStore {
 	sales: Loadable<TransactionRecord[]>;
 	filteredTransactions: Loadable<TransactionRecord[]>;
 	currentTransaction: Loadable<TransactionRecord> | null;
+	isSaving: boolean;
 
 	// client‐side controls
 	searchTerm: string;
@@ -32,6 +34,7 @@ export interface ITransactionStore {
 	getAll(): Promise<void>;
 	getById(id: number): Promise<void>;
 	create(request: CreateTransactionRequest): Promise<void>;
+	createPayment(request: CreateTransactionPaymentRequest): Promise<void>;
 
 	// setters for filters & sorting
 	setSearchTerm(searchTerm: string): void;
@@ -54,6 +57,7 @@ export class TransactionStore implements ITransactionStore {
 	filterPartnerId?: number | null = null;
 	sortField: keyof TransactionRecord | null = null;
 	sortOrder: SortOrder = "asc";
+	isSaving: boolean = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -108,7 +112,6 @@ export class TransactionStore implements ITransactionStore {
 			});
 		}
 
-		console.log(`returning filtered transactions: ${list.length}`);
 		return list;
 	}
 
@@ -174,8 +177,11 @@ export class TransactionStore implements ITransactionStore {
 	}
 
 	async create(request: CreateTransactionRequest): Promise<void> {
+		runInAction(() => (this.isSaving = true));
+
 		const result = await tryRun(() => TransactionApi.create(request));
 
+		runInAction(() => (this.isSaving = false));
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("transactions.errors.create"));
 			return;
@@ -190,6 +196,21 @@ export class TransactionStore implements ITransactionStore {
 			this.currentTransaction = result.data;
 			this.notificationStore.success("transactions.success.create");
 		});
+	}
+
+	async createPayment(request: CreateTransactionPaymentRequest): Promise<void> {
+		runInAction(() => (this.isSaving = true));
+
+		const result = await tryRun(() => TransactionApi.createPayment(request));
+
+		runInAction(() => (this.isSaving = false));
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("transactions.errors.createPayment"));
+		} else {
+			this.notificationStore.success(
+				`${translate("transactions.success.createPayment")}: ${result.data.id}`,
+			);
+		}
 	}
 
 	setSearchTerm(searchTerm: string): void {

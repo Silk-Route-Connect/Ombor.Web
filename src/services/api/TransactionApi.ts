@@ -1,4 +1,4 @@
-import { TransactionPayment } from "models/payment";
+import { CreateTransactionPaymentRequest, Payment, TransactionPayment } from "models/payment";
 import {
 	CreateTransactionRequest,
 	GetTransactionsRequest,
@@ -51,6 +51,15 @@ class TransactionApi extends BaseApi {
 		return response.data;
 	}
 
+	async createPayment(request: CreateTransactionPaymentRequest): Promise<Payment> {
+		const url = `${this.getUrlWithId(request.transactionId)}/payments`;
+		const form = this.getPaymentFormData(request);
+
+		const response = await http.post<Payment>(url, form, this.formHeaders);
+
+		return response.data;
+	}
+
 	private getFormData(request: CreateTransactionRequest): FormData {
 		const form = new FormData();
 
@@ -71,6 +80,30 @@ class TransactionApi extends BaseApi {
 			form.append(`lines[${i}].unitPrice`, String(line.unitPrice));
 			form.append(`lines[${i}].quantity`, String(line.quantity));
 			form.append(`lines[${i}].discount`, String(line.discount));
+		});
+
+		if (request.attachments) {
+			request.attachments.forEach((file) => {
+				form.append("attachments", file, file.name);
+			});
+		}
+
+		return form;
+	}
+
+	private getPaymentFormData(request: CreateTransactionPaymentRequest): FormData {
+		const form = new FormData();
+
+		Object.entries(request).forEach(([key, val]) => {
+			if (val == null) return;
+
+			if (typeof val === "object") {
+				return;
+			}
+
+			if (PrimitiveTypes.includes(typeof val)) {
+				form.append(key, String(val));
+			}
 		});
 
 		if (request.attachments) {
