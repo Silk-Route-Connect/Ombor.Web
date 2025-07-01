@@ -214,8 +214,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
 						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
 
-						// Determine stripe color using the index
-						const isOdd = index % 2 === 0; // zero‐based: 0 = first row (odd background)
+						const isOdd = index % 2 === 0;
 						const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
 						const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
 
@@ -224,7 +223,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 								<TableRow
 									hover={isSelectable || Boolean(renderExpanded)}
 									onClick={() => handleRowClickInternal(row)}
-									tabIndex={onRowClick ? 0 : undefined}
 									sx={{
 										backgroundColor,
 										cursor: isSelectable ? "pointer" : "default",
@@ -235,7 +233,11 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 											<IconButton
 												size="medium"
 												sx={{ p: 0 }}
-												onClick={() => toggleExpandRow(row.id)}
+												onClick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													toggleExpandRow(row.id);
+												}}
 											>
 												{isOpen ? (
 													<KeyboardArrowUpIcon fontSize="medium" />

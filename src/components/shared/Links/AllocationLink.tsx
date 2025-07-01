@@ -3,7 +3,9 @@ import { Link } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { PaymentAllocation } from "models/payment";
 
+// TODO: Fix this to use proper options
 const labelMap = {
+	AdvancePayment: "",
 	Sale: translate("paymentAllocationSale"),
 	Supply: translate("paymentAllocationSupply"),
 	SaleRefund: translate("paymentAllocationSaleRefund"),
@@ -11,22 +13,26 @@ const labelMap = {
 } as const;
 
 const routeMap = {
+	AdvancePayment: "",
 	Sale: "/sales/",
 	Supply: "/supplies/",
 	SaleRefund: "/sale-refunds/",
 	SupplyRefund: "/supply-refunds/",
 } as const;
 
-interface Props {
+interface AllocationLinkProps {
 	allocation: PaymentAllocation;
 }
 
-/** Renders a link like “Продажа #123” or plain “-” if transactionId missing */
-const AllocationLink: React.FC<Props> = ({ allocation }) => {
+const AllocationLink: React.FC<AllocationLinkProps> = ({ allocation }) => {
 	const { transactionId, type } = allocation;
 
 	if (!transactionId) {
 		return <>-</>;
+	}
+
+	if (allocation.type === "AdvancePayment") {
+		return null;
 	}
 
 	return (
