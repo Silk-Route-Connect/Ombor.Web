@@ -7,6 +7,7 @@ import {
 	CreatePartnerRequest,
 	GetPartnersRequest,
 	Partner,
+	PartnerType,
 	UpdateParatnerRequest,
 } from "models/partner";
 import { Supply } from "models/supply";
@@ -28,6 +29,7 @@ export interface IPartnerStore {
 	filteredPartners: Loadable<Partner[]>;
 	selectedPartner: Partner | null;
 	searchTerm: string;
+	type: PartnerType;
 	sortField: keyof Partner | null;
 	sortOrder: SortOrder;
 
@@ -39,6 +41,7 @@ export interface IPartnerStore {
 
 	// setters for filters & sorting
 	setSearch(term: string): void;
+	setType(type: PartnerType): void;
 	setSelectedPartner(id: number): void;
 	setSort(field: keyof Partner, order: SortOrder): void;
 }
@@ -47,6 +50,7 @@ export class PartnerStore implements IPartnerStore {
 	allPartners: Loadable<Partner[]> = [];
 	supplies: Loadable<Supply[]> = [];
 	selectedPartner: Partner | null = null;
+	type: PartnerType = "All";
 	searchTerm = "";
 	sortField: keyof Partner | null = null;
 	sortOrder: SortOrder = "asc";
@@ -64,10 +68,23 @@ export class PartnerStore implements IPartnerStore {
 			return "loading";
 		}
 
-		// TODO: Add sorting
-		return this.allPartners.filter((s) =>
-			s.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
-		);
+		let partners = this.allPartners;
+		const searchTerm = this.searchTerm?.toLocaleLowerCase();
+
+		if (searchTerm) {
+			partners = partners.filter(
+				(el) =>
+					el.name.toLowerCase().includes(searchTerm) ||
+					el.address?.toLocaleLowerCase().includes(searchTerm) ||
+					el.companyName?.toLocaleLowerCase().includes(searchTerm),
+			);
+		}
+
+		if (this.type === "All") {
+			return partners;
+		}
+
+		return partners.filter((el) => el.type === this.type || el.type === "All");
 	}
 
 	get suppliers(): Loadable<Partner[]> {
@@ -164,6 +181,10 @@ export class PartnerStore implements IPartnerStore {
 
 	setSearch(term: string): void {
 		this.searchTerm = term;
+	}
+
+	setType(type: PartnerType): void {
+		this.type = type;
 	}
 
 	setSelectedPartner(id: number): void {
