@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	TemplateFormItemPayload,
 	TemplateFormPayload,
@@ -42,8 +42,11 @@ interface TemplateFormOptions {
 	partnerStore: IPartnerStore;
 }
 
-export const useTemplateForm = ({ initial }: TemplateFormOptions): ITemplateFormState => {
-	console.log(initial);
+export const useTemplateForm = ({
+	initial,
+	partnerStore,
+	productStore,
+}: TemplateFormOptions): ITemplateFormState => {
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 	const [partner, setPartner] = useState<Partner | null>(null);
 	const [name, setName] = useState<string | null>(initial?.name ?? null);
@@ -58,6 +61,52 @@ export const useTemplateForm = ({ initial }: TemplateFormOptions): ITemplateForm
 			quantity: item.quantity,
 		})) ?? [],
 	);
+
+	const mapTemplateItems = useCallback(
+		(templateItems: Template["items"]): TemplateFormItemPayload[] =>
+			templateItems.map((i) => ({
+				id: i.id,
+				productId: i.productId,
+				productName: i.productName ?? "—",
+				unitPrice: i.unitPrice,
+				discount: i.discount ?? 0,
+				quantity: i.quantity,
+			})),
+		[productStore],
+	);
+
+	const reset = useCallback(() => {
+		console.log("resetting");
+		setPartner(null);
+		setName(null);
+		setType("Sale");
+		setItems([]);
+		setSelectedProduct(null);
+	}, []);
+
+	useEffect(() => {
+		console.log("inside of effect");
+		if (!initial) {
+			reset();
+			return;
+		}
+
+		console.log("effect should update");
+		console.log(initial.name);
+		console.log(initial.type);
+		console.log(initial.items.length);
+		setName(initial.name ?? null);
+		setType(initial.type ?? "Sale");
+		setItems(mapTemplateItems(initial.items));
+		setSelectedProduct(null);
+
+		if (partnerStore.allPartners === "loading") {
+			return;
+		}
+
+		const partner = partnerStore.allPartners.find((el) => el.id === initial.partnerId);
+		setPartner(partner ?? null);
+	}, [initial, partnerStore]);
 
 	const addItem = (): void => {
 		if (!selectedProduct) {
@@ -103,13 +152,6 @@ export const useTemplateForm = ({ initial }: TemplateFormOptions): ITemplateForm
 		}
 
 		setItems((prev) => prev.filter((_, i) => i !== index));
-	};
-
-	const reset = (): void => {
-		setPartner(null);
-		setName(null);
-		setSelectedProduct(null);
-		setItems([]);
 	};
 
 	const totalDue = useMemo(

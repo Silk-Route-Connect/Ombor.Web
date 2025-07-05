@@ -12,7 +12,6 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	InputLabel,
 	LinearProgress,
 	MenuItem,
 	Select,
@@ -26,12 +25,11 @@ import { useTemplateFormWrapper } from "hooks/templates/useTemplateFormWrapper";
 import { translate } from "i18n/i18n";
 import { Template, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
-import { formatNumberWithCommas } from "utils/formatCurrency";
 
 import { ItemsList } from "./ItemsList.tsx/ItemsList";
 
 const CONTENT_HEIGHT = 560;
-const TEMPLATE_TYPES: TemplateType[] = ["Supply", "Sale"];
+const TEMPLATE_TYPES: TemplateType[] = ["Sale", "Supply"];
 const LIST_HEIGHT = 300;
 
 export type TemplateFormPayload = {
@@ -58,6 +56,7 @@ interface Props {
 }
 
 const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave }) => {
+	console.log(template);
 	const form = useTemplateFormWrapper(template);
 	const { partnerStore: partnersStore, productStore } = useStore();
 
@@ -69,7 +68,6 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 			return;
 		}
 
-		form.reset();
 		partnersStore.getAll();
 		productStore.loadProducts();
 	}, [isOpen, template]);
@@ -133,10 +131,8 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 
 								<Grid size={{ xs: 12, sm: 4 }}>
 									<FormControl fullWidth>
-										<InputLabel id="template-type-label">{translate("template.type")}</InputLabel>
 										<Select
 											labelId="template-type-label"
-											label={translate("template.type")}
 											value={form.type}
 											onChange={(e) => form.setType(e.target.value as TemplateType)}
 										>
@@ -218,15 +214,10 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave 
 				<DialogActions
 					sx={{
 						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "center",
+						justifyContent: "flex-end",
 						px: 2,
 					}}
 				>
-					<Typography variant="subtitle1">
-						{translate("template.totalDue")}: {formatNumberWithCommas(form.totalDue)}
-					</Typography>
-
 					<Box>
 						<Button onClick={attemptClose}>{translate("cancel")}</Button>
 						<Button
