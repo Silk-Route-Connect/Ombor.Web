@@ -122,7 +122,9 @@ const TransactionFormModal: React.FC<TransactionFormProps> = observer(
 				onClose={() => !isSaving && setConfirmClose(true)}
 			>
 				<DialogTitle sx={{ pr: 6 }}>
-					{translate(transaction ? "updateTitle" : "createTitle")}
+					{translate(
+						transaction ? `transaction.${mode}.updateTitle` : `transaction.${mode}.createTitle`,
+					)}
 					<IconButton
 						onClick={() => setConfirmClose(true)}
 						sx={{ position: "absolute", right: 8, top: 8 }}

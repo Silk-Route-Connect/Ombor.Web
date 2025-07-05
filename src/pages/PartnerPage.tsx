@@ -10,7 +10,7 @@ import PartnerSidePane from "components/supplier/SidePane/PartnerSidePane";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import { Partner, PartnerType } from "models/partner";
+import { Partner } from "models/partner";
 import { useStore } from "stores/StoreContext";
 
 const PartnerPage: React.FC = observer(() => {
@@ -18,7 +18,6 @@ const PartnerPage: React.FC = observer(() => {
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
 	const [selectedSupplier, setSelectedSupplier] = useState<Partner | null>(null);
-	const [selectedType, setSelectedType] = useState<PartnerType>("All");
 
 	const { partnerStore } = useStore();
 
@@ -114,9 +113,9 @@ const PartnerPage: React.FC = observer(() => {
 		<>
 			<PartnerHeader
 				searchValue={partnerStore.searchTerm}
-				filterType={selectedType}
-				onTypeChange={(type) => setSelectedType(type)}
-				onSearch={(v) => partnerStore.setSearch(v)}
+				filterType={partnerStore.type}
+				onTypeChange={(value) => partnerStore.setType(value)}
+				onSearch={(value) => partnerStore.setSearch(value)}
 				onCreate={handleCreate}
 			/>
 
