@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import PartnerPage from "pages/PartnerPage";
 import ProductPage from "pages/ProductPage";
+import SalePage from "pages/SalePage";
 import SupplyPage from "pages/SupplyPage";
 import TemplatePage from "pages/TemplatePage";
 
@@ -38,6 +39,7 @@ function App() {
 								<Route path="products" element={<ProductPage />} />
 								<Route path="partners" element={<PartnerPage />} />
 								<Route path="supplies" element={<SupplyPage />} />
+								<Route path="sales" element={<SalePage />} />
 								<Route path="templates" element={<TemplatePage />} />
 							</Route>
 						</Routes>
