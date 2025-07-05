@@ -10,7 +10,7 @@
   "templateFieldType": "Тип шаблона",
   "templatesTitle": "Шаблоны",
   "searchTemplatesPlaceholder": "Поиск шаблонов",
-  "createTemplateTitle": "Создать шабон",
+  "createTemplateTitle": "Добавить шабон",
   "editTemplateTitle": "Изменить шаблон",
   "unsavedChangesTitle": "Есть несохранённые изменения",
   "unsavedChangesContent": "Вы уверены, что хотите закрыть форму? Все изменения будут потеряны.",
@@ -19,11 +19,15 @@
   "template.name": "Название",
   "template.partner": "Партнёр",
   "template.type": "Тип",
-  "templateType.Sale": "Продажа",
-  "templateType.Supply": "Поставка",
+  "template.type.Sale": "Продажа",
+  "template.type.Supply": "Поставка",
   "template.itemProduct": "Товар",
   "template.itemQuantity": "Кол.во",
   "template.itemUnitPrice": "Цена за шт.",
   "template.itemDiscount": "Скидка",
-  "template.totalDue": "Общая сумма"
+  "template.totalDue": "Общая сумма",
+  "template.item.product": "Товар",
+  "template.item.unitPrice": "Цена за шт.",
+  "template.item.quantity": "Кол.во",
+  "template.item.discount": "Скидка"
 }

@@ -11,6 +11,7 @@ import TransactionPaymentModal, {
 } from "components/shared/Transaction/Form/Payment/TransactionPaymentModal";
 import TransactionFormModal, {
 	TransactionFormPayload,
+	TransactionFormTemplatePayload,
 } from "components/shared/Transaction/Form/TransactionFormModal";
 import TransactionSidePane from "components/shared/TransactionSidePane/TransactionSidePane";
 import SupplyHeader from "components/supply/Header/SupplyHeader";
@@ -161,6 +162,11 @@ const SupplyPage: React.FC = observer(() => {
 		setIsPaymentFormOpen(false);
 	};
 
+	const handleTemplateSave = (payload: TransactionFormTemplatePayload): void => {
+		// templateStore.create({ ...payload });
+		console.log(payload);
+	};
+
 	const suppliesCount = useMemo(() => {
 		if (transactionStore.supplies === "loading") {
 			return "";
@@ -174,7 +180,7 @@ const SupplyPage: React.FC = observer(() => {
 			<SupplyHeader
 				searchValue={searchTerm}
 				titleCount={suppliesCount}
-				selectedParatner={selectedPartner}
+				selectedPartner={selectedPartner}
 				onSearch={setSearchTerm}
 				onPartnerChange={(value) => handlePartnerChange(value)}
 				onCreate={handleCreate}
@@ -197,10 +203,7 @@ const SupplyPage: React.FC = observer(() => {
 				mode="Supply"
 				onClose={handleFormClose}
 				onSave={handleFormSave}
-				onSaveTemplate={(val) => {
-					console.log(val);
-					return Promise.resolve();
-				}}
+				onSaveTemplate={handleTemplateSave}
 			/>
 
 			<TransactionSidePane
