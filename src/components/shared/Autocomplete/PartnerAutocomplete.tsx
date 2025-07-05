@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import type { Partner, PartnerType } from "models/partner";
@@ -7,7 +7,7 @@ import { useStore } from "stores/StoreContext";
 import EntityAutocomplete, { AutocompleteSize } from "./Autocomplete";
 
 interface PartnerAutocompleteProps {
-	type: Exclude<PartnerType, "All">;
+	type: PartnerType;
 	value: Partner | null;
 	size?: AutocompleteSize;
 	onChange(v: Partner | null): void;
@@ -20,7 +20,19 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	onChange,
 }) => {
 	const { partnerStore } = useStore();
-	const options = type === "Customer" ? partnerStore.customers : partnerStore.suppliers;
+	console.log(`type updated: ${type}`);
+
+	const options = useMemo(() => {
+		if (type === "Customer") {
+			return partnerStore.customers;
+		}
+
+		if (type === "Supplier") {
+			return partnerStore.suppliers;
+		}
+
+		return partnerStore.allPartners;
+	}, [partnerStore.allPartners, type]);
 
 	return (
 		<EntityAutocomplete<Partner>
