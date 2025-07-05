@@ -20,6 +20,7 @@ import { useTransactionFormWrapper } from "hooks/transactions/useTransactionForm
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { PaymentCurrency, PaymentMethod } from "models/payment";
+import { TemplateType } from "models/template";
 import { TransactionRecord, TransactionType } from "models/transaction";
 import { useStore } from "stores/StoreContext";
 
@@ -49,6 +50,7 @@ export interface TransactionFormPayload {
 export interface TransactionFormTemplatePayload {
 	name: string;
 	partnerId: number;
+	type: TemplateType;
 	lines: TransactionFormLinePayload[];
 }
 
@@ -59,7 +61,7 @@ interface TransactionFormProps {
 	transaction?: TransactionRecord | null;
 
 	onSave(payload: TransactionFormPayload): void;
-	onSaveTemplate(template: TransactionFormTemplatePayload): Promise<void>;
+	onSaveTemplate(template: TransactionFormTemplatePayload): void;
 	onClose(): void;
 }
 
@@ -77,7 +79,7 @@ const TransactionFormModal: React.FC<TransactionFormProps> = observer(
 			if (isOpen) {
 				resetForm();
 				productStore.loadProducts();
-				templateStore.load();
+				templateStore.getAll();
 			}
 		}, [productStore, templateStore, partnerStore, isOpen]);
 
@@ -92,10 +94,14 @@ const TransactionFormModal: React.FC<TransactionFormProps> = observer(
 		const openTemplateDialog = () => setTemplateDialogOpen(true);
 
 		const confirmTemplateSave = () => {
-			if (!templateName.trim()) return;
+			if (!templateName.trim()) {
+				return;
+			}
+
 			onSaveTemplate({
 				name: templateName.trim(),
 				partnerId: form.partnerId!,
+				type: mode,
 				lines: form.lines.map((i) => ({
 					productId: i.productId,
 					productName: i.productName ?? "",
@@ -111,9 +117,9 @@ const TransactionFormModal: React.FC<TransactionFormProps> = observer(
 		return (
 			<Dialog
 				open={isOpen}
-				onClose={() => !isSaving && setConfirmClose(true)}
 				fullWidth
 				maxWidth="md"
+				onClose={() => !isSaving && setConfirmClose(true)}
 			>
 				<DialogTitle sx={{ pr: 6 }}>
 					{translate(transaction ? "updateTitle" : "createTitle")}

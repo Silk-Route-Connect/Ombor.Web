@@ -1,5 +1,6 @@
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
+import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
 import productRu from "./ru/product.json";
 import supplierRu from "./ru/supplier.json";
@@ -25,6 +26,7 @@ const messages: Record<Locale, Record<string, string>> = {
 		...templateRu,
 		...transactionRu,
 		...paymentRu,
+		...partnerRu,
 	},
 	uz: { ...categoryUz, ...productUz, ...supplierUz, ...supplyUz, ...commonUz, ...templateUz },
 };

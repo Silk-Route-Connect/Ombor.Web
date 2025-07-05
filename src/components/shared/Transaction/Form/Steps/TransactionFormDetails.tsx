@@ -17,7 +17,7 @@ interface TransactionFormDetailsProps {
 
 const LIST_HEIGHT = 300;
 
-const TransactionFormDetails: React.FC<TransactionFormDetailsProps> = observer(({ form }) => (
+const TransactionFormDetails: React.FC<TransactionFormDetailsProps> = observer(({ form, mode }) => (
 	<Grid container rowSpacing={3} columnSpacing={2}>
 		<Grid container columnSpacing={2} size={{ xs: 12 }}>
 			<Grid size={{ xs: 12, sm: 4 }}>
@@ -42,6 +42,8 @@ const TransactionFormDetails: React.FC<TransactionFormDetailsProps> = observer((
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<TemplateAutocomplete
 					value={form.template}
+					type={mode}
+					partner={form.partner}
 					onChange={(value) => form.setTemplateId(value?.id ?? null)}
 				/>
 			</Grid>
@@ -90,6 +92,7 @@ const TransactionFormDetails: React.FC<TransactionFormDetailsProps> = observer((
 				<LineList data={form.lines} onUpdate={form.updateLine} onRemove={form.removeLine} />
 			</Box>
 		</Grid>
+
 		<Grid size={{ xs: 12 }}>
 			<Typography variant="h6" color="text.secondary" sx={{ mt: 1 }}>
 				{translate("transaction.total")}: {form.totalDue.toLocaleString()}

@@ -1,6 +1,5 @@
-// src/pages/TemplatePage.tsx
-import React, { useEffect, useState } from "react";
-import { Box, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
+import { Box, Typography } from "@mui/material";
 import { ActionCell } from "components/shared/ActionCell/ActionCell";
 import ConfirmDialog from "components/shared/ConfirmDialog";
 import { SortOrder } from "components/shared/DataTable/DataTable";
@@ -12,40 +11,26 @@ import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal, {
 	TemplateFormPayload,
 } from "components/template/Modal/TemplateFormModal";
+import TemplateItemsTable from "components/template/Tables/TemplateItemsTable";
+import { templateTableColumns } from "components/template/templateTableConfig";
 import { translate } from "i18n/i18n";
+import { observer } from "mobx-react-lite";
 import { Template } from "models/template";
 import { useStore } from "stores/StoreContext";
 
-const TemplatePage: React.FC = () => {
+const TemplatePage: React.FC = observer(() => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 	const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-	const { templateStore } = useStore();
+	const { templateStore, partnerStore } = useStore();
 
 	useEffect(() => {
-		templateStore.load();
+		templateStore.getAll();
+		partnerStore.getAll();
 	}, [templateStore]);
 
 	const columns: Column<Template>[] = [
-		{
-			key: "name",
-			field: "name",
-			headerName: translate("template.name"),
-			sortable: true,
-		},
-		{
-			key: "type",
-			field: "type",
-			headerName: translate("template.type"),
-			sortable: true,
-			renderCell: (tpl) => translate(tpl.type === "Supply" ? "supply" : "sale"),
-		},
-		{
-			key: "partnerName",
-			field: "partnerName",
-			headerName: translate("template.partner"),
-			sortable: true,
-		},
+		...templateTableColumns,
 		{
 			key: "actions",
 			headerName: "",
@@ -67,17 +52,10 @@ const TemplatePage: React.FC = () => {
 	};
 
 	const onFormSave = (payload: TemplateFormPayload) => {
-		const request = {
-			name: payload.name,
-			partnerId: payload.partnerId,
-			type: payload.type,
-			items: payload.items,
-		};
-
 		if (selectedTemplate) {
-			templateStore.update({ id: selectedTemplate.id, ...request });
+			templateStore.update({ id: selectedTemplate.id, ...payload });
 		} else {
-			templateStore.create(request);
+			templateStore.create({ ...payload });
 		}
 
 		setIsFormOpen(false);
@@ -95,36 +73,22 @@ const TemplatePage: React.FC = () => {
 		setIsDeleteDialogOpen(false);
 	};
 
-	const renderExpanded = (tpl: Template) => (
-		<Table size="small">
-			<TableHead>
-				<TableRow>
-					<TableCell>{translate("product")}</TableCell>
-					<TableCell align="right">{translate("quantity")}</TableCell>
-					<TableCell align="right">{translate("unitPrice")}</TableCell>
-					<TableCell align="right">{translate("discount")}</TableCell>
-				</TableRow>
-			</TableHead>
-			<TableBody>
-				{tpl.items.map((item) => (
-					<TableRow key={item.id}>
-						<TableCell>{item.productName}</TableCell>
-						<TableCell align="right">{item.quantity}</TableCell>
-						<TableCell align="right">{item.unitPrice.toLocaleString()}</TableCell>
-						<TableCell align="right">
-							{item.discount != null ? item.discount.toLocaleString() : "-"}
-						</TableCell>
-					</TableRow>
-				))}
-			</TableBody>
-		</Table>
-	);
+	const templatesCount = useMemo(() => {
+		if (templateStore.filteredTemplates === "loading") {
+			return "";
+		}
+
+		return templateStore.filteredTemplates.length.toString();
+	}, [templateStore.filteredTemplates]);
 
 	return (
 		<Box>
 			<TemplateHeader
 				searchValue={templateStore.searchTerm}
-				onSearch={(val) => templateStore.search(val)}
+				selectedPartner={templateStore.selectedPartner}
+				titleCount={templatesCount}
+				onSearch={(value) => templateStore.setSearch(value)}
+				onPartnerChange={(value) => templateStore.setSelectedPartner(value)}
 				onCreate={onCreate}
 			/>
 
@@ -132,8 +96,8 @@ const TemplatePage: React.FC = () => {
 				rows={templateStore.filteredTemplates}
 				columns={columns}
 				pagination
-				onSort={(field, order: SortOrder) => templateStore.sort(field, order)}
-				renderExpanded={renderExpanded}
+				onSort={(field, order: SortOrder) => templateStore.setSort(field, order)}
+				renderExpanded={(template) => <TemplateItemsTable items={template.items} />}
 			/>
 
 			<TemplateFormModal
@@ -145,8 +109,8 @@ const TemplatePage: React.FC = () => {
 
 			<ConfirmDialog
 				isOpen={isDeleteDialogOpen}
-				title={translate("confirmDeletion")}
-				content={<Typography>{translate("deleteTemplateConfirmation")}</Typography>}
+				title={translate("templates.confirm.deleteTitle")}
+				content={<Typography>{translate("templates.confirm.deleteContent")}</Typography>}
 				confirmLabel={translate("delete")}
 				cancelLabel={translate("cancel")}
 				onConfirm={onDeleteConfirmed}
@@ -154,6 +118,6 @@ const TemplatePage: React.FC = () => {
 			/>
 		</Box>
 	);
-};
+});
 
 export default TemplatePage;

@@ -48,7 +48,12 @@ const DetailsStep: React.FC<Props> = observer(({ form, productStore, partnersSto
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 4 }}>
-				<TemplateAutocomplete value={form.template} onChange={form.setTemplate} />
+				<TemplateAutocomplete
+					value={form.template}
+					onChange={form.setTemplate}
+					partner={null}
+					type="Sale"
+				/>
 			</Grid>
 		</Grid>
 

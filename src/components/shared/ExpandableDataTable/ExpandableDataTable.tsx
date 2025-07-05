@@ -1,4 +1,3 @@
-// src/components/shared/ExpandableDataTable.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
 	KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -87,9 +86,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	const [order, setOrder] = useState<SortOrder>("asc");
 	const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
 
-	console.log(rows);
-
-	// If the total row count changes, ensure current page is valid
 	useEffect(() => {
 		if (rows === "loading") return;
 		const allRows = rows;

@@ -10,7 +10,7 @@ import { Partner } from "models/partner";
 interface SupplyHeaderProps {
 	searchValue: string;
 	titleCount: string;
-	selectedParatner: Partner | null;
+	selectedPartner: Partner | null;
 	onSearch: (value: string) => void;
 	onPartnerChange: (value: Partner) => void;
 	onCreate: () => void;
@@ -19,7 +19,7 @@ interface SupplyHeaderProps {
 const SupplyHeader: React.FC<SupplyHeaderProps> = ({
 	searchValue,
 	titleCount,
-	selectedParatner,
+	selectedPartner,
 	onSearch,
 	onPartnerChange,
 	onCreate,
@@ -43,7 +43,7 @@ const SupplyHeader: React.FC<SupplyHeaderProps> = ({
 			/>
 			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
 				<PartnerAutocomplete
-					value={selectedParatner}
+					value={selectedPartner}
 					type="Supplier"
 					size="small"
 					onChange={onPartnerChange}

@@ -14,7 +14,7 @@ class TemplateApi extends BaseApi {
 		super("templates");
 	}
 
-	async getAll(request: GetTemplatesRequest): Promise<Template[]> {
+	async getAll(request?: GetTemplatesRequest | null): Promise<Template[]> {
 		const url = this.getUrl(request);
 		const response = await http.get<Template[]>(url);
 
