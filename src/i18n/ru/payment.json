@@ -24,8 +24,17 @@
   "payment.direction.Expense": "Расход",
   "payment.direction.All": "Все",
   "payment.partner": "Партнёр",
-  "payment.number": "Номер платежа",
+  "payment.number": "Номер",
   "payment.searchPayments": "Поиск платежей...",
   "payment.selectDirection": "Выбрать тип",
-  "payment.headerTitle": "Платежи"
+  "payment.headerTitle": "Платежи",
+  "payment.reason": "Причина",
+  "payment.amountLocal": "Конвертированная сумма",
+  "payment.reason.Transaction": "Оплата транзакции",
+  "payment.reason.Deposit" : "Пополнение баланса",
+  "payment.reason.Withdrawal": "Снятие из баланса",
+  "payment.reason.Payroll": "Выплата зарплаты",
+  "payment.reason.General": "Общее",
+  "payment.allocations": "Распределения",
+  "payment.allocationType": "Тип распределения"
 }
