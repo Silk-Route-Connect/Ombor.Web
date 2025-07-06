@@ -82,6 +82,7 @@ const Topbar: React.FC = () => {
 						<MenuItem onClick={handleQuickClose}>Продажа</MenuItem>
 						<MenuItem onClick={handleQuickClose}>Покупка</MenuItem>
 						<MenuItem onClick={handleQuickClose}>Заказ</MenuItem>
+						<MenuItem onClick={handleQuickClose}>Оплата</MenuItem>
 					</Menu>
 
 					<Tooltip title="Notifications" arrow>
