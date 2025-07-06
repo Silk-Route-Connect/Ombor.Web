@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
+import PaymentSidePane from "components/payment/SidePane/PaymentSidePane";
 import { paymentColumns } from "components/payment/Table/paymentTableConfigs";
 import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
 import { Column, DataTable } from "components/shared/DataTable/DataTable";
@@ -9,7 +10,7 @@ import { Payment, PaymentDirection } from "models/payment";
 import { useStore } from "stores/StoreContext";
 
 const PaymentPage: React.FC = observer(() => {
-	const { paymentStore } = useStore();
+	const { paymentStore, partnerStore } = useStore();
 
 	const [selectedDirection, setSelectedDirection] = useState<PaymentDirection | null>(null);
 	const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
@@ -17,7 +18,8 @@ const PaymentPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		paymentStore.getAll();
-	}, [paymentStore]);
+		partnerStore.getAll();
+	}, [paymentStore, partnerStore]);
 
 	const handleDirectionChange = (value: PaymentDirection | null): void => {
 		setSelectedDirection(value);
@@ -33,7 +35,7 @@ const PaymentPage: React.FC = observer(() => {
 	};
 
 	const handleRowClick = (payment: Payment): void => {
-		console.log(`payment with id: ${payment.id} is selected.`);
+		paymentStore.setSelectedPayment(payment);
 	};
 
 	const handleEdit = (payment: Payment): void => {
@@ -49,7 +51,7 @@ const PaymentPage: React.FC = observer(() => {
 		{
 			key: "actions",
 			headerName: "",
-			width: "5%",
+			width: 80,
 			align: "right",
 			renderCell: (payment: Payment) => (
 				<ActionMenuCell
@@ -103,6 +105,12 @@ const PaymentPage: React.FC = observer(() => {
 			/>
 
 			<DataTable<Payment> rows={rows} columns={columns} onRowClick={handleRowClick} pagination />
+
+			<PaymentSidePane
+				payment={paymentStore.selectedPayment}
+				isOpen={!!paymentStore.selectedPayment}
+				onClose={() => paymentStore.setSelectedPayment(null)}
+			/>
 		</>
 	);
 });

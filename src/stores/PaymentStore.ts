@@ -31,6 +31,7 @@ export interface IPaymentStore {
 	setSearch(searchTerm: string): void;
 	setFilterPartner(partnerId?: number | null): void;
 	setSort(field: keyof Payment, order: SortOrder): void;
+	setSelectedPayment(payment: Payment | null): void;
 }
 
 export class PaymentStore implements IPaymentStore {
@@ -135,6 +136,10 @@ export class PaymentStore implements IPaymentStore {
 			this.selectedPayment = result.data;
 			this.notificationStore.success("payments.success.create");
 		});
+	}
+
+	setSelectedPayment(payment: Payment | null): void {
+		runInAction(() => (this.selectedPayment = payment));
 	}
 
 	setSearch(searchTerm: string): void {

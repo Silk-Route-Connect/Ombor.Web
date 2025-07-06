@@ -36,6 +36,14 @@ export const paymentColumns: Column<Payment>[] = [
 		renderCell: (p) => translate(`payment.direction.${p.direction}`),
 	},
 	{
+		key: "currency",
+		field: "currency",
+		headerName: translate("payment.currency"),
+		sortable: true,
+		width: "10%",
+		renderCell: (p) => translate(`payment.currency.${p.currency}`),
+	},
+	{
 		key: "amount",
 		field: "amount",
 		headerName: translate("payment.amount"),
@@ -45,19 +53,11 @@ export const paymentColumns: Column<Payment>[] = [
 		renderCell: (p) => p.amount.toLocaleString(),
 	},
 	{
-		key: "currency",
-		field: "currency",
-		headerName: translate("payment.currency"),
-		sortable: true,
-		width: "10%",
-		renderCell: (p) => translate(`payment.currency.${p.currency}`),
-	},
-	{
 		key: "notes",
 		field: "notes",
 		headerName: translate("payment.notes"),
 		sortable: true,
-		width: "5%",
-		renderCell: (p) => formatNotes(p.notes, 5),
+		width: "15%",
+		renderCell: (p) => formatNotes(p.notes, 30),
 	},
 ];
