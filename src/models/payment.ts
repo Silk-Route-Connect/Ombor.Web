@@ -16,6 +16,7 @@ export type PaymentAllocationType =
 export type Payment = {
 	id: number;
 	partnerId?: number;
+	partnerName?: string;
 	notes?: string;
 	externalReference?: string;
 	amount: number;
