@@ -36,6 +36,20 @@ export type PaymentAllocation = {
 	type: PaymentAllocationType;
 };
 
+export type CreatePaymentRequest = {
+	partnerId?: number;
+	notes?: string;
+	externalReference?: string;
+	amount: number;
+	exchangeRate: number;
+	date: Date;
+	direction: PaymentDirection;
+	currency: PaymentCurrency;
+	type: PaymentType;
+	method: PaymentMethod;
+	attachments?: File[];
+};
+
 export type TransactionPayment = {
 	paymentId: number;
 	transactionId: number;
@@ -54,4 +68,8 @@ export type CreateTransactionPaymentRequest = {
 	exchangeRate: number;
 	notes?: string;
 	attachments?: File[];
+};
+
+export type GetPaymentsRequest = {
+	type?: PaymentType;
 };
