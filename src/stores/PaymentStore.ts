@@ -3,12 +3,12 @@ import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
-import { CreatePaymentRequest, Payment, PaymentType } from "models/payment";
+import { CreatePaymentRequest, Payment } from "models/payment";
 import PaymentApi from "services/api/PaymentApi";
 
 import { NotificationStore } from "./NotificationStore";
 
-interface IPaymentStore {
+export interface IPaymentStore {
 	allPayments: Loadable<Payment[]>;
 	incomes: Loadable<Payment[]>;
 	expenses: Loadable<Payment[]>;
@@ -18,7 +18,6 @@ interface IPaymentStore {
 
 	// client-side controls
 	searchTerm: string;
-	filterType: PaymentType | null;
 	filterPartnerId: number | null;
 	sortField: keyof Payment | null;
 	sortOrder: SortOrder;
@@ -30,8 +29,7 @@ interface IPaymentStore {
 
 	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
-	setFilterType(type: PaymentType | null): void;
-	setFilterPartner(partnerId: number | null): void;
+	setFilterPartner(partnerId?: number | null): void;
 	setSort(field: keyof Payment, order: SortOrder): void;
 }
 
@@ -42,7 +40,6 @@ export class PaymentStore implements IPaymentStore {
 	selectedPayment: Loadable<Payment> | null = null;
 	isSaving: boolean = false;
 	searchTerm: string = "";
-	filterType: PaymentType | null = null;
 	filterPartnerId: number | null = null;
 	sortField: keyof Payment | null = null;
 	sortOrder: SortOrder = "asc";
@@ -59,10 +56,6 @@ export class PaymentStore implements IPaymentStore {
 		}
 
 		let payments = this.allPayments;
-
-		if (this.filterType) {
-			payments = payments.filter((el) => el.type === this.filterType);
-		}
 
 		if (this.filterPartnerId) {
 			payments = payments.filter((el) => el.partnerId === this.filterPartnerId);
@@ -148,11 +141,7 @@ export class PaymentStore implements IPaymentStore {
 		this.searchTerm = searchTerm;
 	}
 
-	setFilterType(type: PaymentType | null): void {
-		this.filterType = type;
-	}
-
-	setFilterPartner(partnerId: number | null): void {
+	setFilterPartner(partnerId?: number | null): void {
 		if (!partnerId) {
 			this.filterPartnerId = null;
 		} else {
