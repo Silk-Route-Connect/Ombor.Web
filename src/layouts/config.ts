@@ -47,8 +47,7 @@ export const menuItems: MenuItem[] = [
 		label: "Финансы",
 		icon: MonetizationOnOutlinedIcon,
 		children: [
-			{ label: "Доходы", to: "/finances/incomes" },
-			{ label: "Расходы", to: "/finances/expenses" },
+			{ label: "Оплаты", to: "/payments" },
 			{ label: "Долги", to: "/finances/debts" },
 		],
 	},
