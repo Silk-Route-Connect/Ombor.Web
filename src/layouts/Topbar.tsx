@@ -108,10 +108,10 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 						transformOrigin={{ vertical: "top", horizontal: "right" }}
 					>
-						<MenuItem onClick={() => handleQuickNavigate("/sales/new")}>
+						<MenuItem onClick={() => handleQuickNavigate("/new/sales")}>
 							{translate("topbar.quickActions.sale")}
 						</MenuItem>
-						<MenuItem onClick={() => handleQuickNavigate("/supplies/new")}>
+						<MenuItem onClick={() => handleQuickNavigate("/new/supplies")}>
 							{translate("topbar.quickActions.supply")}
 						</MenuItem>
 						<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.order")}</MenuItem>

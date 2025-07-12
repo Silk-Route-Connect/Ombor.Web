@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
+import TransactionCreatePage from "pages/CreateTransactionPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
 import ProductPage from "pages/ProductPage";
@@ -43,6 +44,8 @@ function App() {
 								<Route path="sales" element={<SalePage />} />
 								<Route path="templates" element={<TemplatePage />} />
 								<Route path="payments" element={<PaymentPage />} />
+								<Route path="new/sales" element={<TransactionCreatePage mode="Sale" />} />
+								<Route path="new/supplies" element={<TransactionCreatePage mode="Supply" />} />
 							</Route>
 						</Routes>
 					</BrowserRouter>

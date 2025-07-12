@@ -150,7 +150,7 @@ function NavItem({
 }
 
 /* ───────────────────────────── Sidebar ───────────────────────────── */
-export default function Sidebar({ open, onToggle }: SidebarProps) {
+export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 	const theme = useTheme();
 	const location = useLocation();
 	const [groups, setGroups] = useState<Record<string, boolean>>({});
