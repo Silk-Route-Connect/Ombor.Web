@@ -28,6 +28,8 @@ interface SidebarProps {
 	onToggle: () => void;
 }
 
+const primaryColor = "primary.main";
+
 /* ───────────────────────────── NavItem ───────────────────────────── */
 interface NavItemProps {
 	icon?: React.ReactNode;
@@ -51,7 +53,7 @@ function NavItem({
 	isSelected,
 	drawerOpen,
 	selectedBgOpacity,
-}: NavItemProps) {
+}: Readonly<NavItemProps>) {
 	const theme = useTheme();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
@@ -94,7 +96,7 @@ function NavItem({
 					bgcolor: alpha(theme.palette.primary.main, hoverOpacity),
 				},
 				"&:hover": { bgcolor: "action.hover" },
-				"& .MuiTouchRipple-root": { color: "primary.main" },
+				"& .MuiTouchRipple-root": { color: primaryColor },
 				"& .MuiTouchRipple-rippleVisible": {
 					opacity: 0.3,
 					transform: "scale(4)",
@@ -107,7 +109,7 @@ function NavItem({
 					sx={{
 						minWidth: theme.spacing(3),
 						justifyContent: "center",
-						color: "primary.main",
+						color: primaryColor,
 						mr: 1,
 					}}
 				>
@@ -207,8 +209,8 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 							textDecoration: "none",
 						}}
 					>
-						<WarehouseIcon sx={{ fontSize: 28, color: "primary.main", mr: 1 }} />
-						<ListItemText primary="Warehouse" primaryTypographyProps={{ fontWeight: 600 }} />
+						<WarehouseIcon sx={{ fontSize: 28, color: primaryColor, mr: 1 }} />
+						<ListItemText primary="Warehouse" />
 					</NavLink>
 				)}
 			</Toolbar>
