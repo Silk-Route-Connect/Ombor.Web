@@ -71,8 +71,8 @@ function NavItem({
 		setTimeout(() => {
 			if (to) navigate(to);
 			else onClick?.();
-		}, 200);
-		setTimeout(() => rippleRef.current?.stop(), 600);
+		}, 50);
+		setTimeout(() => rippleRef.current?.stop(), 100);
 	};
 
 	const touchProps: Partial<TouchRippleProps> = { center: true };
