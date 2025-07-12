@@ -4,8 +4,8 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
+import { translate } from "i18n/i18n";
 
 export interface ChildMenuItem {
 	label: string;
@@ -20,47 +20,46 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-	{ label: "Главное", to: "/", icon: DashboardOutlinedIcon },
+	{ label: translate("sidebar.dashboard"), to: "/", icon: DashboardOutlinedIcon },
 
 	{
-		label: "Продукция",
+		label: translate("sidebar.production"),
 		icon: Inventory2OutlinedIcon,
 		children: [
-			{ label: "Товары", to: "/products" },
-			{ label: "Категории", to: "/categories" },
-			{ label: "Теги", to: "/tags" },
+			{ label: translate("sidebar.products"), to: "/products" },
+			{ label: translate("sidebar.categories"), to: "/categories" },
+			{ label: translate("sidebar.tags"), to: "/tags" },
 		],
 	},
 
 	{
-		label: "Транзакции",
+		label: translate("sidebar.transactions"),
 		icon: SwapHorizOutlinedIcon,
 		children: [
-			{ label: "Партнёры", to: "/partners" },
-			{ label: "Продажи", to: "/sales" },
-			{ label: "Поставки", to: "/supplies" },
-			{ label: "Шаблоны", to: "/templates" },
+			{ label: translate("sidebar.partners"), to: "/partners" },
+			{ label: translate("sidebar.sales"), to: "/sales" },
+			{ label: translate("sidebar.supplies"), to: "/supplies" },
+			{ label: translate("sidebar.templates"), to: "/templates" },
 		],
 	},
 
 	{
-		label: "Финансы",
+		label: translate("sidebar.finance"),
 		icon: MonetizationOnOutlinedIcon,
 		children: [
-			{ label: "Оплаты", to: "/payments" },
-			{ label: "Долги", to: "/finances/debts" },
+			{ label: translate("sidebar.payments"), to: "/payments" },
+			{ label: translate("sidebar.debts"), to: "/finances/debts" },
 		],
 	},
 
 	{
-		label: "Кадры",
+		label: translate("sidebar.personnel"),
 		icon: PeopleAltOutlinedIcon,
 		children: [
-			{ label: "Сотрудники", to: "/employees" },
-			{ label: "Зарплаты", to: "/payroll" },
+			{ label: translate("sidebar.employees"), to: "/employees" },
+			{ label: translate("sidebar.salaries"), to: "/payroll" },
 		],
 	},
 
-	{ label: "Отчёты", to: "/reports", icon: BarChartOutlinedIcon },
-	{ label: "Настройки", to: "/settings", icon: SettingsOutlinedIcon },
+	{ label: "Отчёты", to: translate("sidebar.reports"), icon: BarChartOutlinedIcon },
 ];

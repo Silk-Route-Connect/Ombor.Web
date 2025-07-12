@@ -19,6 +19,7 @@ import {
 	useTheme,
 } from "@mui/material";
 import type { TouchRippleProps } from "@mui/material/ButtonBase/TouchRipple";
+import { translate } from "i18n/i18n";
 
 import { menuItems } from "./config";
 
@@ -265,8 +266,18 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
 				<Divider sx={{ mt: "auto" }} />
 
 				<List disablePadding>
-					<NavItem icon={<SettingsIcon />} label="Настройки" to="/settings" drawerOpen={open} />
-					<NavItem icon={<LogoutIcon />} label="Выход" to="/logout" drawerOpen={open} />
+					<NavItem
+						icon={<SettingsIcon />}
+						label={translate("sidebar.settings")}
+						to="/settings"
+						drawerOpen={open}
+					/>
+					<NavItem
+						icon={<LogoutIcon />}
+						label={translate("sidebar.logout")}
+						to="/logout"
+						drawerOpen={open}
+					/>
 				</List>
 			</Box>
 		</Drawer>

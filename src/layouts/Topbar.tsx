@@ -179,7 +179,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 						transformOrigin={{ vertical: "top", horizontal: "right" }}
 					>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.profile")}</MenuItem>
+						<MenuItem onClick={handleUserClose}>{translate("topbar.account")}</MenuItem>
 						<MenuItem onClick={handleUserClose}>{translate("topbar.settings")}</MenuItem>
 						<MenuItem onClick={handleUserClose}>{translate("topbar.logout")}</MenuItem>
 					</Menu>
