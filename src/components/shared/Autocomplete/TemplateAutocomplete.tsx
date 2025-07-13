@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
+import EntityAutocomplete, { AutocompleteSize } from "components/shared/Autocomplete/Autocomplete";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
@@ -10,10 +10,17 @@ interface Props {
 	value: Template | null;
 	type: TemplateType;
 	partner: Partner | null;
+	size?: AutocompleteSize;
 	onChange(v: Template | null): void;
 }
 
-const TemplateAutocomplete: React.FC<Props> = ({ value, type, partner, onChange }) => {
+const TemplateAutocomplete: React.FC<Props> = ({
+	value,
+	type,
+	partner,
+	size = "medium",
+	onChange,
+}) => {
 	const { templateStore } = useStore();
 
 	useEffect(() => {
@@ -30,6 +37,7 @@ const TemplateAutocomplete: React.FC<Props> = ({ value, type, partner, onChange 
 			placeholder={translate("templateSearchPlaceholder")}
 			options={options === "loading" ? [] : options}
 			value={value}
+			size={size}
 			onChange={onChange}
 		/>
 	);
