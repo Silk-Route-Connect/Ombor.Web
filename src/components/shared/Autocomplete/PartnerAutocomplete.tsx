@@ -20,7 +20,6 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	onChange,
 }) => {
 	const { partnerStore } = useStore();
-	console.log(`type updated: ${type}`);
 
 	const options = useMemo(() => {
 		if (type === "Customer") {

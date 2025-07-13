@@ -26,9 +26,9 @@ const ProductAutocomplete: React.FC<Props> = ({ value, type, onChange, onKeyDown
 		}
 
 		if (type === "Supply") {
-			return productStore.allProducts.filter((el) => el.type === "Supply");
+			return productStore.supplyProducts;
 		} else if (type === "Sale") {
-			return productStore.allProducts.filter((el) => el.type === "Sale");
+			return productStore.saleProducts;
 		} else {
 			return productStore.allProducts;
 		}
@@ -38,7 +38,7 @@ const ProductAutocomplete: React.FC<Props> = ({ value, type, onChange, onKeyDown
 		<EntityAutocomplete<Product>
 			label={translate("fieldProduct")}
 			placeholder={translate("searchProductsPlaceholder")}
-			options={options}
+			options={options === "loading" ? [] : options}
 			value={value}
 			onChange={onChange}
 			onKeyDown={onKeyDown}
