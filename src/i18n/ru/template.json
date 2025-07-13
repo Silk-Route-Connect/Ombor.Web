@@ -29,5 +29,6 @@
   "template.item.product": "Товар",
   "template.item.unitPrice": "Цена за шт.",
   "template.item.quantity": "Кол.во",
-  "template.item.discount": "Скидка"
+  "template.item.discount": "Скидка",
+  "template.saveAsTemplate": "Сохранить как шаблон"
 }

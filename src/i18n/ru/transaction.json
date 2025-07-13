@@ -43,5 +43,7 @@
   "transaction.addPayment": "Оплатить",
   "transaction.addPaymentTitle": "Добавить оплату",
   "transaction.paidPreviously": "Уже оплачено",
-  "transaction.toBePaid": "К оплате"
+  "transaction.toBePaid": "К оплате",
+  "transaction.line.total": "Сумма",
+  "transaction.changeAmount": "Сдача"
 }

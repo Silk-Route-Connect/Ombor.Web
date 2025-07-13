@@ -36,5 +36,9 @@
   "payment.reason.Payroll": "Выплата зарплаты",
   "payment.reason.General": "Общее",
   "payment.allocations": "Распределения",
-  "payment.allocationType": "Тип распределения"
+  "payment.allocationType": "Тип распределения",
+  "payment.addPayment": "Добавить платёж",
+  "payment.removePayment": "Удалить",
+  "payment.partnerBalanceBefore": "Баланс до",
+  "payment.partnerBalanceAfter": "Баланс после"
 }
