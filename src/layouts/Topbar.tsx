@@ -25,19 +25,20 @@ import { translate } from "i18n/i18n";
 
 interface TopbarProps {
 	open: boolean;
-	onToggle: () => void;
+	onToggle: () => void; // toggles the sidebar
 }
 
 const iconStyle: SxProps<Theme> = { color: "text.primary", ml: 1 };
 
 const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
+	const navigate = useNavigate();
+
 	const [quickAnchor, setQuickAnchor] = React.useState<HTMLElement | null>(null);
 	const [langAnchor, setLangAnchor] = React.useState<HTMLElement | null>(null);
 	const [userAnchor, setUserAnchor] = React.useState<HTMLElement | null>(null);
 	const [darkMode, setDarkMode] = React.useState(false);
 
-	const navigate = useNavigate();
-
+	// ───────────────────────────── Menu open / close helpers ─────────────────────────────
 	const handleQuickOpen = (e: MouseEvent<HTMLElement>) => setQuickAnchor(e.currentTarget);
 	const handleQuickClose = () => setQuickAnchor(null);
 
@@ -47,14 +48,20 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 	const handleUserOpen = (e: MouseEvent<HTMLElement>) => setUserAnchor(e.currentTarget);
 	const handleUserClose = () => setUserAnchor(null);
 
+	// ───────────────────────────── Theme toggle ─────────────────────────────
 	const handleDarkToggle = () => setDarkMode((m) => !m);
 
-	/** Navigate to the given path after closing the quick-actions menu. */
+	// ───────────────────────────── Navigation helper ─────────────────────────────
+	/** Navigate to the given path and collapse the sidebar if it is open. */
 	const handleQuickNavigate = (path: string) => {
 		handleQuickClose();
 		navigate(path);
+		if (open) {
+			onToggle(); // collapse the drawer
+		}
 	};
 
+	// ───────────────────────────── UI ─────────────────────────────
 	return (
 		<AppBar
 			position="fixed"
@@ -62,7 +69,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 			sx={{ bgcolor: "background.paper", zIndex: (t) => t.zIndex.drawer + 1 }}
 		>
 			<Toolbar sx={{ justifyContent: "space-between" }}>
-				{/* hamburger + brand */}
+				{/* ───────────── Brand & hamburger ───────────── */}
 				<Box display="flex" alignItems="center">
 					<IconButton edge="start" onClick={onToggle} sx={{ mr: 2 }}>
 						<MenuIcon
@@ -72,6 +79,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 							}}
 						/>
 					</IconButton>
+
 					<NavLink
 						to="/"
 						style={{
@@ -86,8 +94,9 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 					</NavLink>
 				</Box>
 
+				{/* ───────────── Right-side controls ───────────── */}
 				<Box display="flex" alignItems="center">
-					{/* ───────────── Quick actions ───────────── */}
+					{/* Quick actions */}
 					<Tooltip title={translate("topbar.quickActions")} arrow enterDelay={200}>
 						<IconButton
 							onClick={handleQuickOpen}
@@ -120,7 +129,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						</MenuItem>
 					</Menu>
 
-					{/* ───────────── Notifications ───────────── */}
+					{/* Notifications */}
 					<Tooltip title={translate("topbar.notifications")} arrow enterDelay={200}>
 						<IconButton sx={iconStyle}>
 							<Badge variant="dot" color="error">
@@ -129,7 +138,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						</IconButton>
 					</Tooltip>
 
-					{/* ───────────── Dark / light mode ───────────── */}
+					{/* Dark / light mode */}
 					<Tooltip
 						title={darkMode ? translate("topbar.lightMode") : translate("topbar.darkMode")}
 						arrow
@@ -140,7 +149,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						</IconButton>
 					</Tooltip>
 
-					{/* ───────────── Language selector ───────────── */}
+					{/* Language selector */}
 					<Tooltip title={translate("topbar.language")} arrow enterDelay={200}>
 						<IconButton onClick={handleLangOpen} sx={iconStyle}>
 							<LanguageIcon />
@@ -157,7 +166,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						<MenuItem onClick={handleLangClose}>UZ</MenuItem>
 					</Menu>
 
-					{/* ───────────── User menu ───────────── */}
+					{/* User menu */}
 					<Tooltip title={translate("topbar.userMenu")} arrow enterDelay={200}>
 						<IconButton onClick={handleUserOpen} sx={iconStyle}>
 							<Avatar

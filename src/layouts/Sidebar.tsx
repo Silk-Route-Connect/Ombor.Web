@@ -57,6 +57,7 @@ function NavItem({
 	const theme = useTheme();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+
 	const rippleRef = useRef<{
 		start: (e: React.MouseEvent) => void;
 		stop: () => void;
@@ -85,7 +86,7 @@ function NavItem({
 			TouchRippleProps={touchProps as TouchRippleProps}
 			selected={selected}
 			sx={{
-				m: 0.5, // horizontal + vertical margin -> separates items from drawer edges
+				m: 0.5,
 				borderRadius: 2,
 				justifyContent: "flex-start",
 				pl: theme.spacing(2 + (inset ? 2 : 0)),
@@ -155,19 +156,20 @@ export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 	const location = useLocation();
 	const [groups, setGroups] = useState<Record<string, boolean>>({});
 
+	// Expand the parent group of the current route every time
+	//   1) the URL changes OR
+	//   2) the drawer is opened.
 	useEffect(() => {
-		const auto: Record<string, boolean> = {};
+		if (!open) return; // nothing visible, keep previous state
+
+		const expanded: Record<string, boolean> = {};
 		menuItems.forEach((item) => {
 			if (item.children) {
-				auto[item.label] = item.children.some((c) => location.pathname.startsWith(c.to));
+				expanded[item.label] = item.children.some((c) => location.pathname.startsWith(c.to));
 			}
 		});
-		setGroups(auto);
-	}, [location.pathname]);
-
-	useEffect(() => {
-		if (!open) setGroups({});
-	}, [open]);
+		setGroups(expanded);
+	}, [location.pathname, open]);
 
 	const handleToggleGroup = (label: string) => {
 		if (!open) {
@@ -201,14 +203,7 @@ export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 		>
 			<Toolbar sx={{ px: 1, minHeight: theme.mixins.toolbar.minHeight }}>
 				{open && (
-					<NavLink
-						to="/"
-						style={{
-							display: "flex",
-							alignItems: "center",
-							textDecoration: "none",
-						}}
-					>
+					<NavLink to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
 						<WarehouseIcon sx={{ fontSize: 28, color: primaryColor, mr: 1 }} />
 						<ListItemText primary="Warehouse" />
 					</NavLink>
@@ -220,7 +215,8 @@ export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 			<Box display="flex" flexDirection="column" height="100%">
 				<List disablePadding sx={{ mt: 1.5 }}>
 					{menuItems.map((item) => {
-						const childActive = item.children?.some((c) => location.pathname.startsWith(c.to));
+						const childActive =
+							item.children?.some((c) => location.pathname.startsWith(c.to)) ?? false;
 						const parentExpanded = open && groups[item.label];
 						const parentOpacity = parentExpanded ? 0.05 : 0.15;
 
