@@ -29,8 +29,6 @@ const TemplateAutocomplete: React.FC<Props> = ({
 
 	const options = type === "Sale" ? templateStore.saleTemplates : templateStore.supplyTemplates;
 
-	console.log(options);
-
 	return (
 		<EntityAutocomplete<Template>
 			label={translate("fieldTemplate")}
@@ -38,6 +36,8 @@ const TemplateAutocomplete: React.FC<Props> = ({
 			options={options === "loading" ? [] : options}
 			value={value}
 			size={size}
+			loading={options === "loading"}
+			disabled={options === "loading"}
 			onChange={onChange}
 		/>
 	);

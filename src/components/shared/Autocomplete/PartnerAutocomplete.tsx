@@ -10,7 +10,7 @@ interface PartnerAutocompleteProps {
 	type: PartnerType;
 	value: Partner | null;
 	size?: AutocompleteSize;
-	onChange(v: Partner | null): void;
+	onChange(value: Partner | null): void;
 }
 
 const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
@@ -24,13 +24,11 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	const options = useMemo(() => {
 		if (type === "Customer") {
 			return partnerStore.customers;
-		}
-
-		if (type === "Supplier") {
+		} else if (type === "Supplier") {
 			return partnerStore.suppliers;
+		} else {
+			return partnerStore.allPartners;
 		}
-
-		return partnerStore.allPartners;
 	}, [partnerStore.allPartners, type]);
 
 	return (
@@ -41,6 +39,8 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 			value={value}
 			size={size}
 			onChange={onChange}
+			loading={options === "loading"}
+			disabled={options === "loading"}
 		/>
 	);
 };
