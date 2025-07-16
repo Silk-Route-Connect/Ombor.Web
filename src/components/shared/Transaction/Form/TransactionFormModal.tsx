@@ -21,7 +21,7 @@ import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { PaymentCurrency, PaymentMethod } from "models/payment";
 import { TemplateType } from "models/template";
-import { TransactionRecord, TransactionType } from "models/transaction";
+import { DebtPayment, TransactionRecord, TransactionType } from "models/transaction";
 import { useStore } from "stores/StoreContext";
 
 const CONTENT_HEIGHT = 560;
@@ -45,6 +45,7 @@ export interface TransactionFormPayload {
 	exchangeRate: number;
 	totalPaid: number;
 	attachments?: File[];
+	payOffs?: DebtPayment[];
 }
 
 export interface TransactionFormTemplatePayload {
