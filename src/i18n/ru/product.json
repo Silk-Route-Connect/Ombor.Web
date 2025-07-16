@@ -89,5 +89,7 @@
   "product.supplyPrice": "Закупочная цена",
   "product.salePrice": "Продажная цена",
   "product.stock": "Остаток",
-  "product.sku": "Артикул"
+  "product.sku": "Артикул",
+
+  "product.searchTitle": "Поиск товаров..."
 }
