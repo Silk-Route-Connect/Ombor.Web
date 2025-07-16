@@ -1,5 +1,5 @@
 {
-  "partner.type.All": "Клиент + Поставщик",
+  "partner.type.Both": "Клиент + Поставщик",
   "partner.type.Customer": "Клиент",
   "paratner.type.Supplier": "Поставщик"
 }

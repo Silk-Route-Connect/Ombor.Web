@@ -6,7 +6,7 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
 import { PartnerType } from "models/partner";
 
-const PARTNER_TYPES: PartnerType[] = ["All", "Customer", "Supplier"];
+const PARTNER_TYPES: PartnerType[] = ["Both", "Customer", "Supplier"];
 
 interface PartnerHeaderProps {
 	searchValue: string;
