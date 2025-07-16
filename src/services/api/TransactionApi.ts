@@ -42,6 +42,18 @@ class TransactionApi extends BaseApi {
 		return response.data;
 	}
 
+	async getOpenTransactions(partnerId: number): Promise<TransactionRecord[]> {
+		const query: GetTransactionsRequest = {
+			partnerId,
+			status: "Open",
+			type: "Sale",
+		};
+		const url = this.getUrl(query);
+		const response = await http.get<TransactionRecord[]>(url);
+
+		return response.data;
+	}
+
 	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
 		const url = this.getUrl();
 		const form = this.getFormData(request);
