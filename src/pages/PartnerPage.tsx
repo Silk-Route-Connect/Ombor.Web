@@ -47,7 +47,7 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleConfirmDelete = () => {
 		if (selectedSupplier) {
-			partnerStore.deleteSupplier(selectedSupplier.id);
+			partnerStore.delete(selectedSupplier.id);
 		}
 		setIsDeleteDialogOpen(false);
 		setSelectedSupplier(null);
@@ -55,13 +55,13 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleSave = (payload: PartnerFormPayload) => {
 		if (selectedSupplier) {
-			partnerStore.updateSupplier({
+			partnerStore.update({
 				...payload,
 				id: selectedSupplier.id,
 				balance: payload.balance,
 			});
 		} else {
-			partnerStore.createSupplier({ ...payload, balance: 0 });
+			partnerStore.create({ ...payload, balance: 0 });
 		}
 		setIsFormOpen(false);
 		setSelectedSupplier(null);

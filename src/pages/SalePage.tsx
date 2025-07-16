@@ -140,9 +140,7 @@ const SalePage: React.FC = observer(() => {
 	};
 
 	const handleFormSave = (payload: TransactionFormPayload): void => {
-		transactionStore.create({
-			...payload,
-		});
+		console.log(payload);
 	};
 
 	const handlePaymentFormSave = (payload: TransactionPaymentFormPayload): void => {

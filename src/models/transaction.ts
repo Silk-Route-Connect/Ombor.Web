@@ -5,10 +5,10 @@ export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 export type TransactionStatus = "Open" | "Closed";
 
 export type GetTransactionsRequest = {
-	searchTerm?: string;
-	type?: TransactionType;
-	partnerId?: number;
-	status?: TransactionStatus;
+	searchTerm?: string | null;
+	type?: TransactionType | null;
+	partnerId?: number | null;
+	status?: TransactionStatus | null;
 };
 
 export type TransactionRecord = {
@@ -40,12 +40,10 @@ export type CreateTransactionRequest = {
 	partnerId: number;
 	type: TransactionType;
 	notes?: string;
-	totalPaid: number;
-	exchangeRate: number;
-	currency: PaymentCurrency;
-	paymentMethod: PaymentMethod;
+	payments: TransactionPayment[];
 	lines: CreateTransactionLine[];
 	attachments?: File[];
+	debtPayments?: DebtPayment[];
 };
 
 export type CreateTransactionLine = {
@@ -53,4 +51,16 @@ export type CreateTransactionLine = {
 	unitPrice: number;
 	quantity: number;
 	discount: number;
+};
+
+export type DebtPayment = {
+	transactionId: number;
+	amount: number;
+};
+
+export type TransactionPayment = {
+	amount: number;
+	method: PaymentMethod;
+	currency: PaymentCurrency;
+	exchangeRate: number;
 };
