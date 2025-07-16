@@ -25,7 +25,7 @@ const SalesTab: React.FC<SalesTabProps> = observer(({ partnerId }) => {
 
 	/* ─────────── fetch data on mount/partner change ─────────── */
 	useEffect(() => {
-		if (partnerId) selectedPartnerStore.getSales();
+		if (partnerId) selectedPartnerStore.getTransactions("Sale");
 	}, [partnerId, selectedPartnerStore]);
 
 	/* ─────────── download-menu state (unchanged) ─────────── */
@@ -145,7 +145,7 @@ const SalesTab: React.FC<SalesTabProps> = observer(({ partnerId }) => {
 
 			{/* data table */}
 			<ExpandableDataTable<TransactionRecord>
-				rows={selectedPartnerStore.filteredSales}
+				rows={selectedPartnerStore.sales}
 				columns={saleColumns}
 				pagination
 				renderExpanded={(sale) => <SupplyItemsTable items={sale.lines} />}

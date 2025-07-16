@@ -152,7 +152,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 			</Box>
 
 			<ExpandableDataTable<Payment>
-				rows={selectedPartnerStore.filteredPayments}
+				rows={selectedPartnerStore.payments}
 				columns={paymentColumns}
 				pagination
 				canExpand={(p) => p.allocations.length > 1}
