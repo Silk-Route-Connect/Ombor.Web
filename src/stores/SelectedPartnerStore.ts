@@ -4,40 +4,40 @@ import { translate } from "i18n/i18n";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Partner } from "models/partner";
 import { Payment } from "models/payment";
-import { TransactionRecord } from "models/transaction";
+import { TransactionRecord, TransactionType } from "models/transaction";
 import PartnerApi from "services/api/PartnerApi";
+import TransactionApi from "services/api/TransactionApi";
 import { DateFilter, materialise, PresetOption } from "utils/dateFilterUtils";
 
 import { NotificationStore } from "./NotificationStore";
 import { IPartnerStore } from "./PartnerStore";
 
 export interface ISelectedPartnerStore {
-	/* data exposed to UI */
-	allTransactions: Loadable<TransactionRecord[]>;
-	filteredSales: Loadable<TransactionRecord[]>;
-	filteredSupplies: Loadable<TransactionRecord[]>;
-	filteredPayments: Loadable<Payment[]>;
+	// client‐side controls
+	filteredTransactions: Loadable<TransactionRecord[]>;
+	openTransactions: Loadable<TransactionRecord[]>;
+	sales: Loadable<TransactionRecord[]>;
+	supplies: Loadable<TransactionRecord[]>;
+	payments: Loadable<Payment[]>;
 
 	/* current filter */
 	readonly dateFilter: DateFilter;
 
-	/* commands */
+	// actions
+	getTransactions(type: TransactionType | null): Promise<void>;
+	getPayments(): Promise<void>;
+
+	// setters for filters & sorting
 	setPreset(preset: PresetOption): void;
 	setCustom(from: Date, to: Date): void;
-
-	getSales(): Promise<void>;
-	getSupplies(): Promise<void>;
-	getPayments(): Promise<void>;
 }
 
 export class SelectedPartnerStore implements ISelectedPartnerStore {
-	/* ───────────────────── observable data ───────────────────── */
 	private selectedPartner: Partner | null = null;
 
-	private allSales: Loadable<TransactionRecord[]> = [];
-	private allSupplies: Loadable<TransactionRecord[]> = [];
+	private allTransactions: Loadable<TransactionRecord[]> = [];
 	private allPayments: Loadable<Payment[]> = [];
-
+	openTransactions: Loadable<TransactionRecord[]> = [];
 	dateFilter: DateFilter = { type: "preset", preset: "week" };
 
 	constructor(
@@ -48,19 +48,33 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		this.registerReactions();
 	}
 
-	get allTransactions(): Loadable<TransactionRecord[]> {
-		return this.allSales;
+	get filteredTransactions(): Loadable<TransactionRecord[]> {
+		if (this.allTransactions === "loading") {
+			return "loading";
+		}
+
+		return this.applyFilter(this.allTransactions);
 	}
 
-	get filteredSales(): Loadable<TransactionRecord[]> {
-		return this.applyFilter(this.allSales);
+	get sales(): Loadable<TransactionRecord[]> {
+		if (this.allTransactions === "loading") {
+			return "loading";
+		}
+
+		const sales = this.allTransactions.filter((el) => el.type === "Sale");
+		return this.applyFilter(sales);
 	}
 
-	get filteredSupplies(): Loadable<TransactionRecord[]> {
-		return this.applyFilter(this.allSupplies);
+	get supplies(): Loadable<TransactionRecord[]> {
+		if (this.allTransactions === "loading") {
+			return "loading";
+		}
+
+		const supplies = this.allTransactions.filter((el) => el.type === "Supply");
+		return this.applyFilter(supplies);
 	}
 
-	get filteredPayments(): Loadable<Payment[]> {
+	get payments(): Loadable<Payment[]> {
 		return this.filterPayments(this.allPayments);
 	}
 
@@ -72,34 +86,22 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		this.dateFilter = { type: "custom", from, to };
 	}
 
-	async getSales(): Promise<void> {
-		if (this.allSales === "loading" || !this.selectedPartner) {
+	async getTransactions(type: TransactionType | null = null): Promise<void> {
+		if (this.allTransactions === "loading" || !this.selectedPartner) {
 			return;
 		}
 
-		runInAction(() => (this.allSales = "loading"));
+		const partnerId = this.selectedPartner.id;
+		runInAction(() => (this.allTransactions = "loading"));
 
-		const res = await tryRun(() => PartnerApi.getSales(this.selectedPartner!.id));
-		if (res.status === "fail") {
-			this.notificationStore.error(translate("partner.error.getSales"));
-			return;
-		}
-		runInAction(() => (this.allSales = res.data));
-	}
+		const result = await tryRun(() => TransactionApi.getAll({ partnerId, type }));
 
-	async getSupplies(): Promise<void> {
-		if (this.allSupplies === "loading" || !this.selectedPartner) {
-			return;
-		}
-
-		runInAction(() => (this.allSupplies = "loading"));
-
-		const result = await tryRun(() => PartnerApi.getSupplies(this.selectedPartner!.id));
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partner.error.getSupplies"));
-			return;
+			this.notificationStore.error(translate("partner.error.getTransactions"));
 		}
-		runInAction(() => (this.allSupplies = result.data));
+
+		const data = result.status === "fail" ? [] : result.data;
+		runInAction(() => (this.allTransactions = data));
 	}
 
 	async getPayments(): Promise<void> {
@@ -112,10 +114,10 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("partner.error.getPayments"));
-			return;
 		}
 
-		runInAction(() => (this.allPayments = result.data));
+		const data = result.status === "fail" ? [] : result.data;
+		runInAction(() => (this.allPayments = data));
 	}
 
 	private applyFilter(data: Loadable<TransactionRecord[]>): Loadable<TransactionRecord[]> {
@@ -123,13 +125,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return "loading";
 		}
 
-		const { from, to } = materialise(this.dateFilter);
-		return data.filter((t) => {
-			const d = new Date(t.date);
-			if (from && d < from) return false;
-			if (to && d > to) return false;
-			return true;
-		});
+		return data.filter((transaction) => this.isWithin(transaction.date, this.dateFilter));
 	}
 
 	private filterPayments(data: Loadable<Payment[]>): Loadable<Payment[]> {
@@ -137,14 +133,30 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return "loading";
 		}
 
-		const { from, to } = materialise(this.dateFilter);
-		return data.filter((el) => {
-			const d = new Date(el.date);
-			if (from && d < from) return false;
-			if (to && d > to) return false;
+		return data.filter((payment) => this.isWithin(payment.date, this.dateFilter));
+	}
 
-			return true;
-		});
+	private isWithin(dateIso: string | Date, filter: DateFilter): boolean {
+		const { from, to } = materialise(filter);
+		const d = typeof dateIso === "string" ? new Date(dateIso) : dateIso;
+
+		if (from && d < from) return false;
+		if (to && d > to) return false;
+		return true;
+	}
+
+	private async getOpenTransactions(partnerId: number) {
+		if (this.openTransactions === "loading") return;
+
+		runInAction(() => (this.openTransactions = "loading"));
+		const result = await tryRun(() => TransactionApi.getOpenTransactions(partnerId));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("partner.error.getDebts"));
+			return;
+		}
+
+		runInAction(() => (this.openTransactions = result.data));
 	}
 
 	private registerReactions() {
@@ -153,13 +165,13 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			(partner) => {
 				runInAction(() => {
 					this.selectedPartner = partner;
-					this.allSales = [];
-					this.allSupplies = [];
+					this.allTransactions = [];
+					this.allPayments = [];
 					this.dateFilter = { type: "preset", preset: "week" };
 				});
 				if (partner) {
-					this.getSales();
-					this.getSupplies();
+					this.getTransactions();
+					this.getOpenTransactions(partner.id);
 				}
 			},
 			{ fireImmediately: true },
