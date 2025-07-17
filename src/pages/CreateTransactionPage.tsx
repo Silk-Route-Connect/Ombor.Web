@@ -11,7 +11,7 @@ interface Props {
 }
 
 const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
-	const { productStore, partnerStore, templateStore } = useStore();
+	const { productStore, partnerStore, templateStore, transactionStore } = useStore();
 	const form = useTransactionForm({ mode });
 
 	useEffect(() => {
@@ -26,7 +26,7 @@ const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
 		}
 
 		const payload = form.buildPayload();
-		console.log(payload);
+		transactionStore.create({ ...payload });
 	};
 
 	return (

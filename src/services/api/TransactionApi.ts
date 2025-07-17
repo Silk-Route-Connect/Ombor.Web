@@ -87,6 +87,18 @@ class TransactionApi extends BaseApi {
 			}
 		});
 
+		request.payments.forEach((payment, i) => {
+			form.append(`payments[${i}].amount`, String(payment.amount));
+			form.append(`payments[${i}].exchangeRate`, String(payment.exchangeRate));
+			form.append(`payments[${i}].method`, String(payment.method));
+			form.append(`payments[${i}].currency`, String(payment.currency));
+		});
+
+		request.debtPayments?.forEach((debtPayment, i) => {
+			form.append(`debtPayments[${i}].amount`, String(debtPayment.amount));
+			form.append(`debtPayments[${i}].transactionId`, String(debtPayment.transactionId));
+		});
+
 		request.lines.forEach((line, i) => {
 			form.append(`lines[${i}].productId`, String(line.productId));
 			form.append(`lines[${i}].unitPrice`, String(line.unitPrice));

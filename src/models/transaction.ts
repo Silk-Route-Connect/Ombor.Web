@@ -39,11 +39,11 @@ export type TransactionLine = {
 export type CreateTransactionRequest = {
 	partnerId: number;
 	type: TransactionType;
-	notes?: string;
-	payments: TransactionPayment[];
 	lines: CreateTransactionLine[];
-	attachments?: File[];
+	payments: TransactionPayment[];
 	debtPayments?: DebtPayment[];
+	notes?: string;
+	attachments?: File[];
 };
 
 export type CreateTransactionLine = {

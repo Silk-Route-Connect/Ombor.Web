@@ -179,14 +179,12 @@ export class TransactionStore implements ITransactionStore {
 		}
 
 		runInAction(() => {
-			if (this.allTransactions === "loading") {
-				return;
+			if (this.allTransactions !== "loading") {
+				this.allTransactions = [result.data, ...this.allTransactions];
 			}
-
-			this.allTransactions = [result.data, ...this.allTransactions];
-			this.currentTransaction = result.data;
-			this.notificationStore.success("transactions.success.create");
 		});
+
+		this.notificationStore.success("transactions.success.create");
 	}
 
 	async createPayment(request: CreateTransactionPaymentRequest): Promise<void> {
