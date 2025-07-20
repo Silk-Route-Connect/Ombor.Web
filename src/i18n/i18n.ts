@@ -1,5 +1,6 @@
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
+import employeeRu from "./ru/employee.json";
 import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
 import productRu from "./ru/product.json";
@@ -7,8 +8,10 @@ import supplierRu from "./ru/supplier.json";
 import supplyRu from "./ru/supply.json";
 import templateRu from "./ru/template.json";
 import transactionRu from "./ru/transaction.json";
+
 import categoryUz from "./uz/category.json";
 import commonUz from "./uz/common.json";
+import employeeUz from "./uz/employee.json";
 import productUz from "./uz/product.json";
 import supplierUz from "./uz/supplier.json";
 import supplyUz from "./uz/supply.json";
@@ -27,8 +30,17 @@ const messages: Record<Locale, Record<string, string>> = {
 		...transactionRu,
 		...paymentRu,
 		...partnerRu,
+		...employeeRu,
 	},
-	uz: { ...categoryUz, ...productUz, ...supplierUz, ...supplyUz, ...commonUz, ...templateUz },
+	uz: {
+		...categoryUz,
+		...productUz,
+		...supplierUz,
+		...supplyUz,
+		...commonUz,
+		...templateUz,
+		...employeeUz,
+	},
 };
 
 let currentLocale: Locale = "ru";
