@@ -1,6 +1,6 @@
 import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton, MenuItem, Stack, TextField } from "@mui/material";
+import { IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 import { PaymentCurrency, PaymentMethod } from "models/payment";
@@ -17,68 +17,92 @@ export type PaymentRowData = {
 interface Props {
 	isRemovable: boolean;
 	row: PaymentRowData;
+	maxAmount?: number;
 	onUpdate: (id: number, patch: Partial<PaymentRowData>) => void;
 	onRemove: (id: number) => void;
 }
 
 const CURRENCIES: PaymentCurrency[] = ["UZS", "USD", "RUB"];
-const METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer"];
+const METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer", "AccountBalance"];
 
-const PaymentRow: React.FC<Props> = ({ isRemovable, row, onUpdate, onRemove }) => (
-	<Stack direction="row" spacing={1}>
-		<NumericField
-			size="small"
-			label={translate("payment.amount")}
-			value={row.amount}
-			onChange={(e) => onUpdate(row.id, { amount: Number(e.target.value) })}
-			fullWidth
-		/>
+const PaymentRow: React.FC<Props> = ({ isRemovable, row, maxAmount, onUpdate, onRemove }) => {
+	const isAccountBalance = row.method === "AccountBalance";
 
-		<TextField
-			select
-			size="small"
-			label={translate("payment.method")}
-			value={row.method}
-			onChange={(e) => onUpdate(row.id, { method: e.target.value as PaymentMethod })}
-			fullWidth
-		>
-			{METHODS.map((m) => (
-				<MenuItem key={m} value={m}>
-					{translate(`payment.method.${m}`)}
-				</MenuItem>
-			))}
-		</TextField>
+	const handleAmountChange = (raw: string) =>
+		onUpdate(row.id, { amount: Math.max(0, Number(raw)) });
 
-		<TextField
-			select
-			size="small"
-			label={translate("fieldCurrency")}
-			value={row.currency}
-			onChange={(e) => onUpdate(row.id, { currency: e.target.value as PaymentCurrency })}
-			fullWidth
-		>
-			{CURRENCIES.map((c) => (
-				<MenuItem key={c} value={c}>
-					{c}
-				</MenuItem>
-			))}
-		</TextField>
+	const handleMethodChange = (next: PaymentMethod) => {
+		if (next === "AccountBalance") {
+			onUpdate(row.id, { method: next, currency: "UZS", exchangeRate: 1 });
+		} else {
+			onUpdate(row.id, { method: next });
+		}
+	};
 
-		<NumericField
-			size="small"
-			label={translate("payment.exchangeRate")}
-			disabled={row.currency === "UZS"}
-			value={row.exchangeRate}
-			onChange={(e) => onUpdate(row.id, { exchangeRate: Number(e.target.value) })}
-			fullWidth
-		/>
+	return (
+		<Stack direction="row" spacing={1} alignItems="flex-start">
+			<NumericField
+				size="small"
+				label={translate("payment.amount")}
+				value={row.amount}
+				fullWidth
+				min={0}
+				max={maxAmount}
+				step={1000}
+				onChange={(e) => handleAmountChange(e.target.value)}
+			/>
 
-		{isRemovable && (
-			<IconButton onClick={() => onRemove(row.id)} color="error">
-				<DeleteIcon />
-			</IconButton>
-		)}
-	</Stack>
-);
+			<TextField
+				select
+				size="small"
+				fullWidth
+				label={translate("payment.method")}
+				value={row.method}
+				onChange={(e) => handleMethodChange(e.target.value as PaymentMethod)}
+			>
+				{METHODS.map((m) => (
+					<MenuItem key={m} value={m}>
+						{translate(`payment.method.${m}`)}
+					</MenuItem>
+				))}
+			</TextField>
+
+			<TextField
+				select
+				size="small"
+				fullWidth
+				disabled={isAccountBalance}
+				label={translate("fieldCurrency")}
+				value={row.currency}
+				onChange={(e) => onUpdate(row.id, { currency: e.target.value as PaymentCurrency })}
+			>
+				{CURRENCIES.map((c) => (
+					<MenuItem key={c} value={c}>
+						{c}
+					</MenuItem>
+				))}
+			</TextField>
+
+			<NumericField
+				size="small"
+				fullWidth
+				disabled={isAccountBalance || row.currency === "UZS"}
+				label={translate("payment.exchangeRate")}
+				value={row.exchangeRate}
+				min={0}
+				step={0.0001}
+				onChange={(e) => onUpdate(row.id, { exchangeRate: Number(e.target.value) })}
+			/>
+
+			{isRemovable && (
+				<Tooltip title={translate("delete")}>
+					<IconButton onClick={() => onRemove(row.id)} color="error">
+						<DeleteIcon />
+					</IconButton>
+				</Tooltip>
+			)}
+		</Stack>
+	);
+};
 
 export default PaymentRow;

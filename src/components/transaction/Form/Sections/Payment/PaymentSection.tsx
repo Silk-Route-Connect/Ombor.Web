@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PaymentIcon from "@mui/icons-material/Payment";
@@ -37,15 +37,17 @@ const PaymentSection: React.FC<Props> = observer(({ form, onSave }) => {
 
 	const {
 		totalDue,
-		remainingAdvance, // money left after debt allocation
-		debtAmount, // unpaid part of THIS invoice
-		changeAmount, // alias for remainingAdvance
-		allocatedTotal, // amount used to pay debts
+		remainingAdvance,
+		debtAmount,
+		changeAmount,
+		allocatedTotal,
 		advanceAmount,
+		accountWithdrawal /* NEW */,
+		hasAccountBalance /* NEW */,
 	} = form;
 
-	const [keepAsAdvance, setKeepAsAdvance] = React.useState(false);
-	const [showModal, setShowModal] = React.useState(false);
+	const [keepAsAdvance, setKeepAsAdvance] = useState(false);
+	const [showModal, setShowModal] = useState(false);
 
 	const openDebts =
 		selectedPartnerStore.openTransactions !== "loading"
@@ -59,19 +61,40 @@ const PaymentSection: React.FC<Props> = observer(({ form, onSave }) => {
 
 	const debtLeftAfterAllocation = Math.max(totalOpenDebt - allocatedTotal, 0);
 	const overPayment = advanceAmount > 0;
-	const canOpenDebtModal = partner && overPayment && totalDue > 0;
+	const canOpenDebtModal = partner && overPayment && totalDue > 0 && partner.balance < 0;
+
 	const showAdvanceSwitch =
 		partner &&
 		remainingAdvance > 0 &&
-		debtAmount === 0 && // THIS   ↓ means all debts of *this* tx are paid
-		debtLeftAfterAllocation === 0; // and ALL previous debts are cleared
+		debtAmount === 0 &&
+		debtLeftAfterAllocation === 0 &&
+		!hasAccountBalance;
+
+	console.log(partner, !!partner);
+	console.log(remainingAdvance, remainingAdvance > 0);
+	console.log(debtAmount, debtAmount === 0);
+	console.log(debtLeftAfterAllocation, debtLeftAfterAllocation === 0);
+	console.log(hasAccountBalance, !hasAccountBalance);
+	console.log(showAdvanceSwitch);
 
 	const showPaidDebtRow = allocatedTotal > 0;
-	// const showChangeOrAdvanceRow = remainingAdvance > 0;
 
-	const balanceAfter = partner
-		? partnerBalanceBefore + form.diff - (keepAsAdvance ? 0 : remainingAdvance)
-		: 0;
+	/* ------------------------------------------------------------------ */
+	/*  Balance after the transaction                                     */
+	/* ------------------------------------------------------------------ */
+	const effectivePaid = form.totalPaidLocal; // cash + credit
+	const unpaidAmount = Math.max(totalDue - effectivePaid, 0);
+	const overpayment = Math.max(effectivePaid - totalDue - allocatedTotal, 0);
+	const balanceAfter =
+		partnerBalanceBefore -
+		// new debt or credit created by the document itself
+		(form.mode === "Sale" ? unpaidAmount : -unpaidAmount) +
+		// cash we give / get today
+		(form.mode === "Supply" ? effectivePaid : -effectivePaid) -
+		// credit consumed from balance
+		accountWithdrawal +
+		// optional new advance
+		(keepAsAdvance ? overpayment : 0);
 
 	useEffect(() => {
 		if (!showAdvanceSwitch && keepAsAdvance) setKeepAsAdvance(false);
@@ -107,6 +130,7 @@ const PaymentSection: React.FC<Props> = observer(({ form, onSave }) => {
 							key={p.id}
 							isRemovable={form.payments.length > 1}
 							row={p}
+							maxAmount={p.method === "AccountBalance" ? partnerBalanceBefore : undefined}
 							onUpdate={form.updatePayment}
 							onRemove={form.removePayment}
 						/>
@@ -117,10 +141,11 @@ const PaymentSection: React.FC<Props> = observer(({ form, onSave }) => {
 					{translate("payment.addPayment")}
 				</Button>
 
+				{/* ---------- totals & helpers ---------- */}
 				<Box border={1} borderColor="divider" borderRadius={2} p={2} bgcolor="background.paper">
 					<Stack direction="row" justifyContent="space-between" mb={1}>
 						<Typography>{translate("transaction.totalDue")}</Typography>
-						<Typography fontWeight={600}>{form.totalDue.toLocaleString()}</Typography>
+						<Typography fontWeight={600}>{totalDue.toLocaleString()}</Typography>
 					</Stack>
 
 					<Stack direction="row" justifyContent="space-between" mb={1}>
