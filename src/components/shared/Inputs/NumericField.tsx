@@ -1,11 +1,21 @@
 import React from "react";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 
-export type NumericFieldProps = TextFieldProps & {
+/**
+ * Numeric wrapper that exposes `min / max / step` cleanly while
+ * forwarding every other TextField prop unchanged.
+ */
+export type NumericFieldProps = Omit<TextFieldProps, "type"> & {
+	min?: number;
+	max?: number;
+	step?: number;
 	selectOnFocus?: boolean;
 };
 
 const NumericField: React.FC<NumericFieldProps> = ({
+	min,
+	max,
+	step,
 	selectOnFocus = true,
 	fullWidth = true,
 	slotProps = {},
@@ -14,6 +24,8 @@ const NumericField: React.FC<NumericFieldProps> = ({
 }) => (
 	<TextField
 		{...rest}
+		type="number"
+		fullWidth={fullWidth}
 		sx={{
 			"& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
 				display: "none",
@@ -21,13 +33,12 @@ const NumericField: React.FC<NumericFieldProps> = ({
 			"& input[type=number]": {
 				MozAppearance: "textfield",
 			},
+			...rest.sx,
 		}}
-		type="number"
-		fullWidth={fullWidth}
 		onChange={(e) => {
 			if (!onChange) return;
 
-			/* strip leading zeroes */
+			/* strip leading zeros */
 			const v = e.target.value;
 			if (v.length > 1 && v.startsWith("0")) {
 				e.target.value = v.replace(/^0+/, "");
@@ -37,10 +48,12 @@ const NumericField: React.FC<NumericFieldProps> = ({
 		slotProps={{
 			input: {
 				inputMode: "decimal",
+				inputProps: { min, max, step },
 				...(selectOnFocus && {
 					onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.target.select(),
 				}),
-				...(slotProps?.input ?? {}),
+				/* caller overrides last */
+				...slotProps.input,
 			},
 			...slotProps,
 		}}
