@@ -65,6 +65,7 @@ const ProductRow: React.FC<RowProps> = ({ row, selected, onSelect, onAdd }) => (
 		</TableCell>
 		<TableCell sx={CELL}>
 			<IconButton
+				disabled={row.quantityInStock <= 0}
 				size="small"
 				color="primary"
 				onClick={(e) => {

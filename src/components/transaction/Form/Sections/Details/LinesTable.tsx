@@ -68,7 +68,7 @@ const LinesTable = forwardRef<LinesTableHandle, Props>(
 
 					<TableBody>
 						{rows.map((row) => {
-							const total = row.unitPrice * row.quantity - (row.discount ?? 0);
+							const total = row.unitPrice * row.quantity * (1 - (row.discount ?? 0) / 100);
 
 							return (
 								<TableRow key={row.productId}>

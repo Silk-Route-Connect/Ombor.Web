@@ -105,7 +105,6 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 
 							<TableCell align="right">
 								<NumericField
-									type="number"
 									size="small"
 									sx={{ maxWidth: 130 }}
 									value={r.allocate}
