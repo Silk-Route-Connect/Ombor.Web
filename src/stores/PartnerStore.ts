@@ -10,7 +10,6 @@ import {
 	PartnerType,
 	UpdateParatnerRequest,
 } from "models/partner";
-import { Supply } from "models/supply";
 import PartnerApi from "services/api/PartnerApi";
 
 import { NotificationStore } from "./NotificationStore";
@@ -41,7 +40,6 @@ export interface IPartnerStore {
 
 export class PartnerStore implements IPartnerStore {
 	allPartners: Loadable<Partner[]> = [];
-	supplies: Loadable<Supply[]> = [];
 	selectedPartner: Partner | null = null;
 	type: PartnerType = "Both";
 	searchTerm = "";
@@ -115,6 +113,7 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	async create(request: CreatePartnerRequest): Promise<void> {
+		console.log(request);
 		const result = await tryRun(() => PartnerApi.create(request));
 
 		if (result.status === "fail") {

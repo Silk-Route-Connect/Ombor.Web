@@ -54,6 +54,7 @@ const PartnerPage: React.FC = observer(() => {
 	};
 
 	const handleSave = (payload: PartnerFormPayload) => {
+		console.log(payload);
 		if (selectedSupplier) {
 			partnerStore.update({
 				...payload,

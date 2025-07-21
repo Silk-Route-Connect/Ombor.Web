@@ -2,13 +2,13 @@ import { PaymentCurrency, PaymentMethod } from "./payment";
 
 export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 
-export type TransactionStatus = "Open" | "Closed";
+export type TransactionStatus = "Open" | "Closed" | "PartiallyPaid";
 
 export type GetTransactionsRequest = {
 	searchTerm?: string | null;
 	type?: TransactionType | null;
 	partnerId?: number | null;
-	status?: TransactionStatus | null;
+	statuses?: TransactionStatus[];
 };
 
 export type TransactionRecord = {
@@ -40,7 +40,7 @@ export type CreateTransactionRequest = {
 	partnerId: number;
 	type: TransactionType;
 	lines: CreateTransactionLine[];
-	payments: TransactionPayment[];
+	payments: TransactionPaymentRecord[];
 	debtPayments?: DebtPayment[];
 	notes?: string;
 	attachments?: File[];
@@ -58,7 +58,7 @@ export type DebtPayment = {
 	amount: number;
 };
 
-export type TransactionPayment = {
+export type TransactionPaymentRecord = {
 	amount: number;
 	method: PaymentMethod;
 	currency: PaymentCurrency;

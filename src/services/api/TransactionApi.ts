@@ -45,7 +45,7 @@ class TransactionApi extends BaseApi {
 	async getOpenTransactions(partnerId: number): Promise<TransactionRecord[]> {
 		const query: GetTransactionsRequest = {
 			partnerId,
-			status: "Open",
+			statuses: ["Open", "PartiallyPaid"],
 			type: "Sale",
 		};
 		const url = this.getUrl(query);
