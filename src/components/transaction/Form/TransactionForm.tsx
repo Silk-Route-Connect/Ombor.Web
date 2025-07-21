@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
-import { Box, Grid, Paper } from "@mui/material";
+import { Box, Divider, Grid, Paper } from "@mui/material";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
-import { DebtPayment, TransactionPayment } from "models/transaction";
+import { DebtPayment, TransactionPaymentRecord } from "models/transaction";
 
 import DetailsSection from "./Sections/Details/DetailsSection";
 import LinesSection from "./Sections/Details/LinesSection";
@@ -24,7 +24,7 @@ export interface TransactionFormPayload {
 	partnerId: number;
 	type: TransactionFormMode;
 	lines: TransactionFormLinePayload[];
-	payments: TransactionPayment[];
+	payments: TransactionPaymentRecord[];
 	debtPayments?: DebtPayment[];
 	notes?: string;
 	attachments?: File[];
@@ -66,7 +66,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ mode, form, onSave })
 							mt: 3,
 						}}
 					>
-						<Box sx={{ flex: 1, minHeight: 0 }}>
+						{mode === "Supply" && (
+							<Box sx={{ flex: 1, minHeight: 0, mt: 0 }}>
+								<ProductSelectionSection
+									form={form}
+									mode={mode}
+									productTableRef={prodTableRef}
+									linesRef={linesRef}
+								/>
+							</Box>
+						)}
+
+						{mode === "Supply" && <Divider />}
+
+						<Box sx={{ flex: 1, minHeight: 0, mt: mode === "Supply" ? 2 : 0 }}>
 							<LinesSection
 								form={form}
 								linesRef={linesRef}
@@ -74,14 +87,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ mode, form, onSave })
 							/>
 						</Box>
 
-						<Box sx={{ flex: 1, minHeight: 0, mt: 2 }}>
-							<ProductSelectionSection
-								form={form}
-								mode={mode}
-								productTableRef={prodTableRef}
-								linesRef={linesRef}
-							/>
-						</Box>
+						{mode === "Sale" && (
+							<Box sx={{ flex: 1, minHeight: 0, mt: 2 }}>
+								<ProductSelectionSection
+									form={form}
+									mode={mode}
+									productTableRef={prodTableRef}
+									linesRef={linesRef}
+								/>
+							</Box>
+						)}
 					</Box>
 				</Paper>
 			</Grid>
