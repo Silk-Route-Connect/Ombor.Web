@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------- */
+/*  useTransactionForm – create / edit Sale & Supply transactions             */
+/* -------------------------------------------------------------------------- */
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	TransactionFormLinePayload,
@@ -7,8 +11,12 @@ import { Partner } from "models/partner";
 import { PaymentCurrency, PaymentMethod } from "models/payment";
 import { Product } from "models/product";
 import { Template } from "models/template";
-import { DebtPayment, TransactionPayment } from "models/transaction";
+import { DebtPayment, TransactionPaymentRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
+
+/* -------------------------------------------------------------------------- */
+/*  Types                                                                     */
+/* -------------------------------------------------------------------------- */
 
 type PaymentRow = {
 	id: number;
@@ -33,56 +41,60 @@ export interface UseTransactionFormOptions {
 
 export type TransactionFormType = ReturnType<typeof useTransactionForm>;
 
+/* -------------------------------------------------------------------------- */
+/*  Hook                                                                      */
+/* -------------------------------------------------------------------------- */
+
 export const useTransactionForm = ({ mode }: UseTransactionFormOptions) => {
 	const { partnerStore, templateStore } = useStore();
+
+	/* ─────────── raw state ─────────── */
 
 	const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
 	const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-	const [notes, setNotes] = useState<string>("");
+	const [notes, setNotes] = useState("");
 	const [attachments, setAttachments] = useState<File[]>([]);
 	const [lines, setLines] = useState<TransactionFormLinePayload[]>([]);
 	const [debtAllocations, setDebtAllocations] = useState<DebtPayment[]>([]);
 	const [payments, setPayments] = useState<PaymentRow[]>([DEFAULT_PAYMENT]);
 
+	/* keep MobX stores in sync */
 	useEffect(() => {
 		partnerStore.setSelectedPartner(selectedPartner?.id);
 		templateStore.setSelectedPartner(selectedPartner);
 	}, [selectedPartner]);
 
-	const addLine = (product?: Product): void => {
-		const productToAdd = product ?? selectedProduct;
-		if (!productToAdd) {
-			return;
-		}
+	const partnerBalance = selectedPartner?.balance ?? 0;
 
-		if (mode === "Sale" && productToAdd.quantityInStock <= 0) {
-			return;
-		}
+	/* ─────────── product lines helpers ─────────── */
 
-		setLines((prev) => {
-			if (prev.some((line) => line.productId === productToAdd.id)) {
-				return prev;
-			}
+	const addLine = useCallback(
+		(product?: Product) => {
+			const p = product ?? selectedProduct;
+			if (!p) return;
+			if (mode === "Sale" && p.quantityInStock <= 0) return;
 
-			return [
-				...prev,
-				{
-					productId: productToAdd.id,
-					productName: productToAdd.name,
-					unitPrice: mode === "Sale" ? productToAdd.salePrice : productToAdd.supplyPrice,
-					quantity: 1,
-					discount: 0,
-				},
-			];
-		});
-	};
+			setLines((prev) => {
+				if (prev.some((l) => l.productId === p.id)) return prev;
+				return [
+					...prev,
+					{
+						productId: p.id,
+						productName: p.name,
+						unitPrice: mode === "Sale" ? p.salePrice : p.supplyPrice,
+						quantity: 1,
+						discount: 0,
+					},
+				];
+			});
+		},
+		[mode, selectedProduct],
+	);
 
 	const updateLine = useCallback(
 		(productId: number, patch: Partial<TransactionFormLinePayload>) =>
-			setLines((prev) =>
-				prev.map((line) => (line.productId === productId ? { ...line, ...patch } : line)),
-			),
+			setLines((prev) => prev.map((l) => (l.productId === productId ? { ...l, ...patch } : l))),
 		[],
 	);
 
@@ -91,57 +103,96 @@ export const useTransactionForm = ({ mode }: UseTransactionFormOptions) => {
 		[],
 	);
 
-	const addPayment = useCallback(
-		() =>
-			setPayments((prev) => [
+	/* ─────────── payment helpers ─────────── */
+
+	const totalDue = useMemo(
+		() => lines.reduce((s, l) => s + l.unitPrice * l.quantity * (1 - (l.discount ?? 0) / 100), 0),
+		[lines],
+	);
+
+	const addPayment = useCallback(() => {
+		setPayments((prev) => {
+			const hasAccount = prev.some((p) => p.method === "AccountBalance");
+
+			/* remaining amount still unpaid in local currency (UZS) */
+			const paidSoFar = prev.reduce((s, p) => s + p.amount * p.exchangeRate, 0);
+			const remainingDue = Math.max(totalDue - paidSoFar, 0);
+
+			return [
 				...prev,
 				{
 					id: prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1,
-					amount: 0,
+					method: hasAccount ? "Cash" : "AccountBalance",
+					amount: hasAccount ? 0 : Math.min(remainingDue, partnerBalance),
 					currency: "UZS",
 					exchangeRate: 1,
-					method: "Cash",
 				},
-			]),
-		[],
-	);
+			];
+		});
+	}, [partnerBalance, totalDue]);
 
 	const updatePayment = useCallback(
 		(paymentId: number, patch: Partial<PaymentRow>) =>
 			setPayments((prev) =>
-				prev.map((payment) => (payment.id === paymentId ? { ...payment, ...patch } : payment)),
+				prev.map((p) => {
+					if (p.id !== paymentId) return p;
+					const next: PaymentRow = { ...p, ...patch };
+
+					if (next.method === "AccountBalance") {
+						next.currency = "UZS";
+						next.exchangeRate = 1;
+
+						/* autofill on first switch */
+						const firstSwitch =
+							p.method !== "AccountBalance" ||
+							(p.method === "AccountBalance" && p.amount === 0 && next.amount === 0);
+
+						if (firstSwitch) {
+							const paidByOthers = prev
+								.filter((q) => q.id !== paymentId)
+								.reduce((s, q) => s + q.amount * q.exchangeRate, 0);
+							const remainingDue = Math.max(totalDue - paidByOthers, 0);
+							next.amount = Math.min(remainingDue, partnerBalance);
+						}
+
+						next.amount = Math.min(next.amount, partnerBalance); // clamp
+					}
+
+					return next;
+				}),
 			),
-		[],
+		[partnerBalance, totalDue],
 	);
 
 	const removePayment = useCallback(
-		(paymentId: number) =>
-			setPayments((prev) =>
-				prev.length > 1 ? prev.filter((payment) => payment.id !== paymentId) : prev,
-			),
+		(id: number) =>
+			setPayments((prev) => (prev.length > 1 ? prev.filter((p) => p.id !== id) : prev)),
 		[],
 	);
 
-	const addAttachments = (files: FileList) => {
-		if (files.length === 0) {
-			return;
-		}
+	/* ─────────── attachments helpers ─────────── */
 
+	const addAttachments = (files: FileList) => {
+		if (!files.length) return;
 		setAttachments((prev) => [...prev, ...Array.from(files)]);
 	};
 
 	const removeAttachment = (index: number) =>
 		setAttachments((prev) => prev.filter((_, i) => i !== index));
 
-	const totalDue = useMemo(
-		() => lines.reduce((sum, l) => sum + l.unitPrice * l.quantity - (l.discount ?? 0), 0),
-		[lines],
-	);
+	/* ─────────── derived amounts ─────────── */
 
 	const totalPaidLocal = useMemo(
-		() => payments.reduce((sum, p) => sum + p.amount * p.exchangeRate, 0),
+		() => payments.reduce((s, p) => s + p.amount * p.exchangeRate, 0),
 		[payments],
 	);
+
+	/** cash‐equivalent withdrawn from partner balance */
+	const accountWithdrawal = useMemo(
+		() => payments.filter((p) => p.method === "AccountBalance").reduce((s, p) => s + p.amount, 0),
+		[payments],
+	);
+	const hasAccountBalance = accountWithdrawal > 0;
 
 	const diff = totalPaidLocal - totalDue;
 
@@ -150,48 +201,65 @@ export const useTransactionForm = ({ mode }: UseTransactionFormOptions) => {
 		[debtAllocations],
 	);
 
-	const advanceAmount = Math.max(diff, 0);
-	const remainingAdvance = Math.max(advanceAmount - allocatedTotal, 0);
+	/* over-payment is never allowed when AccountBalance is used */
+	const advanceAmount = hasAccountBalance ? 0 : Math.max(diff, 0);
+	const remainingAdvance = hasAccountBalance ? 0 : Math.max(advanceAmount - allocatedTotal, 0);
 	const debtAmount = Math.max(-diff, 0);
 	const changeAmount = remainingAdvance;
 
+	/* reset allocations if over-payment disappears */
 	useEffect(() => {
-		if (advanceAmount <= 0 && debtAllocations.length) {
-			setDebtAllocations([]);
-		}
+		if (advanceAmount <= 0 && debtAllocations.length) setDebtAllocations([]);
 	}, [advanceAmount]);
+
+	/* ─────────── validation ─────────── */
+	const paymentsAreValid = payments.every((p) => {
+		const base =
+			p.amount > 0 &&
+			Number.isFinite(p.amount) &&
+			p.exchangeRate > 0 &&
+			(p.currency !== "UZS" || p.exchangeRate === 1);
+
+		return p.method === "AccountBalance" ? base && p.amount <= partnerBalance : base;
+	});
+
+	const openDebtExists = partnerBalance < 0;
+	const advanceAllowed = !openDebtExists || allocatedTotal > 0;
 
 	const isValid =
 		!!selectedPartner &&
 		lines.length > 0 &&
-		payments.every(
-			(p) =>
-				p.amount > 0 &&
-				Number.isFinite(p.amount) &&
-				p.exchangeRate > 0 &&
-				(p.currency !== "UZS" || p.exchangeRate === 1),
-		) &&
-		allocatedTotal <= advanceAmount;
+		paymentsAreValid &&
+		allocatedTotal <= advanceAmount &&
+		(hasAccountBalance ? diff <= 0 : true) &&
+		advanceAllowed;
+
+	/* ─────────── payload builder ─────────── */
 
 	const buildPayload = (): TransactionFormPayload => {
-		const transactionPayments: TransactionPayment[] = payments.map((payment) => ({
-			amount: payment.amount,
-			method: payment.method,
-			currency: payment.currency,
-			exchangeRate: payment.exchangeRate,
-		}));
+		const txPayments: TransactionPaymentRecord[] = payments.map(
+			({ amount, currency, exchangeRate, method }) => ({
+				amount,
+				currency,
+				exchangeRate,
+				method,
+			}),
+		);
 
 		return {
 			partnerId: selectedPartner?.id ?? 0,
 			type: mode,
 			lines,
 			notes,
-			payments: transactionPayments,
-			debtPayments: debtAllocations.length ? debtAllocations : [],
+			payments: txPayments,
+			debtPayments: debtAllocations,
 		};
 	};
 
+	/* ─────────── public contract ─────────── */
+
 	return {
+		mode,
 		/* raw state */
 		selectedPartner,
 		selectedTemplate,
@@ -205,10 +273,12 @@ export const useTransactionForm = ({ mode }: UseTransactionFormOptions) => {
 		/* derived */
 		totalDue,
 		totalPaidLocal,
-		changeAmount,
 		debtAmount,
 		advanceAmount,
 		remainingAdvance,
+		changeAmount,
+		accountWithdrawal, // ← NEW
+		hasAccountBalance, // ← NEW
 		diff,
 		allocatedTotal,
 		isValid,
