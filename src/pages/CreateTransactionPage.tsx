@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
 import TransactionForm from "components/transaction/Form/TransactionForm";
-import { useTransactionForm } from "hooks/transactions/useCreateTransactionForm";
-import { TransactionFormMode } from "hooks/transactions/useTransactionForm";
+import {
+	TransactionFormMode,
+	useCreateTransactionForm,
+} from "hooks/transactions/useCreateTransactionForm";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 
@@ -12,7 +14,8 @@ interface Props {
 
 const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
 	const { productStore, partnerStore, templateStore, transactionStore } = useStore();
-	const form = useTransactionForm({ mode });
+
+	const form = useCreateTransactionForm(mode);
 
 	useEffect(() => {
 		productStore.loadProducts();
@@ -21,12 +24,8 @@ const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
 	}, [productStore, partnerStore, templateStore]);
 
 	const handleSave = async () => {
-		if (!form.isValid) {
-			return;
-		}
-
-		const payload = form.buildPayload();
-		transactionStore.create({ ...payload });
+		if (!form.formIsValid) return;
+		await transactionStore.create(form.buildPayload());
 	};
 
 	return (
