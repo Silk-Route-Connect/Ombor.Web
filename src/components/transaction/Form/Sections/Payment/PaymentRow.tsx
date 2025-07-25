@@ -10,7 +10,7 @@ export type PaymentRowData = {
 	amount: number;
 	currency: PaymentCurrency;
 	exchangeRate: number;
-	method: PaymentMethod;
+	method: Exclude<PaymentMethod, "BalanceWithdrawal">;
 	reference?: string;
 };
 
@@ -18,14 +18,22 @@ interface Props {
 	isRemovable: boolean;
 	row: PaymentRowData;
 	maxAmount?: number;
+	availableMethod?: PaymentMethod[];
 	onUpdate: (id: number, patch: Partial<PaymentRowData>) => void;
 	onRemove: (id: number) => void;
 }
 
 const CURRENCIES: PaymentCurrency[] = ["UZS", "USD", "RUB"];
-const METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer", "AccountBalance"];
+const ALL_PAYMENT_METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer", "AccountBalance"];
 
-const PaymentRow: React.FC<Props> = ({ isRemovable, row, maxAmount, onUpdate, onRemove }) => {
+const PaymentRow: React.FC<Props> = ({
+	isRemovable,
+	row,
+	maxAmount,
+	availableMethod = ALL_PAYMENT_METHODS,
+	onUpdate,
+	onRemove,
+}) => {
 	const isAccountBalance = row.method === "AccountBalance";
 
 	const handleAmountChange = (raw: string) =>
@@ -33,7 +41,11 @@ const PaymentRow: React.FC<Props> = ({ isRemovable, row, maxAmount, onUpdate, on
 
 	const handleMethodChange = (next: PaymentMethod) => {
 		if (next === "AccountBalance") {
-			onUpdate(row.id, { method: next, currency: "UZS", exchangeRate: 1 });
+			onUpdate(row.id, {
+				method: next,
+				currency: "UZS",
+				exchangeRate: 1,
+			});
 		} else {
 			onUpdate(row.id, { method: next });
 		}
@@ -60,7 +72,7 @@ const PaymentRow: React.FC<Props> = ({ isRemovable, row, maxAmount, onUpdate, on
 				value={row.method}
 				onChange={(e) => handleMethodChange(e.target.value as PaymentMethod)}
 			>
-				{METHODS.map((m) => (
+				{availableMethod.map((m) => (
 					<MenuItem key={m} value={m}>
 						{translate(`payment.method.${m}`)}
 					</MenuItem>
@@ -74,7 +86,12 @@ const PaymentRow: React.FC<Props> = ({ isRemovable, row, maxAmount, onUpdate, on
 				disabled={isAccountBalance}
 				label={translate("fieldCurrency")}
 				value={row.currency}
-				onChange={(e) => onUpdate(row.id, { currency: e.target.value as PaymentCurrency })}
+				onChange={(e) =>
+					onUpdate(row.id, {
+						currency: e.target.value as PaymentCurrency,
+						exchangeRate: e.target.value === "UZS" ? 1 : row.exchangeRate,
+					})
+				}
 			>
 				{CURRENCIES.map((c) => (
 					<MenuItem key={c} value={c}>
