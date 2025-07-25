@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
@@ -43,7 +43,7 @@ const PayDebtsModal: React.FC<Props> = observer(
 			if (debts === "loading") return [];
 			return debts.map((d) => ({
 				id: d.id,
-				date: new Date(d.date),
+				date: d.date instanceof Date ? d.date : new Date(d.date),
 				totalDue: d.totalDue,
 				totalPaid: d.totalPaid,
 				leftover: d.totalDue - d.totalPaid,
@@ -70,6 +70,11 @@ const PayDebtsModal: React.FC<Props> = observer(
 			if (open) setRows(mergedRows);
 		}, [mergedRows, open]);
 
+		const initialRowsRef = useRef<PayDebtRow[]>([]);
+		useEffect(() => {
+			if (open) initialRowsRef.current = mergedRows;
+		}, [open, mergedRows]);
+
 		const totalCovered = rows.reduce((s, r) => s + r.allocate, 0);
 		const totalDebt = rows.reduce((s, r) => s + r.leftover, 0);
 
@@ -85,46 +90,46 @@ const PayDebtsModal: React.FC<Props> = observer(
 
 		const togglePayFully = (i: number) => {
 			const r = rows[i];
-			const max = Math.min(r.leftover, remainingAvailable + r.allocate);
-			const newAlloc = r.payFully ? 0 : max;
+			const allowed = r.leftover <= remainingAvailable + r.allocate;
+			if (!allowed) return;
+
+			const newAlloc = r.payFully ? 0 : r.leftover;
 			setRow(i, { payFully: !r.payFully, allocate: newAlloc });
 		};
 
 		const changeAllocate = (idx: number, value: number) => {
-			const v = Math.max(
-				0,
-				Math.min(value, rows[idx].leftover, remainingAvailable + rows[idx].allocate),
-			);
-			setRow(idx, { allocate: v, payFully: v === rows[idx].leftover });
+			const clampMax = rows[idx].leftover + remainingAvailable + rows[idx].allocate;
+			const v = Math.max(0, Math.min(value, clampMax, rows[idx].leftover));
+			setRow(idx, {
+				allocate: v,
+				payFully: v === rows[idx].leftover,
+			});
 		};
 
 		const autoAllocateOldest = () => {
 			let rest = remainingAvailable;
 			const ordered = [...rows].sort((a, b) => a.date.getTime() - b.date.getTime());
 			const next = ordered.map((r) => {
-				const alloc = Math.min(r.leftover, rest);
-				rest -= alloc;
-				return { ...r, allocate: alloc, payFully: alloc === r.leftover };
+				const alloc = Math.min(r.leftover, rest + r.allocate);
+				rest -= alloc - r.allocate;
+				return {
+					...r,
+					allocate: alloc,
+					payFully: alloc === r.leftover,
+				};
 			});
-
-			next.sort(
-				(a, b) => rows.findIndex((x) => x.id === a.id) - rows.findIndex((x) => x.id === b.id),
-			);
 			setRows(next);
 		};
 
-		const reset = () => {
-			const restored = rows.map((el) => {
-				return { ...el, allocate: 0, payFully: false };
-			});
-
-			setRows(restored);
-		};
+		const reset = () => setRows(initialRowsRef.current);
 
 		const apply = () => {
 			const allocs = rows
 				.filter((r) => r.allocate > 0)
-				.map((r) => ({ transactionId: r.id, amount: r.allocate }));
+				.map((r) => ({
+					transactionId: r.id,
+					amount: r.allocate,
+				}));
 			onApply(allocs);
 		};
 

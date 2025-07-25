@@ -52,7 +52,7 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 
 	return (
 		<Table stickyHeader size="small">
-			<TableHead sx={{ bgcolor: theme.palette.grey[200] }}>
+			<TableHead sx={{ bgcolor: theme.palette.background.default }}>
 				<TableRow>
 					<TableCell width={48} />
 					<TableCell>{translate("payDebts.id")}</TableCell>
@@ -72,10 +72,10 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 
 					return (
 						<TableRow key={r.id}>
+							{/* checkbox */}
 							<TableCell padding="checkbox">
 								<Tooltip title={canPayFully ? "" : translate("payDebts.notEnough")}>
 									<span>
-										{" "}
 										<Checkbox
 											checked={r.payFully}
 											onChange={() => onToggleFull(i)}
@@ -85,6 +85,7 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 								</Tooltip>
 							</TableCell>
 
+							{/* id */}
 							<TableCell>
 								<Link
 									href={`/transactions/${r.id}`}
@@ -94,7 +95,7 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 										"&:hover": { textDecoration: "underline" },
 									}}
 								>
-									# {r.id}
+									#{r.id}
 								</Link>
 							</TableCell>
 
@@ -103,13 +104,15 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 							<TableCell align="right">{r.totalPaid.toLocaleString()}</TableCell>
 							<TableCell align="right">{r.leftover.toLocaleString()}</TableCell>
 
+							{/* allocate numeric input */}
 							<TableCell align="right">
 								<NumericField
 									size="small"
-									sx={{ maxWidth: 130 }}
+									sx={{ maxWidth: 130, textAlign: "right" }}
 									value={r.allocate}
 									onChange={(e) => onAllocateChange(i, Number(e.target.value))}
 									error={r.allocate > r.leftover}
+									inputProps={{ inputMode: "decimal" }}
 								/>
 							</TableCell>
 						</TableRow>
