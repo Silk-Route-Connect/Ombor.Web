@@ -81,6 +81,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ mode, form, onSave })
 
 						<Box sx={{ flex: 1, minHeight: 0, mt: mode === "Supply" ? 2 : 0 }}>
 							<LinesSection
+								mode={mode}
 								form={form}
 								linesRef={linesRef}
 								onReturnFocus={() => prodTableRef.current?.focus()}
