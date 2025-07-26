@@ -1,0 +1,11 @@
+{
+    "employee.fullName":"Полное имя",
+    "employee.role":"Позиция",
+    "employee.isActive":"Активен",
+    "employee.addButton":"Добавить",
+    "employee.searchPlaceholder":"Поиск сотрудников...",
+    "employee.title":"Сотрудники",
+
+    "delete": "Удалить",
+    "cancel": "Отмена"
+}
