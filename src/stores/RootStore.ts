@@ -1,3 +1,4 @@
+import { EmployeeStore, IEmployeeStore } from "stores/EmployeeStore";
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import { NotificationStore } from "./NotificationStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
@@ -22,6 +23,7 @@ export class RootStore {
 	selectedPartnerStore: ISelectedPartnerStore;
 	selectedTransactionStore: ISelectedTransactionStore;
 	paymentStore: IPaymentStore;
+	employeeStore: IEmployeeStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -38,6 +40,7 @@ export class RootStore {
 			this.transactionStore,
 		);
 		this.paymentStore = new PaymentStore(this.notificationStore);
+		this.employeeStore = new EmployeeStore(this.notificationStore);
 	}
 }
 

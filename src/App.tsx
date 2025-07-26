@@ -12,6 +12,7 @@ import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
 import { rootStore } from "./stores/RootStore";
 import { StoreProvider } from "./stores/StoreContext";
+import EmployeePage from "pages/EmployeePage";
 
 function SnackbarInjector({ children }: Readonly<{ children: React.ReactNode }>) {
 	const { enqueueSnackbar } = useSnackbar();
@@ -42,6 +43,7 @@ function App() {
 								<Route path="supplies" element={<SupplyPage />} />
 								<Route path="sales" element={<SalePage />} />
 								<Route path="templates" element={<TemplatePage />} />
+								<Route path="employees" element={<EmployeePage />} />
 								<Route path="payments" element={<PaymentPage />} />
 							</Route>
 						</Routes>
