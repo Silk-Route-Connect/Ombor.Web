@@ -39,6 +39,7 @@
   "transaction.line.totalPrice": "Итоговая цена",
   "transaction.debtAmount": "Долг",
   "transaction.advancePayment": "Предоплата",
+  "transaction.changeReturn": "Сдача",
   "transaction.discount": "Скидка",
   "transaction.addPayment": "Оплатить",
   "transaction.addPaymentTitle": "Добавить оплату",

@@ -19,6 +19,12 @@
   "payment.method.AccountBalance": "Снятие со счёта",
   "payment.method.Other": "Другое",
   "payment.type": "Тип платежа",
+  "payment.type.Transaction": "Оплата транзакции",
+  "payment.type.Deposit": "Пополнение баланса",
+  "payment.type.Withdrawal": "Снятие с баланса",
+  "payment.type.Payroll": "Выплата зарплаты",
+  "payment.type.General": "Общее",
+  "payment.type.All": "Все",
   "payment.direction": "Тип платежа",
   "payment.direction.Income": "Приход",
   "payment.direction.Expense": "Расход",
@@ -40,5 +46,6 @@
   "payment.addPayment": "Добавить платёж",
   "payment.removePayment": "Удалить",
   "payment.partnerBalanceBefore": "Баланс до",
-  "payment.partnerBalanceAfter": "Баланс после"
+  "payment.partnerBalanceAfter": "Баланс после",
+  "payment.components": "Компоненты платежа"
 }
