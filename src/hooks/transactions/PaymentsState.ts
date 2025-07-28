@@ -193,37 +193,7 @@ export function useTransactionPayments(
 
 	useEffect(() => setDebtPayments([]), [partner]);
 
-	const buildPaymentPayload = (): TransactionPaymentRecord[] => {
-		if (!refundChange) {
-			return payments.map(toPaymentRecord);
-		}
-
-		const allowed = totalDue + debtPaid;
-		let running = 0;
-		const output: TransactionPaymentRecord[] = [];
-
-		for (const row of payments) {
-			if (running >= allowed) {
-				break;
-			}
-
-			const local = row.amount * row.exchangeRate;
-			const remaining = allowed - running;
-			const use = Math.min(local, remaining);
-
-			const finalAmount =
-				row.currency === "UZS" ? use : Number((use / row.exchangeRate).toFixed(2));
-
-			if (finalAmount <= 0) {
-				continue;
-			}
-
-			output.push({ ...row, amount: finalAmount });
-			running += finalAmount * row.exchangeRate;
-		}
-
-		return output;
-	};
+	const buildPaymentPayload = (): TransactionPaymentRecord[] => payments.map(toPaymentRecord);
 
 	const hasAccountBalanceRow = payments.some((p) => p.method === "AccountBalance" && p.amount > 0);
 	const openDebtExists = debtBalance > 0;

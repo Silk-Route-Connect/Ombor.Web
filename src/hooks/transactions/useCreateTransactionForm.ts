@@ -18,6 +18,7 @@ export function useCreateTransactionForm(mode: TransactionFormMode) {
 		notes: "",
 		payments: payments.buildPaymentPayload(),
 		debtPayments: payments.debtPayments,
+		shouldReturnChange: payments.refundChange,
 	});
 
 	return {

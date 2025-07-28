@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
 	Accordion,
@@ -14,7 +14,6 @@ import SaveButton from "components/shared/Buttons/SaveButton";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import { useStore } from "stores/StoreContext";
 
 import PayDebtsModal from "../../DebtPayment/DebtsPaymentModal";
 import NotesSection from "../Details/NotesSection";
@@ -29,12 +28,14 @@ interface PaymentSectionProps {
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }) => {
-	const { selectedPartnerStore } = useStore();
-
 	const [showModal, setShowModal] = useState(false);
 
 	const partner = form.selectedPartner;
 	const partnerBalanceBefore = partner?.balance ?? 0;
+	const debtAmount =
+		form.mode === "Sale"
+			? (partner?.balanceDto?.payableDebt ?? 0)
+			: (partner?.balanceDto?.receivableDebt ?? 0);
 	const {
 		totalDueLocal,
 		totalPaid,
@@ -48,22 +49,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }
 		setRefundChange,
 	} = form;
 
-	const openDebts =
-		selectedPartnerStore.openTransactions !== "loading"
-			? selectedPartnerStore.openTransactions
-			: [];
-
-	const totalOpenDebt = useMemo(
-		() => openDebts.reduce((sum, d) => sum + Math.max(d.totalDue - d.totalPaid, 0), 0),
-		[openDebts],
-	);
-
-	const debtLeftAfterAllocation = Math.max(totalOpenDebt - debtPaid, 0);
-
-	const partnerOwesCompany =
-		partner && (form.mode === "Sale" ? partner.balance < 0 : partner.balance > 0);
-
-	const canOpenDebtModal = !!partner && overpaid > 0 && totalDueLocal > 0 && !!partnerOwesCompany;
+	const debtLeftAfterAllocation = Math.max(debtAmount - debtPaid, 0);
+	const hasDebt = debtAmount > 0;
+	const canOpenDebtModal = !!partner && overpaid > 0 && totalDueLocal > 0 && !!hasDebt;
 
 	const [saveAsAdvance, setSaveAsAdvance] = useState(!refundChange);
 	const handleAdvanceToggle = (checked: boolean) => {
@@ -146,7 +134,3 @@ const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }
 });
 
 export default PaymentSection;
-
-// TODO:
-// 1. Add balance options to partner, advance, debt, net
-// 2. Handle currency conversion for payments
