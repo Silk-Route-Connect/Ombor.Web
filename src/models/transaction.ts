@@ -2,7 +2,7 @@ import { PaymentCurrency, PaymentMethod } from "./payment";
 
 export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 
-export type TransactionStatus = "Open" | "Closed" | "PartiallyPaid";
+export type TransactionStatus = "Open" | "Closed" | "PartiallyPaid" | "Overdue";
 
 export type GetTransactionsRequest = {
 	searchTerm?: string | null;
