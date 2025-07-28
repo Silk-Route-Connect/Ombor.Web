@@ -5,7 +5,7 @@ import { Payment } from "models/payment";
 export const isSingleFullAllocation = (p: Payment) =>
 	p.allocations.length === 1 &&
 	p.allocations[0].transactionId &&
-	p.allocations[0].appliedAmount === p.amountLocal;
+	p.allocations[0].amount === p.amount;
 
 export function formatPaymentType(payment: Payment): React.ReactNode {
 	if (isSingleFullAllocation(payment)) {

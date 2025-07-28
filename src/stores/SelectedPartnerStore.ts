@@ -19,6 +19,8 @@ export interface ISelectedPartnerStore {
 	sales: Loadable<TransactionRecord[]>;
 	supplies: Loadable<TransactionRecord[]>;
 	payments: Loadable<Payment[]>;
+	payableDebts: Loadable<TransactionRecord[]>;
+	receivableDebts: Loadable<TransactionRecord[]>;
 
 	/* current filter */
 	readonly dateFilter: DateFilter;
@@ -76,6 +78,22 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 
 	get payments(): Loadable<Payment[]> {
 		return this.filterPayments(this.allPayments);
+	}
+
+	get payableDebts(): Loadable<TransactionRecord[]> {
+		if (this.openTransactions === "loading") {
+			return "loading";
+		}
+
+		return this.openTransactions.filter((el) => el.type === "Sale" || el.type === "SupplyRefund");
+	}
+
+	get receivableDebts(): Loadable<TransactionRecord[]> {
+		if (this.openTransactions === "loading") {
+			return "loading";
+		}
+
+		return this.openTransactions.filter((el) => el.type === "Supply" || el.type === "SaleRefund");
 	}
 
 	setPreset(preset: PresetOption) {
@@ -146,7 +164,9 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 	}
 
 	private async getOpenTransactions(partnerId: number) {
-		if (this.openTransactions === "loading") return;
+		if (this.openTransactions === "loading") {
+			return;
+		}
 
 		runInAction(() => (this.openTransactions = "loading"));
 		const result = await tryRun(() => TransactionApi.getOpenTransactions(partnerId));

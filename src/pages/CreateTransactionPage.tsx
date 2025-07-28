@@ -24,7 +24,10 @@ const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
 	}, [productStore, partnerStore, templateStore]);
 
 	const handleSave = async () => {
-		if (!form.formIsValid) return;
+		if (!form.formIsValid) {
+			return;
+		}
+
 		await transactionStore.create(form.buildPayload());
 	};
 
