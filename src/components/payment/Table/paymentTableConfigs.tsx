@@ -36,12 +36,12 @@ export const paymentColumns: Column<Payment>[] = [
 		renderCell: (p) => translate(`payment.direction.${p.direction}`),
 	},
 	{
-		key: "currency",
-		field: "currency",
-		headerName: translate("payment.currency"),
+		key: "type",
+		field: "type",
+		headerName: translate("payment.type"),
 		sortable: true,
 		width: "10%",
-		renderCell: (p) => translate(`payment.currency.${p.currency}`),
+		renderCell: (p) => translate(`payment.type.${p.type}`),
 	},
 	{
 		key: "amount",

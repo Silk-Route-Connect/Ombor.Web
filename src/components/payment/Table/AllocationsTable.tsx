@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import AllocationLink from "components/shared/Links/AllocationLink";
 import { translate } from "i18n/i18n";
@@ -8,6 +8,18 @@ import { formatPrice } from "utils/supplyUtils";
 interface AllocationsTableProps {
 	allocations: PaymentAllocation[];
 }
+
+const getCell = (allocation: PaymentAllocation): JSX.Element => {
+	console.log(allocation);
+	switch (allocation.type) {
+		case "AdvancePayment":
+			return <span>{translate("transaction.advancePayment")}</span>;
+		case "ChangeReturn":
+			return <span>{translate("transaction.changeReturn")}</span>;
+		default:
+			return <AllocationLink allocation={allocation} />;
+	}
+};
 
 const AllocationsTable: React.FC<AllocationsTableProps> = ({ allocations }) => (
 	<Table size={"small"}>
@@ -21,14 +33,8 @@ const AllocationsTable: React.FC<AllocationsTableProps> = ({ allocations }) => (
 		<TableBody>
 			{allocations.map((allocation) => (
 				<TableRow key={allocation.id}>
-					<TableCell>
-						{allocation.type === "AdvancePayment" ? (
-							translate("transaction.advancePayment")
-						) : (
-							<AllocationLink allocation={allocation} />
-						)}
-					</TableCell>
-					<TableCell align="right">{formatPrice(allocation.appliedAmount)}</TableCell>
+					<TableCell>{getCell(allocation)}</TableCell>
+					<TableCell align="right">{formatPrice(allocation.amount)}</TableCell>
 				</TableRow>
 			))}
 		</TableBody>

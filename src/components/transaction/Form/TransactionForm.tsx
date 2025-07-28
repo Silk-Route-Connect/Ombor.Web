@@ -28,6 +28,7 @@ export interface TransactionFormPayload {
 	debtPayments?: DebtPayment[];
 	notes?: string;
 	attachments?: File[];
+	shouldReturnChange: boolean;
 }
 
 interface TransactionFormProps {
