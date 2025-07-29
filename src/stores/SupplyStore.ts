@@ -4,7 +4,13 @@ import supplyApi from "services/api/SupplyApi";
 import { Loadable, tryRun } from "../helpers/helpers";
 import { CreateSupplyRequest, Supply, UpdateSupplyRequest } from "../models/supply";
 import { NotificationStore } from "./NotificationStore";
-import { GetSuppliesRequest } from "./PartnerStore";
+
+export type GetSuppliesRequest = {
+	supplierId?: number;
+	from?: Date;
+	to?: Date;
+	searchTerm?: string;
+};
 
 export interface ISupplyStore {
 	allSupplies: Loadable<Supply[]>;

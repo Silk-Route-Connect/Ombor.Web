@@ -42,6 +42,17 @@ class TransactionApi extends BaseApi {
 		return response.data;
 	}
 
+	async getOpenTransactions(partnerId: number): Promise<TransactionRecord[]> {
+		const query: GetTransactionsRequest = {
+			partnerId,
+			statuses: ["Open", "PartiallyPaid"],
+		};
+		const url = this.getUrl(query);
+		const response = await http.get<TransactionRecord[]>(url);
+
+		return response.data;
+	}
+
 	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
 		const url = this.getUrl();
 		const form = this.getFormData(request);
@@ -73,6 +84,18 @@ class TransactionApi extends BaseApi {
 			if (PrimitiveTypes.includes(typeof val)) {
 				form.append(key, String(val));
 			}
+		});
+
+		request.payments.forEach((payment, i) => {
+			form.append(`payments[${i}].amount`, String(payment.amount));
+			form.append(`payments[${i}].exchangeRate`, String(payment.exchangeRate));
+			form.append(`payments[${i}].method`, String(payment.method));
+			form.append(`payments[${i}].currency`, String(payment.currency));
+		});
+
+		request.debtPayments?.forEach((debtPayment, i) => {
+			form.append(`debtPayments[${i}].amount`, String(debtPayment.amount));
+			form.append(`debtPayments[${i}].transactionId`, String(debtPayment.transactionId));
 		});
 
 		request.lines.forEach((line, i) => {

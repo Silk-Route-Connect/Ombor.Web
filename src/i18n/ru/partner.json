@@ -1,5 +1,9 @@
 {
-  "partner.type.All": "Клиент + Поставщик",
+  "partner.type.Both": "Клиент + Поставщик",
   "partner.type.Customer": "Клиент",
-  "paratner.type.Supplier": "Поставщик"
+  "paratner.type.Supplier": "Поставщик",
+  "partner.partnerAdvance": "Аванс партнёра",
+  "partner.companyAdvance": "Аванс компании",
+  "partner.payableDebt": "Долг партнёра",
+  "partner.receivableDebt": "Долг компании"
 }

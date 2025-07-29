@@ -10,17 +10,9 @@ import {
 	PartnerType,
 	UpdateParatnerRequest,
 } from "models/partner";
-import { Supply } from "models/supply";
 import PartnerApi from "services/api/PartnerApi";
 
 import { NotificationStore } from "./NotificationStore";
-
-export type GetSuppliesRequest = {
-	supplierId?: number;
-	from?: Date;
-	to?: Date;
-	searchTerm?: string;
-};
 
 export interface IPartnerStore {
 	allPartners: Loadable<Partner[]>;
@@ -35,22 +27,21 @@ export interface IPartnerStore {
 
 	// actions
 	getAll(request?: GetPartnersRequest): Promise<void>;
-	createSupplier(request: CreatePartnerRequest): Promise<void>;
-	updateSupplier(request: UpdateParatnerRequest): Promise<void>;
-	deleteSupplier(id: number): Promise<void>;
+	create(request: CreatePartnerRequest): Promise<void>;
+	update(request: UpdateParatnerRequest): Promise<void>;
+	delete(partnerId: number): Promise<void>;
 
 	// setters for filters & sorting
 	setSearch(term: string): void;
 	setType(type: PartnerType): void;
-	setSelectedPartner(id: number): void;
+	setSelectedPartner(partnerId?: number | null): void;
 	setSort(field: keyof Partner, order: SortOrder): void;
 }
 
 export class PartnerStore implements IPartnerStore {
 	allPartners: Loadable<Partner[]> = [];
-	supplies: Loadable<Supply[]> = [];
 	selectedPartner: Partner | null = null;
-	type: PartnerType = "All";
+	type: PartnerType = "Both";
 	searchTerm = "";
 	sortField: keyof Partner | null = null;
 	sortOrder: SortOrder = "asc";
@@ -80,11 +71,11 @@ export class PartnerStore implements IPartnerStore {
 			);
 		}
 
-		if (this.type === "All") {
+		if (this.type === "Both") {
 			return partners;
 		}
 
-		return partners.filter((el) => el.type === this.type || el.type === "All");
+		return partners.filter((el) => el.type === this.type || el.type === "Both");
 	}
 
 	get suppliers(): Loadable<Partner[]> {
@@ -121,7 +112,8 @@ export class PartnerStore implements IPartnerStore {
 		runInAction(() => (this.allPartners = data));
 	}
 
-	async createSupplier(request: CreatePartnerRequest): Promise<void> {
+	async create(request: CreatePartnerRequest): Promise<void> {
+		console.log(request);
 		const result = await tryRun(() => PartnerApi.create(request));
 
 		if (result.status === "fail") {
@@ -129,20 +121,16 @@ export class PartnerStore implements IPartnerStore {
 			return;
 		}
 
-		if (this.allPartners === "loading") {
-			return;
-		}
-
 		runInAction(() => {
-			this.notificationStore.error(translate("partners.success.create"));
-
 			if (this.allPartners !== "loading") {
 				this.allPartners = [result.data, ...this.allPartners];
 			}
 		});
+
+		this.notificationStore.success(translate("partners.success.create"));
 	}
 
-	async updateSupplier(request: UpdateParatnerRequest): Promise<void> {
+	async update(request: UpdateParatnerRequest): Promise<void> {
 		const result = await tryRun(() => PartnerApi.update(request));
 
 		if (result.status === "fail") {
@@ -151,8 +139,6 @@ export class PartnerStore implements IPartnerStore {
 		}
 
 		runInAction(() => {
-			this.notificationStore.error(translate("partners.success.update"));
-
 			if (this.allPartners !== "loading") {
 				const index = this.allPartners.findIndex((s) => s.id === request.id);
 				if (index !== -1) {
@@ -160,9 +146,11 @@ export class PartnerStore implements IPartnerStore {
 				}
 			}
 		});
+
+		this.notificationStore.success(translate("partners.success.update"));
 	}
 
-	async deleteSupplier(id: number): Promise<void> {
+	async delete(id: number): Promise<void> {
 		const result = await tryRun(() => PartnerApi.delete(id));
 
 		if (result.status === "fail") {
@@ -171,12 +159,12 @@ export class PartnerStore implements IPartnerStore {
 		}
 
 		runInAction(() => {
-			this.notificationStore.error(translate("partners.success.delete"));
-
 			if (this.allPartners !== "loading") {
 				this.allPartners = this.allPartners.filter((s) => s.id !== id);
 			}
 		});
+
+		this.notificationStore.success(translate("partners.success.delete"));
 	}
 
 	setSearch(term: string): void {
@@ -187,12 +175,17 @@ export class PartnerStore implements IPartnerStore {
 		this.type = type;
 	}
 
-	setSelectedPartner(id: number): void {
+	setSelectedPartner(partnerId?: number | null): void {
 		if (this.allPartners === "loading") {
 			return;
 		}
 
-		const partner = this.allPartners.find((p) => p.id === id);
+		if (!partnerId) {
+			runInAction(() => (this.selectedPartner = null));
+			return;
+		}
+
+		const partner = this.allPartners.find((p) => p.id === partnerId);
 
 		if (partner) {
 			runInAction(() => (this.selectedPartner = partner));

@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataT
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
-import { makeAutoObservable, runInAction, toJS } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { CreateTransactionPaymentRequest } from "models/payment";
 import {
 	CreateTransactionRequest,
@@ -108,6 +108,10 @@ export class TransactionStore implements ITransactionStore {
 					return (aValue - bValue) * orderMultiplier;
 				}
 
+				if (aValue instanceof Date && bValue instanceof Date) {
+					return (aValue.getTime() - bValue.getTime()) * orderMultiplier;
+				}
+
 				return 0;
 			});
 		}
@@ -116,20 +120,9 @@ export class TransactionStore implements ITransactionStore {
 	}
 
 	get supplies(): Loadable<TransactionRecord[]> {
-		console.log("get supplies");
 		if (this.filteredTransactions === "loading") {
 			return "loading";
 		}
-		const partners = this.filteredTransactions.filter(
-			(el) => el.type === "Supply" && el.partnerId === this.filterPartnerId,
-		);
-		const all = this.filteredTransactions.filter((el) => el.partnerId === this.filterPartnerId);
-		if (this.allTransactions !== "loading") {
-			const rs = this.allTransactions.filter((el) => el.partnerId === this.filterPartnerId);
-			console.log(toJS(rs));
-		}
-		console.log(toJS(partners));
-		console.log(toJS(all));
 
 		return this.filteredTransactions.filter((el) => el.type === "Supply");
 	}
@@ -155,9 +148,7 @@ export class TransactionStore implements ITransactionStore {
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
-		console.log(data);
 		runInAction(() => (this.allTransactions = data));
-		console.log(`all transactions count in get method: ${this.allTransactions.length}`);
 	}
 
 	async getById(id: number): Promise<void> {
@@ -188,14 +179,12 @@ export class TransactionStore implements ITransactionStore {
 		}
 
 		runInAction(() => {
-			if (this.allTransactions === "loading") {
-				return;
+			if (this.allTransactions !== "loading") {
+				this.allTransactions = [result.data, ...this.allTransactions];
 			}
-
-			this.allTransactions = [result.data, ...this.allTransactions];
-			this.currentTransaction = result.data;
-			this.notificationStore.success("transactions.success.create");
 		});
+
+		this.notificationStore.success("transactions.success.create");
 	}
 
 	async createPayment(request: CreateTransactionPaymentRequest): Promise<void> {
@@ -234,13 +223,13 @@ export class TransactionStore implements ITransactionStore {
 		this.sortOrder = order;
 	}
 
-	setCurrentTransaction(id: number | null): void {
-		if (id === null) {
+	setCurrentTransaction(transactionId: number | null): void {
+		if (transactionId === null) {
 			this.currentTransaction = null;
 			return;
 		}
 
-		if (this.currentTransaction === "loading") {
+		if (this.currentTransaction === "loading" || this.currentTransaction?.id === transactionId) {
 			return;
 		}
 
@@ -248,6 +237,6 @@ export class TransactionStore implements ITransactionStore {
 			return;
 		}
 
-		this.currentTransaction = this.allTransactions.find((tx) => tx.id === id) || null;
+		this.currentTransaction = this.allTransactions.find((tx) => tx.id === transactionId) || null;
 	}
 }

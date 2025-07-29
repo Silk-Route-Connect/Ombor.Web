@@ -6,6 +6,7 @@ import { translate } from "i18n/i18n";
 import { Payment } from "models/payment";
 
 import AllocationsTable from "../Table/AllocationsTable";
+import PaymentComponentsTable from "../Table/PaymentComponentsTable";
 import PaymentSummary from "./PaymentSummary";
 
 interface PaymentSidePaneProps {
@@ -48,6 +49,15 @@ const PaymentSidePane: React.FC<PaymentSidePaneProps> = ({ isOpen, payment, onCl
 					<Divider />
 
 					<PaymentSummary payment={payment} />
+
+					<Divider />
+
+					<Box sx={{ p: 2 }}>
+						<Typography variant="subtitle1" sx={{ mb: 1 }}>
+							{translate("payment.components")}
+						</Typography>
+						<PaymentComponentsTable components={payment.components} />
+					</Box>
 
 					<Divider />
 

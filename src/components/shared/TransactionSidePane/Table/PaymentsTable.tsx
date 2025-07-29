@@ -15,9 +15,9 @@ const PaymentsTable: React.FC<Props> = ({ payments }) => (
 			<TableRow>
 				<TableCell>{translate("payment.id")}</TableCell>
 				<TableCell>{translate("payment.date")}</TableCell>
-				<TableCell align="right">{translate("payment.amount")}</TableCell>
-				<TableCell align="right">{translate("payment.currency")}</TableCell>
 				<TableCell>{translate("payment.method")}</TableCell>
+				<TableCell>{translate("payment.currency")}</TableCell>
+				<TableCell align="right">{translate("payment.amount")}</TableCell>
 			</TableRow>
 		</TableHead>
 
@@ -30,9 +30,9 @@ const PaymentsTable: React.FC<Props> = ({ payments }) => (
 						</Link>
 					</TableCell>
 					<TableCell>{formatDateTime(p.date)}</TableCell>
-					<TableCell align="right">{formatPrice(p.amount)}</TableCell>
-					<TableCell align="right">{p.currency}</TableCell>
 					<TableCell>{translate(`payment.method.${p.method}`)}</TableCell>
+					<TableCell>{p.currency}</TableCell>
+					<TableCell align="right">{formatPrice(p.amount)}</TableCell>
 				</TableRow>
 			))}
 		</TableBody>

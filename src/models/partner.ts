@@ -7,11 +7,20 @@ export type Partner = {
 	phoneNumbers: string[];
 	companyName?: string;
 	balance: number;
+	balanceDto: PartnerBalance | null;
 };
 
-export type PartnerType = "Customer" | "Supplier" | "All";
+export type PartnerBalance = {
+	total: number;
+	partnerAdvance: number;
+	companyAdvance: number;
+	payableDebt: number;
+	receivableDebt: number;
+};
 
-export type CreatePartnerRequest = Omit<Partner, "id">;
+export type PartnerType = "Customer" | "Supplier" | "Both";
+
+export type CreatePartnerRequest = Omit<Partner, "id" | "balance" | "balanceDto">;
 
 export type UpdateParatnerRequest = CreatePartnerRequest & {
 	id: number;

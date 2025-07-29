@@ -12,7 +12,6 @@ import { Payment } from "models/payment";
 import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPaymentType } from "utils/paymentUtils";
-import { formatPrice } from "utils/supplyUtils";
 
 import PaymentAllocationsTable from "../Table/PaymentAllocationTable";
 
@@ -52,7 +51,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 			key: "id",
 			field: "id",
 			headerName: translate("payment.id"),
-			width: "5%",
+			width: "10%",
 			renderCell: (s) => (
 				<Link
 					href={`/payments/${s.id}`}
@@ -70,45 +69,27 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 			key: "type",
 			field: "type",
 			headerName: translate("payment.type"),
-			align: "right",
-			width: "20%",
+			align: "left",
+			width: "25%",
 			sortable: true,
 			renderCell: (s) => formatPaymentType(s),
+		},
+		{
+			key: "amount",
+			field: "amount",
+			headerName: translate("payment.amount"),
+			width: "15%",
+			align: "right",
+			renderCell: (s) => s.amount.toLocaleString(),
 		},
 		{
 			key: "date",
 			field: "date",
 			headerName: translate("payment.date"),
-			width: "25%",
+			align: "left",
+			width: "60%",
 			sortable: true,
 			renderCell: (s) => formatDateTime(s.date),
-		},
-		{
-			key: "amountLocal",
-			field: "amountLocal",
-			headerName: translate("payment.amount"),
-			align: "right",
-			width: "20%",
-			sortable: true,
-			renderCell: (s) => formatPrice(s.amountLocal),
-		},
-		{
-			key: "currency",
-			field: "currency",
-			headerName: translate("payment.currency"),
-			align: "right",
-			width: "5%",
-			sortable: true,
-			renderCell: (s) => s.currency,
-		},
-		{
-			key: "method",
-			field: "method",
-			headerName: translate("payment.method"),
-			align: "right",
-			width: "25%",
-			sortable: true,
-			renderCell: (s) => translate(`payment.method.${s.method}`),
 		},
 	];
 
@@ -152,7 +133,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 			</Box>
 
 			<ExpandableDataTable<Payment>
-				rows={selectedPartnerStore.filteredPayments}
+				rows={selectedPartnerStore.payments}
 				columns={paymentColumns}
 				pagination
 				canExpand={(p) => p.allocations.length > 1}

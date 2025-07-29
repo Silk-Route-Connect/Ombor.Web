@@ -14,7 +14,7 @@ export interface AttachmentPickerProps {
 
 const AttachmentPicker: React.FC<AttachmentPickerProps> = ({
 	files,
-	listHeight = 60,
+	listHeight = 90,
 	label = translate("fieldAttachments"),
 	onAdd,
 	onRemove,

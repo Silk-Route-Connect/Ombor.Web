@@ -11,29 +11,34 @@ export type PaymentAllocationType =
 	| "Supply"
 	| "SaleRefund"
 	| "SupplyRefund"
-	| "AdvancePayment";
+	| "AdvancePayment"
+	| "ChangeReturn";
 
 export type Payment = {
 	id: number;
 	partnerId?: number;
 	partnerName?: string;
 	notes?: string;
-	externalReference?: string;
 	amount: number;
-	amountLocal: number;
-	exchangeRate: number;
 	date: Date;
 	direction: PaymentDirection;
-	currency: PaymentCurrency;
 	type: PaymentType;
-	method: PaymentMethod;
+	components: PaymentComponent[];
 	allocations: PaymentAllocation[];
+};
+
+export type PaymentComponent = {
+	id: number;
+	currency: PaymentCurrency;
+	method: PaymentMethod;
+	amount: number;
+	exchangeRate: number;
 };
 
 export type PaymentAllocation = {
 	id: number;
 	transactionId?: number;
-	appliedAmount: number;
+	amount: number;
 	type: PaymentAllocationType;
 };
 

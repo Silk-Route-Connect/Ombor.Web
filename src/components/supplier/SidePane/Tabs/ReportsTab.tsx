@@ -30,7 +30,7 @@ const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChan
 
 	useEffect(() => {
 		if (partnerId && from && to) {
-			selectedPartnerStore.getSales();
+			selectedPartnerStore.getTransactions(null);
 		}
 	}, [partnerId, from, to, selectedPartnerStore]);
 
@@ -71,7 +71,7 @@ const ReportsTab: React.FC<ReportsTabProps> = ({ partnerId, from, to, onDateChan
 		},
 	];
 
-	const consolidated = selectedPartnerStore.allTransactions;
+	const consolidated = selectedPartnerStore.filteredTransactions;
 	const totalDue =
 		consolidated !== "loading" && Array.isArray(consolidated)
 			? consolidated.reduce((sum, r) => sum + r.totalDue, 0)

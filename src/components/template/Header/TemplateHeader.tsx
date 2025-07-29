@@ -43,7 +43,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
 				<PartnerAutocomplete
 					value={selectedPartner}
-					type="All"
+					type="Both"
 					size="small"
 					onChange={onPartnerChange}
 				/>

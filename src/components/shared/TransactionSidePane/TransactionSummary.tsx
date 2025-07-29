@@ -6,6 +6,20 @@ import { formatDateTime } from "utils/dateUtils";
 import { formatPrice } from "utils/supplyUtils";
 import { getPratnerTranslationKey } from "utils/translationUtils";
 
+const getStatusColor = (status: string) => {
+	switch (status) {
+		case "Closed":
+			return "success";
+		case "Open":
+		case "PartiallyPaid":
+			return "warning";
+		case "Overdue":
+			return "error";
+		default:
+			return "default";
+	}
+};
+
 interface Props {
 	transaction: TransactionRecord;
 }
@@ -36,7 +50,7 @@ const TransactionSummary: React.FC<Props> = ({ transaction }) => (
 				<Chip
 					label={translate(`transaction.status.${transaction.status}`)}
 					size="small"
-					color={transaction.status === "Closed" ? "success" : "warning"}
+					color={getStatusColor(transaction.status)}
 				/>
 			</Grid>
 

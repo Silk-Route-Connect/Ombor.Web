@@ -6,6 +6,7 @@ import { PaymentAllocation } from "models/payment";
 // TODO: Fix this to use proper options
 const labelMap = {
 	AdvancePayment: "",
+	ChangeReturn: "",
 	Sale: translate("paymentAllocationSale"),
 	Supply: translate("paymentAllocationSupply"),
 	SaleRefund: translate("paymentAllocationSaleRefund"),
@@ -14,6 +15,7 @@ const labelMap = {
 
 const routeMap = {
 	AdvancePayment: "",
+	ChangeReturn: "",
 	Sale: "/sales/",
 	Supply: "/supplies/",
 	SaleRefund: "/sale-refunds/",
@@ -32,6 +34,10 @@ const AllocationLink: React.FC<AllocationLinkProps> = ({ allocation }) => {
 	}
 
 	if (allocation.type === "AdvancePayment") {
+		return null;
+	}
+
+	if (allocation.type === "ChangeReturn") {
 		return null;
 	}
 

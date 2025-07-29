@@ -33,11 +33,11 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
 
 	useEffect(() => {
 		if (partnerId) {
-			selectedPartnerStore.getSales();
+			selectedPartnerStore.getTransactions(null);
 		}
 	}, [partnerId, selectedPartnerStore]);
 
-	const stats = selectedPartnerStore.filteredSupplies; // either "loading" or SupplierStats
+	const stats = selectedPartnerStore.supplies; // either "loading" or SupplierStats
 
 	if (stats === "loading") {
 		return <Typography sx={{ p: 2 }}>{translate("loading")}…</Typography>;

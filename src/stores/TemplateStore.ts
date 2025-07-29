@@ -31,6 +31,7 @@ export interface ITemplateStore {
 	setSearch(searchTerm: string): void;
 	setSort(field: keyof Template, order: SortOrder): void;
 	setSelectedPartner(partnerId?: Partner | null): void;
+	setSelectedTemplate(template: Template | null): void;
 }
 
 export class TemplateStore implements ITemplateStore {
@@ -42,7 +43,7 @@ export class TemplateStore implements ITemplateStore {
 	sortField: keyof Template | null = null;
 	sortOrder: SortOrder = "asc";
 	selectedPartner: Partner | null = null;
-	selectedTemplate: Loadable<Template> | null = null;
+	selectedTemplate: Template | null = null;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -106,11 +107,6 @@ export class TemplateStore implements ITemplateStore {
 	}
 
 	async getById(templateId: number): Promise<void> {
-		if (this.selectedTemplate === "loading") {
-			return;
-		}
-
-		runInAction(() => (this.selectedTemplate = "loading"));
 		const request: GetTemplateByIdRequest = { id: templateId };
 		const result = await tryRun(() => TemplateApi.getById(request));
 
@@ -190,6 +186,10 @@ export class TemplateStore implements ITemplateStore {
 		}
 
 		this.selectedPartner = partner;
+	}
+
+	setSelectedTemplate(template: Template | null): void {
+		this.selectedTemplate = template;
 	}
 
 	setSort(field: keyof Template, order: SortOrder): void {

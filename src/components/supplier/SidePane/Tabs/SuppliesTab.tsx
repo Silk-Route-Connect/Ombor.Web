@@ -30,7 +30,7 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 			return;
 		}
 
-		selectedPartnerStore.getSupplies();
+		selectedPartnerStore.getTransactions("Supply");
 	}, [partnerId, selectedPartnerStore]);
 
 	const supplyColumns: Column<TransactionRecord>[] = [
@@ -150,7 +150,7 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 			</Box>
 
 			<ExpandableDataTable<TransactionRecord>
-				rows={selectedPartnerStore.filteredSupplies}
+				rows={selectedPartnerStore.supplies}
 				columns={supplyColumns}
 				pagination
 				renderExpanded={(supply) => <SupplyItemsTable items={supply.lines} />}

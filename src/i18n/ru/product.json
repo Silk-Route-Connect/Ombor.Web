@@ -84,5 +84,12 @@
 
   "close":                       "Закрыть",
 
-  "product.name": "Название продукта"
+  "product.name": "Название продукта",
+  "product.retailPrice": "Розничная цена",
+  "product.supplyPrice": "Закупочная цена",
+  "product.salePrice": "Продажная цена",
+  "product.stock": "Остаток",
+  "product.sku": "Артикул",
+
+  "product.searchTitle": "Поиск товаров..."
 }

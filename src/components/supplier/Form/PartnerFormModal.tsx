@@ -32,7 +32,7 @@ export type PartnerFormPayload = {
 	balance: number;
 };
 
-const PARTNER_TYPES: PartnerType[] = ["All", "Customer", "Supplier"];
+const PARTNER_TYPES: PartnerType[] = ["Both", "Customer", "Supplier"];
 
 export interface PartnerFormModalProps {
 	isOpen: boolean;
@@ -60,7 +60,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 			address: "",
 			email: "",
 			phoneNumbers: [""],
-			type: "All",
+			type: "Both",
 			isActive: true,
 		},
 	});
@@ -84,7 +84,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				address: "",
 				email: "",
 				phoneNumbers: [""],
-				type: "All",
+				type: "Both",
 				isActive: true,
 			});
 		}

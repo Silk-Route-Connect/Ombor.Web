@@ -19,6 +19,9 @@
   "reportRangeAll": "Весь период",
   "reportRangeCustom": "Свой",
 
+  "common.save": "Сохранить",
+  "common.cancel": "Отмена",
+
   "paymentTypeDeposit": "Депозит",
   "paymentTypeWithdrawal": "Снятие",
   "paymentTypePayroll": "Зарплата",
