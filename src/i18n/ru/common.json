@@ -19,6 +19,9 @@
   "reportRangeAll": "Весь период",
   "reportRangeCustom": "Свой",
 
+  "common.create": "Добавить",
+  "common.delete": "Удалить",
+  "common.edit": "Редактировать",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
 

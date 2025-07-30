@@ -4,42 +4,24 @@ import CategoryHeader from "components/category/Header/CategoryHeader";
 import CategoryFormModal, {
 	CategoryFormPayload,
 } from "components/category/modal/CategoryFormModal";
+import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/ConfirmDialog";
+import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 
-import { ActionCell } from "../components/shared/ActionCell/ActionCell";
-import { Column, DataTable, SortOrder } from "../components/shared/DataTable/DataTable";
 import { Category } from "../models/category";
 import { useStore } from "../stores/StoreContext";
 
 const CategoryPage: React.FC = observer(() => {
+	const { categoryStore } = useStore();
+
 	const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
-	const { categoryStore } = useStore();
 
 	useEffect(() => {
 		categoryStore.loadCategories();
 	}, []);
-
-	const columns: Column<Category>[] = [
-		{ key: "name", field: "name", headerName: "Название", width: "30%", sortable: true },
-		{
-			key: "description",
-			field: "description",
-			headerName: "Описание",
-			width: "60%",
-			sortable: true,
-		},
-		{
-			key: "actions",
-			headerName: "",
-			width: "10%",
-			renderCell: (category: Category) => (
-				<ActionCell onEdit={() => onEdit(category)} onDelete={() => onDelete(category)} />
-			),
-		},
-	];
 
 	const onCreate = (): void => {
 		setSelectedCategory(null);
@@ -55,13 +37,11 @@ const CategoryPage: React.FC = observer(() => {
 		if (selectedCategory) {
 			categoryStore.updateCategory({
 				id: selectedCategory.id,
-				name: payload.name,
-				description: payload.description,
+				...payload,
 			});
 		} else {
 			categoryStore.createCategory({
-				name: payload.name,
-				description: payload.description,
+				...payload,
 			});
 		}
 
@@ -81,31 +61,29 @@ const CategoryPage: React.FC = observer(() => {
 		}
 	};
 
-	const getConfirmationContent = (): JSX.Element => {
-		if (!selectedCategory) {
-			return <Typography>Вы уверены, что хотите удалить эту категорию?</Typography>;
-		}
-
-		return (
-			<Typography>
-				Вы уверены, что хотите удалить категорию <strong>{selectedCategory.name}</strong>?
-			</Typography>
-		);
-	};
+	const getConfirmationContent = (): JSX.Element => (
+		<Typography>
+			{translate("category.deleteConfirmationTitle", {
+				categoryName: selectedCategory?.name || "",
+			})}
+		</Typography>
+	);
 
 	return (
 		<Box>
 			<CategoryHeader
-				title={"Категории"}
+				title={translate("category.title")}
 				searchValue={categoryStore.searchQuery}
 				onSearch={(value) => categoryStore.search(value)}
 				onCreate={onCreate}
 			/>
-			<DataTable
-				rows={categoryStore.filteredCategories}
-				columns={columns}
+
+			<CategoryTable
+				data={categoryStore.filteredCategories}
 				pagination
-				onSort={(field: keyof Category, order: SortOrder) => categoryStore.sort(field, order)}
+				onDelete={onDelete}
+				onEdit={onEdit}
+				onSort={(field, order) => categoryStore.sort(field, order)}
 			/>
 
 			<CategoryFormModal
@@ -114,12 +92,13 @@ const CategoryPage: React.FC = observer(() => {
 				onClose={() => setIsFormOpen(false)}
 				onSave={onFormSave}
 			/>
+
 			<ConfirmDialog
 				isOpen={isDeleteDialogOpen}
-				title="Подтвердите удаление"
+				title={translate("category.confirmDelete")}
 				content={getConfirmationContent()}
-				confirmLabel="Удалить"
-				cancelLabel="Отмена"
+				confirmLabel={translate("common.delete")}
+				cancelLabel={translate("common.cancel")}
 				onCancel={() => setIsDeleteDialogOpen(false)}
 				onConfirm={onDeleteConfirmed}
 			/>

@@ -1,9 +1,24 @@
 {
-  "loadCategoriesError": "Не удалось загрузить категории",
-  "createCategorySuccess": "Категория успешно создана",
-  "createCategoryError": "Не удалось создать категорию",
-  "updateCategorySuccess": "Категория успешно обновлена",
-  "updateCategoryError": "Не удалось обновить категорию",
-  "deleteCategorySuccess": "Категория успешно удалена",
-  "deleteCategoryError": "Не удалось удалить категорию"
+  "category.title": "Категории",
+  "category.searchTitle": "Поиск категорий...",
+  "category.title.create": "Создание категории",
+  "category.title.edit": "Редактирование категории",
+
+  "category.error.load": "Ошибка при загрузке категорий",
+  "category.error.create": "Ошибка при создании категории",
+  "category.error.update": "Ошибка при обновлении категории",
+  "category.error.delete": "Ошибка при удалении категории",
+
+  "category.success.create": "Категория успешно создана",
+  "category.success.update": "Категория успешно обновлена",
+  "category.success.delete": "Категория успешно удалена",
+
+  "category.name": "Название категории",
+  "category.description": "Описание категории",
+  "category.create": "Создать категорию",
+  "category.update": "Обновить категорию",
+  "category.delete": "Удалить категорию",
+
+  "category.confirmDelete": "Подтвердите удаление категории",
+  "category.deleteConfirmationTitle": "Вы уверены, что хотите удалить {{categoryName}}?"
 }

@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Typography } from "@mui/material";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { translate } from "i18n/i18n";
 
 export interface IProps {
 	title?: string;
@@ -21,10 +22,14 @@ const CategoryHeader: React.FC<IProps> = ({
 		<Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap">
 			<Typography variant="h5">{title}</Typography>
 			<Box display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }}>
-				<SearchInput value={searchValue} onChange={onSearch} placeholder="Поиск категорий..." />
+				<SearchInput
+					value={searchValue}
+					onChange={onSearch}
+					placeholder={translate("category.searchTitle")}
+				/>
 				<Box ml={2}>
 					<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-						Добавить
+						{translate("common.create")}
 					</PrimaryButton>
 				</Box>
 			</Box>

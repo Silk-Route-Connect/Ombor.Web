@@ -12,7 +12,7 @@ import {
 	useTheme,
 } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
-import { TransactionFormLinePayload } from "components/shared/Transaction/Form/TransactionFormModal";
+import { TransactionFormLinePayload } from "components/transaction/Form/TransactionForm";
 import { translate } from "i18n/i18n";
 import { useStore } from "stores/StoreContext";
 
