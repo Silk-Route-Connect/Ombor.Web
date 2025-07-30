@@ -19,6 +19,5 @@
   "category.update": "Обновить категорию",
   "category.delete": "Удалить категорию",
 
-  "category.confirmDelete": "Подтвердите удаление категории",
-  "category.deleteConfirmationTitle": "Вы уверены, что хотите удалить {{categoryName}}?"
+  "category.deleteConfirmation": "Вы уверены, что хотите удалить категорию {{categoryName}}?"
 }

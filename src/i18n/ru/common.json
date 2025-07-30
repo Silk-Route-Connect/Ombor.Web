@@ -25,6 +25,8 @@
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
 
+  "common.deleteTitle": "Подтвердите удаление",
+
   "paymentTypeDeposit": "Депозит",
   "paymentTypeWithdrawal": "Снятие",
   "paymentTypePayroll": "Зарплата",

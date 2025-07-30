@@ -1,3 +1,4 @@
+import { SortOrder } from "components/shared/DataTable/DataTable";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -10,24 +11,32 @@ export interface ICategoryStore {
 	allCategories: Loadable<Category[]>;
 	filteredCategories: Loadable<Category[]>;
 	selectedCategory: Category | null;
-	searchQuery: string;
-	isFormModalOpen: boolean;
 
-	search(query: string): void;
-	sort(field: keyof Category, order: "asc" | "desc"): void;
-	loadCategories(): Promise<void>;
-	createCategory(category: CreateCategoryRequest): Promise<void>;
-	updateCategory(category: UpdateCategoryRequest): Promise<void>;
-	deleteCategory(id: number): Promise<void>;
+	searchTerm: string;
+	sortField: keyof Category | null;
+	sortOrder: SortOrder;
+	isSaving: boolean;
+
+	// actions
+	getAll(): Promise<void>;
+	create(category: CreateCategoryRequest): Promise<void>;
+	update(category: UpdateCategoryRequest): Promise<void>;
+	delete(id: number): Promise<void>;
+
+	// setters for filters & sorting
+	setSearch(query: string): void;
+	setSort(field: keyof Category, order: "asc" | "desc"): void;
 }
 
 export class CategoryStore implements ICategoryStore {
+	private readonly notificationStore: NotificationStore;
+
 	allCategories: Loadable<Category[]> = [];
 	selectedCategory: Category | null = null;
-	searchQuery = "";
-	isFormModalOpen = false;
-
-	private readonly notificationStore: NotificationStore;
+	searchTerm = "";
+	sortField: keyof Category | null = null;
+	sortOrder: SortOrder = "asc";
+	isSaving: boolean = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -36,68 +45,35 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
-		if (this.allCategories === "loading") {
-			return "loading";
-		}
+		const filtered = this.applySearch(this.allCategories);
 
-		if (!this.searchQuery) {
-			return this.allCategories;
-		}
-
-		if (this.allCategories.length === 0) {
-			return [];
-		}
-
-		const query = this.searchQuery.toLowerCase();
-
-		return this.allCategories.filter(
-			(category) =>
-				category.name.toLowerCase().includes(query) ||
-				category.description?.toLowerCase().includes(query),
-		);
+		return this.applySort(filtered);
 	}
 
-	search(query: string) {
-		this.searchQuery = query;
-	}
-
-	sort(field: keyof Category, order: "asc" | "desc") {
+	async getAll() {
 		if (this.allCategories === "loading") {
 			return;
 		}
 
-		const sorted = [...this.allCategories].sort((a, b) => {
-			const aVal = a[field] ?? "";
-			const bVal = b[field] ?? "";
+		runInAction(() => (this.allCategories = "loading"));
 
-			if (aVal < bVal) {
-				return order === "asc" ? -1 : 1;
-			}
-
-			if (aVal > bVal) {
-				return order === "asc" ? 1 : -1;
-			}
-
-			return 0;
-		});
-
-		runInAction(() => (this.allCategories = sorted));
-	}
-
-	async loadCategories() {
-		this.allCategories = "loading";
-		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchQuery }));
+		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchTerm }));
 
 		if (result.status === "fail") {
-			this.allCategories = [];
-			this.notificationStore.error(translate("loadCategoriesError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.load") + `: ${result.error}`);
+		}
+
+		const data = result.status === "success" ? result.data : [];
+		runInAction(() => (this.allCategories = data));
+	}
+
+	async create(request: CreateCategoryRequest): Promise<void> {
+		if (this.isSaving) {
 			return;
 		}
 
-		this.allCategories = result.data;
-	}
+		runInAction(() => (this.isSaving = true));
 
-	async createCategory(request: CreateCategoryRequest): Promise<void> {
 		const result = await tryRun(() => CategoryApi.create(request));
 
 		if (result.status === "fail") {
@@ -112,17 +88,23 @@ export class CategoryStore implements ICategoryStore {
 
 			this.allCategories = [result.data, ...this.allCategories];
 			this.selectedCategory = result.data;
-			this.isFormModalOpen = false;
+			this.isSaving = false;
 		});
 
-		this.notificationStore.success(translate("createCategorySuccess"));
+		this.notificationStore.success(translate("category.success.create"));
 	}
 
-	async updateCategory(request: UpdateCategoryRequest): Promise<void> {
+	async update(request: UpdateCategoryRequest): Promise<void> {
+		if (this.isSaving) {
+			return;
+		}
+
+		runInAction(() => (this.isSaving = true));
+
 		const result = await tryRun(() => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("updateCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.update"));
 			return;
 		}
 
@@ -135,17 +117,23 @@ export class CategoryStore implements ICategoryStore {
 				category.id === result.data.id ? result.data : category,
 			);
 			this.selectedCategory = result.data;
-			this.isFormModalOpen = false;
+			this.isSaving = false;
 		});
 
-		this.notificationStore.success(translate("updateCategorySuccess"));
+		this.notificationStore.success(translate("category.success.update"));
 	}
 
-	async deleteCategory(id: number): Promise<void> {
+	async delete(id: number): Promise<void> {
+		if (this.isSaving) {
+			return;
+		}
+
+		runInAction(() => (this.isSaving = true));
+
 		const result = await tryRun(() => CategoryApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("deleteCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.delete"));
 			return;
 		}
 
@@ -156,9 +144,58 @@ export class CategoryStore implements ICategoryStore {
 
 			this.allCategories = this.allCategories.filter((category) => category.id !== id);
 			this.selectedCategory = null;
+			this.isSaving = false;
 		});
 
-		this.notificationStore.success(translate("deleteCategorySuccess"));
+		this.notificationStore.success(translate("category.success.delete"));
+	}
+
+	setSearch(query: string) {
+		runInAction(() => (this.searchTerm = query));
+	}
+
+	setSort(field: keyof Category, order: "asc" | "desc") {
+		runInAction(() => {
+			this.sortField = field;
+			this.sortOrder = order;
+		});
+	}
+
+	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
+		if (data === "loading" || !this.searchTerm) {
+			return data;
+		}
+
+		const query = this.searchTerm.toLowerCase();
+
+		return data.filter(
+			(category) =>
+				category.name.toLowerCase().includes(query) ||
+				(category.description?.toLowerCase().includes(query) ?? false),
+		);
+	}
+
+	private applySort(data: Loadable<Category[]>): Loadable<Category[]> {
+		if (data === "loading" || !this.sortField) {
+			return data;
+		}
+
+		const sortField = this.sortField;
+
+		return [...data].sort((a, b) => {
+			const aVal = a[sortField] ?? "";
+			const bVal = b[sortField] ?? "";
+
+			if (aVal < bVal) {
+				return this.sortOrder === "asc" ? -1 : 1;
+			}
+
+			if (aVal > bVal) {
+				return this.sortOrder === "asc" ? 1 : -1;
+			}
+
+			return 0;
+		});
 	}
 }
 

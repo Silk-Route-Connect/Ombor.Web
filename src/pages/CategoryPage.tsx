@@ -20,8 +20,8 @@ const CategoryPage: React.FC = observer(() => {
 	const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
 
 	useEffect(() => {
-		categoryStore.loadCategories();
-	}, []);
+		categoryStore.getAll();
+	}, [categoryStore]);
 
 	const onCreate = (): void => {
 		setSelectedCategory(null);
@@ -35,12 +35,12 @@ const CategoryPage: React.FC = observer(() => {
 
 	const onFormSave = (payload: CategoryFormPayload): void => {
 		if (selectedCategory) {
-			categoryStore.updateCategory({
+			categoryStore.update({
 				id: selectedCategory.id,
 				...payload,
 			});
 		} else {
-			categoryStore.createCategory({
+			categoryStore.create({
 				...payload,
 			});
 		}
@@ -57,13 +57,13 @@ const CategoryPage: React.FC = observer(() => {
 		setIsDeleteDialogOpen(false);
 
 		if (selectedCategory) {
-			categoryStore.deleteCategory(selectedCategory.id);
+			categoryStore.delete(selectedCategory.id);
 		}
 	};
 
 	const getConfirmationContent = (): JSX.Element => (
 		<Typography>
-			{translate("category.deleteConfirmationTitle", {
+			{translate("category.deleteConfirmation", {
 				categoryName: selectedCategory?.name || "",
 			})}
 		</Typography>
@@ -73,8 +73,8 @@ const CategoryPage: React.FC = observer(() => {
 		<Box>
 			<CategoryHeader
 				title={translate("category.title")}
-				searchValue={categoryStore.searchQuery}
-				onSearch={(value) => categoryStore.search(value)}
+				searchValue={categoryStore.searchTerm}
+				onSearch={(value) => categoryStore.setSearch(value)}
 				onCreate={onCreate}
 			/>
 
@@ -83,7 +83,7 @@ const CategoryPage: React.FC = observer(() => {
 				pagination
 				onDelete={onDelete}
 				onEdit={onEdit}
-				onSort={(field, order) => categoryStore.sort(field, order)}
+				onSort={(field, order) => categoryStore.setSort(field, order)}
 			/>
 
 			<CategoryFormModal
@@ -95,7 +95,7 @@ const CategoryPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={isDeleteDialogOpen}
-				title={translate("category.confirmDelete")}
+				title={translate("common.deleteTitle")}
 				content={getConfirmationContent()}
 				confirmLabel={translate("common.delete")}
 				cancelLabel={translate("common.cancel")}
