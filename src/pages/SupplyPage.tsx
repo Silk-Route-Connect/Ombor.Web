@@ -6,13 +6,6 @@ import {
 	Column,
 	ExpandableDataTable,
 } from "components/shared/ExpandableDataTable/ExpandableDataTable";
-import TransactionPaymentModal, {
-	TransactionPaymentFormPayload,
-} from "components/shared/Transaction/Form/Payment/TransactionPaymentModal";
-import TransactionFormModal, {
-	TransactionFormPayload,
-	TransactionFormTemplatePayload,
-} from "components/shared/Transaction/Form/TransactionFormModal";
 import TransactionSidePane from "components/shared/TransactionSidePane/TransactionSidePane";
 import SupplyHeader from "components/supply/Header/SupplyHeader";
 import SupplyItemsTable from "components/supply/Table/SupplyItemsTable";
@@ -29,21 +22,13 @@ const SupplyPage: React.FC = observer(() => {
 
 	const [selectedSupply, setSelectedSupply] = useState<Supply | null>(null);
 	const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
-	const [isPaymentFormOpen, setIsPaymentFormOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
 		transactionStore.getAll();
 		partnerStore.getAll();
 	}, [supplyStore, transactionStore]);
-
-	useEffect(() => {
-		if (!transactionStore.isSaving) {
-			setIsFormOpen(false);
-		}
-	}, [transactionStore.isSaving]);
 
 	const handlePartnerChange = (value: Partner): void => {
 		setSelectedPartner(value);
@@ -53,7 +38,6 @@ const SupplyPage: React.FC = observer(() => {
 	const handleCreate = useCallback(() => {
 		console.log(selectedSupply);
 		setSelectedSupply(null);
-		setIsFormOpen(true);
 	}, []);
 
 	const supplyColumns: Column<TransactionRecord>[] = useMemo(
@@ -133,37 +117,12 @@ const SupplyPage: React.FC = observer(() => {
 
 	const handlePayment = (transaction: TransactionRecord): void => {
 		transactionStore.setCurrentTransaction(transaction.id);
-		setIsPaymentFormOpen(true);
 	};
 
 	const handleRowClick = useCallback((row: TransactionRecord) => {
 		transactionStore.setCurrentTransaction(row.id);
 		setIsSidePaneOpen(true);
 	}, []);
-
-	const handleFormClose = (): void => {
-		setSelectedSupply(null);
-		setIsFormOpen(false);
-	};
-
-	const handleFormSave = (payload: TransactionFormPayload): void => {
-		console.log(payload);
-	};
-
-	const handlePaymentFormSave = (payload: TransactionPaymentFormPayload): void => {
-		transactionStore.createPayment({
-			...payload,
-		});
-	};
-
-	const handlePaymentFormClose = (): void => {
-		setIsPaymentFormOpen(false);
-	};
-
-	const handleTemplateSave = (payload: TransactionFormTemplatePayload): void => {
-		// templateStore.create({ ...payload });
-		console.log(payload);
-	};
 
 	const suppliesCount = useMemo(() => {
 		if (transactionStore.supplies === "loading") {
@@ -195,32 +154,11 @@ const SupplyPage: React.FC = observer(() => {
 				renderExpanded={(tx) => <SupplyItemsTable items={tx.lines} />}
 			/>
 
-			<TransactionFormModal
-				isOpen={isFormOpen}
-				isSaving={transactionStore.isSaving}
-				mode="Supply"
-				onClose={handleFormClose}
-				onSave={handleFormSave}
-				onSaveTemplate={handleTemplateSave}
-			/>
-
 			<TransactionSidePane
 				transaction={transactionStore.currentTransaction}
 				payments={selectedTransactionStore.payments}
 				isOpen={isSidePaneOpen}
 				onClose={() => setIsSidePaneOpen(false)}
-			/>
-
-			<TransactionPaymentModal
-				transaction={
-					transactionStore.currentTransaction === "loading"
-						? null
-						: transactionStore.currentTransaction
-				}
-				isOpen={isPaymentFormOpen}
-				isSaving={transactionStore.isSaving}
-				onSave={handlePaymentFormSave}
-				onCancel={handlePaymentFormClose}
 			/>
 		</>
 	);

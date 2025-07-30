@@ -35,9 +35,13 @@ const toPaymentRecord = ({
 });
 
 const balanceOrDefault = (partner?: Partner | null): PartnerBalance =>
-	partner?.balanceDto
-		? partner.balanceDto
-		: { total: 0, companyAdvance: 0, partnerAdvance: 0, payableDebt: 0, receivableDebt: 0 };
+	partner?.balanceDto ?? {
+		total: 0,
+		companyAdvance: 0,
+		partnerAdvance: 0,
+		payableDebt: 0,
+		receivableDebt: 0,
+	};
 
 export interface PaymentsState {
 	availablePaymentMethods: Exclude<PaymentMethod, "BalanceWithdrawal">[];
