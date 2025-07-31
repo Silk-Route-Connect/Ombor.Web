@@ -37,7 +37,6 @@ export const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ onEdit, onArchiv
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}
-				// prevent row-click from firing when clicking menu
 				onClick={(e) => e.stopPropagation()}
 			>
 				<MenuItem onClick={(e) => handleClick(onEdit, e)}>

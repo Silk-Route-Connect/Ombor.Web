@@ -90,11 +90,9 @@ export class CategoryStore implements ICategoryStore {
 		}
 
 		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
+			if (this.allCategories !== "loading") {
+				this.allCategories = [result.data, ...this.allCategories];
 			}
-
-			this.allCategories = [result.data, ...this.allCategories];
 		});
 
 		this.closeDialog();

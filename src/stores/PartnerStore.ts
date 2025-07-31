@@ -1,6 +1,7 @@
 import { SortOrder } from "components/shared/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
+import { withSaving } from "helpers/WithSaving";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
@@ -14,16 +15,29 @@ import PartnerApi from "services/api/PartnerApi";
 
 import { NotificationStore } from "./NotificationStore";
 
+export type PartnerTypeFilters = PartnerType | "All";
+
+type DialogMode =
+	| { type: "form"; partner?: Partner }
+	| { type: "delete"; partner: Partner }
+	| { type: "details"; partner: Partner }
+	| { type: "none" };
+
 export interface IPartnerStore {
+	// computed properties
 	allPartners: Loadable<Partner[]>;
+	filteredPartners: Loadable<Partner[]>;
 	suppliers: Loadable<Partner[]>;
 	customers: Loadable<Partner[]>;
-	filteredPartners: Loadable<Partner[]>;
+
+	// UI state
 	selectedPartner: Partner | null;
 	searchTerm: string;
-	type: PartnerType;
+	type: PartnerTypeFilters;
 	sortField: keyof Partner | null;
 	sortOrder: SortOrder;
+	isSaving: boolean;
+	dialogMode: DialogMode;
 
 	// actions
 	getAll(request?: GetPartnersRequest): Promise<void>;
@@ -33,16 +47,25 @@ export interface IPartnerStore {
 
 	// setters for filters & sorting
 	setSearch(term: string): void;
-	setType(type: PartnerType): void;
+	setTypeFilter(type: PartnerTypeFilters): void;
 	setSelectedPartner(partnerId?: number | null): void;
 	setSort(field: keyof Partner, order: SortOrder): void;
+
+	// UI dialog helper methods
+	openCreate(): void;
+	openEdit(partner: Partner): void;
+	openDelete(partner: Partner): void;
+	openDetails(partner: Partner): void;
+	closeDialog(): void;
 }
 
 export class PartnerStore implements IPartnerStore {
 	allPartners: Loadable<Partner[]> = [];
 	selectedPartner: Partner | null = null;
-	type: PartnerType = "Both";
 	searchTerm = "";
+	type: PartnerTypeFilters = "All";
+	dialogMode: DialogMode = { type: "none" };
+	isSaving: boolean = false;
 	sortField: keyof Partner | null = null;
 	sortOrder: SortOrder = "asc";
 
@@ -51,7 +74,7 @@ export class PartnerStore implements IPartnerStore {
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredPartners(): Loadable<Partner[]> {
@@ -59,11 +82,11 @@ export class PartnerStore implements IPartnerStore {
 			return "loading";
 		}
 
-		let partners = this.allPartners;
+		let filteredPartners = this.allPartners;
 		const searchTerm = this.searchTerm?.toLocaleLowerCase();
 
 		if (searchTerm) {
-			partners = partners.filter(
+			filteredPartners = filteredPartners.filter(
 				(el) =>
 					el.name.toLowerCase().includes(searchTerm) ||
 					el.address?.toLocaleLowerCase().includes(searchTerm) ||
@@ -71,11 +94,11 @@ export class PartnerStore implements IPartnerStore {
 			);
 		}
 
-		if (this.type === "Both") {
-			return partners;
+		if (this.type === "All") {
+			return filteredPartners;
 		}
 
-		return partners.filter((el) => el.type === this.type || el.type === "Both");
+		return filteredPartners.filter((el) => el.type === this.type || el.type === "Both");
 	}
 
 	get suppliers(): Loadable<Partner[]> {
@@ -113,8 +136,7 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	async create(request: CreatePartnerRequest): Promise<void> {
-		console.log(request);
-		const result = await tryRun(() => PartnerApi.create(request));
+		const result = await withSaving(this, () => PartnerApi.create(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("partners.errors.create"));
@@ -127,11 +149,12 @@ export class PartnerStore implements IPartnerStore {
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("partners.success.create"));
 	}
 
 	async update(request: UpdateParatnerRequest): Promise<void> {
-		const result = await tryRun(() => PartnerApi.update(request));
+		const result = await withSaving(this, () => PartnerApi.update(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("partners.errors.update"));
@@ -140,18 +163,18 @@ export class PartnerStore implements IPartnerStore {
 
 		runInAction(() => {
 			if (this.allPartners !== "loading") {
-				const index = this.allPartners.findIndex((s) => s.id === request.id);
-				if (index !== -1) {
-					this.allPartners[index] = result.data;
-				}
+				this.allPartners = this.allPartners.map((el) =>
+					el.id === result.data.id ? result.data : el,
+				);
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("partners.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
-		const result = await tryRun(() => PartnerApi.delete(id));
+		const result = await withSaving(this, () => PartnerApi.delete(id));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("partners.errors.delete"));
@@ -164,6 +187,7 @@ export class PartnerStore implements IPartnerStore {
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("partners.success.delete"));
 	}
 
@@ -171,7 +195,7 @@ export class PartnerStore implements IPartnerStore {
 		this.searchTerm = term;
 	}
 
-	setType(type: PartnerType): void {
+	setTypeFilter(type: PartnerTypeFilters): void {
 		this.type = type;
 	}
 
@@ -193,9 +217,31 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	setSort(field: keyof Partner, order: SortOrder): void {
-		runInAction(() => {
-			this.sortField = field;
-			this.sortOrder = order;
-		});
+		this.sortField = field;
+		this.sortOrder = order;
+	}
+
+	openCreate(): void {
+		this.dialogMode = { type: "form" };
+	}
+
+	openEdit(partner: Partner): void {
+		this.dialogMode = { type: "form", partner: partner };
+		this.selectedPartner = partner;
+	}
+
+	openDelete(partner: Partner): void {
+		this.dialogMode = { type: "form", partner: partner };
+		this.selectedPartner = partner;
+	}
+
+	openDetails(partner: Partner): void {
+		this.dialogMode = { type: "details", partner: partner };
+		this.selectedPartner = partner;
+	}
+
+	closeDialog(): void {
+		this.dialogMode = { type: "none" };
+		this.selectedPartner = null;
 	}
 }
