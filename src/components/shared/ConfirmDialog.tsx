@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { translate } from "i18n/i18n";
 
 interface ConfirmDialogProps {
 	isOpen: boolean;
@@ -15,8 +16,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	isOpen,
 	title,
 	content,
-	confirmLabel = "Confirm",
-	cancelLabel = "Cancel",
+	confirmLabel,
+	cancelLabel,
 	onConfirm,
 	onCancel,
 }) => {
@@ -25,9 +26,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			<DialogTitle>{title}</DialogTitle>
 			<DialogContent>{content}</DialogContent>
 			<DialogActions>
-				<Button onClick={onCancel}>{cancelLabel}</Button>
+				<Button onClick={onCancel}>{cancelLabel ?? translate("common.cancel")}</Button>
 				<Button onClick={onConfirm} color="error" variant="contained">
-					{confirmLabel}
+					{confirmLabel ?? translate("common.delete")}
 				</Button>
 			</DialogActions>
 		</Dialog>
