@@ -8,11 +8,11 @@ import {
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 
-interface Props {
+interface CreateTransactionPageProps {
 	mode: TransactionFormMode;
 }
 
-const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
+const CreateTransactionPage: React.FC<CreateTransactionPageProps> = observer(({ mode }) => {
 	const { productStore, partnerStore, templateStore, transactionStore } = useStore();
 
 	const form = useCreateTransactionForm(mode);
@@ -38,4 +38,4 @@ const TransactionCreatePage: React.FC<Props> = observer(({ mode }) => {
 	);
 });
 
-export default TransactionCreatePage;
+export default CreateTransactionPage;
