@@ -1,10 +1,10 @@
 export type Partner = {
 	id: number;
-	name: string;
 	type: PartnerType;
+	name: string;
+	phoneNumbers: string[];
 	address?: string;
 	email?: string;
-	phoneNumbers: string[];
 	companyName?: string;
 	balance: number;
 	balanceDto: PartnerBalance | null;

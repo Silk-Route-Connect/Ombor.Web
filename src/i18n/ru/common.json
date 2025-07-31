@@ -22,10 +22,13 @@
   "common.create": "Добавить",
   "common.delete": "Удалить",
   "common.edit": "Редактировать",
+  "common.archive": "Архивировать",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
 
   "common.deleteTitle": "Подтвердите удаление",
+
+  "common.form.completeRequired": "Заполните необходимые поля",
 
   "common.dash": "—",
 
