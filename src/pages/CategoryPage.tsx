@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Box } from "@mui/material";
+import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
-import CategoryFormModal from "components/category/modal/CategoryFormModal";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/ConfirmDialog";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
