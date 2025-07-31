@@ -4,6 +4,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { translate } from "i18n/i18n";
 
 interface ActionMenuCellProps {
 	onEdit: () => void;
@@ -43,21 +44,21 @@ export const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ onEdit, onArchiv
 					<ListItemIcon>
 						<EditIcon fontSize="small" color="warning" />
 					</ListItemIcon>
-					<ListItemText primary="Edit" />
+					<ListItemText primary={translate("common.edit")} />
 				</MenuItem>
 
 				<MenuItem onClick={(e) => handleClick(onArchive, e)}>
 					<ListItemIcon>
 						<ArchiveIcon fontSize="small" />
 					</ListItemIcon>
-					<ListItemText primary="Archive" />
+					<ListItemText primary={translate("common.archive")} />
 				</MenuItem>
 
 				<MenuItem onClick={(e) => handleClick(onDelete, e)}>
 					<ListItemIcon>
 						<DeleteIcon fontSize="small" color="error" />
 					</ListItemIcon>
-					<ListItemText primary="Delete" />
+					<ListItemText primary={translate("common.delete")} />
 				</MenuItem>
 			</Menu>
 		</>
