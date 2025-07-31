@@ -14,6 +14,8 @@ export function useCategoryForm(isOpen: boolean, category?: Category | null) {
 		resolver: zodResolver(CategorySchema),
 		mode: "onChange",
 		defaultValues: { name: "", description: "" },
+		reValidateMode: "onChange",
+		criteriaMode: "all",
 	});
 
 	useEffect(() => {
