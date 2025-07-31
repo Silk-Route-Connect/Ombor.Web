@@ -14,7 +14,7 @@ import { formatDateTime } from "utils/dateUtils";
 import { formatNotes } from "utils/stringUtils";
 import { formatPrice } from "utils/supplyUtils";
 
-import SupplyItemsTable from "../SupplyItemsTable/SupplyItemsTable";
+import SupplyItemsTable from "../../Table/SupplyItemsTable";
 
 interface SalesTabProps {
 	partnerId: number;

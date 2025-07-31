@@ -13,7 +13,7 @@ import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPaymentType } from "utils/paymentUtils";
 
-import PaymentAllocationsTable from "../Table/PaymentAllocationTable";
+import PaymentAllocationsTable from "../../Table/PaymentAllocationTable";
 
 interface IPaymentsTabProps {
 	partnerId: number;

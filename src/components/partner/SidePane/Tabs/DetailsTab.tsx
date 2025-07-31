@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Grid, Typography } from "@mui/material";
-import PhoneNumbersList from "components/supplier/PhoneNumbersList";
+import PhoneNumbersList from "components/partner/PhoneNumbersList/PhoneNumbersList";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { formatNumberWithCommas } from "utils/formatCurrency";

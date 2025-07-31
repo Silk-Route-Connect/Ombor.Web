@@ -48,8 +48,8 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	onSave,
 }) => {
 	const {
-		register,
 		control,
+		register,
 		reset,
 		handleSubmit,
 		formState: { errors },
@@ -66,7 +66,10 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	});
 
 	useEffect(() => {
-		if (!isOpen) return;
+		if (!isOpen) {
+			return;
+		}
+
 		if (partner) {
 			reset({
 				name: partner.name,

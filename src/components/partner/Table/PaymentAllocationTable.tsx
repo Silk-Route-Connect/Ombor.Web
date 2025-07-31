@@ -10,7 +10,6 @@ interface Props {
 }
 
 const getCell = (allocation: PaymentAllocation): JSX.Element => {
-	console.log(allocation);
 	switch (allocation.type) {
 		case "AdvancePayment":
 			return <span>{translate("transaction.advancePayment")}</span>;

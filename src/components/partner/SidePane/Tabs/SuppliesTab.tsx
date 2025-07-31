@@ -13,13 +13,13 @@ import { useStore } from "stores/StoreContext";
 import { formatNotes } from "utils/stringUtils";
 import { formatPrice } from "utils/supplyUtils";
 
-import SupplyItemsTable from "./../SupplyItemsTable/SupplyItemsTable";
+import SupplyItemsTable from "../../Table/SupplyItemsTable";
 
-interface SupplierSuppliesTabProps {
+interface SuppliesTabProps {
 	partnerId: number;
 }
 
-const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ partnerId }) => {
+const SuppliesTab: React.FC<SuppliesTabProps> = observer(({ partnerId }) => {
 	const { selectedPartnerStore } = useStore();
 
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -159,4 +159,4 @@ const SupplierSuppliesTab: React.FC<SupplierSuppliesTabProps> = observer(({ part
 	);
 });
 
-export default SupplierSuppliesTab;
+export default SuppliesTab;

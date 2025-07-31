@@ -3,16 +3,7 @@ import { Column } from "components/shared/DataTable/DataTable";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { formatNumberWithCommas } from "utils/helpers";
-
-const getBalanceColor = (balance: number): string => {
-	if (balance < 0) {
-		return "error.main";
-	} else if (balance > 0) {
-		return "success.main";
-	}
-
-	return "text.primary";
-};
+import { getBalanceColor } from "utils/partnerUtils";
 
 export const partnerColumns: Column<Partner>[] = [
 	{
@@ -20,7 +11,7 @@ export const partnerColumns: Column<Partner>[] = [
 		field: "name",
 		headerName: translate("partner.name"),
 		sortable: true,
-		width: "20%",
+		width: "25%",
 	},
 	{
 		key: "type",
@@ -46,8 +37,8 @@ export const partnerColumns: Column<Partner>[] = [
 		field: "companyName",
 		headerName: translate("partner.company"),
 		sortable: true,
-		width: "20%",
-		renderCell: (p) => p.companyName ?? "—",
+		width: "25%",
+		renderCell: (p) => p.companyName ?? translate("common.dash"),
 	},
 	{
 		key: "phoneNumbers",
@@ -55,6 +46,6 @@ export const partnerColumns: Column<Partner>[] = [
 		headerName: translate("partner.phoneNumber"),
 		sortable: false,
 		width: "20%",
-		renderCell: (p) => (p.phoneNumbers?.length ? p.phoneNumbers[0] : "—"),
+		renderCell: (p) => (p.phoneNumbers?.length ? p.phoneNumbers[0] : translate("common.dash")),
 	},
 ];
