@@ -5,9 +5,10 @@
   "partner.deleteTitle": "Удалаление партнёра",
   "partner.confirmDeleteTitle": "Вы уверены что хотите удалить партнёра",
   "partner.filterType": "Фильтр партнёров",
-  "partner.filter.Both": "Все партнёры",
+  "partner.filter.Both": "Клиент + Поставщик",
   "partner.filter.Customer": "Только клиенты",
   "partner.filter.Supplier": "Только поставщики",
+  "partner.filter.All": "Все партнёры",
 
   "partner.name": "Имя партнёра",
   "partner.balance": "Баланс",

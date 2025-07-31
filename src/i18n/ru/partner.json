@@ -5,5 +5,7 @@
   "partner.partnerAdvance": "Аванс партнёра",
   "partner.companyAdvance": "Аванс компании",
   "partner.payableDebt": "Долг партнёра",
-  "partner.receivableDebt": "Долг компании"
+  "partner.receivableDebt": "Долг компании",
+
+  "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {partnerName}?"
 }
