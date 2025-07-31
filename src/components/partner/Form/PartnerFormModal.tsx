@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React from "react";
+import { Controller, FieldError } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
 import {
 	Button,
@@ -9,33 +9,27 @@ import {
 	DialogTitle,
 	FormControl,
 	FormControlLabel,
+	FormHelperText,
 	Grid,
 	IconButton,
 	InputLabel,
+	LinearProgress,
 	MenuItem,
 	Select,
 	Switch,
 	TextField,
+	Tooltip,
 } from "@mui/material";
-import PhoneListInput from "components/shared/Inputs/PhoneListField";
+import PhoneListField from "components/shared/Inputs/PhoneListField";
+import { PartnerFormPayload, usePartnerForm } from "hooks/partner/usePartnerForm";
 import { translate } from "i18n/i18n";
 import { Partner, PartnerType } from "models/partner";
 
-export type PartnerFormPayload = {
-	name: string;
-	companyName?: string;
-	address?: string;
-	email?: string;
-	phoneNumbers: string[];
-	type: PartnerType;
-	isActive: boolean;
-	balance: number;
-};
-
-const PARTNER_TYPES: PartnerType[] = ["Both", "Customer", "Supplier"];
+const PARTNER_TYPES: PartnerType[] = ["Customer", "Supplier", "Both"];
 
 export interface PartnerFormModalProps {
 	isOpen: boolean;
+	isSaving: boolean;
 	partner?: Partner | null;
 	onClose: () => void;
 	onSave: (payload: PartnerFormPayload) => void;
@@ -43,184 +37,181 @@ export interface PartnerFormModalProps {
 
 const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	isOpen,
+	isSaving,
 	partner,
 	onClose,
 	onSave,
 }) => {
 	const {
-		control,
 		register,
-		reset,
+		control,
 		handleSubmit,
-		formState: { errors },
-	} = useForm<PartnerFormPayload>({
-		defaultValues: {
-			name: "",
-			companyName: "",
-			address: "",
-			email: "",
-			phoneNumbers: [""],
-			type: "Both",
-			isActive: true,
-		},
+		formState: { errors, isDirty, isValid },
+	} = usePartnerForm(isOpen, partner);
+
+	const submit = handleSubmit((data) => {
+		const payload: PartnerFormPayload = {
+			...data,
+			phoneNumbers: data.phoneNumbers ?? [], // default if undefined
+		};
+		onSave(payload);
 	});
 
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		if (partner) {
-			reset({
-				name: partner.name,
-				companyName: partner.companyName ?? "",
-				address: partner.address ?? "",
-				email: partner.email ?? "",
-				phoneNumbers: partner.phoneNumbers.length > 0 ? partner.phoneNumbers : [""],
-				type: partner.type,
-				balance: partner.balance,
-			});
-		} else {
-			reset({
-				name: "",
-				companyName: "",
-				address: "",
-				email: "",
-				phoneNumbers: [""],
-				type: "Both",
-				isActive: true,
-			});
-		}
-	}, [isOpen, partner, reset]);
-
-	const onSubmit = (data: PartnerFormPayload) => {
-		const cleanedPhones = data.phoneNumbers.filter((p) => p.trim() !== "");
-		onSave({ ...data, phoneNumbers: cleanedPhones, balance: partner?.balance ?? 0 });
+	const safeClose = () => {
+		if (isSaving) return;
+		if (isDirty && !window.confirm(translate("common.confirmDiscardChanges"))) return;
+		onClose();
 	};
 
-	const dialogTitle = partner ? translate("partner.updateTitle") : translate("partner.createTitle");
+	const dialogTitle = partner ? translate("partner.title.edit") : translate("partner.title.create");
+	const canSave = isDirty && isValid && !isSaving;
 
 	return (
-		<Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
+		<Dialog
+			open={isOpen}
+			onClose={safeClose}
+			fullWidth
+			maxWidth="md"
+			disableEscapeKeyDown={isSaving}
+			disableRestoreFocus
+		>
 			<DialogTitle sx={{ m: 0, p: 2 }}>
 				{dialogTitle}
 				<IconButton
 					aria-label={translate("close")}
-					onClick={onClose}
+					onClick={safeClose}
+					disabled={isSaving}
 					sx={{ position: "absolute", right: 8, top: 8 }}
 				>
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
 
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<DialogContent dividers>
-					<Grid container spacing={3}>
-						<Grid size={{ xs: 12, sm: 6 }}>
-							<TextField
-								label={translate("partner.name")}
-								fullWidth
-								margin="dense"
-								{...register("name", {
-									required: translate("partner.nameRequired"),
-								})}
-								error={!!errors.name}
-								helperText={errors.name?.message}
-							/>
-						</Grid>
+			{isSaving && <LinearProgress />}
 
-						<Grid size={{ xs: 12, sm: 6 }}>
-							<FormControl fullWidth margin="dense">
-								<InputLabel id="partner-type-label">{translate("partner.type")}</InputLabel>
-								<Controller
-									name="type"
-									control={control}
-									render={({ field }) => (
-										<Select
-											{...field}
-											labelId="partner-type-label"
-											label={translate("partner.type")}
-										>
-											{PARTNER_TYPES.map((t) => (
-												<MenuItem key={t} value={t}>
-													{translate(`partner.type.${t}`)}
-												</MenuItem>
-											))}
-										</Select>
-									)}
-								/>
-							</FormControl>
-						</Grid>
+			<DialogContent dividers>
+				<Grid container spacing={2}>
+					<Grid size={{ xs: 12, sm: 6 }}>
+						<TextField
+							label={`${translate("partner.name")}*`}
+							fullWidth
+							margin="dense"
+							disabled={isSaving}
+							error={!!errors.name}
+							helperText={errors.name?.message}
+							{...register("name")}
+						/>
+					</Grid>
 
-						<Grid size={{ xs: 12, sm: 6 }}>
-							<TextField
-								label={translate("partner.company")}
-								fullWidth
-								margin="dense"
-								{...register("companyName")}
-							/>
-						</Grid>
-
-						<Grid size={{ xs: 12, sm: 6 }}>
-							<TextField
-								label={translate("fieldAddress")}
-								fullWidth
-								margin="dense"
-								{...register("address")}
-							/>
-						</Grid>
-						<Grid size={{ xs: 12 }}>
-							<TextField
-								label={translate("fieldEmail")}
-								type="email"
-								fullWidth
-								margin="dense"
-								{...register("email", {
-									pattern: {
-										value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-										message: translate("invalidEmail"),
-									},
-								})}
-								error={!!errors.email}
-								helperText={errors.email?.message}
-							/>
-						</Grid>
-
-						<Grid size={{ xs: 12 }}>
+					<Grid size={{ xs: 12, sm: 6 }}>
+						<FormControl fullWidth margin="dense" error={!!errors.type}>
+							<InputLabel id="partner-type-label">{translate("partner.type")}</InputLabel>
 							<Controller
-								name="phoneNumbers"
+								name="type"
 								control={control}
-								defaultValue={[""]}
 								render={({ field }) => (
-									<PhoneListInput values={field.value} onChange={field.onChange} />
+									<Select
+										{...field}
+										labelId="partner-type-label"
+										label={translate("partner.type")}
+										disabled={isSaving}
+										error={!!errors.type}
+									>
+										{PARTNER_TYPES.map((t) => (
+											<MenuItem key={t} value={t}>
+												{translate(`partner.type.${t}`)}
+											</MenuItem>
+										))}
+									</Select>
 								)}
 							/>
-						</Grid>
-
-						<Grid size={{ xs: 12 }}>
-							<FormControlLabel
-								control={
-									<Controller
-										name="isActive"
-										control={control}
-										render={({ field }) => (
-											<Switch {...field} checked={field.value} color="primary" />
-										)}
-									/>
-								}
-								label={translate("fieldIsActive")}
-							/>
-						</Grid>
+							{errors.type && <FormHelperText>{errors.type.message}</FormHelperText>}
+						</FormControl>
 					</Grid>
-				</DialogContent>
 
-				<DialogActions>
-					<Button onClick={onClose}>{translate("cancel")}</Button>
-					<Button type="submit" variant="contained" color="primary">
-						{partner ? translate("update") : translate("create")}
-					</Button>
-				</DialogActions>
-			</form>
+					<Grid size={{ xs: 12, sm: 6 }}>
+						<TextField
+							label={translate("partner.company")}
+							fullWidth
+							disabled={isSaving}
+							error={!!errors.companyName}
+							helperText={errors.companyName?.message}
+							{...register("companyName")}
+						/>
+					</Grid>
+
+					<Grid size={{ xs: 12, sm: 6 }}>
+						<TextField
+							label={translate("partner.address")}
+							fullWidth
+							disabled={isSaving}
+							error={!!errors.address}
+							helperText={errors.address?.message}
+							{...register("address")}
+						/>
+					</Grid>
+
+					<Grid size={{ xs: 12 }}>
+						<TextField
+							label={translate("partner.email")}
+							type="email"
+							fullWidth
+							disabled={isSaving}
+							error={!!errors.email}
+							helperText={errors.email?.message}
+							{...register("email")}
+						/>
+					</Grid>
+
+					<Grid size={{ xs: 12 }}>
+						<Controller
+							name="phoneNumbers"
+							control={control}
+							render={({ field }) => {
+								const phoneErrors = Array.isArray(errors.phoneNumbers)
+									? (errors.phoneNumbers as (FieldError | undefined)[])
+									: [];
+								return (
+									<PhoneListField
+										values={field.value ?? []}
+										onChange={field.onChange}
+										errors={phoneErrors}
+										onBlur={field.onBlur}
+									/>
+								);
+							}}
+						/>
+					</Grid>
+
+					<Grid size={{ xs: 12 }}>
+						<FormControlLabel
+							control={
+								<Controller
+									name="isActive"
+									control={control}
+									render={({ field }) => (
+										<Switch {...field} checked={field.value} color="primary" disabled={isSaving} />
+									)}
+								/>
+							}
+							label={translate("fieldIsActive")}
+						/>
+					</Grid>
+				</Grid>
+			</DialogContent>
+
+			<DialogActions sx={{ p: 2 }}>
+				<Button onClick={safeClose} disabled={isSaving}>
+					{translate("common.cancel")}
+				</Button>
+				<Tooltip title={translate("common.form.completeRequired")} placement="top">
+					<span>
+						<Button variant="contained" loading={isSaving} onClick={submit} disabled={!canSave}>
+							{translate("common.save")}
+						</Button>
+					</span>
+				</Tooltip>
+			</DialogActions>
 		</Dialog>
 	);
 };
