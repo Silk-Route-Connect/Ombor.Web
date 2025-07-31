@@ -32,7 +32,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, isDirty },
+		formState: { errors, isDirty, isValid },
 	} = useCategoryForm(isOpen, category);
 
 	const submit = handleSubmit(onSave);
@@ -48,6 +48,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	};
 
 	const title = translate(category ? "category.title.edit" : "category.title.create");
+	const canSave = isDirty && isValid && !isSaving;
 
 	return (
 		<Dialog
@@ -99,12 +100,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 				<Button onClick={safeClose} disabled={isSaving}>
 					{translate("common.cancel")}
 				</Button>
-				<Button
-					variant="contained"
-					loading={isSaving}
-					onClick={submit}
-					disabled={!isDirty || isSaving}
-				>
+				<Button variant="contained" loading={isSaving} onClick={submit} disabled={!canSave}>
 					{translate("common.save")}
 				</Button>
 			</DialogActions>
