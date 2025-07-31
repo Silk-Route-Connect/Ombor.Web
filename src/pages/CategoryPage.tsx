@@ -1,106 +1,69 @@
-import React, { JSX, useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import React, { useEffect } from "react";
+import { Box } from "@mui/material";
 import CategoryHeader from "components/category/Header/CategoryHeader";
-import CategoryFormModal, {
-	CategoryFormPayload,
-} from "components/category/modal/CategoryFormModal";
+import CategoryFormModal from "components/category/modal/CategoryFormModal";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/ConfirmDialog";
+import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 
-import { Category } from "../models/category";
 import { useStore } from "../stores/StoreContext";
 
 const CategoryPage: React.FC = observer(() => {
 	const { categoryStore } = useStore();
 
-	const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
-	const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
-
 	useEffect(() => {
 		categoryStore.getAll();
 	}, [categoryStore]);
 
-	const onCreate = (): void => {
-		setSelectedCategory(null);
-		setIsFormOpen(true);
-	};
+	const handleFormSave = (payload: CategoryFormPayload) =>
+		categoryStore.selectedCategory
+			? categoryStore.update({ id: categoryStore.selectedCategory.id, ...payload })
+			: categoryStore.create(payload);
 
-	const onEdit = (category: Category) => {
-		setSelectedCategory(category);
-		setIsFormOpen(true);
-	};
-
-	const onFormSave = (payload: CategoryFormPayload): void => {
-		if (selectedCategory) {
-			categoryStore.update({
-				id: selectedCategory.id,
-				...payload,
-			});
-		} else {
-			categoryStore.create({
-				...payload,
-			});
-		}
-
-		setIsFormOpen(false);
-	};
-
-	const onDelete = (category: Category) => {
-		setIsDeleteDialogOpen(true);
-		setSelectedCategory(category);
-	};
-
-	const onDeleteConfirmed = (): void => {
-		setIsDeleteDialogOpen(false);
-
-		if (selectedCategory) {
-			categoryStore.delete(selectedCategory.id);
+	const handleDeleteConfirmed = (): void => {
+		if (categoryStore.selectedCategory) {
+			categoryStore.delete(categoryStore.selectedCategory.id);
 		}
 	};
 
-	const getConfirmationContent = (): JSX.Element => (
-		<Typography>
-			{translate("category.deleteConfirmation", {
-				categoryName: selectedCategory?.name || "",
-			})}
-		</Typography>
-	);
+	const { dialogMode } = categoryStore;
+	const dialogType = dialogMode.type;
 
 	return (
 		<Box>
 			<CategoryHeader
 				title={translate("category.title")}
 				searchValue={categoryStore.searchTerm}
-				onSearch={(value) => categoryStore.setSearch(value)}
-				onCreate={onCreate}
+				onSearch={categoryStore.setSearch}
+				onCreate={categoryStore.openCreate}
 			/>
 
 			<CategoryTable
 				data={categoryStore.filteredCategories}
 				pagination
-				onDelete={onDelete}
-				onEdit={onEdit}
-				onSort={(field, order) => categoryStore.setSort(field, order)}
+				onDelete={categoryStore.openDelete}
+				onEdit={categoryStore.openEdit}
+				onSort={categoryStore.setSort}
 			/>
 
 			<CategoryFormModal
-				isOpen={isFormOpen}
-				category={selectedCategory}
-				onClose={() => setIsFormOpen(false)}
-				onSave={onFormSave}
+				isOpen={dialogType === "form"}
+				isSaving={categoryStore.isSaving}
+				category={categoryStore.selectedCategory}
+				onClose={categoryStore.closeDialog}
+				onSave={handleFormSave}
 			/>
 
 			<ConfirmDialog
-				isOpen={isDeleteDialogOpen}
+				isOpen={dialogType === "delete"}
 				title={translate("common.deleteTitle")}
-				content={getConfirmationContent()}
-				confirmLabel={translate("common.delete")}
-				cancelLabel={translate("common.cancel")}
-				onCancel={() => setIsDeleteDialogOpen(false)}
-				onConfirm={onDeleteConfirmed}
+				content={translate("category.deleteConfirmation", {
+					categoryName: categoryStore.selectedCategory?.name || "",
+				})}
+				onCancel={categoryStore.closeDialog}
+				onConfirm={handleDeleteConfirmed}
 			/>
 		</Box>
 	);
