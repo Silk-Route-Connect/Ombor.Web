@@ -1,4 +1,5 @@
 import { SortOrder } from "components/shared/DataTable/DataTable";
+import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -6,6 +7,11 @@ import { translate } from "../i18n/i18n";
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../models/category";
 import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
+
+type DialogMode =
+	| { type: "form"; category?: Category }
+	| { type: "delete"; category: Category }
+	| { type: "none" };
 
 export interface ICategoryStore {
 	allCategories: Loadable<Category[]>;
@@ -16,6 +22,7 @@ export interface ICategoryStore {
 	sortField: keyof Category | null;
 	sortOrder: SortOrder;
 	isSaving: boolean;
+	dialogMode: DialogMode;
 
 	// actions
 	getAll(): Promise<void>;
@@ -26,6 +33,12 @@ export interface ICategoryStore {
 	// setters for filters & sorting
 	setSearch(query: string): void;
 	setSort(field: keyof Category, order: "asc" | "desc"): void;
+
+	// UI dialog helper methods
+	openCreate(): void;
+	openEdit(category: Category): void;
+	openDelete(category: Category): void;
+	closeDialog(): void;
 }
 
 export class CategoryStore implements ICategoryStore {
@@ -37,11 +50,12 @@ export class CategoryStore implements ICategoryStore {
 	sortField: keyof Category | null = null;
 	sortOrder: SortOrder = "asc";
 	isSaving: boolean = false;
+	dialogMode: DialogMode = { type: "none" };
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
@@ -68,16 +82,10 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	async create(request: CreateCategoryRequest): Promise<void> {
-		if (this.isSaving) {
-			return;
-		}
-
-		runInAction(() => (this.isSaving = true));
-
-		const result = await tryRun(() => CategoryApi.create(request));
+		const result = await withSaving(this, () => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("createCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.create"));
 			return;
 		}
 
@@ -87,21 +95,14 @@ export class CategoryStore implements ICategoryStore {
 			}
 
 			this.allCategories = [result.data, ...this.allCategories];
-			this.selectedCategory = result.data;
-			this.isSaving = false;
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("category.success.create"));
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<void> {
-		if (this.isSaving) {
-			return;
-		}
-
-		runInAction(() => (this.isSaving = true));
-
-		const result = await tryRun(() => CategoryApi.update(request));
+		const result = await withSaving(this, () => CategoryApi.update(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("category.error.update"));
@@ -116,21 +117,14 @@ export class CategoryStore implements ICategoryStore {
 			this.allCategories = this.allCategories.map((category) =>
 				category.id === result.data.id ? result.data : category,
 			);
-			this.selectedCategory = result.data;
-			this.isSaving = false;
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("category.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
-		if (this.isSaving) {
-			return;
-		}
-
-		runInAction(() => (this.isSaving = true));
-
-		const result = await tryRun(() => CategoryApi.delete(id));
+		const result = await withSaving(this, () => CategoryApi.delete(id));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("category.error.delete"));
@@ -143,22 +137,39 @@ export class CategoryStore implements ICategoryStore {
 			}
 
 			this.allCategories = this.allCategories.filter((category) => category.id !== id);
-			this.selectedCategory = null;
-			this.isSaving = false;
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("category.success.delete"));
 	}
 
 	setSearch(query: string) {
-		runInAction(() => (this.searchTerm = query));
+		this.searchTerm = query;
 	}
 
 	setSort(field: keyof Category, order: "asc" | "desc") {
-		runInAction(() => {
-			this.sortField = field;
-			this.sortOrder = order;
-		});
+		this.sortField = field;
+		this.sortOrder = order;
+	}
+
+	openCreate() {
+		this.selectedCategory = null;
+		this.dialogMode = { type: "form" };
+	}
+
+	openEdit(category: Category) {
+		this.selectedCategory = category;
+		this.dialogMode = { type: "form", category };
+	}
+
+	openDelete(category: Category) {
+		this.selectedCategory = category;
+		this.dialogMode = { type: "delete", category };
+	}
+
+	closeDialog() {
+		this.selectedCategory = null;
+		this.dialogMode = { type: "none" };
 	}
 
 	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
@@ -180,21 +191,18 @@ export class CategoryStore implements ICategoryStore {
 			return data;
 		}
 
-		const sortField = this.sortField;
+		const field = this.sortField;
+		const asc = this.sortOrder === "asc" ? 1 : -1;
 
 		return [...data].sort((a, b) => {
-			const aVal = a[sortField] ?? "";
-			const bVal = b[sortField] ?? "";
+			const aValue = a[field] ?? "";
+			const bValue = b[field] ?? "";
 
-			if (aVal < bVal) {
-				return this.sortOrder === "asc" ? -1 : 1;
+			if (typeof aValue === "number" && typeof bValue === "number") {
+				return asc * (aValue - bValue);
 			}
 
-			if (aVal > bVal) {
-				return this.sortOrder === "asc" ? 1 : -1;
-			}
-
-			return 0;
+			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
 		});
 	}
 }
