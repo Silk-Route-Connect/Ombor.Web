@@ -1,22 +1,22 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import {
 	Button,
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogTitle,
+	IconButton,
+	LinearProgress,
 	TextField,
 } from "@mui/material";
+import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
 import { translate } from "i18n/i18n";
 import { Category } from "models/category";
 
-export type CategoryFormPayload = {
-	name: string;
-	description?: string;
-};
-
 interface CategoryFormModalProps {
 	isOpen: boolean;
+	isSaving: boolean;
 	category?: Category | null;
 	onClose: () => void;
 	onSave: (payload: CategoryFormPayload) => void;
@@ -24,62 +24,87 @@ interface CategoryFormModalProps {
 
 const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	isOpen,
+	isSaving,
 	category,
 	onClose,
 	onSave,
 }) => {
-	const [name, setName] = useState("");
-	const [description, setDescription] = useState("");
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isDirty },
+	} = useCategoryForm(isOpen, category);
 
-	useEffect(() => {
-		if (isOpen) {
-			setName(category?.name ?? "");
-			setDescription(category?.description ?? "");
+	const submit = handleSubmit(onSave);
+
+	const safeClose = () => {
+		if (isSaving) return;
+
+		if (isDirty) {
+			const confirm = window.confirm(translate("common.confirmDiscardChanges"));
+			if (!confirm) return;
 		}
-	}, [isOpen, category]);
-
-	const handleSave = () => {
-		if (!name.trim()) {
-			return;
-		}
-
-		onSave({ name, description });
+		onClose();
 	};
 
-	const title = useMemo(
-		() => (category ? translate("category.title.edit") : translate("category.title.create")),
-		[category],
-	);
+	const title = translate(category ? "category.title.edit" : "category.title.create");
 
 	return (
-		<Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
-			<DialogTitle>{title}</DialogTitle>
+		<Dialog
+			open={isOpen}
+			onClose={safeClose}
+			fullWidth
+			maxWidth="sm"
+			disableEscapeKeyDown={isSaving}
+			disableRestoreFocus
+		>
+			<DialogTitle sx={{ m: 0, p: 2 }}>
+				{title}
+				<IconButton
+					onClick={safeClose}
+					disabled={isSaving}
+					sx={{ position: "absolute", right: 8, top: 8 }}
+					aria-label="close"
+				>
+					<CloseIcon />
+				</IconButton>
+			</DialogTitle>
 
-			<DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+			{isSaving && <LinearProgress />}
+
+			<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
 				<TextField
 					label={translate("category.name")}
-					value={name}
-					onChange={(e) => setName(e.target.value)}
 					fullWidth
-					margin="dense"
-					required
-					autoFocus
+					disabled={isSaving}
+					error={!!errors.name}
+					helperText={errors.name?.message}
+					{...register("name")}
 				/>
+
 				<TextField
 					label={translate("category.description")}
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					margin="dense"
-					minRows={3}
-					maxRows={6}
 					fullWidth
 					multiline
+					minRows={3}
+					maxRows={6}
+					disabled={isSaving}
+					error={!!errors.description}
+					helperText={errors.description?.message}
+					{...register("description")}
 				/>
 			</DialogContent>
 
 			<DialogActions sx={{ p: 2 }}>
-				<Button onClick={onClose}>{translate("common.cancel")}</Button>
-				<Button onClick={handleSave} variant="contained" color="primary" disabled={!name.trim()}>
+				<Button onClick={safeClose} disabled={isSaving}>
+					{translate("common.cancel")}
+				</Button>
+				<Button
+					variant="contained"
+					loading={isSaving}
+					onClick={submit}
+					disabled={!isDirty || isSaving}
+				>
 					{translate("common.save")}
 				</Button>
 			</DialogActions>

@@ -8,7 +8,7 @@ import { Category } from "models/category";
 interface CategoryTableProps {
 	data: Loadable<Category[]>;
 	pagination: boolean;
-	onSort: (field: keyof Category, direction: "asc" | "desc") => void;
+	onSort: (field: keyof Category, order: "asc" | "desc") => void;
 	onDelete: (category: Category) => void;
 	onEdit: (category: Category) => void;
 }
