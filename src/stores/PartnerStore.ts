@@ -9,7 +9,7 @@ import {
 	GetPartnersRequest,
 	Partner,
 	PartnerType,
-	UpdateParatnerRequest,
+	UpdatePartnerRequest,
 } from "models/partner";
 import PartnerApi from "services/api/PartnerApi";
 
@@ -17,11 +17,11 @@ import { NotificationStore } from "./NotificationStore";
 
 export type PartnerTypeFilters = PartnerType | "All";
 
-type DialogMode =
-	| { type: "form"; partner?: Partner }
-	| { type: "delete"; partner: Partner }
-	| { type: "details"; partner: Partner }
-	| { type: "none" };
+export type DialogMode =
+	| { kind: "form"; partner?: Partner }
+	| { kind: "delete"; partner: Partner }
+	| { kind: "details"; partner: Partner }
+	| { kind: "none" };
 
 export interface IPartnerStore {
 	// computed properties
@@ -42,7 +42,7 @@ export interface IPartnerStore {
 	// actions
 	getAll(request?: GetPartnersRequest): Promise<void>;
 	create(request: CreatePartnerRequest): Promise<void>;
-	update(request: UpdateParatnerRequest): Promise<void>;
+	update(request: UpdatePartnerRequest): Promise<void>;
 	delete(partnerId: number): Promise<void>;
 
 	// setters for filters & sorting
@@ -64,7 +64,7 @@ export class PartnerStore implements IPartnerStore {
 	selectedPartner: Partner | null = null;
 	searchTerm = "";
 	type: PartnerTypeFilters = "All";
-	dialogMode: DialogMode = { type: "none" };
+	dialogMode: DialogMode = { kind: "none" };
 	isSaving: boolean = false;
 	sortField: keyof Partner | null = null;
 	sortOrder: SortOrder = "asc";
@@ -83,14 +83,14 @@ export class PartnerStore implements IPartnerStore {
 		}
 
 		let filteredPartners = this.allPartners;
-		const searchTerm = this.searchTerm?.toLocaleLowerCase();
+		const searchTerm = this.searchTerm?.toLowerCase();
 
 		if (searchTerm) {
 			filteredPartners = filteredPartners.filter(
 				(el) =>
 					el.name.toLowerCase().includes(searchTerm) ||
-					el.address?.toLocaleLowerCase().includes(searchTerm) ||
-					el.companyName?.toLocaleLowerCase().includes(searchTerm),
+					el.address?.toLowerCase().includes(searchTerm) ||
+					el.companyName?.toLowerCase().includes(searchTerm),
 			);
 		}
 
@@ -153,7 +153,7 @@ export class PartnerStore implements IPartnerStore {
 		this.notificationStore.success(translate("partners.success.create"));
 	}
 
-	async update(request: UpdateParatnerRequest): Promise<void> {
+	async update(request: UpdatePartnerRequest): Promise<void> {
 		const result = await withSaving(this, () => PartnerApi.update(request));
 
 		if (result.status === "fail") {
@@ -222,26 +222,29 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	openCreate(): void {
-		this.dialogMode = { type: "form" };
+		this.setDialog({ kind: "form" });
 	}
 
 	openEdit(partner: Partner): void {
-		this.dialogMode = { type: "form", partner: partner };
-		this.selectedPartner = partner;
+		this.setDialog({ kind: "form", partner: partner });
 	}
 
 	openDelete(partner: Partner): void {
-		this.dialogMode = { type: "form", partner: partner };
-		this.selectedPartner = partner;
+		this.setDialog({ kind: "delete", partner: partner });
 	}
 
 	openDetails(partner: Partner): void {
-		this.dialogMode = { type: "details", partner: partner };
-		this.selectedPartner = partner;
+		this.setDialog({ kind: "details", partner: partner });
 	}
 
 	closeDialog(): void {
-		this.dialogMode = { type: "none" };
-		this.selectedPartner = null;
+		this.setDialog({ kind: "none" });
+	}
+
+	private setDialog(mode: DialogMode) {
+		const partner = "partner" in mode ? (mode.partner ?? null) : null;
+
+		this.dialogMode = mode;
+		this.selectedPartner = partner;
 	}
 }
