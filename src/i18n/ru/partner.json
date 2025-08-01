@@ -6,6 +6,12 @@
   "partner.companyAdvance": "Аванс компании",
   "partner.payableDebt": "Долг партнёра",
   "partner.receivableDebt": "Долг компании",
+  "partner.telegram": "Телеграм аккаунт",
+
+  "partner.isActive": "Активен",
+
+  "partner.title.create": "Добавить партнёра",
+  "partner.title.edit": "Редактировать партнёра",
 
   "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {partnerName}?",
 

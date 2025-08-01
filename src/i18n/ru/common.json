@@ -32,6 +32,11 @@
 
   "common.dash": "—",
 
+  "common.dialog.discardChanges.title":   "Отменить изменения?",
+  "common.dialog.discardChanges.body":    "Несохранённые изменения будут потеряны.",
+  "common.dialog.discardChanges.confirm": "Да, закрыть",
+  "common.dialog.discardChanges.cancel":         "Отмена",
+
   "common.fieldRequired": "Поле объязательно",
 
   "paymentTypeDeposit": "Депозит",
