@@ -29,7 +29,7 @@ const PartnerPage: React.FC = observer(() => {
 	};
 
 	const { dialogMode } = partnerStore;
-	const dialogType = dialogMode.type;
+	const dialogKind = dialogMode.kind;
 
 	return (
 		<Box>
@@ -52,7 +52,7 @@ const PartnerPage: React.FC = observer(() => {
 			/>
 
 			<PartnerFormModal
-				isOpen={dialogType === "form"}
+				isOpen={dialogKind === "form"}
 				isSaving={partnerStore.isSaving}
 				partner={partnerStore.selectedPartner}
 				onClose={partnerStore.closeDialog}
@@ -60,7 +60,7 @@ const PartnerPage: React.FC = observer(() => {
 			/>
 
 			<ConfirmDialog
-				isOpen={dialogType === "delete"}
+				isOpen={dialogKind === "delete"}
 				title={translate("common.delete")}
 				content={translate("partner.deleteConfirmation", {
 					partnerName: partnerStore.selectedPartner?.name ?? "",
@@ -70,7 +70,7 @@ const PartnerPage: React.FC = observer(() => {
 			/>
 
 			<PartnerSidePane
-				open={dialogType === "details"}
+				open={dialogKind === "details"}
 				partner={partnerStore.selectedPartner}
 				onClose={partnerStore.closeDialog}
 			/>
