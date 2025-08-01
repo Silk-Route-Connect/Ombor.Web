@@ -1,10 +1,12 @@
 import { translate } from "i18n/i18n";
 import { PartnerType } from "models/partner";
+import { PARTNER_TYPES } from "utils/partnerUtils";
 import { z } from "zod";
 
-export const partnerTypes = ["Customer", "Supplier", "Both"] as const;
+export const MAX_PHONES_COUNT = 5;
+
 export const PartnerTypeSchema = z.custom<PartnerType>(
-	(v) => typeof v === "string" && (partnerTypes as readonly string[]).includes(v),
+	(v) => typeof v === "string" && (PARTNER_TYPES as readonly string[]).includes(v),
 	{ message: translate("partner.validation.invalidType") },
 );
 
@@ -16,7 +18,7 @@ export const PhoneNumberSchema = z
 		message: translate("partner.validation.invalidPhone"),
 	});
 
-const optionalTrim = (max: number, key: string) =>
+const stringOrUndefinedTrimmed = (max: number, key: string) =>
 	z
 		.string()
 		.trim()
@@ -35,9 +37,11 @@ export const PartnerSchema = z.object({
 		.min(2, translate("partner.validation.nameRequired"))
 		.max(100, translate("partner.validation.nameTooLong")),
 
-	companyName: optionalTrim(100, "partner.validation.companyNameTooLong"),
+	companyName: stringOrUndefinedTrimmed(100, "partner.validation.companyNameTooLong"),
 
-	address: optionalTrim(200, "partner.validation.addressTooLong"),
+	address: stringOrUndefinedTrimmed(200, "partner.validation.addressTooLong"),
+
+	telegram: stringOrUndefinedTrimmed(200, "partner.validation.telegramTooLong"),
 
 	email: z
 		.string()
@@ -50,7 +54,7 @@ export const PartnerSchema = z.object({
 
 	phoneNumbers: z
 		.array(PhoneNumberSchema)
-		.max(5, translate("partner.phoneNumbers.maxLimit"))
+		.max(MAX_PHONES_COUNT, translate("partner.phoneNumbers.maxLimit"))
 		.transform((arr) => arr.filter((v) => v !== ""))
 		.optional()
 		.default([]),
