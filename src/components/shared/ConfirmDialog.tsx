@@ -22,7 +22,14 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	onCancel,
 }) => {
 	return (
-		<Dialog open={isOpen} onClose={onCancel} maxWidth="xs" fullWidth>
+		<Dialog
+			open={isOpen}
+			onClose={onCancel}
+			maxWidth="xs"
+			fullWidth
+			disableRestoreFocus
+			disableEscapeKeyDown
+		>
 			<DialogTitle>{title}</DialogTitle>
 			<DialogContent>{content}</DialogContent>
 			<DialogActions>
