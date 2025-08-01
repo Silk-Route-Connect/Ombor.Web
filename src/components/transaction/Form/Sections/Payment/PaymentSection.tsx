@@ -117,7 +117,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }
 				</AccordionDetails>
 			</Accordion>
 
-			<SaveButton onSave={onSave} disabled={!form.paymentIsValid} />
+			<SaveButton fullWidth onSave={onSave} disabled={!form.paymentIsValid} />
 
 			<PayDebtsModal
 				open={showModal}
