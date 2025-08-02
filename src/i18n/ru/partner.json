@@ -40,5 +40,9 @@
   "partner.statistics.netBalance": "Баланс",
   "partner.statistics.transactionsCount": "Кол.во транзакций",
   "partner.statistics.refundsCount": "Кол.во возратов",
-  "partner.statistics.outstandingCount": "Кол.во долгов"
+  "partner.statistics.outstandingCount": "Кол.во долгов",
+  "partner.statistics.sales": "Продажи",
+  "partner.statistics.saleRefunds": "Возврат продаж",
+  "partner.statistics.supplies": "Поставки",
+  "partner.statistics.supplyRefunds": "Возврат поставок"
 }

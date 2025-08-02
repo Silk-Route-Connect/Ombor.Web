@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
-import { Box, Card, CardContent, CircularProgress, Grid, Typography } from "@mui/material";
+import { Box, Card, CardContent, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import TimeSeriesChart from "components/shared/TimeSeriesChart/TimeSeriesChart";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import { DashboardMetrics } from "models/dashboard";
+import { DashboardMetrics, TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
 import { useStore } from "stores/StoreContext";
+import theme from "theme";
 import { DateFilter } from "utils/dateFilterUtils";
 import { canHaveSales, canHaveSupplies } from "utils/partnerUtils";
 
@@ -13,11 +14,11 @@ import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";
 
 type StatisticsCardKey = "netBalance" | "transactionsCount" | "refundsCount" | "outstandingCount";
 
-interface StatisticsCardDefinition {
+type StatisticsCardDefinition = {
 	key: StatisticsCardKey;
 	labelKey: `partner.statistics.${string}`;
 	getValue: (context: { partnerBalance: number; metrics: DashboardMetrics }) => string | number;
-}
+};
 
 const CARD_DEFINITIONS: ReadonlyArray<StatisticsCardDefinition> = [
 	{
@@ -47,9 +48,7 @@ const StatisticsTab: React.FC = observer(() => {
 	const partner = partnerStore.selectedPartner;
 	const metrics = selectedPartnerStore.dashboardMetrics;
 
-	if (!partner) {
-		return null;
-	}
+	if (!partner) return null;
 
 	const handleDateChange = (filter: DateFilter) => {
 		if (filter.type === "custom") {
@@ -58,6 +57,51 @@ const StatisticsTab: React.FC = observer(() => {
 			selectedPartnerStore.setPreset(filter.preset);
 		}
 	};
+
+	// Prepare combined data for each chart
+	const salesData: TimeSeriesPoint[] = useMemo(() => {
+		if (metrics === "loading") return [];
+		return metrics.salesOverTime.map((pt, i) => ({
+			date: pt.date,
+			Sales: pt.value,
+			"Sale Refunds": metrics.saleRefundsOverTime[i]?.value ?? 0,
+		}));
+	}, [metrics]);
+
+	const suppliesData: TimeSeriesPoint[] = useMemo(() => {
+		if (metrics === "loading") return [];
+		return metrics.suppliesOverTime.map((pt, i) => ({
+			date: pt.date,
+			Supplies: pt.value,
+			"Supply Refunds": metrics.supplyRefundsOverTime[i]?.value ?? 0,
+		}));
+	}, [metrics]);
+
+	const salesSeries: TimeSeriesConfig[] = [
+		{
+			dataKey: "Sales",
+			name: translate("partner.statistics.sales"),
+			stroke: theme.palette.primary.main,
+		},
+		{
+			dataKey: "Sale Refunds",
+			name: translate("partner.statistics.saleRefunds"),
+			stroke: theme.palette.warning.main,
+		},
+	];
+
+	const suppliesSeries: TimeSeriesConfig[] = [
+		{
+			dataKey: "Supplies",
+			name: translate("partner.statistics.supplies"),
+			stroke: theme.palette.success.main,
+		},
+		{
+			dataKey: "Supply Refunds",
+			name: translate("partner.statistics.supplyRefunds"),
+			stroke: theme.palette.warning.main,
+		},
+	];
 
 	const cards = useMemo(() => {
 		if (metrics === "loading") {
@@ -105,7 +149,7 @@ const StatisticsTab: React.FC = observer(() => {
 						))}
 					</Grid>
 
-					<Grid container spacing={2}>
+					<Stack spacing={2}>
 						{canHaveSales(partner.type) && (
 							<Grid size={{ xs: 12 }} key="sales-chart">
 								<Card>
@@ -114,8 +158,9 @@ const StatisticsTab: React.FC = observer(() => {
 											{translate("partner.statistics.salesOverTime")}
 										</Typography>
 										<TimeSeriesChart
-											data={metrics.salesOverTime}
+											data={salesData}
 											filter={selectedPartnerStore.dateFilter}
+											series={salesSeries}
 										/>
 									</CardContent>
 								</Card>
@@ -130,14 +175,15 @@ const StatisticsTab: React.FC = observer(() => {
 											{translate("partner.statistics.suppliesOverTime")}
 										</Typography>
 										<TimeSeriesChart
-											data={metrics.suppliesOverTime}
+											data={suppliesData}
 											filter={selectedPartnerStore.dateFilter}
+											series={suppliesSeries}
 										/>
 									</CardContent>
 								</Card>
 							</Grid>
 						)}
-					</Grid>
+					</Stack>
 				</>
 			)}
 		</Box>

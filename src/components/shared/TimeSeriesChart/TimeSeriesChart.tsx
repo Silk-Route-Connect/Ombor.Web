@@ -2,41 +2,41 @@ import React from "react";
 import { Box } from "@mui/material";
 import { parseISO } from "date-fns";
 import { getLocale } from "i18n/i18n";
-import { TimeSeriesPoint } from "models/dashboard";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
+import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DateFilter } from "utils/dateFilterUtils";
 import { formatShortNumber } from "utils/formatCurrency";
 
 interface TimeSeriesChartProps {
 	data: TimeSeriesPoint[];
 	filter: DateFilter;
+	series: TimeSeriesConfig[];
 }
 
-const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, filter }) => {
+const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, filter, series }) => {
 	const locale = getLocale();
-	const isPreset = filter.type === "preset";
-	const preset = isPreset ? filter.preset : null;
+	const preset = filter.type === "preset" ? filter.preset : null;
 
 	const tickFormatter = (dateStr: string) => {
 		const date = parseISO(dateStr);
-		const opts: Intl.DateTimeFormatOptions =
+		const formatOptions: Intl.DateTimeFormatOptions =
 			preset === "alltime" ? { month: "short" } : { day: "numeric", month: "short" };
-		return new Intl.DateTimeFormat(locale, opts).format(date);
+		return new Intl.DateTimeFormat(locale, formatOptions).format(date);
 	};
 
 	const labelFormatter = (dateStr: string) => {
 		const date = parseISO(dateStr);
-		const opts: Intl.DateTimeFormatOptions =
+		const formatOptions: Intl.DateTimeFormatOptions =
 			preset === "alltime"
 				? { month: "short", year: "numeric" }
 				: { day: "numeric", month: "short", year: "numeric" };
-		return new Intl.DateTimeFormat(locale, opts).format(date);
+		return new Intl.DateTimeFormat(locale, formatOptions).format(date);
 	};
 
 	return (
 		<Box>
 			<ResponsiveContainer width="100%" height={200}>
-				<LineChart data={data} margin={{ top: 20, right: 10, bottom: 0, left: 0 }}>
+				<LineChart data={data} margin={{ top: 20, right: 10, bottom: 10, left: 10 }}>
 					<XAxis
 						dataKey="date"
 						tickFormatter={tickFormatter}
@@ -48,7 +48,18 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, filter }) => {
 						formatter={(value) => formatShortNumber(value as number)}
 						labelFormatter={labelFormatter}
 					/>
-					<Line type="monotone" dataKey="value" dot={false} strokeWidth={2} />
+					<Legend />
+					{series.map((s) => (
+						<Line
+							key={s.dataKey}
+							dataKey={s.dataKey}
+							name={s.name}
+							stroke={s.stroke}
+							strokeDasharray={s.strokeDasharray}
+							dot={false}
+							strokeWidth={2}
+						/>
+					))}
 				</LineChart>
 			</ResponsiveContainer>
 		</Box>

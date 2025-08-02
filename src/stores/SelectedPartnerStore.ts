@@ -171,6 +171,28 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return { date: format(day, "yyyy-MM-dd"), value: dayTotal };
 		});
 
+		const saleRefundsOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const dayTotal = filtered
+				.filter((t) => t.type === "SaleRefund")
+				.filter((t) => {
+					const d = typeof t.date === "string" ? new Date(t.date) : t.date;
+					return isSameDay(d, day);
+				})
+				.reduce((sum, t) => sum + t.totalDue, 0);
+			return { date: format(day, "yyyy-MM-dd"), value: dayTotal };
+		});
+
+		const supplyRefundsOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const dayTotal = filtered
+				.filter((t) => t.type === "SupplyRefund")
+				.filter((t) => {
+					const d = typeof t.date === "string" ? new Date(t.date) : t.date;
+					return isSameDay(d, day);
+				})
+				.reduce((sum, t) => sum + t.totalDue, 0);
+			return { date: format(day, "yyyy-MM-dd"), value: dayTotal };
+		});
+
 		return {
 			totalSales,
 			totalSupplies,
@@ -181,6 +203,8 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			transactionCount,
 			refundCount,
 			outstandingCount,
+			saleRefundsOverTime,
+			supplyRefundsOverTime,
 		};
 	}
 
