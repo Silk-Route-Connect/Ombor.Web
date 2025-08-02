@@ -27,5 +27,18 @@
   "partner.validation.phoneNumbersMaxLimit":   "Максимум 5 номеров телефона",
 
   "partner.validation.maxBalance":             "Баланс не должен превышать 1 000 000 000",
-  "partner.validation.minBalance":             "Баланс не должен быть меньше -1 000 000 000"
+  "partner.validation.minBalance":             "Баланс не должен быть меньше -1 000 000 000",
+
+  "tabDashboard": "Dashboard",
+  "dashboard.totalSales": "Total Sales",
+  "dashboard.totalSupplies": "Total Supplies",
+  "dashboard.netChange": "Net Change",
+  "dashboard.overdueCount": "Overdue Count",
+
+  "partner.statistics.salesOverTime": "Динамика продаж",
+  "partner.statistics.suppliesOverTime": "Динамика поставок",
+  "partner.statistics.netBalance": "Баланс",
+  "partner.statistics.transactionsCount": "Кол.во транзакций",
+  "partner.statistics.refundsCount": "Кол.во возратов",
+  "partner.statistics.outstandingCount": "Кол.во долгов"
 }
