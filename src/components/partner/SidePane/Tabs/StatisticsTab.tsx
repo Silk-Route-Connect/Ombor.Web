@@ -1,87 +1,147 @@
-import React, { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import React, { useMemo } from "react";
+import { Box, Card, CardContent, CircularProgress, Grid, Typography } from "@mui/material";
+import DateFilterPicker from "components/shared/Date/DateFilterPicker";
+import TimeSeriesChart from "components/shared/TimeSeriesChart/TimeSeriesChart";
 import { translate } from "i18n/i18n";
-import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from "recharts";
+import { observer } from "mobx-react-lite";
+import { DashboardMetrics } from "models/dashboard";
 import { useStore } from "stores/StoreContext";
+import { DateFilter } from "utils/dateFilterUtils";
+import { canHaveSales, canHaveSupplies } from "utils/partnerUtils";
 
-export interface StatisticsTabProps {
-	partnerId: number;
+import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";
+
+type StatisticsCardKey = "netBalance" | "transactionsCount" | "refundsCount" | "outstandingCount";
+
+interface StatisticsCardDefinition {
+	key: StatisticsCardKey;
+	labelKey: `partner.statistics.${string}`;
+	getValue: (context: { partnerBalance: number; metrics: DashboardMetrics }) => string | number;
 }
 
-export interface MonthlyStat {
-	date: string;
-	totalDue: number;
-	totalPaid: number;
-}
+const CARD_DEFINITIONS: ReadonlyArray<StatisticsCardDefinition> = [
+	{
+		key: "netBalance",
+		labelKey: "partner.statistics.netBalance",
+		getValue: ({ partnerBalance }) => partnerBalance.toLocaleString(),
+	},
+	{
+		key: "transactionsCount",
+		labelKey: "partner.statistics.transactionsCount",
+		getValue: ({ metrics }) => metrics.transactionCount,
+	},
+	{
+		key: "refundsCount",
+		labelKey: "partner.statistics.refundsCount",
+		getValue: ({ metrics }) => metrics.refundCount,
+	},
+	{
+		key: "outstandingCount",
+		labelKey: "partner.statistics.outstandingCount",
+		getValue: ({ metrics }) => metrics.outstandingCount,
+	},
+];
 
-export interface SupplierStats {
-	monthly: MonthlyStat[];
-}
+const StatisticsTab: React.FC = observer(() => {
+	const { selectedPartnerStore, partnerStore } = useStore();
+	const partner = partnerStore.selectedPartner;
+	const metrics = selectedPartnerStore.dashboardMetrics;
 
-const StatisticsTab: React.FC<StatisticsTabProps> = ({ partnerId }) => {
-	const { selectedPartnerStore } = useStore();
-
-	useEffect(() => {
-		if (partnerId) {
-			selectedPartnerStore.getTransactions(null);
-		}
-	}, [partnerId, selectedPartnerStore]);
-
-	const stats = selectedPartnerStore.supplies; // either "loading" or SupplierStats
-
-	if (stats === "loading") {
-		return <Typography sx={{ p: 2 }}>{translate("loading")}…</Typography>;
+	if (!partner) {
+		return null;
 	}
 
-	const monthlyData: MonthlyStat[] = [];
+	const handleDateChange = (filter: DateFilter) => {
+		if (filter.type === "custom") {
+			selectedPartnerStore.setCustom(filter.from, filter.to);
+		} else {
+			selectedPartnerStore.setPreset(filter.preset);
+		}
+	};
+
+	const cards = useMemo(() => {
+		if (metrics === "loading") {
+			return CARD_DEFINITIONS.map((card) => ({
+				label: translate(card.labelKey),
+				value: "…",
+			}));
+		}
+
+		return CARD_DEFINITIONS.map((card) => ({
+			label: translate(card.labelKey),
+			value: card.getValue({
+				partnerBalance: partner.balance,
+				metrics,
+			}),
+		}));
+	}, [partner.balance, metrics]);
 
 	return (
 		<Box sx={{ p: 2 }}>
-			<Typography variant="subtitle2" gutterBottom>
-				{translate("chartDueVsPaid")}
-			</Typography>
-			<ResponsiveContainer width="100%" height={250}>
-				<LineChart data={monthlyData}>
-					<CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-					<XAxis dataKey="date" />
-					<YAxis />
-					<Tooltip />
-					<Line type="monotone" dataKey="totalDue" name={translate("totalDue")} stroke="#1976d2" />
-					<Line
-						type="monotone"
-						dataKey="totalPaid"
-						name={translate("totalPaid")}
-						stroke="#ff5722"
-					/>
-				</LineChart>
-			</ResponsiveContainer>
-
-			<Box sx={{ mt: 4 }}>
-				<Typography variant="subtitle2" gutterBottom>
-					{translate("chartMonthlyPayments")}
-				</Typography>
-				<ResponsiveContainer width="100%" height={250}>
-					<BarChart data={monthlyData}>
-						<CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-						<XAxis dataKey="date" />
-						<YAxis />
-						<Tooltip />
-						<Bar dataKey="totalPaid" name={translate("totalPaid")} fill="#1976d2" />
-					</BarChart>
-				</ResponsiveContainer>
+			<Box sx={TAB_DEFAULT_BODY_SX}>
+				<Box sx={{ flexGrow: 1, minWidth: 240 }}>
+					<DateFilterPicker value={selectedPartnerStore.dateFilter} onChange={handleDateChange} />
+				</Box>
 			</Box>
+
+			{metrics === "loading" && (
+				<Box sx={{ p: 2, textAlign: "center" }}>
+					<CircularProgress />
+				</Box>
+			)}
+
+			{metrics !== "loading" && (
+				<>
+					<Grid container spacing={2} sx={{ mb: 4 }}>
+						{cards.map((c, idx) => (
+							<Grid size={{ xs: 12, sm: 3 }} key={`${c.label}-${idx}`}>
+								<Card>
+									<CardContent>
+										<Typography variant="subtitle2">{c.label}</Typography>
+										<Typography variant="h6">{c.value}</Typography>
+									</CardContent>
+								</Card>
+							</Grid>
+						))}
+					</Grid>
+
+					<Grid container spacing={2}>
+						{canHaveSales(partner.type) && (
+							<Grid size={{ xs: 12 }} key="sales-chart">
+								<Card>
+									<CardContent>
+										<Typography variant="subtitle2">
+											{translate("partner.statistics.salesOverTime")}
+										</Typography>
+										<TimeSeriesChart
+											data={metrics.salesOverTime}
+											filter={selectedPartnerStore.dateFilter}
+										/>
+									</CardContent>
+								</Card>
+							</Grid>
+						)}
+
+						{canHaveSupplies(partner.type) && (
+							<Grid size={{ xs: 12 }} key="supplies-chart">
+								<Card>
+									<CardContent>
+										<Typography variant="subtitle2">
+											{translate("partner.statistics.suppliesOverTime")}
+										</Typography>
+										<TimeSeriesChart
+											data={metrics.suppliesOverTime}
+											filter={selectedPartnerStore.dateFilter}
+										/>
+									</CardContent>
+								</Card>
+							</Grid>
+						)}
+					</Grid>
+				</>
+			)}
 		</Box>
 	);
-};
+});
 
 export default StatisticsTab;

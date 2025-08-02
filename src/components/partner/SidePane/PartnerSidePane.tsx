@@ -72,7 +72,7 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 			{
 				key: "statistics",
 				label: () => translate("tabStatistics"),
-				render: ({ partner }) => <StatisticsTab partnerId={partner.id} />,
+				render: () => <StatisticsTab />,
 			},
 		],
 		[],
