@@ -19,28 +19,31 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, filter }) => {
 
 	const tickFormatter = (dateStr: string) => {
 		const date = parseISO(dateStr);
-		const formatOptions: Intl.DateTimeFormatOptions =
+		const opts: Intl.DateTimeFormatOptions =
 			preset === "alltime" ? { month: "short" } : { day: "numeric", month: "short" };
-
-		return new Intl.DateTimeFormat(locale, formatOptions).format(date);
+		return new Intl.DateTimeFormat(locale, opts).format(date);
 	};
 
 	const labelFormatter = (dateStr: string) => {
 		const date = parseISO(dateStr);
-		const formatOptions: Intl.DateTimeFormatOptions =
+		const opts: Intl.DateTimeFormatOptions =
 			preset === "alltime"
 				? { month: "short", year: "numeric" }
 				: { day: "numeric", month: "short", year: "numeric" };
-
-		return new Intl.DateTimeFormat(locale, formatOptions).format(date);
+		return new Intl.DateTimeFormat(locale, opts).format(date);
 	};
 
 	return (
 		<Box>
 			<ResponsiveContainer width="100%" height={200}>
-				<LineChart data={data} margin={{ top: 20, right: 20, bottom: 10, left: 0 }}>
-					<XAxis dataKey="date" tickFormatter={tickFormatter} tickMargin={10} />
-					<YAxis tickFormatter={(v) => formatShortNumber(v as number)} />
+				<LineChart data={data} margin={{ top: 20, right: 10, bottom: 0, left: 0 }}>
+					<XAxis
+						dataKey="date"
+						tickFormatter={tickFormatter}
+						tickMargin={10}
+						interval="preserveStartEnd"
+					/>
+					<YAxis width={80} tickFormatter={(v) => formatShortNumber(v as number)} />
 					<Tooltip
 						formatter={(value) => formatShortNumber(value as number)}
 						labelFormatter={labelFormatter}
