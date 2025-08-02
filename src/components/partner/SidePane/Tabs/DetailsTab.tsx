@@ -6,11 +6,11 @@ import { Partner } from "models/partner";
 import { formatNumberWithCommas } from "utils/formatCurrency";
 import { valueOrPlaceholder } from "utils/stringUtils";
 
-export interface DetailsTabProps {
+export interface PartnerDetailsTabProps {
 	partner: Partner;
 }
 
-const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
+const PartnerDetailsTab: React.FC<PartnerDetailsTabProps> = ({ partner }) => {
 	return (
 		<Box sx={{ p: 2 }}>
 			<Grid container spacing={2}>
@@ -33,7 +33,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
 					<Typography>{translate(`partner.type.${partner.type}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 6 }}>
-					<Typography variant="subtitle2">{translate("fieldEmail")}</Typography>
+					<Typography variant="subtitle2">{translate("partner.email")}</Typography>
+					<Typography>{valueOrPlaceholder(partner.email)}</Typography>
+				</Grid>
+				<Grid size={{ xs: 6 }}>
+					<Typography variant="subtitle2">{translate("partner.telegram")}</Typography>
 					<Typography>{valueOrPlaceholder(partner.email)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 12 }}>
@@ -49,4 +53,4 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
 	);
 };
 
-export default DetailsTab;
+export default PartnerDetailsTab;

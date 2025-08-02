@@ -3,6 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
+import { lastNDays, today } from "utils/dateUtils";
 
 import DetailsTab from "./Tabs/DetailsTab";
 import PaymentsTab from "./Tabs/PaymentsTab";
@@ -16,7 +17,7 @@ interface TabDescriptor {
 	key: TabKey;
 	hideFor?: Array<Partner["type"]>;
 	label: () => string;
-	render: (ctx: TabRenderContext) => React.ReactNode;
+	render: (context: TabRenderContext) => React.ReactNode;
 }
 
 interface TabRenderContext {
@@ -24,18 +25,6 @@ interface TabRenderContext {
 	fromDate: Date;
 	toDate: Date;
 	setDates: (from: Date, to: Date) => void;
-}
-
-function today(): Date {
-	const d = new Date();
-	d.setHours(0, 0, 0, 0);
-	return d;
-}
-
-function lastNDays(n: number): Date {
-	const d = today();
-	d.setDate(d.getDate() - n);
-	return d;
 }
 
 export interface PartnerSidePaneProps {
@@ -47,6 +36,7 @@ export interface PartnerSidePaneProps {
 const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClose }) => {
 	const [fromDate, setFromDate] = useState(() => lastNDays(7));
 	const [toDate, setToDate] = useState(() => today());
+	const [selectedTab, setSelectedTab] = useState<TabKey>("details");
 
 	useEffect(() => {
 		if (open && partner) {
@@ -55,7 +45,7 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 		}
 	}, [open, partner]);
 
-	const tabDescriptors: TabDescriptor[] = useMemo(
+	const tabs: TabDescriptor[] = useMemo(
 		() => [
 			{
 				key: "details",
@@ -89,21 +79,19 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 	);
 
 	const visibleTabs = useMemo(
-		() => (partner ? tabDescriptors.filter((t) => !t.hideFor?.includes(partner.type)) : []),
-		[partner, tabDescriptors],
+		() => (partner ? tabs.filter((t) => !t.hideFor?.includes(partner.type)) : []),
+		[partner, tabs],
 	);
 
-	const [selectedKey, setSelectedKey] = useState<TabKey>("details");
-
 	useEffect(() => {
-		if (!visibleTabs.some((t) => t.key === selectedKey)) {
-			setSelectedKey(visibleTabs[0]?.key ?? "details");
+		if (!visibleTabs.some((t) => t.key === selectedTab)) {
+			setSelectedTab(visibleTabs[0]?.key ?? "details");
 		}
-	}, [selectedKey, visibleTabs]);
+	}, [selectedTab, visibleTabs]);
 
-	const selectedIndex = visibleTabs.findIndex((t) => t.key === selectedKey);
+	const selectedIndex = visibleTabs.findIndex((t) => t.key === selectedTab);
 	const handleTabChange = (_: React.SyntheticEvent, index: number) =>
-		setSelectedKey(visibleTabs[index].key);
+		setSelectedTab(visibleTabs[index].key);
 
 	if (!partner) {
 		return null;
@@ -124,16 +112,16 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 				<Typography variant="h6" sx={{ flexGrow: 1 }}>
 					{partner.name}
 				</Typography>
-				<IconButton onClick={onClose} aria-label={translate("close")}>
+				<IconButton onClick={onClose} aria-label={translate("common.close")}>
 					<CloseIcon />
 				</IconButton>
 			</Box>
 
 			<Divider />
 
-			<Tabs value={selectedIndex} onChange={handleTabChange} aria-label="partner side pane tabs">
-				{visibleTabs.map((t) => (
-					<Tab key={t.key} label={t.label()} />
+			<Tabs value={selectedIndex} onChange={handleTabChange} aria-label={"common.sidepane"}>
+				{visibleTabs.map((tab) => (
+					<Tab key={tab.key} label={tab.label()} />
 				))}
 			</Tabs>
 
@@ -141,9 +129,9 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 				partner,
 				fromDate,
 				toDate,
-				setDates: (f, t) => {
-					setFromDate(f);
-					setToDate(t);
+				setDates: (from, to) => {
+					setFromDate(from);
+					setToDate(to);
 				},
 			})}
 		</Drawer>
