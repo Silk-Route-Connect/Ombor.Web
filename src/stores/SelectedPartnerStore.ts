@@ -1,7 +1,9 @@
+import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { DashboardMetrics, TimeSeriesPoint } from "models/dashboard";
 import { Partner } from "models/partner";
 import { Payment } from "models/payment";
 import { TransactionRecord, TransactionType } from "models/transaction";
@@ -21,6 +23,7 @@ export interface ISelectedPartnerStore {
 	payments: Loadable<Payment[]>;
 	payableDebts: Loadable<TransactionRecord[]>;
 	receivableDebts: Loadable<TransactionRecord[]>;
+	dashboardMetrics: Loadable<DashboardMetrics>;
 
 	/* current filter */
 	readonly dateFilter: DateFilter;
@@ -96,6 +99,91 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		return this.openTransactions.filter((el) => el.type === "Supply" || el.type === "SaleRefund");
 	}
 
+	get dashboardMetrics(): Loadable<DashboardMetrics> {
+		if (this.allTransactions === "loading") {
+			return "loading";
+		}
+		const filtered = this.applyFilter(this.allTransactions);
+		if (filtered === "loading") {
+			return "loading";
+		}
+
+		// 1. Split by type
+		const sales = filtered.filter((t) => t.type === "Sale");
+		const supplies = filtered.filter((t) => t.type === "Supply");
+		const refunds = filtered.filter((t) => t.type === "SaleRefund" || t.type === "SupplyRefund");
+
+		// 2. Core KPIs
+		const totalSales = sales.reduce((sum, t) => sum + t.totalDue, 0);
+		const totalSupplies = supplies.reduce((sum, t) => sum + t.totalDue, 0);
+		const netChange = totalSales - totalSupplies;
+		const overdueCount = filtered.filter((t) => t.status === "Overdue").length;
+		const transactionCount = sales.length + supplies.length;
+		const refundCount = refunds.length;
+
+		// 3. Outstanding = openTransactions filtered by date
+		let outstandingCount = 0;
+		if (this.openTransactions !== "loading") {
+			const openFiltered = this.applyFilter(this.openTransactions);
+			if (openFiltered !== "loading") {
+				outstandingCount = openFiltered.length;
+			}
+		}
+
+		// 4. Determine date range for sparklines
+		const { from, to } = materialise(this.dateFilter);
+		const endDate = to ?? new Date();
+		let startDate: Date;
+
+		if (this.dateFilter.type === "preset" && this.dateFilter.preset === "week") {
+			startDate = subDays(endDate, 6);
+		} else {
+			// earliest transaction or `from`
+			const dates = filtered
+				.map((t) => (typeof t.date === "string" ? new Date(t.date) : t.date))
+				.sort((a, b) => a.getTime() - b.getTime());
+			startDate = from ?? dates[0] ?? endDate;
+		}
+		if (startDate > endDate) {
+			startDate = endDate;
+		}
+
+		const days = eachDayOfInterval({ start: startDate, end: endDate });
+
+		// 5. Build time series
+		const salesOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const dayTotal = sales
+				.filter((t) => {
+					const d = typeof t.date === "string" ? new Date(t.date) : t.date;
+					return isSameDay(d, day);
+				})
+				.reduce((sum, t) => sum + t.totalDue, 0);
+			return { date: format(day, "yyyy-MM-dd"), value: dayTotal };
+		});
+
+		const suppliesOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const dayTotal = supplies
+				.filter((t) => {
+					const d = typeof t.date === "string" ? new Date(t.date) : t.date;
+					return isSameDay(d, day);
+				})
+				.reduce((sum, t) => sum + t.totalDue, 0);
+			return { date: format(day, "yyyy-MM-dd"), value: dayTotal };
+		});
+
+		return {
+			totalSales,
+			totalSupplies,
+			netChange,
+			overdueCount,
+			salesOverTime,
+			suppliesOverTime,
+			transactionCount,
+			refundCount,
+			outstandingCount,
+		};
+	}
+
 	setPreset(preset: PresetOption) {
 		this.dateFilter = { type: "preset", preset };
 	}
@@ -156,10 +244,16 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 
 	private isWithin(dateIso: string | Date, filter: DateFilter): boolean {
 		const { from, to } = materialise(filter);
-		const d = typeof dateIso === "string" ? new Date(dateIso) : dateIso;
+		const date = typeof dateIso === "string" ? new Date(dateIso) : dateIso;
 
-		if (from && d < from) return false;
-		if (to && d > to) return false;
+		if (from && date < from) {
+			return false;
+		}
+
+		if (to && date > to) {
+			return false;
+		}
+
 		return true;
 	}
 

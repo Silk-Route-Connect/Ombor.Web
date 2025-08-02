@@ -1,4 +1,4 @@
-import { Partner } from "models/partner";
+import { Partner, PartnerType } from "models/partner";
 import { PartnerFormInputs } from "schemas/PartnerSchema";
 
 export const PARTNER_TYPES = ["Customer", "Supplier", "Both"] as const;
@@ -41,3 +41,7 @@ export const mapPartnerToFormPayload = (partner: Partner): PartnerFormInputs => 
 // empty array should be '[""]' instead of []
 // to render initial empty phone number input field
 const mapPhoneNumbers = (phoneNumbers: string[]) => (phoneNumbers.length > 1 ? phoneNumbers : [""]);
+
+export const canHaveSales = (type: PartnerType) => type === "Customer" || type === "Both";
+
+export const canHaveSupplies = (type: PartnerType) => type === "Supplier" || type === "Both";

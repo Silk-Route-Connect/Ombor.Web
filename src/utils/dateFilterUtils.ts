@@ -2,7 +2,7 @@
    DATE-FILTER MODEL  (single source of truth for all date filtering)
    ========================================================================== */
 
-export type PresetOption = "week" | "month" | "all";
+export type PresetOption = "week" | "month" | "alltime";
 
 /** Discriminated-union that makes “custom” mutually exclusive with “preset”. */
 export type DateFilter =
@@ -26,7 +26,7 @@ export function materialise(filter: DateFilter, today = new Date()): Bounds {
 			return { from: addDays(d0, -7), to: d0 };
 		case "month":
 			return { from: addMonths(d0, -1), to: d0 };
-		case "all":
+		case "alltime":
 			return { from: null, to: null };
 	}
 }
