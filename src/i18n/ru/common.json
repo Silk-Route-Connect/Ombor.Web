@@ -96,5 +96,10 @@
   "topbar.language": "Язык",
   "topbar.account": "Аккаунт",
   "topbar.settings": "Настройки",
-  "topbar.logout": "Выход"
+  "topbar.logout": "Выход",
+
+  
+  "common.number.thousandShort": "тыс",
+  "common.number.millionShort": "млн",
+  "common.number.billionShort": "млрд"
 }

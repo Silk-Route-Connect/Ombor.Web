@@ -54,6 +54,10 @@ const messages: MessagesMap = {
 
 let currentLocale: Locale = "ru";
 
+export function getLocale(): Locale {
+	return currentLocale;
+}
+
 /**
  * Switch the current locale.
  * @param locale "ru" | "uz"
