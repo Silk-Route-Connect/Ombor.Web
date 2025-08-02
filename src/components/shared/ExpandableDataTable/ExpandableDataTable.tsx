@@ -65,6 +65,7 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	canExpand?: (row: T) => boolean;
 	className?: string;
 	expandedMaxHeight?: number;
+	tableLayout?: "auto" | "fixed";
 }
 
 export function ExpandableDataTable<T extends { id: string | number }>({
@@ -78,6 +79,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	canExpand,
 	className,
 	expandedMaxHeight = 300,
+	tableLayout = "auto",
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const theme = useTheme();
 	const [page, setPage] = useState(0);
@@ -188,10 +190,10 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	const hasNoData = totalRows === 0 && rows !== "loading";
 	return (
 		<TableContainer component={Paper} elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
-			<Table stickyHeader size="small">
+			<Table stickyHeader size="small" sx={{ tableLayout: tableLayout, width: "100%" }}>
 				<TableHead sx={HEADER_CONTAINER_SX}>
 					<TableRow>
-						{renderExpanded && <TableCell padding="checkbox" sx={HEADER_CELL_SX} />}
+						{renderExpanded && <TableCell padding="checkbox" sx={{ ...HEADER_CELL_SX }} />}
 						{columns.map((col) => (
 							<TableCell
 								key={col.key}
