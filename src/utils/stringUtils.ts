@@ -1,3 +1,5 @@
+import { translate } from "i18n/i18n";
+
 export function formatNotes(notes?: string | null, count: number = 30): string {
 	if (!notes) {
 		return "--";
@@ -18,9 +20,9 @@ export function isNullOrWhitespace(str?: string | null): boolean {
 	return str.trim().length === 0;
 }
 
-export function valueOrPlaceholder(value?: string | null, placeholder: string = "——"): string {
+export function valueOrPlaceholder(value?: string | null, placeholder?: string): string {
 	if (!value || value.trim().length === 0) {
-		return placeholder;
+		return placeholder ?? translate("common.dash");
 	}
 
 	return value;
