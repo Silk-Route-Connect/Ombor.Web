@@ -89,11 +89,11 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 	}
 
 	get payableDebts(): Loadable<TransactionRecord[]> {
-		if (this.openTransactions === "loading") {
+		if (this.allTransactions === "loading") {
 			return "loading";
 		}
 
-		return this.openTransactions.filter((el) => el.type === "Sale" || el.type === "SupplyRefund");
+		return this.allTransactions.filter((el) => el.status !== "Open");
 	}
 
 	get receivableDebts(): Loadable<TransactionRecord[]> {
