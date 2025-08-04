@@ -39,6 +39,10 @@ const PayDebtsModal: React.FC<Props> = observer(
 		const { selectedPartnerStore } = useStore();
 		const debts: Loadable<TransactionRecord[]> = selectedPartnerStore.openTransactions;
 
+		useEffect(() => {
+			selectedPartnerStore.getTransactions("Sale");
+		});
+
 		const baseRows = useMemo<PayDebtRow[]>(() => {
 			if (debts === "loading") return [];
 			return debts.map((d) => ({

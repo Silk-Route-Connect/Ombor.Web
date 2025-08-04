@@ -53,7 +53,7 @@ const TransactionHeader: React.FC<TransactionHeaderProps> = ({
 			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
 				<PartnerAutocomplete
 					value={selectedPartner}
-					type="Supplier"
+					type={mode === "Sale" ? "Customer" : "Supplier"}
 					size="small"
 					onChange={onPartnerChange}
 				/>

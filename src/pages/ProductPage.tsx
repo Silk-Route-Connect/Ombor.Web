@@ -20,7 +20,7 @@ const ProductPage: React.FC = observer(() => {
 	const { productStore, categoryStore } = useStore();
 
 	useEffect(() => {
-		categoryStore.loadCategories();
+		categoryStore.getAll();
 		productStore.loadProducts();
 	}, [categoryStore, productStore]);
 

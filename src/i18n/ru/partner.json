@@ -5,5 +5,44 @@
   "partner.partnerAdvance": "Аванс партнёра",
   "partner.companyAdvance": "Аванс компании",
   "partner.payableDebt": "Долг партнёра",
-  "partner.receivableDebt": "Долг компании"
+  "partner.receivableDebt": "Долг компании",
+  "partner.telegram": "Телеграм аккаунт",
+
+  "partner.isActive": "Активен",
+
+  "partner.title.create": "Добавить партнёра",
+  "partner.title.edit": "Редактировать партнёра",
+
+  "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {{partnerName}}?",
+
+  "partner.validation.nameRequired":           "Имя должно содержать минимум 2 символа",
+  "partner.validation.nameTooLong":            "Имя не должно превышать 100 символов",
+
+  "partner.validation.companyNameTooLong":     "Название компании не должно превышать 100 символов",
+  "partner.validation.addressTooLong":         "Адрес не должен превышать 200 символов",
+
+  "partner.validation.invalidEmail":           "Некорректный формат почты",
+
+  "partner.validation.phoneNumbersInvalid":    "Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов",
+  "partner.validation.phoneNumbersMaxLimit":   "Максимум 5 номеров телефона",
+
+  "partner.validation.maxBalance":             "Баланс не должен превышать 1 000 000 000",
+  "partner.validation.minBalance":             "Баланс не должен быть меньше -1 000 000 000",
+
+  "tabDashboard": "Dashboard",
+  "dashboard.totalSales": "Total Sales",
+  "dashboard.totalSupplies": "Total Supplies",
+  "dashboard.netChange": "Net Change",
+  "dashboard.overdueCount": "Overdue Count",
+
+  "partner.statistics.salesOverTime": "Динамика продаж",
+  "partner.statistics.suppliesOverTime": "Динамика поставок",
+  "partner.statistics.netBalance": "Баланс",
+  "partner.statistics.transactionsCount": "Кол.во транзакций",
+  "partner.statistics.refundsCount": "Кол.во возратов",
+  "partner.statistics.outstandingCount": "Кол.во долгов",
+  "partner.statistics.sales": "Продажи",
+  "partner.statistics.saleRefunds": "Возврат продаж",
+  "partner.statistics.supplies": "Поставки",
+  "partner.statistics.supplyRefunds": "Возврат поставок"
 }

@@ -42,7 +42,7 @@ export interface ITransactionStore {
 	setFilterStatus(status?: TransactionStatus | null): void;
 	setFilterPartner(partnerId?: number | null): void;
 	setSort(field: keyof TransactionRecord, order: SortOrder): void;
-	setCurrentTransaction(id: number | null): void;
+	setSelectedTransaction(id: number | null): void;
 }
 
 export class TransactionStore implements ITransactionStore {
@@ -223,7 +223,7 @@ export class TransactionStore implements ITransactionStore {
 		this.sortOrder = order;
 	}
 
-	setCurrentTransaction(transactionId: number | null): void {
+	setSelectedTransaction(transactionId: number | null): void {
 		if (transactionId === null) {
 			this.currentTransaction = null;
 			return;

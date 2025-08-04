@@ -14,9 +14,23 @@ import supplierUz from "./uz/supplier.json";
 import supplyUz from "./uz/supply.json";
 import templateUz from "./uz/template.json";
 
+/**
+ * Supported locales for translations.
+ * Currently supports "ru" (Russian) and "uz" (Uzbek).
+ * Extend this type if you add more locales.
+ */
 export type Locale = "ru" | "uz";
 
-const messages: Record<Locale, Record<string, string>> = {
+/**
+ * Runtime parameters that can be injected into the translation string.
+ * Numeric values are converted to strings. If you need richer types,
+ * extend this union.
+ */
+export type InterpolationParams = Record<string, string | number>;
+
+type MessagesMap<T extends string = string> = Record<Locale, Record<string, T>>;
+
+const messages: MessagesMap = {
 	ru: {
 		...categoryRu,
 		...productRu,
@@ -28,14 +42,25 @@ const messages: Record<Locale, Record<string, string>> = {
 		...paymentRu,
 		...partnerRu,
 	},
-	uz: { ...categoryUz, ...productUz, ...supplierUz, ...supplyUz, ...commonUz, ...templateUz },
+	uz: {
+		...categoryUz,
+		...productUz,
+		...supplierUz,
+		...supplyUz,
+		...commonUz,
+		...templateUz,
+	},
 };
 
 let currentLocale: Locale = "ru";
 
+export function getLocale(): Locale {
+	return currentLocale;
+}
+
 /**
  * Switch the current locale.
- * @param locale one of "ru" | "uz"
+ * @param locale "ru" | "uz"
  */
 export function setLocale(locale: Locale) {
 	if (messages[locale]) {
@@ -46,13 +71,26 @@ export function setLocale(locale: Locale) {
 }
 
 /**
- * Translate a key to the current locale.
- * Falls back to the key itself if no translation is found.
- * @param key the translation key, e.g. "createProductSuccess"
+ * Translate a key into the current locale. Supports {{placeholders}}.
+ *
+ * @example
+ * translate("category.deleteConfirmationTitle",
+ *           { categoryName: "Фрукты" });
  */
-export function translate(key: string): string {
-	const localeMessages = messages[currentLocale];
-	return localeMessages[key] ?? key;
+export function translate(key: string, params?: InterpolationParams): string {
+	const template = messages[currentLocale][key] ?? key;
+
+	if (!params || template.indexOf("{{") === -1) {
+		return template;
+	}
+
+	return template.replace(/{{\s*(\w+)\s*}}/g, (_, token: string) => {
+		if (Object.hasOwn(params, token)) {
+			return String(params[token]);
+		}
+
+		return "";
+	});
 }
 
 /**

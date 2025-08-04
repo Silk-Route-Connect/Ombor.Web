@@ -5,7 +5,7 @@ import {
 	CreatePartnerRequest,
 	GetPartnersRequest,
 	Partner,
-	UpdateParatnerRequest,
+	UpdatePartnerRequest,
 } from "../../models/partner";
 import BaseApi from "./BaseApi";
 import http from "./http";
@@ -57,7 +57,7 @@ class PartnerApi extends BaseApi {
 		return response.data;
 	}
 
-	async update(request: UpdateParatnerRequest): Promise<Partner> {
+	async update(request: UpdatePartnerRequest): Promise<Partner> {
 		const url = this.getUrlWithId(request.id);
 		const response = await http.put<Partner>(url, request);
 

@@ -1,3 +1,5 @@
+import { SortOrder } from "components/shared/DataTable/DataTable";
+import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -6,123 +8,102 @@ import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../model
 import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
 
+type DialogMode =
+	| { type: "form"; category?: Category }
+	| { type: "delete"; category: Category }
+	| { type: "none" };
+
 export interface ICategoryStore {
 	allCategories: Loadable<Category[]>;
 	filteredCategories: Loadable<Category[]>;
 	selectedCategory: Category | null;
-	searchQuery: string;
-	isFormModalOpen: boolean;
 
-	search(query: string): void;
-	sort(field: keyof Category, order: "asc" | "desc"): void;
-	loadCategories(): Promise<void>;
-	createCategory(category: CreateCategoryRequest): Promise<void>;
-	updateCategory(category: UpdateCategoryRequest): Promise<void>;
-	deleteCategory(id: number): Promise<void>;
+	searchTerm: string;
+	sortField: keyof Category | null;
+	sortOrder: SortOrder;
+	isSaving: boolean;
+	dialogMode: DialogMode;
+
+	// actions
+	getAll(): Promise<void>;
+	create(category: CreateCategoryRequest): Promise<void>;
+	update(category: UpdateCategoryRequest): Promise<void>;
+	delete(id: number): Promise<void>;
+
+	// setters for filters & sorting
+	setSearch(query: string): void;
+	setSort(field: keyof Category, order: "asc" | "desc"): void;
+
+	// UI dialog helper methods
+	openCreate(): void;
+	openEdit(category: Category): void;
+	openDelete(category: Category): void;
+	closeDialog(): void;
 }
 
 export class CategoryStore implements ICategoryStore {
+	private readonly notificationStore: NotificationStore;
+
 	allCategories: Loadable<Category[]> = [];
 	selectedCategory: Category | null = null;
-	searchQuery = "";
-	isFormModalOpen = false;
-
-	private readonly notificationStore: NotificationStore;
+	searchTerm = "";
+	sortField: keyof Category | null = null;
+	sortOrder: SortOrder = "asc";
+	isSaving: boolean = false;
+	dialogMode: DialogMode = { type: "none" };
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
-		if (this.allCategories === "loading") {
-			return "loading";
-		}
+		const filtered = this.applySearch(this.allCategories);
 
-		if (!this.searchQuery) {
-			return this.allCategories;
-		}
-
-		if (this.allCategories.length === 0) {
-			return [];
-		}
-
-		const query = this.searchQuery.toLowerCase();
-
-		return this.allCategories.filter(
-			(category) =>
-				category.name.toLowerCase().includes(query) ||
-				category.description?.toLowerCase().includes(query),
-		);
+		return this.applySort(filtered);
 	}
 
-	search(query: string) {
-		this.searchQuery = query;
-	}
-
-	sort(field: keyof Category, order: "asc" | "desc") {
+	async getAll() {
 		if (this.allCategories === "loading") {
 			return;
 		}
 
-		const sorted = [...this.allCategories].sort((a, b) => {
-			const aVal = a[field] ?? "";
-			const bVal = b[field] ?? "";
+		runInAction(() => (this.allCategories = "loading"));
 
-			if (aVal < bVal) {
-				return order === "asc" ? -1 : 1;
-			}
-
-			if (aVal > bVal) {
-				return order === "asc" ? 1 : -1;
-			}
-
-			return 0;
-		});
-
-		runInAction(() => (this.allCategories = sorted));
-	}
-
-	async loadCategories() {
-		this.allCategories = "loading";
-		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchQuery }));
+		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchTerm }));
 
 		if (result.status === "fail") {
-			this.allCategories = [];
-			this.notificationStore.error(translate("loadCategoriesError") + `: ${result.error}`);
-			return;
+			this.notificationStore.error(translate("category.error.load") + `: ${result.error}`);
 		}
 
-		this.allCategories = result.data;
+		const data = result.status === "success" ? result.data : [];
+		runInAction(() => (this.allCategories = data));
 	}
 
-	async createCategory(request: CreateCategoryRequest): Promise<void> {
-		const result = await tryRun(() => CategoryApi.create(request));
+	async create(request: CreateCategoryRequest): Promise<void> {
+		const result = await withSaving(this, () => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("createCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.create"));
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
+			if (this.allCategories !== "loading") {
+				this.allCategories = [result.data, ...this.allCategories];
 			}
-
-			this.allCategories = [result.data, ...this.allCategories];
-			this.selectedCategory = result.data;
-			this.isFormModalOpen = false;
 		});
 
-		this.notificationStore.success(translate("createCategorySuccess"));
+		this.closeDialog();
+		this.notificationStore.success(translate("category.success.create"));
 	}
 
-	async updateCategory(request: UpdateCategoryRequest): Promise<void> {
-		const result = await tryRun(() => CategoryApi.update(request));
+	async update(request: UpdateCategoryRequest): Promise<void> {
+		const result = await withSaving(this, () => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("updateCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.update"));
 			return;
 		}
 
@@ -134,18 +115,17 @@ export class CategoryStore implements ICategoryStore {
 			this.allCategories = this.allCategories.map((category) =>
 				category.id === result.data.id ? result.data : category,
 			);
-			this.selectedCategory = result.data;
-			this.isFormModalOpen = false;
 		});
 
-		this.notificationStore.success(translate("updateCategorySuccess"));
+		this.closeDialog();
+		this.notificationStore.success(translate("category.success.update"));
 	}
 
-	async deleteCategory(id: number): Promise<void> {
-		const result = await tryRun(() => CategoryApi.delete(id));
+	async delete(id: number): Promise<void> {
+		const result = await withSaving(this, () => CategoryApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("deleteCategoryError") + `: ${result.error}`);
+			this.notificationStore.error(translate("category.error.delete"));
 			return;
 		}
 
@@ -155,10 +135,73 @@ export class CategoryStore implements ICategoryStore {
 			}
 
 			this.allCategories = this.allCategories.filter((category) => category.id !== id);
-			this.selectedCategory = null;
 		});
 
-		this.notificationStore.success(translate("deleteCategorySuccess"));
+		this.closeDialog();
+		this.notificationStore.success(translate("category.success.delete"));
+	}
+
+	setSearch(query: string) {
+		this.searchTerm = query;
+	}
+
+	setSort(field: keyof Category, order: "asc" | "desc") {
+		this.sortField = field;
+		this.sortOrder = order;
+	}
+
+	openCreate() {
+		this.selectedCategory = null;
+		this.dialogMode = { type: "form" };
+	}
+
+	openEdit(category: Category) {
+		this.selectedCategory = category;
+		this.dialogMode = { type: "form", category };
+	}
+
+	openDelete(category: Category) {
+		this.selectedCategory = category;
+		this.dialogMode = { type: "delete", category };
+	}
+
+	closeDialog() {
+		this.selectedCategory = null;
+		this.dialogMode = { type: "none" };
+	}
+
+	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
+		if (data === "loading" || !this.searchTerm) {
+			return data;
+		}
+
+		const query = this.searchTerm.toLowerCase();
+
+		return data.filter(
+			(category) =>
+				category.name.toLowerCase().includes(query) ||
+				(category.description?.toLowerCase().includes(query) ?? false),
+		);
+	}
+
+	private applySort(data: Loadable<Category[]>): Loadable<Category[]> {
+		if (data === "loading" || !this.sortField) {
+			return data;
+		}
+
+		const field = this.sortField;
+		const asc = this.sortOrder === "asc" ? 1 : -1;
+
+		return [...data].sort((a, b) => {
+			const aValue = a[field] ?? "";
+			const bValue = b[field] ?? "";
+
+			if (typeof aValue === "number" && typeof bValue === "number") {
+				return asc * (aValue - bValue);
+			}
+
+			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
+		});
 	}
 }
 

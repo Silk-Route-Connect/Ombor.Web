@@ -11,7 +11,7 @@
   "transaction.Sale.createTitle": "Добавить продажу",
   "transaction.Supply.createTitle": "Добавить поставку",
   "transaction.date": "Дата",
-  "transaction.totalDue": "Общая сумма",
+  "transaction.totalDue": "Сумма",
   "transaction.totalPaid": "Оплачено",
   "transaction.notes": "Комментарии",
   "transactions.suppliesHeader": "Поставки",
@@ -71,5 +71,7 @@
   "payment.saveAsAdvance": "Сохранить как аванс",
   "payment.advancePayment": "Авансовый платёж",
   "payDebts.paidDebt": "Оплата долгов",
-  "payment.mustUseBalanceWarning": "У партнёра есть доступный баланс. Он должен быть использован перед оформлением долга."
+  "payment.mustUseBalanceWarning": "У партнёра есть доступный баланс. Он должен быть использован перед оформлением долга.",
+  "transaction.partner": "Партнёр",
+  "transaction.unpaid": "Неоплачено"
 }
