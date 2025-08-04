@@ -13,7 +13,7 @@
   "partner.title.create": "Добавить партнёра",
   "partner.title.edit": "Редактировать партнёра",
 
-  "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {partnerName}?",
+  "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {{partnerName}}?",
 
   "partner.validation.nameRequired":           "Имя должно содержать минимум 2 символа",
   "partner.validation.nameTooLong":            "Имя не должно превышать 100 символов",
