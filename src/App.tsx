@@ -5,9 +5,8 @@ import CreateTransactionPage from "pages/CreateTransactionPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
 import ProductPage from "pages/ProductPage";
-import SalePage from "pages/SalePage";
-import SupplyPage from "pages/SupplyPage";
 import TemplatePage from "pages/TemplatePage";
+import TransactionPage from "pages/TransactionPage";
 
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
@@ -42,8 +41,8 @@ function App() {
 							<Route path="categories" element={<CategoryPage />} />
 							<Route path="products" element={<ProductPage />} />
 							<Route path="partners" element={<PartnerPage />} />
-							<Route path="supplies" element={<SupplyPage />} />
-							<Route path="sales" element={<SalePage />} />
+							<Route path="supplies" element={<TransactionPage mode="Supply" />} />
+							<Route path="sales" element={<TransactionPage mode="Sale" />} />
 							<Route path="templates" element={<TemplatePage />} />
 							<Route path="payments" element={<PaymentPage />} />
 							<Route path="new/sales" element={<CreateTransactionPage mode="Sale" />} />
