@@ -7,7 +7,6 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateFilterUtils";
 
-import SupplyItemsTable from "../../Table/SupplyItemsTable";
 import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";
 
 interface SalesTabProps {
@@ -45,12 +44,7 @@ const SalesTab: React.FC<SalesTabProps> = observer(({ partnerId }) => {
 				<DownloadButton onDownload={handleDownload} />
 			</Box>
 
-			<TransactionsTable
-				rows={selectedPartnerStore.sales}
-				pagination
-				mode="compact"
-				renderExpanded={(sale) => <SupplyItemsTable items={sale.lines} />}
-			/>
+			<TransactionsTable rows={selectedPartnerStore.sales} pagination mode="compact" />
 		</Box>
 	);
 });
