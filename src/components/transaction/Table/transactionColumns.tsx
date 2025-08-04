@@ -9,7 +9,7 @@ import { formatDateTime } from "utils/dateUtils";
 import { formatNotes } from "utils/stringUtils";
 import { formatPrice } from "utils/supplyUtils";
 
-import TransactionMenuCell from "./MenuCell/TransactionMenuCell";
+export type TableMode = "full" | "compact";
 
 export type TransactionColumn =
 	| "id"
@@ -19,16 +19,41 @@ export type TransactionColumn =
 	| "totalPaid"
 	| "unpaidAmount"
 	| "status"
-	| "notes"
-	| "menu";
+	| "notes";
 
-type ColumnBuilder = (width?: string, mode?: "full" | "compact") => Column<TransactionRecord>;
+export type ColumnBuilder = (mode: "full" | "compact") => Column<TransactionRecord>;
 
-export const transactionColumns: Record<TransactionColumn, ColumnBuilder> = {
-	id: (width, mode) => ({
+const CURRENCY_COLUMN_WIDTH = "clamp(150px, 20%, 170px)";
+
+export const TRANSACTION_COLUMN_WIDTHS: Record<
+	TableMode,
+	Partial<Record<TransactionColumn, string>>
+> = {
+	full: {
+		id: "clamp(60px, 10%, 120px)",
+		date: "clamp(80px, 10%, 100px)",
+		partnerName: "clamp(80px, 10%, 100px)",
+		totalDue: CURRENCY_COLUMN_WIDTH,
+		totalPaid: CURRENCY_COLUMN_WIDTH,
+		unpaidAmount: CURRENCY_COLUMN_WIDTH,
+		status: "clamp(90px, 10%, 120px)",
+		notes: "auto",
+	},
+
+	compact: {
+		id: "clamp(80px, 25%,  100px)",
+		date: "clamp(80px, 25%, 100px)",
+		totalDue: CURRENCY_COLUMN_WIDTH,
+		totalPaid: CURRENCY_COLUMN_WIDTH,
+		status: "clamp(100px, 15%, 130px)",
+	},
+};
+
+export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder> = {
+	id: (mode) => ({
 		key: "id",
 		field: "id",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["id"],
 		headerName: translate("transaction.id"),
 		renderCell: (transaction) =>
 			mode === "full" ? (
@@ -40,57 +65,63 @@ export const transactionColumns: Record<TransactionColumn, ColumnBuilder> = {
 			),
 	}),
 
-	date: (width) => ({
+	date: (mode) => ({
 		key: "date",
 		field: "date",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["date"],
 		headerName: translate("fieldDate"),
 		align: "left",
+		sortable: true,
 		renderCell: (transaction) => formatDateTime(transaction.date),
 	}),
 
-	partnerName: (width) => ({
+	partnerName: (mode) => ({
 		key: "partnerName",
 		field: "partnerName",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["partnerName"],
 		headerName: translate("transaction.partner"),
+		sortable: true,
 		renderCell: (transaction) => (
 			<PartnerLink id={transaction.partnerId} name={transaction.partnerName} />
 		),
 	}),
 
-	totalDue: (width) => ({
+	totalDue: (mode) => ({
 		key: "totalDue",
 		field: "totalDue",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["totalDue"],
 		headerName: translate("transaction.totalDue"),
 		align: "right",
+		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalDue),
 	}),
 
-	totalPaid: (width) => ({
+	totalPaid: (mode) => ({
 		key: "totalPaid",
 		field: "totalPaid",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["totalPaid"],
 		headerName: translate("transaction.totalPaid"),
 		align: "right",
+		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalPaid),
 	}),
 
-	unpaidAmount: (width) => ({
+	unpaidAmount: (mode) => ({
 		key: "unpaidAmount",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["unpaidAmount"],
 		headerName: translate("transaction.unpaid"),
 		align: "right",
+		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalDue - transaction.totalPaid),
 	}),
 
-	status: (width) => ({
+	status: (mode) => ({
 		key: "status",
 		field: "status",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["status"],
 		headerName: translate("transaction.status"),
 		align: "center",
+		sortable: true,
 		renderCell: (transaction) => (
 			<Chip
 				size="small"
@@ -101,24 +132,11 @@ export const transactionColumns: Record<TransactionColumn, ColumnBuilder> = {
 		),
 	}),
 
-	notes: (width) => ({
+	notes: (mode) => ({
 		key: "notes",
 		field: "notes",
-		width: width,
+		width: TRANSACTION_COLUMN_WIDTHS[mode]["notes"],
 		headerName: translate("transaction.notes"),
 		renderCell: (transaction) => formatNotes(transaction.notes),
-	}),
-
-	menu: (width) => ({
-		key: "menu",
-		width: width,
-		headerName: "",
-		renderCell: (transaction) => (
-			<TransactionMenuCell
-				fullyPaid={transaction.status === "Open"}
-				onPayment={() => {}}
-				onRefund={() => {}}
-			/>
-		),
 	}),
 };
