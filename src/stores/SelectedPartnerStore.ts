@@ -142,6 +142,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 				.sort((a, b) => a.getTime() - b.getTime());
 			startDate = from ?? dates[0] ?? endDate;
 		}
+
 		if (startDate > endDate) {
 			startDate = endDate;
 		}
@@ -190,6 +191,37 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return { date: format(day, DATE_FORMAT), value: dayTotal };
 		});
 
+		const transactionsOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const count = filtered.filter(
+				(t) =>
+					(t.type === "Sale" || t.type === "Supply") &&
+					isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
+			).length;
+			return { date: format(day, DATE_FORMAT), value: count };
+		});
+
+		// 2. REFUNDS count per day (SaleRefund + SupplyRefund)
+		const refundsOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const count = filtered.filter(
+				(t) =>
+					(t.type === "SaleRefund" || t.type === "SupplyRefund") &&
+					isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
+			).length;
+			return { date: format(day, DATE_FORMAT), value: count };
+		});
+
+		let openList: TransactionRecord[] = [];
+		if (this.openTransactions !== "loading") {
+			const of = this.applyFilter(this.openTransactions);
+			if (of !== "loading") openList = of;
+		}
+		const debtsOverTime: TimeSeriesPoint[] = days.map((day) => {
+			const count = openList.filter((t) =>
+				isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
+			).length;
+			return { date: format(day, DATE_FORMAT), value: count };
+		});
+
 		return {
 			totalSales,
 			totalSupplies,
@@ -202,6 +234,9 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			outstandingCount,
 			saleRefundsOverTime,
 			supplyRefundsOverTime,
+			transactionsOverTime,
+			refundsOverTime,
+			debtsOverTime,
 		};
 	}
 

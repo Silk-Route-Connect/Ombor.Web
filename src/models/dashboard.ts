@@ -22,4 +22,7 @@ export type DashboardMetrics = {
 	saleRefundsOverTime: TimeSeriesPoint[];
 	suppliesOverTime: TimeSeriesPoint[];
 	supplyRefundsOverTime: TimeSeriesPoint[];
+	transactionsOverTime: TimeSeriesPoint[];
+	refundsOverTime: TimeSeriesPoint[];
+	debtsOverTime: TimeSeriesPoint[];
 };

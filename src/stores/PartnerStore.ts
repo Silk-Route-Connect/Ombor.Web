@@ -98,7 +98,7 @@ export class PartnerStore implements IPartnerStore {
 			return filteredPartners;
 		}
 
-		return filteredPartners.filter((el) => el.type === this.type || el.type === "Both");
+		return filteredPartners.filter((el) => el.type === this.type);
 	}
 
 	get suppliers(): Loadable<Partner[]> {
