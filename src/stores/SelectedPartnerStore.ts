@@ -115,10 +115,6 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		const supplies = filtered.filter((t) => t.type === "Supply");
 		const refunds = filtered.filter((t) => t.type === "SaleRefund" || t.type === "SupplyRefund");
 
-		const totalSales = sales.reduce((sum, t) => sum + t.totalDue, 0);
-		const totalSupplies = supplies.reduce((sum, t) => sum + t.totalDue, 0);
-		const netChange = totalSales - totalSupplies;
-		const overdueCount = filtered.filter((t) => t.status === "Overdue").length;
 		const transactionCount = sales.length + supplies.length;
 		const refundCount = refunds.length;
 
@@ -191,52 +187,14 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return { date: format(day, DATE_FORMAT), value: dayTotal };
 		});
 
-		const transactionsOverTime: TimeSeriesPoint[] = days.map((day) => {
-			const count = filtered.filter(
-				(t) =>
-					(t.type === "Sale" || t.type === "Supply") &&
-					isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
-			).length;
-			return { date: format(day, DATE_FORMAT), value: count };
-		});
-
-		// 2. REFUNDS count per day (SaleRefund + SupplyRefund)
-		const refundsOverTime: TimeSeriesPoint[] = days.map((day) => {
-			const count = filtered.filter(
-				(t) =>
-					(t.type === "SaleRefund" || t.type === "SupplyRefund") &&
-					isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
-			).length;
-			return { date: format(day, DATE_FORMAT), value: count };
-		});
-
-		let openList: TransactionRecord[] = [];
-		if (this.openTransactions !== "loading") {
-			const of = this.applyFilter(this.openTransactions);
-			if (of !== "loading") openList = of;
-		}
-		const debtsOverTime: TimeSeriesPoint[] = days.map((day) => {
-			const count = openList.filter((t) =>
-				isSameDay(typeof t.date === "string" ? new Date(t.date) : t.date, day),
-			).length;
-			return { date: format(day, DATE_FORMAT), value: count };
-		});
-
 		return {
-			totalSales,
-			totalSupplies,
-			netChange,
-			overdueCount,
 			salesOverTime,
+			saleRefundsOverTime,
 			suppliesOverTime,
+			supplyRefundsOverTime,
 			transactionCount,
 			refundCount,
 			outstandingCount,
-			saleRefundsOverTime,
-			supplyRefundsOverTime,
-			transactionsOverTime,
-			refundsOverTime,
-			debtsOverTime,
 		};
 	}
 

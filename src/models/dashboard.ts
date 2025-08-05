@@ -11,18 +11,11 @@ export type TimeSeriesConfig = {
 };
 
 export type DashboardMetrics = {
-	totalSales: number;
-	totalSupplies: number;
-	netChange: number;
-	overdueCount: number;
-	transactionCount: number;
-	refundCount: number;
-	outstandingCount: number;
 	salesOverTime: TimeSeriesPoint[];
 	saleRefundsOverTime: TimeSeriesPoint[];
 	suppliesOverTime: TimeSeriesPoint[];
 	supplyRefundsOverTime: TimeSeriesPoint[];
-	transactionsOverTime: TimeSeriesPoint[];
-	refundsOverTime: TimeSeriesPoint[];
-	debtsOverTime: TimeSeriesPoint[];
+	transactionCount: number;
+	refundCount: number;
+	outstandingCount: number;
 };
