@@ -45,6 +45,7 @@ const PartnerPage: React.FC = observer(() => {
 				data={partnerStore.filteredPartners}
 				pagination
 				onSort={partnerStore.setSort}
+				onPayment={() => {}}
 				onEdit={partnerStore.openEdit}
 				onDelete={partnerStore.openDelete}
 				onArchive={() => {}}

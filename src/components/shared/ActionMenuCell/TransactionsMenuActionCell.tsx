@@ -1,7 +1,7 @@
 import React from "react";
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import PaymentIcon from "@mui/icons-material/PaymentOutlined";
-import ActionMenuCell, { RowAction } from "components/shared/ActionMenuCell/MenuActionCell";
+import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import { translate } from "i18n/i18n";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const TransactionsActionsMenu: React.FC<Props> = ({ fullyPaid, onPayment, onRefund }) => {
-	const actions: RowAction[] = [
+	const actions: ActionMenuRow[] = [
 		{
 			key: "refund",
 			label: translate("actionRefund"),
@@ -29,7 +29,7 @@ const TransactionsActionsMenu: React.FC<Props> = ({ fullyPaid, onPayment, onRefu
 		});
 	}
 
-	return <ActionMenuCell actions={actions} />;
+	return <ActionMenu actions={actions} />;
 };
 
 export default TransactionsActionsMenu;

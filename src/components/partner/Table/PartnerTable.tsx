@@ -1,5 +1,5 @@
 import React from "react";
-import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
+import PartnerActionMenu from "components/shared/ActionMenuCell/PartnerActionMenu";
 import { DataTable } from "components/shared/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
@@ -11,6 +11,7 @@ interface PartnerTableProps {
 	pagination: boolean;
 
 	onSort: (field: keyof Partner, order: "asc" | "desc") => void;
+	onPayment: (partner: Partner) => void;
 	onDelete: (partner: Partner) => void;
 	onEdit: (partner: Partner) => void;
 	onArchive: (partner: Partner) => void;
@@ -21,6 +22,7 @@ export const PartnerTable: React.FC<PartnerTableProps> = ({
 	data,
 	pagination,
 	onSort,
+	onPayment,
 	onDelete,
 	onEdit,
 	onArchive,
@@ -33,7 +35,8 @@ export const PartnerTable: React.FC<PartnerTableProps> = ({
 			headerName: "",
 			width: 80,
 			renderCell: (partner: Partner) => (
-				<ActionMenuCell
+				<PartnerActionMenu
+					onPayment={() => onPayment(partner)}
 					onEdit={() => onEdit(partner)}
 					onDelete={() => onDelete(partner)}
 					onArchive={() => onArchive(partner)}
