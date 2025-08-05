@@ -1,6 +1,6 @@
 import React, { JSX } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Typography } from "@mui/material";
+import { Box, FormControl, Typography } from "@mui/material";
 import { PartnerTypeSelect } from "components/partner/PartnerTypeSelect/PartnerTypeSelect";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
@@ -38,7 +38,9 @@ const PartnerHeader: React.FC<PartnerHeaderProps> = ({
 				onChange={onSearch}
 				placeholder={translate("partner.searchPlaceholder")}
 			/>
-			<PartnerTypeSelect type={patnerType} onChange={onPartnerTypeChange} />
+			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
+				<PartnerTypeSelect type={patnerType} onChange={onPartnerTypeChange} />
+			</FormControl>
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 				{translate("partner.addButton")}
 			</PrimaryButton>

@@ -115,10 +115,6 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		const supplies = filtered.filter((t) => t.type === "Supply");
 		const refunds = filtered.filter((t) => t.type === "SaleRefund" || t.type === "SupplyRefund");
 
-		const totalSales = sales.reduce((sum, t) => sum + t.totalDue, 0);
-		const totalSupplies = supplies.reduce((sum, t) => sum + t.totalDue, 0);
-		const netChange = totalSales - totalSupplies;
-		const overdueCount = filtered.filter((t) => t.status === "Overdue").length;
 		const transactionCount = sales.length + supplies.length;
 		const refundCount = refunds.length;
 
@@ -142,6 +138,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 				.sort((a, b) => a.getTime() - b.getTime());
 			startDate = from ?? dates[0] ?? endDate;
 		}
+
 		if (startDate > endDate) {
 			startDate = endDate;
 		}
@@ -191,17 +188,13 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		});
 
 		return {
-			totalSales,
-			totalSupplies,
-			netChange,
-			overdueCount,
 			salesOverTime,
+			saleRefundsOverTime,
 			suppliesOverTime,
+			supplyRefundsOverTime,
 			transactionCount,
 			refundCount,
 			outstandingCount,
-			saleRefundsOverTime,
-			supplyRefundsOverTime,
 		};
 	}
 

@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { translate } from "i18n/i18n";
 
 export type CategoryOption = {
 	id: number;
@@ -34,7 +35,7 @@ export const ProductHeader: React.FC<Props> = ({
 		mb={3}
 		sx={{ gap: 2 }}
 	>
-		<Typography variant="h5">Товары</Typography>
+		<Typography variant="h5">{translate("product.title")}</Typography>
 		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
 			<SearchInput value={searchValue} onChange={onSearch} placeholder="Поиск товаров..." />
 			<Select<number | "">
@@ -47,7 +48,7 @@ export const ProductHeader: React.FC<Props> = ({
 				sx={{ minWidth: 160 }}
 				MenuProps={{ PaperProps: { style: { maxHeight: 350 } } }}
 			>
-				<MenuItem value="">Все категории</MenuItem>
+				<MenuItem value="">{translate("product.allCategories")}</MenuItem>
 				{categoryOptions.map((cat) => (
 					<MenuItem key={cat.id} value={cat.id}>
 						{cat.name}

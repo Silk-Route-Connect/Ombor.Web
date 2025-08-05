@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Box, Card, CardContent, CircularProgress, Grid, Stack, Typography } from "@mui/material";
+import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
-import TimeSeriesChart from "components/shared/TimeSeriesChart/TimeSeriesChart";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { DashboardMetrics, TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
@@ -43,12 +43,40 @@ const CARD_DEFINITIONS: ReadonlyArray<StatisticsCardDefinition> = [
 	},
 ];
 
+const salesSeries: TimeSeriesConfig[] = [
+	{
+		dataKey: "Sales",
+		name: translate("partner.statistics.sales"),
+		stroke: theme.palette.primary.main,
+	},
+	{
+		dataKey: "Sale-Refunds",
+		name: translate("partner.statistics.saleRefunds"),
+		stroke: theme.palette.warning.main,
+	},
+];
+
+const suppliesSeries: TimeSeriesConfig[] = [
+	{
+		dataKey: "Supplies",
+		name: translate("partner.statistics.supplies"),
+		stroke: theme.palette.primary.main,
+	},
+	{
+		dataKey: "Supply-Refunds",
+		name: translate("partner.statistics.supplyRefunds"),
+		stroke: theme.palette.warning.main,
+	},
+];
+
 const StatisticsTab: React.FC = observer(() => {
 	const { selectedPartnerStore, partnerStore } = useStore();
 	const partner = partnerStore.selectedPartner;
 	const metrics = selectedPartnerStore.dashboardMetrics;
 
-	if (!partner) return null;
+	if (!partner) {
+		return null;
+	}
 
 	const handleDateChange = (filter: DateFilter) => {
 		if (filter.type === "custom") {
@@ -58,9 +86,11 @@ const StatisticsTab: React.FC = observer(() => {
 		}
 	};
 
-	// Prepare combined data for each chart
 	const salesData: TimeSeriesPoint[] = useMemo(() => {
-		if (metrics === "loading") return [];
+		if (metrics === "loading") {
+			return [];
+		}
+
 		return metrics.salesOverTime.map((pt, i) => ({
 			date: pt.date,
 			Sales: pt.value,
@@ -69,39 +99,16 @@ const StatisticsTab: React.FC = observer(() => {
 	}, [metrics]);
 
 	const suppliesData: TimeSeriesPoint[] = useMemo(() => {
-		if (metrics === "loading") return [];
+		if (metrics === "loading") {
+			return [];
+		}
+
 		return metrics.suppliesOverTime.map((pt, i) => ({
 			date: pt.date,
 			Supplies: pt.value,
 			"Supply Refunds": metrics.supplyRefundsOverTime[i]?.value ?? 0,
 		}));
 	}, [metrics]);
-
-	const salesSeries: TimeSeriesConfig[] = [
-		{
-			dataKey: "Sales",
-			name: translate("partner.statistics.sales"),
-			stroke: theme.palette.primary.main,
-		},
-		{
-			dataKey: "Sale Refunds",
-			name: translate("partner.statistics.saleRefunds"),
-			stroke: theme.palette.warning.main,
-		},
-	];
-
-	const suppliesSeries: TimeSeriesConfig[] = [
-		{
-			dataKey: "Supplies",
-			name: translate("partner.statistics.supplies"),
-			stroke: theme.palette.success.main,
-		},
-		{
-			dataKey: "Supply Refunds",
-			name: translate("partner.statistics.supplyRefunds"),
-			stroke: theme.palette.warning.main,
-		},
-	];
 
 	const cards = useMemo(() => {
 		if (metrics === "loading") {
@@ -160,7 +167,7 @@ const StatisticsTab: React.FC = observer(() => {
 										<TimeSeriesChart
 											data={salesData}
 											filter={selectedPartnerStore.dateFilter}
-											series={salesSeries}
+											seriesConfig={salesSeries}
 										/>
 									</CardContent>
 								</Card>
@@ -177,7 +184,7 @@ const StatisticsTab: React.FC = observer(() => {
 										<TimeSeriesChart
 											data={suppliesData}
 											filter={selectedPartnerStore.dateFilter}
-											series={suppliesSeries}
+											seriesConfig={suppliesSeries}
 										/>
 									</CardContent>
 								</Card>

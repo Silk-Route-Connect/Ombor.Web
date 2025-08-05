@@ -91,5 +91,8 @@
   "product.stock": "Остаток",
   "product.sku": "Артикул",
 
-  "product.searchTitle": "Поиск товаров..."
+  "product.searchTitle": "Поиск товаров...",
+
+  "product.title": "Товары",
+  "product.allCategories": "Все Категории"
 }
