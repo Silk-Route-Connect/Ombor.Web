@@ -297,7 +297,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 					this.allPayments = [];
 					this.dateFilter = { type: "preset", preset: "week" };
 				});
-				if (partner && this.partnerStore.dialogMode.kind === "details") {
+				if (partner) {
 					this.getTransactions();
 					this.getPayments();
 					this.getOpenTransactions(partner.id);
