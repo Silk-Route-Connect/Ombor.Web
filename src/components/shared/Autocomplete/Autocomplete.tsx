@@ -20,6 +20,7 @@ export interface EntityAutocompleteProps<T extends EntityWithIdName> {
 	options: T[];
 	value: T | null;
 	size?: AutocompleteSize;
+	inputRef?: React.Ref<HTMLInputElement>;
 	onChange(value: T | null): void;
 	additionalFilter?(entity: T, text: string): boolean;
 	onKeyDown?: (
@@ -37,6 +38,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 	size = "medium",
 	loading = false,
 	disabled = false,
+	inputRef,
 	onChange,
 	additionalFilter,
 	onKeyDown,
@@ -72,10 +74,23 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 			onKeyDown={onKeyDown}
 			value={value}
 			onChange={handleChange}
-			renderOption={(props, option) => <li {...props}>{option.name}</li>}
+			renderOption={(props, option) => {
+				const { key, ...rest } = props;
+				return (
+					<li key={key} {...rest}>
+						{option.name}
+					</li>
+				);
+			}}
 			noOptionsText={translate("noOptionsTitle")}
 			renderInput={(params) => (
-				<TextField {...params} label={label} placeholder={placeholder} fullWidth />
+				<TextField
+					inputRef={inputRef}
+					{...params}
+					label={label}
+					placeholder={placeholder}
+					fullWidth
+				/>
 			)}
 			{...rest}
 		/>

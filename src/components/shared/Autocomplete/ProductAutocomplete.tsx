@@ -6,9 +6,10 @@ import { useStore } from "stores/StoreContext";
 
 import EntityAutocomplete from "./Autocomplete";
 
-interface Props {
+interface ProductAutocompleteProps {
 	value: Product | null;
 	type: ProductType;
+	inputRef?: React.Ref<HTMLInputElement>;
 	onChange(v: Product | null): void;
 	onKeyDown?: (
 		event: React.KeyboardEvent<HTMLDivElement> & {
@@ -17,7 +18,13 @@ interface Props {
 	) => void;
 }
 
-const ProductAutocomplete: React.FC<Props> = ({ value, type, onChange, onKeyDown }) => {
+const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
+	value,
+	type,
+	inputRef,
+	onChange,
+	onKeyDown,
+}) => {
 	const { productStore } = useStore();
 
 	const options = useMemo(() => {
@@ -25,14 +32,14 @@ const ProductAutocomplete: React.FC<Props> = ({ value, type, onChange, onKeyDown
 			return [];
 		}
 
-		if (type === "Supply") {
-			return productStore.supplyProducts;
-		} else if (type === "Sale") {
+		if (type === "Sale") {
 			return productStore.saleProducts;
+		} else if (type === "Supply") {
+			return productStore.supplyProducts;
 		} else {
 			return productStore.allProducts;
 		}
-	}, [productStore.allProducts, type]);
+	}, [productStore.saleProducts, productStore.supplyProducts, type]);
 
 	return (
 		<EntityAutocomplete<Product>
@@ -40,6 +47,7 @@ const ProductAutocomplete: React.FC<Props> = ({ value, type, onChange, onKeyDown
 			placeholder={translate("searchProductsPlaceholder")}
 			options={options === "loading" ? [] : options}
 			value={value}
+			inputRef={inputRef}
 			onChange={onChange}
 			onKeyDown={onKeyDown}
 			additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
