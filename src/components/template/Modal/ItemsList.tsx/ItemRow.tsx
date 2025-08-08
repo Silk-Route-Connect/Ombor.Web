@@ -4,19 +4,34 @@ import { Grid, IconButton, TextField } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 
-import { TemplateFormItemPayload } from "../TemplateFormModal";
+import { TemplateFormItemPayload } from "./ItemsList";
 
 interface ItemRowProps {
-	key: string;
 	item: TemplateFormItemPayload;
-
+	index: number;
+	unitPriceRefs: React.RefObject<(HTMLInputElement | null)[]>;
+	productAutocompleteRef: React.RefObject<HTMLInputElement | null>;
 	onUpdate: (payload: Partial<TemplateFormItemPayload>) => void;
 	onRemove: () => void;
 }
 
-export const ItemRow: React.FC<ItemRowProps> = ({ item, key, onUpdate, onRemove }) => {
+export const ItemRow: React.FC<ItemRowProps> = ({
+	item,
+	index,
+	unitPriceRefs,
+	productAutocompleteRef,
+	onUpdate,
+	onRemove,
+}) => {
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			productAutocompleteRef.current?.focus();
+		}
+	};
+
 	return (
-		<Grid container key={key} columnSpacing={1} alignItems="center">
+		<Grid container columnSpacing={1} alignItems="center">
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<TextField
 					value={item.productName}
@@ -29,28 +44,32 @@ export const ItemRow: React.FC<ItemRowProps> = ({ item, key, onUpdate, onRemove 
 
 			<Grid size={{ xs: 12, sm: 3 }}>
 				<NumericField
+					label={translate("transaction.line.unitPrice")}
 					value={item.unitPrice}
 					size="small"
+					inputRef={(el) => (unitPriceRefs.current[index] = el)}
 					onChange={(e) => onUpdate({ unitPrice: +e.target.value })}
-					label={translate("transaction.line.unitPrice")}
+					onKeyDown={handleKeyDown}
 				/>
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 2 }}>
 				<NumericField
-					size="small"
-					value={item.discount ?? 0}
-					onChange={(e) => onUpdate({ discount: +e.target.value })}
-					label={translate("transaction.line.discount")}
-				/>
-			</Grid>
-
-			<Grid size={{ xs: 12, sm: 2 }}>
-				<NumericField
-					size="small"
-					value={item.quantity}
-					onChange={(e) => onUpdate({ quantity: +e.target.value })}
 					label={translate("transaction.line.quantity")}
+					value={item.quantity}
+					size="small"
+					onChange={(e) => onUpdate({ quantity: +e.target.value })}
+					onKeyDown={handleKeyDown}
+				/>
+			</Grid>
+
+			<Grid size={{ xs: 12, sm: 2 }}>
+				<NumericField
+					label={translate("transaction.line.discount")}
+					value={item.discount ?? 0}
+					size="small"
+					onChange={(e) => onUpdate({ discount: +e.target.value })}
+					onKeyDown={handleKeyDown}
 				/>
 			</Grid>
 
