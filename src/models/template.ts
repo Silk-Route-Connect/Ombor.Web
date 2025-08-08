@@ -1,10 +1,12 @@
-export type TemplateType = "Supply" | "Sale";
+export const TEMPLATE_TYPES = ["Supply", "Sale"] as const;
+export type TemplateType = (typeof TEMPLATE_TYPES)[number];
 
 export type Template = {
 	id: number;
 	name: string;
 	partnerName: string;
 	partnerId: number;
+	total: number;
 	type: TemplateType;
 	items: TemplateItem[];
 };
@@ -15,7 +17,7 @@ export type TemplateItem = {
 	productId: number;
 	quantity: number;
 	unitPrice: number;
-	discount?: number;
+	discount: number;
 };
 
 export type GetTemplatesRequest = {
@@ -51,7 +53,6 @@ export type UpdateTemplateRequest = {
 
 export type UpdateTemplateItemRequest = {
 	id: number;
-	productName: string;
 	productId: number;
 	quantity: number;
 	unitPrice: number;

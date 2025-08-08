@@ -16,7 +16,6 @@ interface Props {
 	linesRef: React.RefObject<LinesTableHandle | null>;
 }
 
-/* simple local debounce */
 const useDebounced = (value: string, delay = 300) => {
 	const [debounced, setDebounced] = useState(value);
 	React.useEffect(() => {

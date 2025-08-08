@@ -11,7 +11,7 @@ interface UsePartnerFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
 	partner?: Partner | null;
-	onSave: (p: PartnerFormPayload) => void;
+	onSave: (partner: PartnerFormPayload) => void;
 	onClose: () => void;
 }
 

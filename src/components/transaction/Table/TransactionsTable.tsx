@@ -12,7 +12,7 @@ import { TransactionColumn, TransactionColumnBuilders } from "./transactionColum
 
 export type TableMode = "full" | "compact";
 
-export interface TransactionsTableProps
+interface TransactionsTableProps
 	extends Omit<ExpandableDataTableProps<TransactionRecord>, "columns" | "onSort" | "rows"> {
 	rows: ExpandableDataTableProps<TransactionRecord>["rows"];
 	mode?: TableMode;

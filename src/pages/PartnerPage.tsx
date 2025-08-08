@@ -66,8 +66,8 @@ const PartnerPage: React.FC = observer(() => {
 				content={translate("partner.deleteConfirmation", {
 					partnerName: partnerStore.selectedPartner?.name ?? "",
 				})}
-				onCancel={partnerStore.closeDialog}
 				onConfirm={handleDeleteConfirmed}
+				onCancel={partnerStore.closeDialog}
 			/>
 
 			<PartnerSidePane

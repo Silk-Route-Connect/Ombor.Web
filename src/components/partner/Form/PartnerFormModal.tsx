@@ -2,8 +2,8 @@ import React from "react";
 import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 import PartnerFormFields from "components/partner/Form/PartnerFormFields";
 import ConfirmDialog from "components/shared/ConfirmDialog";
-import DialogFooterWithSave from "components/shared/Dialog/DialogFooter";
 import DialogTitleWithClose from "components/shared/Dialog/DialogTitle";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import { PartnerFormPayload, usePartnerForm } from "hooks/partner/usePartnerForm";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
@@ -57,7 +57,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 					<PartnerFormFields form={form} disabled={isSaving} />
 				</DialogContent>
 
-				<DialogFooterWithSave
+				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={submit}
 					canSave={canSave}

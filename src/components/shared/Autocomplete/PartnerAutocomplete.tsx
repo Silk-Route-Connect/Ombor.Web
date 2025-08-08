@@ -29,7 +29,7 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 		} else {
 			return partnerStore.allPartners;
 		}
-	}, [partnerStore.allPartners, type]);
+	}, [partnerStore.customers, partnerStore.suppliers, type]);
 
 	return (
 		<EntityAutocomplete<Partner>
@@ -41,6 +41,7 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 			onChange={onChange}
 			loading={options === "loading"}
 			disabled={options === "loading"}
+			isOptionEqualToValue={(opt, val) => opt.id === val.id}
 		/>
 	);
 };

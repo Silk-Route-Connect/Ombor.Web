@@ -3,8 +3,21 @@ import { Box, CircularProgress, Grid } from "@mui/material";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 
-import { TemplateFormItemPayload } from "../TemplateFormModal";
 import { ItemRow } from "./ItemRow";
+
+export type TemplateFormItemPayload = {
+	id: number;
+	productId: number;
+	productName: string;
+	unitPrice: number;
+	discount?: number;
+	quantity: number;
+};
+
+interface InputFieldRefs {
+	unitPriceRefs: React.RefObject<(HTMLInputElement | null)[]>;
+	productAutocompleteRef: React.RefObject<HTMLInputElement | null>;
+}
 
 interface ItemsListProps {
 	data: Loadable<TemplateFormItemPayload[]>;
@@ -12,7 +25,13 @@ interface ItemsListProps {
 	onRemove: (index: number) => void;
 }
 
-export const ItemsList: React.FC<ItemsListProps> = ({ data, onUpdate, onRemove }) => {
+export const ItemsList: React.FC<ItemsListProps & InputFieldRefs> = ({
+	data,
+	unitPriceRefs,
+	productAutocompleteRef,
+	onUpdate,
+	onRemove,
+}) => {
 	if (data === "loading") {
 		return (
 			<Box>
@@ -30,7 +49,10 @@ export const ItemsList: React.FC<ItemsListProps> = ({ data, onUpdate, onRemove }
 			{data.map((item, index) => (
 				<ItemRow
 					key={`${item.productId}-${index}`}
+					index={index}
 					item={item}
+					unitPriceRefs={unitPriceRefs}
+					productAutocompleteRef={productAutocompleteRef}
 					onUpdate={(payload) => onUpdate(index, payload)}
 					onRemove={() => onRemove(index)}
 				/>

@@ -1,201 +1,176 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-	TemplateFormItemPayload,
-	TemplateFormPayload,
-} from "components/template/Modal/TemplateFormModal";
+	useFieldArray,
+	useForm,
+	UseFormReturn,
+	UseFormStateReturn,
+	useWatch,
+} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { Template, TemplateType } from "models/template";
-import { IPartnerStore } from "stores/PartnerStore";
-import { IProductStore } from "stores/ProductStore";
+import {
+	TemplateFormInputs,
+	TemplateFormItemValues,
+	TemplateFormValues,
+	TemplateSchema,
+} from "schemas/TemplateSchema";
+import { useStore } from "stores/StoreContext";
+import { getPrice } from "utils/productUtils";
+import {
+	calculateTemplateTotals,
+	mapTemplateToPayload,
+	TEMPLATE_FORM_DEFAULT_VALUES,
+} from "utils/templateUtils";
 
-export interface ITemplateFormState {
+export type TemplateFormPayload = TemplateFormValues;
+
+export interface UseTemplateFormResult {
+	form: UseFormReturn<TemplateFormInputs>;
+	formState: UseFormStateReturn<TemplateFormInputs>;
+	canSave: boolean;
+
 	totalDue: number;
 	totalDiscount: number;
-	isFormValid: boolean;
-	isFormTouched: boolean;
 
-	partner: Partner | null;
-	setPartner(partner: Partner | null): void;
+	selectedPartner: Partner | null;
+	setPartnerId: (partnerId: number) => void;
 
-	name: string | null;
-	setName(name: string | null): void;
-
-	type: TemplateType | null;
-	setType(type: TemplateType | null): void;
+	templateType: TemplateType;
+	setTemplateType: (type: TemplateType) => void;
 
 	selectedProduct: Product | null;
-	setSelectedProduct(produc: Product | null): void;
+	setSelectedProduct: (prod: Product | null) => void;
 
-	items: TemplateFormItemPayload[];
-	addItem(): void;
-	updateItem(index: number, patch: Partial<TemplateFormItemPayload>): void;
-	removeItem(index: number): void;
+	items: TemplateFormInputs["items"];
+	addItem: () => void;
+	updateItem: (index: number, patch: Partial<TemplateFormInputs["items"][number]>) => void;
+	removeItem: (index: number) => void;
 
-	reset(): void;
-	buildPayload(): TemplateFormPayload | null;
-}
-
-interface TemplateFormOptions {
-	initial?: Template | null;
-	productStore: IProductStore;
-	partnerStore: IPartnerStore;
+	submit: () => Promise<void>;
 }
 
 export const useTemplateForm = ({
-	initial,
-	partnerStore,
-	productStore,
-}: TemplateFormOptions): ITemplateFormState => {
-	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-	const [partner, setPartner] = useState<Partner | null>(null);
-	const [name, setName] = useState<string | null>(initial?.name ?? null);
-	const [type, setType] = useState<TemplateType | null>(initial?.type ?? "Sale");
-	const [items, setItems] = useState<TemplateFormItemPayload[]>(
-		initial?.items.map((item) => ({
-			id: item.id,
-			productId: item.productId,
-			productName: item.productName,
-			unitPrice: item.unitPrice,
-			discount: item.discount ?? 0,
-			quantity: item.quantity,
-		})) ?? [],
-	);
+	isOpen,
+	isSaving,
+	template,
+	onSave,
+}: {
+	isOpen: boolean;
+	isSaving: boolean;
+	template?: Template | null;
+	onSave: (payload: TemplateFormPayload) => void;
+	onClose: () => void;
+}): UseTemplateFormResult => {
+	const { partnerStore } = useStore();
 
-	const mapTemplateItems = useCallback(
-		(templateItems: Template["items"]): TemplateFormItemPayload[] =>
-			templateItems.map((i) => ({
-				id: i.id,
-				productId: i.productId,
-				productName: i.productName ?? "—",
-				unitPrice: i.unitPrice,
-				discount: i.discount ?? 0,
-				quantity: i.quantity,
-			})),
-		[productStore],
-	);
+	const form = useForm<TemplateFormInputs>({
+		resolver: zodResolver(TemplateSchema),
+		mode: "onBlur",
+		reValidateMode: "onChange",
+		criteriaMode: "all",
+		defaultValues: TEMPLATE_FORM_DEFAULT_VALUES,
+	});
 
-	const reset = useCallback(() => {
-		console.log("resetting");
-		setPartner(null);
-		setName(null);
-		setType("Sale");
-		setItems([]);
-		setSelectedProduct(null);
-	}, []);
+	const { control, setValue, formState } = form;
 
 	useEffect(() => {
-		console.log("inside of effect");
-		if (!initial) {
-			reset();
-			return;
-		}
+		const initialValues = template ? mapTemplateToPayload(template) : TEMPLATE_FORM_DEFAULT_VALUES;
+		form.reset(initialValues);
+	}, [isOpen, template, form]);
 
-		console.log("effect should update");
-		console.log(initial.name);
-		console.log(initial.type);
-		console.log(initial.items.length);
-		setName(initial.name ?? null);
-		setType(initial.type ?? "Sale");
-		setItems(mapTemplateItems(initial.items));
-		setSelectedProduct(null);
+	const partnerId = useWatch({ control, name: "partnerId" });
+	const watchedType = useWatch({ control, name: "type" });
+	const watchedItems = useWatch({ control, name: "items" });
+	const { fields: items, append, update, remove } = useFieldArray({ name: "items", control });
+	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-		if (partnerStore.allPartners === "loading") {
-			return;
-		}
-
-		const partner = partnerStore.allPartners.find((el) => el.id === initial.partnerId);
-		setPartner(partner ?? null);
-	}, [initial, partnerStore]);
-
-	const addItem = (): void => {
-		if (!selectedProduct) {
-			return;
-		}
-
-		const isProductAlreadyAdded = items.some((el) => el.productId === selectedProduct.id);
-		if (isProductAlreadyAdded) {
-			return;
-		}
-
-		setItems((prev) => [
-			...prev,
-			{
-				id: 0,
-				productId: selectedProduct.id,
-				productName: selectedProduct.name,
-				unitPrice: type === "Sale" ? selectedProduct.salePrice : selectedProduct.supplyPrice,
-				quantity: 1,
-				discount: 0,
-			},
-		]);
-		setSelectedProduct(null);
-	};
-
-	const updateItem = (index: number, patch: Partial<TemplateFormItemPayload>): void => {
-		if (index < 0 || index >= items.length) {
-			return;
-		}
-
-		setItems((prev) => {
-			const updatedItems = [...prev];
-			const itemToUpdate = updatedItems[index];
-			updatedItems[index] = { ...itemToUpdate, ...patch };
-
-			return updatedItems;
-		});
-	};
-
-	const removeItem = (index: number): void => {
-		if (index < 0 || index >= items.length) {
-			return;
-		}
-
-		setItems((prev) => prev.filter((_, i) => i !== index));
-	};
-
-	const totalDue = useMemo(
-		() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity - item.discount, 0),
-		[items],
+	const { totalDue, totalDiscount } = useMemo(
+		() => calculateTemplateTotals(watchedItems),
+		[watchedItems],
 	);
-	const totalDiscount = useMemo(() => items.reduce((sum, item) => sum + item.discount, 0), [items]);
 
-	const isFormValid = !!(partner && name && items.length > 0 && type);
+	const setPartnerId = useCallback(
+		(id: number) => setValue("partnerId", id, { shouldDirty: true, shouldValidate: true }),
+		[setValue],
+	);
 
-	const isFormChanged =
-		partner?.id !== initial?.partnerId && name !== initial?.name && type !== initial?.type;
+	const setTemplateType = useCallback(
+		(type: TemplateType) => setValue("type", type, { shouldDirty: true, shouldValidate: true }),
+		[setValue],
+	);
 
-	const buildPayload = (): TemplateFormPayload | null => {
-		if (!isFormValid) {
+	const addItem = useCallback(() => {
+		if (!selectedProduct) return;
+
+		if (items.some((item) => item.productId === selectedProduct.id)) {
+			setSelectedProduct(null);
+			return;
+		}
+
+		const unitPrice = getPrice(selectedProduct, watchedType);
+
+		append({
+			id: 0,
+			productId: selectedProduct.id,
+			productName: selectedProduct.name,
+			quantity: 1,
+			unitPrice,
+			discount: 0,
+		});
+
+		setSelectedProduct(null);
+	}, [selectedProduct, watchedType, items, append]);
+
+	const updateItem = useCallback(
+		(index: number, patch: Partial<TemplateFormItemValues>) => {
+			update(index, { ...items[index], ...patch });
+		},
+		[items, update],
+	);
+
+	const removeItem = useCallback((index: number) => remove(index), [remove]);
+
+	const submit = form.handleSubmit(onSave);
+
+	const selectedPartner = useMemo(() => {
+		if (partnerStore.customers === "loading" || partnerStore.suppliers === "loading") {
 			return null;
 		}
 
-		return {
-			partnerId: partner.id,
-			name: name,
-			type: type,
-			items: items,
-		};
-	};
+		const partner =
+			watchedType === "Sale"
+				? partnerStore.customers.find((el) => el.id === partnerId)
+				: partnerStore.suppliers.find((el) => el.id === partnerId);
+
+		return partner ?? null;
+	}, [watchedType, partnerId, partnerStore.customers, partnerStore.suppliers]);
+
+	const canSave = formState.isValid && formState.isDirty && !isSaving;
 
 	return {
+		form,
+		formState,
+		canSave,
+
 		totalDue,
 		totalDiscount,
-		isFormValid,
-		isFormTouched: isFormChanged,
-		partner,
-		setPartner,
+
+		selectedPartner,
+		setPartnerId,
+
+		templateType: watchedType,
+		setTemplateType,
+
 		selectedProduct,
 		setSelectedProduct,
-		name,
-		setName,
-		type,
-		setType,
+
 		items,
 		addItem,
 		updateItem,
 		removeItem,
-		reset,
-		buildPayload,
+
+		submit,
 	};
 };
