@@ -3,14 +3,14 @@ import { Button, DialogActions } from "@mui/material";
 import SaveButton from "components/shared/Buttons/SaveButton";
 import { translate } from "i18n/i18n";
 
-interface DialogFooterWithSaveProps {
+interface FormDialogFooterProps {
 	canSave: boolean;
 	loading: boolean;
 	onCancel: () => void;
 	onSave: () => void;
 }
 
-const DialogFooterWithSave: React.FC<DialogFooterWithSaveProps> = ({
+const FormDialogFooter: React.FC<FormDialogFooterProps> = ({
 	canSave,
 	loading,
 	onCancel,
@@ -23,10 +23,10 @@ const DialogFooterWithSave: React.FC<DialogFooterWithSaveProps> = ({
 		<SaveButton
 			disabled={!canSave}
 			loading={loading}
-			tooltip={translate("common.form.completeRequired")}
+			tooltip={!canSave ? translate("common.form.completeRequired") : undefined}
 			onSave={onSave}
 		/>
 	</DialogActions>
 );
 
-export default DialogFooterWithSave;
+export default FormDialogFooter;
