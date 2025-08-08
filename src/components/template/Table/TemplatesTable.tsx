@@ -1,5 +1,4 @@
 import React from "react";
-import { ActionCell } from "components/shared/ActionCell/ActionCell";
 import {
 	Column,
 	ExpandableDataTable,
@@ -8,6 +7,7 @@ import {
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 
+import TemplateActionMenu from "./ActionMenu/TemplateActionMenu";
 import TemplateItemsTable from "./TemplateItemsTable";
 import { templateTableColumns } from "./templateTableConfig";
 
@@ -24,9 +24,13 @@ const TemplateTable: React.FC<TemplateTableProps> = ({ data: rows, onSort, onEdi
 		{
 			key: "actions",
 			headerName: "",
-			width: "10%",
+			width: 80,
 			renderCell: (template: Template) => (
-				<ActionCell onEdit={() => onEdit(template)} onDelete={() => onDelete(template)} />
+				<TemplateActionMenu
+					onEdit={() => onEdit(template)}
+					onDelete={() => onDelete(template)}
+					onArchive={() => {}}
+				/>
 			),
 		},
 	];

@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import ProductLink from "components/shared/Links/ProductLink";
 import { translate } from "i18n/i18n";
 import { TemplateItem } from "models/template";
 
@@ -13,15 +14,17 @@ const TemplateItemsTable: React.FC<TemplateItemsTableProps> = ({ items }) => (
 			<TableHead>
 				<TableRow>
 					<TableCell>{translate("template.item.product")}</TableCell>
-					<TableCell align="right">{translate("template.item.quantity")}</TableCell>
 					<TableCell align="right">{translate("template.item.unitPrice")}</TableCell>
+					<TableCell align="right">{translate("template.item.quantity")}</TableCell>
 					<TableCell align="right">{translate("template.item.discount")}</TableCell>
 				</TableRow>
 			</TableHead>
 			<TableBody>
 				{items.map((item) => (
 					<TableRow key={item.id}>
-						<TableCell>{item.productName}</TableCell>
+						<TableCell>
+							<ProductLink id={item.productId} name={item.productName} />
+						</TableCell>
 						<TableCell align="right">{item.unitPrice.toLocaleString()}</TableCell>
 						<TableCell align="right">{item.quantity}</TableCell>
 						<TableCell align="right">
