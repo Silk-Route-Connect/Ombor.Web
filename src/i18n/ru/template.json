@@ -16,11 +16,10 @@
   "unsavedChangesContent": "Вы уверены, что хотите закрыть форму? Все изменения будут потеряны.",
   "discard": "Отменить",
   "keepEditing": "Продолжить редактирование",
+
   "template.name": "Название",
   "template.partner": "Партнёр",
   "template.type": "Тип",
-  "template.type.Sale": "Продажа",
-  "template.type.Supply": "Поставка",
   "template.itemProduct": "Товар",
   "template.itemQuantity": "Кол.во",
   "template.itemUnitPrice": "Цена за шт.",
@@ -30,5 +29,19 @@
   "template.item.unitPrice": "Цена за шт.",
   "template.item.quantity": "Кол.во",
   "template.item.discount": "Скидка",
-  "template.saveAsTemplate": "Сохранить как шаблон"
+  "template.saveAsTemplate": "Сохранить как шаблон",
+  "template.validation.typeInvalid": "Неверный тип шаблона",
+  "template.validation.nameRequired": "Введите название шаблона",
+  "template.validation.nameTooLong": "Название шаблона слишком длинное",
+  "template.validation.partnerInvalid": "Выберите партнёра",
+  "template.validation.itemsRequired": "Добавьте хотя бы одну позицию",
+  "template.validation.productIdInvalid": "Выберите товар",
+  "template.validation.quantityInvalid": "Количество должно быть больше 0",
+  "template.validation.unitPriceInvalid": "Цена должна быть больше 0",
+  "template.validation.discountMin": "Скидка не может быть меньше 0%",
+  "template.validation.discountMax": "Скидка не может быть больше 100%",
+  "template.validation.duplicateProduct": "Товар уже добавлен в список",
+  
+  "template.type.Supply": "Поставка",
+  "template.type.Sale": "Продажа"
 }
