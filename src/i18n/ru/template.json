@@ -13,7 +13,7 @@
   "createTemplateTitle": "Добавить шабон",
   "editTemplateTitle": "Изменить шаблон",
   "unsavedChangesTitle": "Есть несохранённые изменения",
-  "unsavedChangesContent": "Вы уверены, что хотите закрыть форму? Все изменения будут потеряны.",
+  "unsavedChangesContent": "Вы уверены, что хотите закрыть окно? Все изменения будут потеряны.",
   "discard": "Отменить",
   "keepEditing": "Продолжить редактирование",
 
@@ -29,6 +29,7 @@
   "template.item.unitPrice": "Цена за шт.",
   "template.item.quantity": "Кол.во",
   "template.item.discount": "Скидка",
+  "template.total": "Общая сумма",
   "template.saveAsTemplate": "Сохранить как шаблон",
   "template.validation.typeInvalid": "Неверный тип шаблона",
   "template.validation.nameRequired": "Введите название шаблона",
@@ -43,5 +44,7 @@
   "template.validation.duplicateProduct": "Товар уже добавлен в список",
   
   "template.type.Supply": "Поставка",
-  "template.type.Sale": "Продажа"
+  "template.type.Sale": "Продажа",
+
+  "template.deleteConfirmation": "Вы уверены, что хотите удалить шаблон {{templateName}}?"
 }
