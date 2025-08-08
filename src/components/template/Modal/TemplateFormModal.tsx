@@ -1,264 +1,93 @@
-import React, { useEffect, useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import {
-	Box,
-	Button,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	FormControl,
-	Grid,
-	IconButton,
-	LinearProgress,
-	MenuItem,
-	Select,
-	TextField,
-	Typography,
-} from "@mui/material";
-import PartnerAutocomplete from "components/shared/Autocomplete/PartnerAutocomplete";
-import ProductAutocomplete from "components/shared/Autocomplete/ProductAutocomplete";
+import React, { useEffect } from "react";
+import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 import ConfirmDialog from "components/shared/ConfirmDialog";
-import { useTemplateFormWrapper } from "hooks/templates/useTemplateFormWrapper";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
+import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
 import { translate } from "i18n/i18n";
-import { Template, TemplateType } from "models/template";
+import { observer } from "mobx-react-lite";
+import { Template } from "models/template";
 import { useStore } from "stores/StoreContext";
 
-import { ItemsList } from "./ItemsList.tsx/ItemsList";
+import TemplateFormFields from "./TemplateFormFields";
 
 const CONTENT_HEIGHT = 560;
-const TEMPLATE_TYPES: TemplateType[] = ["Sale", "Supply"];
-const LIST_HEIGHT = 300;
-
-export type TemplateFormPayload = {
-	name: string;
-	partnerId: number;
-	type: TemplateType;
-	items: TemplateFormItemPayload[];
-};
-
-export type TemplateFormItemPayload = {
-	id: number;
-	productId: number;
-	productName: string;
-	unitPrice: number;
-	quantity: number;
-	discount: number;
-};
 
 interface Props {
 	isOpen: boolean;
+	isSaving: boolean;
 	template?: Template | null;
 	onClose: () => void;
 	onSave: (payload: TemplateFormPayload) => void;
 }
 
-const TemplateFormModal: React.FC<Props> = ({ isOpen, template, onClose, onSave }) => {
-	console.log(template);
-	const form = useTemplateFormWrapper(template);
-	const { partnerStore: partnersStore, productStore } = useStore();
+const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClose, onSave }) => {
+	const { partnerStore, productStore } = useStore();
 
-	const [saving, setSaving] = useState(false);
-	const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
+	const templateForm = useTemplateForm({
+		isOpen,
+		isSaving,
+		template,
+		onSave,
+		onClose,
+	});
+
+	const { canSave, submit } = templateForm;
+	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
+		templateForm.formState.isDirty,
+		isSaving,
+		onClose,
+	);
 
 	useEffect(() => {
-		if (!isOpen) {
-			return;
+		if (isOpen) {
+			partnerStore.getAll();
+			productStore.loadProducts();
 		}
-
-		partnersStore.getAll();
-		productStore.loadProducts();
-	}, [isOpen, template]);
-
-	const isDirty = form.isFormTouched;
-
-	const attemptClose = () => {
-		if (isDirty) {
-			setConfirmCloseOpen(true);
-		} else {
-			doClose();
-		}
-	};
-
-	const doClose = () => {
-		setConfirmCloseOpen(false);
-		onClose();
-	};
-
-	const handleSave = async () => {
-		setSaving(true);
-		const payload = form.buildPayload();
-
-		if (payload) {
-			onSave(payload);
-		}
-
-		setSaving(false);
-		doClose();
-	};
+	}, [isOpen, partnerStore, productStore]);
 
 	return (
 		<>
 			<Dialog
 				open={isOpen}
+				onClose={requestClose}
 				fullWidth
 				maxWidth="md"
-				onClose={() => (saving ? undefined : attemptClose())}
+				disableEscapeKeyDown={isSaving}
+				disableRestoreFocus
 			>
-				<DialogTitle sx={{ pr: 6 }}>
-					{translate(template ? "editTemplateTitle" : "createTemplateTitle")}
-					<IconButton onClick={attemptClose} sx={{ position: "absolute", top: 8, right: 8 }}>
-						<CloseIcon />
-					</IconButton>
-				</DialogTitle>
+				<FormDialogHeader
+					title={translate(template ? "editTemplateTitle" : "createTemplateTitle")}
+					disabled={isSaving}
+					onClose={requestClose}
+				/>
 
-				{saving && <LinearProgress />}
+				{isSaving && <LinearProgress />}
 
-				<DialogContent dividers sx={{ height: CONTENT_HEIGHT }}>
-					<Box>
-						<Grid container rowSpacing={3} columnSpacing={2}>
-							<Grid container columnSpacing={2} size={{ xs: 12 }}>
-								<Grid size={{ xs: 12, sm: 4 }}>
-									<TextField
-										label={translate("templateFieldName")}
-										value={form.name ?? ""}
-										onChange={(e) => form.setName(e.target.value)}
-										fullWidth
-									/>
-								</Grid>
-
-								<Grid size={{ xs: 12, sm: 4 }}>
-									<FormControl fullWidth>
-										<Select
-											labelId="template-type-label"
-											value={form.type}
-											onChange={(e) => form.setType(e.target.value as TemplateType)}
-										>
-											{TEMPLATE_TYPES.map((t) => (
-												<MenuItem key={t} value={t}>
-													{translate(`template.type.${t}`)}
-												</MenuItem>
-											))}
-										</Select>
-									</FormControl>
-								</Grid>
-
-								<Grid size={{ xs: 12, sm: 4 }}>
-									<PartnerAutocomplete
-										value={form.partner}
-										type={form.type === "Sale" ? "Supplier" : "Customer"}
-										onChange={(value) => form.setPartner(value)}
-									/>
-								</Grid>
-							</Grid>
-
-							<Grid container columnSpacing={2} alignItems="flex-end" size={{ xs: 12 }}>
-								<Grid size={{ xs: 12, sm: 8 }}>
-									<ProductAutocomplete
-										value={form.selectedProduct}
-										type={form.type === "Sale" ? "Sale" : "Supply"}
-										onChange={(value) => form.setSelectedProduct(value)}
-										onKeyDown={(e) => {
-											if (e.key === "Enter") {
-												e.preventDefault();
-												form.addItem();
-											}
-										}}
-									/>
-								</Grid>
-
-								<Grid size={{ xs: 12, sm: 4 }}>
-									<Button
-										fullWidth
-										variant="contained"
-										startIcon={<AddIcon />}
-										onClick={form.addItem}
-										sx={{ height: 56 }}
-										disabled={!form.selectedProduct}
-									>
-										{translate("add")}
-									</Button>
-								</Grid>
-							</Grid>
-
-							<Grid size={{ xs: 12 }}>
-								<Box
-									sx={{
-										height: LIST_HEIGHT,
-										overflowY: "auto",
-										border: 1,
-										borderColor: "divider",
-										borderRadius: 1,
-										p: 1,
-									}}
-								>
-									<ItemsList
-										data={form.items}
-										onUpdate={form.updateItem}
-										onRemove={form.removeItem}
-									/>
-								</Box>
-							</Grid>
-
-							<Grid size={{ xs: 12 }}>
-								<Typography variant="h6" color="text.secondary" sx={{ mt: 1 }}>
-									{translate("transaction.total")}: {form.totalDue.toLocaleString()}
-								</Typography>
-							</Grid>
-						</Grid>
-					</Box>
+				<DialogContent dividers sx={{ maxHeight: CONTENT_HEIGHT, overflowY: "auto" }}>
+					<TemplateFormFields form={templateForm} />
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						display: "flex",
-						justifyContent: "flex-end",
-						px: 2,
-					}}
-				>
-					<Box>
-						<Button onClick={attemptClose}>{translate("cancel")}</Button>
-						<Button
-							variant="contained"
-							disabled={!form.isFormValid}
-							onClick={handleSave}
-							sx={{ ml: 1 }}
-						>
-							{translate("save")}
-						</Button>
-					</Box>
-				</DialogActions>
+				<FormDialogFooter
+					onCancel={requestClose}
+					onSave={submit}
+					canSave={canSave}
+					loading={isSaving}
+				/>
 			</Dialog>
 
 			<ConfirmDialog
-				isOpen={confirmCloseOpen}
+				isOpen={discardOpen}
 				title={translate("unsavedChangesTitle")}
 				content={<Typography>{translate("unsavedChangesContent")}</Typography>}
 				confirmLabel={translate("discard")}
 				cancelLabel={translate("keepEditing")}
-				onConfirm={doClose}
-				onCancel={() => setConfirmCloseOpen(false)}
+				onConfirm={confirmDiscard}
+				onCancel={cancelDiscard}
 			/>
-
-			{saving && (
-				<Box
-					sx={{
-						position: "absolute",
-						inset: 0,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						bgcolor: "rgba(255,255,255,0.5)",
-						zIndex: 1300,
-					}}
-				>
-					<CircularProgress />
-				</Box>
-			)}
 		</>
 	);
 };
 
-export default TemplateFormModal;
+export default observer(TemplateFormModal);
