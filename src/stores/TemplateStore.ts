@@ -1,6 +1,7 @@
 import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
+import { withSaving } from "helpers/WithSaving";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Partner } from "models/partner";
@@ -14,24 +15,44 @@ import TemplateApi from "services/api/TemplateApi";
 
 import { NotificationStore } from "./NotificationStore";
 
+export type DialogMode =
+	| { kind: "form"; template?: Template }
+	| { kind: "delete"; template: Template }
+	| { kind: "details"; template: Template }
+	| { kind: "none" };
+
 export interface ITemplateStore {
+	// computed properties
 	allTemplates: Loadable<Template[]>;
 	filteredTemplates: Loadable<Template[]>;
 	supplyTemplates: Loadable<Template[]>;
 	saleTemplates: Loadable<Template[]>;
+
+	// UI state
 	selectedPartner: Partner | null;
 	selectedTemplate: Loadable<Template> | null;
+	dialogMode: DialogMode;
+	isSaving: boolean;
 
+	// actions
 	getAll(): Promise<void>;
 	getById(templateId: number): Promise<void>;
 	create(request: CreateTemplateRequest): Promise<void>;
 	update(request: UpdateTemplateRequest): Promise<void>;
 	delete(templateId: number): Promise<void>;
 
+	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
 	setSort(field: keyof Template, order: SortOrder): void;
 	setSelectedPartner(partnerId?: Partner | null): void;
 	setSelectedTemplate(template: Template | null): void;
+
+	// UI dialog helper methods
+	openCreate(): void;
+	openEdit(template: Template): void;
+	openDelete(template: Template): void;
+	openDetails(template: Template): void;
+	closeDialog(): void;
 }
 
 export class TemplateStore implements ITemplateStore {
@@ -44,11 +65,13 @@ export class TemplateStore implements ITemplateStore {
 	sortOrder: SortOrder = "asc";
 	selectedPartner: Partner | null = null;
 	selectedTemplate: Template | null = null;
+	dialogMode: DialogMode = { kind: "none" };
+	isSaving: boolean = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredTemplates(): Loadable<Template[]> {
@@ -91,7 +114,6 @@ export class TemplateStore implements ITemplateStore {
 			return;
 		}
 
-		console.log("fetching templates");
 		runInAction(() => (this.allTemplates = "loading"));
 
 		const result = await tryRun(() => TemplateApi.getAll());
@@ -101,9 +123,7 @@ export class TemplateStore implements ITemplateStore {
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
-		console.log(data);
 		runInAction(() => (this.allTemplates = data));
-		console.log(`After fetching all templates: ${data.length}`);
 	}
 
 	async getById(templateId: number): Promise<void> {
@@ -119,7 +139,7 @@ export class TemplateStore implements ITemplateStore {
 	}
 
 	async create(request: CreateTemplateRequest): Promise<void> {
-		const result = await tryRun(() => TemplateApi.create(request));
+		const result = await withSaving(this, () => TemplateApi.create(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("templates.error.create"));
@@ -128,14 +148,14 @@ export class TemplateStore implements ITemplateStore {
 
 		if (this.allTemplates !== "loading") {
 			this.allTemplates = [result.data, ...this.allTemplates];
-			this.selectedTemplate = result.data;
 		}
 
+		this.closeDialog();
 		this.notificationStore.success("templates.success.create");
 	}
 
 	async update(request: UpdateTemplateRequest): Promise<void> {
-		const result = await tryRun(() => TemplateApi.update(request));
+		const result = await withSaving(this, () => TemplateApi.update(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("templates.error.update"));
@@ -143,23 +163,19 @@ export class TemplateStore implements ITemplateStore {
 		}
 
 		runInAction(() => {
-			if (this.allTemplates === "loading") {
-				return;
+			if (this.allTemplates !== "loading") {
+				this.allTemplates = this.allTemplates.map((el) =>
+					el.id === result.data.id ? result.data : el,
+				);
 			}
-
-			this.allTemplates = this.allTemplates.map((el) => {
-				if (el.id === result.data.id) {
-					return result.data;
-				}
-
-				return el;
-			});
 		});
+
+		this.closeDialog();
 		this.notificationStore.success(translate("templates.success.update"));
 	}
 
 	async delete(templateId: number): Promise<void> {
-		const result = await tryRun(() => TemplateApi.delete(templateId));
+		const result = await withSaving(this, () => TemplateApi.delete(templateId));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("templates.error.delete"));
@@ -172,6 +188,7 @@ export class TemplateStore implements ITemplateStore {
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("templates.success.delete"));
 	}
 
@@ -197,6 +214,33 @@ export class TemplateStore implements ITemplateStore {
 			this.sortField = field;
 			this.sortOrder = order;
 		});
+	}
+
+	openCreate(): void {
+		this.setDialog({ kind: "form" });
+	}
+
+	openEdit(template: Template): void {
+		this.setDialog({ kind: "form", template: template });
+	}
+
+	openDelete(template: Template): void {
+		this.setDialog({ kind: "delete", template: template });
+	}
+
+	openDetails(template: Template): void {
+		this.setDialog({ kind: "details", template: template });
+	}
+
+	closeDialog(): void {
+		this.setDialog({ kind: "none" });
+	}
+
+	private setDialog(mode: DialogMode) {
+		const template = "template" in mode ? (mode.template ?? null) : null;
+
+		this.dialogMode = mode;
+		this.selectedTemplate = template;
 	}
 }
 
