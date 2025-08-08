@@ -62,7 +62,7 @@ const PartnerPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.delete")}
+				title={translate("common.deleteTitle")}
 				content={translate("partner.deleteConfirmation", {
 					partnerName: partnerStore.selectedPartner?.name ?? "",
 				})}
