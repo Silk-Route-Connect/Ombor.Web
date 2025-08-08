@@ -1,27 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography } from "@mui/material";
-import { ActionCell } from "components/shared/ActionCell/ActionCell";
+import React, { useEffect, useMemo } from "react";
+import { Box } from "@mui/material";
 import ConfirmDialog from "components/shared/ConfirmDialog";
-import { SortOrder } from "components/shared/DataTable/DataTable";
-import {
-	Column,
-	ExpandableDataTable,
-} from "components/shared/ExpandableDataTable/ExpandableDataTable";
 import TemplateHeader from "components/template/Header/TemplateHeader";
-import TemplateFormModal, {
-	TemplateFormPayload,
-} from "components/template/Modal/TemplateFormModal";
-import TemplateItemsTable from "components/template/Tables/TemplateItemsTable";
-import { templateTableColumns } from "components/template/templateTableConfig";
+import TemplateFormModal from "components/template/Modal/TemplateFormModal";
+import TemplateTable from "components/template/Table/TemplatesTable";
+import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import { Template } from "models/template";
 import { useStore } from "stores/StoreContext";
 
 const TemplatePage: React.FC = observer(() => {
-	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-	const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 	const { templateStore, partnerStore } = useStore();
 
 	useEffect(() => {
@@ -29,48 +17,15 @@ const TemplatePage: React.FC = observer(() => {
 		partnerStore.getAll();
 	}, [templateStore]);
 
-	const columns: Column<Template>[] = [
-		...templateTableColumns,
-		{
-			key: "actions",
-			headerName: "",
-			width: "10%",
-			renderCell: (tpl: Template) => (
-				<ActionCell onEdit={() => onEdit(tpl)} onDelete={() => onDelete(tpl)} />
-			),
-		},
-	];
+	const handleFormSave = (payload: TemplateFormPayload) =>
+		templateStore.selectedTemplate
+			? templateStore.update({ id: templateStore.selectedTemplate.id, ...payload })
+			: templateStore.create({ ...payload });
 
-	const onCreate = () => {
-		setSelectedTemplate(null);
-		setIsFormOpen(true);
-	};
-
-	const onEdit = (tpl: Template) => {
-		setSelectedTemplate(tpl);
-		setIsFormOpen(true);
-	};
-
-	const onFormSave = (payload: TemplateFormPayload) => {
-		if (selectedTemplate) {
-			templateStore.update({ id: selectedTemplate.id, ...payload });
-		} else {
-			templateStore.create({ ...payload });
+	const handleDeleteConfirmed = () => {
+		if (templateStore.selectedTemplate) {
+			templateStore.delete(templateStore.selectedTemplate.id);
 		}
-
-		setIsFormOpen(false);
-	};
-
-	const onDelete = (tpl: Template) => {
-		setSelectedTemplate(tpl);
-		setIsDeleteDialogOpen(true);
-	};
-
-	const onDeleteConfirmed = () => {
-		if (selectedTemplate) {
-			templateStore.delete(selectedTemplate.id);
-		}
-		setIsDeleteDialogOpen(false);
 	};
 
 	const templatesCount = useMemo(() => {
@@ -81,6 +36,9 @@ const TemplatePage: React.FC = observer(() => {
 		return templateStore.filteredTemplates.length.toString();
 	}, [templateStore.filteredTemplates]);
 
+	const dialogMode = templateStore.dialogMode;
+	const dialogKind = dialogMode.kind;
+
 	return (
 		<Box>
 			<TemplateHeader
@@ -89,32 +47,32 @@ const TemplatePage: React.FC = observer(() => {
 				titleCount={templatesCount}
 				onSearch={(value) => templateStore.setSearch(value)}
 				onPartnerChange={(value) => templateStore.setSelectedPartner(value)}
-				onCreate={onCreate}
+				onCreate={templateStore.openCreate}
 			/>
 
-			<ExpandableDataTable<Template>
-				rows={templateStore.filteredTemplates}
-				columns={columns}
-				pagination
-				onSort={(field, order: SortOrder) => templateStore.setSort(field, order)}
-				renderExpanded={(template) => <TemplateItemsTable items={template.items} />}
+			<TemplateTable
+				data={templateStore.filteredTemplates}
+				onSort={templateStore.setSort}
+				onEdit={templateStore.openEdit}
+				onDelete={templateStore.openDelete}
 			/>
 
 			<TemplateFormModal
-				isOpen={isFormOpen}
-				template={selectedTemplate}
-				onClose={() => setIsFormOpen(false)}
-				onSave={onFormSave}
+				isOpen={dialogKind === "form"}
+				isSaving={templateStore.isSaving}
+				template={templateStore.selectedTemplate}
+				onClose={templateStore.closeDialog}
+				onSave={handleFormSave}
 			/>
 
 			<ConfirmDialog
-				isOpen={isDeleteDialogOpen}
-				title={translate("templates.confirm.deleteTitle")}
-				content={<Typography>{translate("templates.confirm.deleteContent")}</Typography>}
-				confirmLabel={translate("delete")}
-				cancelLabel={translate("cancel")}
-				onConfirm={onDeleteConfirmed}
-				onCancel={() => setIsDeleteDialogOpen(false)}
+				isOpen={dialogKind === "delete"}
+				title={translate("common.delete")}
+				content={translate("template.deleteConfirmation", {
+					templateName: templateStore.selectedTemplate?.name ?? "",
+				})}
+				onConfirm={handleDeleteConfirmed}
+				onCancel={templateStore.closeDialog}
 			/>
 		</Box>
 	);
