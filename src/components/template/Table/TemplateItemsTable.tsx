@@ -22,8 +22,8 @@ const TemplateItemsTable: React.FC<TemplateItemsTableProps> = ({ items }) => (
 				{items.map((item) => (
 					<TableRow key={item.id}>
 						<TableCell>{item.productName}</TableCell>
-						<TableCell align="right">{item.quantity}</TableCell>
 						<TableCell align="right">{item.unitPrice.toLocaleString()}</TableCell>
+						<TableCell align="right">{item.quantity}</TableCell>
 						<TableCell align="right">
 							{item.discount != null ? item.discount.toLocaleString() : "-"}
 						</TableCell>
