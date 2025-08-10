@@ -43,7 +43,7 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClos
 	useEffect(() => {
 		if (isOpen) {
 			partnerStore.getAll();
-			productStore.loadProducts();
+			productStore.getAll();
 		}
 	}, [isOpen, partnerStore, productStore]);
 
