@@ -1,11 +1,18 @@
 {
-  "loadProductsError":           "Не удалось загрузить товары",
-  "createProductSuccess":        "Товар успешно создан",
-  "createProductError":          "Не удалось создать товар",
-  "updateProductSuccess":        "Товар успешно обновлён",
-  "updateProductError":          "Не удалось обновить товар",
-  "deleteProductSuccess":        "Товар успешно удалён",
-  "deleteProductError":          "Не удалось удалить товар",
+  "product.error.getAll": "Не удалось загрузить товары",
+  "product.error.getById": "Не удалось загрузить товар",
+  "product.error.create": "Не удалось создать товар",
+  "product.error.update": "Не удалось обновить товар",
+  "product.error.delete": "Не удалось удалить товар",
+
+  "product.success.create": "Товар успешно создан",
+  "product.success.update": "Товар успешно обновлён",
+  "product.success.delete": "Товар успешно удалён",
+
+  "product.title.search": "Поиск товаров...",
+
+  "product.deleteConfirmation":  "Вы уверены, что хотите удалить товар {{productName}}?",
+
   "createProductTitle":          "Создать товар",
   "updateProductTitle":          "Изменить товар",
   "create":                      "Создать",

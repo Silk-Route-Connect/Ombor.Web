@@ -3,6 +3,8 @@
   "category.searchTitle": "Поиск категорий...",
   "category.title.create": "Создание категории",
   "category.title.edit": "Редактирование категории",
+  "category.title.autocomplete": "Выбрать категорию",
+  "category.title.search": "Поиск категории...",
 
   "category.error.load": "Ошибка при загрузке категорий",
   "category.error.create": "Ошибка при создании категории",
