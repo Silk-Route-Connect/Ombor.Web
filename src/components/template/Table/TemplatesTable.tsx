@@ -41,6 +41,7 @@ const TemplateTable: React.FC<TemplateTableProps> = ({ data: rows, onSort, onEdi
 			columns={columns}
 			pagination
 			onSort={onSort}
+			tableLayout="fixed"
 			renderExpanded={(template) => <TemplateItemsTable items={template.items} />}
 		/>
 	);

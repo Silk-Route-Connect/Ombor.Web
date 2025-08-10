@@ -9,21 +9,21 @@ export const templateTableColumns: Column<Template>[] = [
 		field: "name",
 		headerName: translate("template.name"),
 		sortable: true,
-		width: "30%",
+		width: "25%",
 	},
 	{
 		key: "partnerName",
 		field: "partnerName",
 		headerName: translate("template.partner"),
 		sortable: true,
-		width: "20%",
+		width: "30%",
 	},
 	{
 		key: "type",
 		field: "type",
 		headerName: translate("template.type"),
 		sortable: true,
-		width: "20%",
+		width: "15%",
 		renderCell: (template) => translate(`template.type.${template.type}`),
 	},
 	{
@@ -31,7 +31,7 @@ export const templateTableColumns: Column<Template>[] = [
 		field: "total",
 		headerName: translate("template.total"),
 		sortable: true,
-		width: "20%",
+		width: "30%",
 		renderCell: (template) => calculateTemplateTotals(template.items).totalDue.toLocaleString(),
 	},
 ];
