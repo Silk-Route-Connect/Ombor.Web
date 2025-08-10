@@ -1,46 +1,37 @@
-// src/components/product/productTableConfig.tsx
-import React from "react";
 import { Box, Tooltip } from "@mui/material";
 import { Column } from "components/shared/DataTable/DataTable";
 import { translate } from "i18n/i18n";
 import { Product } from "models/product";
 
-/**
- * Columns for the Products table:
- * - name, sku, category
- * - sale price formatted
- * - stock: numeric with tooltip+color
- * - expiration: date with tooltip+color
- */
 export const productColumns: Column<Product>[] = [
 	{
 		key: "sku",
 		field: "sku",
 		headerName: "Артикул",
 		sortable: true,
-		width: 100,
+		width: "10%",
 	},
 	{
 		key: "name",
 		field: "name",
 		headerName: "Название",
 		sortable: true,
-		width: 200,
+		width: "15%",
 	},
 	{
 		key: "category",
 		field: "categoryName",
 		headerName: "Категория",
 		sortable: true,
-		width: 150,
+		width: "10%",
 	},
 	{
 		key: "type",
 		field: "type",
 		headerName: "Тип",
 		sortable: true,
-		width: 100,
-		renderCell: (p) => <Box component="span">{translate(`type.${p.type}`)}</Box>,
+		width: "10%",
+		renderCell: (p) => translate(`type.${p.type}`),
 	},
 	{
 		key: "salePrice",
@@ -48,8 +39,8 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Прод. цена",
 		align: "right",
 		sortable: true,
-		width: 120,
-		renderCell: (p) => <Box component="span">{p.salePrice.toLocaleString()}</Box>,
+		width: "15%",
+		renderCell: (p) => p.salePrice.toLocaleString(),
 	},
 	{
 		key: "supplyPrice",
@@ -57,8 +48,8 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Зак. цена",
 		align: "right",
 		sortable: true,
-		width: 120,
-		renderCell: (p) => <Box component="span">{p.supplyPrice.toLocaleString()}</Box>,
+		width: "15%",
+		renderCell: (p) => p.supplyPrice.toLocaleString(),
 	},
 	{
 		key: "retailPrice",
@@ -66,8 +57,8 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Розн. цена",
 		align: "right",
 		sortable: true,
-		width: 120,
-		renderCell: (p) => <Box component="span">{p.retailPrice.toLocaleString()}</Box>,
+		width: "15%",
+		renderCell: (p) => p.retailPrice.toLocaleString(),
 	},
 	{
 		key: "stock",
@@ -75,7 +66,7 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Остаток",
 		sortable: true,
 		align: "right",
-		width: 100,
+		width: "10%",
 		renderCell: (p) => {
 			const title = p.isLowStock ? "Low stock" : "In stock";
 			const color = p.isLowStock ? "warning.main" : "text.primary";
