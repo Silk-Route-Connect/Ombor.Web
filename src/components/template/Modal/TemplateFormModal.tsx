@@ -81,8 +81,8 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClos
 				isOpen={discardOpen}
 				title={translate("unsavedChangesTitle")}
 				content={<Typography>{translate("unsavedChangesContent")}</Typography>}
-				confirmLabel={translate("discard")}
-				cancelLabel={translate("keepEditing")}
+				confirmLabel={translate("common.dialog.discardChanges.confirm")}
+				cancelLabel={translate("common.dialog.discardChanges.cancel")}
 				onConfirm={confirmDiscard}
 				onCancel={cancelDiscard}
 			/>

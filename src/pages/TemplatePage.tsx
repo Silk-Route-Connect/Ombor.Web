@@ -67,7 +67,7 @@ const TemplatePage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.delete")}
+				title={translate("common.deleteTitle")}
 				content={translate("template.deleteConfirmation", {
 					templateName: templateStore.selectedTemplate?.name ?? "",
 				})}

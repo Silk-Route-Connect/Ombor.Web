@@ -83,7 +83,12 @@ export const useTemplateForm = ({
 	const partnerId = useWatch({ control, name: "partnerId" });
 	const watchedType = useWatch({ control, name: "type" });
 	const watchedItems = useWatch({ control, name: "items" });
-	const { fields: items, append, update, remove } = useFieldArray({ name: "items", control });
+	const {
+		fields: items,
+		append,
+		update,
+		remove,
+	} = useFieldArray({ name: "items", control, keyName: "_id" });
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
 	const { totalDue, totalDiscount } = useMemo(

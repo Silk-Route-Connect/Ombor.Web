@@ -26,6 +26,7 @@
   "common.payment": "Оплата",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
+  "common.discard": "Закрыть",
 
   "common.deleteTitle": "Подтвердите удаление",
 
@@ -36,7 +37,7 @@
   "common.dialog.discardChanges.title":   "Отменить изменения?",
   "common.dialog.discardChanges.body":    "Несохранённые изменения будут потеряны.",
   "common.dialog.discardChanges.confirm": "Да, закрыть",
-  "common.dialog.discardChanges.cancel":         "Отмена",
+  "common.dialog.discardChanges.cancel":  "Продолжить редактирование",
 
   "common.fieldRequired": "Поле объязательно",
 

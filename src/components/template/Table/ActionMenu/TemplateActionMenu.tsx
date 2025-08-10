@@ -2,54 +2,41 @@ import React, { useMemo } from "react";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import PaymentIcon from "@mui/icons-material/Payment";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import { translate } from "i18n/i18n";
 
-export interface PartnerActionMenuProps {
-	onPayment: () => void;
+interface TemplateActionMenuProps {
 	onEdit: () => void;
 	onArchive: () => void;
 	onDelete: () => void;
 }
 
-const PartnerActionMenu: React.FC<PartnerActionMenuProps> = ({
-	onPayment,
-	onEdit,
-	onArchive,
-	onDelete,
-}) => {
+const TemplateActionMenu: React.FC<TemplateActionMenuProps> = ({ onEdit, onArchive, onDelete }) => {
 	const actions: ActionMenuRow[] = useMemo(
 		() => [
 			{
-				key: "payment",
-				label: translate("partner.payment"),
-				icon: <PaymentIcon />,
-				onClick: onPayment,
-			},
-			{
 				key: "edit",
 				label: translate("common.edit"),
-				icon: <EditIcon />,
+				icon: <EditIcon fontSize="small" color="warning" />,
 				onClick: onEdit,
 			},
 			{
 				key: "archive",
 				label: translate("common.archive"),
-				icon: <ArchiveIcon />,
+				icon: <ArchiveIcon fontSize="small" />,
 				onClick: onArchive,
 			},
 			{
 				key: "delete",
 				label: translate("common.delete"),
-				icon: <DeleteIcon />,
+				icon: <DeleteIcon fontSize="small" color="error" />,
 				onClick: onDelete,
 			},
 		],
-		[onPayment, onEdit, onArchive, onDelete],
+		[onEdit, onArchive, onDelete],
 	);
 
 	return <ActionMenu actions={actions} />;
 };
 
-export default PartnerActionMenu;
+export default TemplateActionMenu;

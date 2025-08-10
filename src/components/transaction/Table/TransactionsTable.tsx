@@ -22,7 +22,7 @@ interface TransactionsTableProps
 	onRefund?: (transaction: TransactionRecord) => void;
 }
 
-const DEFAULT_COMPACT_HIDE: TransactionColumn[] = ["partnerName", "unpaidAmount", "notes"];
+const DEFAULT_COMPACT_HIDE: TransactionColumn[] = ["partnerName", "unpaidAmount"];
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 	mode = "full",

@@ -6,7 +6,6 @@ import { TRANSACTION_STATUS_COLORS } from "constants/index";
 import { translate } from "i18n/i18n";
 import { TransactionRecord } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
-import { formatNotes } from "utils/stringUtils";
 import { formatPrice } from "utils/supplyUtils";
 
 export type TableMode = "full" | "compact";
@@ -18,8 +17,7 @@ export type TransactionColumn =
 	| "totalDue"
 	| "totalPaid"
 	| "unpaidAmount"
-	| "status"
-	| "notes";
+	| "status";
 
 export type ColumnBuilder = (mode: "full" | "compact") => Column<TransactionRecord>;
 
@@ -37,7 +35,6 @@ export const TRANSACTION_COLUMN_WIDTHS: Record<
 		totalPaid: CURRENCY_COLUMN_WIDTH,
 		unpaidAmount: CURRENCY_COLUMN_WIDTH,
 		status: "clamp(90px, 10%, 120px)",
-		notes: "auto",
 	},
 
 	compact: {
@@ -130,13 +127,5 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 				variant="outlined"
 			/>
 		),
-	}),
-
-	notes: (mode) => ({
-		key: "notes",
-		field: "notes",
-		width: TRANSACTION_COLUMN_WIDTHS[mode]["notes"],
-		headerName: translate("transaction.notes"),
-		renderCell: (transaction) => formatNotes(transaction.notes),
 	}),
 };
