@@ -19,10 +19,14 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { CategoryOption } from "components/product/Header/ProductHeader";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 import { Measurement, Product, ProductImage, ProductType } from "models/product";
+
+type CategoryOption = {
+	id: number;
+	name: string;
+};
 
 export type ProductFormPayload = {
 	categoryId: number;

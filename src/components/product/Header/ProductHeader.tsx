@@ -1,32 +1,30 @@
-import React from "react";
+import React, { JSX } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import { Box, FormControl, Typography } from "@mui/material";
+import CategoryAutocomplete from "components/shared/Autocomplete/CategoryAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
+import { Category } from "models/category";
 
-export type CategoryOption = {
-	id: number;
-	name: string;
-};
-
-interface Props {
+interface CategoryHeaderProps {
+	title: string;
 	searchValue: string;
-	categoryOptions: CategoryOption[];
-	selectedCategory: number | null;
+	selectedCategory: Category | null;
+
 	onSearch: (value: string) => void;
-	onCategoryChange: (categoryId: number | null) => void;
+	onCategoryChange: (category: Category | null) => void;
 	onCreate: () => void;
 }
 
-export const ProductHeader: React.FC<Props> = ({
+export const ProductHeader: React.FC<CategoryHeaderProps> = ({
+	title,
 	searchValue,
-	categoryOptions,
 	selectedCategory,
 	onSearch,
 	onCategoryChange,
 	onCreate,
-}) => (
+}): JSX.Element => (
 	<Box
 		display="flex"
 		flexWrap="wrap"
@@ -35,29 +33,20 @@ export const ProductHeader: React.FC<Props> = ({
 		mb={3}
 		sx={{ gap: 2 }}
 	>
-		<Typography variant="h5">{translate("product.title")}</Typography>
+		<Typography variant="h5">{title}</Typography>
 		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<SearchInput value={searchValue} onChange={onSearch} placeholder="Поиск товаров..." />
-			<Select<number | "">
-				value={selectedCategory ?? ""}
-				onChange={(e: SelectChangeEvent<number | "">) => {
-					onCategoryChange(e.target.value === "" ? null : Number(e.target.value));
-				}}
-				displayEmpty
-				size="small"
-				sx={{ minWidth: 160 }}
-				MenuProps={{ PaperProps: { style: { maxHeight: 350 } } }}
-			>
-				<MenuItem value="">{translate("product.allCategories")}</MenuItem>
-				{categoryOptions.map((cat) => (
-					<MenuItem key={cat.id} value={cat.id}>
-						{cat.name}
-					</MenuItem>
-				))}
-			</Select>
+			<SearchInput
+				value={searchValue}
+				onChange={onSearch}
+				placeholder={translate("product.title.search")}
+			/>
+
+			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
+				<CategoryAutocomplete value={selectedCategory} onChange={onCategoryChange} size="small" />
+			</FormControl>
 
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				Добавить
+				{translate("common.create")}
 			</PrimaryButton>
 		</Box>
 	</Box>

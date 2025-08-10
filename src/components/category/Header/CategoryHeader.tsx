@@ -1,6 +1,6 @@
 import React, { JSX } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Typography } from "@mui/material";
+import { Box, FormControl, Typography } from "@mui/material";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
@@ -28,12 +28,15 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 		sx={{ gap: 2 }}
 	>
 		<Typography variant="h5">{title}</Typography>
-		<Box display="flex" alignItems="center" sx={{ gap: 2 }}>
-			<SearchInput
-				value={searchValue}
-				onChange={onSearch}
-				placeholder={translate("category.searchTitle")}
-			/>
+		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+			<FormControl margin="dense">
+				<SearchInput
+					value={searchValue}
+					onChange={onSearch}
+					placeholder={translate("category.searchTitle")}
+				/>
+			</FormControl>
+
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 				{translate("common.create")}
 			</PrimaryButton>
