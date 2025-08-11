@@ -8,10 +8,16 @@ import EntityAutocomplete, { AutocompleteSize } from "./Autocomplete";
 interface CategoryAutocompleteProps {
 	value: Category | null;
 	size?: AutocompleteSize;
+	disabled?: boolean;
 	onChange: (value: Category | null) => void;
 }
 
-const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({ value, size, onChange }) => {
+const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
+	value,
+	size,
+	disabled,
+	onChange,
+}) => {
 	const { categoryStore } = useStore();
 
 	const options = useMemo(
@@ -20,6 +26,7 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({ value, size
 	);
 
 	const loading = categoryStore.allCategories === "loading";
+	disabled ??= loading;
 
 	return (
 		<EntityAutocomplete<Category>
@@ -29,7 +36,7 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({ value, size
 			value={value}
 			size={size}
 			loading={loading}
-			disabled={loading}
+			disabled={disabled}
 			onChange={onChange}
 		/>
 	);
