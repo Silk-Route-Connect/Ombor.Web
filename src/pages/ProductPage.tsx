@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo } from "react";
-import ProductFormModal, { ProductFormPayload } from "components/product/Form/ProductFormModal";
+import ProductFormModal from "components/product/Form/ProductFormModal";
 import { ProductHeader } from "components/product/Header/ProductHeader";
 import ProductSidePane from "components/product/SidePane/ProductSidePane";
 import ProductsTable from "components/product/Table/ProductsTable";
 import ConfirmDialog from "components/shared/ConfirmDialog";
+import { ProductFormPayload } from "hooks/product/useProductForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
@@ -25,13 +26,11 @@ const ProductPage: React.FC = observer(() => {
 			productStore.update({
 				...payload,
 				id: productStore.selectedProduct.id,
-				imagesToDelete: payload.deletedImageIds,
+				imagesToDelete: [],
 			});
 		} else {
 			productStore.create({ ...payload });
 		}
-
-		productStore.closeDialog();
 	};
 
 	const handleDelete = () => {
@@ -76,9 +75,10 @@ const ProductPage: React.FC = observer(() => {
 
 			<ProductFormModal
 				isOpen={dialogKind === "form"}
-				categories={[]}
+				isSaving={productStore.isSaving}
 				product={productStore.selectedProduct}
 				onClose={productStore.closeDialog}
+				onGenerateSku={() => {}}
 				onSave={(payload) => handleFormSave(payload)}
 			/>
 
