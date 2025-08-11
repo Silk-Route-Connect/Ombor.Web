@@ -137,6 +137,7 @@ export class ProductStore implements IProductStore {
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("product.success.create"));
 	}
 
@@ -154,6 +155,7 @@ export class ProductStore implements IProductStore {
 			}
 		});
 
+		this.closeDialog();
 		this.notificationStore.success(translate("product.success.update"));
 	}
 
