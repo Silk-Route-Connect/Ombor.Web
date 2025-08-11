@@ -8,6 +8,7 @@ export interface AttachmentPickerProps {
 	files: File[];
 	listHeight?: number;
 	label?: string;
+	disabled?: boolean;
 	onAdd(files: FileList): void;
 	onRemove(index: number): void;
 }
@@ -16,12 +17,19 @@ const AttachmentPicker: React.FC<AttachmentPickerProps> = ({
 	files,
 	listHeight = 90,
 	label = translate("fieldAttachments"),
+	disabled = false,
 	onAdd,
 	onRemove,
 }) => (
 	<Grid container rowSpacing={0} columnSpacing={2}>
 		<Grid size={{ xs: 12 }}>
-			<Button fullWidth variant="outlined" startIcon={<UploadFileIcon />} component="label">
+			<Button
+				fullWidth
+				variant="outlined"
+				startIcon={<UploadFileIcon />}
+				component="label"
+				disabled={disabled}
+			>
 				{label}
 				<input
 					type="file"
