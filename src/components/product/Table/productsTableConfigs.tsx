@@ -22,15 +22,15 @@ export const productColumns: Column<Product>[] = [
 		field: "categoryName",
 		headerName: "Категория",
 		sortable: true,
-		width: "10%",
+		width: "15%",
 	},
 	{
 		key: "type",
 		field: "type",
 		headerName: "Тип",
 		sortable: true,
-		width: "10%",
-		renderCell: (p) => translate(`type.${p.type}`),
+		width: "15%",
+		renderCell: (p) => translate(`product.type.${p.type}`),
 	},
 	{
 		key: "salePrice",
