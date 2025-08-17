@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, UseFormReturn, UseFormStateReturn, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Product } from "models/product";
+import { Product, ProductImage } from "models/product";
 import { ProductFormInputs, ProductFormValues, ProductSchema } from "schemas/ProductSchema";
 import { mapProductToFormPayload } from "utils/productUtils";
 
-interface UseProductFormOptions {
+export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
 	onSave: (payload: ProductFormValues) => void;
 }
 
-interface UseProductFormResult {
+export interface UseProductFormResult {
 	form: UseFormReturn<ProductFormInputs>;
 	formState: UseFormStateReturn<ProductFormInputs>;
 	canSave: boolean;
@@ -20,11 +20,19 @@ interface UseProductFormResult {
 	hasPackaging: boolean;
 	packSize: number;
 	packPrice: number | null;
+	attachments: File[];
+	existingImages: ProductImage[];
+	imagesToRemove: number[];
 
 	setCategoryId: (categoryId: number) => void;
 	setType: (type: ProductFormInputs["type"]) => void;
 	enablePackaging: () => void;
 	disablePackaging: () => void;
+	addAttachments: (files: FileList) => void;
+	removeAttachment: (index: number) => void;
+	clearAttachments: () => void;
+	markImageForRemoval: (imageId: number) => void;
+	restoreMarkedImage: (imageId: number) => void;
 
 	submit: () => Promise<void>;
 }
@@ -66,10 +74,28 @@ export const useProductForm = ({
 
 	const { control, formState, setValue, handleSubmit } = form;
 
+	const [initialImages, setInitialImages] = useState<ProductImage[]>([]);
+	const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
+
 	useEffect(() => {
 		const initialValues = product ? mapProductToFormPayload(product) : { ...DEFAULT_VALUES };
 		form.reset(initialValues);
+		setInitialImages(product?.images ?? []);
+		setImagesToRemove([]);
 	}, [isOpen, product, form]);
+
+	const existingImages = useMemo(
+		() => initialImages.filter((img) => !imagesToRemove.includes(img.id)),
+		[initialImages, imagesToRemove],
+	);
+
+	const markImageForRemoval = useCallback((imageId: number) => {
+		setImagesToRemove((prev) => (prev.includes(imageId) ? prev : [...prev, imageId]));
+	}, []);
+
+	const restoreMarkedImage = useCallback((imageId: number) => {
+		setImagesToRemove((prev) => prev.filter((id) => id !== imageId));
+	}, []);
 
 	const watchedSalePrice = useWatch({ control, name: "salePrice" });
 	const watchedPackaging = useWatch({ control, name: "packaging" });
@@ -109,11 +135,31 @@ export const useProductForm = ({
 		setValue("packaging", undefined, { shouldDirty: true, shouldValidate: true });
 	}, [setValue]);
 
+	const attachments = useWatch({ control, name: "attachments" }) ?? [];
+
+	const addAttachments = useCallback(
+		(files: FileList) => {
+			const next = [...attachments, ...Array.from(files)];
+			setValue("attachments", next, { shouldDirty: true, shouldValidate: true });
+		},
+		[attachments, setValue],
+	);
+
+	const removeAttachment = useCallback(
+		(index: number) => {
+			const next = attachments.filter((_, i) => i !== index);
+			setValue("attachments", next, { shouldDirty: true, shouldValidate: true });
+		},
+		[attachments, setValue],
+	);
+
+	const clearAttachments = useCallback(() => {
+		setValue("attachments", [], { shouldDirty: true, shouldValidate: true });
+	}, [setValue]);
+
 	const submit = handleSubmit(onSave);
 
 	const canSave = formState.isValid && formState.isDirty && !isSaving;
-	console.log(formState.isValid);
-	console.log(formState.isDirty);
 
 	return {
 		form,
@@ -123,11 +169,20 @@ export const useProductForm = ({
 		hasPackaging,
 		packSize,
 		packPrice,
+		attachments,
 
 		setCategoryId,
 		setType,
 		enablePackaging,
 		disablePackaging,
+		addAttachments,
+		removeAttachment,
+		clearAttachments,
+
+		existingImages,
+		imagesToRemove,
+		markImageForRemoval,
+		restoreMarkedImage,
 
 		submit,
 	};
