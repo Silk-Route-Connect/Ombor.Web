@@ -54,9 +54,6 @@ const ProductRow: React.FC<RowProps> = ({ row, disabled, selected, onSelect, onA
 		<TableCell sx={CELL}>{row.name}</TableCell>
 		<TableCell sx={CELL}>{row.sku}</TableCell>
 		<TableCell sx={CELL} align="right">
-			{row.quantityInStock.toLocaleString()}
-		</TableCell>
-		<TableCell sx={CELL} align="right">
 			{row.supplyPrice.toLocaleString()}
 		</TableCell>
 		<TableCell sx={CELL} align="right">
@@ -88,7 +85,6 @@ const MemoRow = memo(
 		a.selected === b.selected &&
 		a.disabled === b.disabled &&
 		a.row.id === b.row.id &&
-		a.row.quantityInStock === b.row.quantityInStock &&
 		a.row.salePrice === b.row.salePrice &&
 		a.row.supplyPrice === b.row.supplyPrice,
 );
@@ -166,7 +162,7 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 				/* skip disabled rows */
 				do {
 					next = (next + delta + rows.length) % rows.length;
-				} while (next !== idx && mode === "Sale" && rows[next].quantityInStock <= 0);
+				} while (next !== idx && mode === "Sale" && rows[next].salePrice <= 0);
 				setIdx(next);
 				onSelect(rows[next]);
 			};
@@ -182,7 +178,7 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 					return;
 				case "Enter":
 					e.preventDefault();
-					if (idx >= 0 && rows[idx].quantityInStock > 0) onAdd(rows[idx]);
+					if (idx >= 0 && rows[idx].salePrice > 0) onAdd(rows[idx]);
 					return;
 				default:
 					break;
@@ -239,7 +235,7 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 
 					<TableBody>
 						{rows.map((row, i) => {
-							const disabled = mode === "Sale" && row.quantityInStock <= 0;
+							const disabled = mode === "Sale" && row.salePrice <= 0;
 							return (
 								<MemoRow
 									key={row.id}

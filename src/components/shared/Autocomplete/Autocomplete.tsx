@@ -21,6 +21,8 @@ export interface EntityAutocompleteProps<T extends EntityWithIdName> {
 	value: T | null;
 	size?: AutocompleteSize;
 	inputRef?: React.Ref<HTMLInputElement>;
+	required?: boolean;
+	error?: boolean;
 	onChange(value: T | null): void;
 	additionalFilter?(entity: T, text: string): boolean;
 	onKeyDown?: (
@@ -38,6 +40,8 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 	size = "medium",
 	loading = false,
 	disabled = false,
+	required = false,
+	error = false,
 	inputRef,
 	onChange,
 	additionalFilter,
@@ -90,6 +94,8 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 					label={label}
 					placeholder={placeholder}
 					fullWidth
+					required={required}
+					error={error}
 				/>
 			)}
 			{...rest}

@@ -18,7 +18,7 @@ const CreateTransactionPage: React.FC<CreateTransactionPageProps> = observer(({ 
 	const form = useCreateTransactionForm(mode);
 
 	useEffect(() => {
-		productStore.loadProducts();
+		productStore.getAll();
 		partnerStore.getAll();
 		templateStore.getAll();
 	}, [productStore, partnerStore, templateStore]);

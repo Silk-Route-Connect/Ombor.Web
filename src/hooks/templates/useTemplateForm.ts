@@ -107,7 +107,9 @@ export const useTemplateForm = ({
 	);
 
 	const addItem = useCallback(() => {
-		if (!selectedProduct) return;
+		if (!selectedProduct) {
+			return;
+		}
 
 		if (items.some((item) => item.productId === selectedProduct.id)) {
 			setSelectedProduct(null);

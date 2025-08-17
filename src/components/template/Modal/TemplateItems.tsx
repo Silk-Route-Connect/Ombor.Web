@@ -51,7 +51,7 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 	}, [localItems, onChange]);
 
 	useEffect(() => {
-		productStore.loadProducts();
+		productStore.getAll();
 	}, [productStore]);
 
 	const products = Array.isArray(productStore.allProducts) ? productStore.allProducts : [];

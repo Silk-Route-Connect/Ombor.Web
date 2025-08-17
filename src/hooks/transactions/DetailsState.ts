@@ -47,15 +47,11 @@ export function useTransactionDetails(mode: TransactionFormMode): DetailsHook {
 			return undefined;
 		}
 
-		return productStore.allProducts.find((p) => p.id === productId)?.quantityInStock;
+		return productStore.allProducts.find((p) => p.id === productId)?.salePrice;
 	};
 
 	const addLine = useCallback(
 		(product: Product) => {
-			if (mode === "Sale" && product.quantityInStock <= 0) {
-				return;
-			}
-
 			setLines((prev) => {
 				if (prev.some((line) => line.productId === product.id)) {
 					return prev;

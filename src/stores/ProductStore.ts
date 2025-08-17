@@ -1,4 +1,7 @@
+import { SortOrder } from "components/shared/DataTable/DataTable";
+import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { Category } from "models/category";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import { translate } from "../i18n/i18n";
@@ -6,32 +9,62 @@ import { CreateProductRequest, Product, UpdateProductRequest } from "../models/p
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
 
+export type DialogMode =
+	| { kind: "form"; product?: Product }
+	| { kind: "delete"; product: Product }
+	| { kind: "details"; product: Product }
+	| { kind: "none" };
+
 export interface IProductStore {
+	// computed properties
 	allProducts: Loadable<Product[]>;
 	saleProducts: Loadable<Product[]>;
 	supplyProducts: Loadable<Product[]>;
-	searchTerm: string;
-	categoryFilter: number | null;
 	filteredProducts: Loadable<Product[]>;
 
+	// UI state
+	selectedProduct: Product | null;
+	searchTerm: string;
+	categoryFilter: Category | null;
+	sortField: keyof Product | null;
+	sortOrder: SortOrder;
+	isSaving: boolean;
+	dialogMode: DialogMode;
+
+	// actions
+	getAll(): Promise<void>;
+	create(request: CreateProductRequest): Promise<void>;
+	update(request: UpdateProductRequest): Promise<void>;
+	delete(productId: number): Promise<void>;
+
+	// setters for filters & sorting
 	setSearch(term: string): void;
-	setCategory(categoryId: number | null): void;
-	loadProducts(): Promise<void>;
-	createProduct(request: CreateProductRequest): Promise<void>;
-	updateProduct(request: UpdateProductRequest): Promise<void>;
-	deleteProduct(id: number): Promise<void>;
+	setCategoryFilter(category: Category | null): void;
+	setSort(field: keyof Product, order: SortOrder): void;
+
+	// UI dialog helper methods
+	openCreate(): void;
+	openEdit(product: Product): void;
+	openDelete(product: Product): void;
+	openDetails(product: Product): void;
+	closeDialog(): void;
 }
 
 export class ProductStore implements IProductStore {
+	private readonly notificationStore: NotificationStore;
+
 	allProducts: Loadable<Product[]> = [];
 	searchTerm = "";
-	categoryFilter: number | null = null;
-
-	private readonly notificationStore: NotificationStore;
+	categoryFilter: Category | null = null;
+	selectedProduct: Product | null = null;
+	isSaving: boolean = false;
+	dialogMode: DialogMode = { kind: "none" };
+	sortField: keyof Product | null = null;
+	sortOrder: SortOrder = "asc";
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredProducts(): Loadable<Product[]> {
@@ -48,10 +81,9 @@ export class ProductStore implements IProductStore {
 			});
 		}
 
-		if (this.categoryFilter !== null) {
-			products = products.filter((p) => {
-				return p.categoryId === this.categoryFilter;
-			});
+		const categoryId = this.categoryFilter?.id;
+		if (categoryId) {
+			products = products.filter((p) => p.categoryId === categoryId);
 		}
 
 		return products;
@@ -73,15 +105,7 @@ export class ProductStore implements IProductStore {
 		return this.filteredProducts.filter((el) => el.type !== "Sale");
 	}
 
-	setSearch(term: string): void {
-		this.searchTerm = term;
-	}
-
-	setCategory(categoryId: number | null): void {
-		this.categoryFilter = categoryId;
-	}
-
-	async loadProducts(): Promise<void> {
+	async getAll(): Promise<void> {
 		if (this.allProducts === "loading") {
 			return;
 		}
@@ -91,7 +115,7 @@ export class ProductStore implements IProductStore {
 		const result = await tryRun(() => ProductApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("loadProductsError") + `: ${result.error}`);
+			this.notificationStore.error(translate("product.error.getAll"));
 		}
 
 		const data = result.status === "success" ? result.data : [];
@@ -99,11 +123,11 @@ export class ProductStore implements IProductStore {
 		runInAction(() => (this.allProducts = data));
 	}
 
-	async createProduct(request: CreateProductRequest): Promise<void> {
-		const result = await tryRun(() => ProductApi.create(request));
+	async create(request: CreateProductRequest): Promise<void> {
+		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("createProductError") + `: ${result.error}`);
+			this.notificationStore.error(translate("product.error.create"));
 			return;
 		}
 
@@ -112,46 +136,84 @@ export class ProductStore implements IProductStore {
 				this.allProducts = [result.data, ...this.allProducts];
 			}
 		});
-		this.notificationStore.success(translate("createProductSuccess"));
+
+		this.closeDialog();
+		this.notificationStore.success(translate("product.success.create"));
 	}
 
-	async updateProduct(request: UpdateProductRequest): Promise<void> {
-		const result = await tryRun(() => ProductApi.update(request));
+	async update(request: UpdateProductRequest): Promise<void> {
+		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("updateProductError") + `: ${result.error}`);
+			this.notificationStore.error(translate("product.error.update"));
 			return;
 		}
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = this.allProducts.map((p) => {
-					if (p.id === result.data.id) {
-						return result.data;
-					}
-					return p;
-				});
+				this.allProducts = this.allProducts.map((p) => (p.id === result.data.id ? result.data : p));
 			}
 		});
-		this.notificationStore.success(translate("updateProductSuccess"));
+
+		this.closeDialog();
+		this.notificationStore.success(translate("product.success.update"));
 	}
 
-	async deleteProduct(id: number): Promise<void> {
-		const result = await tryRun(() => ProductApi.delete(id));
+	async delete(id: number): Promise<void> {
+		const result = await withSaving(this, () => ProductApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("deleteProductError") + `: ${result.error}`);
+			this.notificationStore.error(translate("product.error.delete"));
 			return;
 		}
 
 		runInAction(() => {
 			if (this.allProducts !== "loading") {
-				this.allProducts = this.allProducts.filter((p) => {
-					return p.id !== id;
-				});
+				this.allProducts = this.allProducts.filter((p) => p.id !== id);
 			}
 		});
-		this.notificationStore.success(translate("deleteProductSuccess"));
+
+		this.notificationStore.success(translate("product.success.delete"));
+	}
+
+	setSearch(term: string): void {
+		this.searchTerm = term;
+	}
+
+	setCategoryFilter(category: Category | null): void {
+		this.categoryFilter = category;
+	}
+
+	setSort(field: keyof Product, order: SortOrder): void {
+		this.sortField = field;
+		this.sortOrder = order;
+	}
+
+	openCreate(): void {
+		this.setDialog({ kind: "form" });
+	}
+
+	openEdit(product: Product): void {
+		this.setDialog({ kind: "form", product: product });
+	}
+
+	openDelete(product: Product): void {
+		this.setDialog({ kind: "delete", product: product });
+	}
+
+	openDetails(product: Product): void {
+		this.setDialog({ kind: "details", product: product });
+	}
+
+	closeDialog(): void {
+		this.dialogMode = { kind: "none" };
+	}
+
+	private setDialog(mode: DialogMode) {
+		const product = "product" in mode ? (mode.product ?? null) : null;
+
+		this.dialogMode = mode;
+		this.selectedProduct = product;
 	}
 }
 

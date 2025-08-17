@@ -34,6 +34,9 @@
 
   "common.dash": "—",
 
+  "common.enable": "Включить",
+  "common.enabled": "Выключить",
+
   "common.dialog.discardChanges.title":   "Отменить изменения?",
   "common.dialog.discardChanges.body":    "Несохранённые изменения будут потеряны.",
   "common.dialog.discardChanges.confirm": "Да, закрыть",

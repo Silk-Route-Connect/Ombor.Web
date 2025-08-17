@@ -75,7 +75,7 @@ const LinesTable = forwardRef<LinesTableHandle, Props>(
 									? undefined
 									: productStore.allProducts.find((p) => p.id === row.productId);
 
-							const maxQty = mode === "Sale" ? (product?.quantityInStock ?? 0) : undefined;
+							const maxQty = mode === "Sale" ? (product?.salePrice ?? 0) : undefined;
 							const exceedsStock = mode === "Sale" && maxQty !== undefined && row.quantity > maxQty;
 
 							const total = row.unitPrice * row.quantity * (1 - (row.discount ?? 0) / 100);

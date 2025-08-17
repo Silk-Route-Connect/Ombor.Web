@@ -102,7 +102,7 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 					<Typography variant="subtitle2">{translate("fieldRetailPrice")}</Typography>
 					<Typography>{product.retailPrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
-				<Grid size={{ xs: 4 }}>
+				{/* <Grid size={{ xs: 4 }}>
 					<Typography variant="subtitle2">{translate("fieldQuantityInStock")}</Typography>
 					<Typography
 						sx={{
@@ -120,7 +120,7 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 				<Grid size={12}>
 					<Typography variant="subtitle2">{translate("fieldDescription")}</Typography>
 					<Typography sx={{ whiteSpace: "pre-wrap" }}>{product.description ?? "—"}</Typography>
-				</Grid>
+				</Grid> */}
 			</Grid>
 		</Box>
 	);
