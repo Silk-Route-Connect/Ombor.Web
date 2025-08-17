@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -162,7 +163,9 @@ const ProductFormFieldsTwoColumn: React.FC<ProductFormFieldsTwoColumnProps> = ({
 										src={
 											mainImage.kind === "existing"
 												? resolveUrl(
+														// eslint-disable-next-line max-len
 														existingImages.find((i) => i.id === mainImage.imageId)?.thumbnailUrl ??
+															// eslint-disable-next-line max-len
 															existingImages.find((i) => i.id === mainImage.imageId)?.originalUrl ??
 															"",
 													)
