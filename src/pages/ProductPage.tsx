@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import { ProductHeader } from "components/product/Header/ProductHeader";
 import ProductSidePane from "components/product/SidePane/ProductSidePane";
@@ -11,6 +11,8 @@ import { useStore } from "stores/StoreContext";
 
 const ProductPage: React.FC = observer(() => {
 	const { productStore, categoryStore } = useStore();
+
+	const [formVersion, setFormVersion] = useState<"v1" | "v2">("v1");
 
 	useEffect(() => {
 		categoryStore.getAll();
@@ -60,7 +62,14 @@ const ProductPage: React.FC = observer(() => {
 				selectedCategory={productStore.categoryFilter}
 				onSearch={productStore.setSearch}
 				onCategoryChange={productStore.setCategoryFilter}
-				onCreate={productStore.openCreate}
+				onCreate={() => {
+					setFormVersion("v1");
+					productStore.openCreate();
+				}}
+				onCreateV2={() => {
+					setFormVersion("v2");
+					productStore.openCreate();
+				}}
 			/>
 
 			<ProductsTable
@@ -76,6 +85,7 @@ const ProductPage: React.FC = observer(() => {
 			<ProductFormModal
 				isOpen={dialogKind === "form"}
 				isSaving={productStore.isSaving}
+				formVersion={formVersion}
 				product={productStore.selectedProduct}
 				onClose={productStore.closeDialog}
 				onGenerateSku={() => {}}

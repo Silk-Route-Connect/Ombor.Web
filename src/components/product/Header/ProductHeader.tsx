@@ -15,6 +15,7 @@ interface CategoryHeaderProps {
 	onSearch: (value: string) => void;
 	onCategoryChange: (category: Category | null) => void;
 	onCreate: () => void;
+	onCreateV2: () => void;
 }
 
 export const ProductHeader: React.FC<CategoryHeaderProps> = ({
@@ -24,6 +25,7 @@ export const ProductHeader: React.FC<CategoryHeaderProps> = ({
 	onSearch,
 	onCategoryChange,
 	onCreate,
+	onCreateV2,
 }): JSX.Element => (
 	<Box
 		display="flex"
@@ -46,6 +48,9 @@ export const ProductHeader: React.FC<CategoryHeaderProps> = ({
 			</FormControl>
 
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+				{translate("common.create")}
+			</PrimaryButton>
+			<PrimaryButton icon={<AddIcon />} onClick={onCreateV2}>
 				{translate("common.create")}
 			</PrimaryButton>
 		</Box>
