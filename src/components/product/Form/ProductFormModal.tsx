@@ -12,55 +12,44 @@ import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 
+import ProductFormFieldsV2 from "./ProductFormFieldsV2";
+
 const CONTENT_HEIGHT = 600;
 
 export interface ProductFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
+	formVersion: "v1" | "v2";
 	onSave: (payload: ProductFormValues) => void;
 	onClose: () => void;
 	onGenerateSku?: () => void;
-	onRemoveExistingImage?: (imageId: number) => void;
-	imagesBaseUrlResolver?: (url: string) => string;
 }
 
 const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	isOpen,
 	isSaving,
 	product,
+	formVersion = "v1",
 	onSave,
 	onClose,
 	onGenerateSku,
-	onRemoveExistingImage,
-	imagesBaseUrlResolver,
 }) => {
 	const { categoryStore } = useStore();
 
-	const {
-		form,
-		formState,
-		canSave,
-		hasPackaging,
-		packPrice,
-		enablePackaging,
-		disablePackaging,
-		submit,
-	} = useProductForm({
+	const form = useProductForm({
 		isOpen,
 		isSaving,
 		product,
 		onSave,
 	});
 
-	// Guard closing when dirty
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
-		formState.isDirty,
+		form.formState.isDirty,
 		isSaving,
 		onClose,
 	);
 
-	// Prefetch dependencies when opening
 	useEffect(() => {
 		if (isOpen) {
 			categoryStore.getAll();
@@ -93,24 +82,17 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 						pt: 2,
 					}}
 				>
-					<ProductFormFields
-						form={form}
-						hasPackaging={hasPackaging}
-						enablePackaging={enablePackaging}
-						disablePackaging={disablePackaging}
-						packPrice={packPrice}
-						onGenerateSku={onGenerateSku}
-						existingImages={product?.images ?? []}
-						disabled={isSaving}
-						onRemoveExistingImage={onRemoveExistingImage}
-						imagesBaseUrlResolver={imagesBaseUrlResolver}
-					/>
+					{formVersion === "v1" ? (
+						<ProductFormFields api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
+					) : (
+						<ProductFormFieldsV2 api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
+					)}
 				</DialogContent>
 
 				<FormDialogFooter
 					onCancel={requestClose}
-					onSave={submit}
-					canSave={canSave}
+					onSave={form.submit}
+					canSave={form.canSave}
 					loading={isSaving}
 				/>
 			</Dialog>
