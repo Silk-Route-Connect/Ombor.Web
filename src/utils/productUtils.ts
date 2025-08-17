@@ -35,3 +35,16 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 		notes: product.notes,
 	};
 };
+
+const IMAGE_BASE_URL = process.env.REACT_APP_OMBOR_API_BASE_URL ?? "";
+
+export function getImageFullUrl(path?: string): string | undefined {
+	if (!path) {
+		return undefined;
+	}
+
+	const base = IMAGE_BASE_URL.replace(/\/+$|\\+$/, "");
+	const p = path.replace(/^\/+/, "");
+
+	return `${base}/${p}`;
+}
