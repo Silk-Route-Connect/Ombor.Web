@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable max-len */
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";

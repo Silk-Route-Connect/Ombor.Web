@@ -113,7 +113,11 @@ export const ProductSchema = z
 		attachments: z
 			.custom<
 				File[] | undefined
-			>((files): files is File[] | undefined => files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)))
+				// eslint-disable-next-line max-len
+			>(
+				(files): files is File[] | undefined =>
+					files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)),
+			)
 			.optional(),
 
 		notes: optionalTrimmedMax(500, "product.validation.notesTooLong"),
