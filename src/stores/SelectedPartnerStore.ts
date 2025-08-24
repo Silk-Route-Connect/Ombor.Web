@@ -10,6 +10,7 @@ import { TransactionRecord, TransactionType } from "models/transaction";
 import PartnerApi from "services/api/PartnerApi";
 import TransactionApi from "services/api/TransactionApi";
 import { DateFilter, materialise, PresetOption } from "utils/dateFilterUtils";
+import { isWithinDateRange } from "utils/dateUtils";
 
 import { NotificationStore } from "./NotificationStore";
 import { IPartnerStore } from "./PartnerStore";
@@ -245,7 +246,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return "loading";
 		}
 
-		return data.filter((transaction) => this.isWithin(transaction.date, this.dateFilter));
+		return data.filter((transaction) => isWithinDateRange(transaction.date, this.dateFilter));
 	}
 
 	private filterPayments(data: Loadable<Payment[]>): Loadable<Payment[]> {
@@ -253,22 +254,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 			return "loading";
 		}
 
-		return data.filter((payment) => this.isWithin(payment.date, this.dateFilter));
-	}
-
-	private isWithin(dateIso: string | Date, filter: DateFilter): boolean {
-		const { from, to } = materialise(filter);
-		const date = typeof dateIso === "string" ? new Date(dateIso) : dateIso;
-
-		if (from && date < from) {
-			return false;
-		}
-
-		if (to && date > to) {
-			return false;
-		}
-
-		return true;
+		return data.filter((payment) => isWithinDateRange(payment.date, this.dateFilter));
 	}
 
 	private async getOpenTransactions(partnerId: number) {
