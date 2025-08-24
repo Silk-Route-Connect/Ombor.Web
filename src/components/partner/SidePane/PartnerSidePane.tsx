@@ -105,7 +105,10 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 			ModalProps={{ keepMounted: true }}
 			sx={(theme) => ({
 				zIndex: theme.zIndex.drawer + 2,
-				"& .MuiDrawer-paper": { width: 950, boxSizing: "border-box" },
+				"& .MuiDrawer-paper": {
+					width: 950,
+					boxSizing: "border-box",
+				},
 			})}
 		>
 			<Box sx={{ display: "flex", alignItems: "center", p: 2 }}>

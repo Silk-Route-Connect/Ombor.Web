@@ -1,11 +1,9 @@
-// src/components/product/Drawer/DetailsTab.tsx
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { translate } from "i18n/i18n";
-import { toJS } from "mobx";
 import { Product, ProductImage } from "models/product";
 
 const IMAGE_BASE_URL = process.env.REACT_APP_OMBOR_API_BASE_URL ?? "";
@@ -27,8 +25,6 @@ export interface DetailsTabProps {
 
 export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 	const [lightboxImage, setLightboxImage] = useState<ProductImage | null>(null);
-
-	console.log("DetailsTab product:", toJS(product));
 
 	return (
 		<Box sx={{ p: 2 }}>
@@ -67,60 +63,61 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 
 			<Grid container spacing={4}>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldId")}</Typography>
+					<Typography variant="subtitle2">{translate("product.id")}</Typography>
 					<Typography>{product.id}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldCategory")}</Typography>
+					<Typography variant="subtitle2">{translate("product.category")}</Typography>
 					<Typography>{product.categoryName}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldType")}</Typography>
-					<Typography>{translate(`type.${product.type}`)}</Typography>
+					<Typography variant="subtitle2">{translate("product.type")}</Typography>
+					<Typography>{translate(`product.type.${product.type}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldSku")}</Typography>
+					<Typography variant="subtitle2">{translate("product.sku")}</Typography>
 					<Typography>{product.sku}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldMeasurement")}</Typography>
+					<Typography variant="subtitle2">{translate("product.measurement")}</Typography>
 					<Typography>{translate(`measurement.${product.measurement}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldBarcode")}</Typography>
+					<Typography variant="subtitle2">{translate("product.barcode")}</Typography>
 					<Typography>{product.barcode ?? "—"}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldSupplyPrice")}</Typography>
+					<Typography variant="subtitle2">{translate("product.supplyPrice")}</Typography>
 					<Typography>{product.supplyPrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldSalePrice")}</Typography>
+					<Typography variant="subtitle2">{translate("product.salePrice")}</Typography>
 					<Typography>{product.salePrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldRetailPrice")}</Typography>
+					<Typography variant="subtitle2">{translate("product.retailPrice")}</Typography>
 					<Typography>{product.retailPrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
-				{/* <Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldQuantityInStock")}</Typography>
-					<Typography
-						sx={{
-							color: product.isLowStock ? "warning.main" : "text.primary",
-							fontWeight: product.isLowStock ? 600 : 400,
-						}}
-					>
-						{product.quantityInStock}
-					</Typography>
-				</Grid>
-				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("fieldLowStockThreshold")}</Typography>
-					<Typography>{product.lowStockThreshold}</Typography>
-				</Grid>
-				<Grid size={12}>
-					<Typography variant="subtitle2">{translate("fieldDescription")}</Typography>
-					<Typography sx={{ whiteSpace: "pre-wrap" }}>{product.description ?? "—"}</Typography>
-				</Grid> */}
+				{product.packaging && (
+					<>
+						<Grid size={{ xs: 4 }}>
+							<Typography variant="subtitle2">{translate("product.packaging.packSize")}</Typography>
+							<Typography>{product.packaging.packSize}</Typography>
+						</Grid>
+						<Grid size={{ xs: 4 }}>
+							<Typography variant="subtitle2">
+								{translate("product.packaging.packLabel")}
+							</Typography>
+							<Typography>{product.packaging.packLabel ?? "—"}</Typography>
+						</Grid>
+						<Grid size={{ xs: 4 }}>
+							<Typography variant="subtitle2">
+								{translate("product.packaging.packBarcode")}
+							</Typography>
+							<Typography>{product.packaging.packBarcode ?? "—"}</Typography>
+						</Grid>
+					</>
+				)}
 			</Grid>
 		</Box>
 	);
