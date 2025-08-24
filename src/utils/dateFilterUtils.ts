@@ -17,15 +17,15 @@ export interface Bounds {
 
 /** Turns a filter into concrete bounds relative to “today”. */
 export function materialise(filter: DateFilter, today = new Date()): Bounds {
-	const d0 = startOfDay(today);
+	const startDate = startOfDay(today);
 
 	if (filter.type === "custom") return { from: filter.from, to: filter.to };
 
 	switch (filter.preset) {
 		case "week":
-			return { from: addDays(d0, -7), to: d0 };
+			return { from: addDays(startDate, -7), to: startDate };
 		case "month":
-			return { from: addMonths(d0, -1), to: d0 };
+			return { from: addMonths(startDate, -1), to: startDate };
 		case "alltime":
 			return { from: null, to: null };
 	}

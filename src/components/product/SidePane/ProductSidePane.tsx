@@ -1,4 +1,3 @@
-// src/components/product/Drawer/ProductDetailsDrawer.tsx
 import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
@@ -12,13 +11,13 @@ import { translate } from "i18n/i18n";
 import { Product } from "models/product";
 
 import { DetailsTab } from "./Tabs/DetailsTab";
-import { ReportsTab } from "./Tabs/ReportsTab";
-import { SalesTab } from "./Tabs/SalesTab";
-import { SuppliesTab } from "./Tabs/SuppliesTab";
+import ReportsTab from "./Tabs/ReportsTab";
+import TransactionsTab from "./Tabs/TransactionsTab";
 
 interface ProductDetailsDrawerProps {
 	open: boolean;
 	product: Product | null;
+
 	onClose: () => void;
 }
 
@@ -42,7 +41,7 @@ export default function ProductDetailsDrawer({
 			sx={(theme) => ({
 				zIndex: theme.zIndex.drawer + 2,
 				"& .MuiDrawer-paper": {
-					width: 900,
+					width: 950,
 					boxSizing: "border-box",
 				},
 			})}
@@ -74,10 +73,10 @@ export default function ProductDetailsDrawer({
 				<ReportsTab />
 			</TabPanel>
 			<TabPanel index={2}>
-				<SalesTab productId={product?.id ?? 0} />
+				<TransactionsTab mode="Sale" />
 			</TabPanel>
 			<TabPanel index={3}>
-				<SuppliesTab productId={product?.id ?? 0} />
+				<TransactionsTab mode="Supply" />
 			</TabPanel>
 		</Drawer>
 	);

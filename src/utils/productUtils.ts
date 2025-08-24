@@ -1,4 +1,4 @@
-import { Product } from "models/product";
+import { Product, ProductTransaction } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 export function isAvialableForSale(product: Product) {
@@ -8,8 +8,14 @@ export function isAvialableForSale(product: Product) {
 export function calculateLineTotals(unitPrice: number, quantity: number, discount: number) {
 	const lineTotal = unitPrice * quantity;
 	const discountAmount = (lineTotal * discount) / 100;
+	const totalWithDiscount = lineTotal - discountAmount;
 
-	return { lineTotal, discountAmount };
+	return { lineTotal, discountAmount, totalWithDiscount };
+}
+
+export function calculateProductTransactionTotal(transaction: ProductTransaction) {
+	return calculateLineTotals(transaction.unitPrice, transaction.quantity, transaction.discount)
+		.totalWithDiscount;
 }
 
 export function getPrice(product: Product, type: "Sale" | "Supply") {

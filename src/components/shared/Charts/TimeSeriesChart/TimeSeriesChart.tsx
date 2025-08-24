@@ -94,6 +94,7 @@ interface TimeSeriesChartProps {
 	seriesConfig: TimeSeriesConfig[];
 	height?: number;
 	margin?: typeof DEFAULT_MARGIN;
+	title?: React.ReactNode;
 }
 
 const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
@@ -102,6 +103,7 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
 	seriesConfig,
 	height = DEFAULT_HEIGHT,
 	margin = DEFAULT_MARGIN,
+	title,
 }) => {
 	const [chartType, setChartType] = useState<ChartType>("line");
 	const [exportAnchor, setExportAnchor] = useState<HTMLElement | null>(null);
@@ -119,8 +121,9 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
 		<Box>
 			<ChartControls
 				chartType={chartType}
-				onChartTypeChange={setChartType}
 				exportAnchor={exportAnchor}
+				title={title}
+				onChartTypeChange={setChartType}
 				onOpenExport={handleOpenExport}
 				onCloseExport={handleCloseExport}
 			/>

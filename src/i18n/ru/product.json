@@ -21,8 +21,8 @@
   "update":                      "Сохранить",
   "cancel":                      "Отмена",
 
-  "fieldId":                     "ID",
-  "fieldCategory":               "Категория",
+  "product.id":                     "ID",
+  "product.category":               "Категория",
   "product.measurement":            "Единица измерения",
   "product.description":            "Описание",
   "product.barcode":                "Штрихкод",
@@ -143,5 +143,23 @@
 	"product.validation.packSizeMin": "В упаковке должно быть не менее 2 единиц.",
 	"product.validation.packLabelTooLong": "Название упаковки не должно превышать 50 символов.",
 	"product.validation.invalidPackBarcode": "Некорректный штрих‑код упаковки.",
-	"product.validation.notesTooLong": "Заметки не должны превышать 500 символов."
+	"product.validation.notesTooLong": "Заметки не должны превышать 500 символов.",
+
+  "product.transaction.date": "Дата",
+  "product.transaction.type": "Тип",
+  "product.transaction.quantity": "Количество",
+  "product.transaction.total": "Сумма",
+  "product.transaction.partner": "Партнёр",
+  "product.transaction.unitPrice": "Цена за ед.",
+  "product.transaction.discount": "Скидка",
+
+  "product.salesTotal": "Общая сумма продаж",
+  "product.suppliesTotal": "Общая сумма поставок",
+  "product.reports.transactionsOverTime": "Динамика продаж и возвратов",
+  "product.reports.sales": "Продажи",
+  "product.reports.saleRefunds": "Возвраты продаж",
+  "product.reports.quantitySold": "Продано штук",
+  "product.reports.revenue": "Выручка",
+  "product.reports.refunds": "Возвраты",
+  "product.reports.transactions": "Транзакции"
 }

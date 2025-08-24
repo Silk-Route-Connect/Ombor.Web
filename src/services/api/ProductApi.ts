@@ -4,6 +4,7 @@ import {
 	CreateProductRequest,
 	GetProductsRequest,
 	Product,
+	ProductTransaction,
 	UpdateProductRequest,
 } from "../../models/product";
 import http from "./http";
@@ -30,6 +31,13 @@ export class ProductApi {
 	async getById(id: number): Promise<Product> {
 		const url = this.getUrlWithId(id);
 		const response = await http.get<Product>(url);
+
+		return response.data;
+	}
+
+	async getTransactions(productId: number): Promise<ProductTransaction[]> {
+		const url = `${this.getUrlWithId(productId)}/transactions`;
+		const response = await http.get<ProductTransaction[]>(url);
 
 		return response.data;
 	}

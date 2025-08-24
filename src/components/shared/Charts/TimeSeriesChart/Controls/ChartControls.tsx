@@ -9,8 +9,9 @@ import { ChartType } from "../TimeSeriesChart";
 
 interface ChartControlsProps {
 	chartType: ChartType;
-	onChartTypeChange: (type: ChartType) => void;
 	exportAnchor: HTMLElement | null;
+	title?: React.ReactNode;
+	onChartTypeChange: (type: ChartType) => void;
 	onOpenExport: (e: React.MouseEvent<HTMLElement>) => void;
 	onCloseExport: () => void;
 }
@@ -18,34 +19,52 @@ interface ChartControlsProps {
 const ChartControls: FC<ChartControlsProps> = ({
 	chartType,
 	exportAnchor,
+	title,
 	onChartTypeChange,
 	onOpenExport,
 	onCloseExport,
-}) => (
-	<Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", mb: 1, gap: 2 }}>
-		<ToggleButtonGroup
-			value={chartType}
-			exclusive
-			size="small"
-			onChange={(_, v) => v && onChartTypeChange(v)}
-		>
-			<ToggleButton value="line">
-				<ShowChartIcon />
-			</ToggleButton>
-			<ToggleButton value="bar">
-				<BarChartIcon />
-			</ToggleButton>
-		</ToggleButtonGroup>
+}) => {
+	const hasLeft = Boolean(title);
 
-		<IconButton onClick={onOpenExport} size="small">
-			<DownloadIcon />
-		</IconButton>
-		<Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={onCloseExport}>
-			<MenuItem>{translate("reportExportPNG")}</MenuItem>
-			<MenuItem>{translate("reportExportPDF")}</MenuItem>
-			<MenuItem>{translate("reportExportCSV")}</MenuItem>
-		</Menu>
-	</Box>
-);
+	return (
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				justifyContent: hasLeft ? "space-between" : "flex-end",
+				gap: 2,
+				mb: 1,
+			}}
+		>
+			{hasLeft && <Box sx={{ minWidth: 0 }}>{title}</Box>}
+
+			<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+				<ToggleButtonGroup
+					value={chartType}
+					exclusive
+					size="small"
+					onChange={(_, v) => v && onChartTypeChange(v)}
+				>
+					<ToggleButton value="line">
+						<ShowChartIcon />
+					</ToggleButton>
+					<ToggleButton value="bar">
+						<BarChartIcon />
+					</ToggleButton>
+				</ToggleButtonGroup>
+
+				<IconButton onClick={onOpenExport} size="small">
+					<DownloadIcon />
+				</IconButton>
+
+				<Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={onCloseExport}>
+					<MenuItem onClick={onCloseExport}>{translate("reportExportPNG")}</MenuItem>
+					<MenuItem onClick={onCloseExport}>{translate("reportExportPDF")}</MenuItem>
+					<MenuItem onClick={onCloseExport}>{translate("reportExportCSV")}</MenuItem>
+				</Menu>
+			</Box>
+		</Box>
+	);
+};
 
 export default ChartControls;
