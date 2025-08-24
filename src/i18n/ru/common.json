@@ -106,5 +106,10 @@
   
   "common.number.thousandShort": "тыс",
   "common.number.millionShort": "млн",
-  "common.number.billionShort": "млрд"
+  "common.number.billionShort": "млрд",
+
+  "common.download.csv": "Скачать CSV",
+  "common.download.pdf": "Скачать PDF",
+  "common.download.png": "Скачать PNG",
+  "common.download.print": "Печать"
 }
