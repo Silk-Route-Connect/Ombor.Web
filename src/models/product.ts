@@ -1,3 +1,5 @@
+import { TransactionType } from "./transaction";
+
 export const PRODUCT_MEASUREMENTS = ["Unit", "Gram", "Kilogram", "Liter", "None"] as const;
 export type Measurement = (typeof PRODUCT_MEASUREMENTS)[number];
 
@@ -67,4 +69,16 @@ export type GetProductsRequest = {
 	searchTerm?: string;
 	categoryId?: number;
 	type?: ProductType;
+};
+
+export type ProductTransaction = {
+	id: number;
+	productId: number;
+	transactionType: TransactionType;
+	partnerId: number;
+	partnerName: string;
+	date: Date;
+	quantity: number;
+	unitPrice: number;
+	discount: number;
 };
