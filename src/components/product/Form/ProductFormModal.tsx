@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
-import ProductFormFields from "components/product/Form/ProductFormFields";
 import ConfirmDialog from "components/shared/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -12,7 +11,7 @@ import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 
-import ProductFormFieldsV2 from "./ProductFormFieldsV2";
+import ProductFormFieldsV2 from "./ProductFormFields";
 
 const CONTENT_HEIGHT = 600;
 
@@ -20,7 +19,6 @@ export interface ProductFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	formVersion: "v1" | "v2";
 	onSave: (payload: ProductFormValues) => void;
 	onClose: () => void;
 	onGenerateSku?: () => void;
@@ -30,7 +28,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	isOpen,
 	isSaving,
 	product,
-	formVersion = "v1",
 	onSave,
 	onClose,
 	onGenerateSku,
@@ -82,11 +79,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 						pt: 2,
 					}}
 				>
-					{formVersion === "v1" ? (
-						<ProductFormFields api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
-					) : (
-						<ProductFormFieldsV2 api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
-					)}
+					<ProductFormFieldsV2 api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
 				</DialogContent>
 
 				<FormDialogFooter

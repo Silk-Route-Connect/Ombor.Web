@@ -1,25 +1,30 @@
-import React from "react";
-import { FormControlLabel, Switch, Typography } from "@mui/material";
+import React, { useMemo } from "react";
+import { Controller } from "react-hook-form";
+import { Box, Stack, TextField } from "@mui/material";
 import Grid from "@mui/material/Grid";
+import { useFilePreviews } from "hooks/product/useFilePreviews";
 import { UseProductFormResult } from "hooks/product/useProductForm";
 import { translate } from "i18n/i18n";
+import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
 
-import { ProductAttachmentsField } from "./Sections/ProductAttachmentsField";
-import { ProductCodesFields } from "./Sections/ProductCodesFields";
-import { ProductDescriptionField } from "./Sections/ProductDescriptionField";
-import ProductIdentityFields from "./Sections/ProductIdentityFields";
-import { ProductImagesGallery } from "./Sections/ProductImagesGallery";
-import { ProductPackagingFields } from "./Sections/ProductPackagingFields";
-import { ProductTypePricesFields } from "./Sections/ProductPricesFields";
+import ProductFormCoreFields from "./Fields/ProductCoreFields";
+import ProductFormPackaging from "./Fields/ProductFormPackaging";
+import ProductFormImages from "./Images/ProductFormImages";
 
 export interface ProductFormFieldsProps {
 	api: UseProductFormResult;
 	disabled: boolean;
 	onGenerateSku?: () => void;
+	imagesBaseUrlResolver?: (url: string) => string;
 }
 
-const ProductFormFields: React.FC<ProductFormFieldsProps> = ({ api, disabled, onGenerateSku }) => {
+const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
+	api,
+	disabled,
+	onGenerateSku,
+	imagesBaseUrlResolver,
+}) => {
 	const {
 		form,
 		hasPackaging,
@@ -27,69 +32,102 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({ api, disabled, on
 		enablePackaging,
 		disablePackaging,
 		existingImages,
-		markImageForRemoval,
 		attachments,
 		addAttachments,
 		removeAttachment,
+		markImageForRemoval,
+		mainSelection,
+		selectMainExisting,
+		selectMainNew,
 	} = api;
 
-	const handlePackagingToggle = (checked: boolean) => {
-		if (checked) enablePackaging();
-		else disablePackaging();
+	const { control, setValue } = form;
+
+	const previews = useFilePreviews(attachments);
+
+	const resolveUrl = useMemo(
+		() => (src: string) =>
+			imagesBaseUrlResolver ? imagesBaseUrlResolver(src) : (getImageFullUrl(src) ?? src),
+		[imagesBaseUrlResolver],
+	);
+
+	const handleAddAttachments = (files: FileList) => {
+		addAttachments(files);
+	};
+
+	const handleAddMainAndMakeActive = (file: File) => {
+		// Add single file and set it as main (UI)
+		const insertionIndex = attachments.length;
+		const listLike: FileList = {
+			0: file,
+			length: 1,
+			item: (i: number) => (i === 0 ? file : null),
+		} as unknown as FileList;
+		addAttachments(listLike);
+		selectMainNew(insertionIndex);
 	};
 
 	return (
-		<Grid container rowSpacing={3} columnSpacing={{ xs: 2, sm: 3 }}>
-			<ProductIdentityFields form={form} disabled={disabled} />
-			<ProductCodesFields form={form} disabled={disabled} onGenerateSku={onGenerateSku} />
-			<ProductTypePricesFields form={form} disabled={disabled} />
-
-			<Grid size={{ xs: 12 }}>
-				<FormControlLabel
-					control={
-						<Switch
-							checked={hasPackaging}
-							disabled={disabled}
-							onChange={(_, checked) => handlePackagingToggle(checked)}
-						/>
-					}
-					label={translate("product.packaging")}
+		<Grid container spacing={3}>
+			{/* Images */}
+			<Grid size={{ xs: 12, md: 4 }}>
+				<ProductFormImages
+					disabled={disabled}
+					existingImages={existingImages}
+					attachments={attachments}
+					attachmentPreviews={previews}
+					mainSelection={mainSelection}
+					onSetMainExisting={selectMainExisting}
+					onSetMainNew={selectMainNew}
+					onRemoveExisting={markImageForRemoval}
+					onRemoveAttachment={removeAttachment}
+					onAddAttachments={handleAddAttachments}
+					onAddMainAndMakeActive={handleAddMainAndMakeActive}
+					resolveUrl={resolveUrl}
 				/>
 			</Grid>
 
-			{hasPackaging && (
-				<ProductPackagingFields form={form} disabled={disabled} packPrice={packPrice} />
-			)}
-
-			<ProductDescriptionField form={form} disabled={disabled} />
-
-			{existingImages.length > 0 && (
-				<Grid size={{ xs: 12 }}>
-					<ProductImagesGallery
-						images={existingImages}
+			{/* Fields */}
+			<Grid size={{ xs: 12, md: 8 }}>
+				<Stack spacing={2.5}>
+					<ProductFormCoreFields
+						control={control}
+						setValue={setValue}
 						disabled={disabled}
-						imagesBaseUrlResolver={(url) => getImageFullUrl(url) ?? ""}
-						onRemoveExistingImage={markImageForRemoval}
+						onGenerateSku={onGenerateSku}
 					/>
-				</Grid>
-			)}
 
-			<Grid size={{ xs: 12 }}>
-				<ProductAttachmentsField
-					attachments={attachments}
-					addAttachments={addAttachments}
-					removeAttachment={removeAttachment}
-					disabled={disabled}
-					errorMessage={form.formState.errors.attachments?.message}
-				/>
-				{form.formState.errors.attachments && (
-					<Typography variant="caption" color="error" sx={{ display: "block", mt: 0.5 }}>
-						{form.formState.errors.attachments.message as string}
-					</Typography>
-				)}
+					<Box>
+						<ProductFormPackaging
+							control={control}
+							disabled={disabled}
+							hasPackaging={hasPackaging}
+							packPrice={packPrice}
+							enablePackaging={enablePackaging}
+							disablePackaging={disablePackaging}
+						/>
+					</Box>
+
+					<Controller
+						name="description"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								label={translate("product.description")}
+								fullWidth
+								multiline
+								minRows={3}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+								disabled={disabled}
+							/>
+						)}
+					/>
+				</Stack>
 			</Grid>
 		</Grid>
 	);
 };
 
-export default ProductFormFields;
+export default observer(ProductFormFields);
