@@ -7,7 +7,7 @@ import {
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 
-import TemplateActionMenu from "./ActionMenu/TemplateActionMenu";
+import TemplateActionMenu from "../ActionMenu/TemplateActionMenu";
 import TemplateItemsTable from "./TemplateItemsTable";
 import { templateTableColumns } from "./templateTableConfig";
 
