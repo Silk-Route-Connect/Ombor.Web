@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
-import TransactionSidePane from "components/shared/TransactionSidePane/TransactionSidePane";
 import TransactionHeader from "components/transaction/Header/TransactionHeader";
+import TransactionSidePane from "components/transaction/SidePane/TransactionSidePane";
 import { TransactionsTable } from "components/transaction/Table/TransactionsTable";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";

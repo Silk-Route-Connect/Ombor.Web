@@ -1,7 +1,7 @@
 import React from "react";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Stack, Tooltip, Typography } from "@mui/material";
-import PartnerBalanceTooltip from "components/shared/Tooltips/PartnerBalanceTooltip";
+import PartnerBalanceTooltip from "components/partner/Tooltips/PartnerBalanceTooltip";
 import { translate } from "i18n/i18n";
 import { PartnerBalance } from "models/partner";
 
