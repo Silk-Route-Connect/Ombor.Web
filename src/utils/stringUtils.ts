@@ -27,3 +27,11 @@ export function valueOrPlaceholder(value?: string | null, placeholder?: string):
 
 	return value;
 }
+
+export function isNumber(value?: string | null): boolean {
+	if (!value) {
+		return false;
+	}
+
+	return !isNaN(Number(value));
+}
