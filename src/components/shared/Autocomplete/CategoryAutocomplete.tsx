@@ -11,6 +11,7 @@ interface CategoryAutocompleteCommonProps {
 	disabled?: boolean;
 	required?: boolean;
 	error?: boolean;
+	helperText?: React.ReactNode;
 }
 
 interface CategoryAutocompleteEntityProps extends CategoryAutocompleteCommonProps {
@@ -73,6 +74,7 @@ const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = (prop
 			disabled={isDisabled}
 			required={props.required}
 			error={props.error}
+			helperText={props.helperText}
 			onChange={handleChange}
 		/>
 	);
