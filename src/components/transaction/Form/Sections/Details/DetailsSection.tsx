@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Stack } from "@mui/material";
-import PartnerAutocomplete from "components/shared/Autocomplete/PartnerAutocomplete";
-import TemplateAutocomplete from "components/shared/Autocomplete/TemplateAutocomplete";
+import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
+import TemplateAutocomplete from "components/template/Autocomplete/TemplateAutocomplete";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
 import { observer } from "mobx-react-lite";
 

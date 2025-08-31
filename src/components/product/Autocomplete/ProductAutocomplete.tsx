@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
+import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import type { Product, ProductType } from "models/product";
 import { useStore } from "stores/StoreContext";
-
-import EntityAutocomplete from "./Autocomplete";
 
 interface ProductAutocompleteProps {
 	value: Product | null;

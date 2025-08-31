@@ -1,7 +1,7 @@
 import React, { JSX } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { Box, FormControl, Typography } from "@mui/material";
-import CategoryAutocomplete from "components/shared/Autocomplete/CategoryAutocomplete";
+import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";

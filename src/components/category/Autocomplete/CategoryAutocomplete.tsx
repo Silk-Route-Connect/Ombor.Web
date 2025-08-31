@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { useStore } from "stores/StoreContext";
 
-import EntityAutocomplete, { AutocompleteSize } from "./Autocomplete";
+import EntityAutocomplete, { AutocompleteSize } from "../../shared/Autocomplete/Autocomplete";
 
 interface CategoryAutocompleteCommonProps {
 	size?: AutocompleteSize;

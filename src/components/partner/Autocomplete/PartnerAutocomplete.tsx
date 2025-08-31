@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import type { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
 
-import EntityAutocomplete, { AutocompleteSize } from "./Autocomplete";
+import EntityAutocomplete, { AutocompleteSize } from "../../shared/Autocomplete/Autocomplete";
 
 interface PartnerAutocompleteProps {
 	type: PartnerType;
