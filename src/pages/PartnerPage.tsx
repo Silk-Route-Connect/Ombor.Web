@@ -4,7 +4,7 @@ import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import PartnerHeader from "components/partner/Header/PartnerHeader";
 import PartnerSidePane from "components/partner/SidePane/PartnerSidePane";
 import { PartnerTable } from "components/partner/Table/PartnerTable";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { PartnerFormPayload } from "hooks/partner/usePartnerForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Box } from "@mui/material";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplateTable from "components/template/Table/TemplatesTable";

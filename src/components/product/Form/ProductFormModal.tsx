@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { useProductForm } from "hooks/product/useProductForm";

@@ -1,9 +1,9 @@
 import React from "react";
 import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 import PartnerFormFields from "components/partner/Form/PartnerFormFields";
-import ConfirmDialog from "components/shared/ConfirmDialog";
-import DialogTitleWithClose from "components/shared/Dialog/DialogTitle";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
+import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PartnerFormPayload, usePartnerForm } from "hooks/partner/usePartnerForm";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
@@ -45,7 +45,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 			>
-				<DialogTitleWithClose title={title} onClose={requestClose} disabled={isSaving} />
+				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 
 				{isSaving && (
 					<Box sx={{ position: "relative", height: 4 }}>

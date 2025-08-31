@@ -3,7 +3,7 @@ import ProductFormModal from "components/product/Form/ProductFormModal";
 import { ProductHeader } from "components/product/Header/ProductHeader";
 import ProductSidePane from "components/product/SidePane/ProductSidePane";
 import ProductsTable from "components/product/Table/ProductsTable";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { ProductFormPayload } from "hooks/product/useProductForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
