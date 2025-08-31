@@ -114,9 +114,8 @@
   "product.images.mainUpload": "Загрузить главное изображение",
   "product.images.setMain": "Сделать главным",
   "product.images.mainAlt": "Главное изображение",
-  "product.images.mainHint": "Нажмите, чтобы загрузить и установить главное изображение",
-  "product.images.uploadMore": "Загрузить ещё",
-  "product.images.others": "Остальные изображения",
+  "product.images.uploadMore": "Загрузить изображения",
+  "product.images.others": "Загрузить изображения",
   "product.images.makeMain": "Сделать главным",
   "product.images.remove": "Удалить",
 
