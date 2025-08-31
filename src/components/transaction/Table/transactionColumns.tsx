@@ -1,7 +1,7 @@
 import { Chip } from "@mui/material";
+import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column } from "components/shared/ExpandableDataTable/ExpandableDataTable";
-import PartnerLink from "components/shared/Links/PartnerLink";
-import TransactionLink from "components/shared/Links/TransactionLink";
+import TransactionLink from "components/transaction/Links/TransactionLink";
 import { TRANSACTION_STATUS_COLORS } from "constants/index";
 import { translate } from "i18n/i18n";
 import { TransactionRecord } from "models/transaction";

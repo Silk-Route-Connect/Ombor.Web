@@ -1,6 +1,6 @@
 import React, { JSX } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import AllocationLink from "components/shared/Links/AllocationLink";
+import AllocationLink from "components/payment/Links/AllocationLink";
 import { translate } from "i18n/i18n";
 import { PaymentAllocation } from "models/payment";
 import { formatPrice } from "utils/supplyUtils";
