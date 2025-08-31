@@ -45,6 +45,7 @@ function App() {
 							<Route path="sales" element={<TransactionPage mode="Sale" />} />
 							<Route path="templates" element={<TemplatePage />} />
 							<Route path="payments" element={<PaymentPage />} />
+							<Route path="payments/:id" element={<PaymentPage />} />
 							<Route path="new/sales" element={<CreateTransactionPage mode="Sale" />} />
 							<Route path="new/supplies" element={<CreateTransactionPage mode="Supply" />} />
 						</Route>

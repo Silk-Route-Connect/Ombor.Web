@@ -1,115 +1,95 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
 import PaymentSidePane from "components/payment/SidePane/PaymentSidePane";
-import { paymentColumns } from "components/payment/Table/paymentTableConfigs";
-import ActionMenuCell from "components/shared/ActionMenuCell/ActionMenuCell";
-import { Column, DataTable } from "components/shared/DataTable/DataTable";
+import { PaymentsTable } from "components/payment/Table/PaymentsTable";
 import { observer } from "mobx-react-lite";
-import { Partner } from "models/partner";
-import { Payment, PaymentDirection } from "models/payment";
+import { Payment } from "models/payment";
 import { useStore } from "stores/StoreContext";
+import { isNumber } from "utils/stringUtils";
+
+const PAYMENTS_BASE_ROUTE = "/payments";
 
 const PaymentPage: React.FC = observer(() => {
 	const { paymentStore, partnerStore } = useStore();
-
-	const [selectedDirection, setSelectedDirection] = useState<PaymentDirection | null>(null);
-	const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
+	const navigate = useNavigate();
+	const { id: navigationId } = useParams<{ id?: string }>();
 
 	useEffect(() => {
 		paymentStore.getAll();
 		partnerStore.getAll();
 	}, [paymentStore, partnerStore]);
 
-	const handleDirectionChange = (value: PaymentDirection | null): void => {
-		setSelectedDirection(value);
-	};
+	useEffect(() => {
+		if (!isNumber(navigationId)) {
+			paymentStore.setSelectedPayment(null);
+			return;
+		}
 
-	const handlePartnerChange = (value: Partner | null): void => {
-		setSelectedPartner(value);
-		paymentStore.setFilterPartner(value?.id);
-	};
+		if (paymentStore.allPayments === "loading") {
+			return;
+		}
+
+		const payment = paymentStore.allPayments.find((p) => p.id.toString() === navigationId) ?? null;
+
+		if (payment) {
+			paymentStore.setSelectedPayment(payment);
+		} else {
+			navigate(PAYMENTS_BASE_ROUTE, { replace: true });
+		}
+	}, [navigationId, paymentStore.allPayments]);
 
 	const handleCreate = (): void => {
+		// TODO: hook up actual create flow
+		// Intentionally left as-is per current behavior
+		// eslint-disable-next-line no-console
 		console.log("create payment");
 	};
 
-	const handleRowClick = (payment: Payment): void => {
-		paymentStore.setSelectedPayment(payment);
-	};
-
-	const handleEdit = (payment: Payment): void => {
-		console.log("edit payment" + payment.id);
-	};
-
-	const handleDelete = (payment: Payment): void => {
-		console.log("delete payment" + payment.id);
-	};
-
-	const columns: Column<Payment>[] = [
-		...paymentColumns,
-		{
-			key: "actions",
-			headerName: "",
-			width: 80,
-			align: "right",
-			renderCell: (payment: Payment) => (
-				<ActionMenuCell
-					onEdit={() => handleEdit(payment)}
-					onArchive={() => {}}
-					onDelete={() => handleDelete(payment)}
-				/>
-			),
+	const handleRowClick = useCallback(
+		(payment: Payment) => {
+			paymentStore.setSelectedPayment(payment);
+			navigate(`${PAYMENTS_BASE_ROUTE}/${payment.id}`, { replace: false });
 		},
-	];
+		[navigate, paymentStore],
+	);
 
-	const rows = useMemo(() => {
-		if (!selectedDirection) {
-			return paymentStore.filteredPayments;
-		}
-
-		if (selectedDirection === "Income") {
-			return paymentStore.incomes;
-		}
-
-		return paymentStore.expenses;
-	}, [selectedDirection, paymentStore.filteredPayments]);
+	const handleCloseSidePane = useCallback(() => {
+		paymentStore.setSelectedPayment(null);
+		navigate(PAYMENTS_BASE_ROUTE, { replace: false });
+	}, [navigate, paymentStore]);
 
 	const paymentsCount = useMemo(() => {
 		if (paymentStore.filteredPayments === "loading") {
 			return 0;
 		}
 
-		if (!selectedDirection) {
-			return paymentStore.filteredPayments.length;
-		}
-
-		if (selectedDirection === "Income") {
-			return paymentStore.incomes.length;
-		}
-
-		return paymentStore.expenses.length;
-	}, [paymentStore.filteredPayments, selectedDirection]);
+		return paymentStore.filteredPayments.length;
+	}, [paymentStore.filteredPayments]);
 
 	return (
 		<>
 			<PaymentHeader
 				titleCount={paymentsCount}
-				selectedDirection={selectedDirection}
-				selectedPartner={selectedPartner}
-				searchTerm={searchTerm}
-				onSearch={setSearchTerm}
-				onDirectionChange={handleDirectionChange}
-				onPartnerChange={handlePartnerChange}
+				selectedDirection={paymentStore.filterDirection}
+				selectedPartner={paymentStore.filterPartner}
+				searchTerm={paymentStore.searchTerm}
+				onSearch={paymentStore.setSearch}
+				onDirectionChange={paymentStore.setFilterDirection}
+				onPartnerChange={paymentStore.setFilterPartner}
 				onCreate={handleCreate}
 			/>
 
-			<DataTable<Payment> rows={rows} columns={columns} onRowClick={handleRowClick} pagination />
+			<PaymentsTable
+				payments={paymentStore.filteredPayments}
+				onPaymentClick={handleRowClick}
+				pagination
+			/>
 
 			<PaymentSidePane
 				payment={paymentStore.selectedPayment}
 				isOpen={!!paymentStore.selectedPayment}
-				onClose={() => paymentStore.setSelectedPayment(null)}
+				onClose={handleCloseSidePane}
 			/>
 		</>
 	);
