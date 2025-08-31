@@ -66,7 +66,9 @@ export function useProductReportsMetrics(
 	);
 
 	// KPIs
-	const transactionsCount = sales.length + supplies.length;
+	const transactionsCount =
+		sales.reduce((prev, curr) => prev + curr.quantity, 0) +
+		supplies.reduce((prev, curr) => prev + curr.quantity, 0);
 	const refundsCount = saleRefunds.length + supplyRefunds.length;
 	const totalQuantitySold = sumBy(sales.map((t) => t.quantity ?? 0));
 	const totalRevenueApprox =
@@ -97,9 +99,9 @@ export function useProductReportsMetrics(
 			const row = bucket.get(key) ?? { transactions: 0, refunds: 0 };
 
 			if (transaction.transactionType === "Sale" || transaction.transactionType === "Supply") {
-				row.transactions += 1;
+				row.transactions += transaction.quantity;
 			} else if (isRefund(transaction.transactionType)) {
-				row.refunds += 1;
+				row.refunds += transaction.quantity;
 			}
 
 			bucket.set(key, row);

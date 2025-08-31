@@ -80,7 +80,7 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 				</Grid>
 				<Grid size={{ xs: 4 }}>
 					<Typography variant="subtitle2">{translate("product.measurement")}</Typography>
-					<Typography>{translate(`measurement.${product.measurement}`)}</Typography>
+					<Typography>{translate(`product.measurement.${product.measurement}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
 					<Typography variant="subtitle2">{translate("product.barcode")}</Typography>
