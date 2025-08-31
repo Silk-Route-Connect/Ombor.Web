@@ -18,7 +18,7 @@
   "payment.method.Card": "Карта",
   "payment.method.AccountBalance": "Снятие со счёта",
   "payment.method.Other": "Другое",
-  "payment.type": "Тип платежа",
+  "payment.type": "Причина платежа",
   "payment.type.Transaction": "Оплата транзакции",
   "payment.type.Deposit": "Пополнение баланса",
   "payment.type.Withdrawal": "Снятие с баланса",
