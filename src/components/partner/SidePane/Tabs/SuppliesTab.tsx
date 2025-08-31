@@ -5,7 +5,7 @@ import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { TransactionsTable } from "components/transaction/Table/TransactionsTable";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { DateFilter } from "utils/dateFilterUtils";
+import { DateFilter } from "utils/dateUtils";
 
 import SupplyItemsTable from "../../Table/SupplyItemsTable";
 import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";

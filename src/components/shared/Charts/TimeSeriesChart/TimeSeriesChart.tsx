@@ -14,7 +14,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { DateFilter } from "utils/dateFilterUtils";
+import { DateFilter } from "utils/dateUtils";
 import { formatShortNumber } from "utils/formatCurrency";
 
 import ChartControls from "./Controls/ChartControls";

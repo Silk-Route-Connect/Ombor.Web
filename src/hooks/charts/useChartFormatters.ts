@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { parseISO } from "date-fns";
-import { PresetOption } from "utils/dateFilterUtils";
+import { PresetOption } from "utils/dateUtils";
 
 export function useChartFormatters(locale: string, preset: PresetOption | null) {
 	const tickFormatter = useMemo(

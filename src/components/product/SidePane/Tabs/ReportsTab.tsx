@@ -10,7 +10,7 @@ import { useProductReportsMetrics } from "hooks/product/useProductReports";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { DateFilter } from "utils/dateFilterUtils";
+import { DateFilter } from "utils/dateUtils";
 
 const ReportsTab: React.FC = observer(() => {
 	const { selectedProductStore } = useStore();

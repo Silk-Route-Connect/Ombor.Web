@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { DashboardMetrics, TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
 import { useStore } from "stores/StoreContext";
 import theme from "theme";
-import { DateFilter } from "utils/dateFilterUtils";
+import { DateFilter } from "utils/dateUtils";
 import { canHaveSales, canHaveSupplies } from "utils/partnerUtils";
 
 import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";

@@ -8,7 +8,7 @@ import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { DateFilter } from "utils/dateFilterUtils";
+import { DateFilter } from "utils/dateUtils";
 import { calculateLineTotals } from "utils/productUtils";
 
 const TAB_DEFAULT_BODY_SX: SxProps<Theme> = {
