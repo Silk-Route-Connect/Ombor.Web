@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { Column } from "components/shared/DataTable/DataTable";
+import { Column } from "components/shared/Table/DataTable/DataTable";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { formatNumberWithCommas } from "utils/helpers";

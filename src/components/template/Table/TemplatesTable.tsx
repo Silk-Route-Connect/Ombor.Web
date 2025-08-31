@@ -3,7 +3,7 @@ import {
 	Column,
 	ExpandableDataTable,
 	SortOrder,
-} from "components/shared/ExpandableDataTable/ExpandableDataTable";
+} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 

@@ -30,7 +30,7 @@ import {
 	LOADING_CONTAINER_HEIGHT,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
-} from "./../DataTable/tableConfigs";
+} from "../DataTable/tableConfigs";
 
 export type SortOrder = "asc" | "desc";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import PartnerActionMenu from "components/shared/ActionMenuCell/PartnerActionMenu";
-import { DataTable } from "components/shared/DataTable/DataTable";
+import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 

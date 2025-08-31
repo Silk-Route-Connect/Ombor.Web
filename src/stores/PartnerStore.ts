@@ -1,4 +1,4 @@
-import { SortOrder } from "components/shared/DataTable/DataTable";
+import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";

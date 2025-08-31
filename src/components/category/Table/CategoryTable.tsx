@@ -1,6 +1,6 @@
 import React from "react";
 import { ActionCell } from "components/shared/ActionCell/ActionCell";
-import { Column, DataTable } from "components/shared/DataTable/DataTable";
+import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { Category } from "models/category";

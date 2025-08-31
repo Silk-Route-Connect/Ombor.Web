@@ -1,4 +1,4 @@
-import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataTable";
+import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";

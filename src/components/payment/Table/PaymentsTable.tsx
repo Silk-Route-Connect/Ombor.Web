@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { Chip, Tooltip, Typography, useTheme } from "@mui/material";
 import PartnerLink from "components/partner/Links/PartnerLink";
-import { Column, DataTable, SortOrder } from "components/shared/DataTable/DataTable";
+import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { Payment, PaymentDirection, PaymentType } from "models/payment";
