@@ -3,7 +3,7 @@ import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/mat
 import { translate } from "i18n/i18n";
 import { TransactionPayment } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
 
 interface Props {
 	payments: TransactionPayment[];

@@ -2,7 +2,7 @@ import React from "react";
 import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { SupplyItem } from "models/supply";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
 
 interface SupplyItemsTableProps {
 	items: SupplyItem[];

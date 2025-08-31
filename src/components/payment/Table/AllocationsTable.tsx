@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material"
 import AllocationLink from "components/payment/Links/AllocationLink";
 import { translate } from "i18n/i18n";
 import { PaymentAllocation } from "models/payment";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
 
 interface AllocationsTableProps {
 	allocations: PaymentAllocation[];

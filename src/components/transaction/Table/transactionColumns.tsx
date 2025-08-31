@@ -6,7 +6,7 @@ import { TRANSACTION_STATUS_COLORS } from "constants/index";
 import { translate } from "i18n/i18n";
 import { TransactionRecord } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
 
 export type TableMode = "full" | "compact";
 

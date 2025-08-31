@@ -45,3 +45,7 @@ export function formatShortNumber(input: number): string {
 
 	return `${sign}${abs.toLocaleString()}`;
 }
+
+export function formatPrice(value: number): string {
+	return value.toLocaleString();
+}

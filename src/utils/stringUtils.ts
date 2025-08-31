@@ -2,7 +2,7 @@ import { translate } from "i18n/i18n";
 
 export function formatNotes(notes?: string | null, count: number = 30): string {
 	if (!notes) {
-		return "--";
+		return translate("common.dash");
 	}
 
 	if (notes.length > count) {
