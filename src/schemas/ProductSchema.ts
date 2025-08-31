@@ -113,7 +113,7 @@ export const ProductSchema = z
 		attachments: z
 			.custom<
 				File[] | undefined
-				// eslint-disable-next-line max-len
+				// TypeScript quirk: the type guard is needed to convince it that this is a valid schema
 			>(
 				(files): files is File[] | undefined =>
 					files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)),
@@ -137,6 +137,11 @@ export const ProductSchema = z
 		message: translate("product.validation.retailPriceNonNegative"),
 	})
 
+	.refine((d) => d.type === "Sale" || d.supplyPrice > 0, {
+		path: ["supplyPrice"],
+		message: translate("product.validation.supplyPricePositive"),
+	})
+
 	// Type: Sale → sale>0, retail>0
 	.refine((d) => d.type !== "Sale" || d.salePrice > 0, {
 		path: ["salePrice"],
@@ -147,11 +152,7 @@ export const ProductSchema = z
 		message: translate("product.validation.retailPricePositive"),
 	})
 
-	// Type: Supply → supply>0, sale==0, retail==0
-	.refine((d) => d.type !== "Supply" || d.supplyPrice > 0, {
-		path: ["supplyPrice"],
-		message: translate("product.validation.supplyPricePositive"),
-	})
+	// Type: Supply → sale==0, retail==0
 	.refine((d) => d.type !== "Supply" || d.salePrice === 0, {
 		path: ["salePrice"],
 		message: translate("product.validation.salePriceMustBeZero"),
