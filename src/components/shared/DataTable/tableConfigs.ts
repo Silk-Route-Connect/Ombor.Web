@@ -25,11 +25,13 @@ export const BODY_CELL_SX: SxProps<Theme> = {
 	py: 1,
 	px: 2,
 	typography: "body2",
+	height: 56,
 };
 
 export const ROW_STRIPE_SX: SxProps<Theme> = {
 	"&:nth-of-type(odd)": { bgcolor: "grey.50" },
 	"&:hover": { bgcolor: "action.selected" },
+	minHeight: 56,
 };
 
 export const LOADING_CONTAINER_HEIGHT = 200;
