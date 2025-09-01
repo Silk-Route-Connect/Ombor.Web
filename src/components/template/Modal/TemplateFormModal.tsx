@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -9,6 +8,8 @@ import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Template } from "models/template";
 import { useStore } from "stores/StoreContext";
+
+import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 
 import TemplateFormFields from "./TemplateFormFields";
 

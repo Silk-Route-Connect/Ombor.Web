@@ -1,4 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Loadable } from "helpers/Loading";
+import { translate } from "i18n/i18n";
+import { observer } from "mobx-react-lite";
+import { TransactionRecord } from "models/transaction";
+import { useStore } from "stores/StoreContext";
+
 import BoltIcon from "@mui/icons-material/Bolt";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
@@ -15,11 +21,6 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
-import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
-import { observer } from "mobx-react-lite";
-import { TransactionRecord } from "models/transaction";
-import { useStore } from "stores/StoreContext";
 
 import DebtPaymentSummary from "./DebtPaymentSummary";
 import DebtsTable, { PayDebtRow } from "./DebtsTable";

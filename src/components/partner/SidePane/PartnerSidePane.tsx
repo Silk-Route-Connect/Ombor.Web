@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { daysAgo, today } from "utils/dateUtils";
+
+import CloseIcon from "@mui/icons-material/Close";
+import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 
 import DetailsTab from "./Tabs/DetailsTab";
 import PaymentsTab from "./Tabs/PaymentsTab";

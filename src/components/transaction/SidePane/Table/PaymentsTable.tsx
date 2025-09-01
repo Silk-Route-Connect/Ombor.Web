@@ -1,9 +1,10 @@
 import React from "react";
-import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { TransactionPayment } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPrice } from "utils/formatCurrency";
+
+import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 
 interface Props {
 	payments: TransactionPayment[];

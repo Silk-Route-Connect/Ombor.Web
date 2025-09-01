@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { translate } from "i18n/i18n";
+
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
 interface ConfirmDialogProps {
 	isOpen: boolean;

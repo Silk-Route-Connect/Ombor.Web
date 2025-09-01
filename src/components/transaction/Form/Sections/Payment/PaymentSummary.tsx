@@ -1,8 +1,9 @@
 import React from "react";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import { Box, Button, Divider, FormControlLabel, Stack, Switch, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { formatNumberWithCommas } from "utils/formatCurrency";
+
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import { Box, Button, Divider, FormControlLabel, Stack, Switch, Typography } from "@mui/material";
 
 interface PaymentSummaryProps {
 	totalDue: number;

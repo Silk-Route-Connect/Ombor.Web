@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { translate } from "i18n/i18n";
+
 import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 const DEFAULT_DOWNLOAD_OPTIONS: DownloadOptions[] = ["csv", "pdf", "png"];
 

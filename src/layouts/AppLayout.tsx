@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import { Box, CssBaseline, Toolbar, useTheme } from "@mui/material";
 
 import Sidebar from "./Sidebar";

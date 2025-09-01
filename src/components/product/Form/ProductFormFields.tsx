@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
-import { Box, Stack, TextField } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import { useFilePreviews } from "hooks/product/useFilePreviews";
 import { UseProductFormResult } from "hooks/product/useProductForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
+
+import { Box, Stack, TextField } from "@mui/material";
+import Grid from "@mui/material/Grid";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";

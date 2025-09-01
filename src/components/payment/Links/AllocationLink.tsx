@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { PaymentAllocation } from "models/payment";
+
+import { Link } from "@mui/material";
 
 // TODO: Fix this to use proper options
 const labelMap = {

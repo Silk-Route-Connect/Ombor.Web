@@ -1,4 +1,11 @@
 import React from "react";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { Loadable } from "helpers/Loading";
+import { translate } from "i18n/i18n";
+import { Payment, PaymentDirection, PaymentType } from "models/payment";
+import { formatDateTime } from "utils/dateUtils";
+
 import {
 	AccountBalance,
 	Category,
@@ -8,12 +15,6 @@ import {
 	Work,
 } from "@mui/icons-material";
 import { Chip, Tooltip, Typography, useTheme } from "@mui/material";
-import PartnerLink from "components/partner/Links/PartnerLink";
-import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
-import { Payment, PaymentDirection, PaymentType } from "models/payment";
-import { formatDateTime } from "utils/dateUtils";
 
 interface PaymentsTableProps {
 	payments: Loadable<Payment[]>;

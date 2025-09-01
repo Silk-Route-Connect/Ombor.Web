@@ -1,11 +1,12 @@
 import React from "react";
 import { Control, Controller, UseFormSetValue, useWatch } from "react-hook-form";
-import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { IconButton, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 import { ProductFormInputs } from "schemas/ProductSchema";
+
+import AutorenewIcon from "@mui/icons-material/Autorenew";
+import { IconButton, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
 
 export interface ProductFormCoreFieldsProps {
 	control: Control<ProductFormInputs>;

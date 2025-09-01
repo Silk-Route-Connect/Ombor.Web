@@ -1,4 +1,10 @@
 import React, { useState } from "react";
+import AddPaymentButton from "components/shared/Buttons/AddPaymentButton";
+import SaveButton from "components/shared/Buttons/SaveButton";
+import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
+import { translate } from "i18n/i18n";
+import { observer } from "mobx-react-lite";
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
 	Accordion,
@@ -9,11 +15,6 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
-import AddPaymentButton from "components/shared/Buttons/AddPaymentButton";
-import SaveButton from "components/shared/Buttons/SaveButton";
-import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
-import { translate } from "i18n/i18n";
-import { observer } from "mobx-react-lite";
 
 import PayDebtsModal from "../../DebtPayment/DebtsPaymentModal";
 import NotesSection from "../Details/NotesSection";

@@ -1,5 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { translate } from "i18n/i18n";
+
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
@@ -19,7 +21,6 @@ import {
 	useTheme,
 } from "@mui/material";
 import type { TouchRippleProps } from "@mui/material/ButtonBase/TouchRipple";
-import { translate } from "i18n/i18n";
 
 import { menuItems } from "./config";
 

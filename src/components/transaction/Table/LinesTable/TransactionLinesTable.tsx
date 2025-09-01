@@ -1,8 +1,9 @@
 import React from "react";
-import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { TransactionLine } from "models/transaction";
 import { formatPrice } from "utils/formatCurrency";
+
+import { Link, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 
 interface TransactionLinesTableProps {
 	lines: TransactionLine[];

@@ -1,7 +1,8 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 export interface ProductFormImageTileProps {
 	src: string;

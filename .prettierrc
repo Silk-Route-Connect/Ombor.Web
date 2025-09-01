@@ -6,5 +6,28 @@
   "useTabs": true,
   "tabWidth": 2,
   "jsxSingleQuote": false,
-  "quoteProps": "as-needed"
+  "quoteProps": "as-needed",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "embeddedLanguageFormatting": "auto",
+  "singleAttributePerLine": false,
+  "overrides": [
+    {
+      "files": ["*.json", "*.jsonc"],
+      "options": {
+        "useTabs": false
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "useTabs": false,
+        "tabWidth": 2
+      }
+    }
+  ]
 }

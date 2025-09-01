@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TransactionLink from "components/transaction/Links/TransactionLink";
@@ -6,6 +5,8 @@ import { translate } from "i18n/i18n";
 import { ProductTransaction } from "models/product";
 import { TransactionType } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
+
+import { Box } from "@mui/material";
 
 export type ProductTransactionsMode = Extract<TransactionType, "Sale" | "Supply">;
 

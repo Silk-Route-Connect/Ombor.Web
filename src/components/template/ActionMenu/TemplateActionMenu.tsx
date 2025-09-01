@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
+import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import { translate } from "i18n/i18n";
+
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
-import { translate } from "i18n/i18n";
 
 interface TemplateActionMenuProps {
 	onEdit: () => void;

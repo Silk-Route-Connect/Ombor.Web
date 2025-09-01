@@ -1,5 +1,10 @@
 import React from "react";
 import { Controller, FieldError, UseFormReturn } from "react-hook-form";
+import PhoneListField from "components/partner/Form/PhoneList/PhoneListField";
+import { translate } from "i18n/i18n";
+import { PartnerFormInputs } from "schemas/PartnerSchema";
+import { PARTNER_TYPES } from "utils/partnerUtils";
+
 import {
 	FormControl,
 	FormControlLabel,
@@ -11,10 +16,6 @@ import {
 	Switch,
 	TextField,
 } from "@mui/material";
-import PhoneListField from "components/partner/Form/PhoneList/PhoneListField";
-import { translate } from "i18n/i18n";
-import { PartnerFormInputs } from "schemas/PartnerSchema";
-import { PARTNER_TYPES } from "utils/partnerUtils";
 
 interface PartnerFormFieldsProps {
 	form: UseFormReturn<PartnerFormInputs>;

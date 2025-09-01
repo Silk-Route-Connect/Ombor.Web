@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { Box, Card, CardContent, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { translate } from "i18n/i18n";
@@ -9,6 +8,8 @@ import { useStore } from "stores/StoreContext";
 import theme from "theme";
 import { DateFilter } from "utils/dateUtils";
 import { canHaveSales, canHaveSupplies } from "utils/partnerUtils";
+
+import { Box, Card, CardContent, CircularProgress, Grid, Stack, Typography } from "@mui/material";
 
 import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";
 

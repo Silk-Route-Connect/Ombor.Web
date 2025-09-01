@@ -1,5 +1,9 @@
 import React from "react";
 import { Control, Controller } from "react-hook-form";
+import NumericField from "components/shared/Inputs/NumericField";
+import { translate } from "i18n/i18n";
+import { ProductFormInputs } from "schemas/ProductSchema";
+
 import {
 	Box,
 	Collapse,
@@ -9,9 +13,6 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
-import { ProductFormInputs } from "schemas/ProductSchema";
 
 export interface ProductFormPackagingProps {
 	control: Control<ProductFormInputs>;

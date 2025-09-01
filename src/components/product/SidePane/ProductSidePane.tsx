@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { translate } from "i18n/i18n";
+import { Product } from "models/product";
+
 import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -7,8 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
-import { translate } from "i18n/i18n";
-import { Product } from "models/product";
 
 import { DetailsTab } from "./Tabs/DetailsTab";
 import ReportsTab from "./Tabs/ReportsTab";

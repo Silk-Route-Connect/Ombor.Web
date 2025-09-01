@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import DownloadIcon from "@mui/icons-material/Download";
-import { Box, Button, Link, Menu, MenuItem } from "@mui/material";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import {
 	Column,
@@ -12,6 +10,9 @@ import { Payment } from "models/payment";
 import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPaymentType } from "utils/paymentUtils";
+
+import DownloadIcon from "@mui/icons-material/Download";
+import { Box, Button, Link, Menu, MenuItem } from "@mui/material";
 
 import PaymentAllocationsTable from "../../Table/PaymentAllocationTable";
 

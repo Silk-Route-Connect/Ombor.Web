@@ -1,4 +1,8 @@
 import React from "react";
+import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
+import { translate } from "i18n/i18n";
+import { Category } from "models/category";
+
 import CloseIcon from "@mui/icons-material/Close";
 import {
 	Button,
@@ -10,9 +14,6 @@ import {
 	LinearProgress,
 	TextField,
 } from "@mui/material";
-import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
-import { translate } from "i18n/i18n";
-import { Category } from "models/category";
 
 interface CategoryFormModalProps {
 	isOpen: boolean;

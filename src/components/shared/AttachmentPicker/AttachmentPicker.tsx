@@ -1,8 +1,9 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import CloseIcon from "@mui/icons-material/Close";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { Box, Button, Chip, Grid } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 export interface AttachmentPickerProps {
 	files: File[];

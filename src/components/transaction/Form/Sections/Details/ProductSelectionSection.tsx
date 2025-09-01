@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { Box, Grid, Stack } from "@mui/material";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+
+import { Box, Grid, Stack } from "@mui/material";
 
 import { LinesTableHandle } from "./LinesTable";
 import ProductTable, { ProductTableHandle } from "./ProductTable";

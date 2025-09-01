@@ -1,4 +1,7 @@
 import React from "react";
+import NumericField from "components/shared/Inputs/NumericField";
+import { translate } from "i18n/i18n";
+
 import {
 	Box,
 	Checkbox,
@@ -12,8 +15,6 @@ import {
 	Tooltip,
 	useTheme,
 } from "@mui/material";
-import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 
 export type PayDebtRow = {
 	id: number;

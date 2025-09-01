@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Box } from "@mui/material";
 import { useChartFormatters } from "hooks/charts/useChartFormatters";
 import { getLocale } from "i18n/i18n";
 import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
@@ -16,6 +15,8 @@ import {
 } from "recharts";
 import { DateFilter } from "utils/dateUtils";
 import { formatShortNumber } from "utils/formatCurrency";
+
+import { Box } from "@mui/material";
 
 import ChartControls from "./Controls/ChartControls";
 

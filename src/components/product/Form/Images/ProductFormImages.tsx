@@ -1,7 +1,8 @@
 import React, { useMemo, useRef } from "react";
+import { translate } from "i18n/i18n";
+
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 import ProductFormImageTile from "./ProductFormImageTile";
 import ProductFormMainImageCircle from "./ProductFormMainImage";

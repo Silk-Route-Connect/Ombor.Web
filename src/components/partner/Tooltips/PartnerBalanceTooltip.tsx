@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
-import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { PartnerBalance } from "models/partner";
 import { formatNumberWithCommas } from "utils/formatCurrency";
+
+import { Box, Stack, Tooltip, Typography } from "@mui/material";
 
 interface PartnerBalanceTooltipProps {
 	balance: PartnerBalance | null;

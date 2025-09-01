@@ -1,7 +1,8 @@
 import React from "react";
-import { MenuItem, Select } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { PartnerTypeFilters } from "stores/PartnerStore";
+
+import { MenuItem, Select } from "@mui/material";
 
 const PARTNER_TYPES: PartnerTypeFilters[] = ["All", "Both", "Customer", "Supplier"];
 

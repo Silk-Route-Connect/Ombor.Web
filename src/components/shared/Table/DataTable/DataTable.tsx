@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Loadable } from "helpers/Loading";
+
 import {
 	Box,
 	CircularProgress,
@@ -12,7 +14,6 @@ import {
 	TableRow,
 	TableSortLabel,
 } from "@mui/material";
-import { Loadable } from "helpers/Loading";
 
 import {
 	BODY_CELL_SX,

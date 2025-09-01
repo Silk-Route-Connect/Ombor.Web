@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider } from "@mui/material/styles";
 import * as Sentry from "@sentry/react";
 
-import "./index.css";
-import "./styles/global.scss";
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
 
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import theme from "./theme";
+
+import "./index.css";
+import "./styles/global.scss";
 
 Sentry.init({
 	dsn: process.env.REACT_APP_OMBOR_SENTRY_DSN,

@@ -1,5 +1,7 @@
 import React, { MouseEvent } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { translate } from "i18n/i18n";
+
 import AddIcon from "@mui/icons-material/Add";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -21,7 +23,6 @@ import {
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 interface TopbarProps {
 	open: boolean;

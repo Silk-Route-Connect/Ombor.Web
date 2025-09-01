@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -10,6 +9,8 @@ import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
+
+import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 
 import ProductFormFieldsV2 from "./ProductFormFields";
 

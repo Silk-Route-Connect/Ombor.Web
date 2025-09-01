@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { translate } from "i18n/i18n";
+
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 interface ActionMenuCellProps {
 	onEdit: () => void;

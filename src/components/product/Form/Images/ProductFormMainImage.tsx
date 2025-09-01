@@ -1,7 +1,8 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 export interface ProductFormMainImageProps {
 	disabled?: boolean;

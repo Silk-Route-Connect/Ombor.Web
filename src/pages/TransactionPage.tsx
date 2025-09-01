@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Box } from "@mui/material";
 import TransactionHeader from "components/transaction/Header/TransactionHeader";
 import TransactionSidePane from "components/transaction/SidePane/TransactionSidePane";
 import { TransactionsTable } from "components/transaction/Table/TransactionsTable";
@@ -7,6 +6,8 @@ import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
 import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
+
+import { Box } from "@mui/material";
 
 interface TransactionPageProps {
 	mode: "Sale" | "Supply";

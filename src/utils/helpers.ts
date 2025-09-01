@@ -1,2 +1,2 @@
-export * from "./toQueryParameters";
 export * from "./formatCurrency";
+export * from "./toQueryParameters";

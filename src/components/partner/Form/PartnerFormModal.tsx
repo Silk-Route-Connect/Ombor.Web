@@ -1,5 +1,4 @@
 import React from "react";
-import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 import PartnerFormFields from "components/partner/Form/PartnerFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
@@ -8,6 +7,8 @@ import { PartnerFormPayload, usePartnerForm } from "hooks/partner/usePartnerForm
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { dialogTranslation } from "utils/translationUtils";
+
+import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 
 export interface PartnerFormModalProps {
 	isOpen: boolean;

@@ -1,4 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Loadable } from "helpers/Loading";
+import { translate } from "i18n/i18n";
+
 import {
 	KeyboardArrowDown as KeyboardArrowDownIcon,
 	KeyboardArrowUp as KeyboardArrowUpIcon,
@@ -19,8 +22,6 @@ import {
 	TableSortLabel,
 	useTheme,
 } from "@mui/material";
-import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 
 import {
 	BODY_CELL_SX,

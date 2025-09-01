@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useTheme } from "@mui/material/styles";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
@@ -7,6 +6,8 @@ import { ProductTransaction } from "models/product";
 import { TransactionType } from "models/transaction";
 import { getKeyFromDate, toDate } from "utils/dateUtils";
 import { calculateProductTransactionTotal } from "utils/productUtils";
+
+import { useTheme } from "@mui/material/styles";
 
 type TrendPoint = { value: number };
 

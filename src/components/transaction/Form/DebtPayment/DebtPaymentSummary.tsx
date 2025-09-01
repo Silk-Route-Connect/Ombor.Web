@@ -1,6 +1,7 @@
 import React from "react";
-import { Divider, Paper, Stack, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
+
+import { Divider, Paper, Stack, Typography } from "@mui/material";
 
 interface DebtPaymentSummaryProps {
 	totalDebt: number;

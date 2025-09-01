@@ -1,10 +1,11 @@
 import React from "react";
-import { Box, Chip, Grid, Link, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { TransactionRecord } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPrice } from "utils/formatCurrency";
 import { getPratnerTranslationKey } from "utils/translationUtils";
+
+import { Box, Chip, Grid, Link, Typography } from "@mui/material";
 
 const getStatusColor = (status: string) => {
 	switch (status) {

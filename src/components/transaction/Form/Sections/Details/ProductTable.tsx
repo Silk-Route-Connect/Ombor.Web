@@ -8,6 +8,9 @@ import React, {
 	useRef,
 	useState,
 } from "react";
+import { translate } from "i18n/i18n";
+import { Product } from "models/product";
+
 import AddIcon from "@mui/icons-material/Add";
 import {
 	IconButton,
@@ -20,8 +23,6 @@ import {
 	Typography,
 	useTheme,
 } from "@mui/material";
-import { translate } from "i18n/i18n";
-import { Product } from "models/product";
 
 export interface ProductTableProps {
 	rows: Product[];

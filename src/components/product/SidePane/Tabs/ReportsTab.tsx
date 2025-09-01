@@ -1,8 +1,4 @@
 import React, { useMemo } from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Grid from "@mui/material/Grid";
 import KpiCard from "components/shared/Cards/KpiCard";
 import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
@@ -11,6 +7,11 @@ import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateUtils";
+
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Grid from "@mui/material/Grid";
 
 const ReportsTab: React.FC = observer(() => {
 	const { selectedProductStore } = useStore();

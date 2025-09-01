@@ -1,6 +1,7 @@
 import React, { SyntheticEvent, useCallback } from "react";
-import { Autocomplete, AutocompleteProps, FilterOptionsState, TextField } from "@mui/material";
 import { translate } from "i18n/i18n";
+
+import { Autocomplete, AutocompleteProps, FilterOptionsState, TextField } from "@mui/material";
 
 export type AutocompleteSize = "small" | "medium";
 
