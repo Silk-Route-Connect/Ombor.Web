@@ -43,7 +43,6 @@ interface RowProps {
 
 const CELL = { py: 1, px: 1 };
 
-/* ---------- Row component ---------- */
 const ProductRow: React.FC<RowProps> = ({ row, disabled, selected, onSelect, onAdd }) => (
 	<TableRow
 		hover
@@ -91,7 +90,7 @@ const MemoRow = memo(
 );
 
 export interface ProductTableHandle {
-	focus(): void; // parent may call
+	focus(): void;
 }
 
 const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
@@ -142,6 +141,7 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 			},
 			[onSelect],
 		);
+
 		const addFn = useCallback(
 			(row: Product, i: number) => () => {
 				setIdx(i);
