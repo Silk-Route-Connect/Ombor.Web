@@ -38,7 +38,7 @@ const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
 		} else {
 			return productStore.allProducts;
 		}
-	}, [productStore.saleProducts, productStore.supplyProducts, type]);
+	}, [productStore.allProducts, productStore.saleProducts, productStore.supplyProducts, type]);
 
 	return (
 		<EntityAutocomplete<Product>
