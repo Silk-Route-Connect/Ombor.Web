@@ -28,7 +28,7 @@ interface CategoryAutocompleteIdProps extends CategoryAutocompleteCommonProps {
 
 type CategoryAutocompleteProps = CategoryAutocompleteEntityProps | CategoryAutocompleteIdProps;
 
-const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = ({
+const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 	mode,
 	value,
 	size,
@@ -85,4 +85,4 @@ const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = ({
 	);
 };
 
-export default observer(CategoryAutocompleteComponent);
+export default observer(CategoryAutocomplete);
