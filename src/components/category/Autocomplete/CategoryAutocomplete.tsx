@@ -28,11 +28,16 @@ interface CategoryAutocompleteIdProps extends CategoryAutocompleteCommonProps {
 
 type CategoryAutocompleteProps = CategoryAutocompleteEntityProps | CategoryAutocompleteIdProps;
 
-function isIdMode(p: CategoryAutocompleteProps): p is CategoryAutocompleteIdProps {
-	return p.mode === "id";
-}
-
-const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = (props) => {
+const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = ({
+	mode,
+	value,
+	size,
+	disabled,
+	required,
+	error,
+	helperText,
+	onChange,
+}) => {
 	const { categoryStore } = useStore();
 
 	const options: Category[] = useMemo(
@@ -41,25 +46,25 @@ const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = (prop
 	);
 
 	const loading = categoryStore.allCategories === "loading";
-	const isDisabled = Boolean(props.disabled) || loading;
+	const isDisabled = Boolean(disabled) || loading;
 
 	const selectedValue = useMemo(() => {
-		if (props.value == null) {
+		if (value == null) {
 			return null;
 		}
 
-		if (isIdMode(props)) {
-			return options.find((c) => c.id === props.value) ?? null;
+		if (mode === "id") {
+			return options.find((c) => c.id === value) ?? null;
 		}
 
-		return props.value ?? null;
-	}, [props, options]);
+		return value ?? null;
+	}, [mode, value, options]);
 
 	const handleChange = (value: Category | null) => {
-		if (props.mode === "id") {
-			props.onChange(value?.id ?? null);
+		if (mode === "id") {
+			onChange(value?.id ?? null);
 		} else {
-			props.onChange(value);
+			onChange(value);
 		}
 	};
 
@@ -69,12 +74,12 @@ const CategoryAutocompleteComponent: React.FC<CategoryAutocompleteProps> = (prop
 			placeholder={translate("category.title.search")}
 			options={options}
 			value={selectedValue}
-			size={props.size}
+			size={size}
 			loading={loading}
 			disabled={isDisabled}
-			required={props.required}
-			error={props.error}
-			helperText={props.helperText}
+			required={required}
+			error={error}
+			helperText={helperText}
 			onChange={handleChange}
 		/>
 	);
