@@ -1,8 +1,8 @@
 import React from "react";
+import { categoryTableColumns } from "components/category/Table/categoryTableConfigs";
 import { ActionCell } from "components/shared/ActionCell/ActionCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 import { Category } from "models/category";
 
 interface CategoryTableProps {
@@ -21,20 +21,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 	onEdit,
 }) => {
 	const columns: Column<Category>[] = [
-		{
-			key: "name",
-			field: "name",
-			headerName: translate("category.name"),
-			width: "30%",
-			sortable: true,
-		},
-		{
-			key: "description",
-			field: "description",
-			headerName: translate("category.description"),
-			width: "60%",
-			sortable: true,
-		},
+		...categoryTableColumns,
 		{
 			key: "actions",
 			headerName: "",
