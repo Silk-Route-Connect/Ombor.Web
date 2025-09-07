@@ -1,24 +1,19 @@
 import React from "react";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
+import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
+import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { translate } from "i18n/i18n";
 import { Category } from "models/category";
+import { dialogTranslation } from "utils/translationUtils";
 
-import CloseIcon from "@mui/icons-material/Close";
-import {
-	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	LinearProgress,
-	TextField,
-} from "@mui/material";
+import { Box, Dialog, DialogContent, LinearProgress, TextField } from "@mui/material";
 
 interface CategoryFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
-	category?: Category | null;
+	category: Category | null;
 	onClose: () => void;
 	onSave: (payload: CategoryFormPayload) => void;
 }
@@ -30,82 +25,88 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
+	const { form, canSave, submit } = useCategoryForm({
+		isOpen,
+		isSaving,
+		category,
+		onSave,
+		onClose,
+	});
+
+	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
+		form.formState.isDirty,
+		isSaving,
+		onClose,
+	);
+
 	const {
 		register,
-		handleSubmit,
-		formState: { errors, isDirty, isValid },
-	} = useCategoryForm(isOpen, category);
-
-	const submit = handleSubmit(onSave);
-
-	const safeClose = () => {
-		if (isSaving) return;
-
-		if (isDirty) {
-			const confirm = window.confirm(translate("common.confirmDiscardChanges"));
-			if (!confirm) return;
-		}
-		onClose();
-	};
+		formState: { errors },
+	} = form;
 
 	const title = translate(category ? "category.title.edit" : "category.title.create");
-	const canSave = isDirty && isValid && !isSaving;
 
 	return (
-		<Dialog
-			open={isOpen}
-			onClose={safeClose}
-			fullWidth
-			maxWidth="sm"
-			disableEscapeKeyDown={isSaving}
-			disableRestoreFocus
-		>
-			<DialogTitle sx={{ m: 0, p: 2 }}>
-				{title}
-				<IconButton
-					onClick={safeClose}
-					disabled={isSaving}
-					sx={{ position: "absolute", right: 8, top: 8 }}
-					aria-label="close"
-				>
-					<CloseIcon />
-				</IconButton>
-			</DialogTitle>
+		<>
+			<Dialog
+				open={isOpen}
+				onClose={requestClose}
+				fullWidth
+				maxWidth="sm"
+				disableEscapeKeyDown={isSaving}
+				disableRestoreFocus
+			>
+				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 
-			{isSaving && <LinearProgress />}
+				{isSaving && (
+					<Box sx={{ position: "relative", height: 4 }}>
+						<LinearProgress sx={{ position: "absolute", inset: 0 }} />
+					</Box>
+				)}
 
-			<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
-				<TextField
-					label={translate("category.name")}
-					fullWidth
-					disabled={isSaving}
-					error={!!errors.name}
-					helperText={errors.name?.message}
-					{...register("name")}
+				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 4, pt: 2 }}>
+					<TextField
+						id="category-name"
+						label={translate("category.name")}
+						fullWidth
+						margin="dense"
+						disabled={isSaving}
+						error={!!errors.name}
+						helperText={errors.name?.message}
+						{...register("name")}
+					/>
+
+					<TextField
+						label={translate("category.description")}
+						fullWidth
+						multiline
+						minRows={3}
+						maxRows={6}
+						disabled={isSaving}
+						error={!!errors.description}
+						helperText={errors.description?.message}
+						{...register("description")}
+					/>
+				</DialogContent>
+
+				<FormDialogFooter
+					loading={isSaving}
+					canSave={canSave}
+					onSave={submit}
+					onCancel={requestClose}
 				/>
+			</Dialog>
 
-				<TextField
-					label={translate("category.description")}
-					fullWidth
-					multiline
-					minRows={3}
-					maxRows={6}
-					disabled={isSaving}
-					error={!!errors.description}
-					helperText={errors.description?.message}
-					{...register("description")}
-				/>
-			</DialogContent>
-
-			<DialogActions sx={{ p: 2 }}>
-				<Button onClick={safeClose} disabled={isSaving}>
-					{translate("common.cancel")}
-				</Button>
-				<Button variant="contained" loading={isSaving} onClick={submit} disabled={!canSave}>
-					{translate("common.save")}
-				</Button>
-			</DialogActions>
-		</Dialog>
+			<ConfirmDialog
+				isOpen={discardOpen}
+				title={dialogTranslation("title")}
+				content={dialogTranslation("body")}
+				confirmLabel={dialogTranslation("confirm")}
+				cancelLabel={dialogTranslation("cancel")}
+				onConfirm={confirmDiscard}
+				onCancel={cancelDiscard}
+			/>
+		</>
 	);
 };
 

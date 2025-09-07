@@ -65,11 +65,15 @@ export function usePartnerForm({
 	);
 
 	const requestClose = useCallback(() => {
-		if (isSaving) return;
+		if (isSaving) {
+			return;
+		}
+
 		if (isDirty) {
 			setDiscardOpen(true);
 			return;
 		}
+
 		onClose();
 	}, [isSaving, isDirty, onClose]);
 
