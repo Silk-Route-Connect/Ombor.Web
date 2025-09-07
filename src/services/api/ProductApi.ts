@@ -79,6 +79,7 @@ export class ProductApi {
 
 	private getFormData(request: CreateProductRequest | UpdateProductRequest): FormData {
 		const form = new FormData();
+		const packaging = request.packaging;
 
 		const { attachments, imagesToDelete, ...rest } = request as UpdateProductRequest;
 
@@ -88,8 +89,13 @@ export class ProductApi {
 			}
 		});
 
+		if (packaging) {
+			if (packaging.size != null) form.append("packaging.size", String(packaging.size));
+			if (packaging.label != null) form.append("packaging.label", packaging.label);
+			if (packaging.barcode != null) form.append("packaging.barcode", packaging.barcode);
+		}
+
 		attachments?.forEach((file) => form.append("attachments", file));
-		console.log("Images to delete:", imagesToDelete);
 		imagesToDelete?.forEach((imgId) => form.append("imagesToDelete", String(imgId)));
 
 		return form;

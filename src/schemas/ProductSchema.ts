@@ -54,17 +54,17 @@ const optionalTrimmedMax = (max: number, key: string) =>
 		.optional();
 
 export const ProductPackagingSchema = z.object({
-	packSize: z
+	size: z
 		.number()
 		.refine(Number.isInteger, { message: translate("product.validation.packSizeInvalid") })
 		.min(2, translate("product.validation.packSizeMin")),
-	packLabel: z
+	label: z
 		.string()
 		.trim()
 		.max(50, translate("product.validation.packLabelTooLong"))
 		.transform((v) => (v === "" ? undefined : v))
 		.optional(),
-	packBarcode: z
+	barcode: z
 		.string()
 		.trim()
 		.refine((v) => v === "" || isValidBarcode(v), {

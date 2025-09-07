@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from "react";
 import { translate } from "i18n/i18n";
 
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 
 import ProductFormImageTile from "./ProductFormImageTile";
 import ProductFormMainImageCircle from "./ProductFormMainImage";
@@ -107,51 +107,39 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 
 			{/* Existing images */}
 			{existingImages.length > 0 && (
-				<>
-					<Typography variant="subtitle2" color="text.secondary">
-						{translate("product.images.others")}
-					</Typography>
-					<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-						{existingImages.map((img) => {
-							const src = resolveUrl(img.thumbnailUrl ?? img.originalUrl);
-							return (
-								<ProductFormImageTile
-									key={img.id}
-									src={src}
-									alt={img.name}
-									selected={isMainExisting(img.id)}
-									disabled={disabled}
-									onMakeMain={() => onSetMainExisting(img.id)}
-									onRemove={() => onRemoveExisting(img.id)}
-								/>
-							);
-						})}
-					</Box>
-				</>
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+					{existingImages.map((img) => {
+						const src = resolveUrl(img.thumbnailUrl ?? img.originalUrl);
+						return (
+							<ProductFormImageTile
+								key={img.id}
+								src={src}
+								alt={img.name}
+								selected={isMainExisting(img.id)}
+								disabled={disabled}
+								onMakeMain={() => onSetMainExisting(img.id)}
+								onRemove={() => onRemoveExisting(img.id)}
+							/>
+						);
+					})}
+				</Box>
 			)}
 
 			{/* New uploads */}
 			{attachments.length > 0 && (
-				<>
-					{existingImages.length === 0 && (
-						<Typography variant="subtitle2" color="text.secondary">
-							{translate("product.images.others")}
-						</Typography>
-					)}
-					<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-						{attachments.map((file, index) => (
-							<ProductFormImageTile
-								key={`${file.name}-${index}`}
-								src={attachmentPreviews[index]}
-								alt={file.name}
-								selected={isMainNew(index)}
-								disabled={disabled}
-								onMakeMain={() => onSetMainNew(index)}
-								onRemove={() => onRemoveAttachment(index)}
-							/>
-						))}
-					</Box>
-				</>
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+					{attachments.map((file, index) => (
+						<ProductFormImageTile
+							key={`${file.name}-${index}`}
+							src={attachmentPreviews[index]}
+							alt={file.name}
+							selected={isMainNew(index)}
+							disabled={disabled}
+							onMakeMain={() => onSetMainNew(index)}
+							onRemove={() => onRemoveAttachment(index)}
+						/>
+					))}
+				</Box>
 			)}
 		</Stack>
 	);

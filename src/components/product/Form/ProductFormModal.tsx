@@ -12,7 +12,7 @@ import { useStore } from "stores/StoreContext";
 
 import { Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 
-import ProductFormFieldsV2 from "./ProductFormFields";
+import ProductFormFields from "./ProductFormFields";
 
 const CONTENT_HEIGHT = 600;
 
@@ -80,7 +80,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 						pt: 2,
 					}}
 				>
-					<ProductFormFieldsV2 api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
+					<ProductFormFields api={form} onGenerateSku={onGenerateSku} disabled={isSaving} />
 				</DialogContent>
 
 				<FormDialogFooter

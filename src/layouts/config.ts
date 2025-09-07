@@ -29,7 +29,6 @@ export const menuItems: MenuItem[] = [
 		children: [
 			{ label: translate("sidebar.products"), to: "/products" },
 			{ label: translate("sidebar.categories"), to: "/categories" },
-			{ label: translate("sidebar.tags"), to: "/tags" },
 		],
 	},
 

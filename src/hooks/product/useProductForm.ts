@@ -25,10 +25,8 @@ export interface UseProductFormResult {
 	existingImages: ProductImage[];
 	imagesToRemove: number[];
 
-	/** Persisted "main" existing image id (null if a new upload is the current main). */
 	mainImageId: number | null;
 
-	/** Current UI selection of main image (existing by id or new by index). */
 	mainSelection: { kind: "existing"; imageId: number } | { kind: "new"; index: number } | null;
 
 	setCategoryId: (categoryId: number) => void;
@@ -150,7 +148,7 @@ export const useProductForm = ({
 	const watchedType = useWatch({ control, name: "type" });
 
 	const hasPackaging = Boolean(watchedPackaging);
-	const packSize = watchedPackaging?.packSize ?? 0;
+	const packSize = watchedPackaging?.size ?? 0;
 
 	const packPrice = useMemo(() => {
 		if (!hasPackaging || !packSize || !watchedSalePrice || watchedSalePrice <= 0) {
@@ -251,7 +249,7 @@ export const useProductForm = ({
 		enablePackaging: () =>
 			setValue(
 				"packaging",
-				{ packSize: 2, packLabel: undefined, packBarcode: undefined },
+				{ size: 2, label: undefined, barcode: undefined },
 				{ shouldDirty: true, shouldValidate: true },
 			),
 		disablePackaging: () =>

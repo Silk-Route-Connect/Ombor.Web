@@ -24,8 +24,8 @@ export interface ProductFormPackagingProps {
 }
 
 const toNumberOrZero = (raw: string): number => {
-	const v = raw.trim();
-	return v === "" ? 0 : Number(v);
+	const value = raw.trim();
+	return value === "" ? 0 : Number(value);
 };
 
 const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
@@ -62,7 +62,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 			<Collapse in={hasPackaging} unmountOnExit>
 				<Stack spacing={2}>
 					<Controller
-						name="packaging.packSize"
+						name="packaging.size"
 						control={control}
 						render={({ field, fieldState }) => (
 							<NumericField
@@ -81,7 +81,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 					/>
 
 					<Controller
-						name="packaging.packLabel"
+						name="packaging.label"
 						control={control}
 						render={({ field, fieldState }) => (
 							<TextField
@@ -96,7 +96,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 					/>
 
 					<Controller
-						name="packaging.packBarcode"
+						name="packaging.barcode"
 						control={control}
 						render={({ field, fieldState }) => (
 							<TextField
