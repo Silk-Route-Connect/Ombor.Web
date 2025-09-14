@@ -1,4 +1,5 @@
 import React from "react";
+
 import CloseIcon from "@mui/icons-material/Close";
 import { DialogTitle, IconButton } from "@mui/material";
 
@@ -12,7 +13,7 @@ const FormDialogHeader: React.FC<FormDialogHeaderProps> = ({ title, disabled, on
 	<DialogTitle sx={{ pr: 6 }}>
 		{title}
 		<IconButton
-			aria-label="Close"
+			aria-label="close"
 			onClick={onClose}
 			disabled={disabled}
 			sx={{ position: "absolute", top: 8, right: 8 }}

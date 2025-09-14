@@ -1,12 +1,13 @@
-import { Chip } from "@mui/material";
-import { Column } from "components/shared/ExpandableDataTable/ExpandableDataTable";
-import PartnerLink from "components/shared/Links/PartnerLink";
-import TransactionLink from "components/shared/Links/TransactionLink";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { Column } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
+import TransactionLink from "components/transaction/Links/TransactionLink";
 import { TRANSACTION_STATUS_COLORS } from "constants/index";
 import { translate } from "i18n/i18n";
 import { TransactionRecord } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
+
+import { Chip } from "@mui/material";
 
 export type TableMode = "full" | "compact";
 

@@ -1,4 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import NumericField from "components/shared/Inputs/NumericField";
+import { TransactionFormLinePayload } from "components/transaction/Form/TransactionForm";
+import { translate } from "i18n/i18n";
+import { useStore } from "stores/StoreContext";
+
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import {
 	IconButton,
@@ -11,10 +16,6 @@ import {
 	Typography,
 	useTheme,
 } from "@mui/material";
-import NumericField from "components/shared/Inputs/NumericField";
-import { TransactionFormLinePayload } from "components/transaction/Form/TransactionForm";
-import { translate } from "i18n/i18n";
-import { useStore } from "stores/StoreContext";
 
 interface Props {
 	rows: TransactionFormLinePayload[];

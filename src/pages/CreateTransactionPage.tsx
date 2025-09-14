@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Box } from "@mui/material";
 import TransactionForm from "components/transaction/Form/TransactionForm";
 import {
 	TransactionFormMode,
@@ -7,6 +6,8 @@ import {
 } from "hooks/transactions/useCreateTransactionForm";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+
+import { Box } from "@mui/material";
 
 interface CreateTransactionPageProps {
 	mode: TransactionFormMode;

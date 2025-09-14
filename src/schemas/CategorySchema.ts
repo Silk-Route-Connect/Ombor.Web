@@ -11,7 +11,8 @@ export const CategorySchema = z.object({
 		.string()
 		.trim()
 		.max(500, translate("category.validation.description.tooLong"))
-		.optional(),
+		.nullable(),
 });
 
-export type CategoryFormValues = z.infer<typeof CategorySchema>;
+export type CategoryFormInputs = z.input<typeof CategorySchema>;
+export type CategoryFormValues = z.output<typeof CategorySchema>;

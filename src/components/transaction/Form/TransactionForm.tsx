@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
-import { Box, Divider, Grid, Paper } from "@mui/material";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
 import { DebtPayment, TransactionPaymentRecord } from "models/transaction";
+
+import { Box, Divider, Grid, Paper } from "@mui/material";
 
 import DetailsSection from "./Sections/Details/DetailsSection";
 import LinesSection from "./Sections/Details/LinesSection";

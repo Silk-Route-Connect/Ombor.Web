@@ -1,11 +1,12 @@
 import { ElementType } from "react";
+import { translate } from "i18n/i18n";
+
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
-import { translate } from "i18n/i18n";
 
 export interface ChildMenuItem {
 	label: string;
@@ -28,7 +29,6 @@ export const menuItems: MenuItem[] = [
 		children: [
 			{ label: translate("sidebar.products"), to: "/products" },
 			{ label: translate("sidebar.categories"), to: "/categories" },
-			{ label: translate("sidebar.tags"), to: "/tags" },
 		],
 	},
 

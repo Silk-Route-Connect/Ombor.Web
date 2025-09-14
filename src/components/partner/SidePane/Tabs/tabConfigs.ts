@@ -1,4 +1,5 @@
 import { Theme } from "@emotion/react";
+
 import { SxProps } from "@mui/material";
 
 export const TAB_DEFAULT_BODY_SX: SxProps<Theme> = {

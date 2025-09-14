@@ -1,9 +1,10 @@
-import { SortOrder } from "components/shared/ExpandableDataTable/ExpandableDataTable";
+import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
-import { CreatePaymentRequest, Payment } from "models/payment";
+import { Partner } from "models/partner";
+import { CreatePaymentRequest, Payment, PaymentDirection } from "models/payment";
 import PaymentApi from "services/api/PaymentApi";
 
 import { NotificationStore } from "./NotificationStore";
@@ -18,7 +19,8 @@ export interface IPaymentStore {
 
 	// client-side controls
 	searchTerm: string;
-	filterPartnerId: number | null;
+	filterPartner: Partner | null;
+	filterDirection: PaymentDirection | null;
 	sortField: keyof Payment | null;
 	sortOrder: SortOrder;
 
@@ -29,7 +31,8 @@ export interface IPaymentStore {
 
 	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
-	setFilterPartner(partnerId?: number | null): void;
+	setFilterPartner(partner: Partner | null): void;
+	setFilterDirection(direction: PaymentDirection | null): void;
 	setSort(field: keyof Payment, order: SortOrder): void;
 	setSelectedPayment(payment: Payment | null): void;
 }
@@ -41,14 +44,15 @@ export class PaymentStore implements IPaymentStore {
 	selectedPayment: Loadable<Payment> | null = null;
 	isSaving: boolean = false;
 	searchTerm: string = "";
-	filterPartnerId: number | null = null;
+	filterPartner: Partner | null = null;
+	filterDirection: PaymentDirection | null = null;
 	sortField: keyof Payment | null = null;
 	sortOrder: SortOrder = "asc";
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 
-		makeAutoObservable(this);
+		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	get filteredPayments(): Loadable<Payment[]> {
@@ -58,14 +62,23 @@ export class PaymentStore implements IPaymentStore {
 
 		let payments = this.allPayments;
 
-		if (this.filterPartnerId) {
-			payments = payments.filter((el) => el.partnerId === this.filterPartnerId);
+		const searchTerm = this.searchTerm.trim().toLowerCase();
+		if (searchTerm) {
+			payments = payments.filter(
+				(el) =>
+					el.notes?.toLocaleLowerCase().includes(searchTerm) ||
+					el.partnerName?.toLocaleLowerCase().includes(searchTerm) ||
+					el.id.toString() === searchTerm,
+			);
 		}
 
-		if (this.searchTerm) {
-			payments = payments.filter((el) =>
-				el.notes?.toLocaleLowerCase(this.searchTerm.toLowerCase()),
-			);
+		const partnerId = this.filterPartner?.id;
+		if (partnerId) {
+			payments = payments.filter((el) => el.partnerId === partnerId);
+		}
+
+		if (this.filterDirection) {
+			payments = payments.filter((el) => el.direction === this.filterDirection);
 		}
 
 		return payments;
@@ -139,19 +152,23 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	setSelectedPayment(payment: Payment | null): void {
-		runInAction(() => (this.selectedPayment = payment));
+		this.selectedPayment = payment;
 	}
 
 	setSearch(searchTerm: string): void {
 		this.searchTerm = searchTerm;
 	}
 
-	setFilterPartner(partnerId?: number | null): void {
-		if (!partnerId) {
-			this.filterPartnerId = null;
+	setFilterPartner(partner: Partner | null): void {
+		if (!partner) {
+			this.filterPartner = null;
 		} else {
-			this.filterPartnerId = partnerId;
+			this.filterPartner = partner;
 		}
+	}
+
+	setFilterDirection(direction: PaymentDirection | null): void {
+		this.filterDirection = direction;
 	}
 
 	setSort(field: keyof Payment, order: SortOrder): void {

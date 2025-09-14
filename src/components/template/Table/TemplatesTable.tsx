@@ -3,11 +3,11 @@ import {
 	Column,
 	ExpandableDataTable,
 	SortOrder,
-} from "components/shared/ExpandableDataTable/ExpandableDataTable";
+} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 
-import TemplateActionMenu from "./ActionMenu/TemplateActionMenu";
+import TemplateActionMenu from "../ActionMenu/TemplateActionMenu";
 import TemplateItemsTable from "./TemplateItemsTable";
 import { templateTableColumns } from "./templateTableConfig";
 

@@ -14,9 +14,9 @@ export type ProductImage = {
 };
 
 export type ProductPackaging = {
-	packSize: number;
-	packLabel?: string;
-	packBarcode?: string;
+	size: number;
+	label: string | null;
+	barcode: string | null;
 };
 
 export type Product = {

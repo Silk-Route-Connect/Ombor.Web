@@ -1,8 +1,9 @@
 import React from "react";
-import { Grid, TextField } from "@mui/material";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
 import { translate } from "i18n/i18n";
+
+import { Grid, TextField } from "@mui/material";
 
 interface Props {
 	form: TransactionFormType;

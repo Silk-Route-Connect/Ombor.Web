@@ -1,9 +1,10 @@
 import React from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import { Box, CircularProgress, Divider, Drawer, IconButton, Typography } from "@mui/material";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { Payment } from "models/payment";
+
+import CloseIcon from "@mui/icons-material/Close";
+import { Box, CircularProgress, Divider, Drawer, IconButton, Typography } from "@mui/material";
 
 import AllocationsTable from "../Table/AllocationsTable";
 import PaymentComponentsTable from "../Table/PaymentComponentsTable";

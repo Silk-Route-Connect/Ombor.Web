@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
-import { Box } from "@mui/material";
 import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+
+import { Box } from "@mui/material";
 
 import { useStore } from "../stores/StoreContext";
 

@@ -1,9 +1,10 @@
 import React, { FC } from "react";
+import { translate } from "i18n/i18n";
+
 import BarChartIcon from "@mui/icons-material/BarChart";
 import DownloadIcon from "@mui/icons-material/Download";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { Box, IconButton, Menu, MenuItem, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 import { ChartType } from "../TimeSeriesChart";
 

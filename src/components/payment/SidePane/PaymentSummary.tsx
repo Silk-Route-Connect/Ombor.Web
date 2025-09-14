@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Chip, Grid, Link, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { Payment } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
+
+import { Box, Chip, Grid, Link, Typography } from "@mui/material";
 
 interface PaymentSummaryProps {
 	payment: Payment;

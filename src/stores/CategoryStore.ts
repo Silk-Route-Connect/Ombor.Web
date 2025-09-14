@@ -1,4 +1,4 @@
-import { SortOrder } from "components/shared/DataTable/DataTable";
+import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 

@@ -42,7 +42,7 @@
   "template.validation.discountMin": "Скидка не может быть меньше 0%",
   "template.validation.discountMax": "Скидка не может быть больше 100%",
   "template.validation.duplicateProduct": "Товар уже добавлен в список",
-  
+
   "template.type.Supply": "Поставка",
   "template.type.Sale": "Продажа",
 

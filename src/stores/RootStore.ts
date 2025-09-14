@@ -8,7 +8,6 @@ import { ISaleStore, SaleStore } from "./SaleStore";
 import { ISelectedPartnerStore, SelectedPartnerStore } from "./SelectedPartnerStore";
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
-import { ISupplyStore, SupplyStore } from "./SupplyStore";
 import { TemplateStore } from "./TemplateStore";
 import { ITransactionStore, TransactionStore } from "./TransactionStore";
 
@@ -18,7 +17,6 @@ export class RootStore {
 	productStore: IProductStore;
 	partnerStore: IPartnerStore;
 	saleStore: ISaleStore;
-	supplyStore: ISupplyStore;
 	templateStore: TemplateStore;
 	transactionStore: ITransactionStore;
 	selectedPartnerStore: ISelectedPartnerStore;
@@ -33,7 +31,6 @@ export class RootStore {
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
 		this.saleStore = new SaleStore();
-		this.supplyStore = new SupplyStore(this.notificationStore);
 		this.templateStore = new TemplateStore(this.notificationStore);
 		this.transactionStore = new TransactionStore(this.notificationStore);
 		this.selectedPartnerStore = new SelectedPartnerStore(this.partnerStore, this.notificationStore);

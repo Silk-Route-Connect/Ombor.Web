@@ -1,7 +1,8 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import SaveIcon from "@mui/icons-material/Save";
 import { Box, Button, Tooltip } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 interface SaveButtonProps {
 	disabled?: boolean;

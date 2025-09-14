@@ -15,19 +15,19 @@
 
   "partner.deleteConfirmation": "Вы уверены, что хотите удалить партнёра {{partnerName}}?",
 
-  "partner.validation.nameRequired":           "Имя должно содержать минимум 2 символа",
-  "partner.validation.nameTooLong":            "Имя не должно превышать 100 символов",
+  "partner.validation.nameRequired": "Имя должно содержать минимум 2 символа",
+  "partner.validation.nameTooLong": "Имя не должно превышать 100 символов",
 
-  "partner.validation.companyNameTooLong":     "Название компании не должно превышать 100 символов",
-  "partner.validation.addressTooLong":         "Адрес не должен превышать 200 символов",
+  "partner.validation.companyNameTooLong": "Название компании не должно превышать 100 символов",
+  "partner.validation.addressTooLong": "Адрес не должен превышать 200 символов",
 
-  "partner.validation.invalidEmail":           "Некорректный формат почты",
+  "partner.validation.invalidEmail": "Некорректный формат почты",
 
-  "partner.validation.phoneNumbersInvalid":    "Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов",
-  "partner.validation.phoneNumbersMaxLimit":   "Максимум 5 номеров телефона",
+  "partner.validation.phoneNumbersInvalid": "Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов",
+  "partner.validation.phoneNumbersMaxLimit": "Максимум 5 номеров телефона",
 
-  "partner.validation.maxBalance":             "Баланс не должен превышать 1 000 000 000",
-  "partner.validation.minBalance":             "Баланс не должен быть меньше -1 000 000 000",
+  "partner.validation.maxBalance": "Баланс не должен превышать 1 000 000 000",
+  "partner.validation.minBalance": "Баланс не должен быть меньше -1 000 000 000",
 
   "tabDashboard": "Dashboard",
   "dashboard.totalSales": "Total Sales",

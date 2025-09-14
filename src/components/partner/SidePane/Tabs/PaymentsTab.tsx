@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import DownloadIcon from "@mui/icons-material/Download";
-import { Box, Button, Link, Menu, MenuItem } from "@mui/material";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import {
 	Column,
 	ExpandableDataTable,
-} from "components/shared/ExpandableDataTable/ExpandableDataTable";
+} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Payment } from "models/payment";
 import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPaymentType } from "utils/paymentUtils";
+
+import DownloadIcon from "@mui/icons-material/Download";
+import { Box, Button, Link, Menu, MenuItem } from "@mui/material";
 
 import PaymentAllocationsTable from "../../Table/PaymentAllocationTable";
 

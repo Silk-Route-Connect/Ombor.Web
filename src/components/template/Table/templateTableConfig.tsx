@@ -1,4 +1,4 @@
-import { Column } from "components/shared/ExpandableDataTable/ExpandableDataTable";
+import { Column } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { translate } from "i18n/i18n";
 import { Template } from "models/template";
 import { calculateTemplateTotals } from "utils/templateUtils";

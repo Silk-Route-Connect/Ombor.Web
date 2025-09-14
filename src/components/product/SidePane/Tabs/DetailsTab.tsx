@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { translate } from "i18n/i18n";
+import { Product, ProductImage } from "models/product";
+
 import { Dialog, DialogContent } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { translate } from "i18n/i18n";
-import { Product, ProductImage } from "models/product";
 
 const IMAGE_BASE_URL = process.env.REACT_APP_OMBOR_API_BASE_URL ?? "";
 
@@ -80,7 +81,7 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 				</Grid>
 				<Grid size={{ xs: 4 }}>
 					<Typography variant="subtitle2">{translate("product.measurement")}</Typography>
-					<Typography>{translate(`measurement.${product.measurement}`)}</Typography>
+					<Typography>{translate(`product.measurement.${product.measurement}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
 					<Typography variant="subtitle2">{translate("product.barcode")}</Typography>

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Box } from "@mui/material";
-import ConfirmDialog from "components/shared/ConfirmDialog";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplateTable from "components/template/Table/TemplatesTable";
@@ -8,6 +7,8 @@ import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+
+import { Box } from "@mui/material";
 
 const TemplatePage: React.FC = observer(() => {
 	const { templateStore, partnerStore } = useStore();

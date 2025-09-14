@@ -1,11 +1,12 @@
 import React, { JSX } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, Typography } from "@mui/material";
 import { PartnerTypeSelect } from "components/partner/PartnerTypeSelect/PartnerTypeSelect";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
 import { PartnerTypeFilters } from "stores/PartnerStore";
+
+import AddIcon from "@mui/icons-material/Add";
+import { Box, FormControl, Typography } from "@mui/material";
 
 interface PartnerHeaderProps {
 	searchValue: string;

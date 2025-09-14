@@ -1,7 +1,8 @@
 import React from "react";
-import { MenuItem, Select, SelectProps } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { TEMPLATE_TYPES, TemplateType } from "models/template";
+
+import { MenuItem, Select, SelectProps } from "@mui/material";
 
 interface TemplateTypeSelectProps {
 	type: TemplateType;

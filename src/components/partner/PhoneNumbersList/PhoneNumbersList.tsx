@@ -1,6 +1,7 @@
 import React from "react";
-import { Typography } from "@mui/material";
 import { Partner } from "models/partner";
+
+import { Typography } from "@mui/material";
 
 export interface IPhoneNumbersListProps {
 	partner: Partner;

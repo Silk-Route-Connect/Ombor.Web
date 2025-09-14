@@ -1,7 +1,8 @@
 import React from "react";
+import { translate as t } from "i18n/i18n";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
-import { translate as t } from "i18n/i18n";
 
 export type PhoneRowField = {
 	id: string;

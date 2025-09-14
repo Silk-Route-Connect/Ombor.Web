@@ -1,8 +1,9 @@
 import React from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Grid, IconButton, TextField } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Grid, IconButton, TextField } from "@mui/material";
 
 import { TemplateFormItemPayload } from "./ItemsList";
 

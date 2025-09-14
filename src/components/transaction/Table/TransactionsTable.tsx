@@ -3,7 +3,7 @@ import {
 	ExpandableDataTable,
 	ExpandableDataTableProps,
 	SortOrder,
-} from "components/shared/ExpandableDataTable/ExpandableDataTable";
+} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { TransactionRecord } from "models/transaction";
 
 import TransactionLinesTable from "./LinesTable/TransactionLinesTable";

@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, DialogActions } from "@mui/material";
 import SaveButton from "components/shared/Buttons/SaveButton";
 import { translate } from "i18n/i18n";
+
+import { Button, DialogActions } from "@mui/material";
 
 interface FormDialogFooterProps {
 	canSave: boolean;

@@ -1,5 +1,5 @@
 import React from "react";
-import { DataTable, SortOrder } from "components/shared/DataTable/DataTable";
+import { DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Product } from "models/product";
 

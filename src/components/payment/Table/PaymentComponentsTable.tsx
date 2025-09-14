@@ -1,8 +1,9 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { PaymentComponent } from "models/payment";
-import { formatPrice } from "utils/supplyUtils";
+import { formatPrice } from "utils/formatCurrency";
+
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 
 interface PaymentComponentsTableProps {
 	components: PaymentComponent[];

@@ -1,4 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import { translate } from "i18n/i18n";
+import { TemplateItem } from "models/template";
+import { useStore } from "stores/StoreContext";
+
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -14,9 +18,6 @@ import {
 	Typography,
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
-import { translate } from "i18n/i18n";
-import { TemplateItem } from "models/template";
-import { useStore } from "stores/StoreContext";
 
 type LocalItem = TemplateItem & { localId: string };
 

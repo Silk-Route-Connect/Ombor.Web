@@ -1,11 +1,12 @@
 import React, { JSX } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, Typography } from "@mui/material";
-import CategoryAutocomplete from "components/shared/Autocomplete/CategoryAutocomplete";
+import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
 import { Category } from "models/category";
+
+import AddIcon from "@mui/icons-material/Add";
+import { Box, FormControl, Typography } from "@mui/material";
 
 interface CategoryHeaderProps {
 	title: string;
@@ -15,7 +16,6 @@ interface CategoryHeaderProps {
 	onSearch: (value: string) => void;
 	onCategoryChange: (category: Category | null) => void;
 	onCreate: () => void;
-	onCreateV2: () => void;
 }
 
 export const ProductHeader: React.FC<CategoryHeaderProps> = ({
@@ -25,7 +25,6 @@ export const ProductHeader: React.FC<CategoryHeaderProps> = ({
 	onSearch,
 	onCategoryChange,
 	onCreate,
-	onCreateV2,
 }): JSX.Element => (
 	<Box
 		display="flex"
@@ -48,9 +47,6 @@ export const ProductHeader: React.FC<CategoryHeaderProps> = ({
 			</FormControl>
 
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("common.create")}
-			</PrimaryButton>
-			<PrimaryButton icon={<AddIcon />} onClick={onCreateV2}>
 				{translate("common.create")}
 			</PrimaryButton>
 		</Box>

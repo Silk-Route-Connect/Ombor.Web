@@ -1,9 +1,10 @@
 import React from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
 import { PaymentCurrency, PaymentMethod } from "models/payment";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
 
 export type PaymentRowData = {
 	id: number;

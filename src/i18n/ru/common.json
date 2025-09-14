@@ -37,10 +37,10 @@
   "common.enable": "Включить",
   "common.enabled": "Выключить",
 
-  "common.dialog.discardChanges.title":   "Отменить изменения?",
-  "common.dialog.discardChanges.body":    "Несохранённые изменения будут потеряны.",
+  "common.dialog.discardChanges.title": "Отменить изменения?",
+  "common.dialog.discardChanges.body": "Несохранённые изменения будут потеряны.",
   "common.dialog.discardChanges.confirm": "Да, закрыть",
-  "common.dialog.discardChanges.cancel":  "Продолжить редактирование",
+  "common.dialog.discardChanges.cancel": "Продолжить редактирование",
 
   "common.fieldRequired": "Поле объязательно",
 
@@ -103,7 +103,6 @@
   "topbar.settings": "Настройки",
   "topbar.logout": "Выход",
 
-  
   "common.number.thousandShort": "тыс",
   "common.number.millionShort": "млн",
   "common.number.billionShort": "млрд",

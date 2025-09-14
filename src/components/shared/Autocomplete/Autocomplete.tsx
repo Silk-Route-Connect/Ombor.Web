@@ -1,6 +1,7 @@
 import React, { SyntheticEvent, useCallback } from "react";
-import { Autocomplete, AutocompleteProps, FilterOptionsState, TextField } from "@mui/material";
 import { translate } from "i18n/i18n";
+
+import { Autocomplete, AutocompleteProps, FilterOptionsState, TextField } from "@mui/material";
 
 export type AutocompleteSize = "small" | "medium";
 
@@ -23,6 +24,7 @@ export interface EntityAutocompleteProps<T extends EntityWithIdName> {
 	inputRef?: React.Ref<HTMLInputElement>;
 	required?: boolean;
 	error?: boolean;
+	helperText?: React.ReactNode;
 	onChange(value: T | null): void;
 	additionalFilter?(entity: T, text: string): boolean;
 	onKeyDown?: (
@@ -42,6 +44,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 	disabled = false,
 	required = false,
 	error = false,
+	helperText,
 	inputRef,
 	onChange,
 	additionalFilter,
@@ -62,7 +65,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 	);
 
 	const handleChange = useCallback(
-		(_event: SyntheticEvent<Element, Event>, value: T | null) => onChange(value),
+		(_: SyntheticEvent<Element, Event>, newValue: T | null) => onChange(newValue),
 		[onChange],
 	);
 
@@ -79,9 +82,9 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 			value={value}
 			onChange={handleChange}
 			renderOption={(props, option) => {
-				const { key, ...rest } = props;
+				const { key, ...restProps } = props;
 				return (
-					<li key={key} {...rest}>
+					<li key={key} {...restProps}>
 						{option.name}
 					</li>
 				);
@@ -89,13 +92,14 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 			noOptionsText={translate("noOptionsTitle")}
 			renderInput={(params) => (
 				<TextField
-					inputRef={inputRef}
 					{...params}
+					inputRef={inputRef}
 					label={label}
 					placeholder={placeholder}
 					fullWidth
 					required={required}
 					error={error}
+					helperText={helperText}
 				/>
 			)}
 			{...rest}

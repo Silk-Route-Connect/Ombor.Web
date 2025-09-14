@@ -1,30 +1,63 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category } from "models/category";
-import { CategoryFormValues, CategorySchema } from "schemas/CategorySchema";
+import { CategoryFormInputs, CategoryFormValues, CategorySchema } from "schemas/CategorySchema";
+import { emptyCategoryFormDefaults, mapCategoryToFormPayload } from "utils/categoryUtils";
 
-export type CategoryFormPayload = {
-	name: string;
-	description?: string;
-};
+export type CategoryFormPayload = CategoryFormValues;
 
-export function useCategoryForm(isOpen: boolean, category?: Category | null) {
+export interface UseCategoryFormOptions {
+	isOpen: boolean;
+	isSaving: boolean;
+	category: Category | null;
+	onSave: (payload: CategoryFormPayload) => void;
+	onClose: () => void;
+}
+
+export interface UseCategoryFormResult {
+	form: UseFormReturn<CategoryFormInputs>;
+	canSave: boolean;
+	discardOpen: boolean;
+	submit: () => Promise<void>;
+	requestClose: () => void;
+	confirmDiscard: () => void;
+	cancelDiscard: () => void;
+}
+
+export function useCategoryForm({
+	isOpen,
+	isSaving,
+	category,
+	onSave,
+	onClose,
+}: UseCategoryFormOptions) {
 	const form = useForm<CategoryFormValues>({
 		resolver: zodResolver(CategorySchema),
 		mode: "onChange",
-		defaultValues: { name: "", description: "" },
 		reValidateMode: "onChange",
 		criteriaMode: "all",
+		defaultValues: emptyCategoryFormDefaults,
 	});
 
 	useEffect(() => {
-		form.reset(
-			category
-				? { name: category.name, description: category.description ?? "" }
-				: { name: "", description: "" },
-		);
-	}, [category, isOpen]);
+		form.reset(category ? mapCategoryToFormPayload(category) : { ...emptyCategoryFormDefaults });
+	}, [category, isOpen, form]);
 
-	return form;
+	const {
+		handleSubmit,
+		formState: { isDirty, isValid },
+	} = form;
+
+	const submit = handleSubmit((data) => {
+		onSave({ ...data });
+	});
+
+	const canSave = isValid && !isSaving && (category ? isDirty : true);
+
+	return {
+		form,
+		canSave,
+		submit,
+	};
 }

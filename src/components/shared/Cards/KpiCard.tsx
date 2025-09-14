@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Card, CardContent, Typography } from "@mui/material";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+
+import { Box, Card, CardContent, Typography } from "@mui/material";
 
 type TrendPoint = { value: number };
 

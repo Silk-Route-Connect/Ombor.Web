@@ -1,9 +1,10 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import PaymentIcon from "@mui/icons-material/PaymentOutlined";
-import { translate } from "i18n/i18n";
 
 import ActionMenu, { ActionMenuRow } from "./MenuActionCell";
 

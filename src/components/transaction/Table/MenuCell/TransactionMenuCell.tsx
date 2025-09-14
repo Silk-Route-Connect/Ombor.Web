@@ -1,8 +1,9 @@
 import React from "react";
-import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import PaymentIcon from "@mui/icons-material/PaymentOutlined";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import { translate } from "i18n/i18n";
+
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import PaymentIcon from "@mui/icons-material/PaymentOutlined";
 
 interface Props {
 	fullyPaid: boolean;

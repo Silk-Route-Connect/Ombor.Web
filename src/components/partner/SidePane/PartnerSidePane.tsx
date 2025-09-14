@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
-import { lastNDays, today } from "utils/dateUtils";
+import { daysAgo, today } from "utils/dateUtils";
+
+import CloseIcon from "@mui/icons-material/Close";
+import { Box, Divider, Drawer, IconButton, Tab, Tabs, Typography } from "@mui/material";
 
 import DetailsTab from "./Tabs/DetailsTab";
 import PaymentsTab from "./Tabs/PaymentsTab";
@@ -34,13 +35,13 @@ export interface PartnerSidePaneProps {
 }
 
 const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClose }) => {
-	const [fromDate, setFromDate] = useState(() => lastNDays(7));
+	const [fromDate, setFromDate] = useState(() => daysAgo(7));
 	const [toDate, setToDate] = useState(() => today());
 	const [selectedTab, setSelectedTab] = useState<TabKey>("details");
 
 	useEffect(() => {
 		if (open && partner) {
-			setFromDate(lastNDays(7));
+			setFromDate(daysAgo(7));
 			setToDate(today());
 		}
 	}, [open, partner]);

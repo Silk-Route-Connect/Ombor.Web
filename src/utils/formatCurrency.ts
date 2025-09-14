@@ -1,25 +1,5 @@
 import { translate } from "i18n/i18n";
 
-export function formatUZS(value: number): string {
-	if (value >= 1_000_000) {
-		const mln = value / 1_000_000;
-		const fixed = mln.toFixed(1);
-		const formatted = fixed.endsWith(".0")
-			? Number(mln.toFixed(0)).toLocaleString("ru-RU")
-			: parseFloat(fixed).toLocaleString("ru-RU");
-		return `${formatted} млн`;
-	} else if (value >= 1_000) {
-		const k = value / 1_000;
-		const fixed = k.toFixed(1);
-		const formatted = fixed.endsWith(".0")
-			? Number(k.toFixed(0)).toLocaleString("ru-RU")
-			: parseFloat(fixed).toLocaleString("ru-RU");
-		return `${formatted} тыс`;
-	} else {
-		return `${value.toLocaleString("ru-RU")}`;
-	}
-}
-
 /**
  * Formats a number with commas as thousand separators.
  * E.g. 1500   → "1,500"
@@ -64,4 +44,8 @@ export function formatShortNumber(input: number): string {
 	}
 
 	return `${sign}${abs.toLocaleString()}`;
+}
+
+export function formatPrice(value: number): string {
+	return value.toLocaleString();
 }

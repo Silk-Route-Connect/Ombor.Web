@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, FormControl, Grid, TextField, Typography } from "@mui/material";
-import PartnerAutocomplete from "components/shared/Autocomplete/PartnerAutocomplete";
-import ProductAutocomplete from "components/shared/Autocomplete/ProductAutocomplete";
+import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
+import ProductAutocomplete from "components/product/Autocomplete/ProductAutocomplete";
 import { UseTemplateFormResult } from "hooks/templates/useTemplateForm";
 import { translate } from "i18n/i18n";
+
+import AddIcon from "@mui/icons-material/Add";
+import { Box, Button, FormControl, Grid, TextField, Typography } from "@mui/material";
 
 import TemplateTypeSelect from "../Select/TemplateTypeSelect";
 import { ItemsList } from "./ItemsList.tsx/ItemsList";

@@ -1,7 +1,8 @@
 import React from "react";
+import { translate } from "i18n/i18n";
+
 import PaymentIcon from "@mui/icons-material/Payment";
 import { Button } from "@mui/material";
-import { translate } from "i18n/i18n";
 
 interface AddPaymentButtonProps {
 	onAddPayment: () => void;

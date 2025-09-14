@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import ProductLink from "components/shared/Links/ProductLink";
+import ProductLink from "components/product/Links/ProductLink";
 import { translate } from "i18n/i18n";
 import { TemplateItem } from "models/template";
+
+import { Box, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 
 interface TemplateItemsTableProps {
 	items: TemplateItem[];

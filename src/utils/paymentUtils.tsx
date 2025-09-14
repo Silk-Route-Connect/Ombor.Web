@@ -1,4 +1,4 @@
-import AllocationLink from "components/shared/Links/AllocationLink";
+import AllocationLink from "components/payment/Links/AllocationLink";
 import { translate } from "i18n/i18n";
 import { Payment } from "models/payment";
 

@@ -2,7 +2,7 @@ import { translate } from "i18n/i18n";
 
 export function formatNotes(notes?: string | null, count: number = 30): string {
 	if (!notes) {
-		return "--";
+		return translate("common.dash");
 	}
 
 	if (notes.length > count) {
@@ -26,4 +26,12 @@ export function valueOrPlaceholder(value?: string | null, placeholder?: string):
 	}
 
 	return value;
+}
+
+export function isNumber(value?: string | null): boolean {
+	if (!value) {
+		return false;
+	}
+
+	return !isNaN(Number(value));
 }

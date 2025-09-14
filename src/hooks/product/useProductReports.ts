@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useTheme } from "@mui/material/styles";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
 import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
@@ -7,6 +6,8 @@ import { ProductTransaction } from "models/product";
 import { TransactionType } from "models/transaction";
 import { getKeyFromDate, toDate } from "utils/dateUtils";
 import { calculateProductTransactionTotal } from "utils/productUtils";
+
+import { useTheme } from "@mui/material/styles";
 
 type TrendPoint = { value: number };
 
@@ -66,7 +67,9 @@ export function useProductReportsMetrics(
 	);
 
 	// KPIs
-	const transactionsCount = sales.length + supplies.length;
+	const transactionsCount =
+		sales.reduce((prev, curr) => prev + curr.quantity, 0) +
+		supplies.reduce((prev, curr) => prev + curr.quantity, 0);
 	const refundsCount = saleRefunds.length + supplyRefunds.length;
 	const totalQuantitySold = sumBy(sales.map((t) => t.quantity ?? 0));
 	const totalRevenueApprox =
@@ -97,9 +100,9 @@ export function useProductReportsMetrics(
 			const row = bucket.get(key) ?? { transactions: 0, refunds: 0 };
 
 			if (transaction.transactionType === "Sale" || transaction.transactionType === "Supply") {
-				row.transactions += 1;
+				row.transactions += transaction.quantity;
 			} else if (isRefund(transaction.transactionType)) {
-				row.refunds += 1;
+				row.refunds += transaction.quantity;
 			}
 
 			bucket.set(key, row);

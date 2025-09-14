@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, CircularProgress, Grid } from "@mui/material";
 import { Loadable } from "helpers/Loading";
 import { translate } from "i18n/i18n";
+
+import { Box, CircularProgress, Grid } from "@mui/material";
 
 import { ItemRow } from "./ItemRow";
 

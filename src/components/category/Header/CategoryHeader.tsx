@@ -1,9 +1,10 @@
 import React, { JSX } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, Typography } from "@mui/material";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
+
+import AddIcon from "@mui/icons-material/Add";
+import { Box, FormControl, Typography } from "@mui/material";
 
 interface CategoryHeaderProps {
 	title?: string;
