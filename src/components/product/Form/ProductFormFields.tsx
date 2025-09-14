@@ -56,8 +56,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 		addAttachments(files);
 	};
 
-	const handleAddMainAndMakeActive = (file: File) => {
-		// Add single file and set it as main (UI)
+	const handleAddMainImage = (file: File) => {
 		const insertionIndex = attachments.length;
 		const listLike: FileList = {
 			0: file,
@@ -70,7 +69,6 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 
 	return (
 		<Grid container spacing={3}>
-			{/* Images */}
 			<Grid size={{ xs: 12, md: 4 }}>
 				<ProductFormImages
 					disabled={disabled}
@@ -83,14 +81,13 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 					onRemoveExisting={markImageForRemoval}
 					onRemoveAttachment={removeAttachment}
 					onAddAttachments={handleAddAttachments}
-					onAddMainAndMakeActive={handleAddMainAndMakeActive}
+					onAddMainAndMakeActive={handleAddMainImage}
 					resolveUrl={resolveUrl}
 				/>
 			</Grid>
 
-			{/* Fields */}
 			<Grid size={{ xs: 12, md: 8 }}>
-				<Stack spacing={2.5}>
+				<Stack spacing={2}>
 					<ProductFormCoreFields
 						control={control}
 						setValue={setValue}

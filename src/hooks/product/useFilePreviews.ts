@@ -8,8 +8,10 @@ export function useFilePreviews(files: File[]): string[] {
 			setUrls([]);
 			return;
 		}
+
 		const next = files.map((f) => URL.createObjectURL(f));
 		setUrls(next);
+
 		return () => next.forEach((u) => URL.revokeObjectURL(u));
 	}, [files]);
 

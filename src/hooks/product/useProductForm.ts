@@ -209,7 +209,9 @@ export const useProductForm = ({
 	}, []);
 
 	useEffect(() => {
-		if (!watchedType) return;
+		if (!watchedType) {
+			return;
+		}
 
 		if (watchedType === "Supply") {
 			setValue("salePrice", 0, { shouldDirty: true, shouldValidate: true });
