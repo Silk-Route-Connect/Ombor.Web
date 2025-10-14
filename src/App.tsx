@@ -11,6 +11,8 @@ import TransactionPage from "pages/TransactionPage";
 import AppLayout from "./layouts/AppLayout";
 import CategoryPage from "./pages/CategoryPage";
 import { StoreProvider, useStore } from "./stores/StoreContext";
+import LoginPage from "pages/auth/login";
+import RegisterPage from "pages/auth/register";
 
 function SnackbarInjector() {
 	const { enqueueSnackbar } = useSnackbar();
@@ -36,6 +38,8 @@ function App() {
 				<SnackbarInjector />
 				<BrowserRouter>
 					<Routes>
+						<Route path="/auth/login" element={<LoginPage />} />
+						<Route path="/auth/register" element={<RegisterPage />} />
 						<Route path="/" element={<AppLayout />}>
 							<Route index element={<CategoryPage />} />
 							<Route path="categories" element={<CategoryPage />} />
