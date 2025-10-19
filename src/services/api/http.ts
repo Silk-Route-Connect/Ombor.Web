@@ -1,4 +1,5 @@
 import axios from "axios";
+import { attachHttpAuthInterceptors } from "services/auth/httpAuthInterceptor";
 
 const baseURL = process.env.REACT_APP_OMBOR_API_BASE_URL;
 
@@ -20,5 +21,7 @@ http.interceptors.response.use(
 		return Promise.reject(error);
 	},
 );
+
+attachHttpAuthInterceptors(http);
 
 export default http;
