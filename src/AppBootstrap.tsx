@@ -5,6 +5,7 @@ import { useStore } from "stores/StoreContext";
 const AppBootstrap: React.FC = () => {
 	const navigate = useNavigate();
 	const { authStore } = useStore();
+	const [isInitialized, setIsInitialized] = React.useState(false);
 
 	React.useEffect(() => {
 		authStore.configureSideEffects({
@@ -17,8 +18,12 @@ const AppBootstrap: React.FC = () => {
 			onResetAllStores: () => {},
 		});
 
-		void authStore.bootstrap();
-	}, [authStore, navigate]);
+		if (!isInitialized) {
+			setIsInitialized(true);
+			void authStore.bootstrap();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return null;
 };
