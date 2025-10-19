@@ -14,15 +14,15 @@ export default function AppLayout() {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 	const drawerWidth = isDrawerOpen ? FULL_WIDTH : COLLAPSED_WIDTH;
 
-	const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
+	const toggleDrawer = React.useCallback(() => {
+		setIsDrawerOpen((prev) => !prev);
+	}, []);
 
 	return (
 		<Box sx={{ display: "flex" }}>
 			<CssBaseline />
-
 			<Topbar open={isDrawerOpen} onToggle={toggleDrawer} />
 
-			{/* reserve space for the drawer */}
 			<Box
 				component="nav"
 				sx={{
