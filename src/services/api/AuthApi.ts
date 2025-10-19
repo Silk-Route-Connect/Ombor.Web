@@ -49,7 +49,13 @@ class AuthApi extends BaseApi {
 	 * Backend reads the httpOnly cookie and returns new access/refresh tokens.
 	 */
 	async refresh(): Promise<RefreshTokenResponse> {
-		const { data } = await http.post<RefreshTokenResponse>(AuthEndpoints.refresh);
+		const { data } = await http.post<RefreshTokenResponse>(
+			AuthEndpoints.refresh,
+			{}, // Empty body - cookie will be sent automatically
+			{
+				withCredentials: true, // Ensure credentials are sent
+			},
+		);
 
 		return data;
 	}
