@@ -7,7 +7,6 @@ import {
 	VerifyOtpResponse,
 	VerifyPhoneRequest,
 } from "models/auth";
-import BaseApi from "services/api/BaseApi";
 import http from "services/api/http";
 
 const AUTH_BASE = "/api/auth" as const;
@@ -21,11 +20,7 @@ export const AuthEndpoints = {
 	logout: `${AUTH_BASE}/logout`,
 } as const;
 
-class AuthApi extends BaseApi {
-	constructor() {
-		super("auth");
-	}
-
+class AuthApi {
 	async login(request: LoginRequest): Promise<LoginResponse> {
 		const { data } = await http.post<LoginResponse>(AuthEndpoints.login, request);
 
@@ -44,16 +39,12 @@ class AuthApi extends BaseApi {
 		return data;
 	}
 
-	/**
-	 * Cookie-based refresh. No body is required for web.
-	 * Backend reads the httpOnly cookie and returns new access/refresh tokens.
-	 */
 	async refresh(): Promise<RefreshTokenResponse> {
 		const { data } = await http.post<RefreshTokenResponse>(
 			AuthEndpoints.refresh,
 			{}, // Empty body - cookie will be sent automatically
 			{
-				withCredentials: true, // Ensure credentials are sent
+				withCredentials: true,
 			},
 		);
 
