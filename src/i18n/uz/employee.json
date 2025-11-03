@@ -1,0 +1,88 @@
+{
+  "employeesTitle": "Xodimlar",
+  "searchEmployeesPlaceholder": "Xodimlarni qidirish...",
+
+  "employee.fullName": "F.I.O",
+  "employee.position": "Lavozim",
+  "employee.status": "Holat",
+  "employee.salary": "Maosh",
+  "employee.dateOfEmployment": "Ishga qabul qilingan sana",
+  "employee.contactInfo": "Aloqa ma'lumotlari",
+  "employee.phoneNumber": "Telefon raqami",
+  "employee.phoneNumbers": "Telefon raqamlari",
+  "employee.email": "Elektron manzil",
+  "employee.address": "Manzil",
+  "employee.telegramAccount": "Telegram",
+
+  "employee.payment": "To'lov",
+  "employee.details": "Tafsilotlar",
+
+  "employee.createTitle": "Yangi xodim",
+  "employee.editTitle": "Xodimni tahrirlash",
+
+  "employee.allStatuses": "Barcha holatlar",
+  "employee.status.Active": "Faol",
+  "employee.status.Terminated": "Ishdan bo'shatilgan",
+  "employee.status.OnVacation": "Ta'tilda",
+
+  "employee.deleteConfirmation": "{{employeeName}} xodimini o'chirishga ishonchingiz komilmi?",
+
+  "employee.validation.fullNameRequired": "F.I.O majburiy",
+  "employee.validation.fullNameTooLong": "F.I.O 250 belgidan oshmasligi kerak",
+  "employee.validation.positionRequired": "Lavozim majburiy",
+  "employee.validation.positionTooLong": "Lavozim 250 belgidan oshmasligi kerak",
+  "employee.validation.salaryMin": "Maosh musbat bo'lishi kerak",
+  "employee.validation.statusInvalid": "Noto'g'ri holat",
+  "employee.validation.dateRequired": "Ishga qabul qilingan sana majburiy",
+  "employee.validation.dateFuture": "Ishga qabul qilingan sana kelajakda bo'lishi mumkin emas",
+  "employee.validation.phoneNumberInvalid": "Telefon raqami formati noto'g'ri",
+  "employee.validation.emailTooLong": "Email 250 belgidan oshmasligi kerak",
+  "employee.validation.emailInvalid": "Email formati noto'g'ri",
+  "employee.validation.addressTooLong": "Manzil 250 belgidan oshmasligi kerak",
+  "employee.validation.telegramTooLong": "Telegram 250 belgidan oshmasligi kerak",
+
+  "employees.error.getAll": "Xodimlarni yuklashda xatolik",
+  "employees.error.getById": "Xodimni yuklashda xatolik",
+  "employees.error.create": "Xodim yaratishda xatolik",
+  "employees.error.update": "Xodimni yangilashda xatolik",
+  "employees.error.delete": "Xodimni o'chirishda xatolik",
+
+  "employees.success.create": "Xodim muvaffaqiyatli yaratildi",
+  "employees.success.update": "Xodim muvaffaqiyatli yangilandi",
+  "employees.success.delete": "Xodim muvaffaqiyatli o'chirildi",
+
+  "payroll.title": "Maosh to'lovi",
+  "payroll.employeeLabel": "Xodim",
+
+  "payment.amount": "Summa",
+  "payment.date": "Sana",
+  "payment.currency": "Valyuta",
+  "payment.method": "To'lov usuli",
+  "payment.exchangeRate": "Valyuta kursi",
+  "payment.notes": "Izohlar",
+
+  "payment.method.Cash": "Naqd pul",
+  "payment.method.Card": "Karta",
+  "payment.method.BankTransfer": "Bank o'tkazmasi",
+
+  "payment.validation.amountPositive": "Summa musbat bo'lishi kerak",
+  "payment.validation.dateRequired": "Sana majburiy",
+  "payment.validation.currencyInvalid": "Noto'g'ri valyuta",
+  "payment.validation.methodInvalid": "Noto'g'ri to'lov usuli",
+  "payment.validation.exchangeRatePositive": "Valyuta kursi musbat bo'lishi kerak",
+  "payment.validation.notesTooLong": "Izohlar 500 belgidan oshmasligi kerak",
+
+  "employee.details.title": "Xodim haqida ma'lumot",
+  "employee.details.employmentInfo": "Ish haqida ma'lumot",
+  "employee.details.contactInfo": "Aloqa ma'lumotlari",
+  "employee.payroll": "Maosh to'lash",
+
+  "tabDetails": "Tafsilotlar",
+  "tabPayroll": "To'lovlar tarixi",
+
+  "employee.payroll.history": "Maosh to'lovlari tarixi",
+  "employee.payroll.noHistory": "To'lovlar tarixi bo'sh",
+  "employee.payroll.loadError": "To'lovlar tarixini yuklashda xatolik",
+  "employee.payroll.totalPayments": "Jami to'lovlar",
+  "employee.payroll.totalAmount": "Umumiy summa"
+}

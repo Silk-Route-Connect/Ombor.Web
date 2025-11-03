@@ -1,0 +1,88 @@
+{
+  "employeesTitle": "Сотрудники",
+  "searchEmployeesPlaceholder": "Поиск сотрудников...",
+
+  "employee.fullName": "Ф.И.О",
+  "employee.position": "Должность",
+  "employee.status": "Статус",
+  "employee.salary": "Зарплата",
+  "employee.dateOfEmployment": "Дата найма",
+  "employee.contactInfo": "Контактная информация",
+  "employee.phoneNumber": "Номер телефона",
+  "employee.phoneNumbers": "Номера телефонов",
+  "employee.email": "Электронная почта",
+  "employee.address": "Адрес",
+  "employee.telegramAccount": "Telegram",
+
+  "employee.payment": "Оплата",
+  "employee.details": "Детали",
+
+  "employee.createTitle": "Новый сотрудник",
+  "employee.editTitle": "Редактировать сотрудника",
+
+  "employee.allStatuses": "Все статусы",
+  "employee.status.Active": "Активный",
+  "employee.status.Terminated": "Уволен",
+  "employee.status.OnVacation": "В отпуске",
+
+  "employee.deleteConfirmation": "Вы уверены, что хотите удалить сотрудника {{employeeName}}?",
+
+  "employee.validation.fullNameRequired": "ФИО обязательно",
+  "employee.validation.fullNameTooLong": "ФИО не должно превышать 250 символов",
+  "employee.validation.positionRequired": "Должность обязательна",
+  "employee.validation.positionTooLong": "Должность не должна превышать 250 символов",
+  "employee.validation.salaryMin": "Зарплата должна быть положительной",
+  "employee.validation.statusInvalid": "Недопустимый статус",
+  "employee.validation.dateRequired": "Дата найма обязательна",
+  "employee.validation.dateFuture": "Дата найма не может быть в будущем",
+  "employee.validation.phoneNumberInvalid": "Неверный формат номера телефона",
+  "employee.validation.emailTooLong": "Email не должен превышать 250 символов",
+  "employee.validation.emailInvalid": "Неверный формат email",
+  "employee.validation.addressTooLong": "Адрес не должен превышать 250 символов",
+  "employee.validation.telegramTooLong": "Telegram не должен превышать 250 символов",
+
+  "employees.error.getAll": "Ошибка загрузки сотрудников",
+  "employees.error.getById": "Ошибка загрузки сотрудника",
+  "employees.error.create": "Ошибка создания сотрудника",
+  "employees.error.update": "Ошибка обновления сотрудника",
+  "employees.error.delete": "Ошибка удаления сотрудника",
+
+  "employees.success.create": "Сотрудник успешно создан",
+  "employees.success.update": "Сотрудник успешно обновлен",
+  "employees.success.delete": "Сотрудник успешно удален",
+
+  "payroll.title": "Оплата зарплаты",
+  "payroll.employeeLabel": "Сотрудник",
+
+  "payment.amount": "Сумма",
+  "payment.date": "Дата",
+  "payment.currency": "Валюта",
+  "payment.method": "Способ оплаты",
+  "payment.exchangeRate": "Курс обмена",
+  "payment.notes": "Примечания",
+
+  "payment.method.Cash": "Наличные",
+  "payment.method.Card": "Карта",
+  "payment.method.BankTransfer": "Банковский перевод",
+
+  "payment.validation.amountPositive": "Сумма должна быть положительной",
+  "payment.validation.dateRequired": "Дата обязательна",
+  "payment.validation.currencyInvalid": "Недопустимая валюта",
+  "payment.validation.methodInvalid": "Недопустимый способ оплаты",
+  "payment.validation.exchangeRatePositive": "Курс обмена должен быть положительным",
+  "payment.validation.notesTooLong": "Примечания не должны превышать 500 символов",
+
+  "employee.details.title": "Информация о сотруднике",
+  "employee.details.employmentInfo": "Информация о работе",
+  "employee.details.contactInfo": "Контактная информация",
+  "employee.payroll": "Оплатить зарплату",
+
+  "tabDetails": "Детали",
+  "tabPayroll": "История выплат",
+
+  "employee.payroll.history": "История выплат зарплаты",
+  "employee.payroll.noHistory": "История выплат пуста",
+  "employee.payroll.loadError": "Не удалось загрузить историю выплат",
+  "employee.payroll.totalPayments": "Всего выплат",
+  "employee.payroll.totalAmount": "Общая сумма"
+}
