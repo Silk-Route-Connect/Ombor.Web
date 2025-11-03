@@ -1,6 +1,6 @@
 import React from "react";
 import PartnerActionMenu from "components/shared/ActionMenuCell/PartnerActionMenu";
-import { DataTable } from "components/shared/Table/DataTable/DataTable";
+import { DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 
@@ -10,7 +10,7 @@ interface PartnerTableProps {
 	data: Loadable<Partner[]>;
 	pagination: boolean;
 
-	onSort: (field: keyof Partner, order: "asc" | "desc") => void;
+	onSort: (field: keyof Partner, order: SortOrder) => void;
 	onPayment: (partner: Partner) => void;
 	onDelete: (partner: Partner) => void;
 	onEdit: (partner: Partner) => void;
