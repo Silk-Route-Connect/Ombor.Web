@@ -1,5 +1,5 @@
 import AuthStore from "stores/AuthStore";
-import EmployeeStore, { IEmployeeStore } from "stores/EmployeeStore";
+import { EmployeeStore, IEmployeeStore } from "stores/EmployeeStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";

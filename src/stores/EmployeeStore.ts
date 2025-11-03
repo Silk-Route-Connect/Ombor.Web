@@ -233,5 +233,3 @@ export class EmployeeStore implements IEmployeeStore {
 		this.selectedEmployee = employee;
 	}
 }
-
-export default EmployeeStore;
