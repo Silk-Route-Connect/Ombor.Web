@@ -55,7 +55,7 @@ const EmployeePage: React.FC = observer(() => {
 		return employeeStore.filteredEmployees.length.toString();
 	}, [employeeStore.filteredEmployees]);
 
-	const dialogMode = employeeStore.dialogMode;
+	const { dialogMode } = employeeStore;
 	const dialogKind = dialogMode.kind;
 
 	return (
