@@ -4,6 +4,7 @@ import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
 import CreateTransactionPage from "pages/CreateTransactionPage";
+import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
@@ -55,6 +56,7 @@ function App() {
 								<Route path="payments/:id" element={<PaymentPage />} />
 								<Route path="new/sales" element={<CreateTransactionPage mode="Sale" />} />
 								<Route path="new/supplies" element={<CreateTransactionPage mode="Supply" />} />
+								<Route path="employees" element={<EmployeePage />} />
 							</Route>
 						</Route>
 					</Routes>
