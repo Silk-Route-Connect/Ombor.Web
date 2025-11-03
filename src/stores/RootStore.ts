@@ -1,4 +1,5 @@
 import AuthStore from "stores/AuthStore";
+import EmployeeStore, { IEmployeeStore } from "stores/EmployeeStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";
@@ -27,6 +28,7 @@ export class RootStore {
 	paymentStore: IPaymentStore;
 	inventoryStore: IInventoryStore;
 	authStore: AuthStore;
+	employeeStore: IEmployeeStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -45,6 +47,7 @@ export class RootStore {
 		this.paymentStore = new PaymentStore(this.notificationStore);
 		this.inventoryStore = new InventoryStore(this.notificationStore);
 		this.authStore = new AuthStore();
+		this.employeeStore = new EmployeeStore(this.notificationStore);
 	}
 }
 
