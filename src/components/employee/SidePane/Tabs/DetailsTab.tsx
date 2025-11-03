@@ -1,6 +1,6 @@
 import React from "react";
 import { translate } from "i18n/i18n";
-import { Employee } from "models/employee";
+import { Employee, EmployeeStatus } from "models/employee";
 import { formatDateTime } from "utils/dateUtils";
 
 import {
@@ -20,20 +20,20 @@ interface DetailsTabProps {
 	onPayment: (employee: Employee) => void;
 }
 
-const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onPayment }) => {
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case "Active":
-				return "success";
-			case "OnLeave":
-				return "warning";
-			case "Terminated":
-				return "error";
-			default:
-				return "default";
-		}
-	};
+const getStatusColor = (status: EmployeeStatus) => {
+	switch (status) {
+		case "Active":
+			return "success";
+		case "OnVacation":
+			return "warning";
+		case "Terminated":
+			return "error";
+		default:
+			return "default";
+	}
+};
 
+const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onPayment }) => {
 	const hasContactInfo =
 		employee.contactInfo?.phoneNumbers?.length ||
 		employee.contactInfo?.email ||
