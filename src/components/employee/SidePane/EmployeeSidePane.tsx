@@ -88,7 +88,7 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = ({
 			sx={(theme) => ({
 				zIndex: theme.zIndex.drawer + 2,
 				"& .MuiDrawer-paper": {
-					width: 750,
+					width: 950,
 					boxSizing: "border-box",
 				},
 			})}
