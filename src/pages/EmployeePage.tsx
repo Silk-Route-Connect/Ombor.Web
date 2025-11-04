@@ -34,9 +34,7 @@ const EmployeePage: React.FC = observer(() => {
 		try {
 			await PayrollApi.createPayroll(employeeStore.selectedEmployee.id, payload);
 			employeeStore.closeDialog();
-			// TODO: Show success notification
 		} catch (error) {
-			// TODO: Show error notification
 			console.error("Failed to create payroll:", error);
 		}
 	};

@@ -97,6 +97,10 @@ export class EmployeeStore implements IEmployeeStore {
 			employees = employees.filter((el) => el.status === this.filterStatus);
 		}
 
+		if (this.sortField) {
+			return this.applySort(employees);
+		}
+
 		return [...employees];
 	}
 
@@ -231,5 +235,54 @@ export class EmployeeStore implements IEmployeeStore {
 
 		this.dialogMode = mode;
 		this.selectedEmployee = employee;
+	}
+
+	private applySort(data: Loadable<Employee[]>): Loadable<Employee[]> {
+		if (data === "loading" || !this.sortField) {
+			return data;
+		}
+
+		const field = this.sortField;
+		const asc = this.sortOrder === "asc" ? 1 : -1;
+
+		return [...data].sort((a, b) => {
+			const aValue = a[field];
+			const bValue = b[field];
+
+			if (aValue == null && bValue == null) {
+				return 0;
+			}
+
+			if (aValue == null) {
+				return 1;
+			}
+
+			if (bValue == null) {
+				return -1;
+			}
+
+			// Number comparison
+			if (typeof aValue === "number" && typeof bValue === "number") {
+				return asc * (aValue - bValue);
+			}
+
+			// Date comparison
+			if (aValue instanceof Date && bValue instanceof Date) {
+				return asc * (aValue.getTime() - bValue.getTime());
+			}
+
+			// String comparison - with safety check for objects
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return asc * aValue.localeCompare(bValue, undefined, { numeric: true });
+			}
+
+			// Handle primitives that aren't strings (boolean, etc)
+			if (typeof aValue !== "object" && typeof bValue !== "object") {
+				return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
+			}
+
+			// Objects can't be sorted meaningfully - treat as equal
+			return 0;
+		});
 	}
 }

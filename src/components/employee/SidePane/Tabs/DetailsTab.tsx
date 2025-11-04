@@ -1,7 +1,8 @@
 import React from "react";
 import { translate } from "i18n/i18n";
-import { Employee, EmployeeStatus } from "models/employee";
+import { Employee } from "models/employee";
 import { formatDateTime } from "utils/dateUtils";
+import { getEmployeeStatusColor } from "utils/employeeUtils";
 
 import {
 	Delete as DeleteIcon,
@@ -19,19 +20,6 @@ interface DetailsTabProps {
 	onDelete: (employee: Employee) => void;
 	onPayment: (employee: Employee) => void;
 }
-
-const getStatusColor = (status: EmployeeStatus) => {
-	switch (status) {
-		case "Active":
-			return "success";
-		case "OnVacation":
-			return "warning";
-		case "Terminated":
-			return "error";
-		default:
-			return "default";
-	}
-};
 
 const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onPayment }) => {
 	const hasContactInfo =
@@ -72,7 +60,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 							<Box mt={0.5}>
 								<Chip
 									label={translate(`employee.status.${employee.status}`)}
-									color={getStatusColor(employee.status)}
+									color={getEmployeeStatusColor(employee.status)}
 									size="small"
 								/>
 							</Box>

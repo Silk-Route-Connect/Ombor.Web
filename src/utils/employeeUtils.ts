@@ -1,4 +1,4 @@
-import { ContactInfo, Employee } from "models/employee";
+import { ContactInfo, Employee, EmployeeStatus } from "models/employee";
 import { EmployeeFormInputs, EmployeeFormValues } from "schemas/EmployeeSchema";
 
 const today = new Date();
@@ -77,4 +77,19 @@ export const cleanContactInfo = (
 			telegramAccount: hasTelegram ? telegramAccount : undefined,
 		},
 	};
+};
+
+export const getEmployeeStatusColor = (
+	status: EmployeeStatus,
+): "success" | "error" | "warning" | "default" => {
+	switch (status) {
+		case "Active":
+			return "success";
+		case "Terminated":
+			return "error";
+		case "OnVacation":
+			return "warning";
+		default:
+			return "default";
+	}
 };

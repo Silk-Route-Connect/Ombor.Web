@@ -10,7 +10,7 @@ export const EmployeeStatusSchema = z.custom<EmployeeStatus>(
 const phoneRegex = /^\+?\d{7,15}$/;
 export const PhoneNumberSchema = z
 	.string()
-	.transform((v) => v.replace(/\s+/g, ""))
+	.transform((v) => v.replaceAll(/\s+/g, ""))
 	.refine((v) => v === "" || phoneRegex.test(v), {
 		message: translate("employee.validation.phoneNumberInvalid"),
 	});
