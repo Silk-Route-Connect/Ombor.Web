@@ -1,17 +1,16 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import { FieldError } from "react-hook-form";
+import { PhoneRow, PhoneRowField } from "components/shared/Inputs/PhoneListField/PhoneRow";
 import { translate } from "i18n/i18n";
 import { nanoid } from "nanoid";
-import { MAX_PHONES_COUNT } from "schemas/PartnerSchema";
 
 import { Button, Grid } from "@mui/material";
-
-import { PhoneRow, PhoneRowField } from "./PhoneRow";
 
 interface PhoneListFieldProps {
 	disabled: boolean;
 	values: string[];
 	errors: (FieldError | undefined)[];
+	maxCount?: number;
 	onChange: (values: string[]) => void;
 	onBlur: () => void;
 }
@@ -26,6 +25,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 	disabled,
 	values,
 	errors,
+	maxCount = 5,
 	onChange,
 	onBlur,
 }) => {
@@ -44,7 +44,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 			const updated = rows.map((el) => (el.id === id ? value : el.value));
 			onChange([...updated]);
 		},
-		[values, onChange],
+		[rows, onChange],
 	);
 
 	const handleRemove = (id: string) => {
@@ -53,7 +53,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 	};
 
 	const addDisabled =
-		disabled || rows.length >= MAX_PHONES_COUNT || rows.some((r) => r.value.trim() === "");
+		disabled || rows.length >= maxCount || rows.some((r) => r.value.trim() === "");
 
 	return (
 		<Grid container spacing={2}>
@@ -72,7 +72,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 
 			<Grid size={{ xs: 12 }}>
 				<Button size="small" onClick={handleAdd} disabled={addDisabled}>
-					{translate("partner.addPhoneNumber")}
+					{translate("addPhoneNumber")}
 				</Button>
 			</Grid>
 		</Grid>

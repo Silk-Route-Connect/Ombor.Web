@@ -1,5 +1,5 @@
 import React from "react";
-import { translate as t } from "i18n/i18n";
+import { translate } from "i18n/i18n";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
@@ -32,7 +32,7 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 		<Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
 			<TextField
 				id={`phone-${row.id}`}
-				label={t("partner.phoneNumber")}
+				label={translate("phoneNumber")}
 				type="tel"
 				fullWidth
 				value={row.value}
@@ -46,7 +46,7 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 						endAdornment: canDelete ? (
 							<InputAdornment position="end">
 								<IconButton
-									aria-label={t("remove")}
+									aria-label={translate("remove")}
 									size="small"
 									color="error"
 									onClick={() => onRemove(row.id)}

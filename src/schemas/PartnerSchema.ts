@@ -26,7 +26,7 @@ const stringOrUndefinedTrimmed = (max: number, key: string) =>
 		.transform((v) => (v === "" ? undefined : v))
 		.optional();
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,63}$/;
 
 export const PartnerSchema = z.object({
 	type: PartnerTypeSchema,

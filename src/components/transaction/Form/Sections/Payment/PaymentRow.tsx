@@ -1,7 +1,12 @@
 import React from "react";
 import NumericField from "components/shared/Inputs/NumericField";
 import { translate } from "i18n/i18n";
-import { PaymentCurrency, PaymentMethod } from "models/payment";
+import {
+	ALL_PAYMENT_CURRENCIES,
+	ALL_PAYMENT_METHODS,
+	PaymentCurrency,
+	PaymentMethod,
+} from "models/payment";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, MenuItem, Stack, TextField, Tooltip } from "@mui/material";
@@ -23,9 +28,6 @@ interface Props {
 	onUpdate: (id: number, patch: Partial<PaymentRowData>) => void;
 	onRemove: (id: number) => void;
 }
-
-const CURRENCIES: PaymentCurrency[] = ["UZS", "USD", "RUB"];
-const ALL_PAYMENT_METHODS: PaymentMethod[] = ["Cash", "Card", "BankTransfer", "AccountBalance"];
 
 const PaymentRow: React.FC<Props> = ({
 	isRemovable,
@@ -94,7 +96,7 @@ const PaymentRow: React.FC<Props> = ({
 					})
 				}
 			>
-				{CURRENCIES.map((c) => (
+				{ALL_PAYMENT_CURRENCIES.map((c) => (
 					<MenuItem key={c} value={c}>
 						{c}
 					</MenuItem>

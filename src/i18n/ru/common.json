@@ -110,5 +110,9 @@
   "common.download.csv": "Скачать CSV",
   "common.download.pdf": "Скачать PDF",
   "common.download.png": "Скачать PNG",
-  "common.download.print": "Печать"
+  "common.download.print": "Печать",
+
+  "currency.UZS": "UZS (сўм)",
+  "currency.USD": "USD ($)",
+  "currency.RUB": "RUB (₽)"
 }
