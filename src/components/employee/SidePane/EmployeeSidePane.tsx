@@ -104,7 +104,7 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = ({
 
 			<Divider />
 
-			<Tabs value={selectedIndex} onChange={handleTabChange} aria-label="employee sidepane tabs">
+			<Tabs value={selectedIndex} onChange={handleTabChange} aria-label="common.sidepane">
 				{tabs.map((tab) => (
 					<Tab key={tab.key} label={tab.label()} />
 				))}

@@ -96,27 +96,34 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employeeId }) => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{payments.map((payment) => (
-							<TableRow key={payment.id} hover>
-								<TableCell>{formatDateTime(payment.date)}</TableCell>
-								<TableCell align="right">{payment.amount.toLocaleString()}</TableCell>
-								<TableCell>{payment.components[0].currency}</TableCell>
-								<TableCell>{translate(`payment.method.${payment.components[0].method}`)}</TableCell>
-								<TableCell>
-									<Typography
-										variant="body2"
-										sx={{
-											maxWidth: 200,
-											overflow: "hidden",
-											textOverflow: "ellipsis",
-											whiteSpace: "nowrap",
-										}}
-									>
-										{payment.notes || "—"}
-									</Typography>
-								</TableCell>
-							</TableRow>
-						))}
+						{payments.map((payment) => {
+							const primaryComponent = payment.components[0];
+							return (
+								<TableRow key={payment.id} hover>
+									<TableCell>{formatDateTime(payment.date)}</TableCell>
+									<TableCell align="right">{payment.amount.toLocaleString()}</TableCell>
+									<TableCell>{primaryComponent?.currency ?? translate("common.dash")}</TableCell>
+									<TableCell>
+										{primaryComponent?.method
+											? translate(`payment.method.${primaryComponent.method}`)
+											: translate("common.dash")}
+									</TableCell>
+									<TableCell>
+										<Typography
+											variant="body2"
+											sx={{
+												maxWidth: 200,
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
+											}}
+										>
+											{payment.notes || "—"}
+										</Typography>
+									</TableCell>
+								</TableRow>
+							);
+						})}
 					</TableBody>
 				</Table>
 			</TableContainer>

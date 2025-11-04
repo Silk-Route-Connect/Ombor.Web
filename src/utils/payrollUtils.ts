@@ -1,3 +1,5 @@
+import { translate } from "i18n/i18n";
+import { ALL_PAYMENT_CURRENCIES, PaymentCurrency } from "models/payment";
 import { PayrollFormValues } from "schemas/PayrollSchema";
 
 export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
@@ -10,14 +12,9 @@ export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
 };
 
 export const getCurrencyLabel = (currency: string): string => {
-	switch (currency) {
-		case "UZS":
-			return "UZS (сўм)";
-		case "USD":
-			return "USD ($)";
-		case "RUB":
-			return "RUB (₽)";
-		default:
-			return currency;
+	if (ALL_PAYMENT_CURRENCIES.includes(currency as PaymentCurrency)) {
+		return translate(`currency.${currency}`);
 	}
+
+	return currency;
 };

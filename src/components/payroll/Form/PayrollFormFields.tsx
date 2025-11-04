@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { translate } from "i18n/i18n";
+import { ALL_PAYMENT_CURRENCIES, ALL_PAYMENT_METHODS } from "models/payment";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
 import { getCurrencyLabel } from "utils/payrollUtils";
 
@@ -11,8 +12,7 @@ interface PayrollFormFieldsProps {
 	disabled: boolean;
 }
 
-const CURRENCIES = ["UZS", "USD", "RUB"] as const;
-const METHODS = ["Cash", "Card", "BankTransfer"] as const;
+const METHODS = ALL_PAYMENT_METHODS.filter((method) => method !== "AccountBalance");
 
 const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled }) => {
 	const {
@@ -27,7 +27,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 
 	return (
 		<Grid container spacing={2}>
-			{/* Amount */}
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("amount", { valueAsNumber: true })}
@@ -40,7 +39,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				/>
 			</Grid>
 
-			{/* Date */}
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("date")}
@@ -54,7 +52,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				/>
 			</Grid>
 
-			{/* Currency */}
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<Controller
 					name="currency"
@@ -69,7 +66,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 							fullWidth
 							disabled={disabled}
 						>
-							{CURRENCIES.map((currency) => (
+							{ALL_PAYMENT_CURRENCIES.map((currency) => (
 								<MenuItem key={currency} value={currency}>
 									{getCurrencyLabel(currency)}
 								</MenuItem>
@@ -79,7 +76,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				/>
 			</Grid>
 
-			{/* Payment Method */}
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<Controller
 					name="method"
@@ -104,7 +100,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				/>
 			</Grid>
 
-			{/* Exchange Rate (conditional) */}
 			{showExchangeRate && (
 				<Grid size={{ xs: 12, sm: 6 }}>
 					<TextField
@@ -119,7 +114,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				</Grid>
 			)}
 
-			{/* Notes */}
 			<Grid size={{ xs: 12 }}>
 				<TextField
 					{...register("notes")}

@@ -42,9 +42,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-			{/* Content */}
 			<Box sx={{ flex: 1, overflow: "auto", p: 3 }}>
-				{/* Employment Information */}
 				<Box mb={3}>
 					<Typography variant="subtitle2" color="text.secondary" gutterBottom>
 						{translate("employee.details.employmentInfo")}
@@ -58,7 +56,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 							mt: 2,
 						}}
 					>
-						{/* Position */}
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								{translate("employee.position")}
@@ -68,7 +65,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 							</Typography>
 						</Box>
 
-						{/* Status */}
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								{translate("employee.status")}
@@ -82,7 +78,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 							</Box>
 						</Box>
 
-						{/* Salary */}
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								{translate("employee.salary")}
@@ -92,7 +87,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 							</Typography>
 						</Box>
 
-						{/* Employment Date */}
 						<Box>
 							<Typography variant="caption" color="text.secondary">
 								{translate("employee.dateOfEmployment")}
@@ -102,7 +96,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 					</Box>
 				</Box>
 
-				{/* Contact Information */}
 				{hasContactInfo && (
 					<>
 						<Divider sx={{ my: 3 }} />
@@ -120,7 +113,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 									</Box>
 								))}
 
-								{/* Email */}
 								{employee.contactInfo?.email && (
 									<Box display="flex" alignItems="center" gap={1}>
 										<EmailIcon fontSize="small" color="action" />
@@ -128,7 +120,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 									</Box>
 								)}
 
-								{/* Address */}
 								{employee.contactInfo?.address && (
 									<Box display="flex" alignItems="flex-start" gap={1}>
 										<HomeIcon fontSize="small" color="action" sx={{ mt: 0.3 }} />
@@ -136,7 +127,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 									</Box>
 								)}
 
-								{/* Telegram */}
 								{employee.contactInfo?.telegramAccount && (
 									<Box display="flex" alignItems="center" gap={1}>
 										<TelegramIcon fontSize="small" color="action" />
@@ -149,7 +139,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 				)}
 			</Box>
 
-			{/* Footer Actions */}
 			<Box
 				sx={{
 					p: 2,

@@ -5,5 +5,9 @@
   "save": "Saqlash",
   "close": "Yopish",
   "confirm": "Tasdiqlash",
-  "yes": "Ha"
+  "yes": "Ha",
+
+  "currency.UZS": "UZS (so'm)",
+  "currency.USD": "USD ($)",
+  "currency.RUB": "RUB (₽)"
 }

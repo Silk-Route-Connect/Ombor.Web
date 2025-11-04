@@ -6,6 +6,14 @@ export type PaymentDirection = "Income" | "Expense";
 
 export type PaymentType = "Transaction" | "Deposit" | "Withdrawal" | "Payroll" | "General";
 
+export const ALL_PAYMENT_CURRENCIES: PaymentCurrency[] = ["UZS", "USD", "RUB"];
+export const ALL_PAYMENT_METHODS: PaymentMethod[] = [
+	"Cash",
+	"Card",
+	"BankTransfer",
+	"AccountBalance",
+];
+
 export type PaymentAllocationType =
 	| "Sale"
 	| "Supply"

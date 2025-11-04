@@ -10,7 +10,7 @@ export type PayrollFormPayload = PayrollFormValues;
 interface UsePayrollFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
-	onSave: (payload: PayrollFormPayload) => void;
+	onSave: (payload: PayrollFormPayload) => Promise<void>;
 	onClose: () => void;
 }
 
@@ -53,8 +53,8 @@ export function usePayrollForm({
 		onClose,
 	);
 
-	const submit = handleSubmit((data) => {
-		onSave(data);
+	const submit = handleSubmit(async (data) => {
+		await onSave(data);
 	});
 
 	const canSave = isValid && !isSaving;

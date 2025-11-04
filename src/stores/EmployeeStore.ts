@@ -142,7 +142,7 @@ export class EmployeeStore implements IEmployeeStore {
 		}
 
 		this.closeDialog();
-		this.notificationStore.success("employees.success.create");
+		this.notificationStore.success(translate("employees.success.create"));
 	}
 
 	async update(request: UpdateEmployeeRequest): Promise<void> {

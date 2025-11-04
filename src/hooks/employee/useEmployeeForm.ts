@@ -49,7 +49,8 @@ export function useEmployeeForm({
 
 	useEffect(() => {
 		form.reset(employee ? mapEmployeeToFormValues(employee) : { ...EMPLOYEE_FORM_DEFAULT_VALUES });
-	}, [employee, isOpen, form]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen]);
 
 	const {
 		handleSubmit,

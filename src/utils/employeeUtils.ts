@@ -1,12 +1,17 @@
 import { ContactInfo, Employee } from "models/employee";
 import { EmployeeFormInputs, EmployeeFormValues } from "schemas/EmployeeSchema";
 
+const today = new Date();
+const localISODate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+	.toISOString()
+	.split("T")[0];
+
 export const EMPLOYEE_FORM_DEFAULT_VALUES: EmployeeFormValues = {
 	fullName: "",
 	position: "",
 	salary: 0,
 	status: "Active",
-	dateOfEmployment: new Date().toISOString().split("T")[0],
+	dateOfEmployment: localISODate,
 	contactInfo: {
 		phoneNumbers: [""],
 		email: "",
@@ -46,10 +51,17 @@ export const cleanContactInfo = (
 		return { ...rest, salary: numericSalary, contactInfo: undefined };
 	}
 
-	const hasPhoneNumbers = contactInfo.phoneNumbers && contactInfo.phoneNumbers.length > 0;
-	const hasEmail = contactInfo.email && contactInfo.email.trim() !== "";
-	const hasAddress = contactInfo.address && contactInfo.address.trim() !== "";
-	const hasTelegram = contactInfo.telegramAccount && contactInfo.telegramAccount.trim() !== "";
+	const phoneNumbers = (contactInfo.phoneNumbers ?? [])
+		.map((value) => value?.trim() ?? "")
+		.filter((value) => value !== "");
+	const email = contactInfo.email?.trim() ?? "";
+	const address = contactInfo.address?.trim() ?? "";
+	const telegramAccount = contactInfo.telegramAccount?.trim() ?? "";
+
+	const hasPhoneNumbers = phoneNumbers.length > 0;
+	const hasEmail = email !== "";
+	const hasAddress = address !== "";
+	const hasTelegram = telegramAccount !== "";
 
 	if (!hasPhoneNumbers && !hasEmail && !hasAddress && !hasTelegram) {
 		return { ...rest, salary: numericSalary, contactInfo: undefined };
@@ -59,10 +71,10 @@ export const cleanContactInfo = (
 		...rest,
 		salary: numericSalary,
 		contactInfo: {
-			phoneNumbers: contactInfo.phoneNumbers || [],
-			email: hasEmail ? contactInfo.email : undefined,
-			address: hasAddress ? contactInfo.address : undefined,
-			telegramAccount: hasTelegram ? contactInfo.telegramAccount : undefined,
+			phoneNumbers,
+			email: hasEmail ? email : undefined,
+			address: hasAddress ? address : undefined,
+			telegramAccount: hasTelegram ? telegramAccount : undefined,
 		},
 	};
 };
