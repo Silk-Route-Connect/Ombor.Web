@@ -10,11 +10,11 @@ export type ContactInfo = {
 
 export type Employee = {
 	id: number;
-	fullName: string;
+	name: string;
 	position: string;
 	status: EmployeeStatus;
 	salary: number;
-	dateOfEmployment: string; // ISO date string from backend
+	dateOfEmployment: string;
 	contactInfo?: ContactInfo;
 };
 
@@ -27,20 +27,20 @@ export type GetEmployeeByIdRequest = {
 };
 
 export type CreateEmployeeRequest = {
-	fullName: string;
+	name: string;
 	position: string;
 	salary: number;
 	status: EmployeeStatus;
-	dateOfEmployment: string; // ISO date string (YYYY-MM-DD)
+	dateOfEmployment: string;
 	contactInfo?: ContactInfo;
 };
 
 export type UpdateEmployeeRequest = {
 	id: number;
-	fullName: string;
+	name: string;
 	position: string;
 	salary: number;
 	status: EmployeeStatus;
-	dateOfEmployment: string; // ISO date string (YYYY-MM-DD)
+	dateOfEmployment: string;
 	contactInfo?: ContactInfo;
 };

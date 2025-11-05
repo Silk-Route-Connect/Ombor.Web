@@ -1,5 +1,7 @@
 import AuthStore from "stores/AuthStore";
 import { EmployeeStore, IEmployeeStore } from "stores/EmployeeStore";
+import { IPayrollStore, PayrollStore } from "stores/PayrollStore";
+import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEmployeeStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";
@@ -29,6 +31,8 @@ export class RootStore {
 	inventoryStore: IInventoryStore;
 	authStore: AuthStore;
 	employeeStore: IEmployeeStore;
+	selectedEmployeeStore: ISelectedEmployeeStore;
+	payrollStore: IPayrollStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -48,6 +52,11 @@ export class RootStore {
 		this.inventoryStore = new InventoryStore(this.notificationStore);
 		this.authStore = new AuthStore();
 		this.employeeStore = new EmployeeStore(this.notificationStore);
+		this.selectedEmployeeStore = new SelectedEmployeeStore(
+			this.employeeStore,
+			this.notificationStore,
+		);
+		this.payrollStore = new PayrollStore(this.notificationStore);
 	}
 }
 

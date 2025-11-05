@@ -88,7 +88,7 @@ export class EmployeeStore implements IEmployeeStore {
 		if (searchTerm) {
 			employees = employees.filter(
 				(el) =>
-					el.fullName.toLowerCase().includes(searchTerm) ||
+					el.name.toLowerCase().includes(searchTerm) ||
 					el.position.toLowerCase().includes(searchTerm),
 			);
 		}

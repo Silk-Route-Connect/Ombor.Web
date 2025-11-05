@@ -1,17 +1,15 @@
 import { Payment } from "models/payment";
-import { CreatePayrollRequest } from "models/payroll";
-import BaseApi from "services/api/BaseApi";
-import http from "services/api/http";
+import { UpdatePayrollRequest } from "models/payroll";
+
+import BaseApi from "./BaseApi";
+import http from "./http";
 
 class PayrollApi extends BaseApi {
 	constructor() {
 		super("employees");
 	}
 
-	async create(
-		employeeId: number,
-		request: Omit<CreatePayrollRequest, "employeeId">,
-	): Promise<Payment> {
+	async create(employeeId: number, request: UpdatePayrollRequest): Promise<Payment> {
 		const url = `${this.baseUrl}/${employeeId}/payroll`;
 		const response = await http.post<Payment>(url, request);
 		return response.data;
@@ -20,7 +18,7 @@ class PayrollApi extends BaseApi {
 	async update(
 		employeeId: number,
 		paymentId: number,
-		request: Omit<CreatePayrollRequest, "employeeId">,
+		request: UpdatePayrollRequest,
 	): Promise<Payment> {
 		const url = `${this.baseUrl}/${employeeId}/payroll/${paymentId}`;
 		const response = await http.put<Payment>(url, request);
@@ -39,8 +37,7 @@ class PayrollApi extends BaseApi {
 	}
 
 	async getAll(): Promise<Payment[]> {
-		const url = "api/payments?PaymentType=Payroll";
-		const response = await http.get<Payment[]>(url);
+		const response = await http.get<Payment[]>("api/payments?PaymentType=Payroll");
 		return response.data;
 	}
 }

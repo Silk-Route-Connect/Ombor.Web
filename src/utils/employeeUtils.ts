@@ -7,7 +7,7 @@ const localISODate = new Date(today.getTime() - today.getTimezoneOffset() * 6000
 	.split("T")[0];
 
 export const EMPLOYEE_FORM_DEFAULT_VALUES: EmployeeFormValues = {
-	fullName: "",
+	name: "",
 	position: "",
 	salary: 0,
 	status: "Active",
@@ -27,7 +27,7 @@ export const mapEmployeeToFormValues = (employee: Employee): EmployeeFormValues 
 			: [""];
 
 	return {
-		fullName: employee.fullName,
+		name: employee.name,
 		position: employee.position,
 		salary: employee.salary,
 		status: employee.status,

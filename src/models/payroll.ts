@@ -9,3 +9,5 @@ export type CreatePayrollRequest = {
 	exchangeRate?: number;
 	notes?: string;
 };
+
+export type UpdatePayrollRequest = Omit<CreatePayrollRequest, "employeeId">;
