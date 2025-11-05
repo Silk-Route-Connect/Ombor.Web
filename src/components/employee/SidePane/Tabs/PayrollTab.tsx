@@ -32,7 +32,7 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employeeId }) => {
 			try {
 				setLoading(true);
 				setError(null);
-				const data = await PayrollApi.getPayrollHistory(employeeId);
+				const data = await PayrollApi.getHistory(employeeId);
 				setPayments(data);
 			} catch (err) {
 				setError(translate("employee.payroll.loadError"));

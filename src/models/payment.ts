@@ -26,9 +26,11 @@ export type Payment = {
 	id: number;
 	partnerId?: number;
 	partnerName?: string;
+	employeeId?: number;
+	employeeFullName?: string;
 	notes?: string;
 	amount: number;
-	date: Date;
+	date: string;
 	direction: PaymentDirection;
 	type: PaymentType;
 	components: PaymentComponent[];
