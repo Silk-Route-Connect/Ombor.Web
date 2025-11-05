@@ -9,7 +9,6 @@ import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import PayrollApi from "services/api/PayrollApi";
 import { useStore } from "stores/StoreContext";
 
 import { Box } from "@mui/material";
@@ -32,7 +31,6 @@ const EmployeePage: React.FC = observer(() => {
 		}
 
 		try {
-			await PayrollApi.createPayroll(employeeStore.selectedEmployee.id, payload);
 			employeeStore.closeDialog();
 		} catch (error) {
 			console.error("Failed to create payroll:", error);
@@ -106,7 +104,7 @@ const EmployeePage: React.FC = observer(() => {
 				isOpen={dialogKind === "delete"}
 				title={translate("common.deleteTitle")}
 				content={translate("employee.deleteConfirmation", {
-					employeeName: employeeStore.selectedEmployee?.fullName ?? "",
+					employeeName: employeeStore.selectedEmployee?.name ?? "",
 				})}
 				onConfirm={handleDeleteConfirmed}
 				onCancel={employeeStore.closeDialog}
