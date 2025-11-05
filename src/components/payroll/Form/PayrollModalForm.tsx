@@ -15,7 +15,7 @@ interface PayrollModalProps {
 	isSaving: boolean;
 	employee: Employee | null;
 	onClose: () => void;
-	onSave: (payload: PayrollFormPayload) => void;
+	onSave: (payload: PayrollFormPayload) => Promise<void>;
 }
 
 const PayrollModal: React.FC<PayrollModalProps> = ({
@@ -65,7 +65,7 @@ const PayrollModal: React.FC<PayrollModalProps> = ({
 							{translate("payroll.employeeLabel")}
 						</Typography>
 						<Typography variant="body1" fontWeight={600}>
-							{employee.fullName} • {employee.position}
+							{employee.name} • {employee.position}
 						</Typography>
 					</Box>
 

@@ -56,7 +56,7 @@ const ContactInfoSchema = z
 	});
 
 export const EmployeeSchema = z.object({
-	fullName: z
+	name: z
 		.string()
 		.trim()
 		.min(1, translate("employee.validation.fullNameRequired"))

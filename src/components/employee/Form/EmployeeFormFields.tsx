@@ -24,10 +24,10 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			{/* Full Name */}
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
-					{...register("fullName")}
-					label={`${translate("employee.fullName")}*`}
-					error={!!errors.fullName}
-					helperText={errors.fullName?.message}
+					{...register("name")}
+					label={`${translate("employee.name")}*`}
+					error={!!errors.name}
+					helperText={errors.name?.message}
 					fullWidth
 					disabled={disabled}
 				/>

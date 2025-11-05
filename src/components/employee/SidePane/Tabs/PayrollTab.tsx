@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { translate } from "i18n/i18n";
-import { Payment } from "models/payment";
-import PayrollApi from "services/api/PayrollApi";
+import { observer } from "mobx-react-lite";
+import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 
 import {
-	Alert,
 	Box,
 	CircularProgress,
 	Paper,
@@ -22,30 +21,12 @@ interface PayrollTabProps {
 	employeeId: number;
 }
 
-const PayrollTab: React.FC<PayrollTabProps> = ({ employeeId }) => {
-	const [payments, setPayments] = useState<Payment[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+const PayrollTab: React.FC<PayrollTabProps> = observer(({ employeeId }) => {
+	const { selectedEmployeeStore } = useStore();
 
-	useEffect(() => {
-		const fetchPayments = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const data = await PayrollApi.getHistory(employeeId);
-				setPayments(data);
-			} catch (err) {
-				setError(translate("employee.payroll.loadError"));
-				console.error("Failed to fetch payroll history:", err);
-			} finally {
-				setLoading(false);
-			}
-		};
+	const payments = selectedEmployeeStore.payrollHistory;
 
-		fetchPayments();
-	}, [employeeId]);
-
-	if (loading) {
+	if (payments === "loading") {
 		return (
 			<Box
 				sx={{
@@ -56,14 +37,6 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employeeId }) => {
 				}}
 			>
 				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (error) {
-		return (
-			<Box sx={{ p: 3 }}>
-				<Alert severity="error">{error}</Alert>
 			</Box>
 		);
 	}
@@ -139,6 +112,6 @@ const PayrollTab: React.FC<PayrollTabProps> = ({ employeeId }) => {
 			</Box>
 		</Box>
 	);
-};
+});
 
 export default PayrollTab;

@@ -6,9 +6,9 @@ import EmployeeStatusChip from "../Chip/EmployeeStatusChip";
 
 export const employeeColumns: Column<Employee>[] = [
 	{
-		key: "fullName",
-		field: "fullName",
-		headerName: translate("employee.fullName"),
+		key: "name",
+		field: "name",
+		headerName: translate("employee.name"),
 		sortable: true,
 		width: "25%",
 	},

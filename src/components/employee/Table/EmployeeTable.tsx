@@ -1,11 +1,10 @@
 import React from "react";
+import EmployeeActionMenu from "components/employee/Table/ActionMenu/EmployeeActionMenu";
+import { employeeColumns } from "components/employee/Table/employeeTableConfig";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Column, SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
-
-import EmployeeActionMenu from "../ActionMenu/EmployeeActionMenu";
-import { employeeColumns } from "./employeeTableConfig";
 
 interface EmployeeTableProps {
 	data: Loadable<Employee[]>;
