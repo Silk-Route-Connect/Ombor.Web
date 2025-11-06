@@ -37,7 +37,9 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 
 		runInAction(() => (this.payrollHistory = "loading"));
 
-		const result = await tryRun(() => PayrollApi.getHistory(this.selectedEmployee!.id));
+		const result = await tryRun(() =>
+			PayrollApi.getHistory({ employeeId: this.selectedEmployee!.id }),
+		);
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("payroll.error.getHistory"));
