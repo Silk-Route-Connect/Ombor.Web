@@ -1,5 +1,5 @@
 import { translate } from "i18n/i18n";
-import { ALL_PAYMENT_CURRENCIES, PaymentCurrency } from "models/payment";
+import { ALL_PAYMENT_CURRENCIES, Payment, PaymentCurrency } from "models/payment";
 import { PayrollFormValues } from "schemas/PayrollSchema";
 
 export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
@@ -17,4 +17,18 @@ export const getCurrencyLabel = (currency: string): string => {
 	}
 
 	return currency;
+};
+
+export const mapPaymentToFormValues = (payment: Payment): PayrollFormValues => {
+	const component = payment.components[0];
+	const method = component?.method || "Cash";
+
+	return {
+		amount: payment.amount,
+		date: payment.date.split("T")[0],
+		currency: component?.currency || "UZS",
+		method: method === "AccountBalance" ? "Cash" : method,
+		exchangeRate: component?.exchangeRate || 1,
+		notes: payment.notes || "",
+	};
 };

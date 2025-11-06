@@ -8,6 +8,7 @@ import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
+import PayrollPage from "pages/PayrollPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
 import TemplatePage from "pages/TemplatePage";
@@ -57,6 +58,7 @@ function App() {
 								<Route path="new/sales" element={<CreateTransactionPage mode="Sale" />} />
 								<Route path="new/supplies" element={<CreateTransactionPage mode="Supply" />} />
 								<Route path="employees" element={<EmployeePage />} />
+								<Route path="payrolls" element={<PayrollPage />} />
 							</Route>
 						</Route>
 					</Routes>

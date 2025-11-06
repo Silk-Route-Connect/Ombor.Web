@@ -3,7 +3,7 @@ import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeeSidePane from "components/employee/SidePane/EmployeeSidePane";
 import EmployeeTable from "components/employee/Table/EmployeeTable";
-import PayrollModal from "components/payroll/Form/PayrollModalForm";
+import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
@@ -14,7 +14,7 @@ import { useStore } from "stores/StoreContext";
 import { Box } from "@mui/material";
 
 const EmployeePage: React.FC = observer(() => {
-	const { employeeStore } = useStore();
+	const { employeeStore, payrollStore } = useStore();
 
 	useEffect(() => {
 		employeeStore.getAll();
@@ -25,16 +25,12 @@ const EmployeePage: React.FC = observer(() => {
 			? employeeStore.update({ id: employeeStore.selectedEmployee.id, ...payload })
 			: employeeStore.create({ ...payload });
 
-	const handlePayrollSave = async (payload: PayrollFormPayload) => {
-		if (!employeeStore.selectedEmployee) {
-			return;
-		}
-
-		try {
-			employeeStore.closeDialog();
-		} catch (error) {
-			console.error("Failed to create payroll:", error);
-		}
+	const handlePayrollSave = async (payload: PayrollFormPayload, employeeId: number) => {
+		await payrollStore.create({
+			employeeId,
+			...payload,
+		});
+		employeeStore.closeDialog();
 	};
 
 	const handleDeleteConfirmed = () => {
@@ -83,9 +79,10 @@ const EmployeePage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<PayrollModal
+			<PayrollFormModal
 				isOpen={dialogKind === "payment"}
-				isSaving={employeeStore.isSaving}
+				isSaving={payrollStore.isSaving}
+				payment={null}
 				employee={employeeStore.selectedEmployee}
 				onClose={employeeStore.closeDialog}
 				onSave={handlePayrollSave}
