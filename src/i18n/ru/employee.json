@@ -2,7 +2,7 @@
   "employeesTitle": "Сотрудники",
   "searchEmployeesPlaceholder": "Поиск сотрудников...",
 
-  "employee.fullName": "Ф.И.О",
+  "employee.name": "Ф.И.О",
   "employee.position": "Должность",
   "employee.status": "Статус",
   "employee.salary": "Зарплата",
@@ -27,8 +27,8 @@
 
   "employee.deleteConfirmation": "Вы уверены, что хотите удалить сотрудника {{employeeName}}?",
 
-  "employee.validation.fullNameRequired": "ФИО обязательно",
-  "employee.validation.fullNameTooLong": "ФИО не должно превышать 250 символов",
+  "employee.validation.nameRequired": "ФИО обязательно",
+  "employee.validation.nameTooLong": "ФИО не должно превышать 250 символов",
   "employee.validation.positionRequired": "Должность обязательна",
   "employee.validation.positionTooLong": "Должность не должна превышать 250 символов",
   "employee.validation.salaryMin": "Зарплата должна быть положительной",
