@@ -2,14 +2,16 @@ import { useEffect } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { Payment } from "models/payment";
 import { PayrollFormInputs, PayrollFormValues, PayrollSchema } from "schemas/PayrollSchema";
-import { PAYROLL_FORM_DEFAULT_VALUES } from "utils/payrollUtils";
+import { mapPaymentToFormValues, PAYROLL_FORM_DEFAULT_VALUES } from "utils/payrollUtils";
 
 export type PayrollFormPayload = PayrollFormValues;
 
 interface UsePayrollFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
+	payment?: Payment | null;
 	onSave: (payload: PayrollFormPayload) => Promise<void>;
 	onClose: () => void;
 }
@@ -27,6 +29,7 @@ interface UsePayrollFormResult {
 export function usePayrollForm({
 	isOpen,
 	isSaving,
+	payment,
 	onSave,
 	onClose,
 }: UsePayrollFormParams): UsePayrollFormResult {
@@ -39,8 +42,11 @@ export function usePayrollForm({
 	});
 
 	useEffect(() => {
-		form.reset({ ...PAYROLL_FORM_DEFAULT_VALUES });
-	}, [isOpen, form]);
+		const formValues = payment
+			? mapPaymentToFormValues(payment)
+			: { ...PAYROLL_FORM_DEFAULT_VALUES };
+		form.reset(formValues);
+	}, [isOpen, payment, form]);
 
 	const {
 		handleSubmit,
@@ -57,7 +63,7 @@ export function usePayrollForm({
 		await onSave(data);
 	});
 
-	const canSave = isValid && !isSaving;
+	const canSave = isValid && !isSaving && (payment ? isDirty : true);
 
 	return {
 		form,
