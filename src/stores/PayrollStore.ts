@@ -6,7 +6,7 @@ import { translate } from "i18n/i18n";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Employee } from "models/employee";
 import { Payment } from "models/payment";
-import { UpdatePayrollRequest } from "models/payroll";
+import { CreatePayrollRequest, DeletePayrollRequest, UpdatePayrollRequest } from "models/payroll";
 import PayrollApi from "services/api/PayrollApi";
 
 import { NotificationStore } from "./NotificationStore";
@@ -28,9 +28,9 @@ export interface IPayrollStore {
 	filterEmployeeId: number | null;
 
 	getAll(): Promise<void>;
-	create(employeeId: number, request: UpdatePayrollRequest): Promise<void>;
-	update(employeeId: number, paymentId: number, request: UpdatePayrollRequest): Promise<void>;
-	delete(employeeId: number, paymentId: number): Promise<void>;
+	create(request: CreatePayrollRequest): Promise<void>;
+	update(request: UpdatePayrollRequest): Promise<void>;
+	delete(request: DeletePayrollRequest): Promise<void>;
 
 	setSearch(searchTerm: string): void;
 	setFilterEmployeeId(employeeId: number | null): void;
@@ -73,7 +73,7 @@ export class PayrollStore implements IPayrollStore {
 		if (searchTerm) {
 			payments = payments.filter(
 				(p) =>
-					p.employeeFullName?.toLowerCase().includes(searchTerm) ||
+					p.employeename?.toLowerCase().includes(searchTerm) ||
 					p.notes?.toLowerCase().includes(searchTerm),
 			);
 		}
@@ -106,8 +106,8 @@ export class PayrollStore implements IPayrollStore {
 		runInAction(() => (this.allPayrollPayments = data));
 	}
 
-	async create(employeeId: number, request: UpdatePayrollRequest): Promise<void> {
-		const result = await withSaving(this, () => PayrollApi.create(employeeId, request));
+	async create(request: CreatePayrollRequest): Promise<void> {
+		const result = await withSaving(this, () => PayrollApi.create(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("payroll.error.create"));
@@ -122,12 +122,8 @@ export class PayrollStore implements IPayrollStore {
 		this.notificationStore.success(translate("payroll.success.create"));
 	}
 
-	async update(
-		employeeId: number,
-		paymentId: number,
-		request: UpdatePayrollRequest,
-	): Promise<void> {
-		const result = await withSaving(this, () => PayrollApi.update(employeeId, paymentId, request));
+	async update(request: UpdatePayrollRequest): Promise<void> {
+		const result = await withSaving(this, () => PayrollApi.update(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("payroll.error.update"));
@@ -146,8 +142,8 @@ export class PayrollStore implements IPayrollStore {
 		this.notificationStore.success(translate("payroll.success.update"));
 	}
 
-	async delete(employeeId: number, paymentId: number): Promise<void> {
-		const result = await withSaving(this, () => PayrollApi.delete(employeeId, paymentId));
+	async delete(request: DeletePayrollRequest): Promise<void> {
+		const result = await withSaving(this, () => PayrollApi.delete(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("payroll.error.delete"));
@@ -156,7 +152,7 @@ export class PayrollStore implements IPayrollStore {
 
 		runInAction(() => {
 			if (this.allPayrollPayments !== "loading") {
-				this.allPayrollPayments = this.allPayrollPayments.filter((p) => p.id !== paymentId);
+				this.allPayrollPayments = this.allPayrollPayments.filter((p) => p.id !== request.paymentId);
 			}
 		});
 

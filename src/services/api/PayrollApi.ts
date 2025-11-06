@@ -1,5 +1,11 @@
 import { Payment } from "models/payment";
-import { UpdatePayrollRequest } from "models/payroll";
+import {
+	CreatePayrollRequest,
+	DeletePayrollRequest,
+	GetPayrollByIdRequest,
+	GetPayrollHistoryRequest,
+	UpdatePayrollRequest,
+} from "models/payroll";
 
 import BaseApi from "./BaseApi";
 import http from "./http";
@@ -9,36 +15,50 @@ class PayrollApi extends BaseApi {
 		super("employees");
 	}
 
-	async create(employeeId: number, request: UpdatePayrollRequest): Promise<Payment> {
-		const url = `${this.baseUrl}/${employeeId}/payroll`;
+	async getAll(): Promise<Payment[]> {
+		const response = await http.get<Payment[]>("api/payments?PaymentType=Payroll");
+
+		return response.data;
+	}
+
+	async getHistory(request: GetPayrollHistoryRequest): Promise<Payment[]> {
+		const url = this.buildUrl(request.employeeId);
+		const response = await http.get<Payment[]>(url);
+
+		return response.data;
+	}
+
+	async getById(request: GetPayrollByIdRequest): Promise<Payment> {
+		const url = this.buildUrl(request.employeeId, request.paymentId);
+		const response = await http.get<Payment>(url);
+
+		return response.data;
+	}
+
+	async create(request: CreatePayrollRequest): Promise<Payment> {
+		const url = this.buildUrl(request.employeeId);
 		const response = await http.post<Payment>(url, request);
+
 		return response.data;
 	}
 
-	async update(
-		employeeId: number,
-		paymentId: number,
-		request: UpdatePayrollRequest,
-	): Promise<Payment> {
-		const url = `${this.baseUrl}/${employeeId}/payroll/${paymentId}`;
-		const response = await http.put<Payment>(url, request);
+	async update(request: UpdatePayrollRequest): Promise<Payment> {
+		const { employeeId, paymentId, ...payload } = request;
+		const url = this.buildUrl(paymentId);
+		const response = await http.put<Payment>(url, payload);
+
 		return response.data;
 	}
 
-	async delete(employeeId: number, paymentId: number): Promise<void> {
-		const url = `${this.baseUrl}/${employeeId}/payroll/${paymentId}`;
+	async delete(request: DeletePayrollRequest): Promise<void> {
+		const url = this.buildUrl(request.employeeId, request.paymentId);
 		await http.delete(url);
 	}
 
-	async getHistory(employeeId: number): Promise<Payment[]> {
-		const url = `${this.baseUrl}/${employeeId}/payroll`;
-		const response = await http.get<Payment[]>(url);
-		return response.data;
-	}
-
-	async getAll(): Promise<Payment[]> {
-		const response = await http.get<Payment[]>("api/payments?PaymentType=Payroll");
-		return response.data;
+	private buildUrl(employeeId: number, paymentId?: number): string {
+		return paymentId
+			? `${this.baseUrl}/${employeeId}/payrolls/${paymentId}`
+			: `${this.baseUrl}/${employeeId}/payrolls`;
 	}
 }
 
