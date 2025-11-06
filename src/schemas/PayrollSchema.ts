@@ -1,8 +1,7 @@
 import { translate } from "i18n/i18n";
-import { ALL_PAYMENT_CURRENCIES, ALL_PAYMENT_METHODS } from "models/payment";
+import { ALL_PAYMENT_CURRENCIES } from "models/payment";
+import { PAYROLL_PAYMENT_METHODS } from "models/payroll";
 import { z } from "zod";
-
-const PAYMENT_METHODS = ALL_PAYMENT_METHODS.filter((method) => method !== "AccountBalance");
 
 const requiredEnum = <T extends readonly string[]>(values: T, key: string) =>
 	z.custom<T[number]>((v) => typeof v === "string" && (values as readonly string[]).includes(v), {
@@ -16,7 +15,7 @@ export const PayrollSchema = z.object({
 
 	currency: requiredEnum(ALL_PAYMENT_CURRENCIES, "payment.validation.currencyInvalid"),
 
-	method: requiredEnum(PAYMENT_METHODS, "payment.validation.methodInvalid"),
+	method: requiredEnum(PAYROLL_PAYMENT_METHODS, "payment.validation.methodInvalid"),
 
 	exchangeRate: z
 		.number()

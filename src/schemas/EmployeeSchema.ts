@@ -59,8 +59,8 @@ export const EmployeeSchema = z.object({
 	name: z
 		.string()
 		.trim()
-		.min(1, translate("employee.validation.fullNameRequired"))
-		.max(250, translate("employee.validation.fullNameTooLong")),
+		.min(1, translate("employee.validation.nameRequired"))
+		.max(250, translate("employee.validation.nameTooLong")),
 
 	position: z
 		.string()
