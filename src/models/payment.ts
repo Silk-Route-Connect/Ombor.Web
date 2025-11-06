@@ -27,7 +27,7 @@ export type Payment = {
 	partnerId?: number;
 	partnerName?: string;
 	employeeId?: number;
-	employeeFullName?: string;
+	employeename?: string;
 	notes?: string;
 	amount: number;
 	date: string;
