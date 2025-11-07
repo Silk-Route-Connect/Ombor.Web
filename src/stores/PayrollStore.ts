@@ -8,6 +8,7 @@ import { Employee } from "models/employee";
 import { Payment } from "models/payment";
 import { CreatePayrollRequest, DeletePayrollRequest, UpdatePayrollRequest } from "models/payroll";
 import PayrollApi from "services/api/PayrollApi";
+import { IEmployeeStore } from "stores/EmployeeStore";
 import { sort } from "utils/sortUtils";
 
 import { NotificationStore } from "./NotificationStore";
@@ -27,6 +28,7 @@ export interface IPayrollStore {
 
 	searchTerm: string;
 	filterEmployeeId: number | null;
+	selectedEmployee: Employee | null;
 
 	getAll(): Promise<void>;
 	create(request: CreatePayrollRequest): Promise<void>;
@@ -46,6 +48,7 @@ export interface IPayrollStore {
 
 export class PayrollStore implements IPayrollStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly employeeStore: IEmployeeStore;
 
 	allPayrollPayments: Loadable<Payment[]> = [];
 
@@ -57,8 +60,9 @@ export class PayrollStore implements IPayrollStore {
 	dialogMode: DialogMode = { kind: "none" };
 	isSaving: boolean = false;
 
-	constructor(notificationStore: NotificationStore) {
+	constructor(notificationStore: NotificationStore, employeeStore: IEmployeeStore) {
 		this.notificationStore = notificationStore;
+		this.employeeStore = employeeStore;
 
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
@@ -88,6 +92,18 @@ export class PayrollStore implements IPayrollStore {
 		}
 
 		return [...payments];
+	}
+
+	get selectedEmployee(): Employee | null {
+		if (!this.filterEmployeeId) {
+			return null;
+		}
+
+		if (this.employeeStore.allEmployees === "loading") {
+			return null;
+		}
+
+		return this.employeeStore.allEmployees.find((e) => e.id === this.filterEmployeeId) ?? null;
 	}
 
 	async getAll(): Promise<void> {

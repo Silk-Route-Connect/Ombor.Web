@@ -56,7 +56,7 @@ export class RootStore {
 			this.employeeStore,
 			this.notificationStore,
 		);
-		this.payrollStore = new PayrollStore(this.notificationStore);
+		this.payrollStore = new PayrollStore(this.notificationStore, this.employeeStore);
 	}
 }
 

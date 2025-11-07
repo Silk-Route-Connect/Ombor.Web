@@ -68,14 +68,7 @@ const PayrollPage: React.FC = observer(() => {
 		<Box>
 			<PayrollHeader
 				searchValue={payrollStore.searchTerm}
-				selectedEmployee={
-					payrollStore.filterEmployeeId !== null
-						? employeeStore.allEmployees !== "loading"
-							? employeeStore.allEmployees.find((e) => e.id === payrollStore.filterEmployeeId) ||
-								null
-							: null
-						: null
-				}
+				selectedEmployee={payrollStore.selectedEmployee}
 				titleCount={payrollCount}
 				onSearch={payrollStore.setSearch}
 				onEmployeeChange={payrollStore.setFilterEmployeeId}
