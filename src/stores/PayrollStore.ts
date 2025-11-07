@@ -78,7 +78,7 @@ export class PayrollStore implements IPayrollStore {
 		if (searchTerm) {
 			payments = payments.filter(
 				(p) =>
-					p.employeename?.toLowerCase().includes(searchTerm) ||
+					p.employeeName?.toLowerCase().includes(searchTerm) ||
 					p.notes?.toLowerCase().includes(searchTerm),
 			);
 		}

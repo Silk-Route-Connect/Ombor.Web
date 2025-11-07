@@ -12,7 +12,7 @@
   "payroll.success.update": "Выплата успешно обновлена",
   "payroll.success.delete": "Выплата успешно удалена",
 
-  "payroll.error.getll": "Не удалось загрузить выплаты",
+  "payroll.error.getAll": "Не удалось загрузить выплаты",
   "payroll.error.getHistory": "Не удалось загрузить историю выплат",
   "payroll.error.create": "Не удалось создать выплату",
   "payroll.error.update": "Не удалось обновить выплату",

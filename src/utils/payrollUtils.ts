@@ -20,6 +20,10 @@ export const getCurrencyLabel = (currency: string): string => {
 };
 
 export const mapPaymentToFormValues = (payment: Payment): PayrollFormValues => {
+	if (!payment.components || payment.components.length === 0) {
+		throw new Error("Payment must have at least one component");
+	}
+
 	const component = payment.components[0];
 	const method = component?.method || "Cash";
 

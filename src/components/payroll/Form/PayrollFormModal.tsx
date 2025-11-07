@@ -55,8 +55,9 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 		});
 
 	const isEditMode = !!payment;
-	const preSelectedEmployee = payment
-		? { id: payment.employeeId!, name: payment.employeename!, position: "" }
+	const hasEmployee = payment?.employeeId && payment.employeeName;
+	const preSelectedEmployee = hasEmployee
+		? { id: payment.employeeId, name: payment.employeeName, position: "" }
 		: employee;
 
 	const title = isEditMode ? translate("payroll.editTitle") : translate("payroll.createTitle");

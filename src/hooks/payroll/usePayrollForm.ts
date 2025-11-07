@@ -46,7 +46,8 @@ export function usePayrollForm({
 			? mapPaymentToFormValues(payment)
 			: { ...PAYROLL_FORM_DEFAULT_VALUES };
 		form.reset(formValues);
-	}, [isOpen, payment, form]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen, payment]);
 
 	const {
 		handleSubmit,

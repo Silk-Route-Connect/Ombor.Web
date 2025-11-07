@@ -59,7 +59,7 @@ const PayrollPage: React.FC = observer(() => {
 		? translate("payroll.deleteConfirmation", {
 				amount: selectedPayment.amount.toLocaleString(),
 				currency: selectedPayment.components[0]?.currency || "",
-				employeeName: selectedPayment.employeename || "",
+				employeeName: selectedPayment.employeeName || "",
 				date: formatDateTime(selectedPayment.date),
 			})
 		: "";

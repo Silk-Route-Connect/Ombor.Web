@@ -31,15 +31,14 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 	}
 
 	async getPayrollHistory(): Promise<void> {
-		if (this.payrollHistory === "loading" || !this.selectedEmployee) {
+		const selectedEmployee = this.selectedEmployee;
+		if (this.payrollHistory === "loading" || !selectedEmployee) {
 			return;
 		}
 
 		runInAction(() => (this.payrollHistory = "loading"));
 
-		const result = await tryRun(() =>
-			PayrollApi.getHistory({ employeeId: this.selectedEmployee!.id }),
-		);
+		const result = await tryRun(() => PayrollApi.getHistory({ employeeId: selectedEmployee.id }));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(translate("payroll.error.getHistory"));

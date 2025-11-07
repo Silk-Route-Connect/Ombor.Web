@@ -7,11 +7,11 @@ import { Typography } from "@mui/material";
 export const payrollColumns: Column<Payment>[] = [
 	{
 		key: "employeename",
-		field: "employeename",
+		field: "employeeName",
 		headerName: translate("payroll.employee"),
 		sortable: true,
 		width: "25%",
-		renderCell: (payment: Payment) => payment.employeename || translate("common.dash"),
+		renderCell: (payment: Payment) => payment.employeeName || translate("common.dash"),
 	},
 	{
 		key: "amount",
