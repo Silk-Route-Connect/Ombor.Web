@@ -8,6 +8,7 @@ import { Employee } from "models/employee";
 import { Payment } from "models/payment";
 import { CreatePayrollRequest, DeletePayrollRequest, UpdatePayrollRequest } from "models/payroll";
 import PayrollApi from "services/api/PayrollApi";
+import { sort } from "utils/sortUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -207,38 +208,6 @@ export class PayrollStore implements IPayrollStore {
 			return data;
 		}
 
-		const field = this.sortField;
-		const asc = this.sortOrder === "asc" ? 1 : -1;
-
-		return [...data].sort((a, b) => {
-			const aValue = a[field];
-			const bValue = b[field];
-
-			if (aValue == null && bValue == null) {
-				return 0;
-			}
-
-			if (aValue == null) {
-				return 1;
-			}
-
-			if (bValue == null) {
-				return -1;
-			}
-
-			if (typeof aValue === "number" && typeof bValue === "number") {
-				return asc * (aValue - bValue);
-			}
-
-			if (typeof aValue === "string" && typeof bValue === "string") {
-				return asc * aValue.localeCompare(bValue, undefined, { numeric: true });
-			}
-
-			if (typeof aValue !== "object" && typeof bValue !== "object") {
-				return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
-			}
-
-			return 0;
-		});
+		return sort(data, this.sortField, this.sortOrder);
 	}
 }
