@@ -12,7 +12,7 @@ import { formatDateTime } from "utils/dateUtils";
 import { Box } from "@mui/material";
 
 const PayrollPage: React.FC = observer(() => {
-	const { payrollStore, employeeStore } = useStore();
+	const { payrollStore, employeeStore, notificationStore } = useStore();
 
 	useEffect(() => {
 		payrollStore.getAll();
@@ -37,12 +37,15 @@ const PayrollPage: React.FC = observer(() => {
 	};
 
 	const handleDeleteConfirmed = () => {
-		if (payrollStore.selectedPayment?.employeeId) {
-			payrollStore.delete({
-				employeeId: payrollStore.selectedPayment.employeeId,
-				paymentId: payrollStore.selectedPayment.id,
-			});
+		if (!payrollStore.selectedPayment?.employeeId) {
+			notificationStore.error(translate("payroll.error.missingEmployee"));
+			return;
 		}
+
+		payrollStore.delete({
+			employeeId: payrollStore.selectedPayment.employeeId,
+			paymentId: payrollStore.selectedPayment.id,
+		});
 	};
 
 	const payrollCount = useMemo(() => {
