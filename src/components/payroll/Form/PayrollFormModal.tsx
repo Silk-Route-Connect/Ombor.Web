@@ -66,14 +66,14 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 				)}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{isEmployeeLocked && selectedEmployee ? (
+					{isEmployeeLocked ? (
 						<Box mb={2}>
 							<Typography variant="body2" color="text.secondary">
 								{translate("payroll.employee")}
 							</Typography>
 							<Typography variant="body1" fontWeight={600}>
-								{selectedEmployee.name}
-								{selectedEmployee.position && ` • ${selectedEmployee.position}`}
+								{selectedEmployee?.name}
+								{selectedEmployee?.position && ` • ${selectedEmployee.position}`}
 							</Typography>
 						</Box>
 					) : (
@@ -87,7 +87,6 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 							/>
 						</Box>
 					)}
-
 					<PayrollFormFields form={form} disabled={isSaving} />
 				</DialogContent>
 
