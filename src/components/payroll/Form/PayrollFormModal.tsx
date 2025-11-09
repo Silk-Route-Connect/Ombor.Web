@@ -4,10 +4,8 @@ import PayrollFormFields from "components/payroll/Form/PayrollFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
+import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
 import { translate } from "i18n/i18n";
-import { Employee } from "models/employee";
-import { Payment } from "models/payment";
 import { dialogTranslation } from "utils/translationUtils";
 
 import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
@@ -15,8 +13,7 @@ import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/mat
 interface PayrollFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
-	payment: Payment | null;
-	employee: Employee | null;
+	mode: PayrollFormMode;
 	onClose: () => void;
 	onSave: (payload: PayrollFormPayload) => Promise<void>;
 }
@@ -24,8 +21,7 @@ interface PayrollFormModalProps {
 const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 	isOpen,
 	isSaving,
-	payment,
-	employee,
+	mode,
 	onClose,
 	onSave,
 }) => {
@@ -38,18 +34,16 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 		confirmDiscard,
 		cancelDiscard,
 		selectedEmployee,
-		setSelectedEmployee,
+		setEmployeeId,
+		isEditMode,
+		isEmployeeLocked,
 	} = usePayrollForm({
 		isOpen,
 		isSaving,
-		payment,
-		employee,
+		mode,
 		onSave,
 		onClose,
 	});
-
-	const isEditMode = !!payment;
-	const showEmployeeInfo = !!payment || !!employee;
 
 	const title = isEditMode ? translate("payroll.editTitle") : translate("payroll.createTitle");
 
@@ -72,7 +66,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 				)}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showEmployeeInfo && selectedEmployee ? (
+					{isEmployeeLocked && selectedEmployee ? (
 						<Box mb={2}>
 							<Typography variant="body2" color="text.secondary">
 								{translate("payroll.employee")}
@@ -86,7 +80,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 						<Box mb={2}>
 							<EmployeeAutocomplete
 								value={selectedEmployee}
-								onChange={setSelectedEmployee}
+								onChange={(e) => setEmployeeId(e?.id ?? 0)}
 								required
 								error={!!form.formState.errors.employeeId}
 								helperText={form.formState.errors.employeeId?.message}

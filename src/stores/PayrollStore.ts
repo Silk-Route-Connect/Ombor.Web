@@ -14,7 +14,7 @@ import { sort } from "utils/sortUtils";
 import { NotificationStore } from "./NotificationStore";
 
 export type DialogMode =
-	| { kind: "form"; payment?: Payment; employee?: Employee }
+	| { kind: "form"; payment?: Payment }
 	| { kind: "delete"; payment: Payment }
 	| { kind: "none" };
 
@@ -40,7 +40,6 @@ export interface IPayrollStore {
 	setSort(field: keyof Payment, order: SortOrder): void;
 
 	openCreate(): void;
-	openCreateForEmployee(employee: Employee): void;
 	openEdit(payment: Payment): void;
 	openDelete(payment: Payment): void;
 	closeDialog(): void;
@@ -197,10 +196,6 @@ export class PayrollStore implements IPayrollStore {
 
 	openCreate(): void {
 		this.setDialog({ kind: "form" });
-	}
-
-	openCreateForEmployee(employee: Employee): void {
-		this.setDialog({ kind: "form", employee });
 	}
 
 	openEdit(payment: Payment): void {

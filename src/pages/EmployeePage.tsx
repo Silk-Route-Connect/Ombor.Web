@@ -79,8 +79,7 @@ const EmployeePage: React.FC = observer(() => {
 			<PayrollFormModal
 				isOpen={dialogKind === "payment"}
 				isSaving={payrollStore.isSaving}
-				payment={null}
-				employee={employeeStore.selectedEmployee}
+				mode={employeeStore.selectedEmployee}
 				onClose={employeeStore.closeDialog}
 				onSave={handlePayrollSave}
 			/>
