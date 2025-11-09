@@ -61,7 +61,7 @@ export function usePayrollForm({
 		defaultValues: PAYROLL_FORM_DEFAULT_VALUES,
 	});
 
-	const { control, setValue } = form;
+	const { control, setValue, reset } = form;
 	const employeeId = useWatch({ control, name: "employeeId" });
 
 	const isEditMode = isPayment(mode);
@@ -78,10 +78,8 @@ export function usePayrollForm({
 			formValues = PAYROLL_FORM_DEFAULT_VALUES;
 		}
 
-		form.reset(formValues);
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isOpen, mode]);
+		reset(formValues);
+	}, [isOpen, mode, reset]);
 
 	const selectedEmployee = useMemo(() => {
 		if (employeeStore.allEmployees === "loading") {
