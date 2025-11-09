@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import EmployeeAutocomplete from "components/employee/Autocomplete/EmployeeAutocomplete";
 import PayrollFormFields from "components/payroll/Form/PayrollFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
@@ -18,7 +18,7 @@ interface PayrollFormModalProps {
 	payment: Payment | null;
 	employee: Employee | null;
 	onClose: () => void;
-	onSave: (payload: PayrollFormPayload, employeeId: number) => Promise<void>;
+	onSave: (payload: PayrollFormPayload) => Promise<void>;
 }
 
 const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
@@ -29,41 +29,29 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
-	const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-
-	const handleSave = async (payload: PayrollFormPayload) => {
-		const employeeId = payment?.employeeId || employee?.id || selectedEmployee?.id;
-
-		if (!employeeId) {
-			return;
-		}
-
-		await onSave(payload, employeeId);
-		setSelectedEmployee(null);
-	};
-
-	const { form, canSave, submit, requestClose, discardOpen, confirmDiscard, cancelDiscard } =
-		usePayrollForm({
-			isOpen,
-			isSaving,
-			payment,
-			onSave: handleSave,
-			onClose: () => {
-				setSelectedEmployee(null);
-				onClose();
-			},
-		});
+	const {
+		form,
+		canSave,
+		submit,
+		requestClose,
+		discardOpen,
+		confirmDiscard,
+		cancelDiscard,
+		selectedEmployee,
+		setSelectedEmployee,
+	} = usePayrollForm({
+		isOpen,
+		isSaving,
+		payment,
+		employee,
+		onSave,
+		onClose,
+	});
 
 	const isEditMode = !!payment;
-	const hasEmployee = payment?.employeeId && payment.employeeName;
-	const preSelectedEmployee = hasEmployee
-		? { id: payment.employeeId, name: payment.employeeName, position: "" }
-		: employee;
+	const showEmployeeInfo = !!payment || !!employee;
 
 	const title = isEditMode ? translate("payroll.editTitle") : translate("payroll.createTitle");
-
-	const employeeError = !preSelectedEmployee && !selectedEmployee;
-	const canSubmit = canSave && !employeeError;
 
 	return (
 		<>
@@ -84,14 +72,14 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 				)}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{preSelectedEmployee ? (
+					{showEmployeeInfo && selectedEmployee ? (
 						<Box mb={2}>
 							<Typography variant="body2" color="text.secondary">
 								{translate("payroll.employee")}
 							</Typography>
 							<Typography variant="body1" fontWeight={600}>
-								{preSelectedEmployee.name}
-								{preSelectedEmployee.position && ` • ${preSelectedEmployee.position}`}
+								{selectedEmployee.name}
+								{selectedEmployee.position && ` • ${selectedEmployee.position}`}
 							</Typography>
 						</Box>
 					) : (
@@ -100,12 +88,8 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 								value={selectedEmployee}
 								onChange={setSelectedEmployee}
 								required
-								error={employeeError && form.formState.isSubmitted}
-								helperText={
-									employeeError && form.formState.isSubmitted
-										? translate("payroll.validation.employeeRequired")
-										: undefined
-								}
+								error={!!form.formState.errors.employeeId}
+								helperText={form.formState.errors.employeeId?.message}
 							/>
 						</Box>
 					)}
@@ -116,7 +100,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={submit}
-					canSave={canSubmit}
+					canSave={canSave}
 					loading={isSaving}
 				/>
 			</Dialog>

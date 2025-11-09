@@ -68,6 +68,7 @@
   "payment.validation.methodInvalid": "Недопустимый способ оплаты",
   "payment.validation.exchangeRatePositive": "Курс обмена должен быть положительным",
   "payment.validation.notesTooLong": "Примечания не должны превышать 500 символов",
+  "payment.validation.employeeRequired": "Выберите сотрудника",
 
   "employee.details.title": "Информация о сотруднике",
   "employee.details.employmentInfo": "Информация о работе",

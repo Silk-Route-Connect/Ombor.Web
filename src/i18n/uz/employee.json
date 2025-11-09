@@ -68,6 +68,7 @@
   "payment.validation.methodInvalid": "Noto'g'ri to'lov usuli",
   "payment.validation.exchangeRatePositive": "Valyuta kursi musbat bo'lishi kerak",
   "payment.validation.notesTooLong": "Izohlar 500 belgidan oshmasligi kerak",
+  "payment.validation.employeeRequired": "Xodimni tanlang",
 
   "employee.details.title": "Xodim haqida ma'lumot",
   "employee.details.employmentInfo": "Ish haqida ma'lumot",

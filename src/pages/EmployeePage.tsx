@@ -25,11 +25,8 @@ const EmployeePage: React.FC = observer(() => {
 			? employeeStore.update({ id: employeeStore.selectedEmployee.id, ...payload })
 			: employeeStore.create({ ...payload });
 
-	const handlePayrollSave = async (payload: PayrollFormPayload, employeeId: number) => {
-		await payrollStore.create({
-			employeeId,
-			...payload,
-		});
+	const handlePayrollSave = async (payload: PayrollFormPayload) => {
+		await payrollStore.create(payload);
 		employeeStore.closeDialog();
 	};
 

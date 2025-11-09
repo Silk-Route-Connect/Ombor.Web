@@ -19,20 +19,16 @@ const PayrollPage: React.FC = observer(() => {
 		employeeStore.getAll();
 	}, [payrollStore, employeeStore]);
 
-	const handleSave = async (payload: PayrollFormPayload, employeeId: number) => {
+	const handleSave = async (payload: PayrollFormPayload) => {
 		const { dialogMode } = payrollStore;
 
 		if (dialogMode.kind === "form" && dialogMode.payment) {
 			await payrollStore.update({
-				employeeId,
 				paymentId: dialogMode.payment.id,
 				...payload,
 			});
 		} else {
-			await payrollStore.create({
-				employeeId,
-				...payload,
-			});
+			await payrollStore.create(payload);
 		}
 	};
 
@@ -56,6 +52,14 @@ const PayrollPage: React.FC = observer(() => {
 		return payrollStore.filteredPayrollPayments.length.toString();
 	}, [payrollStore.filteredPayrollPayments]);
 
+	const selectedEmployee = useMemo(() => {
+		if (payrollStore.filterEmployeeId === null || employeeStore.allEmployees === "loading") {
+			return null;
+		}
+
+		return employeeStore.allEmployees.find((e) => e.id === payrollStore.filterEmployeeId) || null;
+	}, [payrollStore.filterEmployeeId, employeeStore.allEmployees]);
+
 	const { dialogMode, selectedPayment } = payrollStore;
 	const dialogKind = dialogMode.kind;
 
@@ -72,7 +76,7 @@ const PayrollPage: React.FC = observer(() => {
 		<Box>
 			<PayrollHeader
 				searchValue={payrollStore.searchTerm}
-				selectedEmployee={payrollStore.selectedEmployee}
+				selectedEmployee={selectedEmployee}
 				titleCount={payrollCount}
 				onSearch={payrollStore.setSearch}
 				onEmployeeChange={payrollStore.setFilterEmployeeId}

@@ -9,6 +9,8 @@ const requiredEnum = <T extends readonly string[]>(values: T, key: string) =>
 	});
 
 export const PayrollSchema = z.object({
+	employeeId: z.number().positive(translate("payroll.validation.employeeRequired")),
+
 	amount: z.number().positive(translate("payment.validation.amountPositive")),
 
 	date: z.string().min(1, translate("payment.validation.dateRequired")),

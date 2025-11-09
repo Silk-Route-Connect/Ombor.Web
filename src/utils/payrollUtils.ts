@@ -3,6 +3,7 @@ import { ALL_PAYMENT_CURRENCIES, Payment, PaymentCurrency } from "models/payment
 import { PayrollFormValues } from "schemas/PayrollSchema";
 
 export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
+	employeeId: 0,
 	amount: 0,
 	date: new Date().toISOString().split("T")[0],
 	currency: "UZS",
@@ -20,14 +21,11 @@ export const getCurrencyLabel = (currency: string): string => {
 };
 
 export const mapPaymentToFormValues = (payment: Payment): PayrollFormValues => {
-	if (!payment.components || payment.components.length === 0) {
-		throw new Error("Payment must have at least one component");
-	}
-
 	const component = payment.components[0];
 	const method = component?.method || "Cash";
 
 	return {
+		employeeId: payment.employeeId || 0,
 		amount: payment.amount,
 		date: payment.date.split("T")[0],
 		currency: component?.currency || "UZS",
