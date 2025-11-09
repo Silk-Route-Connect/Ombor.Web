@@ -2,10 +2,10 @@
   "payroll.pageTitle": "Зарплаты",
   "payroll.searchPlaceholder": "Поиск выплат...",
 
+  "payroll.title": "Оплата зарплаты",
   "payroll.createTitle": "Создать выплату",
   "payroll.editTitle": "Редактировать выплату",
   "payroll.employee": "Сотрудник",
-  "payroll.employeeLabel": "Сотрудник",
   "payroll.deleteConfirmation": "Вы уверены, что хотите удалить выплату {{amount}} {{currency}} для {{employeeName}} от {{date}}?",
 
   "payroll.success.create": "Выплата успешно создана",

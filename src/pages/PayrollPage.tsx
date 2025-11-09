@@ -49,6 +49,7 @@ const PayrollPage: React.FC = observer(() => {
 		if (payrollStore.filteredPayrollPayments === "loading") {
 			return "";
 		}
+
 		return payrollStore.filteredPayrollPayments.length.toString();
 	}, [payrollStore.filteredPayrollPayments]);
 

@@ -1,12 +1,11 @@
 {
-  "payrollTitle": "Ish haqi",
-  "searchPayrollPlaceholder": "Xodim yoki izohlar bo'yicha qidirish...",
+  "payroll.pageTitle": "Ish haqi",
+  "payroll.searchPlaceholder": "Xodim yoki izohlar bo'yicha qidirish...",
 
-  "payroll.title": "Yangi to'lov",
+  "payroll.title": "Maosh to'lovi",
   "payroll.createTitle": "To'lov yaratish",
   "payroll.editTitle": "To'lovni tahrirlash",
   "payroll.employee": "Xodim",
-  "payroll.employeeLabel": "Xodim",
   "payroll.deleteConfirmation": "{{employeeName}} uchun {{date}} sanasidagi {{amount}} {{currency}} to'lovni o'chirishga ishonchingiz komilmi?",
 
   "payroll.success.create": "To'lov muvaffaqiyatli yaratildi",

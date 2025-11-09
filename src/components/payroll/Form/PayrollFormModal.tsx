@@ -87,7 +87,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 					{preSelectedEmployee ? (
 						<Box mb={2}>
 							<Typography variant="body2" color="text.secondary">
-								{translate("payroll.employeeLabel")}
+								{translate("payroll.employee")}
 							</Typography>
 							<Typography variant="body1" fontWeight={600}>
 								{preSelectedEmployee.name}

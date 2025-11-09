@@ -51,9 +51,6 @@
   "employees.success.update": "Xodim muvaffaqiyatli yangilandi",
   "employees.success.delete": "Xodim muvaffaqiyatli o'chirildi",
 
-  "payroll.title": "Maosh to'lovi",
-  "payroll.employeeLabel": "Xodim",
-
   "payment.amount": "Summa",
   "payment.date": "Sana",
   "payment.currency": "Valyuta",

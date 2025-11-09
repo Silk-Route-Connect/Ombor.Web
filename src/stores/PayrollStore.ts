@@ -111,6 +111,7 @@ export class PayrollStore implements IPayrollStore {
 			return;
 		}
 
+		const prev = this.allPayrollPayments;
 		runInAction(() => (this.allPayrollPayments = "loading"));
 
 		const result = await tryRun(() => PayrollApi.getAll());
@@ -119,7 +120,7 @@ export class PayrollStore implements IPayrollStore {
 			this.notificationStore.error(translate("payroll.error.getAll"));
 		}
 
-		const data = result.status === "fail" ? [] : result.data;
+		const data = result.status === "fail" ? prev : result.data;
 		runInAction(() => (this.allPayrollPayments = data));
 	}
 
@@ -131,9 +132,11 @@ export class PayrollStore implements IPayrollStore {
 			return;
 		}
 
-		if (this.allPayrollPayments !== "loading") {
-			this.allPayrollPayments = [result.data, ...this.allPayrollPayments];
-		}
+		runInAction(() => {
+			if (this.allPayrollPayments !== "loading") {
+				this.allPayrollPayments = [result.data, ...this.allPayrollPayments];
+			}
+		});
 
 		this.closeDialog();
 		this.notificationStore.success(translate("payroll.success.create"));

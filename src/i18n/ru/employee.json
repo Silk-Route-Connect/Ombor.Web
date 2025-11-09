@@ -51,9 +51,6 @@
   "employees.success.update": "Сотрудник успешно обновлен",
   "employees.success.delete": "Сотрудник успешно удален",
 
-  "payroll.title": "Оплата зарплаты",
-  "payroll.employeeLabel": "Сотрудник",
-
   "payment.amount": "Сумма",
   "payment.date": "Дата",
   "payment.currency": "Валюта",
