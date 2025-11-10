@@ -74,7 +74,6 @@ const PayrollPage: React.FC = observer(() => {
 
 			<PayrollTable
 				data={payrollStore.filteredPayrollPayments}
-				pagination
 				onSort={payrollStore.setSort}
 				onEdit={payrollStore.openEdit}
 				onDelete={payrollStore.openDelete}

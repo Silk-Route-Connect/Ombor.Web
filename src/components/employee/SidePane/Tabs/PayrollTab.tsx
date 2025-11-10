@@ -1,21 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
+import PayrollTable from "components/payroll/Table/PayrollTable";
+import DownloadButton, { DownloadOptions } from "components/shared/Buttons/DownloadButton";
+import DateFilterPicker from "components/shared/Date/DateFilterPicker";
+import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { formatDateTime } from "utils/dateUtils";
+import { DateFilter } from "utils/dateUtils";
 
-import {
-	Box,
-	CircularProgress,
-	Paper,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface PayrollTabProps {
 	employeeId: number;
@@ -24,90 +17,44 @@ interface PayrollTabProps {
 const PayrollTab: React.FC<PayrollTabProps> = observer(({ employeeId }) => {
 	const { selectedEmployeeStore } = useStore();
 
-	const payments = selectedEmployeeStore.payrollHistory;
+	const handleDownload = (option: DownloadOptions) => {
+		// TODO: Implement download logic later
+		console.log(option);
+	};
 
-	if (payments === "loading") {
-		return (
-			<Box
-				sx={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					height: 400,
-				}}
-			>
-				<CircularProgress />
-			</Box>
-		);
-	}
+	const handleDateChange = (filter: DateFilter) => {
+		if (filter.type === "custom") {
+			selectedEmployeeStore.setCustom(filter.from, filter.to);
+		} else {
+			selectedEmployeeStore.setPreset(filter.preset);
+		}
+	};
 
-	if (payments.length === 0) {
-		return (
-			<Box sx={{ p: 3 }}>
-				<Typography variant="body2" color="text.secondary" textAlign="center">
-					{translate("employee.payroll.noHistory")}
-				</Typography>
-			</Box>
-		);
-	}
+	const totalAmount = useMemo(() => {
+		const payments = selectedEmployeeStore.filteredPayrollHistory;
+
+		if (payments === "loading") {
+			return 0;
+		}
+
+		return payments.reduce((sum, p) => sum + p.amount, 0);
+	}, [selectedEmployeeStore.filteredPayrollHistory]);
 
 	return (
-		<Box sx={{ p: 3 }}>
-			<Typography variant="h6" gutterBottom>
-				{translate("employee.payroll.history")}
-			</Typography>
+		<Box sx={{ p: 2 }}>
+			<Box sx={TAB_DEFAULT_BODY_SX}>
+				<Box sx={{ flexGrow: 1, minWidth: 240 }}>
+					<DateFilterPicker value={selectedEmployeeStore.dateFilter} onChange={handleDateChange} />
+				</Box>
 
-			<TableContainer component={Paper} sx={{ mt: 2 }}>
-				<Table size="small">
-					<TableHead>
-						<TableRow>
-							<TableCell>{translate("payment.date")}</TableCell>
-							<TableCell align="right">{translate("payment.amount")}</TableCell>
-							<TableCell>{translate("payment.currency")}</TableCell>
-							<TableCell>{translate("payment.method")}</TableCell>
-							<TableCell>{translate("payment.notes")}</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{payments.map((payment) => {
-							const primaryComponent = payment.components[0];
-							return (
-								<TableRow key={payment.id} hover>
-									<TableCell>{formatDateTime(payment.date)}</TableCell>
-									<TableCell align="right">{payment.amount.toLocaleString()}</TableCell>
-									<TableCell>{primaryComponent?.currency ?? translate("common.dash")}</TableCell>
-									<TableCell>
-										{primaryComponent?.method
-											? translate(`payment.method.${primaryComponent.method}`)
-											: translate("common.dash")}
-									</TableCell>
-									<TableCell>
-										<Typography
-											variant="body2"
-											sx={{
-												maxWidth: 200,
-												overflow: "hidden",
-												textOverflow: "ellipsis",
-												whiteSpace: "nowrap",
-											}}
-										>
-											{payment.notes || "—"}
-										</Typography>
-									</TableCell>
-								</TableRow>
-							);
-						})}
-					</TableBody>
-				</Table>
-			</TableContainer>
+				<DownloadButton onDownload={handleDownload} />
+			</Box>
 
-			<Box sx={{ mt: 2 }}>
-				<Typography variant="body2" color="text.secondary">
-					{translate("employee.payroll.totalPayments")}: {payments.length}
-				</Typography>
-				<Typography variant="body2" color="text.secondary">
-					{translate("employee.payroll.totalAmount")}:{" "}
-					{payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+			<PayrollTable data={selectedEmployeeStore.filteredPayrollHistory} mode="compact" />
+
+			<Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+				<Typography variant="body2" color="text.secondary" fontWeight={600}>
+					{translate("employee.payroll.totalAmount")}: {totalAmount.toLocaleString()}
 				</Typography>
 			</Box>
 		</Box>

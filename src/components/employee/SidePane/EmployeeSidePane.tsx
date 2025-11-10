@@ -80,7 +80,7 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 				sx={(theme) => ({
 					zIndex: theme.zIndex.drawer + 2,
 					"& .MuiDrawer-paper": {
-						width: { xs: "100%", sm: 600, md: 750 },
+						width: 850, // TODO: make responsive, decide whether single size should be used across all sidepanes or each side pane should have its own size
 						boxSizing: "border-box",
 					},
 				})}

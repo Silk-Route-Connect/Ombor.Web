@@ -16,7 +16,7 @@ class PayrollApi extends BaseApi {
 	}
 
 	async getAll(): Promise<Payment[]> {
-		const response = await http.get<Payment[]>("api/payments?PaymentType=Payroll");
+		const response = await http.get<Payment[]>("api/payments?Type=Payroll");
 
 		return response.data;
 	}

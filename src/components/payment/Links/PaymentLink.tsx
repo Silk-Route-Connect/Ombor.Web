@@ -6,7 +6,7 @@ interface PaymentLinkProps {
 	id: number;
 }
 
-const ProductLink: React.FC<PaymentLinkProps> = ({ id }) => (
+const PaymentLink: React.FC<PaymentLinkProps> = ({ id }) => (
 	<Link
 		href={`/payments/${id}`}
 		underline="none"
@@ -16,4 +16,4 @@ const ProductLink: React.FC<PaymentLinkProps> = ({ id }) => (
 	</Link>
 );
 
-export default ProductLink;
+export default PaymentLink;
