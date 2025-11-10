@@ -7,7 +7,6 @@ export const PAYROLL_PAYMENT_METHODS = ALL_PAYMENT_METHODS.filter(
 export type CreatePayrollRequest = {
 	employeeId: number;
 	amount: number;
-	date: string;
 	currency: PaymentCurrency;
 	method: PaymentMethod;
 	exchangeRate?: number;
@@ -18,7 +17,6 @@ export type UpdatePayrollRequest = {
 	employeeId: number;
 	paymentId: number;
 	amount: number;
-	date: string;
 	currency: PaymentCurrency;
 	method: PaymentMethod;
 	exchangeRate?: number;

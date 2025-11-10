@@ -13,8 +13,6 @@ export const PayrollSchema = z.object({
 
 	amount: z.number().positive(translate("payment.validation.amountPositive")),
 
-	date: z.string().min(1, translate("payment.validation.dateRequired")),
-
 	currency: requiredEnum(ALL_PAYMENT_CURRENCIES, "payment.validation.currencyInvalid"),
 
 	method: requiredEnum(PAYROLL_PAYMENT_METHODS, "payment.validation.methodInvalid"),

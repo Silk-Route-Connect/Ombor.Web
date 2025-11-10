@@ -28,31 +28,6 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 	return (
 		<Grid container spacing={2}>
 			<Grid size={{ xs: 12, sm: 6 }}>
-				<TextField
-					{...register("amount", { valueAsNumber: true })}
-					label={`${translate("payment.amount")}*`}
-					type="number"
-					error={!!errors.amount}
-					helperText={errors.amount?.message}
-					fullWidth
-					disabled={disabled}
-				/>
-			</Grid>
-
-			<Grid size={{ xs: 12, sm: 6 }}>
-				<TextField
-					{...register("date")}
-					label={`${translate("payment.date")}*`}
-					type="date"
-					error={!!errors.date}
-					helperText={errors.date?.message}
-					slotProps={{ inputLabel: { shrink: true } }}
-					fullWidth
-					disabled={disabled}
-				/>
-			</Grid>
-
-			<Grid size={{ xs: 12, sm: 6 }}>
 				<Controller
 					name="currency"
 					control={control}
@@ -113,6 +88,18 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 					/>
 				</Grid>
 			)}
+
+			<Grid size={{ xs: 12 }}>
+				<TextField
+					{...register("amount", { valueAsNumber: true })}
+					label={`${translate("payment.amount")}*`}
+					type="number"
+					error={!!errors.amount}
+					helperText={errors.amount?.message}
+					fullWidth
+					disabled={disabled}
+				/>
+			</Grid>
 
 			<Grid size={{ xs: 12 }}>
 				<TextField

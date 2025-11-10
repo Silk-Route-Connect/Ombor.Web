@@ -5,7 +5,6 @@ import { PayrollFormValues } from "schemas/PayrollSchema";
 export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
 	employeeId: 0,
 	amount: 0,
-	date: new Date().toISOString().split("T")[0],
 	currency: "UZS",
 	method: "Cash",
 	exchangeRate: 1,
@@ -27,7 +26,6 @@ export const mapPaymentToFormValues = (payment: Payment): PayrollFormValues => {
 	return {
 		employeeId: payment.employeeId || 0,
 		amount: payment.amount,
-		date: payment.date.split("T")[0],
 		currency: component?.currency || "UZS",
 		method: method === "AccountBalance" ? "Cash" : method,
 		exchangeRate: component?.exchangeRate || 1,
