@@ -6,7 +6,19 @@ import { formatDateTime } from "utils/dateUtils";
 
 import { Typography } from "@mui/material";
 
-export const PAYROLL_COLUMNS: Record<string, Column<Payment>> = {
+export const PAYROLL_COLUMN_KEYS = [
+	"paymentId",
+	"employeeName",
+	"date",
+	"amount",
+	"currency",
+	"method",
+	"notes",
+] as const;
+
+export type PayrollColumnKey = (typeof PAYROLL_COLUMN_KEYS)[number];
+
+export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	paymentId: {
 		key: "id",
 		field: "id",
@@ -77,7 +89,7 @@ export const PAYROLL_COLUMNS: Record<string, Column<Payment>> = {
 					whiteSpace: "nowrap",
 				}}
 			>
-				{payment.notes || "—"}
+				{payment.notes || translate("common.dash")}
 			</Typography>
 		),
 	},

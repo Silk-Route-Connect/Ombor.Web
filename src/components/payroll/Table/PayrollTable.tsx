@@ -1,12 +1,10 @@
 import React from "react";
 import PayrollActionMenu from "components/payroll/Table/ActionMenu/PayrollActionMenu";
-import { PAYROLL_COLUMNS } from "components/payroll/Table/payrollTableConfig";
+import { PAYROLL_COLUMNS, PayrollColumnKey } from "components/payroll/Table/payrollTableConfig";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Column, SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { Payment } from "models/payment";
-
-type PayrollColumnKey = keyof typeof PAYROLL_COLUMNS;
 
 const FULL_MODE_COLUMNS: readonly PayrollColumnKey[] = [
 	"paymentId",

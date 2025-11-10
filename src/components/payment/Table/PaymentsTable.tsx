@@ -1,4 +1,5 @@
 import React from "react";
+import EmployeeLink from "components/employee/Link/EmployeeLink";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
@@ -53,7 +54,19 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		);
 	};
 
+	const renderEmployee = (payment: Payment): React.ReactNode => {
+		if (!payment.employeeId || !payment.employeeName) {
+			return translate("common.dash");
+		}
+
+		return <EmployeeLink id={payment.employeeId} name={payment.employeeName} />;
+	};
+
 	const renderPartner = (payment: Payment): React.ReactNode => {
+		if (payment.type === "Payroll") {
+			return renderEmployee(payment);
+		}
+
 		if (!payment.partnerId || !payment.partnerName) {
 			return translate("common.dash");
 		}

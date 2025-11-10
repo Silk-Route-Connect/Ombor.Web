@@ -2,24 +2,15 @@ import React, { useMemo } from "react";
 import ProductTransactionsTable from "components/product/Table/ProductTransactionsTable";
 import DownloadButton, { DownloadOptions } from "components/shared/Buttons/DownloadButton";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
+import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateUtils";
 import { calculateLineTotals } from "utils/productUtils";
 
-import { SxProps, Theme } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-
-const TAB_DEFAULT_BODY_SX: SxProps<Theme> = {
-	display: "flex",
-	flexWrap: "wrap",
-	justifyContent: "space-between",
-	alignItems: "center",
-	mb: 2,
-	gap: 2,
-};
 
 interface TransactionsTabProps {
 	mode: "Sale" | "Supply";
