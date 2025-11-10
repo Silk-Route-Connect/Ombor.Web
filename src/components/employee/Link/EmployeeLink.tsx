@@ -9,7 +9,7 @@ interface EmployeeLinkProps {
 
 const EmployeeLink: React.FC<EmployeeLinkProps> = ({ id, name }) => (
 	<Link
-		href={`/partners/${id}`}
+		href={`/employees/${id}`}
 		underline="none"
 		sx={{ color: "primary.main", "&:hover": { textDecoration: "underline" } }}
 	>
