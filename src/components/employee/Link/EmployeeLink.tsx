@@ -2,18 +2,19 @@ import React from "react";
 
 import { Link } from "@mui/material";
 
-interface PaymentLinkProps {
+interface EmployeeLinkProps {
 	id: number;
+	name: string;
 }
 
-const PaymentLink: React.FC<PaymentLinkProps> = ({ id }) => (
+const EmployeeLink: React.FC<EmployeeLinkProps> = ({ id, name }) => (
 	<Link
-		href={`/payments/${id}`}
+		href={`/employees/${id}`}
 		underline="none"
 		sx={{ color: "primary.main", "&:hover": { textDecoration: "underline" } }}
 	>
-		#{id}
+		{name}
 	</Link>
 );
 
-export default PaymentLink;
+export default EmployeeLink;

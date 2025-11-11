@@ -3,19 +3,18 @@ import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeeSidePane from "components/employee/SidePane/EmployeeSidePane";
 import EmployeeTable from "components/employee/Table/EmployeeTable";
-import PayrollModal from "components/payroll/Form/PayrollModalForm";
+import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
-import PayrollApi from "services/api/PayrollApi";
 import { useStore } from "stores/StoreContext";
 
 import { Box } from "@mui/material";
 
 const EmployeePage: React.FC = observer(() => {
-	const { employeeStore } = useStore();
+	const { employeeStore, payrollStore } = useStore();
 
 	useEffect(() => {
 		employeeStore.getAll();
@@ -27,16 +26,8 @@ const EmployeePage: React.FC = observer(() => {
 			: employeeStore.create({ ...payload });
 
 	const handlePayrollSave = async (payload: PayrollFormPayload) => {
-		if (!employeeStore.selectedEmployee) {
-			return;
-		}
-
-		try {
-			await PayrollApi.createPayroll(employeeStore.selectedEmployee.id, payload);
-			employeeStore.closeDialog();
-		} catch (error) {
-			console.error("Failed to create payroll:", error);
-		}
+		await payrollStore.create(payload);
+		employeeStore.closeDialog();
 	};
 
 	const handleDeleteConfirmed = () => {
@@ -85,10 +76,10 @@ const EmployeePage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<PayrollModal
+			<PayrollFormModal
 				isOpen={dialogKind === "payment"}
-				isSaving={employeeStore.isSaving}
-				employee={employeeStore.selectedEmployee}
+				isSaving={payrollStore.isSaving}
+				mode={employeeStore.selectedEmployee}
 				onClose={employeeStore.closeDialog}
 				onSave={handlePayrollSave}
 			/>
@@ -106,7 +97,7 @@ const EmployeePage: React.FC = observer(() => {
 				isOpen={dialogKind === "delete"}
 				title={translate("common.deleteTitle")}
 				content={translate("employee.deleteConfirmation", {
-					employeeName: employeeStore.selectedEmployee?.fullName ?? "",
+					employeeName: employeeStore.selectedEmployee?.name ?? "",
 				})}
 				onConfirm={handleDeleteConfirmed}
 				onCancel={employeeStore.closeDialog}

@@ -57,7 +57,7 @@ export const menuItems: MenuItem[] = [
 		icon: PeopleAltOutlinedIcon,
 		children: [
 			{ label: translate("sidebar.employees"), to: "/employees" },
-			{ label: translate("sidebar.salaries"), to: "/payroll" },
+			{ label: translate("sidebar.salaries"), to: "/payrolls" },
 		],
 	},
 

@@ -1,0 +1,27 @@
+{
+  "payroll.pageTitle": "Зарплаты",
+  "payroll.searchPlaceholder": "Поиск выплат...",
+
+  "payroll.title": "Оплата зарплаты",
+  "payroll.createTitle": "Создать выплату",
+  "payroll.editTitle": "Редактировать выплату",
+  "payroll.employee": "Сотрудник",
+  "payroll.deleteConfirmation": "Вы уверены, что хотите удалить выплату {{amount}} {{currency}} для {{employeeName}} от {{date}}?",
+
+  "payroll.success.create": "Выплата успешно создана",
+  "payroll.success.update": "Выплата успешно обновлена",
+  "payroll.success.delete": "Выплата успешно удалена",
+
+  "payroll.error.getAll": "Не удалось загрузить выплаты",
+  "payroll.error.getHistory": "Не удалось загрузить историю выплат",
+  "payroll.error.create": "Не удалось создать выплату",
+  "payroll.error.update": "Не удалось обновить выплату",
+  "payroll.error.delete": "Не удалось удалить выплату",
+
+  "payroll.validation.employeeRequired": "Выберите сотрудника",
+
+  "employeeAutocomplete.employee": "Сотрудник",
+  "employeeAutocomplete.search": "Поиск сотрудника...",
+
+  "payroll.paymentId": "Номер платежа"
+}

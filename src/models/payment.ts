@@ -26,9 +26,11 @@ export type Payment = {
 	id: number;
 	partnerId?: number;
 	partnerName?: string;
+	employeeId?: number;
+	employeeName?: string;
 	notes?: string;
 	amount: number;
-	date: Date;
+	date: string;
 	direction: PaymentDirection;
 	type: PaymentType;
 	components: PaymentComponent[];
@@ -56,7 +58,7 @@ export type CreatePaymentRequest = {
 	externalReference?: string;
 	amount: number;
 	exchangeRate: number;
-	date: Date;
+	date: string;
 	direction: PaymentDirection;
 	currency: PaymentCurrency;
 	type: PaymentType;
@@ -68,7 +70,7 @@ export type TransactionPayment = {
 	paymentId: number;
 	transactionId: number;
 	amount: number;
-	date: Date;
+	date: string;
 	currency: PaymentCurrency;
 	method: PaymentMethod;
 	notes?: string;

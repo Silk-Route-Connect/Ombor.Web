@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
+import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { DashboardMetrics, TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
@@ -10,8 +11,6 @@ import { DateFilter } from "utils/dateUtils";
 import { canHaveSales, canHaveSupplies } from "utils/partnerUtils";
 
 import { Box, Card, CardContent, CircularProgress, Grid, Stack, Typography } from "@mui/material";
-
-import { TAB_DEFAULT_BODY_SX } from "./tabConfigs";
 
 type StatisticsCardKey = "netBalance" | "transactionsCount" | "refundsCount" | "outstandingCount";
 

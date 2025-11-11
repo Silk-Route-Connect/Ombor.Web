@@ -1,15 +1,21 @@
-import { useEffect } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { Employee } from "models/employee";
+import { Payment } from "models/payment";
 import { PayrollFormInputs, PayrollFormValues, PayrollSchema } from "schemas/PayrollSchema";
-import { PAYROLL_FORM_DEFAULT_VALUES } from "utils/payrollUtils";
+import { useStore } from "stores/StoreContext";
+import { mapPaymentToFormValues, PAYROLL_FORM_DEFAULT_VALUES } from "utils/payrollUtils";
 
 export type PayrollFormPayload = PayrollFormValues;
+
+export type PayrollFormMode = Payment | Employee | null;
 
 interface UsePayrollFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
+	mode: PayrollFormMode;
 	onSave: (payload: PayrollFormPayload) => Promise<void>;
 	onClose: () => void;
 }
@@ -18,18 +24,35 @@ interface UsePayrollFormResult {
 	form: UseFormReturn<PayrollFormInputs>;
 	canSave: boolean;
 	discardOpen: boolean;
+	isEditMode: boolean;
+	isEmployeeLocked: boolean;
+
+	selectedEmployee: Employee | null;
+	setEmployeeId: (employeeId: number) => void;
+
 	submit: () => Promise<void>;
 	requestClose: () => void;
 	confirmDiscard: () => void;
 	cancelDiscard: () => void;
 }
 
+const isPayment = (mode: PayrollFormMode): mode is Payment => {
+	return mode !== null && "direction" in mode && "type" in mode;
+};
+
+const isEmployee = (mode: PayrollFormMode): mode is Employee => {
+	return mode !== null && "status" in mode && "salary" in mode;
+};
+
 export function usePayrollForm({
 	isOpen,
 	isSaving,
+	mode,
 	onSave,
 	onClose,
 }: UsePayrollFormParams): UsePayrollFormResult {
+	const { employeeStore } = useStore();
+
 	const form = useForm<PayrollFormInputs>({
 		resolver: zodResolver(PayrollSchema),
 		mode: "onBlur",
@@ -38,9 +61,37 @@ export function usePayrollForm({
 		defaultValues: PAYROLL_FORM_DEFAULT_VALUES,
 	});
 
+	const { control, setValue, reset } = form;
+	const employeeId = useWatch({ control, name: "employeeId" });
+
+	const isEditMode = isPayment(mode);
+	const isEmployeeLocked = isPayment(mode) || isEmployee(mode);
+
 	useEffect(() => {
-		form.reset({ ...PAYROLL_FORM_DEFAULT_VALUES });
-	}, [isOpen, form]);
+		let formValues: PayrollFormValues;
+
+		if (isPayment(mode)) {
+			formValues = mapPaymentToFormValues(mode);
+		} else if (isEmployee(mode)) {
+			formValues = { ...PAYROLL_FORM_DEFAULT_VALUES, employeeId: mode.id };
+		} else {
+			formValues = PAYROLL_FORM_DEFAULT_VALUES;
+		}
+
+		reset(formValues);
+	}, [isOpen, mode, reset]);
+
+	const selectedEmployee = useMemo(() => {
+		if (employeeStore.allEmployees === "loading") {
+			return null;
+		}
+
+		return employeeStore.allEmployees.find((e) => e.id === employeeId) ?? null;
+	}, [employeeStore.allEmployees, employeeId]);
+
+	const setEmployeeId = (id: number) => {
+		setValue("employeeId", id, { shouldDirty: true, shouldValidate: true });
+	};
 
 	const {
 		handleSubmit,
@@ -53,16 +104,20 @@ export function usePayrollForm({
 		onClose,
 	);
 
-	const submit = handleSubmit(async (data) => {
-		await onSave(data);
-	});
+	const submit = handleSubmit(onSave);
 
-	const canSave = isValid && !isSaving;
+	const canSave = isValid && !isSaving && (isEditMode ? isDirty : true);
 
 	return {
 		form,
 		canSave,
 		discardOpen,
+		isEditMode,
+		isEmployeeLocked,
+
+		selectedEmployee,
+		setEmployeeId,
+
 		submit,
 		requestClose,
 		confirmDiscard,

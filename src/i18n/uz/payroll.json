@@ -1,0 +1,27 @@
+{
+  "payroll.pageTitle": "Ish haqi",
+  "payroll.searchPlaceholder": "Xodim yoki izohlar bo'yicha qidirish...",
+
+  "payroll.title": "Maosh to'lovi",
+  "payroll.createTitle": "To'lov yaratish",
+  "payroll.editTitle": "To'lovni tahrirlash",
+  "payroll.employee": "Xodim",
+  "payroll.deleteConfirmation": "{{employeeName}} uchun {{date}} sanasidagi {{amount}} {{currency}} to'lovni o'chirishga ishonchingiz komilmi?",
+
+  "payroll.success.create": "To'lov muvaffaqiyatli yaratildi",
+  "payroll.success.update": "To'lov muvaffaqiyatli yangilandi",
+  "payroll.success.delete": "To'lov muvaffaqiyatli o'chirildi",
+
+  "payroll.error.getAll": "To'lovlarni yuklashda xatolik",
+  "payroll.error.getHistory": "To'lov tarixini yuklashda xatolik",
+  "payroll.error.create": "To'lov yaratishda xatolik",
+  "payroll.error.update": "To'lovni yangilashda xatolik",
+  "payroll.error.delete": "To'lovni o'chirishda xatolik",
+
+  "payroll.validation.employeeRequired": "Xodimni tanlang",
+
+  "employeeAutocomplete.employee": "Xodim",
+  "employeeAutocomplete.search": "Xodimni qidirish...",
+
+  "payroll.paymentId": "To'lov raqami"
+}

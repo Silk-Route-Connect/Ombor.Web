@@ -2,7 +2,7 @@
   "employeesTitle": "Xodimlar",
   "searchEmployeesPlaceholder": "Xodimlarni qidirish...",
 
-  "employee.fullName": "F.I.O",
+  "employee.name": "F.I.O",
   "employee.position": "Lavozim",
   "employee.status": "Holat",
   "employee.salary": "Maosh",
@@ -27,8 +27,8 @@
 
   "employee.deleteConfirmation": "{{employeeName}} xodimini o'chirishga ishonchingiz komilmi?",
 
-  "employee.validation.fullNameRequired": "F.I.O majburiy",
-  "employee.validation.fullNameTooLong": "F.I.O 250 belgidan oshmasligi kerak",
+  "employee.validation.nameRequired": "F.I.O majburiy",
+  "employee.validation.nameTooLong": "F.I.O 250 belgidan oshmasligi kerak",
   "employee.validation.positionRequired": "Lavozim majburiy",
   "employee.validation.positionTooLong": "Lavozim 250 belgidan oshmasligi kerak",
   "employee.validation.salaryMin": "Maosh musbat bo'lishi kerak",
@@ -51,9 +51,6 @@
   "employees.success.update": "Xodim muvaffaqiyatli yangilandi",
   "employees.success.delete": "Xodim muvaffaqiyatli o'chirildi",
 
-  "payroll.title": "Maosh to'lovi",
-  "payroll.employeeLabel": "Xodim",
-
   "payment.amount": "Summa",
   "payment.date": "Sana",
   "payment.currency": "Valyuta",
@@ -71,6 +68,7 @@
   "payment.validation.methodInvalid": "Noto'g'ri to'lov usuli",
   "payment.validation.exchangeRatePositive": "Valyuta kursi musbat bo'lishi kerak",
   "payment.validation.notesTooLong": "Izohlar 500 belgidan oshmasligi kerak",
+  "payment.validation.employeeRequired": "Xodimni tanlang",
 
   "employee.details.title": "Xodim haqida ma'lumot",
   "employee.details.employmentInfo": "Ish haqida ma'lumot",
