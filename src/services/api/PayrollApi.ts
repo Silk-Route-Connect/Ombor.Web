@@ -43,9 +43,9 @@ class PayrollApi extends BaseApi {
 	}
 
 	async update(request: UpdatePayrollRequest): Promise<Payment> {
-		const { employeeId, paymentId, ...payload } = request;
+		const { employeeId, paymentId } = request;
 		const url = this.buildUrl(employeeId, paymentId);
-		const response = await http.put<Payment>(url, payload);
+		const response = await http.put<Payment>(url, request);
 
 		return response.data;
 	}
