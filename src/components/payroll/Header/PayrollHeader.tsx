@@ -6,7 +6,7 @@ import { translate } from "i18n/i18n";
 import { Employee } from "models/employee";
 
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Typography } from "@mui/material";
+import { Box, FormControl, Typography } from "@mui/material";
 
 interface PayrollHeaderProps {
 	searchValue: string;
@@ -41,13 +41,13 @@ const PayrollHeader: React.FC<PayrollHeaderProps> = ({
 				onChange={onSearch}
 				placeholder={translate("payroll.searchPlaceholder")}
 			/>
-			<Box sx={{ minWidth: 250 }}>
+			<FormControl size="small" margin="dense" sx={{ minWidth: 200 }}>
 				<EmployeeAutocomplete
 					value={selectedEmployee}
 					size="small"
 					onChange={(employee) => onEmployeeChange(employee?.id || null)}
 				/>
-			</Box>
+			</FormControl>
 			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 				{translate("add")}
 			</PrimaryButton>
