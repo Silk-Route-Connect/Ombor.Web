@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Employee } from "models/employee";
@@ -43,25 +43,28 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 			}
 		}, [open, employee]);
 
-		const tabs: TabDescriptor[] = [
-			{
-				key: "details",
-				label: () => translate("tabDetails"),
-				render: ({ employee, onEdit, onDelete, onPayment }) => (
-					<DetailsTab
-						employee={employee}
-						onEdit={onEdit}
-						onDelete={onDelete}
-						onPayment={onPayment}
-					/>
-				),
-			},
-			{
-				key: "payroll",
-				label: () => translate("tabPayroll"),
-				render: ({ employee }) => <PayrollTab employeeId={employee.id} />,
-			},
-		];
+		const tabs: TabDescriptor[] = useMemo(
+			() => [
+				{
+					key: "details",
+					label: () => translate("tabDetails"),
+					render: ({ employee, onEdit, onDelete, onPayment }) => (
+						<DetailsTab
+							employee={employee}
+							onEdit={onEdit}
+							onDelete={onDelete}
+							onPayment={onPayment}
+						/>
+					),
+				},
+				{
+					key: "payroll",
+					label: () => translate("tabPayroll"),
+					render: ({ employee }) => <PayrollTab employeeId={employee.id} />,
+				},
+			],
+			[],
+		);
 
 		const selectedIndex = tabs.findIndex((t) => t.key === selectedTab);
 		const handleTabChange = (_: React.SyntheticEvent, index: number) =>

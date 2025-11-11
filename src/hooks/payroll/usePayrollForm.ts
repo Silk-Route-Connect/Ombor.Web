@@ -37,11 +37,11 @@ interface UsePayrollFormResult {
 }
 
 const isPayment = (mode: PayrollFormMode): mode is Payment => {
-	return mode !== null && "employeeId" in mode && "amount" in mode;
+	return mode !== null && "direction" in mode && "type" in mode;
 };
 
 const isEmployee = (mode: PayrollFormMode): mode is Employee => {
-	return mode !== null && "name" in mode && "position" in mode;
+	return mode !== null && "status" in mode && "salary" in mode;
 };
 
 export function usePayrollForm({
