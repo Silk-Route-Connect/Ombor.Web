@@ -3,7 +3,7 @@ import React from "react";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 
 /**
- * Numeric wrapper that exposes `min / max / step` cleanly while
+ * Numeric wrapper that exposes `min / max / step` while
  * forwarding every other TextField prop unchanged.
  */
 export type NumericFieldProps = Omit<TextFieldProps, "type"> & {

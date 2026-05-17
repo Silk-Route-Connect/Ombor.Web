@@ -60,13 +60,13 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	columns: Column<T>[];
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
+	className?: string;
+	expandedMaxHeight?: number;
+	tableLayout?: "auto" | "fixed";
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
 	renderExpanded?: (row: T) => React.ReactNode;
 	canExpand?: (row: T) => boolean;
-	className?: string;
-	expandedMaxHeight?: number;
-	tableLayout?: "auto" | "fixed";
 }
 
 export function ExpandableDataTable<T extends { id: string | number }>({
@@ -112,6 +112,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	}, [rows, page, rowsPerPage, pagination]);
 
 	const isSelectable = Boolean(onRowClick);
+	const isExpandable = Boolean(renderExpanded);
 
 	const handleSortRequest = (field: keyof T) => {
 		if (!onSort) {
@@ -134,7 +135,11 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	};
 
 	const handleRowClickInternal = (row: T) => {
-		onRowClick?.(row);
+		if (onRowClick) {
+			onRowClick(row);
+		} else if (isExpandable) {
+			toggleExpandRow(row.id);
+		}
 	};
 
 	const toggleExpandRow = (id: string | number) => {
@@ -224,7 +229,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 									onClick={() => handleRowClickInternal(row)}
 									sx={{
 										backgroundColor,
-										cursor: isSelectable ? "pointer" : "default",
+										cursor: isSelectable || isExpandable ? "pointer" : "default",
 									}}
 								>
 									{isExpandable ? (

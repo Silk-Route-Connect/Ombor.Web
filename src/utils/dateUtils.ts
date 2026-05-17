@@ -1,5 +1,10 @@
 export type PresetOption = "week" | "month" | "alltime";
 
+export const DEFAULT_DATE_FILTER: DateFilter = {
+	type: "preset",
+	preset: "week",
+};
+
 export type DateFilter =
 	| { type: "preset"; preset: PresetOption }
 	| { type: "custom"; from: Date; to: Date };

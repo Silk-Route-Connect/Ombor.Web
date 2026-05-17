@@ -10,6 +10,7 @@ import supplierRu from "./ru/supplier.json";
 import supplyRu from "./ru/supply.json";
 import templateRu from "./ru/template.json";
 import transactionRu from "./ru/transaction.json";
+import warehouseRu from "./ru/warehouse.json";
 import authUz from "./uz/auth.json";
 import categoryUz from "./uz/category.json";
 import commonUz from "./uz/common.json";
@@ -19,6 +20,7 @@ import productUz from "./uz/product.json";
 import supplierUz from "./uz/supplier.json";
 import supplyUz from "./uz/supply.json";
 import templateUz from "./uz/template.json";
+import warehouseUz from "./uz/warehouse.json";
 
 /**
  * Supported locales for translations.
@@ -50,6 +52,7 @@ const messages: MessagesMap = {
 		...authRu,
 		...employeeRu,
 		...payrollRu,
+		...warehouseRu,
 	},
 	uz: {
 		...categoryUz,
@@ -61,6 +64,7 @@ const messages: MessagesMap = {
 		...authUz,
 		...employeeUz,
 		...payrollUz,
+		...warehouseUz,
 	},
 };
 

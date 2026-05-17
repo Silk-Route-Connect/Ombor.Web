@@ -7,6 +7,7 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 
 export interface ChildMenuItem {
 	label: string;
@@ -29,6 +30,15 @@ export const menuItems: MenuItem[] = [
 		children: [
 			{ label: translate("sidebar.products"), to: "/products" },
 			{ label: translate("sidebar.categories"), to: "/categories" },
+		],
+	},
+
+	{
+		label: translate("sidebar.warehouse"),
+		icon: WarehouseOutlinedIcon,
+		children: [
+			{ label: translate("sidebar.warehouses"), to: "/warehouses" },
+			{ label: translate("sidebar.stockTransfers"), to: "/stock-transfers" },
 		],
 	},
 
@@ -61,5 +71,5 @@ export const menuItems: MenuItem[] = [
 		],
 	},
 
-	{ label: "Отчёты", to: translate("sidebar.reports"), icon: BarChartOutlinedIcon },
+	{ label: translate("sidebar.reports"), to: "/reports", icon: BarChartOutlinedIcon },
 ];

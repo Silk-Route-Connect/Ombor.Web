@@ -1,6 +1,11 @@
 import { translate } from "i18n/i18n";
 
-export function formatNotes(notes?: string | null, count: number = 30): string {
+export const DEFAULT_NOTES_TRUNCATE_LENGTH = 30;
+
+export function formatNotes(
+	notes?: string | null,
+	count: number = DEFAULT_NOTES_TRUNCATE_LENGTH,
+): string {
 	if (!notes) {
 		return translate("common.dash");
 	}

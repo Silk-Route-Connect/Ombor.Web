@@ -16,7 +16,7 @@ const TemplatePage: React.FC = observer(() => {
 	useEffect(() => {
 		templateStore.getAll();
 		partnerStore.getAll();
-	}, [templateStore]);
+	}, [templateStore, partnerStore]);
 
 	const handleFormSave = (payload: TemplateFormPayload) =>
 		templateStore.selectedTemplate
