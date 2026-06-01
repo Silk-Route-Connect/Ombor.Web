@@ -14,6 +14,10 @@
   "topbar.create": "Yaratish",
   "topbar.search": "Tizim bo'ylab qidirish…",
 
+  "common.cancel": "Bekor qilish",
+  "common.close": "Yopish",
+  "common.form.completeRequired": "Majburiy maydonlarni to'ldiring",
+
   "currency.UZS": "UZS (so'm)",
   "currency.USD": "USD ($)",
   "currency.RUB": "RUB (₽)"
