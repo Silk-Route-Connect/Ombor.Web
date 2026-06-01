@@ -82,5 +82,19 @@
   "employee.payroll.noHistory": "To'lovlar tarixi bo'sh",
   "employee.payroll.loadError": "To'lovlar tarixini yuklashda xatolik",
   "employee.payroll.totalPayments": "Jami to'lovlar",
-  "employee.payroll.totalAmount": "Umumiy summa"
+  "employee.payroll.totalAmount": "Umumiy summa",
+
+  "employee.subtitle": "Jamoa",
+  "employee.newButton": "Yangi xodim",
+  "employee.filter.all": "Barchasi",
+  "employee.summary.total": "Jami xodimlar",
+  "employee.summary.active": "Faol",
+  "employee.summary.onVacation": "Ta'tilda",
+  "employee.summary.salaryFund": "Ish haqi fondi",
+  "employee.detail.notFound": "Xodim topilmadi",
+  "employee.detail.tab.details": "Tafsilotlar",
+  "employee.detail.tab.payroll": "Maoshlar",
+  "employee.detail.totalPaid": "Jami to'langan",
+
+  "payment.method.AccountBalance": "Hisobdan"
 }

@@ -23,5 +23,12 @@
   "employeeAutocomplete.employee": "Сотрудник",
   "employeeAutocomplete.search": "Поиск сотрудника...",
 
-  "payroll.paymentId": "Номер платежа"
+  "payroll.paymentId": "Номер платежа",
+
+  "payroll.subtitle": "Выплаты сотрудникам",
+  "payroll.newButton": "Новая выплата",
+  "payroll.summary.paidThisMonth": "Выплачено за месяц",
+  "payroll.summary.count": "Количество выплат",
+  "payroll.summary.employees": "Сотрудников оплачено",
+  "payroll.summary.moreCurrencies": "+{{count}} валют"
 }

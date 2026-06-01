@@ -23,5 +23,12 @@
   "employeeAutocomplete.employee": "Xodim",
   "employeeAutocomplete.search": "Xodimni qidirish...",
 
-  "payroll.paymentId": "To'lov raqami"
+  "payroll.paymentId": "To'lov raqami",
+
+  "payroll.subtitle": "Xodimlarga to'lovlar",
+  "payroll.newButton": "Yangi to'lov",
+  "payroll.summary.paidThisMonth": "Oylik to'langan",
+  "payroll.summary.count": "To'lovlar soni",
+  "payroll.summary.employees": "To'langan xodimlar",
+  "payroll.summary.moreCurrencies": "+{{count}} valyuta"
 }

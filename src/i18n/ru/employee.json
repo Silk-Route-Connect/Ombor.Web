@@ -82,5 +82,19 @@
   "employee.payroll.noHistory": "История выплат пуста",
   "employee.payroll.loadError": "Не удалось загрузить историю выплат",
   "employee.payroll.totalPayments": "Всего выплат",
-  "employee.payroll.totalAmount": "Общая сумма"
+  "employee.payroll.totalAmount": "Общая сумма",
+
+  "employee.subtitle": "Команда",
+  "employee.newButton": "Новый сотрудник",
+  "employee.filter.all": "Все",
+  "employee.summary.total": "Всего сотрудников",
+  "employee.summary.active": "Активные",
+  "employee.summary.onVacation": "В отпуске",
+  "employee.summary.salaryFund": "Фонд оплаты труда",
+  "employee.detail.notFound": "Сотрудник не найден",
+  "employee.detail.tab.details": "Детали",
+  "employee.detail.tab.payroll": "Зарплаты",
+  "employee.detail.totalPaid": "Всего выплачено",
+
+  "payment.method.AccountBalance": "Со счёта"
 }
