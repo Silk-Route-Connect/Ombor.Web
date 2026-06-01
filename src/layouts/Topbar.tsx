@@ -1,24 +1,21 @@
 import React, { MouseEvent } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { translate } from "i18n/i18n";
 
 import AddIcon from "@mui/icons-material/Add";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LanguageIcon from "@mui/icons-material/Language";
-import LightModeIcon from "@mui/icons-material/LightMode";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
+import SearchIcon from "@mui/icons-material/Search";
 import {
 	AppBar,
 	Avatar,
 	Badge,
 	Box,
+	Button,
 	IconButton,
 	Menu,
 	MenuItem,
-	SxProps,
-	Theme,
 	Toolbar,
 	Tooltip,
 	Typography,
@@ -29,161 +26,157 @@ interface TopbarProps {
 	onToggle: () => void; // toggles the sidebar
 }
 
-const iconStyle: SxProps<Theme> = { color: "text.primary", ml: 1 };
-
 const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 	const navigate = useNavigate();
 
 	const [quickAnchor, setQuickAnchor] = React.useState<HTMLElement | null>(null);
 	const [langAnchor, setLangAnchor] = React.useState<HTMLElement | null>(null);
 	const [userAnchor, setUserAnchor] = React.useState<HTMLElement | null>(null);
-	const [darkMode, setDarkMode] = React.useState(false);
 
 	const handleQuickOpen = (e: MouseEvent<HTMLElement>) => setQuickAnchor(e.currentTarget);
 	const handleQuickClose = () => setQuickAnchor(null);
 
-	const handleLangOpen = (e: MouseEvent<HTMLElement>) => setLangAnchor(e.currentTarget);
-	const handleLangClose = () => setLangAnchor(null);
-
-	const handleUserOpen = (e: MouseEvent<HTMLElement>) => setUserAnchor(e.currentTarget);
-	const handleUserClose = () => setUserAnchor(null);
-
-	const handleDarkToggle = () => setDarkMode((m) => !m);
-
 	const handleQuickNavigate = (path: string) => {
 		handleQuickClose();
 		navigate(path);
-		if (open) {
-			onToggle(); // collapse the sidebar
-		}
 	};
 
 	return (
-		<AppBar
-			position="fixed"
-			elevation={1}
-			sx={{ bgcolor: "background.paper", zIndex: (t) => t.zIndex.drawer + 1 }}
-		>
-			<Toolbar sx={{ justifyContent: "space-between" }}>
-				<Box display="flex" alignItems="center">
-					<IconButton edge="start" onClick={onToggle} sx={{ mr: 2 }}>
-						<MenuIcon
-							sx={{
-								transition: "transform .3s",
-								transform: open ? "rotate(0deg)" : "rotate(-90deg)",
-							}}
-						/>
-					</IconButton>
+		<AppBar position="fixed" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+			<Toolbar sx={{ gap: 2 }}>
+				<IconButton edge="start" onClick={onToggle} sx={{ color: "text.secondary" }}>
+					<MenuIcon
+						sx={{
+							transition: "transform .3s",
+							transform: open ? "rotate(0deg)" : "rotate(-90deg)",
+						}}
+					/>
+				</IconButton>
 
-					<NavLink
-						to="/"
-						style={{
-							display: "flex",
-							alignItems: "center",
-							textDecoration: "none",
-							color: "inherit",
+				{/* System search (decorative placeholder until search is wired) */}
+				<Box
+					sx={{
+						display: { xs: "none", sm: "flex" },
+						alignItems: "center",
+						gap: 1,
+						minWidth: 260,
+						maxWidth: 420,
+						px: 1.5,
+						height: 38,
+						borderRadius: 2,
+						border: 1,
+						borderColor: "divider",
+						color: "text.disabled",
+						cursor: "text",
+					}}
+				>
+					<SearchIcon sx={{ fontSize: 18 }} />
+					<Typography variant="body2" sx={{ flex: 1 }}>
+						{translate("topbar.search")}
+					</Typography>
+					<Box
+						component="kbd"
+						sx={{
+							fontSize: "0.6875rem",
+							fontWeight: 600,
+							px: 0.75,
+							py: 0.125,
+							borderRadius: 1,
+							bgcolor: "grey.100",
+							color: "text.secondary",
 						}}
 					>
-						<WarehouseIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
-						<Typography variant="h6">{translate("topbar.title")}</Typography>
-					</NavLink>
+						⌘K
+					</Box>
 				</Box>
 
-				<Box display="flex" alignItems="center">
-					<Tooltip title={translate("topbar.quickActions")} arrow enterDelay={200}>
-						<IconButton
-							onClick={handleQuickOpen}
+				<Box sx={{ flex: 1 }} />
+
+				<Button
+					variant="contained"
+					color="primary"
+					startIcon={<AddIcon />}
+					onClick={handleQuickOpen}
+					sx={{ display: { xs: "none", sm: "inline-flex" } }}
+				>
+					{translate("topbar.create")}
+				</Button>
+				<IconButton
+					onClick={handleQuickOpen}
+					sx={{ display: { xs: "inline-flex", sm: "none" }, color: "primary.main" }}
+				>
+					<AddIcon />
+				</IconButton>
+				<Menu
+					anchorEl={quickAnchor}
+					open={Boolean(quickAnchor)}
+					onClose={handleQuickClose}
+					anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+					transformOrigin={{ vertical: "top", horizontal: "right" }}
+				>
+					<MenuItem onClick={() => handleQuickNavigate("/new/sales")}>
+						{translate("topbar.quickActions.sale")}
+					</MenuItem>
+					<MenuItem onClick={() => handleQuickNavigate("/new/supplies")}>
+						{translate("topbar.quickActions.supply")}
+					</MenuItem>
+					<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.order")}</MenuItem>
+					<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.payment")}</MenuItem>
+				</Menu>
+
+				<Tooltip title={translate("topbar.notifications")} arrow enterDelay={200}>
+					<IconButton sx={{ color: "text.secondary" }}>
+						<Badge variant="dot" color="error">
+							<NotificationsIcon />
+						</Badge>
+					</IconButton>
+				</Tooltip>
+
+				<Tooltip title={translate("topbar.language")} arrow enterDelay={200}>
+					<IconButton
+						onClick={(e) => setLangAnchor(e.currentTarget)}
+						sx={{ color: "text.secondary" }}
+					>
+						<LanguageIcon />
+					</IconButton>
+				</Tooltip>
+				<Menu
+					anchorEl={langAnchor}
+					open={Boolean(langAnchor)}
+					onClose={() => setLangAnchor(null)}
+					anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+					transformOrigin={{ vertical: "top", horizontal: "right" }}
+				>
+					<MenuItem onClick={() => setLangAnchor(null)}>RU</MenuItem>
+					<MenuItem onClick={() => setLangAnchor(null)}>UZ</MenuItem>
+				</Menu>
+
+				<Tooltip title={translate("topbar.userMenu")} arrow enterDelay={200}>
+					<IconButton onClick={(e) => setUserAnchor(e.currentTarget)} sx={{ ml: 0.5 }}>
+						<Avatar
 							sx={{
+								width: 34,
+								height: 34,
 								bgcolor: "primary.main",
-								color: "primary.contrastText",
-								transition: "transform .15s, background .15s",
-								"&:hover": { bgcolor: "primary.dark", transform: "scale(1.05)" },
+								fontSize: "0.875rem",
+								fontWeight: 600,
 							}}
 						>
-							<AddIcon />
-						</IconButton>
-					</Tooltip>
-					<Menu
-						anchorEl={quickAnchor}
-						open={Boolean(quickAnchor)}
-						onClose={handleQuickClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={() => handleQuickNavigate("/new/sales")}>
-							{translate("topbar.quickActions.sale")}
-						</MenuItem>
-						<MenuItem onClick={() => handleQuickNavigate("/new/supplies")}>
-							{translate("topbar.quickActions.supply")}
-						</MenuItem>
-						<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.order")}</MenuItem>
-						<MenuItem onClick={handleQuickClose}>
-							{translate("topbar.quickActions.payment")}
-						</MenuItem>
-					</Menu>
-
-					<Tooltip title={translate("topbar.notifications")} arrow enterDelay={200}>
-						<IconButton sx={iconStyle}>
-							<Badge variant="dot" color="error">
-								<NotificationsIcon />
-							</Badge>
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip
-						title={darkMode ? translate("topbar.lightMode") : translate("topbar.darkMode")}
-						arrow
-						enterDelay={200}
-					>
-						<IconButton onClick={handleDarkToggle} sx={iconStyle}>
-							{darkMode ? <LightModeIcon /> : <DarkModeIcon />}
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip title={translate("topbar.language")} arrow enterDelay={200}>
-						<IconButton onClick={handleLangOpen} sx={iconStyle}>
-							<LanguageIcon />
-						</IconButton>
-					</Tooltip>
-
-					<Menu
-						anchorEl={langAnchor}
-						open={Boolean(langAnchor)}
-						onClose={handleLangClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={handleLangClose}>RU</MenuItem>
-						<MenuItem onClick={handleLangClose}>UZ</MenuItem>
-					</Menu>
-
-					<Tooltip title={translate("topbar.userMenu")} arrow enterDelay={200}>
-						<IconButton onClick={handleUserOpen} sx={iconStyle}>
-							<Avatar
-								sx={{
-									width: 30,
-									height: 30,
-									bgcolor: "secondary.main",
-									color: "secondary.contrastText",
-								}}
-							>
-								BS
-							</Avatar>
-						</IconButton>
-					</Tooltip>
-
-					<Menu
-						anchorEl={userAnchor}
-						open={Boolean(userAnchor)}
-						onClose={handleUserClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.account")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.settings")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.logout")}</MenuItem>
-					</Menu>
-				</Box>
+							БС
+						</Avatar>
+					</IconButton>
+				</Tooltip>
+				<Menu
+					anchorEl={userAnchor}
+					open={Boolean(userAnchor)}
+					onClose={() => setUserAnchor(null)}
+					anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+					transformOrigin={{ vertical: "top", horizontal: "right" }}
+				>
+					<MenuItem onClick={() => setUserAnchor(null)}>{translate("topbar.account")}</MenuItem>
+					<MenuItem onClick={() => setUserAnchor(null)}>{translate("topbar.settings")}</MenuItem>
+					<MenuItem onClick={() => setUserAnchor(null)}>{translate("topbar.logout")}</MenuItem>
+				</Menu>
 			</Toolbar>
 		</AppBar>
 	);

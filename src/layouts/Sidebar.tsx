@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import React, { Fragment, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { translate } from "i18n/i18n";
+import { useStore } from "stores/StoreContext";
 
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -8,8 +9,8 @@ import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
-	alpha,
 	Box,
+	Chip,
 	Collapse,
 	Divider,
 	Drawer,
@@ -18,167 +19,202 @@ import {
 	ListItemIcon,
 	ListItemText,
 	Toolbar,
+	Typography,
 	useTheme,
 } from "@mui/material";
-import type { TouchRippleProps } from "@mui/material/ButtonBase/TouchRipple";
 
-import { menuItems } from "./config";
+import { ChildMenuItem, MenuItem, navSections } from "./config";
+
+const FULL_WIDTH = 248;
+const COLLAPSED_WIDTH = 64;
 
 interface SidebarProps {
 	open: boolean;
 	onToggle: () => void;
 }
 
-const primaryColor = "primary.main";
-
-/* ───────────────────────────── NavItem ───────────────────────────── */
-interface NavItemProps {
-	icon?: React.ReactNode;
-	label: string;
-	to?: string;
-	inset?: boolean;
-	onClick?: () => void;
-	trailing?: React.ReactNode;
-	isSelected?: boolean;
-	drawerOpen: boolean;
-	selectedBgOpacity?: number;
-}
-
-function NavItem({
-	icon,
-	label,
-	to,
-	inset = false,
-	onClick,
-	trailing,
-	isSelected,
-	drawerOpen,
-	selectedBgOpacity,
-}: Readonly<NavItemProps>) {
-	const theme = useTheme();
-	const navigate = useNavigate();
-	const { pathname } = useLocation();
-
-	const rippleRef = useRef<{
-		start: (e: React.MouseEvent) => void;
-		stop: () => void;
-	} | null>(null);
-
-	const routeSelected = to ? pathname === to || (to !== "/" && pathname.startsWith(to)) : false;
-	const selected = isSelected ?? routeSelected;
-
-	const baseOpacity = selectedBgOpacity ?? 0.15;
-	const hoverOpacity = Math.min(baseOpacity + 0.1, 1);
-
-	const handleClick = (e: React.MouseEvent) => {
-		rippleRef.current?.start(e);
-		setTimeout(() => {
-			if (to) navigate(to);
-			else onClick?.();
-		}, 50);
-		setTimeout(() => rippleRef.current?.stop(), 100);
-	};
-
-	const touchProps: Partial<TouchRippleProps> = { center: true };
-
+/* ─────────────────────────── Brand ─────────────────────────── */
+function Brand({ open }: Readonly<{ open: boolean }>) {
 	return (
-		<ListItemButton
-			onClick={handleClick}
-			TouchRippleProps={touchProps as TouchRippleProps}
-			selected={selected}
-			sx={{
-				m: 0.5,
-				borderRadius: 2,
-				justifyContent: "flex-start",
-				pl: theme.spacing(2 + (inset ? 2 : 0)),
-				"&.Mui-selected": {
-					bgcolor: alpha(theme.palette.primary.main, baseOpacity),
-				},
-				"&.Mui-selected:hover": {
-					bgcolor: alpha(theme.palette.primary.main, hoverOpacity),
-				},
-				"&:hover": { bgcolor: "action.hover" },
-				"& .MuiTouchRipple-root": { color: primaryColor },
-				"& .MuiTouchRipple-rippleVisible": {
-					opacity: 0.3,
-					transform: "scale(4)",
-					animationDuration: "550ms !important",
-				},
-			}}
-		>
-			{icon && (
-				<ListItemIcon
-					sx={{
-						minWidth: theme.spacing(3),
-						justifyContent: "center",
-						color: primaryColor,
-						mr: 1,
-					}}
-				>
-					{icon}
-				</ListItemIcon>
-			)}
-
-			<ListItemText
-				primary={label}
+		<Toolbar sx={{ px: 1.5, gap: 1.25, minHeight: 64 }}>
+			<Box
 				sx={{
-					flex: drawerOpen ? "1 1 auto" : "0 0 0",
-					opacity: drawerOpen ? 1 : 0,
-					whiteSpace: "nowrap",
-					overflow: "hidden",
-					transition: theme.transitions.create(["flex", "opacity"], {
-						duration: theme.transitions.duration.standard,
-						easing: theme.transitions.easing.easeInOut,
-					}),
+					width: 34,
+					height: 34,
+					flexShrink: 0,
+					borderRadius: "9px",
+					bgcolor: "primary.main",
+					color: "primary.contrastText",
+					display: "grid",
+					placeItems: "center",
+					boxShadow: 1,
 				}}
-			/>
-
-			{trailing && (
-				<Box
-					sx={{
-						flex: drawerOpen ? "0 0 auto" : "0 0 0",
-						opacity: drawerOpen ? 1 : 0,
-						transition: theme.transitions.create(["flex", "opacity"], {
-							duration: theme.transitions.duration.standard,
-							easing: theme.transitions.easing.easeInOut,
-						}),
-					}}
-				>
-					{trailing}
+			>
+				<WarehouseIcon sx={{ fontSize: 20 }} />
+			</Box>
+			{open && (
+				<Box sx={{ overflow: "hidden" }}>
+					<Typography
+						sx={{
+							fontSize: "1.1875rem",
+							fontWeight: 700,
+							letterSpacing: "-0.02em",
+							lineHeight: 1.1,
+						}}
+					>
+						Ombor
+					</Typography>
+					<Typography sx={{ fontSize: "0.6875rem", color: "text.disabled", lineHeight: 1.2 }}>
+						{translate("sidebar.brandSubtitle")}
+					</Typography>
 				</Box>
 			)}
-		</ListItemButton>
+		</Toolbar>
 	);
 }
 
-/* ───────────────────────────── Sidebar ───────────────────────────── */
+/* ───────────────────────── Sidebar ───────────────────────── */
 export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 	const theme = useTheme();
-	const location = useLocation();
-	const [groups, setGroups] = useState<Record<string, boolean>>({});
+	const navigate = useNavigate();
+	const { pathname } = useLocation();
+	const { authStore } = useStore();
+	const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-	// Expand the parent group of the current route every time
-	//   1) the URL changes OR
-	//   2) the drawer is opened.
+	const isActive = (to: string) =>
+		to === "/"
+			? pathname === "/"
+			: pathname === to || pathname.startsWith(to + "/") || pathname.startsWith(to);
+
+	const childActive = (item: MenuItem) => item.children?.some((c) => isActive(c.to)) ?? false;
+
+	// Expand the group owning the current route whenever the URL changes or the drawer opens.
 	useEffect(() => {
-		if (!open) return; // nothing visible, keep previous state
+		if (!open) return;
+		const next: Record<string, boolean> = {};
+		navSections.forEach((section) =>
+			section.items.forEach((item) => {
+				if (item.children) next[item.label] = childActive(item);
+			}),
+		);
+		setOpenGroups((prev) => ({ ...prev, ...next }));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [pathname, open]);
 
-		const expanded: Record<string, boolean> = {};
-		menuItems.forEach((item) => {
-			if (item.children) {
-				expanded[item.label] = item.children.some((c) => location.pathname.startsWith(c.to));
-			}
-		});
-		setGroups(expanded);
-	}, [location.pathname, open]);
-
-	const handleToggleGroup = (label: string) => {
+	const toggleGroup = (label: string) => {
 		if (!open) {
 			onToggle();
-			setTimeout(() => setGroups({ [label]: true }), 0);
-		} else {
-			setGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+			setTimeout(() => setOpenGroups({ [label]: true }), 0);
+			return;
 		}
+		setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+	};
+
+	const handleLogout = () => void authStore.logout();
+
+	const itemSx = {
+		mx: 1,
+		my: 0.25,
+		borderRadius: 2,
+		minHeight: 40,
+		justifyContent: open ? "flex-start" : "center",
+		px: open ? 1.25 : 0,
+		color: "text.secondary",
+		"&:hover": { bgcolor: "grey.50", color: "text.primary" },
+	} as const;
+
+	const renderIcon = (Icon: MenuItem["icon"], active: boolean) => (
+		<ListItemIcon
+			sx={{
+				minWidth: 0,
+				mr: open ? 1.5 : 0,
+				justifyContent: "center",
+				color: active ? "primary.main" : "primary.main",
+			}}
+		>
+			<Icon style={{ fontSize: 20 }} />
+		</ListItemIcon>
+	);
+
+	const renderSubItem = (child: ChildMenuItem) => {
+		const active = isActive(child.to);
+		return (
+			<ListItemButton
+				key={child.to}
+				selected={active}
+				onClick={() => navigate(child.to)}
+				sx={{
+					mx: 1,
+					my: 0.125,
+					borderRadius: 2,
+					minHeight: 36,
+					pl: 5.25,
+					color: "text.secondary",
+					"&:hover": { bgcolor: "grey.50", color: "text.primary" },
+				}}
+			>
+				<ListItemText
+					primary={child.label}
+					primaryTypographyProps={{
+						sx: { fontSize: "0.84375rem", fontWeight: active ? 600 : 500 },
+					}}
+				/>
+				{child.badge && (
+					<Chip
+						label={child.badge.value}
+						size="small"
+						color={child.badge.tone === "error" ? "error" : "warning"}
+						sx={{ height: 18, "& .MuiChip-label": { px: 0.75, fontSize: "0.6875rem" } }}
+					/>
+				)}
+			</ListItemButton>
+		);
+	};
+
+	const renderItem = (item: MenuItem) => {
+		const hasChildren = Boolean(item.children?.length);
+		const active = item.to ? isActive(item.to) : childActive(item);
+		const groupOpen = open && Boolean(openGroups[item.label]);
+
+		return (
+			<Fragment key={item.label}>
+				<ListItemButton
+					selected={active && !hasChildren}
+					onClick={() => (hasChildren ? toggleGroup(item.label) : item.to && navigate(item.to))}
+					sx={{
+						...itemSx,
+						...(active && {
+							color: "text.primary",
+							"& .MuiListItemText-primary": { fontWeight: 600 },
+						}),
+					}}
+				>
+					{renderIcon(item.icon, active)}
+					{open && (
+						<>
+							<ListItemText
+								primary={item.label}
+								primaryTypographyProps={{
+									sx: { fontSize: "0.875rem", fontWeight: active ? 600 : 500 },
+								}}
+							/>
+							{hasChildren &&
+								(groupOpen ? (
+									<ExpandLessIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+								) : (
+									<ExpandMoreIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+								))}
+						</>
+					)}
+				</ListItemButton>
+
+				{hasChildren && (
+					<Collapse in={groupOpen} timeout="auto" unmountOnExit>
+						<List disablePadding>{item.children!.map(renderSubItem)}</List>
+					</Collapse>
+				)}
+			</Fragment>
+		);
 	};
 
 	return (
@@ -188,95 +224,83 @@ export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 			slotProps={{
 				paper: {
 					sx: {
-						width: open ? 240 : 64,
+						width: open ? FULL_WIDTH : COLLAPSED_WIDTH,
 						boxSizing: "border-box",
-						borderRight: "none",
+						overflowX: "hidden",
+						zIndex: theme.zIndex.appBar - 1,
 						transition: theme.transitions.create("width", {
 							duration: theme.transitions.duration.standard,
 							easing: theme.transitions.easing.easeInOut,
 						}),
-						overflowX: "hidden",
-						zIndex: theme.zIndex.appBar - 1,
-						bgcolor: "background.paper",
 					},
 				},
 			}}
 		>
-			<Toolbar sx={{ px: 1, minHeight: theme.mixins.toolbar.minHeight }}>
-				{open && (
-					<NavLink to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-						<WarehouseIcon sx={{ fontSize: 28, color: primaryColor, mr: 1 }} />
-						<ListItemText primary="Warehouse" />
-					</NavLink>
-				)}
-			</Toolbar>
-
+			<Brand open={open} />
 			<Divider />
 
 			<Box display="flex" flexDirection="column" height="100%">
-				<List disablePadding sx={{ mt: 1.5 }}>
-					{menuItems.map((item) => {
-						const childActive =
-							item.children?.some((c) => location.pathname.startsWith(c.to)) ?? false;
-						const parentExpanded = open && groups[item.label];
-						const parentOpacity = parentExpanded ? 0.05 : 0.15;
+				<Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", py: 1 }}>
+					{navSections.map((section) => (
+						<Fragment key={section.label}>
+							{open && (
+								<Typography
+									variant="overline"
+									sx={{
+										display: "block",
+										px: 2,
+										pt: 1.5,
+										pb: 0.5,
+										color: "text.disabled",
+										lineHeight: 1.4,
+									}}
+								>
+									{section.label}
+								</Typography>
+							)}
+							<List disablePadding>{section.items.map(renderItem)}</List>
+						</Fragment>
+					))}
+				</Box>
 
-						return (
-							<Fragment key={item.label}>
-								<NavItem
-									icon={<item.icon />}
-									label={item.label}
-									to={item.to}
-									onClick={item.children ? () => handleToggleGroup(item.label) : undefined}
-									trailing={
-										item.children && open ? (
-											groups[item.label] ? (
-												<ExpandLessIcon fontSize="small" />
-											) : (
-												<ExpandMoreIcon fontSize="small" />
-											)
-										) : undefined
-									}
-									isSelected={childActive}
-									selectedBgOpacity={childActive ? parentOpacity : undefined}
-									drawerOpen={open}
-								/>
-
-								{item.children && (
-									<Collapse in={open && groups[item.label]} timeout="auto" unmountOnExit>
-										<List disablePadding>
-											{item.children.map((child) => (
-												<NavItem
-													key={child.label}
-													label={child.label}
-													to={child.to}
-													inset
-													drawerOpen={open}
-												/>
-											))}
-										</List>
-									</Collapse>
-								)}
-							</Fragment>
-						);
-					})}
-				</List>
-
-				<Divider sx={{ mt: "auto" }} />
-
-				<List disablePadding>
-					<NavItem
-						icon={<SettingsIcon />}
-						label={translate("sidebar.settings")}
-						to="/settings"
-						drawerOpen={open}
-					/>
-					<NavItem
-						icon={<LogoutIcon />}
-						label={translate("sidebar.logout")}
-						to="/logout"
-						drawerOpen={open}
-					/>
+				<Divider />
+				<List disablePadding sx={{ py: 0.5 }}>
+					<ListItemButton onClick={() => navigate("/settings")} sx={itemSx}>
+						<ListItemIcon
+							sx={{
+								minWidth: 0,
+								mr: open ? 1.5 : 0,
+								justifyContent: "center",
+								color: "text.secondary",
+							}}
+						>
+							<SettingsIcon style={{ fontSize: 20 }} />
+						</ListItemIcon>
+						{open && (
+							<ListItemText
+								primary={translate("sidebar.settings")}
+								primaryTypographyProps={{ sx: { fontSize: "0.875rem", fontWeight: 500 } }}
+							/>
+						)}
+					</ListItemButton>
+					<ListItemButton onClick={handleLogout} sx={itemSx}>
+						<ListItemIcon
+							sx={{
+								minWidth: 0,
+								mr: open ? 1.5 : 0,
+								justifyContent: "center",
+								color: "text.secondary",
+							}}
+						>
+							<LogoutIcon style={{ fontSize: 20 }} />
+						</ListItemIcon>
+						{open && (
+							<ListItemText
+								primary={translate("sidebar.logout")}
+								primaryTypographyProps={{ sx: { fontSize: "0.875rem", fontWeight: 500 } }}
+							/>
+						)}
+					</ListItemButton>
 				</List>
 			</Box>
 		</Drawer>
