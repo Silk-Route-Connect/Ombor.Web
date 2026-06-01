@@ -94,7 +94,5 @@
   "employee.detail.notFound": "Сотрудник не найден",
   "employee.detail.tab.details": "Детали",
   "employee.detail.tab.payroll": "Зарплаты",
-  "employee.detail.totalPaid": "Всего выплачено",
-
-  "payment.method.AccountBalance": "Со счёта"
+  "employee.detail.totalPaid": "Всего выплачено"
 }
