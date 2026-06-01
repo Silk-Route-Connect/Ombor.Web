@@ -1,14 +1,11 @@
 import React from "react";
 import EmployeeFormFields from "components/employee/Form/EmployeeFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
-import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormSheet from "components/shared/Dialog/FormSheet/FormSheet";
 import { EmployeeFormPayload, useEmployeeForm } from "hooks/employee/useEmployeeForm";
 import { translate } from "i18n/i18n";
 import { Employee } from "models/employee";
 import { dialogTranslation } from "utils/translationUtils";
-
-import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 
 interface EmployeeFormModalProps {
 	isOpen: boolean;
@@ -26,45 +23,24 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 	onSave,
 }) => {
 	const { form, canSave, submit, requestClose, discardOpen, confirmDiscard, cancelDiscard } =
-		useEmployeeForm({
-			isOpen,
-			isSaving,
-			employee,
-			onSave,
-			onClose,
-		});
+		useEmployeeForm({ isOpen, isSaving, employee, onSave, onClose });
 
 	const title = employee ? translate("employee.editTitle") : translate("employee.createTitle");
 
 	return (
 		<>
-			<Dialog
+			<FormSheet
 				open={isOpen}
+				title={title}
+				subtitle={employee?.name}
+				isSaving={isSaving}
+				canSave={canSave}
+				width={560}
 				onClose={requestClose}
-				maxWidth="md"
-				fullWidth
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
+				onSave={submit}
 			>
-				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
-
-				{isSaving && (
-					<Box sx={{ position: "relative", height: 4 }}>
-						<LinearProgress sx={{ position: "absolute", inset: 0 }} />
-					</Box>
-				)}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					<EmployeeFormFields form={form} disabled={isSaving} />
-				</DialogContent>
-
-				<FormDialogFooter
-					onCancel={requestClose}
-					onSave={submit}
-					canSave={canSave}
-					loading={isSaving}
-				/>
-			</Dialog>
+				<EmployeeFormFields form={form} disabled={isSaving} />
+			</FormSheet>
 
 			<ConfirmDialog
 				isOpen={discardOpen}
