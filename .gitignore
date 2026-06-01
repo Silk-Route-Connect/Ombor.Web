@@ -51,3 +51,6 @@ pnpm-debug.log*
 # Optional build outputs (if you ever use other tools)
 /dist
 /storybook-static
+
+# Claude Design hand-off bundle (large; kept locally, referenced by CLAUDE.md)
+/docs/design-handoff/
