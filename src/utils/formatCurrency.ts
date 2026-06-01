@@ -49,3 +49,25 @@ export function formatShortNumber(input: number): string {
 export function formatPrice(value: number): string {
 	return value.toLocaleString();
 }
+
+/**
+ * Money formatting with space thousand separators (UZS convention).
+ *   1973000 → "1 973 000"
+ */
+export function formatMoney(value: number): string {
+	return Math.round(value).toLocaleString("ru-RU");
+}
+
+/**
+ * Signed money — always shows +/− (0 stays "0").
+ *   1131000  → "+1 131 000"
+ *   -582320  → "−582 320"
+ */
+export function formatSignedMoney(value: number): string {
+	const rounded = Math.round(value);
+	if (rounded === 0) {
+		return "0";
+	}
+	const sign = rounded > 0 ? "+" : "−";
+	return `${sign}${formatMoney(Math.abs(rounded))}`;
+}

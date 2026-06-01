@@ -7,6 +7,7 @@ import { IStockTransferStore, StockTransferStore } from "stores/StockTransferSto
 import { IWarehouseStore, WarehouseStore } from "stores/WarehouseStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
+import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";
 import { NotificationStore } from "./NotificationStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
@@ -21,6 +22,7 @@ import { ITransactionStore, TransactionStore } from "./TransactionStore";
 
 export class RootStore {
 	notificationStore: NotificationStore;
+	dashboardStore: IDashboardStore;
 	categoryStore: ICategoryStore;
 	productStore: IProductStore;
 	partnerStore: IPartnerStore;
@@ -42,6 +44,7 @@ export class RootStore {
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
+		this.dashboardStore = new DashboardStore(this.notificationStore);
 		this.categoryStore = new CategoryStore(this.notificationStore);
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
