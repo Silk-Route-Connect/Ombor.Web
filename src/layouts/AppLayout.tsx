@@ -6,7 +6,7 @@ import { Box, CssBaseline, Toolbar, useTheme } from "@mui/material";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
-const FULL_WIDTH = 240;
+const FULL_WIDTH = 248;
 const COLLAPSED_WIDTH = 64;
 
 export default function AppLayout() {

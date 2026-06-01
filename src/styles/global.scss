@@ -1,5 +1,18 @@
 body {
 	margin: 0;
-	font-family: "Roboto", sans-serif;
-	background-color: #f9f9f9;
+	font-family: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+	background-color: #f1f4f3; // canvas (gray-50)
+	color: #162a2b; // ink (gray-900)
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	// numbers are the hero — tabular figures app-wide
+	font-feature-settings: "tnum" 1;
+	font-variant-numeric: tabular-nums;
+}
+
+// helper for explicit numeric emphasis
+.tnum {
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum" 1;
 }
