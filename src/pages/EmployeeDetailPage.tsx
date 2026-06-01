@@ -12,6 +12,7 @@ import { Employee } from "models/employee";
 import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
 import { formatMoney } from "utils/formatCurrency";
+import { primaryCurrencyAmount, totalsByCurrency } from "utils/payrollStats";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
@@ -80,7 +81,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 	}
 
 	const history = selectedEmployeeStore.payrollHistory;
-	const totalPaid = history === "loading" ? null : history.reduce((sum, p) => sum + p.amount, 0);
+	const totalPaid = history === "loading" ? null : primaryCurrencyAmount(totalsByCurrency(history));
 
 	const closeMenu = () => setMenuAnchor(null);
 	const runMenu = (action: () => void) => () => {
@@ -178,8 +179,13 @@ const EmployeeDetailPage: React.FC = observer(() => {
 						icon: <PaymentsOutlinedIcon />,
 						tone: "saffron",
 						caption: translate("employee.detail.totalPaid"),
-						value: totalPaid === null ? "—" : formatMoney(totalPaid),
-						unit: totalPaid === null ? undefined : "UZS",
+						value: totalPaid === null ? "—" : formatMoney(totalPaid.amount),
+						unit:
+							totalPaid === null
+								? undefined
+								: totalPaid.others.length > 0
+									? `${totalPaid.currency} +${totalPaid.others.length}`
+									: totalPaid.currency,
 					},
 				]}
 			/>

@@ -35,12 +35,18 @@ export function getPayrollSummary(payments: Payment[], now: Date = new Date()): 
 	};
 }
 
-/**
- * Picks the currency with the largest total for the hero figure. Returns null
- * when there were no payments this month. Other currencies (if any) are exposed
- * via `others` so the caller can render an honest "+N more" note.
- */
-export function primaryPaidThisMonth(
+/** Lifetime totals grouped by each payment's primary currency. */
+export function totalsByCurrency(payments: Payment[]): Partial<Record<PaymentCurrency, number>> {
+	const totals: Partial<Record<PaymentCurrency, number>> = {};
+	for (const p of payments) {
+		const currency = p.components[0]?.currency ?? "UZS";
+		totals[currency] = (totals[currency] ?? 0) + p.amount;
+	}
+	return totals;
+}
+
+/** Picks the currency with the largest total. Returns null when the map is empty. */
+export function primaryCurrencyAmount(
 	paid: Partial<Record<PaymentCurrency, number>>,
 ): { currency: PaymentCurrency; amount: number; others: PaymentCurrency[] } | null {
 	const entries = Object.entries(paid) as [PaymentCurrency, number][];
