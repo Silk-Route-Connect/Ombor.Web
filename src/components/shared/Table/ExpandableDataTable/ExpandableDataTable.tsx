@@ -214,13 +214,12 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</TableHead>
 
 				<TableBody>
-					{displayedRows.map((row, index) => {
+					{displayedRows.map((row) => {
 						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
 						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
 
-						const isOdd = index % 2 === 0;
-						const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
-						const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
+						// Design tables use clean bordered rows — no zebra striping.
+						const backgroundColor = isOpen ? theme.palette.action.hover : "inherit";
 
 						return (
 							<React.Fragment key={row.id}>

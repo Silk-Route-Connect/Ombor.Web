@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Loadable } from "helpers/Loading";
+import { translate } from "i18n/i18n";
 
 import {
 	Box,
@@ -197,8 +198,8 @@ export function DataTable<T extends { id: string | number }>({
 			</Table>
 
 			{rows !== "loading" && rows.length === 0 && (
-				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
-					Нет записей
+				<Box p={5} textAlign="center" color="text.secondary" sx={{ typography: "body2" }}>
+					{translate("noRecords")}
 				</Box>
 			)}
 
