@@ -37,6 +37,8 @@ export interface IWarehouseStore {
 	create(request: CreateWarehouseRequest): Promise<void>;
 	update(request: UpdateWarehouseRequest): Promise<void>;
 	delete(warehouseId: number): Promise<void>;
+	archive(warehouse: Warehouse): Promise<void>;
+	restore(warehouse: Warehouse): Promise<void>;
 
 	// Setters
 	setSearch(term: string): void;
@@ -159,6 +161,40 @@ export class WarehouseStore implements IWarehouseStore {
 
 		this.closeDialog();
 		this.notificationStore.success(translate("warehouse.success.delete"));
+	}
+
+	async archive(warehouse: Warehouse): Promise<void> {
+		await this.setActive(warehouse, false, translate("warehouse.success.archive"));
+	}
+
+	async restore(warehouse: Warehouse): Promise<void> {
+		await this.setActive(warehouse, true, translate("warehouse.success.restore"));
+	}
+
+	private async setActive(warehouse: Warehouse, isActive: boolean, successMessage: string) {
+		const result = await withSaving(this, () =>
+			WarehouseApi.update({
+				id: warehouse.id,
+				name: warehouse.name,
+				location: warehouse.location,
+				isActive,
+			}),
+		);
+
+		if (result.status === "fail") {
+			this.notificationStore.error(translate("warehouse.error.update"));
+			return;
+		}
+
+		runInAction(() => {
+			if (this.allWarehouses !== "loading") {
+				this.allWarehouses = this.allWarehouses.map((w) =>
+					w.id === result.data.id ? result.data : w,
+				);
+			}
+		});
+
+		this.notificationStore.success(successMessage);
 	}
 
 	setSearch(term: string): void {

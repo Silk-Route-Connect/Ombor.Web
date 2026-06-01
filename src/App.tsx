@@ -15,6 +15,7 @@ import RegisterPage from "pages/RegisterPage";
 import StockTransfersPage from "pages/StockTransferPage";
 import TemplatePage from "pages/TemplatePage";
 import TransactionPage from "pages/TransactionPage";
+import WarehouseDetailPage from "pages/WarehouseDetailPage";
 import WarehousesPage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
 import RequireAuth from "routing/RequireAuth";
@@ -53,6 +54,7 @@ function App() {
 								<Route path="categories" element={<CategoryPage />} />
 								<Route path="products" element={<ProductPage />} />
 								<Route path="warehouses" element={<WarehousesPage />} />
+								<Route path="warehouses/:id" element={<WarehouseDetailPage />} />
 								<Route path="stock-transfers" element={<StockTransfersPage />} />
 								<Route path="partners" element={<PartnerPage />} />
 								<Route path="supplies" element={<TransactionPage mode="Supply" />} />

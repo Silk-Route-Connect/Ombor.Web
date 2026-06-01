@@ -1,128 +1,137 @@
-import React, { useEffect, useMemo } from "react";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
-import AdjustStockDialog from "components/warehouse/AdjustStock/AdjustStockDialog";
-import WarehouseFormDialog from "components/warehouse/Form/WarehouseFormDialog";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import WarehouseCard from "components/warehouse/Card/WarehouseCard";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
-import WarehouseSidePane from "components/warehouse/SidePane/WarehouseSidePane";
-import WarehouseTable from "components/warehouse/Table/WarehouseTable";
-import TransferStockDialog from "components/warehouse/TransferStock/TransferStockDialog";
-import { AdjustStockFormPayload } from "hooks/warehouse/useAdjustStockForm";
-import { WarehouseFormPayload } from "hooks/warehouse/useWarehouseForm";
+import WarehouseSummary from "components/warehouse/Summary/WarehouseSummary";
+import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+import { Warehouse } from "models/warehouse";
 import { useStore } from "stores/StoreContext";
+import { getWarehousesSummary } from "utils/warehouseStats";
 
-import { Box } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Box, CircularProgress, Collapse, Typography } from "@mui/material";
+
+const GRID_SX = {
+	display: "grid",
+	gap: 2,
+	gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fill, minmax(340px, 1fr))" },
+} as const;
 
 const WarehousesPage: React.FC = observer(() => {
-	const { warehouseStore, selectedWarehouseStore } = useStore();
+	const { warehouseStore } = useStore();
+	const navigate = useNavigate();
+	const [archivedOpen, setArchivedOpen] = useState(true);
 
 	useEffect(() => {
 		warehouseStore.getAll();
 	}, [warehouseStore]);
 
-	const handleFormSave = (payload: WarehouseFormPayload) => {
-		const warehouse =
-			warehouseStore.dialogMode.kind === "form" ? warehouseStore.dialogMode.warehouse : null;
+	const warehouses = warehouseStore.filteredWarehouses;
+	const isLoading = warehouses === "loading";
+	const list = useMemo(() => (warehouses === "loading" ? [] : warehouses), [warehouses]);
 
-		if (warehouse) {
-			warehouseStore.update({ id: warehouse.id, ...payload });
-		} else {
-			warehouseStore.create(payload);
-		}
+	const active = useMemo(() => list.filter((w) => w.isActive), [list]);
+	const archived = useMemo(() => list.filter((w) => !w.isActive), [list]);
+	const summary = useMemo(() => getWarehousesSummary(list), [list]);
+
+	const cardHandlers = {
+		onOpen: (w: Warehouse) => navigate(`/warehouses/${w.id}`),
+		onEdit: warehouseStore.openEdit,
+		onArchive: warehouseStore.archive,
+		onRestore: warehouseStore.restore,
+		onDelete: warehouseStore.openDelete,
 	};
-
-	const handleAdjustStockSave = (payload: AdjustStockFormPayload) => {
-		const warehouse =
-			warehouseStore.dialogMode.kind === "adjustStock" ? warehouseStore.dialogMode.warehouse : null;
-
-		if (warehouse) {
-			selectedWarehouseStore.adjustStock({
-				warehouseId: warehouse.id,
-				...payload,
-			});
-		}
-	};
-
-	const handleDeleteConfirmed = () => {
-		const warehouse =
-			warehouseStore.dialogMode.kind === "delete" ? warehouseStore.dialogMode.warehouse : null;
-
-		if (warehouse) {
-			warehouseStore.delete(warehouse.id);
-		}
-	};
-
-	const warehousesCount = useMemo(() => {
-		if (warehouseStore.filteredWarehouses === "loading") {
-			return "";
-		}
-		return warehouseStore.filteredWarehouses.length.toString();
-	}, [warehouseStore.filteredWarehouses]);
-
-	const dialogMode = warehouseStore.dialogMode;
 
 	return (
 		<Box>
-			<WarehouseHeader
-				searchValue={warehouseStore.searchTerm}
-				titleCount={warehousesCount}
-				onSearch={warehouseStore.setSearch}
-				onCreate={warehouseStore.openCreate}
-			/>
+			<WarehouseHeader onCreate={warehouseStore.openCreate} />
 
-			<WarehouseTable
-				data={warehouseStore.filteredWarehouses}
-				onSort={warehouseStore.setSort}
-				onRowClick={warehouseStore.openDetails}
-				onEdit={warehouseStore.openEdit}
-				onDelete={warehouseStore.openDelete}
-				onAdjustStock={warehouseStore.openAdjustStock}
-				onTransfer={warehouseStore.openTransfer}
-			/>
+			{isLoading ? (
+				<Box display="flex" justifyContent="center" alignItems="center" minHeight={360}>
+					<CircularProgress />
+				</Box>
+			) : (
+				<>
+					<WarehouseSummary summary={summary} />
 
-			<WarehouseFormDialog
-				isOpen={dialogMode.kind === "form"}
-				isSaving={warehouseStore.isSaving}
-				warehouse={dialogMode.kind === "form" ? dialogMode.warehouse : null}
-				onClose={warehouseStore.closeDialog}
-				onSave={handleFormSave}
-			/>
+					{active.length === 0 && archived.length === 0 ? (
+						<Typography
+							variant="body2"
+							sx={{ color: "text.secondary", py: 6, textAlign: "center" }}
+						>
+							{translate("warehouse.empty")}
+						</Typography>
+					) : (
+						<Box sx={GRID_SX}>
+							{active.map((warehouse) => (
+								<WarehouseCard key={warehouse.id} warehouse={warehouse} {...cardHandlers} />
+							))}
+						</Box>
+					)}
 
-			<AdjustStockDialog
-				isOpen={dialogMode.kind === "adjustStock"}
-				isSaving={selectedWarehouseStore.isSaving}
-				warehouse={dialogMode.kind === "adjustStock" ? dialogMode.warehouse : null}
-				onClose={warehouseStore.closeDialog}
-				onSave={handleAdjustStockSave}
-			/>
+					{archived.length > 0 && (
+						<Box sx={{ mt: 4 }}>
+							<Box
+								onClick={() => setArchivedOpen((v) => !v)}
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: 1,
+									mb: 1.75,
+									px: 1,
+									py: 0.5,
+									ml: -1,
+									borderRadius: 1.5,
+									cursor: "pointer",
+									userSelect: "none",
+									"&:hover": { bgcolor: "grey.100" },
+								}}
+							>
+								<ExpandMoreIcon
+									sx={{
+										fontSize: 18,
+										color: "text.secondary",
+										transition: "transform .16s",
+										transform: archivedOpen ? "rotate(0deg)" : "rotate(-90deg)",
+									}}
+								/>
+								<Typography
+									variant="overline"
+									sx={{ color: "text.secondary", letterSpacing: "0.04em" }}
+								>
+									{translate("warehouse.archived.title")}
+								</Typography>
+								<Typography
+									component="span"
+									sx={{
+										fontWeight: 700,
+										color: "text.disabled",
+										fontVariantNumeric: "tabular-nums",
+									}}
+								>
+									· {archived.length}
+								</Typography>
+							</Box>
+							<Collapse in={archivedOpen} timeout="auto" unmountOnExit>
+								<Box sx={GRID_SX}>
+									{archived.map((warehouse) => (
+										<WarehouseCard
+											key={warehouse.id}
+											warehouse={warehouse}
+											archived
+											{...cardHandlers}
+										/>
+									))}
+								</Box>
+							</Collapse>
+						</Box>
+					)}
+				</>
+			)}
 
-			<TransferStockDialog
-				isOpen={dialogMode.kind === "transfer"}
-				isSaving={warehouseStore.isSaving}
-				fromWarehouse={dialogMode.kind === "transfer" ? dialogMode.warehouse : null}
-				onClose={warehouseStore.closeDialog}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("warehouse.deleteConfirmation", {
-					warehouseName: dialogMode.kind === "delete" ? dialogMode.warehouse.name : "",
-				})}
-				onConfirm={handleDeleteConfirmed}
-				onCancel={warehouseStore.closeDialog}
-			/>
-
-			<WarehouseSidePane
-				open={!!warehouseStore.selectedWarehouse}
-				warehouse={warehouseStore.selectedWarehouse}
-				onClose={() => warehouseStore.setSelectedWarehouse(null)}
-				onEdit={warehouseStore.openEdit}
-				onDelete={warehouseStore.openDelete}
-				onAdjustStock={warehouseStore.openAdjustStock}
-				onTransfer={warehouseStore.openTransfer}
-			/>
+			<WarehouseDialogs />
 		</Box>
 	);
 });

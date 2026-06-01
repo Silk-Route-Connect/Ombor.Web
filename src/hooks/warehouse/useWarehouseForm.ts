@@ -16,7 +16,7 @@ export interface UseWarehouseFormResult {
 const DEFAULT_VALUES: WarehouseFormInputs = {
 	name: "",
 	location: null,
-	isActive: true,
+	notes: null,
 };
 
 export const useWarehouseForm = ({
@@ -45,7 +45,7 @@ export const useWarehouseForm = ({
 			? {
 					name: warehouse.name,
 					location: warehouse.location,
-					isActive: warehouse.isActive,
+					notes: warehouse.notes ?? null,
 				}
 			: DEFAULT_VALUES;
 		form.reset(initialValues);

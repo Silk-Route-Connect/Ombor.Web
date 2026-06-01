@@ -2,7 +2,7 @@ import React from "react";
 import { UseWarehouseFormResult } from "hooks/warehouse/useWarehouseForm";
 import { translate } from "i18n/i18n";
 
-import { Checkbox, FormControlLabel, Grid, TextField } from "@mui/material";
+import { Grid, TextField } from "@mui/material";
 
 interface WarehouseFormFieldsProps {
 	form: UseWarehouseFormResult;
@@ -12,11 +12,7 @@ const WarehouseFormFields: React.FC<WarehouseFormFieldsProps> = ({ form }) => {
 	const {
 		register,
 		formState: { errors },
-		watch,
-		setValue,
 	} = form.form;
-
-	const isActive = watch("isActive");
 
 	return (
 		<Grid container rowSpacing={2} columnSpacing={2}>
@@ -42,19 +38,15 @@ const WarehouseFormFields: React.FC<WarehouseFormFieldsProps> = ({ form }) => {
 			</Grid>
 
 			<Grid size={{ xs: 12 }}>
-				<FormControlLabel
-					control={
-						<Checkbox
-							checked={isActive}
-							onChange={(e) =>
-								setValue("isActive", e.target.checked, {
-									shouldDirty: true,
-									shouldValidate: true,
-								})
-							}
-						/>
-					}
-					label={translate("warehouse.field.isActive")}
+				<TextField
+					label={translate("warehouse.field.notes")}
+					placeholder={translate("warehouse.field.notesPlaceholder")}
+					{...register("notes")}
+					error={!!errors.notes}
+					helperText={errors.notes?.message}
+					fullWidth
+					multiline
+					minRows={3}
 				/>
 			</Grid>
 		</Grid>

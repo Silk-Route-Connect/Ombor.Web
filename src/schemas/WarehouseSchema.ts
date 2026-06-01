@@ -15,7 +15,12 @@ export const WarehouseSchema = z.object({
 		.nullable()
 		.optional(),
 
-	isActive: z.boolean(),
+	notes: z
+		.string()
+		.trim()
+		.max(500, translate("warehouse.validation.notesTooLong"))
+		.nullable()
+		.optional(),
 });
 
 export type WarehouseFormInputs = z.input<typeof WarehouseSchema>;

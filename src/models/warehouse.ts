@@ -3,6 +3,7 @@ export type Warehouse = {
 	name: string;
 	location: string | null;
 	isActive: boolean;
+	notes?: string | null;
 	items: WarehouseItem[];
 };
 
@@ -26,6 +27,7 @@ export type CreateWarehouseRequest = {
 	name: string;
 	location?: string | null;
 	isActive: boolean;
+	notes?: string | null;
 };
 
 export type UpdateWarehouseRequest = {
@@ -33,6 +35,7 @@ export type UpdateWarehouseRequest = {
 	name: string;
 	location?: string | null;
 	isActive: boolean;
+	notes?: string | null;
 };
 
 export type DeleteWarehouseRequest = {
