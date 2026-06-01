@@ -7,6 +7,13 @@
   "confirm": "Tasdiqlash",
   "yes": "Ha",
 
+  "sidebar.group.overview": "Umumiy",
+  "sidebar.group.catalog": "Katalog",
+  "sidebar.group.team": "Jamoa va tahlil",
+  "sidebar.brandSubtitle": "Ombor boshqaruvi",
+  "topbar.create": "Yaratish",
+  "topbar.search": "Tizim bo'ylab qidirish…",
+
   "currency.UZS": "UZS (so'm)",
   "currency.USD": "USD ($)",
   "currency.RUB": "RUB (₽)"

@@ -1,6 +1,7 @@
 import authRu from "./ru/auth.json";
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
+import dashboardRu from "./ru/dashboard.json";
 import employeeRu from "./ru/employee.json";
 import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
@@ -14,6 +15,7 @@ import warehouseRu from "./ru/warehouse.json";
 import authUz from "./uz/auth.json";
 import categoryUz from "./uz/category.json";
 import commonUz from "./uz/common.json";
+import dashboardUz from "./uz/dashboard.json";
 import employeeUz from "./uz/employee.json";
 import payrollUz from "./uz/payroll.json";
 import productUz from "./uz/product.json";
@@ -53,6 +55,7 @@ const messages: MessagesMap = {
 		...employeeRu,
 		...payrollRu,
 		...warehouseRu,
+		...dashboardRu,
 	},
 	uz: {
 		...categoryUz,
@@ -65,6 +68,7 @@ const messages: MessagesMap = {
 		...employeeUz,
 		...payrollUz,
 		...warehouseUz,
+		...dashboardUz,
 	},
 };
 

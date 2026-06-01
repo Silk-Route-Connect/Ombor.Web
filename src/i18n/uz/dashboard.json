@@ -1,0 +1,50 @@
+{
+  "dashboard.title": "Asosiy",
+  "dashboard.export": "Eksport",
+  "dashboard.export.toast": "Boshqaruv paneli hisoboti PDF'ga eksport qilinmoqda…",
+  "dashboard.error.load": "Boshqaruv paneli ma'lumotlarini yuklab bo'lmadi",
+
+  "dashboard.period.today": "Bugun",
+  "dashboard.period.week": "Hafta",
+  "dashboard.period.month": "Oy",
+
+  "dashboard.delta.prevPeriod": "oldingi davrga nisbatan",
+
+  "dashboard.charts.salesSupplies.title": "Sotuv va ta'minot dinamikasi",
+  "dashboard.charts.salesSupplies.sub": "Sotuvlar va ta'minotlar · UZS",
+  "dashboard.charts.type.line": "Chiziq",
+  "dashboard.charts.type.bar": "Ustunlar",
+  "dashboard.charts.type.net": "Sof",
+  "dashboard.chart.downloadPng": "PNG yuklab olish",
+  "dashboard.payments.allWallets": "Barcha kassalar",
+  "dashboard.legend.sales": "Sotuvlar",
+  "dashboard.legend.supplies": "Ta'minotlar",
+
+  "dashboard.payments.title": "To'lovlar",
+  "dashboard.payments.sub": "Tushumlar va to'lovlar · UZS",
+  "dashboard.legend.payin": "Tushumlar",
+  "dashboard.legend.payout": "To'lovlar",
+  "dashboard.legend.net": "Sof",
+
+  "dashboard.aging.title": "Debitorlik muddatlar bo'yicha",
+  "dashboard.aging.overdueCap": "Muddati o'tgan · 31+ kun",
+  "dashboard.aging.total": "Jami olinadigan",
+  "dashboard.aging.transactions": "{{count}} trz.",
+
+  "dashboard.topDebtors.title": "Eng katta qarzdorlar",
+  "dashboard.topDebtors.all": "Barcha hamkorlar",
+  "dashboard.noCompany": "Kompaniyasiz",
+
+  "dashboard.recent.title": "So'nggi tranzaksiyalar",
+  "dashboard.recent.all": "Barchasi",
+  "dashboard.recent.col.date": "Sana",
+  "dashboard.recent.col.partner": "Hamkor",
+  "dashboard.recent.col.type": "Turi",
+  "dashboard.recent.col.amount": "Summa",
+  "dashboard.recent.col.paid": "To'langan",
+  "dashboard.recent.col.status": "Holat",
+
+  "dashboard.status.paid": "To'langan",
+  "dashboard.status.part": "Qisman",
+  "dashboard.status.unpaid": "To'lanmagan"
+}

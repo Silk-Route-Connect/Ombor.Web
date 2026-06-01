@@ -1,0 +1,50 @@
+{
+  "dashboard.title": "Главное",
+  "dashboard.export": "Экспорт",
+  "dashboard.export.toast": "Сводка дашборда экспортируется в PDF…",
+  "dashboard.error.load": "Не удалось загрузить данные дашборда",
+
+  "dashboard.period.today": "Сегодня",
+  "dashboard.period.week": "Неделя",
+  "dashboard.period.month": "Месяц",
+
+  "dashboard.delta.prevPeriod": "к пред. периоду",
+
+  "dashboard.charts.salesSupplies.title": "Динамика продаж и поставок",
+  "dashboard.charts.salesSupplies.sub": "Продажи против поставок · UZS",
+  "dashboard.charts.type.line": "Линия",
+  "dashboard.charts.type.bar": "Столбцы",
+  "dashboard.charts.type.net": "Нетто",
+  "dashboard.chart.downloadPng": "Скачать PNG",
+  "dashboard.payments.allWallets": "Все кассы",
+  "dashboard.legend.sales": "Продажи",
+  "dashboard.legend.supplies": "Поставки",
+
+  "dashboard.payments.title": "Платежи",
+  "dashboard.payments.sub": "Поступления и выплаты · UZS",
+  "dashboard.legend.payin": "Поступления",
+  "dashboard.legend.payout": "Выплаты",
+  "dashboard.legend.net": "Нетто",
+
+  "dashboard.aging.title": "Дебиторка по срокам",
+  "dashboard.aging.overdueCap": "Просрочено · 31+ дней",
+  "dashboard.aging.total": "Всего к получению",
+  "dashboard.aging.transactions": "{{count}} транз.",
+
+  "dashboard.topDebtors.title": "Топ должников",
+  "dashboard.topDebtors.all": "Все партнёры",
+  "dashboard.noCompany": "Без компании",
+
+  "dashboard.recent.title": "Последние транзакции",
+  "dashboard.recent.all": "Все",
+  "dashboard.recent.col.date": "Дата",
+  "dashboard.recent.col.partner": "Партнёр",
+  "dashboard.recent.col.type": "Тип",
+  "dashboard.recent.col.amount": "Сумма",
+  "dashboard.recent.col.paid": "Оплачено",
+  "dashboard.recent.col.status": "Статус",
+
+  "dashboard.status.paid": "Оплачено",
+  "dashboard.status.part": "Частично",
+  "dashboard.status.unpaid": "Не оплачено"
+}
