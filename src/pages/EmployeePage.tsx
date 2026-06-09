@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EmployeeDialogs from "components/employee/EmployeeDialogs";
-import EmployeeSummary from "components/employee/EmployeeSummary";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeeTable from "components/employee/Table/EmployeeTable";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { getEmployeesSummary } from "utils/employeeStats";
 
 import { Box } from "@mui/material";
 
@@ -19,10 +17,6 @@ const EmployeePage: React.FC = observer(() => {
 	}, [employeeStore]);
 
 	const employees = employeeStore.filteredEmployees;
-	const summary =
-		employeeStore.allEmployees === "loading"
-			? null
-			: getEmployeesSummary(employeeStore.allEmployees);
 
 	return (
 		<Box>
@@ -33,8 +27,6 @@ const EmployeePage: React.FC = observer(() => {
 				onStatusChange={(value) => employeeStore.setFilterStatus(value)}
 				onCreate={employeeStore.openCreate}
 			/>
-
-			{summary && <EmployeeSummary summary={summary} />}
 
 			<EmployeeTable
 				data={employees}

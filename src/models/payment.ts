@@ -22,6 +22,9 @@ export type PaymentAllocationType =
 	| "AdvancePayment"
 	| "ChangeReturn";
 
+/** Payroll-specific kind of a payment: full salary vs. an advance. */
+export type PayrollKind = "Salary" | "Advance";
+
 export type Payment = {
 	id: number;
 	partnerId?: number;
@@ -33,6 +36,10 @@ export type Payment = {
 	date: string;
 	direction: PaymentDirection;
 	type: PaymentType;
+	/** For payroll payments: salary vs advance (backend-populated; optional). */
+	payrollKind?: PayrollKind;
+	/** Period the payroll payment covers, ISO date of the month (optional). */
+	period?: string;
 	components: PaymentComponent[];
 	allocations: PaymentAllocation[];
 };

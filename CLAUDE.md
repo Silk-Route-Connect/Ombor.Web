@@ -24,6 +24,26 @@ Keep existing structural patterns; only the visual identity changes.
 The theme implementing all of this is **[src/theme.ts](src/theme.ts)** — always style via theme
 tokens (`primary.main`, `text.secondary`, `divider`, `grey.*`, etc.), never hardcoded colors.
 
+## Working agreement (READ FIRST — prevents the failure modes that wrecked a past session)
+
+- **Run this redesign in the local Claude Code CLI, not the cloud/desktop autonomous agent.** The visual
+  feedback loop depends on the **Claude Preview MCP**, which is a *local* server — cloud/remote agents
+  can't start it, so they implement blind and drift from the design. If Preview is unavailable, **do NOT
+  guess**: implement to the design, then **ask the user for a screenshot** to verify before moving on.
+- **Match the design EXACTLY.** Open the specific design file/screenshot for the screen FIRST and replicate
+  its columns, layout, filters, and data shape. Do **not** invent summary cards, extra columns, or
+  fabricated data that aren't in the design. Mirror the real screen, not a generic CRUD page.
+- **Don't rabbit-hole. If the same command/check fails ~2 times, STOP and ASK the user.** Never spawn
+  multiple background tasks to chase one error.
+- **Keep it simple — work sequentially in the main session.** This is incremental UI work; fleets of
+  subagents / background shells / PRs add overhead and confusion, not speed.
+- **Type-check sanity (this is the #1 trap):** `npm run type-check` and bare `tsc` are BROKEN and flood
+  `node_modules` noise. Use **ESLint + the running dev-server's error overlay** as the bar. If you run the
+  isolated `tsc` command (below), read **only** error lines whose path starts with the file you edited —
+  treat `node_modules/*` and other-file errors (e.g. `BaseApi.ts`) as noise and **do not try to fix them**.
+- **Use real backend data; don't fabricate.** Render "—" for genuinely missing fields (e.g. weighted-avg
+  cost). Computed summaries (totals, payroll fund, counts) must be derived correctly — never a placeholder.
+
 ## Tech stack
 
 React 19 + TypeScript + **Material UI 7** (Emotion) · **MobX** (`src/stores/`, accessed via

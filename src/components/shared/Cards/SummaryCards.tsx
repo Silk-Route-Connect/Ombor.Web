@@ -8,9 +8,18 @@ export interface SummaryCardProps {
 	caption: string;
 	value: string;
 	unit?: string;
+	/** Optional value color (theme token), e.g. "primary.main". Defaults to ink. */
+	valueColor?: string;
 }
 
-export const SummaryCard: React.FC<SummaryCardProps> = ({ icon, tone, caption, value, unit }) => (
+export const SummaryCard: React.FC<SummaryCardProps> = ({
+	icon,
+	tone,
+	caption,
+	value,
+	unit,
+	valueColor,
+}) => (
 	<Paper
 		elevation={1}
 		sx={{
@@ -49,6 +58,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ icon, tone, caption, v
 					lineHeight: 1.1,
 					mt: 0.25,
 					fontVariantNumeric: "tabular-nums",
+					color: valueColor ?? "text.primary",
 				}}
 			>
 				{value}

@@ -15,6 +15,7 @@
   "employee.telegramAccount": "Telegram",
 
   "employee.payment": "To'lov",
+  "employee.action.pay": "To'lash",
   "employee.details": "Tafsilotlar",
 
   "employee.createTitle": "Yangi xodim",
@@ -86,7 +87,11 @@
 
   "employee.subtitle": "Jamoa",
   "employee.newButton": "Yangi xodim",
+  "employee.col.employee": "Xodim",
   "employee.filter.all": "Barchasi",
+  "employee.filter.active": "Faol",
+  "employee.filter.onVacation": "Ta'tilda",
+  "employee.filter.terminated": "Ishdan bo'shatilgan",
   "employee.summary.total": "Jami xodimlar",
   "employee.summary.active": "Faol",
   "employee.summary.onVacation": "Ta'tilda",
@@ -96,5 +101,23 @@
   "employee.detail.tab.payroll": "Maoshlar",
   "employee.detail.totalPaid": "Jami to'langan",
 
-  "payment.method.AccountBalance": "Hisobdan"
+  "payment.method.AccountBalance": "Hisobdan",
+
+  "employee.detail.salaryUnit": "UZS / oy",
+  "employee.detail.kpi.paidThisMonth": "Oy uchun to'langan",
+  "employee.detail.kpi.overpaid": "Oylik ortiqcha to'lov",
+  "employee.detail.contact.title": "Aloqa ma'lumotlari",
+  "employee.detail.payments.title": "To'lovlar",
+  "employee.detail.payments.empty": "To'lovlar yo'q",
+  "employee.detail.payments.col.date": "Sana",
+  "employee.detail.payments.col.type": "Turi",
+  "employee.detail.payments.col.period": "Davr",
+  "employee.detail.payments.col.amount": "Summa",
+  "employee.detail.payments.col.wallet": "Kassa",
+  "employee.detail.payments.kind.Salary": "Maosh",
+  "employee.detail.payments.kind.Advance": "Avans",
+  "employee.detail.wallet.Cash": "Kassa",
+  "employee.detail.wallet.Card": "Karta",
+  "employee.detail.wallet.BankTransfer": "Bank",
+  "employee.detail.wallet.AccountBalance": "Hisob"
 }

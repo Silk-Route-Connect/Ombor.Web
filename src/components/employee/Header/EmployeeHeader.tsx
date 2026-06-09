@@ -4,7 +4,7 @@ import SegmentedControl, {
 } from "components/shared/Inputs/SegmentedControl/SegmentedControl";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { translate } from "i18n/i18n";
-import { EMPLOYEE_STATUSES, EmployeeStatus } from "models/employee";
+import { EmployeeStatus } from "models/employee";
 
 import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Typography } from "@mui/material";
@@ -28,10 +28,9 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 }) => {
 	const statusOptions: SegmentedOption<StatusFilterValue>[] = [
 		{ value: "all", label: translate("employee.filter.all") },
-		...EMPLOYEE_STATUSES.map((status) => ({
-			value: status,
-			label: translate(`employee.status.${status}`),
-		})),
+		{ value: "Active", label: translate("employee.filter.active") },
+		{ value: "OnVacation", label: translate("employee.filter.onVacation") },
+		{ value: "Terminated", label: translate("employee.filter.terminated") },
 	];
 
 	return (
@@ -46,12 +45,7 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 					mb: 2,
 				}}
 			>
-				<Box>
-					<Typography variant="h1">{translate("employeesTitle")}</Typography>
-					<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-						{translate("employee.subtitle")}
-					</Typography>
-				</Box>
+				<Typography variant="h1">{translate("employeesTitle")}</Typography>
 				<Button variant="contained" startIcon={<AddIcon />} onClick={onCreate}>
 					{translate("employee.newButton")}
 				</Button>

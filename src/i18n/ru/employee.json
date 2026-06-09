@@ -15,6 +15,7 @@
   "employee.telegramAccount": "Telegram",
 
   "employee.payment": "Оплата",
+  "employee.action.pay": "Выплатить",
   "employee.details": "Детали",
 
   "employee.createTitle": "Новый сотрудник",
@@ -86,7 +87,11 @@
 
   "employee.subtitle": "Команда",
   "employee.newButton": "Новый сотрудник",
+  "employee.col.employee": "Сотрудник",
   "employee.filter.all": "Все",
+  "employee.filter.active": "Активные",
+  "employee.filter.onVacation": "В отпуске",
+  "employee.filter.terminated": "Уволенные",
   "employee.summary.total": "Всего сотрудников",
   "employee.summary.active": "Активные",
   "employee.summary.onVacation": "В отпуске",
@@ -94,5 +99,23 @@
   "employee.detail.notFound": "Сотрудник не найден",
   "employee.detail.tab.details": "Детали",
   "employee.detail.tab.payroll": "Зарплаты",
-  "employee.detail.totalPaid": "Всего выплачено"
+  "employee.detail.totalPaid": "Всего выплачено",
+
+  "employee.detail.salaryUnit": "UZS / мес",
+  "employee.detail.kpi.paidThisMonth": "Выплачено за месяц",
+  "employee.detail.kpi.overpaid": "Переплата за месяц",
+  "employee.detail.contact.title": "Контактная информация",
+  "employee.detail.payments.title": "Выплаты",
+  "employee.detail.payments.empty": "Выплат нет",
+  "employee.detail.payments.col.date": "Дата",
+  "employee.detail.payments.col.type": "Тип",
+  "employee.detail.payments.col.period": "Период",
+  "employee.detail.payments.col.amount": "Сумма",
+  "employee.detail.payments.col.wallet": "Касса",
+  "employee.detail.payments.kind.Salary": "Зарплата",
+  "employee.detail.payments.kind.Advance": "Аванс",
+  "employee.detail.wallet.Cash": "Касса",
+  "employee.detail.wallet.Card": "Карта",
+  "employee.detail.wallet.BankTransfer": "Банк",
+  "employee.detail.wallet.AccountBalance": "Счёт"
 }

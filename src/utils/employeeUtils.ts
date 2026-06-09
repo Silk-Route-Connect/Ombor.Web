@@ -93,3 +93,35 @@ export const getEmployeeStatusColor = (
 			return "default";
 	}
 };
+
+// Russian plural form selection: forms = [one, few, many].
+const ruPlural = (n: number, forms: [string, string, string]): string => {
+	const mod10 = n % 10;
+	const mod100 = n % 100;
+	if (mod10 === 1 && mod100 !== 11) return forms[0];
+	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+	return forms[2];
+};
+
+/** Employment tenure since a date, e.g. "2 года 4 месяца" (RU). */
+export const formatTenure = (dateOfEmployment: string): string => {
+	const start = new Date(dateOfEmployment);
+	const now = new Date();
+	let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+	if (now.getDate() < start.getDate()) months -= 1;
+	if (months < 0) months = 0;
+
+	const years = Math.floor(months / 12);
+	const remMonths = months % 12;
+	const parts: string[] = [];
+	if (years > 0) parts.push(`${years} ${ruPlural(years, ["год", "года", "лет"])}`);
+	if (remMonths > 0)
+		parts.push(`${remMonths} ${ruPlural(remMonths, ["месяц", "месяца", "месяцев"])}`);
+	return parts.length > 0 ? parts.join(" ") : "меньше месяца";
+};
+
+/** Capitalized month + year for a date, e.g. "Май 2026" (RU). */
+export const formatMonthYear = (date: string): string => {
+	const label = new Date(date).toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
+	return label.charAt(0).toUpperCase() + label.slice(1);
+};
