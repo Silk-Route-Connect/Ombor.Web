@@ -4,6 +4,12 @@ How to implement screens from Claude Design prototypes (delivered as HTML/CSS/JS
 
 **The prime rule: prototypes are design intent, not source code.** Never copy prototype HTML, CSS, or JS into the app. Re-express the design in React + MUI, styled exclusively through `theme.ts`, built on the shared components, bound to store/mock data.
 
+## Handoff mechanics
+
+The Claude Design handoff bundle is **project-scoped** — it contains all design files, the design system tokens, chat context, and a README. The session prompt, not the bundle, defines scope: implement **only the page(s) named in the session prompt**. Use the rest of the bundle as reference only — the design system tokens and shared chrome for consistency, neighboring pages for pattern alignment. Never implement unscoped pages "while you're there."
+
+If the bundle's README conflicts with this doc or CLAUDE.md, this doc and CLAUDE.md win — the README is generic; these docs are repo law. A fresh handoff is generated per session, so the bundle always reflects the current design state.
+
 ---
 
 ## Prerequisite: theme parity
