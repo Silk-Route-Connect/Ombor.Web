@@ -95,5 +95,5 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 - **Build tooling:** Vite + TS 5.x (migrated from CRA, June 2026). Husky/lint-staged removed.
 - **Rewrite-as-we-go:** existing modules (Products, Partners, Employees, Payments, Transactions, Categories, Templates, Payroll) are legacy side-pane style until rebuilt to the redesign. Structure and approach (stores/api/models/schemas) stay; components and layouts are replaced per module.
 - **Not yet built:** Warehouses, Stock Adjustments, Transfers, Orders (+ New Order), Wallets, Debts, Settings, Reports; Sales/Supplies as separate pages (currently one TransactionPage).
-- **i18n state:** `ru` partially complete; `uz` partial and legacy-named (`supplier`, `supply` namespaces to be consolidated as modules are rewritten); uz-Latn / uz-Cyrl backfill pending.
+- **i18n state:** i18next + react-i18next (migrated June 2026, init in `src/i18n/config.ts` — flat keys with literal dots, single merged namespace, ru fallback, locale persisted in localStorage `ombor.locale`). `ru` partially complete; `uz` partial and legacy-named (`supplier`, `supply` namespaces to be consolidated as modules are rewritten); uz-Cyrl registered but empty; uz-Latn / uz-Cyrl backfill pending.
 - **Backend:** does not yet satisfy the redesigned UI — check `tech-change-list.md`, mock per `docs/mocking.md`.
