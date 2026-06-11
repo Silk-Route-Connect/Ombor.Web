@@ -10,157 +10,43 @@ import { Category } from "../../models/category";
  * enriched with an illustrative `productCount` — the field the real CategoryDto
  * lacks, served by the data layer exactly as the backend will (hard rule 8).
  *
- * The Default Category «Без категории» (id 0, isDefault) is a target-contract
- * addition the real backend has no row for — it backstops "Category required"
- * and cannot be deleted. NOTE: products cannot be created against id 0 on the
- * real backend (it has no such row); it is a display/safeguard concept only.
+ * Categories are uniform (business-rules rule 42): no protected default row.
  */
 const seed: Category[] = [
-	{
-		id: 0,
-		name: "Без категории",
-		description: "Системная категория по умолчанию для товаров без явной группы",
-		productCount: 0,
-		isDefault: true,
-	},
 	{
 		id: 1,
 		name: "Электроника",
 		description: "Бытовая и портативная электроника",
 		productCount: 12,
-		isDefault: false,
 	},
-	{
-		id: 2,
-		name: "Фильмы",
-		description: "Фильмы на дисках и цифровые издания",
-		productCount: 5,
-		isDefault: false,
-	},
-	{
-		id: 3,
-		name: "Пряжа",
-		description: "Пряжа и материалы для рукоделия",
-		productCount: 3,
-		isDefault: false,
-	},
-	{
-		id: 4,
-		name: "обувь",
-		description: "Повседневная и сезонная обувь",
-		productCount: 8,
-		isDefault: false,
-	},
+	{ id: 2, name: "Фильмы", description: "Фильмы на дисках и цифровые издания", productCount: 5 },
+	{ id: 3, name: "Пряжа", description: "Пряжа и материалы для рукоделия", productCount: 3 },
+	{ id: 4, name: "обувь", description: "Повседневная и сезонная обувь", productCount: 8 },
 	{
 		id: 5,
 		name: "Автомобильное",
 		description: "Товары и аксессуары для автомобилей",
 		productCount: 6,
-		isDefault: false,
 	},
-	{
-		id: 6,
-		name: "Одежда",
-		description: "Повседневная и сезонная одежда",
-		productCount: 14,
-		isDefault: false,
-	},
-	{
-		id: 7,
-		name: "Игрушки",
-		description: "Детские игрушки и игровые наборы",
-		productCount: 4,
-		isDefault: false,
-	},
-	{
-		id: 8,
-		name: "промышленное",
-		description: "Промышленные товары и оснастка",
-		productCount: 0,
-		isDefault: false,
-	},
-	{
-		id: 9,
-		name: "музыка",
-		description: "Музыкальные носители и инструменты",
-		productCount: 7,
-		isDefault: false,
-	},
-	{
-		id: 10,
-		name: "компьютеры",
-		description: "Компьютеры и комплектующие",
-		productCount: 9,
-		isDefault: false,
-	},
-	{
-		id: 11,
-		name: "здоровье",
-		description: "Товары для здоровья и ухода",
-		productCount: 2,
-		isDefault: false,
-	},
-	{
-		id: 12,
-		name: "игры",
-		description: "Настольные и видеоигры",
-		productCount: 5,
-		isDefault: false,
-	},
-	{
-		id: 13,
-		name: "Дом",
-		description: "Товары для дома и хозяйства",
-		productCount: 11,
-		isDefault: false,
-	},
-	{
-		id: 14,
-		name: "садинструмент",
-		description: "Садовый инструмент и инвентарь",
-		productCount: 0,
-		isDefault: false,
-	},
-	{
-		id: 15,
-		name: "Галантерея",
-		description: "Галантерея и аксессуары",
-		productCount: 3,
-		isDefault: false,
-	},
-	{
-		id: 16,
-		name: "красота",
-		description: "Косметика и средства по уходу",
-		productCount: 6,
-		isDefault: false,
-	},
-	{
-		id: 17,
-		name: "Книги",
-		description: "Книги и печатные издания",
-		productCount: 10,
-		isDefault: false,
-	},
-	{
-		id: 18,
-		name: "украшения",
-		description: "Бижутерия и украшения",
-		productCount: 4,
-		isDefault: false,
-	},
-	{
-		id: 19,
-		name: "туризм",
-		description: "Туристическое снаряжение",
-		productCount: 0,
-		isDefault: false,
-	},
-	{ id: 20, name: "детское", description: "Товары для детей", productCount: 7, isDefault: false },
+	{ id: 6, name: "Одежда", description: "Повседневная и сезонная одежда", productCount: 14 },
+	{ id: 7, name: "Игрушки", description: "Детские игрушки и игровые наборы", productCount: 4 },
+	{ id: 8, name: "промышленное", description: "Промышленные товары и оснастка", productCount: 0 },
+	{ id: 9, name: "музыка", description: "Музыкальные носители и инструменты", productCount: 7 },
+	{ id: 10, name: "компьютеры", description: "Компьютеры и комплектующие", productCount: 9 },
+	{ id: 11, name: "здоровье", description: "Товары для здоровья и ухода", productCount: 2 },
+	{ id: 12, name: "игры", description: "Настольные и видеоигры", productCount: 5 },
+	{ id: 13, name: "Дом", description: "Товары для дома и хозяйства", productCount: 11 },
+	{ id: 14, name: "садинструмент", description: "Садовый инструмент и инвентарь", productCount: 0 },
+	{ id: 15, name: "Галантерея", description: "Галантерея и аксессуары", productCount: 3 },
+	{ id: 16, name: "красота", description: "Косметика и средства по уходу", productCount: 6 },
+	{ id: 17, name: "Книги", description: "Книги и печатные издания", productCount: 10 },
+	{ id: 18, name: "украшения", description: "Бижутерия и украшения", productCount: 4 },
+	{ id: 19, name: "туризм", description: "Туристическое снаряжение", productCount: 0 },
+	{ id: 20, name: "детское", description: "Товары для детей", productCount: 7 },
 ];
 
 let categories: Category[] = seed.map((category) => ({ ...category }));
-// Created categories get ids after the real range (default id 0 is excluded).
+// Created categories get ids after the seeded real range.
 let nextId = Math.max(...categories.map((category) => category.id)) + 1;
 
 export function listCategories(): Category[] {
@@ -185,7 +71,6 @@ export function addCategory(name: string, description: string | null): Category 
 		name,
 		description,
 		productCount: 0,
-		isDefault: false,
 	};
 	categories = [created, ...categories];
 

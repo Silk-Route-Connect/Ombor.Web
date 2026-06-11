@@ -87,7 +87,7 @@ export const categoryHandlers = [
 
 	// CONTRACT: POST /api/categories
 	// body: CreateCategoryRequest { name: string; description?: string | null }
-	// response 201: Category (productCount 0, isDefault false)
+	// response 201: Category (productCount 0)
 	// errors: 400 ValidationProblemDetails (validation / duplicate name), 401
 	http.post(LIST_URL, async ({ request }) => {
 		await delay(300);
@@ -143,8 +143,8 @@ export const categoryHandlers = [
 	// CONTRACT: DELETE /api/categories/:id
 	// response 204: no content
 	// errors: 404 ProblemDetails (missing),
-	//         409 ProblemDetails when the category is the Default Category or still
-	//             has referencing products (no hard-delete with history — rule 32),
+	//         409 ProblemDetails when the category still has referencing products
+	//             (no hard-delete with history — rule 32),
 	//         401
 	http.delete(ITEM_URL, async ({ params }) => {
 		await delay(250);
@@ -153,10 +153,6 @@ export const categoryHandlers = [
 		const existing = findCategory(id);
 		if (!existing) {
 			return problem(404, "Not Found", "Категория не найдена");
-		}
-
-		if (existing.isDefault) {
-			return problem(409, "Conflict", "Категорию по умолчанию нельзя удалить");
 		}
 
 		if (existing.productCount > 0) {

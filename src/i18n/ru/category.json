@@ -34,8 +34,6 @@
   "category.delete.blocked.referenced_few": "Невозможно удалить: категория содержит {{count}} товара",
   "category.delete.blocked.referenced_many": "Невозможно удалить: категория содержит {{count}} товаров",
   "category.delete.blocked.referencedBody": "Сначала переместите товары в другую категорию или удалите их. Категории без товаров можно удалить сразу.",
-  "category.delete.blocked.default": "Категорию по умолчанию нельзя удалить",
-  "category.delete.blocked.defaultBody": "Это системная категория. Товары без явной группы остаются в ней, поэтому её нельзя удалить.",
 
   "category.error.load": "Ошибка при загрузке категорий",
   "category.error.create": "Ошибка при создании категории",

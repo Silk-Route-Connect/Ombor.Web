@@ -173,11 +173,13 @@ export class CategoryStore implements ICategoryStore {
 		this.selectedCategory = category;
 		this.deleteError = null;
 		// Delete stays enabled everywhere (never silently disabled); pre-check picks
-		// the inline blocked dialog for the Default Category or a referenced one —
-		// the same cases the mock rejects with 409 (business-rules rule 32). The
-		// confirm path still surfaces any backend/mock error inline via apiError.
-		const blocked = category.isDefault || category.productCount > 0;
-		this.dialogMode = blocked ? { type: "deleteBlocked", category } : { type: "delete", category };
+		// the inline blocked dialog for a referenced category — the case the mock
+		// rejects with 409 (business-rules rule 32). The confirm path still surfaces
+		// any backend/mock error inline via apiError.
+		this.dialogMode =
+			category.productCount > 0
+				? { type: "deleteBlocked", category }
+				: { type: "delete", category };
 	}
 
 	closeDialog(): void {
