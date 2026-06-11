@@ -16,6 +16,7 @@ Canon lives in `docs/canon/` (synced manually by Miraziz — treat as read-only;
 | `docs/canon/product-brief.md`    | When a design/UX decision needs reasoning, or scope is ambiguous                           | **"Core design decisions and reasoning"** section only                                                                   |
 | `docs/canon/mvp-plan.md`         | Start of any feature task                                                                  | Only the slice covering the current task                                                                                 |
 | `docs/canon/tech-change-list.md` | When unsure whether a backend capability exists                                            | Relevant entries; assume anything "not started" must be mocked                                                           |
+| `docs/openapi.json`              | Before integrating or mocking any endpoint                                                 | The exact current backend contract — routes, DTOs, params, error shapes. The authority on what exists today              |
 | `docs/conventions.md`            | Writing or modifying any code                                                              | Whole doc once per session, then as reference                                                                            |
 | `docs/mocking.md`                | Any task hitting an endpoint the backend lacks                                             | Whole doc                                                                                                                |
 | `docs/design-handoff.md`         | Implementing any screen from a Claude Design prototype                                     | Whole doc                                                                                                                |
@@ -69,7 +70,7 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 3. **Side panes are deprecated.** The redesign uses full-page detail layouts. Never extend a `SidePane` component; when a module is being rewritten, its side pane is replaced and deleted.
 4. **Currency machinery is frozen.** `CurrencyApi.ts` / `CurrencyStore.ts` stay in the tree but must not be used, extended, or fixed. The app is UZS-only (business-rules §H). All amounts render through `formatCurrency`.
 5. **Never silently disable buttons.** Actions stay enabled; validation runs on submit and reports inline.
-6. **Missing backend = MSW mock, nothing else.** No hardcoded data in stores or components, no `setTimeout` fakes. Follow `docs/mocking.md`; every handler's shapes are written as the real future API contract.
+6. **Missing or stale backend = MSW mock of the target v1 contract, nothing else.** No hardcoded data in stores or components, no `setTimeout` fakes. Follow `docs/mocking.md`; every handler's shapes are written as the real future API contract.
 7. **No scope additions.** Do not add features, fields, or flows beyond the current task and `mvp-plan.md`. Surface the idea; don't build it (business-rules rule 36).
 8. **Computed balances are backend-computed.** Partner balance, wallet balance, "our money" are read from the API (or its mock) — never recomputed client-side from event lists.
 

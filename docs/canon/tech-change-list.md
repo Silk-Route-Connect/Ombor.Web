@@ -112,10 +112,11 @@ Target: business profile fields (name, address, phone, email) and logo upload, b
 **Status:** not started
 Target: `User.Language ∈ {ru, uz-Latn, uz-Cyrl}`, default ru; per-user, not per-tenant; settable from Settings and the header switch; returned at login.
 
-### Server-side pagination, filtering, search
+### Server-side pagination, sorting, filtering, searching
 
-**Status:** not started
-Target: list endpoints support paging/filter/search using the standard envelope `PagedResponse<T> { items, total, page, pageSize }` (1-based; params: page, pageSize, search + module filters). The envelope is the contract already used by frontend MSW mocks — see frontend `docs/mocking.md`; do not diverge from it.
+**Status:** not started (deliberately deferred — decision 2026-06-11)
+Current: all list endpoints return plain arrays (see frontend `docs/openapi.json`); paging, sorting, and filtering are client-side, and MSW mocks intentionally mirror that array shape so real and mocked modules stay uniform.
+Target (when picked up): list endpoints adopt `PagedResponse<T> { items, total, page, pageSize }` (1-based; params: page, pageSize, search + module filters); frontend stores and DataTable migrate in the same effort.
 
 ### Cyrillic↔Latin search
 
