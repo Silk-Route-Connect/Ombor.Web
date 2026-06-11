@@ -15,6 +15,10 @@ import "@fontsource/onest/700.css";
 import "./index.css";
 import "./styles/global.scss";
 
+// Safety net only — modules that call i18next.t at import time must import
+// the configured instance from "i18n/config" themselves.
+import "./i18n/config";
+
 Sentry.init({
 	dsn: import.meta.env.VITE_OMBOR_SENTRY_DSN,
 	// Setting this option to true will send default PII data to Sentry.
