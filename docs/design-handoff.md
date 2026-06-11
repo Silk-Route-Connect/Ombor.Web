@@ -8,7 +8,7 @@ How to implement screens from Claude Design prototypes (delivered as HTML/CSS/JS
 
 The Claude Design handoff bundle is **project-scoped** — it contains all design files, the design system tokens, chat context, and a README. The session prompt, not the bundle, defines scope: implement **only the page(s) named in the session prompt**. Use the rest of the bundle as reference only — the design system tokens and shared chrome for consistency, neighboring pages for pattern alignment. Never implement unscoped pages "while you're there."
 
-If the bundle's README conflicts with this doc or CLAUDE.md, this doc and CLAUDE.md win — the README is generic; these docs are repo law. A fresh handoff is generated per session, so the bundle always reflects the current design state.
+If the bundle's README conflicts with this doc or CLAUDE.md, this doc and CLAUDE.md win — the README is generic; these docs are repo law. A fresh handoff is generated per session, so the bundle always reflects the current design state. Fetch the bundle with `curl` + `tar` (it's a gzipped tar; WebFetch cannot parse it).
 
 ---
 
@@ -17,7 +17,7 @@ If the bundle's README conflicts with this doc or CLAUDE.md, this doc and CLAUDE
 `theme.ts` must encode the Ombor Design System before page implementation starts — this is a one-time foundation task:
 
 - **Palette:** Bukhara Teal — primary teal `#12676B`, saffron accent, plus the semantic colors (success/error/warning) the prototypes use for balances and statuses.
-- **Typography:** Onest for UI text, JetBrains Mono for numeric/tabular data; tabular figures (`font-variant-numeric: tabular-nums`) on all table numerics and money values.
+- **Typography:** Onest for all text, including numerics; numeric/tabular contexts use tabular figures (`font-variant-numeric: tabular-nums`) on tables and money values. (Decision 2026-06-11: tokens.css is authoritative — JetBrains Mono for numerics was a stale early assumption.)
 - **Shape/spacing:** radii and spacing scale matching the design system.
 
 After parity, components reference theme tokens only. If a prototype shows a value the theme lacks, extend the theme — never inline the value.
@@ -55,3 +55,5 @@ After parity, components reference theme tokens only. If a prototype shows a val
 ## Definition of done for a designed screen
 
 - All prototype states implemented and reachable; strings in ru namespace; data via store + API/mock; theme-only styling; shared components reused; `npm run validate` clean; discrepancies between prototype and canon reported.
+- **Measured, not eyeballed:** exact sizes, weights, spacings, and colors are extracted from the bundle's CSS and mapped to theme tokens — approximating from screenshots is not acceptable.
+- **Side-by-side check before declaring done:** render the implemented screen next to the bundle's prototype and compare; remaining deviations are listed in the summary, not silently shipped.
