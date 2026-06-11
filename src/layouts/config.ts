@@ -61,5 +61,5 @@ export const menuItems: MenuItem[] = [
 		],
 	},
 
-	{ label: "Отчёты", to: i18next.t("sidebar.reports"), icon: BarChartOutlinedIcon },
+	{ label: i18next.t("sidebar.reports"), to: "/reports", icon: BarChartOutlinedIcon },
 ];
