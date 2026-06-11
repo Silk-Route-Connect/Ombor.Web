@@ -80,6 +80,7 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 - **Never switch, rename, rebase, or reset the branch currently checked out by the user** without explicit instruction.
 - No push, no force operations, no history rewriting unless explicitly asked.
 - Small, scoped commits with imperative English messages: `feat(partners): full-page partner detail`, `fix(payments): settlement modal totals`.
+- **No attribution trailers** — never add `Co-Authored-By`, `Generated with Claude Code`, or similar lines to commits or PR descriptions.
 
 ## Session discipline
 
