@@ -13,6 +13,7 @@ import { NotificationStore } from "./NotificationStore";
 type DialogMode =
 	| { type: "form"; category?: Category }
 	| { type: "delete"; category: Category }
+	| { type: "deleteBlocked"; category: Category }
 	| { type: "none" };
 
 export interface ICategoryStore {
@@ -138,8 +139,9 @@ export class CategoryStore implements ICategoryStore {
 			this.closeDialog();
 			this.notificationStore.success(i18next.t("category.success.delete"));
 		} catch (error) {
-			// The backend has no Default-category or reference-check concept yet, so
-			// the only honest signal is its own error response — surfaced inline.
+			// Reached only for categories the pre-check deemed deletable; if the API
+			// still rejects (e.g. a 409 because counts changed), surface its actual
+			// ProblemDetails message inline rather than a generic toast.
 			runInAction(
 				() => (this.deleteError = getApiErrorMessage(error) ?? i18next.t("category.error.delete")),
 			);
@@ -170,7 +172,12 @@ export class CategoryStore implements ICategoryStore {
 	openDelete(category: Category): void {
 		this.selectedCategory = category;
 		this.deleteError = null;
-		this.dialogMode = { type: "delete", category };
+		// Delete stays enabled everywhere (never silently disabled); pre-check picks
+		// the inline blocked dialog for the Default Category or a referenced one —
+		// the same cases the mock rejects with 409 (business-rules rule 32). The
+		// confirm path still surfaces any backend/mock error inline via apiError.
+		const blocked = category.isDefault || category.productCount > 0;
+		this.dialogMode = blocked ? { type: "deleteBlocked", category } : { type: "delete", category };
 	}
 
 	closeDialog(): void {

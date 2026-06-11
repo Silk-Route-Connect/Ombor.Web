@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import CategoryDeleteBlockedDialog from "components/category/Form/CategoryDeleteBlockedDialog";
 import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
@@ -80,6 +81,12 @@ const CategoryPage: React.FC = observer(() => {
 				cancelLabel={t("common.cancel")}
 				onCancel={categoryStore.closeDialog}
 				onConfirm={handleDeleteConfirmed}
+			/>
+
+			<CategoryDeleteBlockedDialog
+				isOpen={dialogType === "deleteBlocked"}
+				category={selected}
+				onClose={categoryStore.closeDialog}
 			/>
 		</Box>
 	);
