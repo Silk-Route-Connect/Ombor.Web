@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import AddPaymentButton from "components/shared/Buttons/AddPaymentButton";
 import SaveButton from "components/shared/Buttons/SaveButton";
 import { TransactionFormType } from "hooks/transactions/useCreateTransactionForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -29,6 +29,7 @@ interface PaymentSectionProps {
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }) => {
+	const { t } = useTranslation();
 	const [showModal, setShowModal] = useState(false);
 
 	const partner = form.selectedPartner;
@@ -111,7 +112,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = observer(({ form, onSave }
 
 			<Accordion defaultExpanded={!!form.notes}>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-					<Typography>{translate("fieldNotes")}</Typography>
+					<Typography>{t("fieldNotes")}</Typography>
 				</AccordionSummary>
 				<AccordionDetails>
 					<NotesSection form={form} />

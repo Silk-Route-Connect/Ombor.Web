@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Grid, IconButton, TextField } from "@mui/material";
@@ -24,6 +24,8 @@ export const ItemRow: React.FC<ItemRowProps> = ({
 	onUpdate,
 	onRemove,
 }) => {
+	const { t } = useTranslation();
+
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
 			e.preventDefault();
@@ -39,13 +41,13 @@ export const ItemRow: React.FC<ItemRowProps> = ({
 					fullWidth
 					aria-readonly
 					size="small"
-					label={translate("product.name")}
+					label={t("product.name")}
 				/>
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 3 }}>
 				<NumericField
-					label={translate("transaction.line.unitPrice")}
+					label={t("transaction.line.unitPrice")}
 					value={item.unitPrice}
 					size="small"
 					inputRef={(el) => (unitPriceRefs.current[index] = el)}
@@ -56,7 +58,7 @@ export const ItemRow: React.FC<ItemRowProps> = ({
 
 			<Grid size={{ xs: 12, sm: 2 }}>
 				<NumericField
-					label={translate("transaction.line.quantity")}
+					label={t("transaction.line.quantity")}
 					value={item.quantity}
 					size="small"
 					onChange={(e) => onUpdate({ quantity: +e.target.value })}
@@ -66,7 +68,7 @@ export const ItemRow: React.FC<ItemRowProps> = ({
 
 			<Grid size={{ xs: 12, sm: 2 }}>
 				<NumericField
-					label={translate("transaction.line.discount")}
+					label={t("transaction.line.discount")}
 					value={item.discount ?? 0}
 					size="small"
 					onChange={(e) => onUpdate({ discount: +e.target.value })}
@@ -75,7 +77,7 @@ export const ItemRow: React.FC<ItemRowProps> = ({
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 1 }}>
-				<IconButton color="error" onClick={onRemove} aria-label={translate("actionDelete")}>
+				<IconButton color="error" onClick={onRemove} aria-label={t("actionDelete")}>
 					<DeleteIcon />
 				</IconButton>
 			</Grid>

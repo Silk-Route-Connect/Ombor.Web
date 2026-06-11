@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/Table/ExpandableDataTable/Expandabl
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Partner } from "models/partner";
 import {
@@ -119,7 +119,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await tryRun(() => TemplateApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.getAll"));
+			this.notificationStore.error(i18next.t("templates.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -131,7 +131,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await tryRun(() => TemplateApi.getById(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.getById"));
+			this.notificationStore.error(i18next.t("templates.error.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -142,7 +142,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.create"));
+			this.notificationStore.error(i18next.t("templates.error.create"));
 			return;
 		}
 
@@ -158,7 +158,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.update"));
+			this.notificationStore.error(i18next.t("templates.error.update"));
 			return;
 		}
 
@@ -171,14 +171,14 @@ export class TemplateStore implements ITemplateStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("templates.success.update"));
+		this.notificationStore.success(i18next.t("templates.success.update"));
 	}
 
 	async delete(templateId: number): Promise<void> {
 		const result = await withSaving(this, () => TemplateApi.delete(templateId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.delete"));
+			this.notificationStore.error(i18next.t("templates.error.delete"));
 			return;
 		}
 
@@ -189,7 +189,7 @@ export class TemplateStore implements ITemplateStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("templates.success.delete"));
+		this.notificationStore.success(i18next.t("templates.success.delete"));
 	}
 
 	setSearch(term: string): void {

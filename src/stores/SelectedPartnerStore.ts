@@ -1,7 +1,7 @@
 import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { DashboardMetrics, TimeSeriesPoint } from "models/dashboard";
 import { Partner } from "models/partner";
@@ -217,7 +217,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		const result = await tryRun(() => TransactionApi.getAll({ partnerId, type }));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partner.error.getTransactions"));
+			this.notificationStore.error(i18next.t("partner.error.getTransactions"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -233,7 +233,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		const result = await tryRun(() => PartnerApi.getPayments(this.selectedPartner!.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partner.error.getPayments"));
+			this.notificationStore.error(i18next.t("partner.error.getPayments"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -265,7 +265,7 @@ export class SelectedPartnerStore implements ISelectedPartnerStore {
 		const result = await tryRun(() => TransactionApi.getOpenTransactions(partnerId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partner.error.getDebts"));
+			this.notificationStore.error(i18next.t("partner.error.getDebts"));
 			return;
 		}
 

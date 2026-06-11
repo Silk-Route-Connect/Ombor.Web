@@ -1,10 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeFormFields from "components/employee/Form/EmployeeFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { EmployeeFormPayload, useEmployeeForm } from "hooks/employee/useEmployeeForm";
-import { translate } from "i18n/i18n";
 import { Employee } from "models/employee";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -25,6 +25,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
+	const { t } = useTranslation();
 	const { form, canSave, submit, requestClose, discardOpen, confirmDiscard, cancelDiscard } =
 		useEmployeeForm({
 			isOpen,
@@ -34,7 +35,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 			onClose,
 		});
 
-	const title = employee ? translate("employee.editTitle") : translate("employee.createTitle");
+	const title = employee ? t("employee.editTitle") : t("employee.createTitle");
 
 	return (
 		<>

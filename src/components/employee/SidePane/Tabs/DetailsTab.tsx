@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Employee } from "models/employee";
 import { formatDateTime } from "utils/dateUtils";
 import { getEmployeeStatusColor } from "utils/employeeUtils";
@@ -22,6 +22,7 @@ interface DetailsTabProps {
 }
 
 const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onPayment }) => {
+	const { t } = useTranslation();
 	const hasContactInfo =
 		employee.contactInfo?.phoneNumbers?.length ||
 		employee.contactInfo?.email ||
@@ -33,7 +34,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 			<Box sx={{ flex: 1, overflow: "auto", p: 3 }}>
 				<Box mb={3}>
 					<Typography variant="subtitle2" color="text.secondary" gutterBottom>
-						{translate("employee.details.employmentInfo")}
+						{t("employee.details.employmentInfo")}
 					</Typography>
 
 					<Box
@@ -46,7 +47,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 					>
 						<Box>
 							<Typography variant="caption" color="text.secondary">
-								{translate("employee.position")}
+								{t("employee.position")}
 							</Typography>
 							<Typography variant="body1" fontWeight={500}>
 								{employee.position}
@@ -55,11 +56,11 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 
 						<Box>
 							<Typography variant="caption" color="text.secondary">
-								{translate("employee.status")}
+								{t("employee.status")}
 							</Typography>
 							<Box mt={0.5}>
 								<Chip
-									label={translate(`employee.status.${employee.status}`)}
+									label={t(`employee.status.${employee.status}`)}
 									color={getEmployeeStatusColor(employee.status)}
 									size="small"
 								/>
@@ -68,7 +69,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 
 						<Box>
 							<Typography variant="caption" color="text.secondary">
-								{translate("employee.salary")}
+								{t("employee.salary")}
 							</Typography>
 							<Typography variant="body1" fontWeight={500}>
 								{employee.salary.toLocaleString()}
@@ -77,7 +78,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 
 						<Box>
 							<Typography variant="caption" color="text.secondary">
-								{translate("employee.dateOfEmployment")}
+								{t("employee.dateOfEmployment")}
 							</Typography>
 							<Typography variant="body1">{formatDateTime(employee.dateOfEmployment)}</Typography>
 						</Box>
@@ -89,7 +90,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 						<Divider sx={{ my: 3 }} />
 						<Box mb={3}>
 							<Typography variant="subtitle2" color="text.secondary" gutterBottom>
-								{translate("employee.details.contactInfo")}
+								{t("employee.details.contactInfo")}
 							</Typography>
 
 							<Stack spacing={2} mt={2}>
@@ -138,7 +139,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 				}}
 			>
 				<Button variant="contained" color="primary" onClick={() => onPayment(employee)} fullWidth>
-					{translate("employee.payroll")}
+					{t("employee.payroll")}
 				</Button>
 
 				<Box display="flex" gap={1}>
@@ -148,7 +149,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 						onClick={() => onEdit(employee)}
 						fullWidth
 					>
-						{translate("common.edit")}
+						{t("common.edit")}
 					</Button>
 					<Button
 						variant="outlined"
@@ -157,7 +158,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({ employee, onEdit, onDelete, onP
 						onClick={() => onDelete(employee)}
 						fullWidth
 					>
-						{translate("common.delete")}
+						{t("common.delete")}
 					</Button>
 				</Box>
 			</Box>

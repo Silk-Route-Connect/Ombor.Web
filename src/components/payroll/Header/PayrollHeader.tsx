@@ -1,8 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeAutocomplete from "components/employee/Autocomplete/EmployeeAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 import { Employee } from "models/employee";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -25,34 +25,38 @@ const PayrollHeader: React.FC<PayrollHeaderProps> = ({
 	onSearch,
 	onEmployeeChange,
 	onCreate,
-}) => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">{`${translate("payroll.pageTitle")} (${titleCount})`}</Typography>
-		<Box display="flex" alignItems="center" sx={{ gap: 2 }}>
-			<SearchInput
-				value={searchValue}
-				onChange={onSearch}
-				placeholder={translate("payroll.searchPlaceholder")}
-			/>
-			<FormControl size="small" margin="dense" sx={{ minWidth: 200 }}>
-				<EmployeeAutocomplete
-					value={selectedEmployee}
-					size="small"
-					onChange={(employee) => onEmployeeChange(employee?.id || null)}
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Box
+			display="flex"
+			flexWrap="wrap"
+			justifyContent="space-between"
+			alignItems="center"
+			mb={3}
+			sx={{ gap: 2 }}
+		>
+			<Typography variant="h5">{`${t("payroll.pageTitle")} (${titleCount})`}</Typography>
+			<Box display="flex" alignItems="center" sx={{ gap: 2 }}>
+				<SearchInput
+					value={searchValue}
+					onChange={onSearch}
+					placeholder={t("payroll.searchPlaceholder")}
 				/>
-			</FormControl>
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("add")}
-			</PrimaryButton>
+				<FormControl size="small" margin="dense" sx={{ minWidth: 200 }}>
+					<EmployeeAutocomplete
+						value={selectedEmployee}
+						size="small"
+						onChange={(employee) => onEmployeeChange(employee?.id || null)}
+					/>
+				</FormControl>
+				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+					{t("add")}
+				</PrimaryButton>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};
 
 export default PayrollHeader;

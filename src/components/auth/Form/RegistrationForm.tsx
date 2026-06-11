@@ -3,10 +3,10 @@
 // ===================================
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { PatternFormat } from "react-number-format";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PasswordField from "components/shared/PasswordField/PasswordField";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { RegisterFormValues, registerSchema } from "schemas/AuthSchema";
 import { authApi } from "services/api/AuthApi";
@@ -20,6 +20,7 @@ interface RegistrationFormProps {
 }
 
 const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess }) => {
+	const { t } = useTranslation();
 	const { notificationStore } = useStore();
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -57,11 +58,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 			});
 
 			const minutes = response.expiresInMinutes || 5;
-			notificationStore.success(translate("auth.otpSent").replace("{{minutes}}", String(minutes)));
+			notificationStore.success(t("auth.otpSent").replace("{{minutes}}", String(minutes)));
 
 			onSuccess(normalizedPhone, values);
 		} catch (error) {
-			notificationStore.error(translate("auth.errors.registrationFailed"));
+			notificationStore.error(t("auth.errors.registrationFailed"));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -80,13 +81,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									render={({ field }) => (
 										<TextField
 											{...field}
-											label={translate("auth.firstName")}
+											label={t("auth.firstName")}
 											fullWidth
 											autoComplete="given-name"
 											error={Boolean(errors.firstName)}
 											helperText={
 												errors.firstName
-													? translate(errors.firstName.message ?? "auth.errors.required")
+													? t(errors.firstName.message ?? "auth.errors.required")
 													: " "
 											}
 										/>
@@ -101,14 +102,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									render={({ field }) => (
 										<TextField
 											{...field}
-											label={translate("auth.lastName")}
+											label={t("auth.lastName")}
 											fullWidth
 											autoComplete="family-name"
 											error={Boolean(errors.lastName)}
 											helperText={
-												errors.lastName
-													? translate(errors.lastName.message ?? "auth.errors.required")
-													: " "
+												errors.lastName ? t(errors.lastName.message ?? "auth.errors.required") : " "
 											}
 										/>
 									)}
@@ -126,7 +125,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 											format="+998 ## ### ## ##"
 											mask="_"
 											allowEmptyFormatting
-											label={translate("auth.phoneNumber")}
+											label={t("auth.phoneNumber")}
 											fullWidth
 											slotProps={{
 												input: { inputMode: "tel", autoComplete: "tel" },
@@ -134,7 +133,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 											error={Boolean(errors.phoneNumber)}
 											helperText={
 												errors.phoneNumber
-													? translate(errors.phoneNumber.message ?? "auth.errors.invalidPhone")
+													? t(errors.phoneNumber.message ?? "auth.errors.invalidPhone")
 													: " "
 											}
 										/>
@@ -149,13 +148,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									render={({ field }) => (
 										<TextField
 											{...field}
-											label={translate("auth.organizationName")}
+											label={t("auth.organizationName")}
 											fullWidth
 											autoComplete="organization"
 											error={Boolean(errors.organizationName)}
 											helperText={
 												errors.organizationName
-													? translate(errors.organizationName.message ?? "auth.errors.required")
+													? t(errors.organizationName.message ?? "auth.errors.required")
 													: " "
 											}
 										/>
@@ -170,15 +169,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									render={({ field }) => (
 										<TextField
 											{...field}
-											label={translate("auth.email")}
+											label={t("auth.email")}
 											type="email"
 											fullWidth
 											autoComplete="email"
 											error={Boolean(errors.email)}
 											helperText={
-												errors.email
-													? translate(errors.email.message ?? "auth.errors.invalidEmail")
-													: " "
+												errors.email ? t(errors.email.message ?? "auth.errors.invalidEmail") : " "
 											}
 										/>
 									)}
@@ -192,7 +189,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									render={({ field }) => (
 										<TextField
 											{...field}
-											label={translate("auth.telegramAccount")}
+											label={t("auth.telegramAccount")}
 											fullWidth
 											autoComplete="nickname"
 											helperText=" "
@@ -207,13 +204,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									control={control}
 									render={({ field }) => (
 										<PasswordField
-											label={translate("auth.password")}
+											label={t("auth.password")}
 											value={field.value}
 											onChange={(v) => field.onChange(v)}
 											error={Boolean(errors.password)}
 											helperText={
 												errors.password
-													? translate(errors.password.message ?? "auth.errors.passwordMin")
+													? t(errors.password.message ?? "auth.errors.passwordMin")
 													: undefined
 											}
 											autoComplete="new-password"
@@ -228,15 +225,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									control={control}
 									render={({ field }) => (
 										<PasswordField
-											label={translate("auth.confirmPassword")}
+											label={t("auth.confirmPassword")}
 											value={field.value}
 											onChange={(v) => field.onChange(v)}
 											error={Boolean(errors.confirmPassword)}
 											helperText={
 												errors.confirmPassword
-													? translate(
-															errors.confirmPassword.message ?? "auth.errors.passwordMismatch",
-														)
+													? t(errors.confirmPassword.message ?? "auth.errors.passwordMismatch")
 													: undefined
 											}
 											autoComplete="new-password"
@@ -253,7 +248,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = observer(({ onSuccess 
 									fullWidth
 									sx={{ textTransform: "none", py: 1.25, borderRadius: 2 }}
 								>
-									{isSubmitting ? translate("common.loading") : translate("auth.register")}
+									{isSubmitting ? t("common.loading") : t("auth.register")}
 								</Button>
 							</Grid>
 						</Grid>

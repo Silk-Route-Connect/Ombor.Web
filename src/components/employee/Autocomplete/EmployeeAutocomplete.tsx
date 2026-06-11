@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import EntityAutocomplete, { AutocompleteSize } from "components/shared/Autocomplete/Autocomplete";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import type { Employee } from "models/employee";
 import { useStore } from "stores/StoreContext";
@@ -22,6 +22,7 @@ const EmployeeAutocomplete: React.FC<EmployeeAutocompleteProps> = ({
 	helperText,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { employeeStore } = useStore();
 
 	const options = useMemo(() => {
@@ -35,8 +36,8 @@ const EmployeeAutocomplete: React.FC<EmployeeAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Employee>
-			label={translate("employeeAutocomplete.employee")}
-			placeholder={translate("employeeAutocomplete.search")}
+			label={t("employeeAutocomplete.employee")}
+			placeholder={t("employeeAutocomplete.search")}
 			options={options}
 			value={value}
 			size={size}

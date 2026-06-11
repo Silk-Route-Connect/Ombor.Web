@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
-import { translate } from "i18n/i18n";
 
 import { Box, Button, Container, Paper, Stack, Typography, useTheme } from "@mui/material";
 
@@ -25,6 +25,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 	rightMaxWidth = 480,
 	hideHeaderSwitch = false,
 }) => {
+	const { t } = useTranslation();
 	const theme = useTheme();
 
 	return (
@@ -60,7 +61,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 							size="small"
 							sx={{ borderRadius: 999, textTransform: "none" }}
 						>
-							{translate(switchTextKey)}
+							{t(switchTextKey)}
 						</Button>
 					)}
 				</Stack>
@@ -83,15 +84,15 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 					>
 						<Stack spacing={2} sx={{ maxWidth: 520 }}>
 							<Typography variant="h3" fontWeight={800} lineHeight={1.1}>
-								{translate(titleKey)}
+								{t(titleKey)}
 							</Typography>
 							<Typography variant="h6" color="text.secondary" sx={{ opacity: 0.9 }}>
-								{translate(subtitleKey)}
+								{t(subtitleKey)}
 							</Typography>
 							<Stack spacing={1.2} sx={{ pt: 1 }}>
-								<Typography variant="body1">• {translate("auth.benefit.fast")}</Typography>
-								<Typography variant="body1">• {translate("auth.benefit.secure")}</Typography>
-								<Typography variant="body1">• {translate("auth.benefit.multiUser")}</Typography>
+								<Typography variant="body1">• {t("auth.benefit.fast")}</Typography>
+								<Typography variant="body1">• {t("auth.benefit.secure")}</Typography>
+								<Typography variant="body1">• {t("auth.benefit.multiUser")}</Typography>
 							</Stack>
 						</Stack>
 					</Box>
@@ -115,10 +116,10 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 						>
 							<Stack spacing={0.5} sx={{ display: { xs: "block", md: "none" }, p: 2.5, pb: 0 }}>
 								<Typography variant="h4" fontWeight={800}>
-									{translate(titleKey)}
+									{t(titleKey)}
 								</Typography>
 								<Typography variant="body1" color="text.secondary">
-									{translate(subtitleKey)}
+									{t(subtitleKey)}
 								</Typography>
 							</Stack>
 
@@ -131,7 +132,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 										textAlign="center"
 										sx={{ mt: 1 }}
 									>
-										{translate(bottomHintKey)}
+										{t(bottomHintKey)}
 									</Typography>
 								) : null}
 							</Box>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Partner } from "models/partner";
 import { daysAgo, today } from "utils/dateUtils";
 
@@ -35,6 +35,7 @@ export interface PartnerSidePaneProps {
 }
 
 const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClose }) => {
+	const { t } = useTranslation();
 	const [fromDate, setFromDate] = useState(() => daysAgo(7));
 	const [toDate, setToDate] = useState(() => today());
 	const [selectedTab, setSelectedTab] = useState<TabKey>("details");
@@ -50,33 +51,33 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 		() => [
 			{
 				key: "details",
-				label: () => translate("tabDetails"),
+				label: () => t("tabDetails"),
 				render: ({ partner }) => <DetailsTab partner={partner} />,
 			},
 			{
 				key: "sales",
 				hideFor: ["Supplier"],
-				label: () => translate("tabSales"),
+				label: () => t("tabSales"),
 				render: ({ partner }) => <SalesTab partnerId={partner.id} />,
 			},
 			{
 				key: "supplies",
 				hideFor: ["Customer"],
-				label: () => translate("tabSupplies"),
+				label: () => t("tabSupplies"),
 				render: ({ partner }) => <SuppliesTab partnerId={partner.id} />,
 			},
 			{
 				key: "reports",
-				label: () => translate("tabConsolidatedReport"),
+				label: () => t("tabConsolidatedReport"),
 				render: ({ partner }) => <PaymentsTab partnerId={partner.id} />,
 			},
 			{
 				key: "statistics",
-				label: () => translate("tabStatistics"),
+				label: () => t("tabStatistics"),
 				render: () => <StatisticsTab />,
 			},
 		],
-		[],
+		[t],
 	);
 
 	const visibleTabs = useMemo(
@@ -116,7 +117,7 @@ const PartnerSidePane: React.FC<PartnerSidePaneProps> = ({ open, partner, onClos
 				<Typography variant="h6" sx={{ flexGrow: 1 }}>
 					{partner.name}
 				</Typography>
-				<IconButton onClick={onClose} aria-label={translate("common.close")}>
+				<IconButton onClick={onClose} aria-label={t("common.close")}>
 					<CloseIcon />
 				</IconButton>
 			</Box>

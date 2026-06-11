@@ -1,8 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -26,44 +26,44 @@ const TransactionHeader: React.FC<TransactionHeaderProps> = ({
 	onSearch,
 	onPartnerChange,
 	onCreate,
-}) => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">
-			{mode === "Sale"
-				? translate("transactions.salesHeader")
-				: translate("transactions.suppliesHeader")}
-			({titleCount})
-		</Typography>
-		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<SearchInput
-				value={searchTerm}
-				onChange={onSearch}
-				placeholder={
-					mode === "Sale"
-						? translate("transactions.searchSales")
-						: translate("transactions.searchSupplies")
-				}
-			/>
-			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
-				<PartnerAutocomplete
-					value={selectedPartner}
-					type={mode === "Sale" ? "Customer" : "Supplier"}
-					size="small"
-					onChange={onPartnerChange}
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Box
+			display="flex"
+			flexWrap="wrap"
+			justifyContent="space-between"
+			alignItems="center"
+			mb={3}
+			sx={{ gap: 2 }}
+		>
+			<Typography variant="h5">
+				{mode === "Sale" ? t("transactions.salesHeader") : t("transactions.suppliesHeader")}(
+				{titleCount})
+			</Typography>
+			<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+				<SearchInput
+					value={searchTerm}
+					onChange={onSearch}
+					placeholder={
+						mode === "Sale" ? t("transactions.searchSales") : t("transactions.searchSupplies")
+					}
 				/>
-			</FormControl>
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("add")}
-			</PrimaryButton>
+				<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
+					<PartnerAutocomplete
+						value={selectedPartner}
+						type={mode === "Sale" ? "Customer" : "Supplier"}
+						size="small"
+						onChange={onPartnerChange}
+					/>
+				</FormControl>
+				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+					{t("add")}
+				</PrimaryButton>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};
 
 export default TransactionHeader;

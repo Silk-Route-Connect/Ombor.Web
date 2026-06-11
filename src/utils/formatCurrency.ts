@@ -1,4 +1,4 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 
 /**
  * Formats a number with commas as thousand separators.
@@ -39,7 +39,7 @@ export function formatShortNumber(input: number): string {
 		if (abs >= value) {
 			const num = abs / value;
 			const formatted = num < 10 && num % 1 !== 0 ? num.toFixed(1) : Math.round(num).toString();
-			return `${sign}${formatted} ${translate(key)}`;
+			return `${sign}${formatted} ${i18next.t(key)}`;
 		}
 	}
 

@@ -1,6 +1,6 @@
 import PaymentLink from "components/payment/Links/PaymentLink";
 import { Column } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { Payment } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
 
@@ -22,7 +22,7 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	paymentId: {
 		key: "id",
 		field: "id",
-		headerName: translate("payroll.paymentId"),
+		headerName: i18next.t("payroll.paymentId"),
 		sortable: true,
 		width: "15%",
 		renderCell: (payment) => <PaymentLink id={payment.id} />,
@@ -31,7 +31,7 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	employeeName: {
 		key: "employeeName",
 		field: "employeeName",
-		headerName: translate("employee.name"),
+		headerName: i18next.t("employee.name"),
 		sortable: true,
 		width: "15%",
 	},
@@ -39,7 +39,7 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	date: {
 		key: "date",
 		field: "date",
-		headerName: translate("payment.date"),
+		headerName: i18next.t("payment.date"),
 		sortable: true,
 		width: "15%",
 		renderCell: (payment) => formatDateTime(payment.date),
@@ -48,7 +48,7 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	amount: {
 		key: "amount",
 		field: "amount",
-		headerName: translate("payment.amount"),
+		headerName: i18next.t("payment.amount"),
 		sortable: true,
 		align: "right",
 		width: "15%",
@@ -58,26 +58,26 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 	currency: {
 		key: "currency",
 		field: "components",
-		headerName: translate("payment.currency"),
+		headerName: i18next.t("payment.currency"),
 		width: "10%",
-		renderCell: (payment) => payment.components[0]?.currency ?? translate("common.dash"),
+		renderCell: (payment) => payment.components[0]?.currency ?? i18next.t("common.dash"),
 	},
 
 	method: {
 		key: "method",
 		field: "components",
-		headerName: translate("payment.method"),
+		headerName: i18next.t("payment.method"),
 		width: "15%",
 		renderCell: (payment) =>
 			payment.components[0]?.method
-				? translate(`payment.method.${payment.components[0].method}`)
-				: translate("common.dash"),
+				? i18next.t(`payment.method.${payment.components[0].method}`)
+				: i18next.t("common.dash"),
 	},
 
 	notes: {
 		key: "notes",
 		field: "notes",
-		headerName: translate("payment.notes"),
+		headerName: i18next.t("payment.notes"),
 		width: "25%",
 		renderCell: (payment) => (
 			<Typography
@@ -89,7 +89,7 @@ export const PAYROLL_COLUMNS: Record<PayrollColumnKey, Column<Payment>> = {
 					whiteSpace: "nowrap",
 				}}
 			>
-				{payment.notes || translate("common.dash")}
+				{payment.notes || i18next.t("common.dash")}
 			</Typography>
 		),
 	},

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeeSidePane from "components/employee/SidePane/EmployeeSidePane";
@@ -7,13 +8,13 @@ import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 
 import { Box } from "@mui/material";
 
 const EmployeePage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { employeeStore, payrollStore } = useStore();
 
 	useEffect(() => {
@@ -95,8 +96,8 @@ const EmployeePage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("employee.deleteConfirmation", {
+				title={t("common.deleteTitle")}
+				content={t("employee.deleteConfirmation", {
 					employeeName: employeeStore.selectedEmployee?.name ?? "",
 				})}
 				onConfirm={handleDeleteConfirmed}

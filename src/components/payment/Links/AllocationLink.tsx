@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { PaymentAllocation } from "models/payment";
 
 import { Link } from "@mui/material";
@@ -8,10 +8,10 @@ import { Link } from "@mui/material";
 const labelMap = {
 	AdvancePayment: "",
 	ChangeReturn: "",
-	Sale: translate("paymentAllocationSale"),
-	Supply: translate("paymentAllocationSupply"),
-	SaleRefund: translate("paymentAllocationSaleRefund"),
-	SupplyRefund: translate("paymentAllocationSupplyRefund"),
+	Sale: i18next.t("paymentAllocationSale"),
+	Supply: i18next.t("paymentAllocationSupply"),
+	SaleRefund: i18next.t("paymentAllocationSaleRefund"),
+	SupplyRefund: i18next.t("paymentAllocationSupplyRefund"),
 } as const;
 
 const routeMap = {

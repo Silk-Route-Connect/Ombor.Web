@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 
 import {
 	KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -82,6 +82,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	expandedMaxHeight = 300,
 	tableLayout = "auto",
 }: Readonly<ExpandableDataTableProps<T>>) {
+	const { t } = useTranslation();
 	const theme = useTheme();
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE);
@@ -282,7 +283,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 
 			{hasNoData && (
 				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
-					{translate("noRecords")}
+					{t("noRecords")}
 				</Box>
 			)}
 

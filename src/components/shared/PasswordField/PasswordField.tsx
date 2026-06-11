@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -37,6 +37,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 	name,
 	id,
 }) => {
+	const { t } = useTranslation();
 	const [show, setShow] = React.useState<boolean>(false);
 	const [capsLock, setCapsLock] = React.useState<boolean>(false);
 
@@ -44,8 +45,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 	const handleKeyUp: React.KeyboardEventHandler<HTMLInputElement> = (e) =>
 		setCapsLock(e.getModifierState("CapsLock"));
 
-	const effectiveHelper =
-		error && helperText ? helperText : capsLock ? translate("auth.capsLockOn") : " ";
+	const effectiveHelper = error && helperText ? helperText : capsLock ? t("auth.capsLockOn") : " ";
 
 	const helperId = id ? `${id}-helper` : undefined;
 
@@ -67,7 +67,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 				endAdornment={
 					<InputAdornment position="end">
 						<IconButton
-							aria-label={translate("auth.togglePasswordVisibility")}
+							aria-label={t("auth.togglePasswordVisibility")}
 							onClick={toggleShow}
 							edge="end"
 						>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Controller, FieldError, UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import PhoneListField from "components/shared/Inputs/PhoneListField/PhoneListField";
-import { translate } from "i18n/i18n";
 import { EMPLOYEE_STATUSES } from "models/employee";
 import { EmployeeFormInputs } from "schemas/EmployeeSchema";
 
@@ -13,6 +13,7 @@ interface EmployeeFormFieldsProps {
 }
 
 const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled }) => {
+	const { t } = useTranslation();
 	const {
 		register,
 		control,
@@ -25,7 +26,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("name")}
-					label={`${translate("employee.name")}*`}
+					label={`${t("employee.name")}*`}
 					error={!!errors.name}
 					helperText={errors.name?.message}
 					fullWidth
@@ -37,7 +38,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("position")}
-					label={`${translate("employee.position")}*`}
+					label={`${t("employee.position")}*`}
 					error={!!errors.position}
 					helperText={errors.position?.message}
 					fullWidth
@@ -49,7 +50,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<TextField
 					{...register("salary", { valueAsNumber: true })}
-					label={`${translate("employee.salary")}*`}
+					label={`${t("employee.salary")}*`}
 					type="number"
 					error={!!errors.salary}
 					helperText={errors.salary?.message}
@@ -62,7 +63,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<TextField
 					{...register("dateOfEmployment")}
-					label={`${translate("employee.dateOfEmployment")}*`}
+					label={`${t("employee.dateOfEmployment")}*`}
 					type="date"
 					error={!!errors.dateOfEmployment}
 					helperText={errors.dateOfEmployment?.message}
@@ -81,7 +82,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 						<TextField
 							{...field}
 							select
-							label={`${translate("employee.status")}*`}
+							label={`${t("employee.status")}*`}
 							error={!!errors.status}
 							helperText={errors.status?.message}
 							fullWidth
@@ -89,7 +90,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 						>
 							{EMPLOYEE_STATUSES.map((status) => (
 								<MenuItem key={status} value={status}>
-									{translate(`employee.status.${status}`)}
+									{t(`employee.status.${status}`)}
 								</MenuItem>
 							))}
 						</TextField>
@@ -101,7 +102,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("contactInfo.email")}
-					label={translate("employee.email")}
+					label={t("employee.email")}
 					type="email"
 					error={!!errors.contactInfo?.email}
 					helperText={errors.contactInfo?.email?.message}
@@ -114,7 +115,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					{...register("contactInfo.telegramAccount")}
-					label={translate("employee.telegramAccount")}
+					label={t("employee.telegramAccount")}
 					error={!!errors.contactInfo?.telegramAccount}
 					helperText={errors.contactInfo?.telegramAccount?.message}
 					fullWidth
@@ -126,7 +127,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 			<Grid size={{ xs: 12 }}>
 				<TextField
 					{...register("contactInfo.address")}
-					label={translate("employee.address")}
+					label={t("employee.address")}
 					error={!!errors.contactInfo?.address}
 					helperText={errors.contactInfo?.address?.message}
 					fullWidth

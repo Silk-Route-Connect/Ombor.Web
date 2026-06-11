@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/Table/ExpandableDataTable/Expandabl
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
 	CreateEmployeeRequest,
@@ -115,7 +115,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await tryRun(() => EmployeeApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.getAll"));
+			this.notificationStore.error(i18next.t("employees.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -127,7 +127,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await tryRun(() => EmployeeApi.getById(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.getById"));
+			this.notificationStore.error(i18next.t("employees.error.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -138,7 +138,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await withSaving(this, () => EmployeeApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.create"));
+			this.notificationStore.error(i18next.t("employees.error.create"));
 			return;
 		}
 
@@ -147,14 +147,14 @@ export class EmployeeStore implements IEmployeeStore {
 		}
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.create"));
+		this.notificationStore.success(i18next.t("employees.success.create"));
 	}
 
 	async update(request: UpdateEmployeeRequest): Promise<void> {
 		const result = await withSaving(this, () => EmployeeApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.update"));
+			this.notificationStore.error(i18next.t("employees.error.update"));
 			return;
 		}
 
@@ -167,14 +167,14 @@ export class EmployeeStore implements IEmployeeStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.update"));
+		this.notificationStore.success(i18next.t("employees.success.update"));
 	}
 
 	async delete(employeeId: number): Promise<void> {
 		const result = await withSaving(this, () => EmployeeApi.delete(employeeId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.delete"));
+			this.notificationStore.error(i18next.t("employees.error.delete"));
 			return;
 		}
 
@@ -185,7 +185,7 @@ export class EmployeeStore implements IEmployeeStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.delete"));
+		this.notificationStore.success(i18next.t("employees.success.delete"));
 	}
 
 	setSearch(term: string): void {

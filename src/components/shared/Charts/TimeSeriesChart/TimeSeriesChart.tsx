@@ -1,6 +1,6 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useChartFormatters } from "hooks/charts/useChartFormatters";
-import { getLocale } from "i18n/i18n";
 import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
 import {
 	Bar,
@@ -106,11 +106,12 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
 	margin = DEFAULT_MARGIN,
 	title,
 }) => {
+	const { i18n } = useTranslation();
 	const [chartType, setChartType] = useState<ChartType>("line");
 	const [exportAnchor, setExportAnchor] = useState<HTMLElement | null>(null);
 	const chartWrapperRef = useRef<HTMLDivElement>(null);
 
-	const locale = useMemo(() => getLocale(), []);
+	const locale = i18n.language;
 	const preset = filter.type === "preset" ? filter.preset : null;
 
 	const { tickFormatter, labelFormatter } = useChartFormatters(locale, preset);

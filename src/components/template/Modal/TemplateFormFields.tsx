@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
 import ProductAutocomplete from "components/product/Autocomplete/ProductAutocomplete";
 import { UseTemplateFormResult } from "hooks/templates/useTemplateForm";
-import { translate } from "i18n/i18n";
 
 import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, FormControl, Grid, TextField, Typography } from "@mui/material";
@@ -17,6 +17,7 @@ interface TemplateFormFieldsProps {
 }
 
 const TemplateFormFields: React.FC<TemplateFormFieldsProps> = ({ form }) => {
+	const { t } = useTranslation();
 	const {
 		register,
 		formState: { errors },
@@ -41,13 +42,13 @@ const TemplateFormFields: React.FC<TemplateFormFieldsProps> = ({ form }) => {
 		<Grid container rowSpacing={2} columnSpacing={2}>
 			<Grid size={{ xs: 12, sm: 4 }}>
 				<TextField
-					label={translate("templateFieldName")}
+					label={t("templateFieldName")}
 					{...register("name")}
 					error={!!errors.name}
 					helperText={errors.name?.message}
 					fullWidth
 					slotProps={{
-						input: { "aria-label": translate("templateFieldName") },
+						input: { "aria-label": t("templateFieldName") },
 					}}
 				/>
 			</Grid>
@@ -90,7 +91,7 @@ const TemplateFormFields: React.FC<TemplateFormFieldsProps> = ({ form }) => {
 					sx={{ height: 56 }}
 					disabled={!form.selectedProduct}
 				>
-					{translate("add")}
+					{t("add")}
 				</Button>
 			</Grid>
 
@@ -117,10 +118,10 @@ const TemplateFormFields: React.FC<TemplateFormFieldsProps> = ({ form }) => {
 
 			<Grid size={{ xs: 12 }}>
 				<Typography variant="h6" color="text.secondary">
-					{translate("transaction.total")}: {form.totalDue.toLocaleString()}
+					{t("transaction.total")}: {form.totalDue.toLocaleString()}
 				</Typography>
 				<Typography variant="h6" color="text.secondary">
-					{translate("transaction.discount")}: {form.totalDiscount.toLocaleString()}
+					{t("transaction.discount")}: {form.totalDiscount.toLocaleString()}
 				</Typography>
 			</Grid>
 		</Grid>

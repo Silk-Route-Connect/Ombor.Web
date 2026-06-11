@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import BarChartIcon from "@mui/icons-material/BarChart";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -25,6 +25,7 @@ const ChartControls: FC<ChartControlsProps> = ({
 	onOpenExport,
 	onCloseExport,
 }) => {
+	const { t } = useTranslation();
 	const hasLeft = Boolean(title);
 
 	return (
@@ -59,9 +60,9 @@ const ChartControls: FC<ChartControlsProps> = ({
 				</IconButton>
 
 				<Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={onCloseExport}>
-					<MenuItem onClick={onCloseExport}>{translate("reportExportPNG")}</MenuItem>
-					<MenuItem onClick={onCloseExport}>{translate("reportExportPDF")}</MenuItem>
-					<MenuItem onClick={onCloseExport}>{translate("reportExportCSV")}</MenuItem>
+					<MenuItem onClick={onCloseExport}>{t("reportExportPNG")}</MenuItem>
+					<MenuItem onClick={onCloseExport}>{t("reportExportPDF")}</MenuItem>
+					<MenuItem onClick={onCloseExport}>{t("reportExportCSV")}</MenuItem>
 				</Menu>
 			</Box>
 		</Box>

@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { DateFilter, PresetOption } from "utils/dateUtils";
 
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -19,6 +19,8 @@ const presets: Array<{ key: PresetOption; labelKey: string }> = [
 ];
 
 const DateFilterPicker: React.FC<Props> = ({ value, onChange }) => {
+	const { t } = useTranslation();
+
 	const applyPreset = (preset: PresetOption) => {
 		onChange({ type: "preset", preset });
 	};
@@ -65,7 +67,7 @@ const DateFilterPicker: React.FC<Props> = ({ value, onChange }) => {
 			>
 				{presets.map(({ key, labelKey }) => (
 					<ToggleButton key={key} value={key}>
-						{translate(labelKey)}
+						{t(labelKey)}
 					</ToggleButton>
 				))}
 
@@ -73,7 +75,7 @@ const DateFilterPicker: React.FC<Props> = ({ value, onChange }) => {
 
 				<ToggleButton value="custom" sx={{ pl: 1.5, pr: 1.5 }}>
 					<CalendarMonthIcon fontSize="small" sx={{ mr: 0.5 }} />
-					{translate("reportRangeCustom")}
+					{t("reportRangeCustom")}
 				</ToggleButton>
 			</ToggleButtonGroup>
 
@@ -82,7 +84,7 @@ const DateFilterPicker: React.FC<Props> = ({ value, onChange }) => {
 					<TextField
 						type="date"
 						size="small"
-						label={translate("reportFrom")}
+						label={t("reportFrom")}
 						value={toInputValue(value.from)}
 						onChange={(e) => handleDateInput("from", e.target.value)}
 						slotProps={{ inputLabel: { shrink: true } }}
@@ -90,7 +92,7 @@ const DateFilterPicker: React.FC<Props> = ({ value, onChange }) => {
 					<TextField
 						type="date"
 						size="small"
-						label={translate("reportTo")}
+						label={t("reportTo")}
 						value={toInputValue(value.to)}
 						onChange={(e) => handleDateInput("to", e.target.value)}
 						slotProps={{ inputLabel: { shrink: true } }}

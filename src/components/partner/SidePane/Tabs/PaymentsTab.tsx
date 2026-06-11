@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import {
 	Column,
 	ExpandableDataTable,
 } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Payment } from "models/payment";
 import { useStore } from "stores/StoreContext";
@@ -21,6 +21,7 @@ interface IPaymentsTabProps {
 }
 
 const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
+	const { t } = useTranslation();
 	const { selectedPartnerStore } = useStore();
 
 	useEffect(() => {
@@ -51,7 +52,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "id",
 			field: "id",
-			headerName: translate("payment.id"),
+			headerName: t("payment.id"),
 			width: "10%",
 			renderCell: (s) => (
 				<Link
@@ -69,7 +70,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "type",
 			field: "type",
-			headerName: translate("payment.type"),
+			headerName: t("payment.type"),
 			align: "left",
 			width: "25%",
 			sortable: true,
@@ -78,7 +79,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "amount",
 			field: "amount",
-			headerName: translate("payment.amount"),
+			headerName: t("payment.amount"),
 			width: "15%",
 			align: "right",
 			renderCell: (s) => s.amount.toLocaleString(),
@@ -86,7 +87,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 		{
 			key: "date",
 			field: "date",
-			headerName: translate("payment.date"),
+			headerName: t("payment.date"),
 			align: "left",
 			width: "60%",
 			sortable: true,
@@ -118,7 +119,7 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 				</Box>
 
 				<Button endIcon={<DownloadIcon />} onClick={handleMenuOpen} sx={{ textTransform: "none" }}>
-					{translate("download")}
+					{t("download")}
 				</Button>
 				<Menu
 					anchorEl={anchorEl}
@@ -127,9 +128,9 @@ const PaymentsTab: React.FC<IPaymentsTabProps> = observer(({ partnerId }) => {
 					anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 					transformOrigin={{ vertical: "top", horizontal: "right" }}
 				>
-					<MenuItem onClick={handleDownloadPDF}>{translate("downloadAsPDF")}</MenuItem>
-					<MenuItem onClick={handleDownloadCSV}>{translate("downloadAsCSV")}</MenuItem>
-					<MenuItem onClick={handleDownloadPNG}>{translate("downloadAsPNG")}</MenuItem>
+					<MenuItem onClick={handleDownloadPDF}>{t("downloadAsPDF")}</MenuItem>
+					<MenuItem onClick={handleDownloadCSV}>{t("downloadAsCSV")}</MenuItem>
+					<MenuItem onClick={handleDownloadPNG}>{t("downloadAsPNG")}</MenuItem>
 				</Menu>
 			</Box>
 

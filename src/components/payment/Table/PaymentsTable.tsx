@@ -1,9 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeLink from "components/employee/Link/EmployeeLink";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 import { Payment, PaymentDirection, PaymentType } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
 
@@ -32,11 +32,12 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 	onSort,
 	pagination = true,
 }) => {
+	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const renderNotes = (notes?: string): React.ReactNode => {
 		if (!notes) {
-			return translate("common.dash");
+			return t("common.dash");
 		}
 
 		if (notes.length <= MAX_NOTES_LENGTH) {
@@ -56,7 +57,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 
 	const renderEmployee = (payment: Payment): React.ReactNode => {
 		if (!payment.employeeId || !payment.employeeName) {
-			return translate("common.dash");
+			return t("common.dash");
 		}
 
 		return <EmployeeLink id={payment.employeeId} name={payment.employeeName} />;
@@ -68,7 +69,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		}
 
 		if (!payment.partnerId || !payment.partnerName) {
-			return translate("common.dash");
+			return t("common.dash");
 		}
 
 		return <PartnerLink id={payment.partnerId} name={payment.partnerName} />;
@@ -81,7 +82,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 	const renderDirection = (direction: PaymentDirection): React.ReactNode => {
 		return (
 			<Chip
-				label={translate(`payment.direction.${direction}`)}
+				label={t(`payment.direction.${direction}`)}
 				size="small"
 				sx={{
 					backgroundColor: `${getDirectionColor(direction)}15`,
@@ -114,7 +115,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		return (
 			<Chip
 				icon={getTypeIcon(type)}
-				label={translate(`payment.type.${type}`)}
+				label={t(`payment.type.${type}`)}
 				variant="outlined"
 				size="small"
 				sx={{
@@ -132,7 +133,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "id",
 			field: "id",
-			headerName: translate("payment.number"),
+			headerName: t("payment.number"),
 			width: "10%",
 			align: "left",
 			sortable: true,
@@ -141,7 +142,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "date",
 			field: "date",
-			headerName: translate("payment.date"),
+			headerName: t("payment.date"),
 			width: "15%",
 			align: "left",
 			sortable: true,
@@ -149,7 +150,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		},
 		{
 			key: "partner",
-			headerName: translate("payment.partner"),
+			headerName: t("payment.partner"),
 			width: "15%",
 			align: "left",
 			sortable: true,
@@ -158,7 +159,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "amount",
 			field: "amount",
-			headerName: translate("payment.amount"),
+			headerName: t("payment.amount"),
 			width: "15%",
 			align: "right",
 			sortable: true,
@@ -167,7 +168,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "direction",
 			field: "direction",
-			headerName: translate("payment.direction"),
+			headerName: t("payment.direction"),
 			width: "10%",
 			align: "center",
 			sortable: true,
@@ -176,7 +177,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "type",
 			field: "type",
-			headerName: translate("payment.type"),
+			headerName: t("payment.type"),
 			width: "10%",
 			align: "center",
 			sortable: true,
@@ -185,7 +186,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 		{
 			key: "notes",
 			field: "notes",
-			headerName: translate("payment.notes"),
+			headerName: t("payment.notes"),
 			width: "20%",
 			align: "left",
 			sortable: true,

@@ -4,7 +4,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import { translate } from "../i18n/i18n";
+import i18next from "../i18n/config";
 import { CreateProductRequest, Product, UpdateProductRequest } from "../models/product";
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
@@ -115,7 +115,7 @@ export class ProductStore implements IProductStore {
 		const result = await tryRun(() => ProductApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.getAll"));
+			this.notificationStore.error(i18next.t("product.error.getAll"));
 		}
 
 		const data = result.status === "success" ? result.data : [];
@@ -127,7 +127,7 @@ export class ProductStore implements IProductStore {
 		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.create"));
+			this.notificationStore.error(i18next.t("product.error.create"));
 			return;
 		}
 
@@ -138,14 +138,14 @@ export class ProductStore implements IProductStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("product.success.create"));
+		this.notificationStore.success(i18next.t("product.success.create"));
 	}
 
 	async update(request: UpdateProductRequest): Promise<void> {
 		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.update"));
+			this.notificationStore.error(i18next.t("product.error.update"));
 			return;
 		}
 
@@ -156,14 +156,14 @@ export class ProductStore implements IProductStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("product.success.update"));
+		this.notificationStore.success(i18next.t("product.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
 		const result = await withSaving(this, () => ProductApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.delete"));
+			this.notificationStore.error(i18next.t("product.error.delete"));
 			return;
 		}
 
@@ -173,7 +173,7 @@ export class ProductStore implements IProductStore {
 			}
 		});
 
-		this.notificationStore.success(translate("product.success.delete"));
+		this.notificationStore.success(i18next.t("product.success.delete"));
 	}
 
 	setSearch(term: string): void {

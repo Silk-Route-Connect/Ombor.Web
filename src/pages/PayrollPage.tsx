@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import PayrollHeader from "components/payroll/Header/PayrollHeader";
 import PayrollTable from "components/payroll/Table/PayrollTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { formatDateTime } from "utils/dateUtils";
@@ -12,6 +12,7 @@ import { formatDateTime } from "utils/dateUtils";
 import { Box } from "@mui/material";
 
 const PayrollPage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { payrollStore, employeeStore } = useStore();
 
 	useEffect(() => {
@@ -53,7 +54,7 @@ const PayrollPage: React.FC = observer(() => {
 	const dialogKind = dialogMode.kind;
 
 	const deleteMessage = selectedPayment
-		? translate("payroll.deleteConfirmation", {
+		? t("payroll.deleteConfirmation", {
 				amount: selectedPayment.amount.toLocaleString(),
 				currency: selectedPayment.components[0]?.currency || "",
 				employeeName: selectedPayment.employeeName || "",
@@ -89,7 +90,7 @@ const PayrollPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.deleteTitle")}
+				title={t("common.deleteTitle")}
 				content={deleteMessage}
 				onConfirm={handleDeleteConfirmed}
 				onCancel={payrollStore.closeDialog}

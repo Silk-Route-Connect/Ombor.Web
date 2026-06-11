@@ -1,10 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import PartnerFormFields from "components/partner/Form/PartnerFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PartnerFormPayload, usePartnerForm } from "hooks/partner/usePartnerForm";
-import { translate } from "i18n/i18n";
 import { Partner } from "models/partner";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -25,6 +25,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	onSave,
 	onClose,
 }) => {
+	const { t } = useTranslation();
 	const { form, canSave, submit, requestClose, discardOpen, confirmDiscard, cancelDiscard } =
 		usePartnerForm({
 			isOpen,
@@ -34,7 +35,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 			onClose,
 		});
 
-	const title = partner ? translate("partner.title.edit") : translate("partner.title.create");
+	const title = partner ? t("partner.title.edit") : t("partner.title.create");
 
 	return (
 		<>

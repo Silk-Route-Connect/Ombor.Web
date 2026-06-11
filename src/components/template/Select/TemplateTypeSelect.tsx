@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { TEMPLATE_TYPES, TemplateType } from "models/template";
 
 import { MenuItem, Select, SelectProps } from "@mui/material";
@@ -15,20 +15,24 @@ const TemplateTypeSelect: React.FC<TemplateTypeSelectProps & SelectProps> = ({
 	minWidth = 200,
 	onTypeChange,
 	...props
-}) => (
-	<Select
-		size={props.size}
-		labelId="template-type-select"
-		value={type}
-		onChange={(e) => onTypeChange(e.target.value)}
-		sx={{ minWidth: minWidth }}
-	>
-		{TEMPLATE_TYPES.map((t) => (
-			<MenuItem key={t} value={t}>
-				{translate(`template.type.${t}`)}
-			</MenuItem>
-		))}
-	</Select>
-);
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Select
+			size={props.size}
+			labelId="template-type-select"
+			value={type}
+			onChange={(e) => onTypeChange(e.target.value)}
+			sx={{ minWidth: minWidth }}
+		>
+			{TEMPLATE_TYPES.map((templateType) => (
+				<MenuItem key={templateType} value={templateType}>
+					{t(`template.type.${templateType}`)}
+				</MenuItem>
+			))}
+		</Select>
+	);
+};
 
 export default TemplateTypeSelect;

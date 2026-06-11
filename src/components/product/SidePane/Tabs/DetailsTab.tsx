@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Product, ProductImage } from "models/product";
 
 import { Dialog, DialogContent } from "@mui/material";
@@ -25,6 +25,7 @@ export interface DetailsTabProps {
 }
 
 export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
+	const { t } = useTranslation();
 	const [lightboxImage, setLightboxImage] = useState<ProductImage | null>(null);
 
 	return (
@@ -64,57 +65,53 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 
 			<Grid container spacing={4}>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.id")}</Typography>
+					<Typography variant="subtitle2">{t("product.id")}</Typography>
 					<Typography>{product.id}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.category")}</Typography>
+					<Typography variant="subtitle2">{t("product.category")}</Typography>
 					<Typography>{product.categoryName}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.type")}</Typography>
-					<Typography>{translate(`product.type.${product.type}`)}</Typography>
+					<Typography variant="subtitle2">{t("product.type")}</Typography>
+					<Typography>{t(`product.type.${product.type}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.sku")}</Typography>
+					<Typography variant="subtitle2">{t("product.sku")}</Typography>
 					<Typography>{product.sku}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.measurement")}</Typography>
-					<Typography>{translate(`product.measurement.${product.measurement}`)}</Typography>
+					<Typography variant="subtitle2">{t("product.measurement")}</Typography>
+					<Typography>{t(`product.measurement.${product.measurement}`)}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.barcode")}</Typography>
+					<Typography variant="subtitle2">{t("product.barcode")}</Typography>
 					<Typography>{product.barcode ?? "—"}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.supplyPrice")}</Typography>
+					<Typography variant="subtitle2">{t("product.supplyPrice")}</Typography>
 					<Typography>{product.supplyPrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.salePrice")}</Typography>
+					<Typography variant="subtitle2">{t("product.salePrice")}</Typography>
 					<Typography>{product.salePrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
 				<Grid size={{ xs: 4 }}>
-					<Typography variant="subtitle2">{translate("product.retailPrice")}</Typography>
+					<Typography variant="subtitle2">{t("product.retailPrice")}</Typography>
 					<Typography>{product.retailPrice.toLocaleString("ru-RU")}</Typography>
 				</Grid>
 				{product.packaging && (
 					<>
 						<Grid size={{ xs: 4 }}>
-							<Typography variant="subtitle2">{translate("product.packaging.packSize")}</Typography>
+							<Typography variant="subtitle2">{t("product.packaging.packSize")}</Typography>
 							<Typography>{product.packaging.size}</Typography>
 						</Grid>
 						<Grid size={{ xs: 4 }}>
-							<Typography variant="subtitle2">
-								{translate("product.packaging.packLabel")}
-							</Typography>
+							<Typography variant="subtitle2">{t("product.packaging.packLabel")}</Typography>
 							<Typography>{product.packaging.label ?? "—"}</Typography>
 						</Grid>
 						<Grid size={{ xs: 4 }}>
-							<Typography variant="subtitle2">
-								{translate("product.packaging.packBarcode")}
-							</Typography>
+							<Typography variant="subtitle2">{t("product.packaging.packBarcode")}</Typography>
 							<Typography>{product.packaging.barcode ?? "—"}</Typography>
 						</Grid>
 					</>

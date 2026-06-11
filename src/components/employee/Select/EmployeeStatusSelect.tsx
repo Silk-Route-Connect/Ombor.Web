@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { EMPLOYEE_STATUSES, EmployeeStatus } from "models/employee";
 
 import { MenuItem, Select } from "@mui/material";
@@ -16,21 +16,25 @@ const EmployeeStatusSelect: React.FC<EmployeeStatusSelectProps> = ({
 	minWidth = 200,
 	size = "small",
 	onChange,
-}) => (
-	<Select
-		size={size}
-		value={value || ""}
-		onChange={(e) => onChange(e.target.value ? e.target.value : null)}
-		sx={{ minWidth }}
-		displayEmpty
-	>
-		<MenuItem value="">{translate("employee.allStatuses")}</MenuItem>
-		{EMPLOYEE_STATUSES.map((status) => (
-			<MenuItem key={status} value={status}>
-				{translate(`employee.status.${status}`)}
-			</MenuItem>
-		))}
-	</Select>
-);
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Select
+			size={size}
+			value={value || ""}
+			onChange={(e) => onChange(e.target.value ? e.target.value : null)}
+			sx={{ minWidth }}
+			displayEmpty
+		>
+			<MenuItem value="">{t("employee.allStatuses")}</MenuItem>
+			{EMPLOYEE_STATUSES.map((status) => (
+				<MenuItem key={status} value={status}>
+					{t(`employee.status.${status}`)}
+				</MenuItem>
+			))}
+		</Select>
+	);
+};
 
 export default EmployeeStatusSelect;

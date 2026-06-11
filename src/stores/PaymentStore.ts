@@ -1,7 +1,7 @@
 import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Partner } from "models/partner";
 import { CreatePaymentRequest, Payment, PaymentDirection } from "models/payment";
@@ -109,7 +109,7 @@ export class PaymentStore implements IPaymentStore {
 		const result = await tryRun(() => PaymentApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payments.error.getAll"));
+			this.notificationStore.error(i18next.t("payments.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -125,7 +125,7 @@ export class PaymentStore implements IPaymentStore {
 		const result = await tryRun(() => PaymentApi.getById(paymentId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payments.error.getById"));
+			this.notificationStore.error(i18next.t("payments.error.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -136,7 +136,7 @@ export class PaymentStore implements IPaymentStore {
 		const result = await tryRun(() => PaymentApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payments.error.create"));
+			this.notificationStore.error(i18next.t("payments.error.create"));
 			return;
 		}
 

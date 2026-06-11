@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import { Inventory } from "models/inventory";
 import { useStore } from "stores/StoreContext";
@@ -13,6 +13,7 @@ interface InventoryAutocompleteProps {
 }
 
 const PartnerAutocomplete: React.FC<InventoryAutocompleteProps> = ({ value, size, onChange }) => {
+	const { t } = useTranslation();
 	const { inventoryStore } = useStore();
 
 	useEffect(() => {
@@ -28,8 +29,8 @@ const PartnerAutocomplete: React.FC<InventoryAutocompleteProps> = ({ value, size
 
 	return (
 		<EntityAutocomplete<Inventory>
-			label={translate("partnerAutocomplete.partner")}
-			placeholder={translate("partnerAutocomplete.search")}
+			label={t("partnerAutocomplete.partner")}
+			placeholder={t("partnerAutocomplete.search")}
 			options={options}
 			value={value}
 			size={size}

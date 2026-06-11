@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
@@ -11,8 +11,10 @@ export interface ProductFormMainImageProps {
 }
 
 const ProductFormMainImage: React.FC<ProductFormMainImageProps> = ({ disabled, src, onClick }) => {
+	const { t } = useTranslation();
+
 	return (
-		<Tooltip title={translate("product.images.mainUpload")}>
+		<Tooltip title={t("product.images.mainUpload")}>
 			<Box
 				onClick={!disabled ? onClick : undefined}
 				sx={{
@@ -27,19 +29,19 @@ const ProductFormMainImage: React.FC<ProductFormMainImageProps> = ({ disabled, s
 					position: "relative",
 					bgcolor: "background.default",
 				}}
-				aria-label={translate("product.images.mainUpload")}
+				aria-label={t("product.images.mainUpload")}
 			>
 				{src ? (
 					<Box
 						component="img"
 						src={src}
-						alt={translate("product.images.mainAlt")}
+						alt={t("product.images.mainAlt")}
 						sx={{ width: "100%", height: "100%", objectFit: "cover" }}
 					/>
 				) : (
 					<Stack alignItems="center" spacing={0.5}>
 						<AddCircleOutlineIcon fontSize="large" />
-						<Typography variant="caption">{translate("product.images.setMain")}</Typography>
+						<Typography variant="caption">{t("product.images.setMain")}</Typography>
 					</Stack>
 				)}
 			</Box>

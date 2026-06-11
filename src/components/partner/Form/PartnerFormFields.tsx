@@ -1,7 +1,7 @@
 import React from "react";
 import { Controller, FieldError, UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import PhoneListField from "components/shared/Inputs/PhoneListField/PhoneListField";
-import { translate } from "i18n/i18n";
 import { PartnerFormInputs } from "schemas/PartnerSchema";
 import { PARTNER_TYPES } from "utils/partnerUtils";
 
@@ -23,6 +23,7 @@ interface PartnerFormFieldsProps {
 }
 
 const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled }) => {
+	const { t } = useTranslation();
 	const {
 		register,
 		control,
@@ -34,7 +35,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					id="partner-name"
-					label={`${translate("partner.name")}*`}
+					label={`${t("partner.name")}*`}
 					fullWidth
 					margin="dense"
 					disabled={disabled}
@@ -46,7 +47,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<FormControl fullWidth margin="dense" error={!!errors.type}>
-					<InputLabel id="partner-type-label">{translate("partner.type")}</InputLabel>
+					<InputLabel id="partner-type-label">{t("partner.type")}</InputLabel>
 					<Controller
 						name="type"
 						control={control}
@@ -54,12 +55,12 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 							<Select
 								{...field}
 								labelId="partner-type-label"
-								label={translate("partner.type")}
+								label={t("partner.type")}
 								disabled={disabled}
 							>
 								{PARTNER_TYPES.map((tpe) => (
 									<MenuItem key={tpe} value={tpe}>
-										{translate(`partner.type.${tpe}`)}
+										{t(`partner.type.${tpe}`)}
 									</MenuItem>
 								))}
 							</Select>
@@ -72,7 +73,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					id="partner-company"
-					label={translate("partner.company")}
+					label={t("partner.company")}
 					fullWidth
 					disabled={disabled}
 					error={!!errors.companyName}
@@ -84,7 +85,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					id="partner-address"
-					label={translate("partner.address")}
+					label={t("partner.address")}
 					fullWidth
 					disabled={disabled}
 					error={!!errors.address}
@@ -96,7 +97,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					id="partner-email"
-					label={translate("partner.email")}
+					label={t("partner.email")}
 					type="email"
 					fullWidth
 					disabled={disabled}
@@ -109,7 +110,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<TextField
 					id="partner-telegram"
-					label={translate("partner.telegram")}
+					label={t("partner.telegram")}
 					fullWidth
 					disabled={disabled}
 					error={!!errors.telegram}
@@ -150,7 +151,7 @@ const PartnerFormFields: React.FC<PartnerFormFieldsProps> = ({ form, disabled })
 							)}
 						/>
 					}
-					label={translate("partner.isActive")}
+					label={t("partner.isActive")}
 				/>
 			</Grid>
 		</Grid>

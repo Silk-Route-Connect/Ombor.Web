@@ -2,7 +2,7 @@ import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import TransactionLink from "components/transaction/Links/TransactionLink";
 import { TRANSACTION_STATUS_COLORS } from "constants/index";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { TransactionRecord } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
 import { formatPrice } from "utils/formatCurrency";
@@ -52,11 +52,11 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "id",
 		field: "id",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["id"],
-		headerName: translate("transaction.id"),
+		headerName: i18next.t("transaction.id"),
 		renderCell: (transaction) =>
 			mode === "full" ? (
 				<>
-					{translate(`transaction.type.${transaction.type}`)} #{transaction.id}
+					{i18next.t(`transaction.type.${transaction.type}`)} #{transaction.id}
 				</>
 			) : (
 				<TransactionLink id={transaction.id} type={transaction.type} />
@@ -67,7 +67,7 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "date",
 		field: "date",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["date"],
-		headerName: translate("fieldDate"),
+		headerName: i18next.t("fieldDate"),
 		align: "left",
 		sortable: true,
 		renderCell: (transaction) => formatDateTime(transaction.date),
@@ -77,7 +77,7 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "partnerName",
 		field: "partnerName",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["partnerName"],
-		headerName: translate("transaction.partner"),
+		headerName: i18next.t("transaction.partner"),
 		sortable: true,
 		renderCell: (transaction) => (
 			<PartnerLink id={transaction.partnerId} name={transaction.partnerName} />
@@ -88,7 +88,7 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "totalDue",
 		field: "totalDue",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["totalDue"],
-		headerName: translate("transaction.totalDue"),
+		headerName: i18next.t("transaction.totalDue"),
 		align: "right",
 		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalDue),
@@ -98,7 +98,7 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "totalPaid",
 		field: "totalPaid",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["totalPaid"],
-		headerName: translate("transaction.totalPaid"),
+		headerName: i18next.t("transaction.totalPaid"),
 		align: "right",
 		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalPaid),
@@ -107,7 +107,7 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 	unpaidAmount: (mode) => ({
 		key: "unpaidAmount",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["unpaidAmount"],
-		headerName: translate("transaction.unpaid"),
+		headerName: i18next.t("transaction.unpaid"),
 		align: "right",
 		sortable: true,
 		renderCell: (transaction) => formatPrice(transaction.totalDue - transaction.totalPaid),
@@ -117,13 +117,13 @@ export const TransactionColumnBuilders: Record<TransactionColumn, ColumnBuilder>
 		key: "status",
 		field: "status",
 		width: TRANSACTION_COLUMN_WIDTHS[mode]["status"],
-		headerName: translate("transaction.status"),
+		headerName: i18next.t("transaction.status"),
 		align: "center",
 		sortable: true,
 		renderCell: (transaction) => (
 			<Chip
 				size="small"
-				label={translate(`transaction.status.${transaction.status}`)}
+				label={i18next.t(`transaction.status.${transaction.status}`)}
 				color={TRANSACTION_STATUS_COLORS[transaction.status]}
 				variant="outlined"
 			/>

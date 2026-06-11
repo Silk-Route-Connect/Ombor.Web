@@ -1,4 +1,4 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { ALL_PAYMENT_CURRENCIES, Payment, PaymentCurrency } from "models/payment";
 import { PayrollFormValues } from "schemas/PayrollSchema";
 
@@ -13,7 +13,7 @@ export const PAYROLL_FORM_DEFAULT_VALUES: PayrollFormValues = {
 
 export const getCurrencyLabel = (currency: string): string => {
 	if (ALL_PAYMENT_CURRENCIES.includes(currency as PaymentCurrency)) {
-		return translate(`currency.${currency}`);
+		return i18next.t(`currency.${currency}`);
 	}
 
 	return currency;

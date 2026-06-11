@@ -1,4 +1,4 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { TransactionType } from "models/transaction";
 
 export function getPratnerTranslationKey(type: TransactionType): string {
@@ -10,5 +10,5 @@ export function getPratnerTranslationKey(type: TransactionType): string {
 }
 
 export function dialogTranslation(key: "title" | "body" | "confirm" | "cancel"): string {
-	return translate(`common.dialog.discardChanges.${key}`);
+	return i18next.t(`common.dialog.discardChanges.${key}`);
 }

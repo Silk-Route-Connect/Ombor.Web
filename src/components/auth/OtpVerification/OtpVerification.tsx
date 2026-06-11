@@ -1,8 +1,8 @@
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import OtpInput from "components/auth/OtpInput/OtpInput";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { RegisterRequest } from "models/auth";
 import { OtpFormValues, otpSchema } from "schemas/AuthSchema";
@@ -22,6 +22,7 @@ const RESEND_SECONDS = 60;
 
 const OtpVerification: React.FC<OtpVerificationProps> = observer(
 	({ phoneNumber, registrationData, onSuccess, onBack }) => {
+		const { t } = useTranslation();
 		const { authStore, notificationStore } = useStore();
 		const [resendIn, setResendIn] = React.useState<number>(RESEND_SECONDS);
 		const [isVerifying, setIsVerifying] = React.useState(false);
@@ -78,10 +79,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 					phoneNumber,
 					code: values.code,
 				});
-				notificationStore.success(translate("auth.registrationComplete"));
+				notificationStore.success(t("auth.registrationComplete"));
 				onSuccess();
 			} catch (error) {
-				notificationStore.error(translate("auth.errors.otpInvalid"));
+				notificationStore.error(t("auth.errors.otpInvalid"));
 			} finally {
 				setIsVerifying(false);
 			}
@@ -96,12 +97,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 				const response = await authApi.register({ ...registrationData, phoneNumber });
 
 				const minutes = response.expiresInMinutes || 5;
-				notificationStore.success(
-					translate("auth.otpSent").replace("{{minutes}}", String(minutes)),
-				);
+				notificationStore.success(t("auth.otpSent").replace("{{minutes}}", String(minutes)));
 				startTimer();
 			} catch (error) {
-				notificationStore.error(translate("auth.errors.resendFailed"));
+				notificationStore.error(t("auth.errors.resendFailed"));
 			} finally {
 				setIsResending(false);
 			}
@@ -114,7 +113,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 				<CardContent sx={{ p: 0 }}>
 					<Stack spacing={3} sx={{ p: { xs: 2.5, md: 4 } }}>
 						<Typography variant="body2" color="text.secondary">
-							{translate("auth.verifySubtitle").replace("{{phone}}", phoneNumber)}
+							{t("auth.verifySubtitle").replace("{{phone}}", phoneNumber)}
 						</Typography>
 
 						<Controller
@@ -127,9 +126,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 									autoFocus
 									disabled={isVerifying}
 									errorText={
-										errors.code
-											? translate(errors.code.message ?? "auth.errors.otpInvalid")
-											: undefined
+										errors.code ? t(errors.code.message ?? "auth.errors.otpInvalid") : undefined
 									}
 								/>
 							)}
@@ -142,7 +139,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 								disabled={!canSubmit}
 								fullWidth
 							>
-								{isVerifying ? translate("common.loading") : translate("auth.verify")}
+								{isVerifying ? t("common.loading") : t("auth.verify")}
 							</Button>
 
 							<Button
@@ -152,13 +149,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = observer(
 								fullWidth
 							>
 								{resendIn > 0
-									? translate("auth.resendIn").replace("{{seconds}}", String(resendIn))
-									: translate("auth.resend")}
+									? t("auth.resendIn").replace("{{seconds}}", String(resendIn))
+									: t("auth.resend")}
 							</Button>
 						</Stack>
 
 						<Button variant="text" onClick={onBack} sx={{ textTransform: "none" }}>
-							{translate("auth.changePhone")}
+							{t("auth.changePhone")}
 						</Button>
 					</Stack>
 				</CardContent>

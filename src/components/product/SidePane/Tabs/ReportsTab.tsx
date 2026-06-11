@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import KpiCard from "components/shared/Cards/KpiCard";
 import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { useProductReportsMetrics } from "hooks/product/useProductReports";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateUtils";
@@ -14,6 +14,7 @@ import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 
 const ReportsTab: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { selectedProductStore } = useStore();
 
 	const {
@@ -38,25 +39,25 @@ const ReportsTab: React.FC = observer(() => {
 		() => [
 			{
 				key: "transactions",
-				label: translate("product.reports.transactions"),
+				label: t("product.reports.transactions"),
 				value: transactionsCount.toLocaleString("ru-RU"),
 				trend: trendTransactions,
 			},
 			{
 				key: "refunds",
-				label: translate("product.reports.refunds"),
+				label: t("product.reports.refunds"),
 				value: refundsCount.toLocaleString("ru-RU"),
 				trend: trendRefunds,
 			},
 			{
 				key: "quantity-sold",
-				label: translate("product.reports.quantitySold"),
+				label: t("product.reports.quantitySold"),
 				value: totalQuantitySold.toLocaleString("ru-RU"),
 				trend: trendQuantity,
 			},
 			{
 				key: "revenue",
-				label: translate("product.reports.revenue"),
+				label: t("product.reports.revenue"),
 				value: totalRevenueApprox.toLocaleString("ru-RU"),
 				trend: trendRevenue,
 			},
@@ -70,6 +71,7 @@ const ReportsTab: React.FC = observer(() => {
 			trendRefunds,
 			trendQuantity,
 			trendRevenue,
+			t,
 		],
 	);
 
@@ -111,7 +113,7 @@ const ReportsTab: React.FC = observer(() => {
 					<Card>
 						<CardContent>
 							<TimeSeriesChart
-								title={translate("product.reports.transactionsOverTime")}
+								title={t("product.reports.transactionsOverTime")}
 								data={chartData}
 								filter={selectedProductStore.dateFilter}
 								seriesConfig={chartSeries}

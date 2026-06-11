@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { ALL_PAYMENT_CURRENCIES, ALL_PAYMENT_METHODS } from "models/payment";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
 import { getCurrencyLabel } from "utils/payrollUtils";
@@ -15,6 +15,7 @@ interface PayrollFormFieldsProps {
 const METHODS = ALL_PAYMENT_METHODS.filter((method) => method !== "AccountBalance");
 
 const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled }) => {
+	const { t } = useTranslation();
 	const {
 		register,
 		control,
@@ -35,7 +36,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 						<TextField
 							{...field}
 							select
-							label={`${translate("payment.currency")}*`}
+							label={`${t("payment.currency")}*`}
 							error={!!errors.currency}
 							helperText={errors.currency?.message}
 							fullWidth
@@ -59,7 +60,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 						<TextField
 							{...field}
 							select
-							label={`${translate("payment.method")}*`}
+							label={`${t("payment.method")}*`}
 							error={!!errors.method}
 							helperText={errors.method?.message}
 							fullWidth
@@ -67,7 +68,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 						>
 							{METHODS.map((method) => (
 								<MenuItem key={method} value={method}>
-									{translate(`payment.method.${method}`)}
+									{t(`payment.method.${method}`)}
 								</MenuItem>
 							))}
 						</TextField>
@@ -79,7 +80,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 				<Grid size={{ xs: 12, sm: 6 }}>
 					<TextField
 						{...register("exchangeRate", { valueAsNumber: true })}
-						label={translate("payment.exchangeRate")}
+						label={t("payment.exchangeRate")}
 						type="number"
 						error={!!errors.exchangeRate}
 						helperText={errors.exchangeRate?.message}
@@ -92,7 +93,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12 }}>
 				<TextField
 					{...register("amount", { valueAsNumber: true })}
-					label={`${translate("payment.amount")}*`}
+					label={`${t("payment.amount")}*`}
 					type="number"
 					error={!!errors.amount}
 					helperText={errors.amount?.message}
@@ -104,7 +105,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 			<Grid size={{ xs: 12 }}>
 				<TextField
 					{...register("notes")}
-					label={translate("payment.notes")}
+					label={t("payment.notes")}
 					error={!!errors.notes}
 					helperText={errors.notes?.message}
 					fullWidth

@@ -1,8 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import RegistrationForm from "components/auth/Form/RegistrationForm";
 import OtpVerification from "components/auth/OtpVerification/OtpVerification";
-import { translate } from "i18n/i18n";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
@@ -12,6 +12,7 @@ import { Box, Link, Typography } from "@mui/material";
 type Step = "form" | "otp";
 
 const RegisterPage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { authStore, notificationStore } = useStore();
 	const [step, setStep] = React.useState<Step>("form");
 	const [phoneNumber, setPhoneNumber] = React.useState<string>("");
@@ -50,7 +51,7 @@ const RegisterPage: React.FC = observer(() => {
 				<Box sx={{ mt: 2, textAlign: "center" }}>
 					<Typography variant="body2" color="text.secondary">
 						<Link component={RouterLink} to="/login" underline="hover">
-							{translate("auth.goToLogin")}
+							{t("auth.goToLogin")}
 						</Link>
 					</Typography>
 				</Box>
@@ -71,7 +72,7 @@ const RegisterPage: React.FC = observer(() => {
 			<Box sx={{ mt: 2, textAlign: "center" }}>
 				<Typography variant="body2" color="text.secondary">
 					<Link component={RouterLink} to="/login" underline="hover">
-						{translate("auth.goToLogin")}
+						{t("auth.goToLogin")}
 					</Link>
 				</Typography>
 			</Box>

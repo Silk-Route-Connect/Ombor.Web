@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { useStore } from "stores/StoreContext";
@@ -38,6 +38,7 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 	helperText,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { categoryStore } = useStore();
 
 	const options: Category[] = useMemo(
@@ -70,8 +71,8 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Category>
-			label={translate("category.title.autocomplete")}
-			placeholder={translate("category.title.search")}
+			label={t("category.title.autocomplete")}
+			placeholder={t("category.title.search")}
 			options={options}
 			value={selectedValue}
 			size={size}

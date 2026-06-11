@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import type { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
@@ -19,6 +19,7 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	size,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { partnerStore } = useStore();
 
 	const options = useMemo(() => {
@@ -33,8 +34,8 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Partner>
-			label={translate("partnerAutocomplete.partner")}
-			placeholder={translate("partnerAutocomplete.search")}
+			label={t("partnerAutocomplete.partner")}
+			placeholder={t("partnerAutocomplete.search")}
 			options={options === "loading" ? [] : options}
 			value={value}
 			size={size}

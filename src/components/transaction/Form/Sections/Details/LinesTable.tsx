@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import NumericField from "components/shared/Inputs/NumericField";
 import { TransactionFormLinePayload } from "components/transaction/Form/TransactionForm";
-import { translate } from "i18n/i18n";
 import { useStore } from "stores/StoreContext";
 
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -33,6 +33,7 @@ const CELL_SX = { py: 1, px: 1 };
 
 const LinesTable = forwardRef<LinesTableHandle, Props>(
 	({ rows, mode, onUpdate, onRemove, onReturnFocus }, ref) => {
+		const { t } = useTranslation();
 		const theme = useTheme();
 		const { productStore } = useStore();
 		const quantityRefs = useRef<Map<number, HTMLInputElement>>(new Map());
@@ -52,18 +53,18 @@ const LinesTable = forwardRef<LinesTableHandle, Props>(
 				<Table stickyHeader size="small" sx={{ tableLayout: "fixed" }}>
 					<TableHead>
 						<TableRow sx={{ bgcolor: theme.palette.background.paper }}>
-							<TableCell sx={{ ...CELL_SX, width: "40%" }}>{translate("product.name")}</TableCell>
+							<TableCell sx={{ ...CELL_SX, width: "40%" }}>{t("product.name")}</TableCell>
 							<TableCell sx={{ ...CELL_SX, width: "20%" }} align="left">
-								{translate("transaction.line.unitPrice")}
+								{t("transaction.line.unitPrice")}
 							</TableCell>
 							<TableCell sx={{ ...CELL_SX, width: "15%" }} align="left">
-								{translate("transaction.line.discount")}
+								{t("transaction.line.discount")}
 							</TableCell>
 							<TableCell sx={{ ...CELL_SX, width: "15%" }} align="left">
-								{translate("transaction.line.quantity")}
+								{t("transaction.line.quantity")}
 							</TableCell>
 							<TableCell sx={{ ...CELL_SX, width: "15%" }} align="right">
-								{translate("transaction.line.total")}
+								{t("transaction.line.total")}
 							</TableCell>
 							<TableCell sx={{ ...CELL_SX, width: 48 }} />
 						</TableRow>
@@ -143,7 +144,7 @@ const LinesTable = forwardRef<LinesTableHandle, Props>(
 											size="small"
 											color="error"
 											onClick={() => onRemove(row.productId)}
-											aria-label={translate("actionDelete")}
+											aria-label={t("actionDelete")}
 										>
 											<DeleteForeverIcon fontSize="small" />
 										</IconButton>
@@ -156,7 +157,7 @@ const LinesTable = forwardRef<LinesTableHandle, Props>(
 							<TableRow>
 								<TableCell colSpan={6} sx={{ py: 3 }}>
 									<Typography variant="body2" color="text.secondary" align="center">
-										{translate("transaction.noLines")}
+										{t("transaction.noLines")}
 									</Typography>
 								</TableCell>
 							</TableRow>

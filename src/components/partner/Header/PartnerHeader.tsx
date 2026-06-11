@@ -1,8 +1,8 @@
 import React, { JSX } from "react";
+import { useTranslation } from "react-i18next";
 import { PartnerTypeSelect } from "components/partner/PartnerTypeSelect/PartnerTypeSelect";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 import { PartnerTypeFilters } from "stores/PartnerStore";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -23,30 +23,33 @@ const PartnerHeader: React.FC<PartnerHeaderProps> = ({
 	onSearch,
 	onPartnerTypeChange,
 	onCreate,
-}): JSX.Element => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">{translate("partner.title")}</Typography>
-		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<SearchInput
-				value={searchValue}
-				onChange={onSearch}
-				placeholder={translate("partner.searchPlaceholder")}
-			/>
-			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
-				<PartnerTypeSelect type={patnerType} onChange={onPartnerTypeChange} />
-			</FormControl>
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("partner.addButton")}
-			</PrimaryButton>
+}): JSX.Element => {
+	const { t } = useTranslation();
+	return (
+		<Box
+			display="flex"
+			flexWrap="wrap"
+			justifyContent="space-between"
+			alignItems="center"
+			mb={3}
+			sx={{ gap: 2 }}
+		>
+			<Typography variant="h5">{t("partner.title")}</Typography>
+			<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+				<SearchInput
+					value={searchValue}
+					onChange={onSearch}
+					placeholder={t("partner.searchPlaceholder")}
+				/>
+				<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
+					<PartnerTypeSelect type={patnerType} onChange={onPartnerTypeChange} />
+				</FormControl>
+				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+					{t("partner.addButton")}
+				</PrimaryButton>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};
 
 export default PartnerHeader;

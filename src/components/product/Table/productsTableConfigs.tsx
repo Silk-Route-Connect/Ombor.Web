@@ -1,5 +1,5 @@
 import { Column } from "components/shared/Table/DataTable/DataTable";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { Product } from "models/product";
 
 export const productColumns: Column<Product>[] = [
@@ -30,7 +30,7 @@ export const productColumns: Column<Product>[] = [
 		headerName: "Тип",
 		sortable: true,
 		width: "15%",
-		renderCell: (p) => translate(`product.type.${p.type}`),
+		renderCell: (p) => i18next.t(`product.type.${p.type}`),
 	},
 	{
 		key: "salePrice",

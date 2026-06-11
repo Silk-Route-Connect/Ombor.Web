@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
 	CreatePartnerRequest,
@@ -127,7 +127,7 @@ export class PartnerStore implements IPartnerStore {
 		const result = await tryRun(() => PartnerApi.getAll(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.getAll"));
+			this.notificationStore.error(i18next.t("partners.errors.getAll"));
 		}
 
 		const data = result.status === "success" ? result.data : [];
@@ -139,7 +139,7 @@ export class PartnerStore implements IPartnerStore {
 		const result = await withSaving(this, () => PartnerApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.create"));
+			this.notificationStore.error(i18next.t("partners.errors.create"));
 			return;
 		}
 
@@ -150,14 +150,14 @@ export class PartnerStore implements IPartnerStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.create"));
+		this.notificationStore.success(i18next.t("partners.success.create"));
 	}
 
 	async update(request: UpdatePartnerRequest): Promise<void> {
 		const result = await withSaving(this, () => PartnerApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.update"));
+			this.notificationStore.error(i18next.t("partners.errors.update"));
 			return;
 		}
 
@@ -170,14 +170,14 @@ export class PartnerStore implements IPartnerStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.update"));
+		this.notificationStore.success(i18next.t("partners.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
 		const result = await withSaving(this, () => PartnerApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.delete"));
+			this.notificationStore.error(i18next.t("partners.errors.delete"));
 			return;
 		}
 
@@ -188,7 +188,7 @@ export class PartnerStore implements IPartnerStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.delete"));
+		this.notificationStore.success(i18next.t("partners.success.delete"));
 	}
 
 	setSearch(term: string): void {

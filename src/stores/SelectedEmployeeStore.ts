@@ -1,6 +1,6 @@
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Employee } from "models/employee";
 import { Payment } from "models/payment";
@@ -65,7 +65,7 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 		const result = await tryRun(() => PayrollApi.getHistory({ employeeId: selectedEmployee.id }));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payroll.error.getHistory"));
+			this.notificationStore.error(i18next.t("payroll.error.getHistory"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;

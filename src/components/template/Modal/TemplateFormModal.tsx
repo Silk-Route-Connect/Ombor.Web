@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Template } from "models/template";
 import { useStore } from "stores/StoreContext";
@@ -24,6 +24,7 @@ interface Props {
 }
 
 const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClose, onSave }) => {
+	const { t } = useTranslation();
 	const { partnerStore, productStore } = useStore();
 
 	const templateForm = useTemplateForm({
@@ -59,7 +60,7 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClos
 				disableRestoreFocus
 			>
 				<FormDialogHeader
-					title={translate(template ? "editTemplateTitle" : "createTemplateTitle")}
+					title={t(template ? "editTemplateTitle" : "createTemplateTitle")}
 					disabled={isSaving}
 					onClose={requestClose}
 				/>
@@ -80,10 +81,10 @@ const TemplateFormModal: React.FC<Props> = ({ isOpen, isSaving, template, onClos
 
 			<ConfirmDialog
 				isOpen={discardOpen}
-				title={translate("unsavedChangesTitle")}
-				content={<Typography>{translate("unsavedChangesContent")}</Typography>}
-				confirmLabel={translate("common.dialog.discardChanges.confirm")}
-				cancelLabel={translate("common.dialog.discardChanges.cancel")}
+				title={t("unsavedChangesTitle")}
+				content={<Typography>{t("unsavedChangesContent")}</Typography>}
+				confirmLabel={t("common.dialog.discardChanges.confirm")}
+				cancelLabel={t("common.dialog.discardChanges.cancel")}
 				onConfirm={confirmDiscard}
 				onCancel={cancelDiscard}
 			/>

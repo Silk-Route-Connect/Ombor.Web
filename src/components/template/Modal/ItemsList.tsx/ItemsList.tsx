@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 
 import { Box, CircularProgress, Grid } from "@mui/material";
 
@@ -33,6 +33,8 @@ export const ItemsList: React.FC<ItemsListProps & InputFieldRefs> = ({
 	onUpdate,
 	onRemove,
 }) => {
+	const { t } = useTranslation();
+
 	if (data === "loading") {
 		return (
 			<Box>
@@ -42,7 +44,7 @@ export const ItemsList: React.FC<ItemsListProps & InputFieldRefs> = ({
 	}
 
 	if (data.length === 0) {
-		return <Box color="text.secondary">{translate("transaction.noLines")}</Box>;
+		return <Box color="text.secondary">{t("transaction.noLines")}</Box>;
 	}
 
 	return (

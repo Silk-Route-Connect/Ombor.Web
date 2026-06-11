@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 
 import {
 	Box,
@@ -41,6 +41,7 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 	onToggleFull,
 	onAllocateChange,
 }) => {
+	const { t } = useTranslation();
 	const theme = useTheme();
 
 	if (loading) {
@@ -56,13 +57,13 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 			<TableHead sx={{ bgcolor: theme.palette.background.default }}>
 				<TableRow>
 					<TableCell width={48} />
-					<TableCell>{translate("payDebts.id")}</TableCell>
-					<TableCell>{translate("payDebts.date")}</TableCell>
-					<TableCell align="right">{translate("transaction.totalDue")}</TableCell>
-					<TableCell align="right">{translate("transaction.totalPaid")}</TableCell>
-					<TableCell align="right">{translate("payDebts.leftover")}</TableCell>
+					<TableCell>{t("payDebts.id")}</TableCell>
+					<TableCell>{t("payDebts.date")}</TableCell>
+					<TableCell align="right">{t("transaction.totalDue")}</TableCell>
+					<TableCell align="right">{t("transaction.totalPaid")}</TableCell>
+					<TableCell align="right">{t("payDebts.leftover")}</TableCell>
 					<TableCell align="right" sx={{ width: 150 }}>
-						{translate("payDebts.allocate")}
+						{t("payDebts.allocate")}
 					</TableCell>
 				</TableRow>
 			</TableHead>
@@ -75,7 +76,7 @@ const DebtsTable: React.FC<DebtsTableProps> = ({
 						<TableRow key={r.id}>
 							{/* checkbox */}
 							<TableCell padding="checkbox">
-								<Tooltip title={canPayFully ? "" : translate("payDebts.notEnough")}>
+								<Tooltip title={canPayFully ? "" : t("payDebts.notEnough")}>
 									<span>
 										<Checkbox
 											checked={r.payFully}

@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/Table/ExpandableDataTable/Expandabl
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Employee } from "models/employee";
 import { Payment } from "models/payment";
@@ -116,7 +116,7 @@ export class PayrollStore implements IPayrollStore {
 		const result = await tryRun(() => PayrollApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payroll.error.getAll"));
+			this.notificationStore.error(i18next.t("payroll.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? prev : result.data;
@@ -127,7 +127,7 @@ export class PayrollStore implements IPayrollStore {
 		const result = await withSaving(this, () => PayrollApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payroll.error.create"));
+			this.notificationStore.error(i18next.t("payroll.error.create"));
 			return;
 		}
 
@@ -138,14 +138,14 @@ export class PayrollStore implements IPayrollStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("payroll.success.create"));
+		this.notificationStore.success(i18next.t("payroll.success.create"));
 	}
 
 	async update(request: UpdatePayrollRequest): Promise<void> {
 		const result = await withSaving(this, () => PayrollApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payroll.error.update"));
+			this.notificationStore.error(i18next.t("payroll.error.update"));
 			return;
 		}
 
@@ -158,14 +158,14 @@ export class PayrollStore implements IPayrollStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("payroll.success.update"));
+		this.notificationStore.success(i18next.t("payroll.success.update"));
 	}
 
 	async delete(request: DeletePayrollRequest): Promise<void> {
 		const result = await withSaving(this, () => PayrollApi.delete(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("payroll.error.delete"));
+			this.notificationStore.error(i18next.t("payroll.error.delete"));
 			return;
 		}
 
@@ -176,7 +176,7 @@ export class PayrollStore implements IPayrollStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("payroll.success.delete"));
+		this.notificationStore.success(i18next.t("payroll.success.delete"));
 	}
 
 	setSearch(term: string): void {

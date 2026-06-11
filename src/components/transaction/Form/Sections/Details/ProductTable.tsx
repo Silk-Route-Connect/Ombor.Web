@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Product } from "models/product";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -43,41 +43,45 @@ interface RowProps {
 
 const CELL = { py: 1, px: 1 };
 
-const ProductRow: React.FC<RowProps> = ({ row, disabled, selected, onSelect, onAdd }) => (
-	<TableRow
-		hover
-		selected={selected}
-		onClick={onSelect}
-		onDoubleClick={disabled ? undefined : onAdd}
-		sx={{ cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }}
-	>
-		<TableCell sx={CELL}>{row.name}</TableCell>
-		<TableCell sx={CELL}>{row.sku}</TableCell>
-		<TableCell sx={CELL} align="right">
-			{row.supplyPrice.toLocaleString()}
-		</TableCell>
-		<TableCell sx={CELL} align="right">
-			{row.salePrice.toLocaleString()}
-		</TableCell>
-		<TableCell sx={CELL} align="right">
-			{row.retailPrice.toLocaleString()}
-		</TableCell>
-		<TableCell sx={CELL}>
-			<IconButton
-				disabled={disabled}
-				size="small"
-				color="primary"
-				onClick={(e) => {
-					e.stopPropagation();
-					onAdd();
-				}}
-				aria-label={translate("add")}
-			>
-				<AddIcon fontSize="small" />
-			</IconButton>
-		</TableCell>
-	</TableRow>
-);
+const ProductRow: React.FC<RowProps> = ({ row, disabled, selected, onSelect, onAdd }) => {
+	const { t } = useTranslation();
+
+	return (
+		<TableRow
+			hover
+			selected={selected}
+			onClick={onSelect}
+			onDoubleClick={disabled ? undefined : onAdd}
+			sx={{ cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }}
+		>
+			<TableCell sx={CELL}>{row.name}</TableCell>
+			<TableCell sx={CELL}>{row.sku}</TableCell>
+			<TableCell sx={CELL} align="right">
+				{row.supplyPrice.toLocaleString()}
+			</TableCell>
+			<TableCell sx={CELL} align="right">
+				{row.salePrice.toLocaleString()}
+			</TableCell>
+			<TableCell sx={CELL} align="right">
+				{row.retailPrice.toLocaleString()}
+			</TableCell>
+			<TableCell sx={CELL}>
+				<IconButton
+					disabled={disabled}
+					size="small"
+					color="primary"
+					onClick={(e) => {
+						e.stopPropagation();
+						onAdd();
+					}}
+					aria-label={t("add")}
+				>
+					<AddIcon fontSize="small" />
+				</IconButton>
+			</TableCell>
+		</TableRow>
+	);
+};
 
 const MemoRow = memo(
 	ProductRow,
@@ -95,6 +99,7 @@ export interface ProductTableHandle {
 
 const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 	({ rows, mode, selectedId, onSelect, onAdd, onSearchChange }, ref) => {
+		const { t } = useTranslation();
 		const theme = useTheme();
 		const containerRef = useRef<HTMLDivElement>(null);
 
@@ -216,19 +221,19 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 				<Table stickyHeader size="small" sx={{ tableLayout: "fixed" }}>
 					<TableHead>
 						<TableRow sx={{ bgcolor: theme.palette.background.paper }}>
-							<TableCell sx={{ ...CELL, width: "25%" }}>{translate("product.name")}</TableCell>
-							<TableCell sx={{ ...CELL, width: "10%" }}>{translate("product.sku")}</TableCell>
+							<TableCell sx={{ ...CELL, width: "25%" }}>{t("product.name")}</TableCell>
+							<TableCell sx={{ ...CELL, width: "10%" }}>{t("product.sku")}</TableCell>
 							<TableCell sx={{ ...CELL, width: "15%" }} align="right">
-								{translate("product.stock")}
+								{t("product.stock")}
 							</TableCell>
 							<TableCell sx={{ ...CELL, width: "15%" }} align="right">
-								{translate("product.supplyPrice")}
+								{t("product.supplyPrice")}
 							</TableCell>
 							<TableCell sx={{ ...CELL, width: "15%" }} align="right">
-								{translate("product.salePrice")}
+								{t("product.salePrice")}
 							</TableCell>
 							<TableCell sx={{ ...CELL, width: "15%" }} align="right">
-								{translate("product.retailPrice")}
+								{t("product.retailPrice")}
 							</TableCell>
 							<TableCell sx={{ ...CELL, width: 48 }} />
 						</TableRow>
@@ -253,7 +258,7 @@ const ProductTable = forwardRef<ProductTableHandle, ProductTableProps>(
 							<TableRow>
 								<TableCell colSpan={7} sx={{ py: 3 }}>
 									<Typography variant="body2" color="text.secondary" align="center">
-										{translate("noData")}
+										{t("noData")}
 									</Typography>
 								</TableCell>
 							</TableRow>

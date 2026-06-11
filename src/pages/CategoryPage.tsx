@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 
 import { Box } from "@mui/material";
@@ -12,6 +12,7 @@ import { Box } from "@mui/material";
 import { useStore } from "../stores/StoreContext";
 
 const CategoryPage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { categoryStore } = useStore();
 
 	useEffect(() => {
@@ -38,7 +39,7 @@ const CategoryPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<CategoryHeader
-				title={translate("category.title")}
+				title={t("category.title")}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}
@@ -62,8 +63,8 @@ const CategoryPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogType === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("category.deleteConfirmation", {
+				title={t("common.deleteTitle")}
+				content={t("category.deleteConfirmation", {
 					categoryName: categoryStore.selectedCategory?.name || "",
 				})}
 				onCancel={categoryStore.closeDialog}

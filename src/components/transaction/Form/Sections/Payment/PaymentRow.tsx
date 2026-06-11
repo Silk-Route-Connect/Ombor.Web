@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 import {
 	ALL_PAYMENT_CURRENCIES,
 	ALL_PAYMENT_METHODS,
@@ -37,6 +37,8 @@ const PaymentRow: React.FC<Props> = ({
 	onUpdate,
 	onRemove,
 }) => {
+	const { t } = useTranslation();
+
 	const isAccountBalance = row.method === "AccountBalance";
 
 	const handleAmountChange = (raw: string) =>
@@ -58,7 +60,7 @@ const PaymentRow: React.FC<Props> = ({
 		<Stack direction="row" spacing={1} alignItems="flex-start">
 			<NumericField
 				size="small"
-				label={translate("payment.amount")}
+				label={t("payment.amount")}
 				value={row.amount}
 				fullWidth
 				min={0}
@@ -71,13 +73,13 @@ const PaymentRow: React.FC<Props> = ({
 				select
 				size="small"
 				fullWidth
-				label={translate("payment.method")}
+				label={t("payment.method")}
 				value={row.method}
 				onChange={(e) => handleMethodChange(e.target.value as PaymentMethod)}
 			>
 				{availableMethod.map((m) => (
 					<MenuItem key={m} value={m}>
-						{translate(`payment.method.${m}`)}
+						{t(`payment.method.${m}`)}
 					</MenuItem>
 				))}
 			</TextField>
@@ -87,7 +89,7 @@ const PaymentRow: React.FC<Props> = ({
 				size="small"
 				fullWidth
 				disabled={isAccountBalance}
-				label={translate("fieldCurrency")}
+				label={t("fieldCurrency")}
 				value={row.currency}
 				onChange={(e) =>
 					onUpdate(row.id, {
@@ -107,7 +109,7 @@ const PaymentRow: React.FC<Props> = ({
 				size="small"
 				fullWidth
 				disabled={isAccountBalance || row.currency === "UZS"}
-				label={translate("payment.exchangeRate")}
+				label={t("payment.exchangeRate")}
 				value={row.exchangeRate}
 				min={0}
 				step={0.0001}
@@ -115,7 +117,7 @@ const PaymentRow: React.FC<Props> = ({
 			/>
 
 			{isRemovable && (
-				<Tooltip title={translate("delete")}>
+				<Tooltip title={t("delete")}>
 					<IconButton onClick={() => onRemove(row.id)} color="error">
 						<DeleteIcon />
 					</IconButton>

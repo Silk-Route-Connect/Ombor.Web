@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { PartnerBalance } from "models/partner";
 import { formatNumberWithCommas } from "utils/formatCurrency";
 
@@ -15,6 +15,7 @@ const getColor = (amount: number) => {
 };
 
 const PartnerBalanceTooltip: React.FC<PartnerBalanceTooltipProps> = ({ balance }) => {
+	const { t } = useTranslation();
 	const hasDetails = useMemo(() => {
 		if (!balance) return false;
 
@@ -33,25 +34,25 @@ const PartnerBalanceTooltip: React.FC<PartnerBalanceTooltipProps> = ({ balance }
 
 		if (balance.partnerAdvance > 0)
 			items.push({
-				label: translate("partner.partnerAdvance"),
+				label: t("partner.partnerAdvance"),
 				amount: balance.partnerAdvance,
 			});
 
 		if (balance.companyAdvance > 0)
 			items.push({
-				label: translate("partner.companyAdvance"),
+				label: t("partner.companyAdvance"),
 				amount: balance.companyAdvance,
 			});
 
 		if (balance.payableDebt > 0)
 			items.push({
-				label: translate("partner.payableDebt"),
+				label: t("partner.payableDebt"),
 				amount: balance.payableDebt,
 			});
 
 		if (balance.receivableDebt > 0)
 			items.push({
-				label: translate("partner.receivableDebt"),
+				label: t("partner.receivableDebt"),
 				amount: balance.receivableDebt,
 			});
 
@@ -64,7 +65,7 @@ const PartnerBalanceTooltip: React.FC<PartnerBalanceTooltipProps> = ({ balance }
 				))}
 			</Stack>
 		);
-	}, [balance]);
+	}, [balance, t]);
 
 	if (!balance) {
 		return (
@@ -77,7 +78,7 @@ const PartnerBalanceTooltip: React.FC<PartnerBalanceTooltipProps> = ({ balance }
 	return hasDetails ? (
 		<Tooltip
 			title={tooltipContent}
-			aria-label={translate("partner.balanceDetails")}
+			aria-label={t("partner.balanceDetails")}
 			arrow
 			placement="bottom"
 		>

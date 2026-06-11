@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Product } from "models/product";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,6 +27,7 @@ export default function ProductDetailsDrawer({
 	product,
 	onClose,
 }: Readonly<ProductDetailsDrawerProps>) {
+	const { t } = useTranslation();
 	const [tab, setTab] = useState(0);
 	const handleTabChange = (_: React.SyntheticEvent, newVal: number) => setTab(newVal);
 
@@ -51,7 +52,7 @@ export default function ProductDetailsDrawer({
 				<Typography variant="h6" sx={{ flexGrow: 1 }}>
 					{product?.name}
 				</Typography>
-				<IconButton onClick={onClose} aria-label={translate("close")}>
+				<IconButton onClick={onClose} aria-label={t("close")}>
 					<CloseIcon />
 				</IconButton>
 			</Box>
@@ -60,13 +61,13 @@ export default function ProductDetailsDrawer({
 			<Tabs
 				value={tab}
 				onChange={handleTabChange}
-				aria-label={translate("productDetailsTabsAria")}
+				aria-label={t("productDetailsTabsAria")}
 				sx={{ borderBottom: 1, borderColor: "divider" }}
 			>
-				<Tab label={translate("tabDetails")} />
-				<Tab label={translate("tabReports")} />
-				<Tab label={translate("tabSales")} />
-				<Tab label={translate("tabSupplies")} />
+				<Tab label={t("tabDetails")} />
+				<Tab label={t("tabReports")} />
+				<Tab label={t("tabSales")} />
+				<Tab label={t("tabSupplies")} />
 			</Tabs>
 
 			<TabPanel index={0}>{product && <DetailsTab product={product} />}</TabPanel>

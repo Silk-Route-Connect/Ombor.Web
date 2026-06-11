@@ -1,6 +1,6 @@
 import React, { MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
-import { translate } from "i18n/i18n";
 
 import AddIcon from "@mui/icons-material/Add";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -32,6 +32,7 @@ interface TopbarProps {
 const iconStyle: SxProps<Theme> = { color: "text.primary", ml: 1 };
 
 const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
+	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 
 	const [quickAnchor, setQuickAnchor] = React.useState<HTMLElement | null>(null);
@@ -44,6 +45,11 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 
 	const handleLangOpen = (e: MouseEvent<HTMLElement>) => setLangAnchor(e.currentTarget);
 	const handleLangClose = () => setLangAnchor(null);
+
+	const handleLangSelect = (lng: string) => {
+		i18n.changeLanguage(lng);
+		handleLangClose();
+	};
 
 	const handleUserOpen = (e: MouseEvent<HTMLElement>) => setUserAnchor(e.currentTarget);
 	const handleUserClose = () => setUserAnchor(null);
@@ -85,12 +91,12 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						}}
 					>
 						<WarehouseIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
-						<Typography variant="h6">{translate("topbar.title")}</Typography>
+						<Typography variant="h6">{t("topbar.title")}</Typography>
 					</NavLink>
 				</Box>
 
 				<Box display="flex" alignItems="center">
-					<Tooltip title={translate("topbar.quickActions")} arrow enterDelay={200}>
+					<Tooltip title={t("topbar.quickActions")} arrow enterDelay={200}>
 						<IconButton
 							onClick={handleQuickOpen}
 							sx={{
@@ -111,18 +117,16 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						transformOrigin={{ vertical: "top", horizontal: "center" }}
 					>
 						<MenuItem onClick={() => handleQuickNavigate("/new/sales")}>
-							{translate("topbar.quickActions.sale")}
+							{t("topbar.quickActions.sale")}
 						</MenuItem>
 						<MenuItem onClick={() => handleQuickNavigate("/new/supplies")}>
-							{translate("topbar.quickActions.supply")}
+							{t("topbar.quickActions.supply")}
 						</MenuItem>
-						<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.order")}</MenuItem>
-						<MenuItem onClick={handleQuickClose}>
-							{translate("topbar.quickActions.payment")}
-						</MenuItem>
+						<MenuItem onClick={handleQuickClose}>{t("topbar.quickActions.order")}</MenuItem>
+						<MenuItem onClick={handleQuickClose}>{t("topbar.quickActions.payment")}</MenuItem>
 					</Menu>
 
-					<Tooltip title={translate("topbar.notifications")} arrow enterDelay={200}>
+					<Tooltip title={t("topbar.notifications")} arrow enterDelay={200}>
 						<IconButton sx={iconStyle}>
 							<Badge variant="dot" color="error">
 								<NotificationsIcon />
@@ -131,7 +135,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 					</Tooltip>
 
 					<Tooltip
-						title={darkMode ? translate("topbar.lightMode") : translate("topbar.darkMode")}
+						title={darkMode ? t("topbar.lightMode") : t("topbar.darkMode")}
 						arrow
 						enterDelay={200}
 					>
@@ -140,7 +144,7 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						</IconButton>
 					</Tooltip>
 
-					<Tooltip title={translate("topbar.language")} arrow enterDelay={200}>
+					<Tooltip title={t("topbar.language")} arrow enterDelay={200}>
 						<IconButton onClick={handleLangOpen} sx={iconStyle}>
 							<LanguageIcon />
 						</IconButton>
@@ -153,11 +157,11 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
 						transformOrigin={{ vertical: "top", horizontal: "center" }}
 					>
-						<MenuItem onClick={handleLangClose}>RU</MenuItem>
-						<MenuItem onClick={handleLangClose}>UZ</MenuItem>
+						<MenuItem onClick={() => handleLangSelect("ru")}>RU</MenuItem>
+						<MenuItem onClick={() => handleLangSelect("uz")}>UZ</MenuItem>
 					</Menu>
 
-					<Tooltip title={translate("topbar.userMenu")} arrow enterDelay={200}>
+					<Tooltip title={t("topbar.userMenu")} arrow enterDelay={200}>
 						<IconButton onClick={handleUserOpen} sx={iconStyle}>
 							<Avatar
 								sx={{
@@ -179,9 +183,9 @@ const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
 						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
 						transformOrigin={{ vertical: "top", horizontal: "center" }}
 					>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.account")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.settings")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.logout")}</MenuItem>
+						<MenuItem onClick={handleUserClose}>{t("topbar.account")}</MenuItem>
+						<MenuItem onClick={handleUserClose}>{t("topbar.settings")}</MenuItem>
+						<MenuItem onClick={handleUserClose}>{t("topbar.logout")}</MenuItem>
 					</Menu>
 				</Box>
 			</Toolbar>

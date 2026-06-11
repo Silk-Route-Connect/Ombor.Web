@@ -1,8 +1,8 @@
 import React from "react";
 import { Control, Controller, UseFormSetValue, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 import AutorenewIcon from "@mui/icons-material/Autorenew";
@@ -26,6 +26,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 	disabled,
 	onGenerateSku,
 }) => {
+	const { t } = useTranslation();
 	const type = useWatch({ control, name: "type" as const });
 
 	const supplyDisabled = type === "Sale" || disabled;
@@ -43,7 +44,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 				render={({ field, fieldState }) => (
 					<TextField
 						{...field}
-						label={translate("product.name")}
+						label={t("product.name")}
 						required
 						fullWidth
 						disabled={disabled}
@@ -78,7 +79,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<TextField
 						select
 						fullWidth
-						label={translate("product.measurement")}
+						label={t("product.measurement")}
 						value={field.value}
 						onChange={(e) => field.onChange(e.target.value)}
 						disabled={disabled}
@@ -87,7 +88,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					>
 						{["Gram", "Kilogram", "Liter", "Unit", "None"].map((m) => (
 							<MenuItem key={m} value={m}>
-								{translate(`product.measurement.${m}`)}
+								{t(`product.measurement.${m}`)}
 							</MenuItem>
 						))}
 					</TextField>
@@ -101,16 +102,16 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<TextField
 						select
 						fullWidth
-						label={translate("product.type")}
+						label={t("product.type")}
 						value={field.value}
 						onChange={(e) => field.onChange(e.target.value)}
 						disabled={disabled}
 						error={!!fieldState.error}
 						helperText={fieldState.error?.message}
 					>
-						{["Sale", "Supply", "All"].map((t) => (
-							<MenuItem key={t} value={t}>
-								{translate(`product.type.${t}`)}
+						{["Sale", "Supply", "All"].map((typeOption) => (
+							<MenuItem key={typeOption} value={typeOption}>
+								{t(`product.type.${typeOption}`)}
 							</MenuItem>
 						))}
 					</TextField>
@@ -124,7 +125,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<NumericField
 						{...field}
 						value={field.value}
-						label={translate("product.supplyPrice")}
+						label={t("product.supplyPrice")}
 						required={supplyRequired}
 						min={0}
 						step={1}
@@ -143,7 +144,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<NumericField
 						{...field}
 						value={field.value}
-						label={translate("product.salePrice")}
+						label={t("product.salePrice")}
 						required={saleRequired}
 						min={0}
 						step={1}
@@ -162,7 +163,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<NumericField
 						{...field}
 						value={field.value}
-						label={translate("product.retailPrice")}
+						label={t("product.retailPrice")}
 						required={retailRequired}
 						min={0}
 						step={1}
@@ -180,7 +181,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 				render={({ field, fieldState }) => (
 					<TextField
 						{...field}
-						label={translate("product.sku")}
+						label={t("product.sku")}
 						fullWidth
 						required
 						disabled={disabled}
@@ -193,7 +194,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 										<IconButton
 											onClick={onGenerateSku}
 											size="small"
-											aria-label={translate("action.generateSku")}
+											aria-label={t("action.generateSku")}
 											disabled={disabled}
 										>
 											<AutorenewIcon fontSize="small" />
@@ -212,7 +213,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 				render={({ field, fieldState }) => (
 					<TextField
 						{...field}
-						label={translate("product.barcode")}
+						label={t("product.barcode")}
 						fullWidth
 						disabled={disabled}
 						error={!!fieldState.error}

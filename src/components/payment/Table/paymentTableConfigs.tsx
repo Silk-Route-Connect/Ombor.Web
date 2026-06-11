@@ -1,5 +1,5 @@
 import { Column } from "components/shared/Table/DataTable/DataTable";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { Payment } from "models/payment";
 import { formatNotes } from "utils/stringUtils";
 
@@ -7,14 +7,14 @@ export const paymentColumns: Column<Payment>[] = [
 	{
 		key: "payment-number",
 		field: "id",
-		headerName: translate("payment.number"),
+		headerName: i18next.t("payment.number"),
 		sortable: true,
 		width: "10%",
 	},
 	{
 		key: "date",
 		field: "date",
-		headerName: translate("payment.date"),
+		headerName: i18next.t("payment.date"),
 		sortable: true,
 		width: "15%",
 		renderCell: (row) => new Date(row.date).toLocaleString("ru-RU"),
@@ -22,7 +22,7 @@ export const paymentColumns: Column<Payment>[] = [
 	{
 		key: "partner",
 		field: "partnerName",
-		headerName: translate("payment.partner"),
+		headerName: i18next.t("payment.partner"),
 		sortable: true,
 		width: "20%",
 		renderCell: (row) => row.partnerName,
@@ -30,23 +30,23 @@ export const paymentColumns: Column<Payment>[] = [
 	{
 		key: "direction",
 		field: "direction",
-		headerName: translate("payment.direction"),
+		headerName: i18next.t("payment.direction"),
 		sortable: true,
 		width: "10%",
-		renderCell: (p) => translate(`payment.direction.${p.direction}`),
+		renderCell: (p) => i18next.t(`payment.direction.${p.direction}`),
 	},
 	{
 		key: "type",
 		field: "type",
-		headerName: translate("payment.type"),
+		headerName: i18next.t("payment.type"),
 		sortable: true,
 		width: "10%",
-		renderCell: (p) => translate(`payment.type.${p.type}`),
+		renderCell: (p) => i18next.t(`payment.type.${p.type}`),
 	},
 	{
 		key: "amount",
 		field: "amount",
-		headerName: translate("payment.amount"),
+		headerName: i18next.t("payment.amount"),
 		sortable: true,
 		width: "15%",
 		align: "right",
@@ -55,7 +55,7 @@ export const paymentColumns: Column<Payment>[] = [
 	{
 		key: "notes",
 		field: "notes",
-		headerName: translate("payment.notes"),
+		headerName: i18next.t("payment.notes"),
 		sortable: true,
 		width: "15%",
 		renderCell: (p) => formatNotes(p.notes, 30),

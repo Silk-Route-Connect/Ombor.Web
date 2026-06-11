@@ -1,10 +1,10 @@
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { PatternFormat } from "react-number-format";
 import { Link as RouterLink } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PasswordField from "components/shared/PasswordField/PasswordField";
-import { translate } from "i18n/i18n";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { LoginFormValues, loginSchema } from "schemas/AuthSchema";
@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 
 const LoginPage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { authStore, notificationStore } = useStore();
 	const [serverError, setServerError] = React.useState<string | null>(null);
 
@@ -44,13 +45,13 @@ const LoginPage: React.FC = observer(() => {
 				password: values.password,
 			});
 		} catch {
-			notificationStore.error(translate("auth.errors.loginFailed"));
-			setServerError(translate("auth.errors.loginFailed"));
+			notificationStore.error(t("auth.errors.loginFailed"));
+			setServerError(t("auth.errors.loginFailed"));
 		}
 	};
 
 	// Store the label text in a variable to ensure consistency
-	const phoneLabel = translate("auth.phoneNumber");
+	const phoneLabel = t("auth.phoneNumber");
 
 	return (
 		<AuthLayout
@@ -81,7 +82,7 @@ const LoginPage: React.FC = observer(() => {
 											format="+998 ## ### ## ##"
 											mask="_"
 											allowEmptyFormatting
-											label={translate("auth.phoneNumber")}
+											label={t("auth.phoneNumber")}
 											fullWidth
 											slotProps={{
 												input: { inputMode: "tel", autoComplete: "tel" },
@@ -89,7 +90,7 @@ const LoginPage: React.FC = observer(() => {
 											error={Boolean(errors.phoneNumber)}
 											helperText={
 												errors.phoneNumber
-													? translate(errors.phoneNumber.message ?? "auth.errors.invalidPhone")
+													? t(errors.phoneNumber.message ?? "auth.errors.invalidPhone")
 													: " "
 											}
 										/>
@@ -101,13 +102,13 @@ const LoginPage: React.FC = observer(() => {
 									control={control}
 									render={({ field }) => (
 										<PasswordField
-											label={translate("auth.password")}
+											label={t("auth.password")}
 											value={field.value}
 											onChange={(v) => field.onChange(v)}
 											error={Boolean(errors.password)}
 											helperText={
 												errors.password
-													? translate(errors.password.message ?? "auth.errors.required")
+													? t(errors.password.message ?? "auth.errors.required")
 													: undefined
 											}
 											autoComplete="current-password"
@@ -123,12 +124,12 @@ const LoginPage: React.FC = observer(() => {
 									disabled={isSubmitting}
 									sx={{ textTransform: "none", py: 1.25, borderRadius: 2 }}
 								>
-									{isSubmitting ? translate("common.loading") : translate("auth.login")}
+									{isSubmitting ? t("common.loading") : t("auth.login")}
 								</Button>
 
 								<Typography variant="body2" color="text.secondary" textAlign="center">
 									<Link component={RouterLink} to="/register" underline="hover">
-										{translate("auth.goToRegister")}
+										{t("auth.goToRegister")}
 									</Link>
 								</Typography>
 							</Stack>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { TemplateItem } from "models/template";
 import { useStore } from "stores/StoreContext";
 
@@ -33,6 +33,7 @@ interface Props {
 }
 
 const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
+	const { t } = useTranslation();
 	const generateLocalId = useLocalId();
 	const { productStore } = useStore();
 
@@ -94,19 +95,19 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 	return (
 		<Box>
 			<Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
-				<Typography variant="subtitle1">{translate("items")}</Typography>
+				<Typography variant="subtitle1">{t("items")}</Typography>
 				<Button startIcon={<AddIcon />} onClick={handleAdd} disabled={!products.length}>
-					{translate("addItem")}
+					{t("addItem")}
 				</Button>
 			</Box>
 
 			<Table size="small">
 				<TableHead>
 					<TableRow>
-						<TableCell>{translate("product")}</TableCell>
-						<TableCell>{translate("quantity")}</TableCell>
-						<TableCell>{translate("unitPrice")}</TableCell>
-						<TableCell>{translate("discount")}</TableCell>
+						<TableCell>{t("product")}</TableCell>
+						<TableCell>{t("quantity")}</TableCell>
+						<TableCell>{t("unitPrice")}</TableCell>
+						<TableCell>{t("discount")}</TableCell>
 						<TableCell />
 					</TableRow>
 				</TableHead>
@@ -126,7 +127,7 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 									renderInput={(params) => (
 										<TextField
 											{...params}
-											label={translate("product")}
+											label={t("product")}
 											margin="dense"
 											fullWidth
 											slotProps={{ input: { autoComplete: "off" } }}
@@ -138,7 +139,7 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 							<TableCell>
 								<TextField
 									type="number"
-									label={translate("quantity")}
+									label={t("quantity")}
 									value={item.quantity}
 									onChange={(e) => handleUpdate(item.localId, "quantity", Number(e.target.value))}
 									margin="dense"
@@ -149,7 +150,7 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 							<TableCell>
 								<TextField
 									type="number"
-									label={translate("unitPrice")}
+									label={t("unitPrice")}
 									value={item.unitPrice}
 									onChange={(e) => handleUpdate(item.localId, "unitPrice", Number(e.target.value))}
 									margin="dense"
@@ -160,7 +161,7 @@ const TemplateItemsField: React.FC<Props> = ({ items, onChange }) => {
 							<TableCell>
 								<TextField
 									type="number"
-									label={translate("discount")}
+									label={t("discount")}
 									value={item.discount}
 									onChange={(e) => handleUpdate(item.localId, "discount", Number(e.target.value))}
 									margin="dense"

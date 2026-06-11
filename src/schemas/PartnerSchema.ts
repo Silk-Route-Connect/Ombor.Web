@@ -1,4 +1,4 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { PartnerType } from "models/partner";
 import { PARTNER_TYPES } from "utils/partnerUtils";
 import { z } from "zod";
@@ -7,7 +7,7 @@ export const MAX_PHONES_COUNT = 5;
 
 export const PartnerTypeSchema = z.custom<PartnerType>(
 	(v) => typeof v === "string" && (PARTNER_TYPES as readonly string[]).includes(v),
-	{ message: translate("partner.validation.invalidType") },
+	{ message: i18next.t("partner.validation.invalidType") },
 );
 
 const phoneRegex = /^\+?\d{7,15}$/;
@@ -15,14 +15,14 @@ export const PhoneNumberSchema = z
 	.string()
 	.transform((v) => v.replace(/\s+/g, ""))
 	.refine((v) => v === "" || phoneRegex.test(v), {
-		message: translate("partner.validation.invalidPhone"),
+		message: i18next.t("partner.validation.invalidPhone"),
 	});
 
 const stringOrUndefinedTrimmed = (max: number, key: string) =>
 	z
 		.string()
 		.trim()
-		.max(max, translate(key))
+		.max(max, i18next.t(key))
 		.transform((v) => (v === "" ? undefined : v))
 		.optional();
 
@@ -34,8 +34,8 @@ export const PartnerSchema = z.object({
 	name: z
 		.string()
 		.trim()
-		.min(2, translate("partner.validation.nameRequired"))
-		.max(100, translate("partner.validation.nameTooLong")),
+		.min(2, i18next.t("partner.validation.nameRequired"))
+		.max(100, i18next.t("partner.validation.nameTooLong")),
 
 	companyName: stringOrUndefinedTrimmed(100, "partner.validation.companyNameTooLong"),
 
@@ -47,14 +47,14 @@ export const PartnerSchema = z.object({
 		.string()
 		.trim()
 		.refine((v) => v === "" || emailRegex.test(v), {
-			message: translate("partner.validation.invalidEmail"),
+			message: i18next.t("partner.validation.invalidEmail"),
 		})
 		.transform((v) => (v === "" ? undefined : v))
 		.optional(),
 
 	phoneNumbers: z
 		.array(PhoneNumberSchema)
-		.max(MAX_PHONES_COUNT, translate("partner.phoneNumbers.maxLimit"))
+		.max(MAX_PHONES_COUNT, i18next.t("partner.phoneNumbers.maxLimit"))
 		.transform((arr) => arr.filter((v) => v !== ""))
 		.optional()
 		.default([]),
@@ -63,8 +63,8 @@ export const PartnerSchema = z.object({
 
 	balance: z
 		.number()
-		.min(-1_000_000_000, translate("partner.validation.minBalance"))
-		.max(1_000_000_000, translate("partner.validation.maxBalance")),
+		.min(-1_000_000_000, i18next.t("partner.validation.minBalance"))
+		.max(1_000_000_000, i18next.t("partner.validation.maxBalance")),
 });
 
 export type PartnerFormInputs = z.input<typeof PartnerSchema>;

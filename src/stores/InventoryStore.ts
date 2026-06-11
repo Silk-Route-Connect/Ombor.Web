@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import { translate } from "../i18n/i18n";
+import i18next from "../i18n/config";
 import { Inventory, InventoryItem } from "../models/inventory";
 import inventoryApi from "../services/api/InventoryApi";
 import { NotificationStore } from "./NotificationStore";
@@ -48,7 +48,7 @@ export class InventoryStore implements IInventoryStore {
 		const result = await tryRun(() => inventoryApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("inventory.error.getAll") + `: ${result.error}`);
+			this.notificationStore.error(i18next.t("inventory.error.getAll") + `: ${result.error}`);
 			runInAction(() => (this.inventories = []));
 			return;
 		}
@@ -76,7 +76,7 @@ export class InventoryStore implements IInventoryStore {
 		const result = await tryRun(() => inventoryApi.getItems(inventoryId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(`${translate("inventory.error.getItems")}: ${result.error}`);
+			this.notificationStore.error(`${i18next.t("inventory.error.getItems")}: ${result.error}`);
 			runInAction(() => this.itemsByInventory.set(inventoryId, []));
 			return;
 		}

@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { Payment } from "models/payment";
 import { formatDateTime } from "utils/dateUtils";
 
@@ -9,60 +9,64 @@ interface PaymentSummaryProps {
 	payment: Payment;
 }
 
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ payment }) => (
-	<Box sx={{ p: 2, pb: 1 }}>
-		<Grid container columnSpacing={2} rowSpacing={2}>
-			<Grid size={{ xs: 12, sm: 3 }}>
-				<Typography variant="subtitle2" color="text.secondary">
-					{translate("payment.partner")}
-				</Typography>
-				<Link href={`/partners/${payment.partnerId}`} underline="hover">
-					{payment.partnerName}
-				</Link>
-			</Grid>
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({ payment }) => {
+	const { t } = useTranslation();
 
-			<Grid size={{ xs: 12, sm: 3 }}>
-				<Typography variant="subtitle2" color="text.secondary">
-					{translate("payment.date")}
-				</Typography>
-				{formatDateTime(payment.date)}
-			</Grid>
+	return (
+		<Box sx={{ p: 2, pb: 1 }}>
+			<Grid container columnSpacing={2} rowSpacing={2}>
+				<Grid size={{ xs: 12, sm: 3 }}>
+					<Typography variant="subtitle2" color="text.secondary">
+						{t("payment.partner")}
+					</Typography>
+					<Link href={`/partners/${payment.partnerId}`} underline="hover">
+						{payment.partnerName}
+					</Link>
+				</Grid>
 
-			<Grid size={{ xs: 12, sm: 3 }}>
-				<Typography variant="subtitle2" color="text.secondary">
-					{translate("payment.reason")}
-				</Typography>
-				{translate(`payment.reason.${payment.type}`)}
-			</Grid>
+				<Grid size={{ xs: 12, sm: 3 }}>
+					<Typography variant="subtitle2" color="text.secondary">
+						{t("payment.date")}
+					</Typography>
+					{formatDateTime(payment.date)}
+				</Grid>
 
-			<Grid size={{ xs: 12, sm: 3 }}>
-				<Typography variant="subtitle2" color="text.secondary">
-					{translate("payment.direction")}
-				</Typography>
-				<Chip
-					label={translate(`payment.direction.${payment.direction}`)}
-					size="small"
-					color={payment.direction === "Income" ? "success" : "warning"}
-				/>
-			</Grid>
+				<Grid size={{ xs: 12, sm: 3 }}>
+					<Typography variant="subtitle2" color="text.secondary">
+						{t("payment.reason")}
+					</Typography>
+					{t(`payment.reason.${payment.type}`)}
+				</Grid>
 
-			<Grid size={{ xs: 12 }}>
-				<Typography variant="subtitle2" color="text.secondary">
-					{translate("payment.notes")}
-				</Typography>
-				{payment.notes ?? <>&mdash;</>}
-			</Grid>
+				<Grid size={{ xs: 12, sm: 3 }}>
+					<Typography variant="subtitle2" color="text.secondary">
+						{t("payment.direction")}
+					</Typography>
+					<Chip
+						label={t(`payment.direction.${payment.direction}`)}
+						size="small"
+						color={payment.direction === "Income" ? "success" : "warning"}
+					/>
+				</Grid>
 
-			{payment.notes && (
 				<Grid size={{ xs: 12 }}>
 					<Typography variant="subtitle2" color="text.secondary">
-						{translate("fieldNotes")}
+						{t("payment.notes")}
 					</Typography>
-					<Typography>{payment.notes}</Typography>
+					{payment.notes ?? <>&mdash;</>}
 				</Grid>
-			)}
-		</Grid>
-	</Box>
-);
+
+				{payment.notes && (
+					<Grid size={{ xs: 12 }}>
+						<Typography variant="subtitle2" color="text.secondary">
+							{t("fieldNotes")}
+						</Typography>
+						<Typography>{payment.notes}</Typography>
+					</Grid>
+				)}
+			</Grid>
+		</Box>
+	);
+};
 
 export default PaymentSummary;

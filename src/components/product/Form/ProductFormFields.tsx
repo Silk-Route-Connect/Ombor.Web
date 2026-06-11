@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useFilePreviews } from "hooks/product/useFilePreviews";
 import { UseProductFormResult } from "hooks/product/useProductForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
 
@@ -26,6 +26,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	onGenerateSku,
 	imagesBaseUrlResolver,
 }) => {
+	const { t } = useTranslation();
 	const {
 		form,
 		hasPackaging,
@@ -112,7 +113,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 						render={({ field, fieldState }) => (
 							<TextField
 								{...field}
-								label={translate("product.description")}
+								label={t("product.description")}
 								fullWidth
 								multiline
 								minRows={3}

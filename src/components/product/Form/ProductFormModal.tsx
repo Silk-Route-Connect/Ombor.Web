@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { useProductForm } from "hooks/product/useProductForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
@@ -33,6 +33,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	onClose,
 	onGenerateSku,
 }) => {
+	const { t } = useTranslation();
 	const { categoryStore } = useStore();
 
 	const form = useProductForm({
@@ -65,7 +66,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 				disableRestoreFocus
 			>
 				<FormDialogHeader
-					title={translate(product ? "product.title.edit" : "product.title.create")}
+					title={t(product ? "product.title.edit" : "product.title.create")}
 					disabled={isSaving}
 					onClose={requestClose}
 				/>
@@ -93,10 +94,10 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
 			<ConfirmDialog
 				isOpen={discardOpen}
-				title={translate("unsavedChangesTitle")}
-				content={<Typography>{translate("unsavedChangesContent")}</Typography>}
-				confirmLabel={translate("common.dialog.discardChanges.confirm")}
-				cancelLabel={translate("common.dialog.discardChanges.cancel")}
+				title={t("unsavedChangesTitle")}
+				content={<Typography>{t("unsavedChangesContent")}</Typography>}
+				confirmLabel={t("common.dialog.discardChanges.confirm")}
+				cancelLabel={t("common.dialog.discardChanges.cancel")}
 				onConfirm={confirmDiscard}
 				onCancel={cancelDiscard}
 			/>

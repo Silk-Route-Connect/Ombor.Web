@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import EntityAutocomplete, { AutocompleteSize } from "components/shared/Autocomplete/Autocomplete";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
 import type { Template, TemplateType } from "models/template";
@@ -21,6 +21,7 @@ const TemplateAutocomplete: React.FC<Props> = ({
 	size = "medium",
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { templateStore } = useStore();
 
 	useEffect(() => {
@@ -31,8 +32,8 @@ const TemplateAutocomplete: React.FC<Props> = ({
 
 	return (
 		<EntityAutocomplete<Template>
-			label={translate("fieldTemplate")}
-			placeholder={translate("templateSearchPlaceholder")}
+			label={t("fieldTemplate")}
+			placeholder={t("templateSearchPlaceholder")}
 			options={options === "loading" ? [] : options}
 			value={value}
 			size={size}

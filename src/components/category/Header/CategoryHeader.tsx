@@ -1,7 +1,7 @@
 import React, { JSX } from "react";
+import { useTranslation } from "react-i18next";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 
 import AddIcon from "@mui/icons-material/Add";
 import { Box, FormControl, Typography } from "@mui/material";
@@ -19,30 +19,34 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 	searchValue,
 	onCreate,
 	onSearch,
-}): JSX.Element => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">{title}</Typography>
-		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<FormControl margin="dense">
-				<SearchInput
-					value={searchValue}
-					onChange={onSearch}
-					placeholder={translate("category.searchTitle")}
-				/>
-			</FormControl>
+}): JSX.Element => {
+	const { t } = useTranslation();
 
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("common.create")}
-			</PrimaryButton>
+	return (
+		<Box
+			display="flex"
+			flexWrap="wrap"
+			justifyContent="space-between"
+			alignItems="center"
+			mb={3}
+			sx={{ gap: 2 }}
+		>
+			<Typography variant="h5">{title}</Typography>
+			<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+				<FormControl margin="dense">
+					<SearchInput
+						value={searchValue}
+						onChange={onSearch}
+						placeholder={t("category.searchTitle")}
+					/>
+				</FormControl>
+
+				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+					{t("common.create")}
+				</PrimaryButton>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};
 
 export default CategoryHeader;

@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import SaveIcon from "@mui/icons-material/Save";
 import { Box, Button, Tooltip } from "@mui/material";
@@ -18,22 +18,26 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 	fullWidth = false,
 	tooltip,
 	onSave,
-}) => (
-	<Tooltip title={disabled && !loading && tooltip} placement="top">
-		<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
-			<Button
-				variant="contained"
-				startIcon={<SaveIcon />}
-				color="primary"
-				disabled={disabled}
-				loading={loading}
-				fullWidth={fullWidth}
-				onClick={onSave}
-			>
-				{translate("common.save")}
-			</Button>
-		</Box>
-	</Tooltip>
-);
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Tooltip title={disabled && !loading && tooltip} placement="top">
+			<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
+				<Button
+					variant="contained"
+					startIcon={<SaveIcon />}
+					color="primary"
+					disabled={disabled}
+					loading={loading}
+					fullWidth={fullWidth}
+					onClick={onSave}
+				>
+					{t("common.save")}
+				</Button>
+			</Box>
+		</Tooltip>
+	);
+};
 
 export default SaveButton;

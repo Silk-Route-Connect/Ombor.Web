@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 import { Payment } from "models/payment";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -17,6 +17,7 @@ interface PaymentSidePaneProps {
 }
 
 const PaymentSidePane: React.FC<PaymentSidePaneProps> = ({ isOpen, payment, onClose }) => {
+	const { t } = useTranslation();
 	const loading = payment === "loading";
 
 	const renderContent = () => {
@@ -40,7 +41,7 @@ const PaymentSidePane: React.FC<PaymentSidePaneProps> = ({ isOpen, payment, onCl
 				<>
 					<Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
 						<Typography variant="h6" sx={{ flexGrow: 1 }}>
-							{`${translate("payment")} #${payment.id}`}
+							{`${t("payment")} #${payment.id}`}
 						</Typography>
 						<IconButton onClick={onClose}>
 							<CloseIcon />
@@ -55,7 +56,7 @@ const PaymentSidePane: React.FC<PaymentSidePaneProps> = ({ isOpen, payment, onCl
 
 					<Box sx={{ p: 2 }}>
 						<Typography variant="subtitle1" sx={{ mb: 1 }}>
-							{translate("payment.components")}
+							{t("payment.components")}
 						</Typography>
 						<PaymentComponentsTable components={payment.components} />
 					</Box>
@@ -64,7 +65,7 @@ const PaymentSidePane: React.FC<PaymentSidePaneProps> = ({ isOpen, payment, onCl
 
 					<Box sx={{ p: 2 }}>
 						<Typography variant="subtitle1" sx={{ mb: 1 }}>
-							{translate("payment.allocations")}
+							{t("payment.allocations")}
 						</Typography>
 						<AllocationsTable allocations={payment.allocations} />
 					</Box>

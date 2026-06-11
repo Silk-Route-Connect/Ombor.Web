@@ -1,10 +1,10 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { EMPLOYEE_STATUSES, EmployeeStatus } from "models/employee";
 import { z } from "zod";
 
 export const EmployeeStatusSchema = z.custom<EmployeeStatus>(
 	(value) => typeof value === "string" && (EMPLOYEE_STATUSES as readonly string[]).includes(value),
-	{ message: translate("employee.validation.statusInvalid") },
+	{ message: i18next.t("employee.validation.statusInvalid") },
 );
 
 const phoneRegex = /^\+?\d{7,15}$/;
@@ -12,7 +12,7 @@ export const PhoneNumberSchema = z
 	.string()
 	.transform((v) => v.replaceAll(/\s+/g, ""))
 	.refine((v) => v === "" || phoneRegex.test(v), {
-		message: translate("employee.validation.phoneNumberInvalid"),
+		message: i18next.t("employee.validation.phoneNumberInvalid"),
 	});
 
 const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,63}$/;
@@ -27,9 +27,9 @@ const ContactInfoSchema = z
 		email: z
 			.string()
 			.trim()
-			.max(250, translate("employee.validation.emailTooLong"))
+			.max(250, i18next.t("employee.validation.emailTooLong"))
 			.refine((v) => v === "" || emailRegex.test(v), {
-				message: translate("employee.validation.emailInvalid"),
+				message: i18next.t("employee.validation.emailInvalid"),
 			})
 			.optional()
 			.or(z.literal("")),
@@ -37,14 +37,14 @@ const ContactInfoSchema = z
 		address: z
 			.string()
 			.trim()
-			.max(250, translate("employee.validation.addressTooLong"))
+			.max(250, i18next.t("employee.validation.addressTooLong"))
 			.optional()
 			.or(z.literal("")),
 
 		telegramAccount: z
 			.string()
 			.trim()
-			.max(250, translate("employee.validation.telegramTooLong"))
+			.max(250, i18next.t("employee.validation.telegramTooLong"))
 			.optional()
 			.or(z.literal("")),
 	})
@@ -59,22 +59,22 @@ export const EmployeeSchema = z.object({
 	name: z
 		.string()
 		.trim()
-		.min(1, translate("employee.validation.nameRequired"))
-		.max(250, translate("employee.validation.nameTooLong")),
+		.min(1, i18next.t("employee.validation.nameRequired"))
+		.max(250, i18next.t("employee.validation.nameTooLong")),
 
 	position: z
 		.string()
 		.trim()
-		.min(1, translate("employee.validation.positionRequired"))
-		.max(250, translate("employee.validation.positionTooLong")),
+		.min(1, i18next.t("employee.validation.positionRequired"))
+		.max(250, i18next.t("employee.validation.positionTooLong")),
 
-	salary: z.number().min(0, translate("employee.validation.salaryMin")),
+	salary: z.number().min(0, i18next.t("employee.validation.salaryMin")),
 
 	status: EmployeeStatusSchema,
 
 	dateOfEmployment: z
 		.string()
-		.min(1, translate("employee.validation.dateRequired"))
+		.min(1, i18next.t("employee.validation.dateRequired"))
 		.refine(
 			(date) => {
 				const employmentDate = new Date(date);
@@ -83,7 +83,7 @@ export const EmployeeSchema = z.object({
 				return employmentDate <= today;
 			},
 			{
-				message: translate("employee.validation.dateFuture"),
+				message: i18next.t("employee.validation.dateFuture"),
 			},
 		),
 

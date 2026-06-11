@@ -1,7 +1,7 @@
 import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { CreateTransactionPaymentRequest } from "models/payment";
 import {
@@ -144,7 +144,7 @@ export class TransactionStore implements ITransactionStore {
 		const result = await tryRun(() => TransactionApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.errors.getAll"));
+			this.notificationStore.error(i18next.t("transactions.errors.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -160,7 +160,7 @@ export class TransactionStore implements ITransactionStore {
 		const result = await tryRun(() => TransactionApi.getById(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.errors.getById"));
+			this.notificationStore.error(i18next.t("transactions.errors.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -174,7 +174,7 @@ export class TransactionStore implements ITransactionStore {
 
 		runInAction(() => (this.isSaving = false));
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.errors.create"));
+			this.notificationStore.error(i18next.t("transactions.errors.create"));
 			return;
 		}
 
@@ -194,10 +194,10 @@ export class TransactionStore implements ITransactionStore {
 
 		runInAction(() => (this.isSaving = false));
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.errors.createPayment"));
+			this.notificationStore.error(i18next.t("transactions.errors.createPayment"));
 		} else {
 			this.notificationStore.success(
-				`${translate("transactions.success.createPayment")}: ${result.data.id}`,
+				`${i18next.t("transactions.success.createPayment")}: ${result.data.id}`,
 			);
 		}
 	}

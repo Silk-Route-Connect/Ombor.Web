@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { translate } from "i18n/i18n";
 
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -153,6 +153,7 @@ function NavItem({
 
 /* ───────────────────────────── Sidebar ───────────────────────────── */
 export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
+	const { t } = useTranslation();
 	const theme = useTheme();
 	const location = useLocation();
 	const [groups, setGroups] = useState<Record<string, boolean>>({});
@@ -267,13 +268,13 @@ export default function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 				<List disablePadding>
 					<NavItem
 						icon={<SettingsIcon />}
-						label={translate("sidebar.settings")}
+						label={t("sidebar.settings")}
 						to="/settings"
 						drawerOpen={open}
 					/>
 					<NavItem
 						icon={<LogoutIcon />}
-						label={translate("sidebar.logout")}
+						label={t("sidebar.logout")}
 						to="/logout"
 						drawerOpen={open}
 					/>

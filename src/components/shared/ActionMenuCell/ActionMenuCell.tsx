@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -14,6 +14,7 @@ interface ActionMenuCellProps {
 }
 
 export const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ onEdit, onArchive, onDelete }) => {
+	const { t } = useTranslation();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const open = Boolean(anchorEl);
 
@@ -45,21 +46,21 @@ export const ActionMenuCell: React.FC<ActionMenuCellProps> = ({ onEdit, onArchiv
 					<ListItemIcon>
 						<EditIcon fontSize="small" color="warning" />
 					</ListItemIcon>
-					<ListItemText primary={translate("common.edit")} />
+					<ListItemText primary={t("common.edit")} />
 				</MenuItem>
 
 				<MenuItem onClick={(e) => handleClick(onArchive, e)}>
 					<ListItemIcon>
 						<ArchiveIcon fontSize="small" />
 					</ListItemIcon>
-					<ListItemText primary={translate("common.archive")} />
+					<ListItemText primary={t("common.archive")} />
 				</MenuItem>
 
 				<MenuItem onClick={(e) => handleClick(onDelete, e)}>
 					<ListItemIcon>
 						<DeleteIcon fontSize="small" color="error" />
 					</ListItemIcon>
-					<ListItemText primary={translate("common.delete")} />
+					<ListItemText primary={t("common.delete")} />
 				</MenuItem>
 			</Menu>
 		</>

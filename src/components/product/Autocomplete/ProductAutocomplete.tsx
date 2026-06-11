@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import type { Product, ProductType } from "models/product";
 import { useStore } from "stores/StoreContext";
@@ -24,6 +24,7 @@ const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
 	onChange,
 	onKeyDown,
 }) => {
+	const { t } = useTranslation();
 	const { productStore } = useStore();
 
 	const options = useMemo(() => {
@@ -42,8 +43,8 @@ const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Product>
-			label={translate("fieldProduct")}
-			placeholder={translate("searchProductsPlaceholder")}
+			label={t("fieldProduct")}
+			placeholder={t("searchProductsPlaceholder")}
 			options={options === "loading" ? [] : options}
 			value={value}
 			inputRef={inputRef}

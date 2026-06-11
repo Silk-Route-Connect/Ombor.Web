@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 import { TransactionPayment } from "models/payment";
 import { TransactionRecord } from "models/transaction";
 
@@ -24,6 +24,8 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 	payments,
 	onClose,
 }) => {
+	const { t } = useTranslation();
+
 	if (!transaction) {
 		return null;
 	}
@@ -73,7 +75,7 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 		if (payments.length === 0) {
 			return (
 				<Typography color="text.secondary" fontStyle="italic">
-					{translate("transaction.section.payments.empty")}
+					{t("transaction.section.payments.empty")}
 				</Typography>
 			);
 		}
@@ -94,7 +96,7 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 		>
 			<Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
 				<Typography variant="h6" sx={{ flexGrow: 1 }}>
-					{translate(`transaction.type.${transaction.type}`)} #{transaction.id}
+					{t(`transaction.type.${transaction.type}`)} #{transaction.id}
 				</Typography>
 				<IconButton onClick={onClose}>
 					<CloseIcon />
@@ -107,7 +109,7 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 
 			<Box sx={{ p: 2 }}>
 				<Typography variant="subtitle1" sx={{ mb: 1 }}>
-					{translate("transaction.section.payments")}
+					{t("transaction.section.payments")}
 				</Typography>
 				{renderPayments()}
 			</Box>
@@ -115,7 +117,7 @@ const TransactionSidePane: React.FC<TransactionSidePaneProps> = ({
 
 			<Box sx={{ p: 2 }}>
 				<Typography variant="subtitle1" sx={{ mb: 1 }}>
-					{translate("transaction.section.lineItems")}
+					{t("transaction.section.lineItems")}
 				</Typography>
 				<LineItemsTable items={transaction.lines} />
 			</Box>

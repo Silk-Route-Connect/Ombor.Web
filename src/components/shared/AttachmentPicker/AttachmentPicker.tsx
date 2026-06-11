@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 
 import CloseIcon from "@mui/icons-material/Close";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -17,7 +17,7 @@ export interface AttachmentPickerProps {
 const AttachmentPicker: React.FC<AttachmentPickerProps> = ({
 	files,
 	listHeight = 90,
-	label = translate("fieldAttachments"),
+	label = i18next.t("fieldAttachments"),
 	disabled = false,
 	onAdd,
 	onRemove,

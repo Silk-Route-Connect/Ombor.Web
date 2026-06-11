@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { TransactionRecord } from "models/transaction";
 import { useStore } from "stores/StoreContext";
@@ -37,6 +37,7 @@ interface Props {
 
 const PayDebtsModal: React.FC<Props> = observer(
 	({ open, availableAmount, initialAllocations, onClose, onApply }) => {
+		const { t } = useTranslation();
 		const { selectedPartnerStore } = useStore();
 		const debts: Loadable<TransactionRecord[]> = selectedPartnerStore.openTransactions;
 
@@ -149,7 +150,7 @@ const PayDebtsModal: React.FC<Props> = observer(
 						<CloseIcon />
 					</IconButton>
 
-					<Typography variant="h6">{translate("payDebts.title")}</Typography>
+					<Typography variant="h6">{t("payDebts.title")}</Typography>
 					<Divider sx={{ mt: 1 }} />
 				</DialogTitle>
 
@@ -168,10 +169,10 @@ const PayDebtsModal: React.FC<Props> = observer(
 							onClick={autoAllocateOldest}
 							startIcon={<BoltIcon />}
 						>
-							{translate("payDebts.autoAllocateOldest")}
+							{t("payDebts.autoAllocateOldest")}
 						</Button>
 						<Button variant="outlined" size="small" onClick={reset} startIcon={<RestartAltIcon />}>
-							{translate("payDebts.reset")}
+							{t("payDebts.reset")}
 						</Button>
 					</Stack>
 
@@ -196,10 +197,10 @@ const PayDebtsModal: React.FC<Props> = observer(
 
 				<DialogActions sx={{ p: 2 }}>
 					<Button onClick={onClose} startIcon={<CloseIcon />}>
-						{translate("cancel")}
+						{t("cancel")}
 					</Button>
 					<Button variant="contained" startIcon={<DoneIcon />} disabled={!canSave} onClick={apply}>
-						{translate("payDebts.apply")}
+						{t("payDebts.apply")}
 					</Button>
 				</DialogActions>
 			</Dialog>

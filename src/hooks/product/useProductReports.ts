@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
 import { ProductTransaction } from "models/product";
 import { TransactionType } from "models/transaction";
@@ -88,8 +88,8 @@ export function useProductReportsMetrics(
 
 	// Chart series (counts per day)
 	const chartLabels = {
-		transactions: translate("product.reports.sales"),
-		refunds: translate("product.reports.saleRefunds"),
+		transactions: i18next.t("product.reports.sales"),
+		refunds: i18next.t("product.reports.saleRefunds"),
 	};
 
 	const { chartData, chartSeries } = useMemo(() => {

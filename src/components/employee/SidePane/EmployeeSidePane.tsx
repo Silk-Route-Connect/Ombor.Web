@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import { Employee } from "models/employee";
 
@@ -35,6 +35,7 @@ export interface EmployeeSidePaneProps {
 
 const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 	({ open, employee, onClose, onEdit, onDelete, onPayment }) => {
+		const { t } = useTranslation();
 		const [selectedTab, setSelectedTab] = useState<TabKey>("details");
 
 		useEffect(() => {
@@ -47,7 +48,7 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 			() => [
 				{
 					key: "details",
-					label: () => translate("tabDetails"),
+					label: () => t("tabDetails"),
 					render: ({ employee, onEdit, onDelete, onPayment }) => (
 						<DetailsTab
 							employee={employee}
@@ -59,11 +60,11 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 				},
 				{
 					key: "payroll",
-					label: () => translate("tabPayroll"),
+					label: () => t("tabPayroll"),
 					render: ({ employee }) => <PayrollTab employeeId={employee.id} />,
 				},
 			],
-			[],
+			[t],
 		);
 
 		const selectedIndex = tabs.findIndex((t) => t.key === selectedTab);
@@ -92,18 +93,14 @@ const EmployeeSidePane: React.FC<EmployeeSidePaneProps> = observer(
 					<Typography variant="h6" sx={{ flexGrow: 1 }}>
 						{employee.name}
 					</Typography>
-					<IconButton onClick={onClose} aria-label={translate("common.close")}>
+					<IconButton onClick={onClose} aria-label={t("common.close")}>
 						<CloseIcon />
 					</IconButton>
 				</Box>
 
 				<Divider />
 
-				<Tabs
-					value={selectedIndex}
-					onChange={handleTabChange}
-					aria-label={translate("common.sidepane")}
-				>
+				<Tabs value={selectedIndex} onChange={handleTabChange} aria-label={t("common.sidepane")}>
 					{tabs.map((tab) => (
 						<Tab key={tab.key} label={tab.label()} />
 					))}

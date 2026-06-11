@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
-import { translate } from "i18n/i18n";
 
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -20,34 +20,35 @@ const PartnerActionMenu: React.FC<PartnerActionMenuProps> = ({
 	onArchive,
 	onDelete,
 }) => {
+	const { t } = useTranslation();
 	const actions: ActionMenuRow[] = useMemo(
 		() => [
 			{
 				key: "payment",
-				label: translate("partner.payment"),
+				label: t("partner.payment"),
 				icon: <PaymentIcon />,
 				onClick: onPayment,
 			},
 			{
 				key: "edit",
-				label: translate("common.edit"),
+				label: t("common.edit"),
 				icon: <EditIcon />,
 				onClick: onEdit,
 			},
 			{
 				key: "archive",
-				label: translate("common.archive"),
+				label: t("common.archive"),
 				icon: <ArchiveIcon />,
 				onClick: onArchive,
 			},
 			{
 				key: "delete",
-				label: translate("common.delete"),
+				label: t("common.delete"),
 				icon: <DeleteIcon />,
 				onClick: onDelete,
 			},
 		],
-		[onPayment, onEdit, onArchive, onDelete],
+		[onPayment, onEdit, onArchive, onDelete, t],
 	);
 
 	return <ActionMenu actions={actions} />;

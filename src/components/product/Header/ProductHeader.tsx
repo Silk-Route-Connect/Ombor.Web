@@ -1,8 +1,8 @@
 import React, { JSX } from "react";
+import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 import { Category } from "models/category";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -25,30 +25,34 @@ export const ProductHeader: React.FC<CategoryHeaderProps> = ({
 	onSearch,
 	onCategoryChange,
 	onCreate,
-}): JSX.Element => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">{title}</Typography>
-		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<SearchInput
-				value={searchValue}
-				onChange={onSearch}
-				placeholder={translate("product.title.search")}
-			/>
+}): JSX.Element => {
+	const { t } = useTranslation();
 
-			<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
-				<CategoryAutocomplete value={selectedCategory} onChange={onCategoryChange} size="small" />
-			</FormControl>
+	return (
+		<Box
+			display="flex"
+			flexWrap="wrap"
+			justifyContent="space-between"
+			alignItems="center"
+			mb={3}
+			sx={{ gap: 2 }}
+		>
+			<Typography variant="h5">{title}</Typography>
+			<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+				<SearchInput
+					value={searchValue}
+					onChange={onSearch}
+					placeholder={t("product.title.search")}
+				/>
 
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("common.create")}
-			</PrimaryButton>
+				<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
+					<CategoryAutocomplete value={selectedCategory} onChange={onCategoryChange} size="small" />
+				</FormControl>
+
+				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+					{t("common.create")}
+				</PrimaryButton>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};

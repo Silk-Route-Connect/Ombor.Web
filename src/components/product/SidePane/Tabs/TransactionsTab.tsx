@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import ProductTransactionsTable from "components/product/Table/ProductTransactionsTable";
 import DownloadButton, { DownloadOptions } from "components/shared/Buttons/DownloadButton";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateUtils";
@@ -17,6 +17,7 @@ interface TransactionsTabProps {
 }
 
 const TransactionsTab: React.FC<TransactionsTabProps> = ({ mode }) => {
+	const { t } = useTranslation();
 	const { selectedProductStore } = useStore();
 
 	const transactions = useMemo(
@@ -50,8 +51,8 @@ const TransactionsTab: React.FC<TransactionsTabProps> = ({ mode }) => {
 	};
 
 	const totalsTitle = useMemo(
-		() => (mode === "Sale" ? translate("product.salesTotal") : translate("product.suppliesTotal")),
-		[mode],
+		() => (mode === "Sale" ? t("product.salesTotal") : t("product.suppliesTotal")),
+		[mode, t],
 	);
 
 	return (

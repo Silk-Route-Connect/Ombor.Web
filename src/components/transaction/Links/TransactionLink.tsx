@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { TransactionType } from "models/transaction";
 import { TRANSACTION_ROUTES } from "routing";
 
@@ -11,8 +11,10 @@ interface TransactionLinkProps {
 }
 
 const TransactionLink: React.FC<TransactionLinkProps> = ({ id, type }) => {
+	const { t } = useTranslation();
+
 	const path = `${TRANSACTION_ROUTES[type]}/${id}`;
-	const typeLabel = translate(`transaction.type.${type}`);
+	const typeLabel = t(`transaction.type.${type}`);
 
 	return (
 		<Link

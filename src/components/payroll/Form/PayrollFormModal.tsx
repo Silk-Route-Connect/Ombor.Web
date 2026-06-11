@@ -1,11 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeAutocomplete from "components/employee/Autocomplete/EmployeeAutocomplete";
 import PayrollFormFields from "components/payroll/Form/PayrollFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
-import { translate } from "i18n/i18n";
 import { dialogTranslation } from "utils/translationUtils";
 
 import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
@@ -25,6 +25,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
+	const { t } = useTranslation();
 	const {
 		form,
 		canSave,
@@ -45,7 +46,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 		onClose,
 	});
 
-	const title = isEditMode ? translate("payroll.editTitle") : translate("payroll.createTitle");
+	const title = isEditMode ? t("payroll.editTitle") : t("payroll.createTitle");
 
 	return (
 		<>

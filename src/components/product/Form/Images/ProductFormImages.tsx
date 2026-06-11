@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Box, Button, Stack } from "@mui/material";
@@ -36,6 +36,7 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 	onAddMainAndMakeActive,
 	resolveUrl,
 }) => {
+	const { t } = useTranslation();
 	const mainUploadInputRef = useRef<HTMLInputElement | null>(null);
 	const multiUploadInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -101,7 +102,7 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 					onClick={openMultiUpload}
 					disabled={disabled}
 				>
-					{translate("product.images.uploadMore")}
+					{t("product.images.uploadMore")}
 				</Button>
 			</Stack>
 

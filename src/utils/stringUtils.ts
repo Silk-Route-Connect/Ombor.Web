@@ -1,8 +1,8 @@
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 
 export function formatNotes(notes?: string | null, count: number = 30): string {
 	if (!notes) {
-		return translate("common.dash");
+		return i18next.t("common.dash");
 	}
 
 	if (notes.length > count) {
@@ -22,7 +22,7 @@ export function isNullOrWhitespace(str?: string | null): boolean {
 
 export function valueOrPlaceholder(value?: string | null, placeholder?: string): string {
 	if (!value || value.trim().length === 0) {
-		return placeholder ?? translate("common.dash");
+		return placeholder ?? i18next.t("common.dash");
 	}
 
 	return value;

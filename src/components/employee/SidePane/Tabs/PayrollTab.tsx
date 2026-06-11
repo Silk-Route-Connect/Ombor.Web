@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import PayrollTable from "components/payroll/Table/PayrollTable";
 import DownloadButton, { DownloadOptions } from "components/shared/Buttons/DownloadButton";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { DateFilter } from "utils/dateUtils";
@@ -15,6 +15,7 @@ interface PayrollTabProps {
 }
 
 const PayrollTab: React.FC<PayrollTabProps> = observer(({ employeeId }) => {
+	const { t } = useTranslation();
 	const { selectedEmployeeStore } = useStore();
 
 	const handleDownload = (option: DownloadOptions) => {
@@ -54,7 +55,7 @@ const PayrollTab: React.FC<PayrollTabProps> = observer(({ employeeId }) => {
 
 			<Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
 				<Typography variant="body2" color="text.secondary" fontWeight={600}>
-					{translate("employee.payroll.totalAmount")}: {totalAmount.toLocaleString()}
+					{t("employee.payroll.totalAmount")}: {totalAmount.toLocaleString()}
 				</Typography>
 			</Box>
 		</Box>

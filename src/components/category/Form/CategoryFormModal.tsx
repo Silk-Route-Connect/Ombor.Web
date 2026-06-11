@@ -1,10 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
-import { translate } from "i18n/i18n";
 import { Category } from "models/category";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -25,6 +25,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
+	const { t } = useTranslation();
 	const { form, canSave, submit } = useCategoryForm({
 		isOpen,
 		isSaving,
@@ -44,7 +45,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 		formState: { errors },
 	} = form;
 
-	const title = translate(category ? "category.title.edit" : "category.title.create");
+	const title = t(category ? "category.title.edit" : "category.title.create");
 
 	return (
 		<>
@@ -67,7 +68,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 4, pt: 2 }}>
 					<TextField
 						id="category-name"
-						label={translate("category.name")}
+						label={t("category.name")}
 						fullWidth
 						margin="dense"
 						disabled={isSaving}
@@ -77,7 +78,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 					/>
 
 					<TextField
-						label={translate("category.description")}
+						label={t("category.description")}
 						fullWidth
 						multiline
 						minRows={3}

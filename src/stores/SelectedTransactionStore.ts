@@ -1,6 +1,6 @@
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { IReactionDisposer, makeAutoObservable, reaction, runInAction } from "mobx";
 import { TransactionPayment } from "models/payment";
 import { TransactionLine } from "models/transaction";
@@ -47,7 +47,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 		const result = await tryRun(() => TransactionApi.getLines(transactionId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.error.loadLines"));
+			this.notificationStore.error(i18next.t("transactions.error.loadLines"));
 		}
 
 		const data = result.status === "success" ? result.data : [];
@@ -67,7 +67,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 		const result = await tryRun(() => TransactionApi.getPayments(transactionId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("transactions.error.loadPayments"));
+			this.notificationStore.error(i18next.t("transactions.error.loadPayments"));
 		}
 
 		const data = result.status === "success" ? result.data : [];

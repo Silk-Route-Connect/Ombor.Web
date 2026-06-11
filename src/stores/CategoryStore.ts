@@ -3,7 +3,7 @@ import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import { translate } from "../i18n/i18n";
+import i18next from "../i18n/config";
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../models/category";
 import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
@@ -74,7 +74,7 @@ export class CategoryStore implements ICategoryStore {
 		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchTerm }));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.load") + `: ${result.error}`);
+			this.notificationStore.error(i18next.t("category.error.load") + `: ${result.error}`);
 		}
 
 		const data = result.status === "success" ? result.data : [];
@@ -85,7 +85,7 @@ export class CategoryStore implements ICategoryStore {
 		const result = await withSaving(this, () => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.create"));
+			this.notificationStore.error(i18next.t("category.error.create"));
 			return;
 		}
 
@@ -96,14 +96,14 @@ export class CategoryStore implements ICategoryStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("category.success.create"));
+		this.notificationStore.success(i18next.t("category.success.create"));
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<void> {
 		const result = await withSaving(this, () => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.update"));
+			this.notificationStore.error(i18next.t("category.error.update"));
 			return;
 		}
 
@@ -118,14 +118,14 @@ export class CategoryStore implements ICategoryStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("category.success.update"));
+		this.notificationStore.success(i18next.t("category.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
 		const result = await withSaving(this, () => CategoryApi.delete(id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.delete"));
+			this.notificationStore.error(i18next.t("category.error.delete"));
 			return;
 		}
 
@@ -138,7 +138,7 @@ export class CategoryStore implements ICategoryStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("category.success.delete"));
+		this.notificationStore.success(i18next.t("category.success.delete"));
 	}
 
 	setSearch(query: string) {

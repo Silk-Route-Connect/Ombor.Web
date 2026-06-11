@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
@@ -22,6 +22,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	onConfirm,
 	onCancel,
 }) => {
+	const { t } = useTranslation();
+
 	return (
 		<Dialog
 			open={isOpen}
@@ -34,9 +36,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			<DialogTitle>{title}</DialogTitle>
 			<DialogContent>{content}</DialogContent>
 			<DialogActions>
-				<Button onClick={onCancel}>{cancelLabel ?? translate("common.cancel")}</Button>
+				<Button onClick={onCancel}>{cancelLabel ?? t("common.cancel")}</Button>
 				<Button onClick={onConfirm} color="error" variant="contained">
-					{confirmLabel ?? translate("common.delete")}
+					{confirmLabel ?? t("common.delete")}
 				</Button>
 			</DialogActions>
 		</Dialog>

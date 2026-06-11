@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import { ProductHeader } from "components/product/Header/ProductHeader";
 import ProductSidePane from "components/product/SidePane/ProductSidePane";
 import ProductsTable from "components/product/Table/ProductsTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { ProductFormPayload } from "hooks/product/useProductForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { mapFormPackagingToPackaging } from "utils/productUtils";
 
 const ProductPage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { productStore, categoryStore } = useStore();
 
 	useEffect(() => {
@@ -47,9 +48,9 @@ const ProductPage: React.FC = observer(() => {
 	const headerTitle = useMemo(
 		() =>
 			productStore.filteredProducts === "loading"
-				? translate("product.title")
-				: `${translate("product.title")} (${productStore.filteredProducts.length})`,
-		[productStore.filteredProducts],
+				? t("product.title")
+				: `${t("product.title")} (${productStore.filteredProducts.length})`,
+		[productStore.filteredProducts, t],
 	);
 
 	const dialogMode = productStore.dialogMode;
@@ -87,8 +88,8 @@ const ProductPage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("product.deleteConfirmation", {
+				title={t("common.deleteTitle")}
+				content={t("product.deleteConfirmation", {
 					productName: productStore.selectedProduct?.name ?? "",
 				})}
 				onCancel={productStore.closeDialog}

@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import TimeSeriesChart from "components/shared/Charts/TimeSeriesChart/TimeSeriesChart";
 import DateFilterPicker from "components/shared/Date/DateFilterPicker";
 import { TAB_DEFAULT_BODY_SX } from "components/shared/SidePane/tabConfigs";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { observer } from "mobx-react-lite";
 import { DashboardMetrics, TimeSeriesConfig, TimeSeriesPoint } from "models/dashboard";
 import { useStore } from "stores/StoreContext";
@@ -46,12 +47,12 @@ const CARD_DEFINITIONS: ReadonlyArray<StatisticsCardDefinition> = [
 const salesSeries: TimeSeriesConfig[] = [
 	{
 		dataKey: "Sales",
-		name: translate("partner.statistics.sales"),
+		name: i18next.t("partner.statistics.sales"),
 		stroke: theme.palette.primary.main,
 	},
 	{
 		dataKey: "Sale-Refunds",
-		name: translate("partner.statistics.saleRefunds"),
+		name: i18next.t("partner.statistics.saleRefunds"),
 		stroke: theme.palette.warning.main,
 	},
 ];
@@ -59,17 +60,18 @@ const salesSeries: TimeSeriesConfig[] = [
 const suppliesSeries: TimeSeriesConfig[] = [
 	{
 		dataKey: "Supplies",
-		name: translate("partner.statistics.supplies"),
+		name: i18next.t("partner.statistics.supplies"),
 		stroke: theme.palette.primary.main,
 	},
 	{
 		dataKey: "Supply-Refunds",
-		name: translate("partner.statistics.supplyRefunds"),
+		name: i18next.t("partner.statistics.supplyRefunds"),
 		stroke: theme.palette.warning.main,
 	},
 ];
 
 const StatisticsTab: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { selectedPartnerStore, partnerStore } = useStore();
 	const partner = partnerStore.selectedPartner;
 	const metrics = selectedPartnerStore.dashboardMetrics;
@@ -113,19 +115,19 @@ const StatisticsTab: React.FC = observer(() => {
 	const cards = useMemo(() => {
 		if (metrics === "loading") {
 			return CARD_DEFINITIONS.map((card) => ({
-				label: translate(card.labelKey),
+				label: t(card.labelKey),
 				value: "…",
 			}));
 		}
 
 		return CARD_DEFINITIONS.map((card) => ({
-			label: translate(card.labelKey),
+			label: t(card.labelKey),
 			value: card.getValue({
 				partnerBalance: partner.balance,
 				metrics,
 			}),
 		}));
-	}, [partner.balance, metrics]);
+	}, [partner.balance, metrics, t]);
 
 	return (
 		<Box sx={{ p: 2 }}>
@@ -162,7 +164,7 @@ const StatisticsTab: React.FC = observer(() => {
 								<Card>
 									<CardContent>
 										<Typography variant="subtitle2">
-											{translate("partner.statistics.salesOverTime")}
+											{t("partner.statistics.salesOverTime")}
 										</Typography>
 										<TimeSeriesChart
 											data={salesData}
@@ -179,7 +181,7 @@ const StatisticsTab: React.FC = observer(() => {
 								<Card>
 									<CardContent>
 										<Typography variant="subtitle2">
-											{translate("partner.statistics.suppliesOverTime")}
+											{t("partner.statistics.suppliesOverTime")}
 										</Typography>
 										<TimeSeriesChart
 											data={suppliesData}

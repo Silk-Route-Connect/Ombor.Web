@@ -1,7 +1,7 @@
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TransactionLink from "components/transaction/Links/TransactionLink";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { ProductTransaction } from "models/product";
 import { TransactionType } from "models/transaction";
 import { formatDateTime } from "utils/dateUtils";
@@ -13,7 +13,7 @@ export type ProductTransactionsMode = Extract<TransactionType, "Sale" | "Supply"
 export const buildProductTransactionsColumns = (
 	mode: ProductTransactionsMode,
 ): Column<ProductTransaction>[] => {
-	const transactionHeader = translate(`transaction.type.${mode}`);
+	const transactionHeader = i18next.t(`transaction.type.${mode}`);
 
 	return [
 		{
@@ -25,7 +25,7 @@ export const buildProductTransactionsColumns = (
 		},
 		{
 			key: "date",
-			headerName: translate("product.transaction.date"),
+			headerName: i18next.t("product.transaction.date"),
 			width: "17%",
 			sortable: true,
 			align: "left",
@@ -33,14 +33,14 @@ export const buildProductTransactionsColumns = (
 		},
 		{
 			key: "partner",
-			headerName: translate("product.transaction.partner"),
+			headerName: i18next.t("product.transaction.partner"),
 			width: "18%",
 			sortable: true,
 			renderCell: (row) => <PartnerLink id={row.partnerId} name={row.partnerName} />,
 		},
 		{
 			key: "unitPrice",
-			headerName: translate("product.transaction.unitPrice"),
+			headerName: i18next.t("product.transaction.unitPrice"),
 			width: "15%",
 			align: "right",
 			sortable: true,
@@ -48,7 +48,7 @@ export const buildProductTransactionsColumns = (
 		},
 		{
 			key: "discount",
-			headerName: translate("product.transaction.discount"),
+			headerName: i18next.t("product.transaction.discount"),
 			width: "10%",
 			align: "right",
 			sortable: true,
@@ -56,7 +56,7 @@ export const buildProductTransactionsColumns = (
 		},
 		{
 			key: "quantity",
-			headerName: translate("product.transaction.quantity"),
+			headerName: i18next.t("product.transaction.quantity"),
 			width: "10%",
 			align: "right",
 			sortable: true,
@@ -64,7 +64,7 @@ export const buildProductTransactionsColumns = (
 		},
 		{
 			key: "total",
-			headerName: translate("product.transaction.total"),
+			headerName: i18next.t("product.transaction.total"),
 			width: "15%",
 			align: "right",
 			sortable: false,

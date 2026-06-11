@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import SaveButton from "components/shared/Buttons/SaveButton";
-import { translate } from "i18n/i18n";
 
 import { Button, DialogActions } from "@mui/material";
 
@@ -16,18 +16,22 @@ const FormDialogFooter: React.FC<FormDialogFooterProps> = ({
 	loading,
 	onCancel,
 	onSave,
-}) => (
-	<DialogActions sx={{ p: 2 }}>
-		<Button onClick={onCancel} disabled={loading}>
-			{translate("common.cancel")}
-		</Button>
-		<SaveButton
-			disabled={!canSave}
-			loading={loading}
-			tooltip={!canSave ? translate("common.form.completeRequired") : undefined}
-			onSave={onSave}
-		/>
-	</DialogActions>
-);
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<DialogActions sx={{ p: 2 }}>
+			<Button onClick={onCancel} disabled={loading}>
+				{t("common.cancel")}
+			</Button>
+			<SaveButton
+				disabled={!canSave}
+				loading={loading}
+				tooltip={!canSave ? t("common.form.completeRequired") : undefined}
+				onSave={onSave}
+			/>
+		</DialogActions>
+	);
+};
 
 export default FormDialogFooter;

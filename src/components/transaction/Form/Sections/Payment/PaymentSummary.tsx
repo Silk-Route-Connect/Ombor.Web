@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { formatNumberWithCommas } from "utils/formatCurrency";
 
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
@@ -37,86 +37,88 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
 	saveAsAdvance,
 	onPayDebts,
 	onSaveAdvanceToggle,
-}) => (
-	<Box border={1} borderColor="divider" borderRadius={2} p={2} bgcolor="background.paper">
-		<Stack direction="row" justifyContent="space-between" mb={1}>
-			<Typography>{translate("transaction.totalDue")}</Typography>
-			<Typography fontWeight={600}>{totalDue.toLocaleString()}</Typography>
-		</Stack>
+}) => {
+	const { t } = useTranslation();
 
-		<Stack direction="row" justifyContent="space-between" mb={1}>
-			<Typography>{translate("transaction.totalPaid")}</Typography>
-			<Typography fontWeight={600}>{totalPaid.toLocaleString()}</Typography>
-		</Stack>
-
-		{debtPaid > 0 && (
+	return (
+		<Box border={1} borderColor="divider" borderRadius={2} p={2} bgcolor="background.paper">
 			<Stack direction="row" justifyContent="space-between" mb={1}>
-				<Typography>{translate("payDebts.paidDebt")}</Typography>
-				<Typography fontWeight={600}>{debtPaid.toLocaleString()}</Typography>
+				<Typography>{t("transaction.totalDue")}</Typography>
+				<Typography fontWeight={600}>{totalDue.toLocaleString()}</Typography>
 			</Stack>
-		)}
 
-		{overpaid > 0 && (
 			<Stack direction="row" justifyContent="space-between" mb={1}>
-				<Typography>
-					{refundChange
-						? translate("transaction.changeAmount")
-						: translate("payment.advancePayment")}
+				<Typography>{t("transaction.totalPaid")}</Typography>
+				<Typography fontWeight={600}>{totalPaid.toLocaleString()}</Typography>
+			</Stack>
+
+			{debtPaid > 0 && (
+				<Stack direction="row" justifyContent="space-between" mb={1}>
+					<Typography>{t("payDebts.paidDebt")}</Typography>
+					<Typography fontWeight={600}>{debtPaid.toLocaleString()}</Typography>
+				</Stack>
+			)}
+
+			{overpaid > 0 && (
+				<Stack direction="row" justifyContent="space-between" mb={1}>
+					<Typography>
+						{refundChange ? t("transaction.changeAmount") : t("payment.advancePayment")}
+					</Typography>
+					<Typography fontWeight={600}>{effectiveOverpaid.toLocaleString()}</Typography>
+				</Stack>
+			)}
+
+			{underpaid >= 0 && (
+				<Stack direction="row" justifyContent="space-between" mb={1}>
+					<Typography>{t("transaction.debtAmount")}</Typography>
+					<Typography fontWeight={600} color={underpaid > 0 ? "error.main" : "textPrimary"}>
+						{underpaid.toLocaleString()}
+					</Typography>
+				</Stack>
+			)}
+
+			<Divider sx={{ my: 1 }} />
+
+			<Stack direction="row" justifyContent="space-between">
+				<Typography>{t("payment.partnerBalanceAfter")}</Typography>
+				<Typography fontWeight={600} color={balanceAfter < 0 ? "error.main" : "success.main"}>
+					{formatNumberWithCommas(balanceAfter)}
 				</Typography>
-				<Typography fontWeight={600}>{effectiveOverpaid.toLocaleString()}</Typography>
 			</Stack>
-		)}
 
-		{underpaid >= 0 && (
-			<Stack direction="row" justifyContent="space-between" mb={1}>
-				<Typography>{translate("transaction.debtAmount")}</Typography>
-				<Typography fontWeight={600} color={underpaid > 0 ? "error.main" : "textPrimary"}>
-					{underpaid.toLocaleString()}
-				</Typography>
-			</Stack>
-		)}
-
-		<Divider sx={{ my: 1 }} />
-
-		<Stack direction="row" justifyContent="space-between">
-			<Typography>{translate("payment.partnerBalanceAfter")}</Typography>
-			<Typography fontWeight={600} color={balanceAfter < 0 ? "error.main" : "success.main"}>
-				{formatNumberWithCommas(balanceAfter)}
-			</Typography>
-		</Stack>
-
-		{canPayDebts && (
-			<Stack>
-				<Button
-					sx={{ mt: 1 }}
-					startIcon={<CreditScoreIcon />}
-					variant="outlined"
-					size="small"
-					onClick={onPayDebts}
-				>
-					{translate("payDebts.openBtn")}
-				</Button>
-			</Stack>
-		)}
-
-		{canSaveAdvance && (
-			<FormControlLabel
-				sx={{ mt: 1 }}
-				control={
-					<Switch
+			{canPayDebts && (
+				<Stack>
+					<Button
+						sx={{ mt: 1 }}
+						startIcon={<CreditScoreIcon />}
+						variant="outlined"
 						size="small"
-						checked={saveAsAdvance}
-						onChange={(e) => onSaveAdvanceToggle(e.target.checked)}
-					/>
-				}
-				label={
-					<Stack direction="row" alignItems="center" spacing={0.5}>
-						<Typography>{translate("payment.saveAsAdvance")}</Typography>
-					</Stack>
-				}
-			/>
-		)}
-	</Box>
-);
+						onClick={onPayDebts}
+					>
+						{t("payDebts.openBtn")}
+					</Button>
+				</Stack>
+			)}
+
+			{canSaveAdvance && (
+				<FormControlLabel
+					sx={{ mt: 1 }}
+					control={
+						<Switch
+							size="small"
+							checked={saveAsAdvance}
+							onChange={(e) => onSaveAdvanceToggle(e.target.checked)}
+						/>
+					}
+					label={
+						<Stack direction="row" alignItems="center" spacing={0.5}>
+							<Typography>{t("payment.saveAsAdvance")}</Typography>
+						</Stack>
+					}
+				/>
+			)}
+		</Box>
+	);
+};
 
 export default PaymentSummary;

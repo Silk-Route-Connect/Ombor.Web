@@ -1,5 +1,5 @@
 import AllocationLink from "components/payment/Links/AllocationLink";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { Payment } from "models/payment";
 
 export const isSingleFullAllocation = (p: Payment) =>
@@ -13,11 +13,11 @@ export function formatPaymentType(payment: Payment): React.ReactNode {
 	}
 
 	const map: Record<Payment["type"], string> = {
-		Transaction: translate("paymentTypeMixed"),
-		Deposit: translate("paymentTypeDeposit"),
-		Withdrawal: translate("paymentTypeWithdrawal"),
-		Payroll: translate("paymentTypePayroll"),
-		General: translate("paymentTypeGeneral"),
+		Transaction: i18next.t("paymentTypeMixed"),
+		Deposit: i18next.t("paymentTypeDeposit"),
+		Withdrawal: i18next.t("paymentTypeWithdrawal"),
+		Payroll: i18next.t("paymentTypePayroll"),
+		General: i18next.t("paymentTypeGeneral"),
 	};
 
 	return map[payment.type] ?? payment.type;

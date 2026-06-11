@@ -1,7 +1,7 @@
 import React from "react";
 import { Control, Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import NumericField from "components/shared/Inputs/NumericField";
-import { translate } from "i18n/i18n";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 import {
@@ -36,6 +36,8 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 	enablePackaging,
 	disablePackaging,
 }) => {
+	const { t } = useTranslation();
+
 	return (
 		<Stack spacing={2}>
 			<Box
@@ -45,10 +47,10 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 					justifyContent: "space-between",
 				}}
 			>
-				<Typography variant="subtitle1">{translate("product.packaging")}</Typography>
+				<Typography variant="subtitle1">{t("product.packaging")}</Typography>
 
 				<FormControlLabel
-					label={hasPackaging ? translate("common.enabled") : translate("common.enable")}
+					label={hasPackaging ? t("common.enabled") : t("common.enable")}
 					control={
 						<Switch
 							checked={hasPackaging}
@@ -68,7 +70,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 							<NumericField
 								{...field}
 								value={field.value}
-								label={translate("product.packaging.size")}
+								label={t("product.packaging.size")}
 								min={2}
 								step={1}
 								selectOnFocus
@@ -86,7 +88,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 						render={({ field, fieldState }) => (
 							<TextField
 								{...field}
-								label={translate("product.packaging.label")}
+								label={t("product.packaging.label")}
 								fullWidth
 								disabled={disabled}
 								error={!!fieldState.error}
@@ -101,7 +103,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 						render={({ field, fieldState }) => (
 							<TextField
 								{...field}
-								label={translate("product.packaging.barcode")}
+								label={t("product.packaging.barcode")}
 								fullWidth
 								disabled={disabled}
 								error={!!fieldState.error}
@@ -111,7 +113,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 					/>
 
 					<TextField
-						label={translate("product.packaging.price")}
+						label={t("product.packaging.price")}
 						value={packPrice ?? "0"}
 						fullWidth
 						aria-readonly

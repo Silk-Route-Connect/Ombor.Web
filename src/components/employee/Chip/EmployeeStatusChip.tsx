@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { EmployeeStatus } from "models/employee";
 import { getEmployeeStatusColor } from "utils/employeeUtils";
 
@@ -9,12 +9,16 @@ interface EmployeeStatusChipProps {
 	status: EmployeeStatus;
 }
 
-const EmployeeStatusChip: React.FC<EmployeeStatusChipProps> = ({ status }) => (
-	<Chip
-		label={translate(`employee.status.${status}`)}
-		color={getEmployeeStatusColor(status)}
-		size="small"
-	/>
-);
+const EmployeeStatusChip: React.FC<EmployeeStatusChipProps> = ({ status }) => {
+	const { t } = useTranslation();
+
+	return (
+		<Chip
+			label={t(`employee.status.${status}`)}
+			color={getEmployeeStatusColor(status)}
+			size="small"
+		/>
+	);
+};
 
 export default EmployeeStatusChip;

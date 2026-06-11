@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplateTable from "components/template/Table/TemplatesTable";
 import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 
 import { Box } from "@mui/material";
 
 const TemplatePage: React.FC = observer(() => {
+	const { t } = useTranslation();
 	const { templateStore, partnerStore } = useStore();
 
 	useEffect(() => {
@@ -68,8 +69,8 @@ const TemplatePage: React.FC = observer(() => {
 
 			<ConfirmDialog
 				isOpen={dialogKind === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("template.deleteConfirmation", {
+				title={t("common.deleteTitle")}
+				content={t("template.deleteConfirmation", {
 					templateName: templateStore.selectedTemplate?.name ?? "",
 				})}
 				onConfirm={handleDeleteConfirmed}

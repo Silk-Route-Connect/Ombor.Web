@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, IconButton, Tooltip } from "@mui/material";
@@ -21,6 +21,8 @@ const ProductFormImageTile: React.FC<ProductFormImageTileProps> = ({
 	onMakeMain,
 	onRemove,
 }) => {
+	const { t } = useTranslation();
+
 	return (
 		<Box
 			sx={{
@@ -46,10 +48,10 @@ const ProductFormImageTile: React.FC<ProductFormImageTileProps> = ({
 				}
 			}}
 			aria-pressed={selected}
-			aria-label={translate("product.images.makeMain")}
+			aria-label={t("product.images.makeMain")}
 		>
 			{onRemove && (
-				<Tooltip title={translate("product.images.remove")}>
+				<Tooltip title={t("product.images.remove")}>
 					<IconButton
 						size="small"
 						sx={{
@@ -66,7 +68,7 @@ const ProductFormImageTile: React.FC<ProductFormImageTileProps> = ({
 							onRemove();
 						}}
 						disabled={disabled}
-						aria-label={translate("product.images.remove")}
+						aria-label={t("product.images.remove")}
 					>
 						<CloseIcon fontSize="small" color="error" />
 					</IconButton>

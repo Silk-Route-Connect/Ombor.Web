@@ -1,5 +1,5 @@
 import { ElementType } from "react";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -21,45 +21,45 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-	{ label: translate("sidebar.dashboard"), to: "/", icon: DashboardOutlinedIcon },
+	{ label: i18next.t("sidebar.dashboard"), to: "/", icon: DashboardOutlinedIcon },
 
 	{
-		label: translate("sidebar.production"),
+		label: i18next.t("sidebar.production"),
 		icon: Inventory2OutlinedIcon,
 		children: [
-			{ label: translate("sidebar.products"), to: "/products" },
-			{ label: translate("sidebar.categories"), to: "/categories" },
+			{ label: i18next.t("sidebar.products"), to: "/products" },
+			{ label: i18next.t("sidebar.categories"), to: "/categories" },
 		],
 	},
 
 	{
-		label: translate("sidebar.transactions"),
+		label: i18next.t("sidebar.transactions"),
 		icon: SwapHorizOutlinedIcon,
 		children: [
-			{ label: translate("sidebar.partners"), to: "/partners" },
-			{ label: translate("sidebar.sales"), to: "/sales" },
-			{ label: translate("sidebar.supplies"), to: "/supplies" },
-			{ label: translate("sidebar.templates"), to: "/templates" },
+			{ label: i18next.t("sidebar.partners"), to: "/partners" },
+			{ label: i18next.t("sidebar.sales"), to: "/sales" },
+			{ label: i18next.t("sidebar.supplies"), to: "/supplies" },
+			{ label: i18next.t("sidebar.templates"), to: "/templates" },
 		],
 	},
 
 	{
-		label: translate("sidebar.finance"),
+		label: i18next.t("sidebar.finance"),
 		icon: MonetizationOnOutlinedIcon,
 		children: [
-			{ label: translate("sidebar.payments"), to: "/payments" },
-			{ label: translate("sidebar.debts"), to: "/finances/debts" },
+			{ label: i18next.t("sidebar.payments"), to: "/payments" },
+			{ label: i18next.t("sidebar.debts"), to: "/finances/debts" },
 		],
 	},
 
 	{
-		label: translate("sidebar.personnel"),
+		label: i18next.t("sidebar.personnel"),
 		icon: PeopleAltOutlinedIcon,
 		children: [
-			{ label: translate("sidebar.employees"), to: "/employees" },
-			{ label: translate("sidebar.salaries"), to: "/payrolls" },
+			{ label: i18next.t("sidebar.employees"), to: "/employees" },
+			{ label: i18next.t("sidebar.salaries"), to: "/payrolls" },
 		],
 	},
 
-	{ label: "Отчёты", to: translate("sidebar.reports"), icon: BarChartOutlinedIcon },
+	{ label: "Отчёты", to: i18next.t("sidebar.reports"), icon: BarChartOutlinedIcon },
 ];

@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
-import { translate } from "i18n/i18n";
 
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import PaymentIcon from "@mui/icons-material/PaymentOutlined";
@@ -12,10 +12,11 @@ interface Props {
 }
 
 const TransactionsActionsMenu: React.FC<Props> = ({ fullyPaid, onPayment, onRefund }) => {
+	const { t } = useTranslation();
 	const actions: ActionMenuRow[] = [
 		{
 			key: "refund",
-			label: translate("actionRefund"),
+			label: t("actionRefund"),
 			icon: <AssignmentReturnIcon fontSize="small" color="info" />,
 			onClick: onRefund,
 		},
@@ -24,7 +25,7 @@ const TransactionsActionsMenu: React.FC<Props> = ({ fullyPaid, onPayment, onRefu
 	if (!fullyPaid) {
 		actions.push({
 			key: "payment",
-			label: translate("transaction.addPayment"),
+			label: t("transaction.addPayment"),
 			icon: <PaymentIcon fontSize="small" color="success" />,
 			onClick: onPayment,
 		});
