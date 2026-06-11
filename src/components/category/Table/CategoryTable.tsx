@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { buildCategoryColumns } from "components/category/Table/categoryTableConfigs";
-import { DataTable } from "components/shared/Table/DataTable/DataTable";
+import { DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Category } from "models/category";
 
@@ -11,15 +11,11 @@ import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface CategoryTableProps {
 	data: Loadable<Category[]>;
-	total: number;
-	page: number;
-	pageSize: number;
 	searchTerm: string;
 	onCreate: () => void;
 	onEdit: (category: Category) => void;
 	onDelete: (category: Category) => void;
-	onPageChange: (page: number) => void;
-	onPageSizeChange: (pageSize: number) => void;
+	onSort: (field: keyof Category, order: SortOrder) => void;
 }
 
 const CARD_SX = {
@@ -78,15 +74,11 @@ const EmptyState: React.FC<{ searchTerm: string; onCreate: () => void }> = ({
 
 export const CategoryTable: React.FC<CategoryTableProps> = ({
 	data,
-	total,
-	page,
-	pageSize,
 	searchTerm,
 	onCreate,
 	onEdit,
 	onDelete,
-	onPageChange,
-	onPageSizeChange,
+	onSort,
 }) => {
 	const { t } = useTranslation();
 	const columns = buildCategoryColumns({ t, onEdit, onDelete });
@@ -95,18 +87,5 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 		return <EmptyState searchTerm={searchTerm} onCreate={onCreate} />;
 	}
 
-	return (
-		<DataTable<Category>
-			rows={data}
-			columns={columns}
-			pagination
-			serverPagination={{
-				total,
-				page,
-				rowsPerPage: pageSize,
-				onPageChange,
-				onRowsPerPageChange: onPageSizeChange,
-			}}
-		/>
-	);
+	return <DataTable<Category> rows={data} columns={columns} pagination onSort={onSort} />;
 };

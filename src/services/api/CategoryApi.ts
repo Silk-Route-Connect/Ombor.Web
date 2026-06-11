@@ -1,57 +1,37 @@
-import {
-	Category,
-	CreateCategoryRequest,
-	GetCategoriesRequest,
-	GetCategoriesResponse,
-	UpdateCategoryRequest,
-} from "../../models/category";
-import { toQueryString } from "../../utils/toQueryParameters";
+import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../../models/category";
 import http from "../api/http";
 
 class CategoryApi {
 	private readonly baseUrl: string = "/api/categories";
 
-	async getAll(request: GetCategoriesRequest): Promise<GetCategoriesResponse> {
-		const url = this.getUrl(request);
-		const response = await http.get<GetCategoriesResponse>(url);
+	// Full collection — no query params. Search/sort/pagination are client-side
+	// in v1 (docs/mocking.md — client-side-operations rule).
+	async getAll(): Promise<Category[]> {
+		const response = await http.get<Category[]>(this.baseUrl);
 
 		return response.data;
 	}
 
 	async getById(id: number): Promise<Category> {
-		const url = this.getUrlWithId(id);
-		const response = await http.get<Category>(url);
+		const response = await http.get<Category>(this.getUrlWithId(id));
 
 		return response.data;
 	}
 
 	async create(request: CreateCategoryRequest): Promise<Category> {
-		const url = this.getUrl();
-		const response = await http.post<Category>(url, request);
+		const response = await http.post<Category>(this.baseUrl, request);
 
 		return response.data;
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<Category> {
-		const url = this.getUrlWithId(request.id);
-		const response = await http.put<Category>(url, request);
+		const response = await http.put<Category>(this.getUrlWithId(request.id), request);
 
 		return response.data;
 	}
 
 	async delete(id: number): Promise<void> {
-		const url = this.getUrlWithId(id);
-		await http.delete(url);
-	}
-
-	private getUrl(request?: GetCategoriesRequest): string {
-		if (!request) {
-			return this.baseUrl;
-		}
-
-		const query = toQueryString(request);
-
-		return query ? `${this.baseUrl}?${query}` : this.baseUrl;
+		await http.delete(this.getUrlWithId(id));
 	}
 
 	private getUrlWithId(id: number): string {

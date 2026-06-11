@@ -1,13 +1,12 @@
-import { PagedRequest, PagedResponse } from "./pagination";
-
+/**
+ * Mirrors the backend CategoryDto (docs/openapi.json). The backend returns
+ * plain arrays for the list endpoint; searching, sorting, and pagination are
+ * all client-side in v1 (docs/mocking.md — client-side-operations rule).
+ */
 export type Category = {
 	id: number;
 	name: string;
 	description?: string | null;
-	/** Number of products referencing this category. Backend-computed. */
-	productCount: number;
-	/** System-created Default Category — backstops "Category required"; cannot be deleted. */
-	isDefault: boolean;
 };
 
 export type CreateCategoryRequest = {
@@ -18,7 +17,3 @@ export type CreateCategoryRequest = {
 export type UpdateCategoryRequest = CreateCategoryRequest & {
 	id: number;
 };
-
-export type GetCategoriesRequest = PagedRequest;
-
-export type GetCategoriesResponse = PagedResponse<Category>;

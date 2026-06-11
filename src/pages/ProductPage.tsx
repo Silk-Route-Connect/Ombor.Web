@@ -15,7 +15,7 @@ const ProductPage: React.FC = observer(() => {
 	const { productStore, categoryStore } = useStore();
 
 	useEffect(() => {
-		categoryStore.loadAllCategories();
+		categoryStore.getAll();
 		productStore.getAll();
 	}, [categoryStore, productStore]);
 

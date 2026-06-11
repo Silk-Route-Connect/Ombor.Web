@@ -10,7 +10,6 @@
 
   "category.table.name": "Название",
   "category.table.description": "Описание",
-  "category.table.productCount": "Товаров",
 
   "category.form.nameLabel": "Название",
   "category.form.namePlaceholder": "Введите название категории",
@@ -29,13 +28,6 @@
 
   "category.delete.title": "Удалить категорию «{{name}}»?",
   "category.delete.body": "Категория будет удалена без возможности восстановления. Это действие нельзя отменить.",
-  "category.delete.blocked.title": "Нельзя удалить «{{name}}»",
-  "category.delete.blocked.referenced_one": "Невозможно удалить: категория содержит {{count}} товар",
-  "category.delete.blocked.referenced_few": "Невозможно удалить: категория содержит {{count}} товара",
-  "category.delete.blocked.referenced_many": "Невозможно удалить: категория содержит {{count}} товаров",
-  "category.delete.blocked.referencedBody": "Сначала переместите товары в другую категорию или удалите их. Категории без товаров можно удалить сразу.",
-  "category.delete.blocked.default": "Категорию по умолчанию нельзя удалить",
-  "category.delete.blocked.defaultBody": "Это системная категория. Товары без явной группы остаются в ней, поэтому её нельзя удалить.",
 
   "category.error.load": "Ошибка при загрузке категорий",
   "category.error.create": "Ошибка при создании категории",
