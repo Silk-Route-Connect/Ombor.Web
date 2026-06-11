@@ -6,14 +6,21 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import theme from "./theme";
 
+import "@fontsource/onest/400.css";
+import "@fontsource/onest/500.css";
+import "@fontsource/onest/600.css";
+import "@fontsource/onest/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/500.css";
+import "@fontsource/jetbrains-mono/600.css";
+import "@fontsource/jetbrains-mono/700.css";
 import "./index.css";
 import "./styles/global.scss";
 
 Sentry.init({
-	dsn: process.env.REACT_APP_OMBOR_SENTRY_DSN,
+	dsn: import.meta.env.VITE_OMBOR_SENTRY_DSN,
 	// Setting this option to true will send default PII data to Sentry.
 	// For example, automatic IP address collection on events
 	sendDefaultPii: true,
@@ -29,5 +36,3 @@ root.render(
 		</ThemeProvider>
 	</React.StrictMode>,
 );
-
-reportWebVitals();

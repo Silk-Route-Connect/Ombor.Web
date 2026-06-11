@@ -1,10 +1,10 @@
 import axios from "axios";
 import { attachHttpAuthInterceptors } from "services/auth/httpAuthInterceptor";
 
-const baseURL = process.env.REACT_APP_OMBOR_API_BASE_URL;
+const baseURL = import.meta.env.VITE_OMBOR_API_BASE_URL;
 
 if (!baseURL) {
-	throw new Error("REACT_APP_OMBOR_API_BASE_URL must be defined");
+	throw new Error("VITE_OMBOR_API_BASE_URL must be defined");
 }
 
 const http = axios.create({

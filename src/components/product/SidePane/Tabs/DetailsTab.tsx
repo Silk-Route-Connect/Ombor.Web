@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
-const IMAGE_BASE_URL = process.env.REACT_APP_OMBOR_API_BASE_URL ?? "";
+const IMAGE_BASE_URL = import.meta.env.VITE_OMBOR_API_BASE_URL ?? "";
 
 function getFullUrl(path?: string): string | undefined {
 	if (!path) {
@@ -103,19 +103,19 @@ export function DetailsTab({ product }: Readonly<DetailsTabProps>) {
 					<>
 						<Grid size={{ xs: 4 }}>
 							<Typography variant="subtitle2">{translate("product.packaging.packSize")}</Typography>
-							<Typography>{product.packaging.packSize}</Typography>
+							<Typography>{product.packaging.size}</Typography>
 						</Grid>
 						<Grid size={{ xs: 4 }}>
 							<Typography variant="subtitle2">
 								{translate("product.packaging.packLabel")}
 							</Typography>
-							<Typography>{product.packaging.packLabel ?? "—"}</Typography>
+							<Typography>{product.packaging.label ?? "—"}</Typography>
 						</Grid>
 						<Grid size={{ xs: 4 }}>
 							<Typography variant="subtitle2">
 								{translate("product.packaging.packBarcode")}
 							</Typography>
-							<Typography>{product.packaging.packBarcode ?? "—"}</Typography>
+							<Typography>{product.packaging.barcode ?? "—"}</Typography>
 						</Grid>
 					</>
 				)}

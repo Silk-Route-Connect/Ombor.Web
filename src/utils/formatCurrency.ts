@@ -46,6 +46,17 @@ export function formatShortNumber(input: number): string {
 	return `${sign}${abs.toLocaleString()}`;
 }
 
+// Fixed locale so money always renders as "1 250 000" (space-grouped,
+// per the Ombor Design System) regardless of the user's browser locale.
+const currencyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
+
+/**
+ * Canonical money formatter (UZS, no currency symbol): 1250000 → "1 250 000".
+ */
+export function formatCurrency(value: number): string {
+	return currencyFormatter.format(value);
+}
+
 export function formatPrice(value: number): string {
-	return value.toLocaleString();
+	return formatCurrency(value);
 }

@@ -18,10 +18,13 @@ const CategoryPage: React.FC = observer(() => {
 		categoryStore.getAll();
 	}, [categoryStore]);
 
-	const handleFormSave = (payload: CategoryFormPayload) =>
-		categoryStore.selectedCategory
-			? categoryStore.update({ id: categoryStore.selectedCategory.id, ...payload })
-			: categoryStore.create(payload);
+	const handleFormSave = (payload: CategoryFormPayload) => {
+		const request = { ...payload, description: payload.description ?? undefined };
+
+		return categoryStore.selectedCategory
+			? categoryStore.update({ id: categoryStore.selectedCategory.id, ...request })
+			: categoryStore.create(request);
+	};
 
 	const handleDeleteConfirmed = (): void => {
 		if (categoryStore.selectedCategory) {

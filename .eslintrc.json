@@ -3,8 +3,7 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "node": true,
-    "jest": true
+    "node": true
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -75,15 +74,6 @@
     /* Prettier Integration */
     "prettier/prettier": ["error", {}, { "usePrettierrc": true }]
   },
-  "overrides": [
-    {
-      "files": ["*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx", "setupTests.ts"],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": "off",
-        "no-console": "off"
-      }
-    }
-  ],
   "ignorePatterns": [
     "node_modules",
     "build",

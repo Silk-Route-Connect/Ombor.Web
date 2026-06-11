@@ -8,6 +8,7 @@ import { ProductFormPayload } from "hooks/product/useProductForm";
 import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+import { mapFormPackagingToPackaging } from "utils/productUtils";
 
 const ProductPage: React.FC = observer(() => {
 	const { productStore, categoryStore } = useStore();
@@ -22,14 +23,16 @@ const ProductPage: React.FC = observer(() => {
 	}, [productStore.searchTerm, productStore.categoryFilter]);
 
 	const handleFormSave = (payload: ProductFormPayload): void => {
+		const request = { ...payload, packaging: mapFormPackagingToPackaging(payload.packaging) };
+
 		if (productStore.selectedProduct) {
 			productStore.update({
-				...payload,
+				...request,
 				id: productStore.selectedProduct.id,
 				imagesToDelete: [],
 			});
 		} else {
-			productStore.create({ ...payload });
+			productStore.create(request);
 		}
 	};
 

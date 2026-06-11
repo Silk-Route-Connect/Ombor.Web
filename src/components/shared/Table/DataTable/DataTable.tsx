@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Loadable } from "helpers/Loading";
+import { numericSx } from "theme";
 
 import {
 	Box,
@@ -186,7 +187,7 @@ export function DataTable<T extends { id: string | number }>({
 								<TableCell
 									key={`${row.id}-${col.key}`}
 									align={col.align ?? "left"}
-									sx={BODY_CELL_SX}
+									sx={col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX}
 								>
 									{renderCell(row, col)}
 								</TableCell>
