@@ -46,6 +46,7 @@ i18n/ru/        <module>.json — the module's namespace
 ## Tables
 
 - All data tables go through shared `DataTable` (or `ExpandableDataTable`) with a per-module `*TableConfigs` file defining columns — no bespoke `<table>` markup, no raw MUI `Table` in module code.
+- **Labels resolve at render time, never at module import.** Config files (table columns, menus, label maps) store i18n keys or accept `t` as a parameter; they must not call `t()` in module scope, or a live language switch won't update them.
 - Row actions live in an `ActionMenu` (three-dot) cell via the shared ActionMenuCell components.
 - Numeric columns use tabular figures (theme handles this — see design-handoff) and right alignment.
 
