@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import CategoryDeleteBlockedDialog from "components/category/Form/CategoryDeleteBlockedDialog";
 import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
@@ -20,7 +21,7 @@ const CategoryPage: React.FC = observer(() => {
 	}, [categoryStore]);
 
 	const handleFormSave = (payload: CategoryFormPayload) => {
-		const request = { ...payload, description: payload.description ?? undefined };
+		const request = { name: payload.name, description: payload.description ?? undefined };
 
 		return categoryStore.selectedCategory
 			? categoryStore.update({ id: categoryStore.selectedCategory.id, ...request })
@@ -33,42 +34,52 @@ const CategoryPage: React.FC = observer(() => {
 		}
 	};
 
-	const { dialogMode } = categoryStore;
-	const dialogType = dialogMode.type;
+	const dialogType = categoryStore.dialogMode.type;
+	const selected = categoryStore.selectedCategory;
 
 	return (
 		<Box>
 			<CategoryHeader
-				title={t("category.title")}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}
 			/>
 
 			<CategoryTable
-				data={categoryStore.filteredCategories}
-				pagination
-				onDelete={categoryStore.openDelete}
+				data={categoryStore.categories}
+				total={categoryStore.total}
+				page={categoryStore.page}
+				pageSize={categoryStore.pageSize}
+				searchTerm={categoryStore.searchTerm}
+				onCreate={categoryStore.openCreate}
 				onEdit={categoryStore.openEdit}
-				onSort={categoryStore.setSort}
+				onDelete={categoryStore.openDelete}
+				onPageChange={categoryStore.setPage}
+				onPageSizeChange={categoryStore.setPageSize}
 			/>
 
 			<CategoryFormModal
 				isOpen={dialogType === "form"}
 				isSaving={categoryStore.isSaving}
-				category={categoryStore.selectedCategory}
+				category={selected}
 				onClose={categoryStore.closeDialog}
 				onSave={handleFormSave}
 			/>
 
 			<ConfirmDialog
 				isOpen={dialogType === "delete"}
-				title={t("common.deleteTitle")}
-				content={t("category.deleteConfirmation", {
-					categoryName: categoryStore.selectedCategory?.name || "",
-				})}
+				title={t("category.delete.title", { name: selected?.name ?? "" })}
+				content={t("category.delete.body")}
+				confirmLabel={t("common.delete")}
+				cancelLabel={t("common.cancel")}
 				onCancel={categoryStore.closeDialog}
 				onConfirm={handleDeleteConfirmed}
+			/>
+
+			<CategoryDeleteBlockedDialog
+				isOpen={dialogType === "deleteBlocked"}
+				category={selected}
+				onClose={categoryStore.closeDialog}
 			/>
 		</Box>
 	);

@@ -1,4 +1,3 @@
-import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -8,49 +7,62 @@ import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../model
 import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
 
+const DEFAULT_PAGE_SIZE = 10;
+const SEARCH_DEBOUNCE_MS = 300;
+// Pickers (autocompletes) need every category, not a single page.
+const PICKER_PAGE_SIZE = 1000;
+
 type DialogMode =
 	| { type: "form"; category?: Category }
 	| { type: "delete"; category: Category }
+	| { type: "deleteBlocked"; category: Category }
 	| { type: "none" };
 
 export interface ICategoryStore {
+	categories: Loadable<Category[]>;
 	allCategories: Loadable<Category[]>;
-	filteredCategories: Loadable<Category[]>;
-	selectedCategory: Category | null;
-
+	total: number;
+	page: number;
+	pageSize: number;
 	searchTerm: string;
-	sortField: keyof Category | null;
-	sortOrder: SortOrder;
 	isSaving: boolean;
 	dialogMode: DialogMode;
+	selectedCategory: Category | null;
 
-	// actions
+	// data
 	getAll(): Promise<void>;
+	loadAllCategories(): Promise<void>;
 	create(category: CreateCategoryRequest): Promise<void>;
 	update(category: UpdateCategoryRequest): Promise<void>;
 	delete(id: number): Promise<void>;
 
-	// setters for filters & sorting
+	// list controls
 	setSearch(query: string): void;
-	setSort(field: keyof Category, order: "asc" | "desc"): void;
+	setPage(page: number): void;
+	setPageSize(pageSize: number): void;
 
-	// UI dialog helper methods
+	// dialogs
 	openCreate(): void;
 	openEdit(category: Category): void;
 	openDelete(category: Category): void;
 	closeDialog(): void;
 }
 
+// Debounce handle for search-driven reloads; kept off the observable instance.
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
 export class CategoryStore implements ICategoryStore {
 	private readonly notificationStore: NotificationStore;
 
-	allCategories: Loadable<Category[]> = [];
-	selectedCategory: Category | null = null;
+	categories: Loadable<Category[]> = "loading";
+	allCategories: Loadable<Category[]> = "loading";
+	total = 0;
+	page = 0;
+	pageSize = DEFAULT_PAGE_SIZE;
 	searchTerm = "";
-	sortField: keyof Category | null = null;
-	sortOrder: SortOrder = "asc";
-	isSaving: boolean = false;
+	isSaving = false;
 	dialogMode: DialogMode = { type: "none" };
+	selectedCategory: Category | null = null;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -58,27 +70,45 @@ export class CategoryStore implements ICategoryStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	get filteredCategories(): Loadable<Category[]> {
-		const filtered = this.applySearch(this.allCategories);
+	async getAll(): Promise<void> {
+		runInAction(() => (this.categories = "loading"));
 
-		return this.applySort(filtered);
-	}
-
-	async getAll() {
-		if (this.allCategories === "loading") {
-			return;
-		}
-
-		runInAction(() => (this.allCategories = "loading"));
-
-		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchTerm }));
+		const result = await tryRun(() =>
+			CategoryApi.getAll({
+				page: this.page + 1, // API is 1-based
+				pageSize: this.pageSize,
+				search: this.searchTerm || undefined,
+			}),
+		);
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("category.error.load") + `: ${result.error}`);
+			runInAction(() => {
+				this.categories = [];
+				this.total = 0;
+			});
+			return;
 		}
 
-		const data = result.status === "success" ? result.data : [];
-		runInAction(() => (this.allCategories = data));
+		runInAction(() => {
+			this.categories = result.data.items;
+			this.total = result.data.total;
+		});
+	}
+
+	/** Full, unpaged list for pickers/autocompletes (CategoryAutocomplete). */
+	async loadAllCategories(): Promise<void> {
+		runInAction(() => (this.allCategories = "loading"));
+
+		const result = await tryRun(() => CategoryApi.getAll({ page: 1, pageSize: PICKER_PAGE_SIZE }));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("category.error.load") + `: ${result.error}`);
+			runInAction(() => (this.allCategories = []));
+			return;
+		}
+
+		runInAction(() => (this.allCategories = result.data.items));
 	}
 
 	async create(request: CreateCategoryRequest): Promise<void> {
@@ -89,14 +119,9 @@ export class CategoryStore implements ICategoryStore {
 			return;
 		}
 
-		runInAction(() => {
-			if (this.allCategories !== "loading") {
-				this.allCategories = [result.data, ...this.allCategories];
-			}
-		});
-
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("category.success.create"));
+		await this.getAll();
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<void> {
@@ -107,18 +132,9 @@ export class CategoryStore implements ICategoryStore {
 			return;
 		}
 
-		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
-			}
-
-			this.allCategories = this.allCategories.map((category) =>
-				category.id === result.data.id ? result.data : category,
-			);
-		});
-
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("category.success.update"));
+		await this.getAll();
 	}
 
 	async delete(id: number): Promise<void> {
@@ -129,79 +145,59 @@ export class CategoryStore implements ICategoryStore {
 			return;
 		}
 
-		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
-			}
-
-			this.allCategories = this.allCategories.filter((category) => category.id !== id);
-		});
-
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("category.success.delete"));
+		// Stepping back a page when the last row on the final page is removed.
+		if (this.categories !== "loading" && this.categories.length === 1 && this.page > 0) {
+			runInAction(() => (this.page -= 1));
+		}
+		await this.getAll();
 	}
 
-	setSearch(query: string) {
+	setSearch(query: string): void {
 		this.searchTerm = query;
+		this.page = 0;
+
+		if (searchTimer) {
+			clearTimeout(searchTimer);
+		}
+		searchTimer = setTimeout(() => this.getAll(), SEARCH_DEBOUNCE_MS);
 	}
 
-	setSort(field: keyof Category, order: "asc" | "desc") {
-		this.sortField = field;
-		this.sortOrder = order;
+	setPage(page: number): void {
+		this.page = page;
+		this.getAll();
 	}
 
-	openCreate() {
+	setPageSize(pageSize: number): void {
+		this.pageSize = pageSize;
+		this.page = 0;
+		this.getAll();
+	}
+
+	openCreate(): void {
 		this.selectedCategory = null;
 		this.dialogMode = { type: "form" };
 	}
 
-	openEdit(category: Category) {
+	openEdit(category: Category): void {
 		this.selectedCategory = category;
 		this.dialogMode = { type: "form", category };
 	}
 
-	openDelete(category: Category) {
+	openDelete(category: Category): void {
 		this.selectedCategory = category;
-		this.dialogMode = { type: "delete", category };
+		// Delete stays enabled everywhere (never silently disabled); the dialog
+		// explains inline when the category cannot be removed: the Default
+		// Category is system-created, and a referenced category would orphan
+		// products (business-rules rule 32).
+		const blocked = category.isDefault || category.productCount > 0;
+		this.dialogMode = blocked ? { type: "deleteBlocked", category } : { type: "delete", category };
 	}
 
-	closeDialog() {
+	closeDialog(): void {
 		this.selectedCategory = null;
 		this.dialogMode = { type: "none" };
-	}
-
-	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (data === "loading" || !this.searchTerm) {
-			return data;
-		}
-
-		const query = this.searchTerm.toLowerCase();
-
-		return data.filter(
-			(category) =>
-				category.name.toLowerCase().includes(query) ||
-				(category.description?.toLowerCase().includes(query) ?? false),
-		);
-	}
-
-	private applySort(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (data === "loading" || !this.sortField) {
-			return data;
-		}
-
-		const field = this.sortField;
-		const asc = this.sortOrder === "asc" ? 1 : -1;
-
-		return [...data].sort((a, b) => {
-			const aValue = a[field] ?? "";
-			const bValue = b[field] ?? "";
-
-			if (typeof aValue === "number" && typeof bValue === "number") {
-				return asc * (aValue - bValue);
-			}
-
-			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
-		});
 	}
 }
 

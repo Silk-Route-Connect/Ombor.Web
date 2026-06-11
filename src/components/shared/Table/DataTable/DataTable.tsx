@@ -39,12 +39,26 @@ export interface Column<T> {
 	renderCell?: (row: T) => React.ReactNode;
 }
 
+/**
+ * Controlled, server-driven pagination. When provided, the table renders `rows`
+ * as the current page verbatim (no client-side slicing) and the pager is driven
+ * by these values and callbacks. Omit it for the default client-side paging.
+ */
+export interface ServerPagination {
+	total: number;
+	page: number; // 0-based
+	rowsPerPage: number;
+	onPageChange: (page: number) => void;
+	onRowsPerPageChange: (rowsPerPage: number) => void;
+}
+
 export interface DataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
 	columns: Column<T>[];
 	className?: string;
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
+	serverPagination?: ServerPagination;
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
 }
@@ -55,6 +69,7 @@ export function DataTable<T extends { id: string | number }>({
 	className,
 	pagination = false,
 	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
+	serverPagination,
 	onRowClick,
 	onSort,
 }: Readonly<DataTableProps<T>>) {
@@ -64,7 +79,7 @@ export function DataTable<T extends { id: string | number }>({
 	const [order, setOrder] = useState<SortOrder>("asc");
 
 	useEffect(() => {
-		if (rows === "loading") {
+		if (rows === "loading" || serverPagination) {
 			return;
 		}
 
@@ -72,15 +87,20 @@ export function DataTable<T extends { id: string | number }>({
 		if (page > maxPage) {
 			setPage(Math.max(0, maxPage));
 		}
-	}, [rows, rowsPerPage, page]);
+	}, [rows, rowsPerPage, page, serverPagination]);
 
 	const displayedRows = useMemo<Loadable<T[]>>(() => {
 		if (rows === "loading") {
 			return "loading";
 		}
 
+		// Server pagination: `rows` is already the current page.
+		if (serverPagination) {
+			return rows;
+		}
+
 		return pagination ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows;
-	}, [rows, page, rowsPerPage, pagination]);
+	}, [rows, page, rowsPerPage, pagination, serverPagination]);
 
 	const isSelectable = Boolean(onRowClick);
 
@@ -206,11 +226,19 @@ export function DataTable<T extends { id: string | number }>({
 			{pagination && rows !== "loading" && (
 				<TablePagination
 					component="div"
-					count={rows.length}
-					page={page}
-					onPageChange={handlePageChange}
-					rowsPerPage={rowsPerPage}
-					onRowsPerPageChange={handleRowsPerPageChange}
+					count={serverPagination ? serverPagination.total : rows.length}
+					page={serverPagination ? serverPagination.page : page}
+					onPageChange={
+						serverPagination
+							? (_, newPage) => serverPagination.onPageChange(newPage)
+							: handlePageChange
+					}
+					rowsPerPage={serverPagination ? serverPagination.rowsPerPage : rowsPerPage}
+					onRowsPerPageChange={
+						serverPagination
+							? (e) => serverPagination.onRowsPerPageChange(parseInt(e.target.value, 10))
+							: handleRowsPerPageChange
+					}
 					rowsPerPageOptions={rowsPerPageOptions}
 					sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}
 				/>

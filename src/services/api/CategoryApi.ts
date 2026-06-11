@@ -2,6 +2,7 @@ import {
 	Category,
 	CreateCategoryRequest,
 	GetCategoriesRequest,
+	GetCategoriesResponse,
 	UpdateCategoryRequest,
 } from "../../models/category";
 import { toQueryString } from "../../utils/toQueryParameters";
@@ -10,9 +11,9 @@ import http from "../api/http";
 class CategoryApi {
 	private readonly baseUrl: string = "/api/categories";
 
-	async getAll(request: GetCategoriesRequest): Promise<Category[]> {
+	async getAll(request: GetCategoriesRequest): Promise<GetCategoriesResponse> {
 		const url = this.getUrl(request);
-		const response = await http.get<Category[]>(url);
+		const response = await http.get<GetCategoriesResponse>(url);
 
 		return response.data;
 	}

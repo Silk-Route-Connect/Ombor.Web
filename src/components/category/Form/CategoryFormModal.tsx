@@ -26,13 +26,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	onSave,
 }) => {
 	const { t } = useTranslation();
-	const { form, canSave, submit } = useCategoryForm({
-		isOpen,
-		isSaving,
-		category,
-		onSave,
-		onClose,
-	});
+	const { form, canSave, submit } = useCategoryForm({ isOpen, isSaving, category, onSave });
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		form.formState.isDirty,
@@ -65,12 +59,14 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 					</Box>
 				)}
 
-				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 4, pt: 2 }}>
+				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
 					<TextField
 						id="category-name"
-						label={t("category.name")}
+						label={t("category.form.nameLabel")}
+						placeholder={t("category.form.namePlaceholder")}
+						required
 						fullWidth
-						margin="dense"
+						autoFocus
 						disabled={isSaving}
 						error={!!errors.name}
 						helperText={errors.name?.message}
@@ -78,14 +74,15 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 					/>
 
 					<TextField
-						label={t("category.description")}
+						label={t("category.form.descriptionLabel")}
+						placeholder={t("category.form.descriptionPlaceholder")}
 						fullWidth
 						multiline
 						minRows={3}
 						maxRows={6}
 						disabled={isSaving}
 						error={!!errors.description}
-						helperText={errors.description?.message}
+						helperText={errors.description?.message ?? t("category.form.descriptionHint")}
 						{...register("description")}
 					/>
 				</DialogContent>

@@ -1,10 +1,41 @@
 {
   "category.title": "Категории",
-  "category.searchTitle": "Поиск категорий...",
-  "category.title.create": "Создание категории",
-  "category.title.edit": "Редактирование категории",
+  "category.create": "Новая категория",
+  "category.searchPlaceholder": "Поиск по названию…",
+
+  "category.title.create": "Новая категория",
+  "category.title.edit": "Редактировать категорию",
   "category.title.autocomplete": "Выбрать категорию",
   "category.title.search": "Поиск категории...",
+
+  "category.table.name": "Название",
+  "category.table.description": "Описание",
+  "category.table.productCount": "Товаров",
+
+  "category.form.nameLabel": "Название",
+  "category.form.namePlaceholder": "Введите название категории",
+  "category.form.descriptionLabel": "Описание",
+  "category.form.descriptionPlaceholder": "Краткое описание категории…",
+  "category.form.descriptionHint": "Помогает сотрудникам быстрее находить нужную категорию.",
+
+  "category.validation.name.required": "Укажите название категории",
+  "category.validation.name.tooLong": "Название не должно превышать 100 символов",
+  "category.validation.description.tooLong": "Описание не должно превышать 500 символов",
+
+  "category.empty.title": "Пока нет категорий",
+  "category.empty.body": "Создайте первую категорию, чтобы группировать товары каталога.",
+  "category.empty.searchTitle": "Категории не найдены",
+  "category.empty.searchBody": "По запросу «{{query}}» ничего не найдено. Измените запрос поиска.",
+
+  "category.delete.title": "Удалить категорию «{{name}}»?",
+  "category.delete.body": "Категория будет удалена без возможности восстановления. Это действие нельзя отменить.",
+  "category.delete.blocked.title": "Нельзя удалить «{{name}}»",
+  "category.delete.blocked.referenced_one": "Невозможно удалить: категория содержит {{count}} товар",
+  "category.delete.blocked.referenced_few": "Невозможно удалить: категория содержит {{count}} товара",
+  "category.delete.blocked.referenced_many": "Невозможно удалить: категория содержит {{count}} товаров",
+  "category.delete.blocked.referencedBody": "Сначала переместите товары в другую категорию или удалите их. Категории без товаров можно удалить сразу.",
+  "category.delete.blocked.default": "Категорию по умолчанию нельзя удалить",
+  "category.delete.blocked.defaultBody": "Это системная категория. Товары без явной группы остаются в ней, поэтому её нельзя удалить.",
 
   "category.error.load": "Ошибка при загрузке категорий",
   "category.error.create": "Ошибка при создании категории",
@@ -13,13 +44,5 @@
 
   "category.success.create": "Категория успешно создана",
   "category.success.update": "Категория успешно обновлена",
-  "category.success.delete": "Категория успешно удалена",
-
-  "category.name": "Название категории",
-  "category.description": "Описание категории",
-  "category.create": "Создать категорию",
-  "category.update": "Обновить категорию",
-  "category.delete": "Удалить категорию",
-
-  "category.deleteConfirmation": "Вы уверены, что хотите удалить категорию {{categoryName}}?"
+  "category.success.delete": "Категория успешно удалена"
 }

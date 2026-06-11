@@ -51,7 +51,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
 	useEffect(() => {
 		if (isOpen) {
-			categoryStore.getAll();
+			categoryStore.loadAllCategories();
 		}
 	}, [isOpen, categoryStore]);
 

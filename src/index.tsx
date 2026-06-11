@@ -26,13 +26,26 @@ Sentry.init({
 	sendDefaultPii: true,
 });
 
+async function enableMocking(): Promise<void> {
+	if (import.meta.env.VITE_ENABLE_MOCKS !== "true") {
+		return;
+	}
+
+	const { worker } = await import("./mocks/browser");
+	// `bypass`: only registered endpoints are mocked; everything else passes
+	// through to the real backend (hybrid mode — see docs/mocking.md).
+	await worker.start({ onUnhandledRequest: "bypass" });
+}
+
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 
-root.render(
-	<React.StrictMode>
-		<ThemeProvider theme={theme}>
-			<CssBaseline />
-			<App />
-		</ThemeProvider>
-	</React.StrictMode>,
-);
+enableMocking().then(() => {
+	root.render(
+		<React.StrictMode>
+			<ThemeProvider theme={theme}>
+				<CssBaseline />
+				<App />
+			</ThemeProvider>
+		</React.StrictMode>,
+	);
+});
