@@ -46,6 +46,7 @@ const theme = createTheme({
 		text: {
 			primary: "#162A2B", // --ink
 			secondary: "#5E6E6E", // --text-muted
+			disabled: "#A7B2B1", // --text-faint
 		},
 		divider: "#E1E8E6", // --border
 		background: {

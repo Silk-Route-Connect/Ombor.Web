@@ -13,6 +13,7 @@ export interface AuthUser {
 	lastName?: string;
 	phoneNumber?: string;
 	email?: string | null;
+	organizationName?: string;
 }
 
 /** Navigation/side-effect hooks provided by the app shell */
