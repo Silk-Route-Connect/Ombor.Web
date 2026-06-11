@@ -7,16 +7,14 @@ import { createTheme, Shadows } from "@mui/material/styles";
  */
 
 const UI_FONT_FAMILY = '"Onest", system-ui, -apple-system, "Segoe UI", sans-serif';
-// Canon (docs/design-handoff.md): JetBrains Mono for numeric/tabular data.
-const NUMERIC_FONT_FAMILY = '"JetBrains Mono", "Consolas", "Courier New", monospace';
 
 /**
- * Single mechanism for money/quantity display: JetBrains Mono with tabular
- * figures. Apply via `sx` on any numeric cell or value (plain object so it
- * can also be spread into composed `sx` values).
+ * Single mechanism for money/quantity display: tabular figures on the theme
+ * font (Onest, per tokens.css — numerics are not monospace). Apply via `sx`
+ * on any numeric cell or value (plain object so it can also be spread into
+ * composed `sx` values).
  */
 export const numericSx = {
-	fontFamily: NUMERIC_FONT_FAMILY,
 	fontVariantNumeric: "tabular-nums",
 } as const;
 
