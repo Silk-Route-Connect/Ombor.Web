@@ -75,12 +75,12 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 
 ## Git rules
 
-- Commit under the repository's existing git identity. **Never modify git config** (user.name / user.email).
-- You may create branches for your own work (`claude/<task-slug>`).
-- **Never switch, rename, rebase, or reset the branch currently checked out by the user** without explicit instruction.
+- **Work on the branch the user currently has checked out.** Do not create branches in the repository. Local scratch branches are allowed only as a temporary working device and are never pushed; delete them before finishing.
+- **Never switch, rename, rebase, or reset the user's branch** without explicit instruction.
+- Commit under the repository's existing git identity only. **Never modify git config** (user.name / user.email).
+- **No attribution trailers, ever** — no `Co-Authored-By`, no `Generated with Claude Code`, in commits or PR descriptions.
+- Commit message format: `(<branch-name>) - <clear imperative summary>`, e.g. `(redesign) - migrate build tooling from CRA to Vite`. Small, scoped commits.
 - No push, no force operations, no history rewriting unless explicitly asked.
-- Small, scoped commits with imperative English messages: `feat(partners): full-page partner detail`, `fix(payments): settlement modal totals`.
-- **No attribution trailers** — never add `Co-Authored-By`, `Generated with Claude Code`, or similar lines to commits or PR descriptions.
 
 ## Session discipline
 
