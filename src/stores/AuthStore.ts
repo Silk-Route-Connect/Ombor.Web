@@ -16,6 +16,33 @@ export interface AuthUser {
 	organizationName?: string;
 }
 
+const CLAIM_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+const CLAIM_PHONE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone";
+const CLAIM_ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+/**
+ * The backend exposes no /me endpoint yet — the access token's claims are
+ * the only source of user identity (display name, phone, id). The tenant
+ * name is not in the token; `organizationName` stays unset until the
+ * backend provides it.
+ */
+function userFromAccessToken(token: string): AuthUser | null {
+	try {
+		const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+		const fullName: string = payload[CLAIM_NAME] ?? "";
+		const [firstName, ...rest] = fullName.split(" ").filter(Boolean);
+
+		return {
+			id: payload[CLAIM_ID] ? Number(payload[CLAIM_ID]) : undefined,
+			firstName,
+			lastName: rest.length > 0 ? rest.join(" ") : undefined,
+			phoneNumber: payload[CLAIM_PHONE],
+		};
+	} catch {
+		return null;
+	}
+}
+
 /** Navigation/side-effect hooks provided by the app shell */
 export interface AuthSideEffects {
 	onRedirectToLogin?: () => void; // should navigate to /login with history replace
@@ -79,6 +106,7 @@ export class AuthStore {
 			const tokens = await authApi.refresh(); // cookie-based
 			runInAction(() => {
 				this.accessToken = tokens.accessToken;
+				this.user = userFromAccessToken(tokens.accessToken);
 				this.status = "authenticated";
 			});
 		} catch {
@@ -97,6 +125,7 @@ export class AuthStore {
 
 		runInAction(() => {
 			this.accessToken = result.accessToken;
+			this.user = userFromAccessToken(result.accessToken);
 			this.status = "authenticated";
 		});
 
@@ -126,6 +155,7 @@ export class AuthStore {
 
 		runInAction(() => {
 			this.accessToken = response.accessToken;
+			this.user = userFromAccessToken(response.accessToken);
 			this.status = "authenticated";
 		});
 
@@ -143,6 +173,7 @@ export class AuthStore {
 
 		runInAction(() => {
 			this.accessToken = accessToken;
+			this.user = userFromAccessToken(accessToken);
 			if (this.status !== "authenticated") {
 				this.status = "authenticated";
 			}

@@ -87,8 +87,8 @@ function TopLevelItem({ item, active, expanded, onClick }: Readonly<TopLevelItem
 			sx={{
 				borderRadius: 1,
 				px: 1.25,
-				py: 1,
-				gap: 1.25,
+				py: 1.125,
+				gap: 1.375,
 				color: emphasized ? "text.primary" : "text.secondary",
 				"&:hover": { bgcolor: "action.hover", color: "text.primary" },
 			}}
@@ -128,7 +128,7 @@ function SubItem({ item, active, onClick }: Readonly<SubItemProps>) {
 				borderRadius: 1,
 				py: 1,
 				pr: 1.25,
-				pl: 4,
+				pl: 4.125,
 				color: active ? "primary.main" : "text.secondary",
 				bgcolor: active ? "primary.light" : "transparent",
 				"&:hover": {
@@ -196,7 +196,16 @@ const Sidebar: React.FC = observer(() => {
 		>
 			<Brand />
 
-			<List disablePadding sx={{ flex: 1, overflowY: "auto", pt: 1.25 }}>
+			<List
+				disablePadding
+				sx={{
+					flex: 1,
+					overflowY: "auto",
+					pt: 1.25,
+					// 1px rhythm between items per the bundle's .nav/.nav-sub gap
+					"& .MuiListItemButton-root": { mb: "1px" },
+				}}
+			>
 				{navItems.map((item) => {
 					const childActive =
 						item.children?.some((child) => isRouteActive(pathname, child.to)) ?? false;
@@ -232,14 +241,23 @@ const Sidebar: React.FC = observer(() => {
 				})}
 			</List>
 
-			<List disablePadding sx={{ mt: 1, pt: 1.25, borderTop: 1, borderColor: "divider" }}>
+			<List
+				disablePadding
+				sx={{
+					mt: 1,
+					pt: 1.25,
+					borderTop: 1,
+					borderColor: "divider",
+					"& .MuiListItemButton-root": { mb: "1px" },
+				}}
+			>
 				<ListItemButton
 					onClick={() => navigate(PATHS.settings)}
 					sx={{
 						borderRadius: 1,
 						px: 1.25,
-						py: 1,
-						gap: 1.25,
+						py: 1.125,
+						gap: 1.375,
 						color: isRouteActive(pathname, PATHS.settings) ? "text.primary" : "text.secondary",
 						"&:hover": { bgcolor: "action.hover", color: "text.primary" },
 					}}
@@ -257,8 +275,8 @@ const Sidebar: React.FC = observer(() => {
 					sx={{
 						borderRadius: 1,
 						px: 1.25,
-						py: 1,
-						gap: 1.25,
+						py: 1.125,
+						gap: 1.375,
 						color: "text.secondary",
 						"&:hover": { bgcolor: "action.hover", color: "text.primary" },
 					}}

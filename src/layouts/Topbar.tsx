@@ -8,7 +8,6 @@ import { useStore } from "stores/StoreContext";
 import AddIcon from "@mui/icons-material/Add";
 import LanguageIcon from "@mui/icons-material/Language";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import SearchIcon from "@mui/icons-material/Search";
 import {
 	Avatar,
@@ -47,9 +46,9 @@ function SearchField() {
 			sx={{
 				display: "flex",
 				alignItems: "center",
-				gap: 1,
+				gap: 1.125,
 				width: 300,
-				px: 1.5,
+				px: 1.625,
 				py: 1,
 				bgcolor: "background.default",
 				border: 1,
@@ -72,7 +71,7 @@ function SearchField() {
 					bgcolor: "background.paper",
 					border: 1,
 					borderColor: "divider",
-					borderRadius: 0.5,
+					borderRadius: "5px",
 					color: "text.secondary",
 				}}
 			>
@@ -125,7 +124,7 @@ const Topbar: React.FC = observer(() => {
 				alignItems: "center",
 				gap: 2,
 				height: TOPBAR_HEIGHT,
-				px: 3,
+				px: 3.25,
 				bgcolor: "background.paper",
 				borderBottom: 1,
 				borderColor: "divider",
@@ -161,7 +160,7 @@ const Topbar: React.FC = observer(() => {
 			<Tooltip title={t("topbar.notifications")} arrow enterDelay={200}>
 				<IconButton
 					onClick={openMenu(setBellAnchor)}
-					sx={{ borderRadius: 1, color: "text.secondary" }}
+					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
 				>
 					<NotificationsNoneOutlinedIcon sx={{ fontSize: 19 }} />
 				</IconButton>
@@ -181,7 +180,7 @@ const Topbar: React.FC = observer(() => {
 			<Tooltip title={t("topbar.language")} arrow enterDelay={200}>
 				<IconButton
 					onClick={openMenu(setLangAnchor)}
-					sx={{ borderRadius: 1, color: "text.secondary" }}
+					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
 				>
 					<LanguageIcon sx={{ fontSize: 19 }} />
 				</IconButton>
@@ -206,8 +205,10 @@ const Topbar: React.FC = observer(() => {
 
 			<Tooltip title={t("topbar.userMenu")} arrow enterDelay={200}>
 				<IconButton onClick={openMenu(setUserAnchor)} sx={{ p: 0.25 }}>
-					<Avatar sx={{ width: 34, height: 34, bgcolor: "primary.main", fontSize: 14 }}>
-						{initials || <PersonOutlineIcon sx={{ fontSize: 19 }} />}
+					<Avatar
+						sx={{ width: 34, height: 34, bgcolor: "primary.main", fontSize: 14, fontWeight: 600 }}
+					>
+						{initials}
 					</Avatar>
 				</IconButton>
 			</Tooltip>

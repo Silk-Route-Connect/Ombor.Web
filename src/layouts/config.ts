@@ -1,10 +1,10 @@
 import { ElementType } from "react";
 import { PATHS } from "routing/paths";
 
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 
@@ -30,8 +30,9 @@ export interface NavItem {
 export const navItems: NavItem[] = [
 	{ labelKey: "sidebar.dashboard", icon: HomeOutlinedIcon, to: PATHS.dashboard },
 	{
+		// «Каталог» — intentional divergence from the bundle's «Продукция» (product decision).
 		labelKey: "sidebar.production",
-		icon: Inventory2OutlinedIcon,
+		icon: CategoryOutlinedIcon,
 		children: [
 			{ labelKey: "sidebar.products", to: PATHS.products },
 			{ labelKey: "sidebar.categories", to: PATHS.categories },
@@ -68,7 +69,7 @@ export const navItems: NavItem[] = [
 	},
 	{
 		labelKey: "sidebar.personnel",
-		icon: PeopleAltOutlinedIcon,
+		icon: PeopleOutlinedIcon,
 		children: [{ labelKey: "sidebar.employees", to: PATHS.employees }],
 	},
 ];
