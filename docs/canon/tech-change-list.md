@@ -136,9 +136,10 @@ Target: rules 37–38 — per-line percentage or fixed amount; no transaction-le
 
 ### Default Category auto-creation _(replaces the old "Category optional" item — direction reversed)_
 
+Tenant-setup starter records & category delete protection
 **Status:** not started
-Current: Category required with no default (old list wrongly targeted making it optional).
-Target: Domain model Product — Category stays required; a Default Category is auto-created per tenant so it is never null. CategoryDto additionally carries productCount and isDefault; DELETE is rejected (409, ProblemDetails) for the Default Category and for any category with referenced products — per the frontend mock CONTRACT blocks.
+Current: no seeding at setup; category DELETE unguarded.
+Target: rule 42 — seed one Cash wallet, one warehouse, one category (ordinary entities) at tenant setup, plus the rule-39 system partner. CategoryDto carries productCount; DELETE returns 409 (ProblemDetails) only while products reference the category. No isDefault concept.
 
 ## Nice-to-have
 

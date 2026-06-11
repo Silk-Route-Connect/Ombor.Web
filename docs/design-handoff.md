@@ -44,6 +44,7 @@ After parity, components reference theme tokens only. If a prototype shows a val
 8. **Immutable events show no edit/delete affordances** — corrections are separate counter-event flows (refund, reverse payment, stock adjustment).
 9. **Walk-in retail sales** go through the system partner «Розничный покупатель» — POS flow defaults to it; it is not editable or archivable like a normal partner.
 10. **Sidebar is flat two-tier** — top-level items, some expandable with children; **no section-label headings** (no ОБЗОР / КАТАЛОГ / ТРАНЗАКЦИИ group titles). «Отчёты» is omitted from navigation until v2. «Настройки» and «Выход» pinned at the bottom. Sidebars drawn in existing prototypes predate this decision — this spec overrides them.
+11. Page-action placement: dataset-level actions (primary create, «Экспорт») sit on the title row; view-shaping controls (search, filters, tabs, archive toggle) sit on the filter row below. Export produces a client-side CSV of the current filtered view.
 
 ## Fidelity rules
 

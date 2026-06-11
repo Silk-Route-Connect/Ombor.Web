@@ -87,6 +87,7 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 
 - Orient before coding: read the docs the task-type map prescribes, state your plan in a few lines, then implement. For multi-page tasks, deliver one page/module at a time.
 - If a needed fact is missing or a canon doc contradicts the task, **stop and ask** — never proceed silently on an assumption.
+- Omitting or altering any designed element is never a unilateral call. If the prototype shows something the backend/canon can't support, or canon and prototype conflict, pause and ask the user mid-session — do not implement the deviation and report it in the summary. End-of-session "gap lists" are for discoveries that didn't change what you built, not for justifying changes you decided alone.
 - If you discover a gap between code and canon that's outside the current task, report it at the end of the session; don't fix it silently.
 
 ---

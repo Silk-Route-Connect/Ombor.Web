@@ -19,6 +19,7 @@ Defines what ships in v1. Anything not listed is deferred — adding to this lis
 - **Hard-block negative stock** (rule 20).
 - **Archive, never delete** for Product, Partner, Wallet, Warehouse (rules 29–32).
 - Designed screens implemented per the frontend `docs/design-handoff.md` locked patterns.
+- List pages carry an «Экспорт» action (title level): client-side CSV of the current filtered/sorted view. No backend involvement; distinct from the cut org-wide data export.
 
 ---
 
@@ -36,7 +37,7 @@ _Done:_ numbers reconcile with the underlying module pages for the same period. 
 
 ### 3. Products & Categories
 
-Product CRUD per Domain model (prices interpreted by type; retail price dormant — no UI). Multiple images. Archive/restore. Search by name/SKU, Cyrillic↔Latin parity. Category CRUD with auto-created Default Category, pre-selected by default in the product form. Creating a product with initial quantity = opening-stock event (rule 22).
+Product CRUD per Domain model (prices interpreted by type; retail price dormant — no UI). Multiple images. Archive/restore. Search by name/SKU, Cyrillic↔Latin parity. Category CRUD; a starter category is seeded at tenant setup (rule 42, ordinary entity). The product form pre-selects the category when the tenant has exactly one. Creating a product with initial quantity = opening-stock event (rule 22).
 _Done:_ full lifecycle incl. archive; WAC visible and correct after supplies at different prices.
 
 ### 4. Warehouses & stock view
@@ -130,7 +131,7 @@ _Done:_ a second user joins and works; a deactivated user cannot log in but stay
 - **Onboarding / data import wizard** — required before public launch, scoped separately; not a design-partner blocker.
 - **Retail-price features** — dormant field only.
 - **Cashbox machinery** (shift reconciliation, register counts) — deferred.
-- **Data export (CSV archive)** — cut from MVP (appeared only as an unrequested Design addition); revisit at v2 planning.
+- **Org-wide data export (full CSV archive, Settings)** — cut from MVP; revisit at v2 planning. Other exports are acceptable.
 - **Currency machinery cleanup** — post-MVP (frozen meanwhile).
 
 ---

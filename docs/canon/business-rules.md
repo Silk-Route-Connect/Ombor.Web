@@ -95,6 +95,10 @@ These must never be violated. If implementation requires breaking one, stop and 
 
 41. **Users are deactivated, never hard-deleted.** A deactivated user cannot authenticate but remains resolvable as an audit actor and in all historical attributions. Reactivation is allowed. (Same principle as rule 32: audit entries reference users; deleting one would orphan the trail.)
 
+### N. Tenant Setup
+
+42. Tenant setup seeds starter records: one Cash wallet, one warehouse, one category — plus the system partner «Розничный покупатель» (rule 39). Starter records are ordinary entities with no special protection: editable, archivable, and deletable under the normal rules. Only the rule-39 partner is system-protected.
+
 ---
 
 ## Domain model
@@ -103,7 +107,7 @@ These must never be violated. If implementation requires breaking one, stop and 
 
 **Partner** — a customer, a supplier, or both. Balance = net of receivable and payable, computed per read from the event log — transactions, payments, and _settling_ allocations (TransactionSettlement and AdvanceCredit); ChangeReturn allocations are audit memos and never move the balance — not stored. The first event the balance sums is the partner's opening balance, recorded as an auditable event at creation. Every tenant has a system-created partner **«Розничный покупатель»** for walk-in retail sales: auto-created at tenant setup, type Customer, the default partner in the POS sale flow, and neither editable nor archivable (rule 39).
 
-**Product** — definition of a sellable / suppliable good: name, SKU, optional description / barcode / category, unit of measurement, packaging details. Carries sale, supply, and retail prices interpreted by ProductType; **retail price is a dormant backend-only field in MVP**. Category is required (a Default Category is auto-created so it is never null). Archivable. Holds no quantity — stock lives on InventoryItem.
+**Product** — definition of a sellable / suppliable good: name, SKU, optional description / barcode / category, unit of measurement, packaging details. Carries sale, supply, and retail prices interpreted by ProductType; **retail price is a dormant backend-only field in MVP**. Category is required; the non-null invariant is held by ordinary rules — a category referenced by products cannot be deleted, and a product cannot be created without one. (No protected "default" category exists; tenant setup seeds a starter category per rule 42.). Archivable. Holds no quantity — stock lives on InventoryItem.
 
 **Transaction (TransactionRecord)** — an instantaneous, immutable, partner-facing event. Four types: **Sale, Supply, SaleRefund, SupplyRefund**. Has lines (product, quantity, unit price, line discount), a partner, a warehouse (`InventoryId`), an optional note, optional attachments, and a date. Refund types require `OriginalTransactionId` pointing to a non-refund transaction of the matching type. A transaction creates a receivable or payable; **payment is a separate, optional event** — entering a transaction does not move money by itself.
 
