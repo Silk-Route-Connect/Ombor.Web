@@ -6,8 +6,9 @@ The backend does not yet satisfy the redesigned UI. Every missing or stale capab
 
 **The shape-of-truth rule**: docs/openapi.json is the current backend's actual contract — but it is incomplete and partly stale relative to v1: some endpoints are missing entirely, others exist with shapes that predate canon (e.g., the legacy payment model). Before integrating any endpoint, check it against both openapi.json and the canon docs:
 
-- Endpoint exists and satisfies v1 expectations (canon rules + what the page needs) → use the real API directly; never mock it.
-- Endpoint is missing or its shape is stale / contradicts canon → mock the target v1 contract; the handler fully replaces the real route (the handler's existence is the switch — never mix real and mocked for one route).
+- "Satisfies v1 expectations" is judged at the page level, not the endpoint level: the endpoint must serve every field the designed page displays and every behavior canon requires. Missing any one of them makes it stale — a working endpoint that can't feed the designed page does not qualify.
+- Endpoint satisfies that test → use the real API directly; never mock it.
+- Endpoint is missing or stale → mock the target v1 contract. Mock at resource granularity: if any endpoint of a resource needs mocking, mock all of that resource's endpoints together, so writes are reflected in reads. Never degrade the designed page to backend reality — dropping a designed column or safeguard is never the answer; mocking the target is.
 
 Mocked endpoints still follow the spec's general conventions (routes, plain arrays, error shapes) so real and mocked modules are indistinguishable to stores.
 
@@ -63,6 +64,7 @@ src/mocks/
 2. **Domain-consistent, always.** Mock data must obey `business-rules.md`: payment sources equal settling allocations; partner balances equal what their event history implies; stock never negative; refund quantities within original lines; immutable events have no updatable fields. The UI will be demoed to design partners on mocks — internally inconsistent numbers destroy exactly the trust the audit trail is supposed to create.
 3. **Computed values are served, not client-computed** (CLAUDE.md hard rule 8): the mock computes partner balance, wallet balance, and "our money" inside the handler/data layer and returns them in responses, same as the real backend will.
 4. Realistic Russian-language names and UZS magnitudes, consistent with the Design sample-data style (e.g., products like «Мороженое пломбир 500г», amounts like 1 250 000).
+5. Cross-module reference consistency: when mocking a resource that REAL modules reference (e.g., mocked categories used by the real products endpoint), seed it from a snapshot of the real backend's data — same ids, same names — then enrich with the target-contract fields. Otherwise real writes referencing mocked ids will fail.
 
 ## Lifecycle
 

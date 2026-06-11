@@ -138,7 +138,7 @@ Target: rules 37–38 — per-line percentage or fixed amount; no transaction-le
 
 **Status:** not started
 Current: Category required with no default (old list wrongly targeted making it optional).
-Target: Domain model Product — Category stays required; a Default Category is auto-created per tenant so it is never null.
+Target: Domain model Product — Category stays required; a Default Category is auto-created per tenant so it is never null. CategoryDto additionally carries productCount and isDefault; DELETE is rejected (409, ProblemDetails) for the Default Category and for any category with referenced products — per the frontend mock CONTRACT blocks.
 
 ## Nice-to-have
 
