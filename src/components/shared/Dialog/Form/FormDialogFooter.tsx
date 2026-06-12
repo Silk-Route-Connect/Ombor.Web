@@ -1,8 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import GhostButton from "components/shared/Buttons/GhostButton";
 import SaveButton from "components/shared/Buttons/SaveButton";
+import { designTokens } from "theme";
 
-import { Button, DialogActions } from "@mui/material";
+import { DialogActions } from "@mui/material";
 
 interface FormDialogFooterProps {
 	canSave: boolean;
@@ -11,6 +13,10 @@ interface FormDialogFooterProps {
 	onSave: () => void;
 }
 
+/**
+ * Dialog footer per the design system's `.fcard-foot`: surface-sub strip with
+ * a top hairline; ghost «Отмена» + primary save, right-aligned.
+ */
 const FormDialogFooter: React.FC<FormDialogFooterProps> = ({
 	canSave,
 	loading,
@@ -20,10 +26,19 @@ const FormDialogFooter: React.FC<FormDialogFooterProps> = ({
 	const { t } = useTranslation();
 
 	return (
-		<DialogActions sx={{ p: 2 }}>
-			<Button onClick={onCancel} disabled={loading}>
+		<DialogActions
+			sx={{
+				px: "24px",
+				py: "14px",
+				gap: "10px",
+				borderTop: "1px solid",
+				borderColor: "divider",
+				bgcolor: designTokens.gray25,
+			}}
+		>
+			<GhostButton onClick={onCancel} disabled={loading}>
 				{t("common.cancel")}
-			</Button>
+			</GhostButton>
 			<SaveButton
 				disabled={!canSave}
 				loading={loading}

@@ -14,6 +14,7 @@ import {
 	TablePagination,
 	TableRow,
 	TableSortLabel,
+	Tooltip,
 } from "@mui/material";
 
 import {
@@ -33,6 +34,8 @@ export interface Column<T> {
 	key: string;
 	field?: keyof T;
 	headerName: string;
+	/** Optional tooltip shown on the column header. */
+	headerTooltip?: string;
 	width?: number | string;
 	align?: "left" | "right" | "center";
 	sortable?: boolean;
@@ -45,6 +48,8 @@ export interface DataTableProps<T extends { id: string | number }> {
 	className?: string;
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
+	/** Initial page size; defaults to the first entry of rowsPerPageOptions. */
+	defaultRowsPerPage?: number;
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
 }
@@ -55,11 +60,14 @@ export function DataTable<T extends { id: string | number }>({
 	className,
 	pagination = false,
 	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
+	defaultRowsPerPage,
 	onRowClick,
 	onSort,
 }: Readonly<DataTableProps<T>>) {
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE);
+	const [rowsPerPage, setRowsPerPage] = useState(
+		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
+	);
 	const [orderBy, setOrderBy] = useState<keyof T | null>(null);
 	const [order, setOrder] = useState<SortOrder>("asc");
 
@@ -124,18 +132,29 @@ export function DataTable<T extends { id: string | number }>({
 	};
 
 	const renderColumn = (col: Column<T>) => {
-		if (!col.sortable || !col.field) {
-			return col.headerName;
+		const label =
+			!col.sortable || !col.field ? (
+				col.headerName
+			) : (
+				<TableSortLabel
+					active={orderBy === col.field}
+					direction={orderBy === col.field ? order : "asc"}
+					onClick={() => handleRequestSort(col.field)}
+				>
+					{col.headerName}
+				</TableSortLabel>
+			);
+
+		if (!col.headerTooltip) {
+			return label;
 		}
 
 		return (
-			<TableSortLabel
-				active={orderBy === col.field}
-				direction={orderBy === col.field ? order : "asc"}
-				onClick={() => handleRequestSort(col.field)}
-			>
-				{col.headerName}
-			</TableSortLabel>
+			<Tooltip title={col.headerTooltip} placement="top">
+				<Box component="span" sx={{ display: "inline-flex" }}>
+					{label}
+				</Box>
+			</Tooltip>
 		);
 	};
 

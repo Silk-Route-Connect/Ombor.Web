@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 
 export interface ActionMenuRow {
 	key: string;
 	label: string;
 	icon: React.ReactNode;
+	/** Optional label color (theme token or design-token value). */
+	labelColor?: string;
+	/** Render a separator line above this row. */
+	dividerBefore?: boolean;
 	onClick: () => void;
 }
 
@@ -43,12 +47,18 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions }) => {
 				onClose={closeMenu}
 				onClick={(e) => e.stopPropagation()}
 			>
-				{actions.map((action) => (
+				{actions.map((action) => [
+					action.dividerBefore && <Divider key={`${action.key}-divider`} sx={{ my: 0.5 }} />,
 					<MenuItem key={action.key} onClick={(e) => handle(action.onClick, e)}>
 						<ListItemIcon>{action.icon}</ListItemIcon>
-						<ListItemText primary={action.label} />
-					</MenuItem>
-				))}
+						<ListItemText
+							primary={action.label}
+							slotProps={{
+								primary: action.labelColor ? { sx: { color: action.labelColor } } : undefined,
+							}}
+						/>
+					</MenuItem>,
+				])}
 			</Menu>
 		</>
 	);

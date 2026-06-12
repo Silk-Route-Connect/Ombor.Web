@@ -1,4 +1,5 @@
 import React from "react";
+import { designTokens } from "theme";
 
 import SearchIcon from "@mui/icons-material/Search";
 import { SxProps } from "@mui/material";
@@ -26,6 +27,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 			variant="outlined"
 			size="small"
 			sx={{
+				// Bundle .search-box: surface bg with the strong border.
+				"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
+				"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
 				...sx,
 			}}
 			placeholder={placeholder}

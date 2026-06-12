@@ -23,6 +23,8 @@
   "common.delete": "Удалить",
   "common.edit": "Редактировать",
   "common.archive": "Архивировать",
+  "common.restore": "Восстановить",
+  "common.export": "Экспорт",
   "common.payment": "Оплата",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
@@ -43,10 +45,10 @@
   "common.enable": "Включить",
   "common.enabled": "Выключить",
 
-  "common.dialog.discardChanges.title": "Отменить изменения?",
+  "common.dialog.discardChanges.title": "Несохранённые изменения",
   "common.dialog.discardChanges.body": "Несохранённые изменения будут потеряны.",
-  "common.dialog.discardChanges.confirm": "Да, закрыть",
-  "common.dialog.discardChanges.cancel": "Продолжить редактирование",
+  "common.dialog.discardChanges.confirm": "Закрыть",
+  "common.dialog.discardChanges.cancel": "Продолжить",
 
   "common.fieldRequired": "Поле объязательно",
 

@@ -18,6 +18,31 @@ export const numericSx = {
 	fontVariantNumeric: "tabular-nums",
 } as const;
 
+/**
+ * Design-token values used by components where the MUI palette has no slot
+ * (verbatim from the handoff bundle's tokens.css — do not invent values).
+ * Components import these from the theme instead of inlining hex.
+ */
+export const designTokens = {
+	gray25: "#F8FAFA", // --gray-25, zebra / subtle fill
+	gray50: "#F1F4F3", // --gray-50, app canvas / hover fill
+	gray100: "#E8ECEB", // --gray-100, segmented-control track
+	gray200: "#E1E8E6", // --gray-200, default border
+	gray300: "#CDD6D5", // --gray-300, strong border / input outline
+	gray400: "#A7B2B1", // --gray-400, disabled text / hover border
+	gray500: "#7E8A89", // --gray-500, badge text
+	gray600: "#5E6E6E", // --gray-600, secondary text
+	gray700: "#3E4A4A", // --gray-700, toggle label
+	saffron600: "#B5710F", // --saffron-600, archive action icon
+	saffron700: "#8F5A0C", // --saffron-700, archive action text
+	accentSoft: "#FBF0DC", // --accent-soft
+	primaryLine: "#C3DEDE", // --primary-line, hairline on tinted surfaces
+	primarySoft: "#E1EEEE", // --primary-soft
+	warningBg: "#FBF0DC", // --warning-bg, dialog icon tile
+	errorBg: "#FBEAE8", // --error-bg, danger button hover fill
+	errorBorder: "#EFC9C4", // --error-border, danger button outline
+} as const;
+
 // Elevation tokens --e-1/--e-2/--e-3 (border-first, restrained).
 const ELEVATION_1 = "0 1px 2px rgba(22,42,43,.05), 0 1px 3px rgba(22,42,43,.06)";
 const ELEVATION_2 = "0 2px 6px rgba(22,42,43,.06), 0 6px 16px rgba(22,42,43,.06)";
@@ -88,6 +113,15 @@ const theme = createTheme({
 		MuiTableCell: {
 			styleOverrides: {
 				root: { borderColor: "#E1E8E6", fontSize: 14 },
+			},
+		},
+		MuiOutlinedInput: {
+			styleOverrides: {
+				// tokens.css small controls (--tinput, .search-box, .sdrop-trig) are
+				// uniformly 40px tall.
+				root: {
+					"&.MuiInputBase-sizeSmall": { minHeight: 40 },
+				},
 			},
 		},
 	},
