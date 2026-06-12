@@ -37,7 +37,7 @@ _Done:_ numbers reconcile with the underlying module pages for the same period. 
 
 ### 3. Products & Categories
 
-Product CRUD per Domain model (prices interpreted by type; retail price dormant — no UI). Multiple images. Archive/restore. Search by name/SKU, Cyrillic↔Latin parity. Category CRUD; a starter category is seeded at tenant setup (rule 42, ordinary entity). The product form pre-selects the category when the tenant has exactly one. Creating a product with initial quantity = opening-stock event (rule 22).
+Product CRUD per Domain model (prices interpreted by type; retail price dormant — no UI). Multiple images. Archive/restore. Search by name/SKU, Cyrillic↔Latin parity. Category CRUD; a starter category is seeded at tenant setup (rule 42, ordinary entity). The product form pre-selects the category when the tenant has exactly one. 1–3 warehouses; per-warehouse stock (InventoryItem: quantity + WAC); opening-stock entry flow (audited stock-in with unit costs — rule 22); archive with totals preserved (rule 31).
 _Done:_ full lifecycle incl. archive; WAC visible and correct after supplies at different prices.
 
 ### 4. Warehouses & stock view

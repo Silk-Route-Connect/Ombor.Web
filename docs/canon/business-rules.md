@@ -47,7 +47,7 @@ These must never be violated. If implementation requires breaking one, stop and 
 19. **Stock always leaves at WAC.** A Sale's stock-out is COGS; a StockAdjustment decrease is loss, reported as a distinct line separate from COGS.
 20. **Hard-block negative stock** at write time. A StockAdjustment decrease cannot take stock below zero.
 21. **Stock moves in base units.** A line entered in packages decrements base units (package count × package size). The entered package count is retained on the line for audit.
-22. **Creating a product with an initial quantity is an opening-stock event** (audited, with cost). Creating a product at zero quantity defines the product only; its first stock event occurs on first stock-in.
+22. **Product creation never moves stock**. A product is always created at zero quantity — it is a definition, nothing more. All initial stock enters through the **warehouse opening-stock flow:** an audited stock-in event with per-product quantity and unit cost, scoped to a warehouse. Products expose stock only as served read models — per-warehouse InventoryItems and the aggregates `totalStock` / value-weighted `averageCost`.
 
 ### E. Stock adjustments
 
