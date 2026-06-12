@@ -12,6 +12,11 @@ interface CategoryAutocompleteCommonProps {
 	required?: boolean;
 	error?: boolean;
 	helperText?: React.ReactNode;
+	/** Override the field label (pass "" for label-less filter inputs). */
+	label?: string;
+	/** Override the input placeholder. */
+	placeholder?: string;
+	sx?: object;
 }
 
 interface CategoryAutocompleteEntityProps extends CategoryAutocompleteCommonProps {
@@ -36,6 +41,9 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 	required,
 	error,
 	helperText,
+	label,
+	placeholder,
+	sx,
 	onChange,
 }) => {
 	const { t } = useTranslation();
@@ -71,8 +79,8 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Category>
-			label={t("category.title.autocomplete")}
-			placeholder={t("category.title.search")}
+			label={label ?? t("category.title.autocomplete")}
+			placeholder={placeholder ?? t("category.title.search")}
 			options={options}
 			value={selectedValue}
 			size={size}
@@ -81,6 +89,7 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 			required={required}
 			error={error}
 			helperText={helperText}
+			sx={sx}
 			onChange={handleChange}
 		/>
 	);

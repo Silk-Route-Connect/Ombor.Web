@@ -8,6 +8,7 @@ import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { Category } from "models/category";
 import { dialogTranslation } from "utils/translationUtils";
 
+import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box, Dialog, DialogContent, LinearProgress, TextField } from "@mui/material";
 
 interface CategoryFormModalProps {
@@ -97,10 +98,13 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
 			<ConfirmDialog
 				isOpen={discardOpen}
+				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="warning"
 				title={dialogTranslation("title")}
 				content={dialogTranslation("body")}
 				confirmLabel={dialogTranslation("confirm")}
 				cancelLabel={dialogTranslation("cancel")}
+				confirmVariant="danger"
 				onConfirm={confirmDiscard}
 				onCancel={cancelDiscard}
 			/>

@@ -7,6 +7,8 @@ import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { observer } from "mobx-react-lite";
+import { Category } from "models/category";
+import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
 import { Alert, Box, Stack, Typography } from "@mui/material";
 
@@ -34,15 +36,32 @@ const CategoryPage: React.FC = observer(() => {
 		}
 	};
 
+	const handleExport = (): void => {
+		const rows =
+			categoryStore.filteredCategories === "loading" ? [] : categoryStore.filteredCategories;
+
+		const columns: CsvColumn<Category>[] = [
+			{ header: t("category.table.name"), value: (c) => c.name },
+			{ header: t("category.table.description"), value: (c) => c.description ?? "" },
+			{ header: t("category.table.productCount"), value: (c) => c.productCount },
+		];
+
+		exportToCsv(`categories_${csvDateStamp()}`, columns, rows);
+	};
+
 	const dialogType = categoryStore.dialogMode.type;
 	const selected = categoryStore.selectedCategory;
 
 	return (
 		<Box>
 			<CategoryHeader
+				totalCount={
+					categoryStore.allCategories === "loading" ? null : categoryStore.allCategories.length
+				}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}
+				onExport={handleExport}
 			/>
 
 			<CategoryTable

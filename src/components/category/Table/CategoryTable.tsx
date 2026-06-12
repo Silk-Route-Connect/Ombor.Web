@@ -87,5 +87,14 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 		return <EmptyState searchTerm={searchTerm} onCreate={onCreate} />;
 	}
 
-	return <DataTable<Category> rows={data} columns={columns} pagination onSort={onSort} />;
+	// 10/25/50 steps, defaulting to 10 (product decision).
+	return (
+		<DataTable<Category>
+			rows={data}
+			columns={columns}
+			pagination
+			rowsPerPageOptions={[10, 25, 50]}
+			onSort={onSort}
+		/>
+	);
 };
