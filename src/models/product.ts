@@ -19,56 +19,71 @@ export type ProductPackaging = {
 	barcode: string | null;
 };
 
+/**
+ * One warehouse's holding of a product. `quantity` and `averageCost` are
+ * served by the backend (hard rule 8): `averageCost` is the warehouse-local
+ * value-weighted unit cost (WAC), never recomputed client-side.
+ */
+export type ProductInventoryItem = {
+	inventoryId: number;
+	inventoryName: string;
+	quantity: number;
+	averageCost: number;
+};
+
 export type Product = {
 	id: number;
-	categoryId: number;
-	categoryName: string;
+	/** Category is optional in v1 (no default-category concept — canon rule 42). */
+	categoryId: number | null;
+	categoryName: string | null;
 	name: string;
 	sku: string;
 	description?: string;
 	barcode?: string;
 
-	supplyPrice: number;
 	salePrice: number;
+	supplyPrice: number;
+	/** Dormant field — carried in the contract, never surfaced in the UI (canon). */
 	retailPrice: number;
 
 	measurement: Measurement;
 	type: ProductType;
 
-	images: ProductImage[];
+	lowStockThreshold?: number | null;
+	isLowStock: boolean;
+	isArchived: boolean;
+
 	packaging?: ProductPackaging;
-	notes?: string;
+	images: ProductImage[];
+
+	inventoryItems: ProductInventoryItem[];
+	/** Served sum of quantities across warehouses (hard rule 8). */
+	totalStock: number;
 };
 
 export type CreateProductRequest = {
-	categoryId: number;
+	categoryId: number | null;
 	name: string;
 	sku: string;
 	description?: string;
 	barcode?: string;
 
-	supplyPrice: number;
 	salePrice: number;
+	supplyPrice: number;
 	retailPrice: number;
 
 	measurement: Measurement;
 	type: ProductType;
 
-	packaging?: ProductPackaging;
+	lowStockThreshold?: number | null;
 
+	packaging?: ProductPackaging;
 	attachments?: File[];
-	notes?: string;
 };
 
 export type UpdateProductRequest = CreateProductRequest & {
 	id: number;
 	imagesToDelete?: number[];
-};
-
-export type GetProductsRequest = {
-	searchTerm?: string;
-	categoryId?: number;
-	type?: ProductType;
 };
 
 export type ProductTransaction = {

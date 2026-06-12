@@ -96,3 +96,23 @@ export function editCategory(
 export function removeCategory(id: number): void {
 	categories = categories.filter((category) => category.id !== id);
 }
+
+/**
+ * Overwrite a category's `productCount`. Used by the Products mock to keep the
+ * two resources consistent: `productCount` reflects the number of active
+ * (non-archived) products referencing the category (seed-data rule 2).
+ */
+export function setCategoryProductCount(id: number, count: number): void {
+	const existing = findCategory(id);
+	if (existing) {
+		existing.productCount = count;
+	}
+}
+
+/** Shift a category's `productCount` by `delta`, clamped at zero. */
+export function adjustCategoryProductCount(id: number, delta: number): void {
+	const existing = findCategory(id);
+	if (existing) {
+		existing.productCount = Math.max(0, existing.productCount + delta);
+	}
+}

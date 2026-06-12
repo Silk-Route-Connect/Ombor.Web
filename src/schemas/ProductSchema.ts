@@ -1,10 +1,10 @@
 import i18next from "i18n/config";
 import { z } from "zod";
 
-export const MEASUREMENTS = ["Gram", "Kilogram", "Liter", "Unit", "None"] as const;
+export const MEASUREMENTS = ["Unit", "Gram", "Kilogram", "Liter", "None"] as const;
 export type Measurement = (typeof MEASUREMENTS)[number];
 
-export const PRODUCT_TYPES = ["Sale", "Supply", "All"] as const;
+export const PRODUCT_TYPES = ["All", "Sale", "Supply"] as const;
 export type ProductType = (typeof PRODUCT_TYPES)[number];
 
 const requiredEnum = <T extends readonly string[]>(values: T, key: string) =>
@@ -74,107 +74,56 @@ export const ProductPackagingSchema = z.object({
 		.optional(),
 });
 
-export const ProductSchema = z
-	.object({
-		name: z
-			.string()
-			.trim()
-			.min(2, i18next.t("product.validation.nameMin"))
-			.max(250, i18next.t("product.validation.nameMax")),
-		categoryId: z
-			.number()
-			.refine(Number.isInteger, { message: i18next.t("product.validation.categoryRequired") })
-			.min(1, i18next.t("product.validation.categoryRequired")),
-		measurement: requiredEnum(MEASUREMENTS, "product.validation.invalidMeasurement"),
-		type: requiredEnum(PRODUCT_TYPES, "product.validation.invalidType"),
-		sku: z
-			.string()
-			.trim()
-			.min(1, i18next.t("product.validation.skuRequired"))
-			.max(100, i18next.t("product.validation.skuTooLong")),
-		description: optionalTrimmedMax(500, "product.validation.descriptionTooLong"),
-		barcode: z
-			.string()
-			.trim()
-			.refine((v) => v === "" || isValidBarcode(v), {
-				message: i18next.t("product.validation.invalidBarcode"),
-			})
-			.transform((v) => (v === "" ? undefined : v))
-			.optional(),
+/**
+ * Product form contract — aligned to the redesigned create/edit modal: only
+ * Название and Артикул are required; Категория is optional (no default-category
+ * concept — canon rule 42); prices are optional and merely non-negative. The
+ * hidden price for the chosen type is zeroed by the form hook, and `retailPrice`
+ * is a dormant field with no UI (kept at 0). Initial stock is not captured here:
+ * a product is created at zero stock and stocked later via an opening-stock
+ * event (canon rule 22, Warehouse Detail) — see the session notes.
+ */
+export const ProductSchema = z.object({
+	name: z
+		.string()
+		.trim()
+		.min(2, i18next.t("product.validation.nameMin"))
+		.max(250, i18next.t("product.validation.nameMax")),
+	categoryId: z.number().int().positive().nullable(),
+	measurement: requiredEnum(MEASUREMENTS, "product.validation.invalidMeasurement"),
+	type: requiredEnum(PRODUCT_TYPES, "product.validation.invalidType"),
+	sku: z
+		.string()
+		.trim()
+		.min(1, i18next.t("product.validation.skuRequired"))
+		.max(100, i18next.t("product.validation.skuTooLong")),
+	description: optionalTrimmedMax(500, "product.validation.descriptionTooLong"),
+	barcode: z
+		.string()
+		.trim()
+		.refine((v) => v === "" || isValidBarcode(v), {
+			message: i18next.t("product.validation.invalidBarcode"),
+		})
+		.transform((v) => (v === "" ? undefined : v))
+		.optional(),
 
-		// prices (validated below with chained rules)
-		supplyPrice: z.number(),
-		salePrice: z.number(),
-		retailPrice: z.number(),
+	// Prices are non-negative; the type segmented control determines which are
+	// shown, and the form hook zeroes the hidden ones. retailPrice is dormant.
+	supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
+	salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
+	retailPrice: z.number().min(0, i18next.t("product.validation.retailPriceNonNegative")),
 
-		// packaging is optional; when provided, packSize is required by ProductPackagingSchema
-		packaging: ProductPackagingSchema.optional(),
+	lowStockThreshold: z.number().int().min(0).nullable().optional(),
 
-		attachments: z
-			.custom<
-				File[] | undefined
-				// TypeScript quirk: the type guard is needed to convince it that this is a valid schema
-			>(
-				(files): files is File[] | undefined =>
-					files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)),
-			)
-			.optional(),
+	// packaging is optional; when provided, size is required by ProductPackagingSchema
+	packaging: ProductPackagingSchema.optional(),
 
-		notes: optionalTrimmedMax(500, "product.validation.notesTooLong"),
-	})
-
-	// Non-negativity
-	.refine((d) => d.supplyPrice >= 0, {
-		path: ["supplyPrice"],
-		message: i18next.t("product.validation.supplyPriceNonNegative"),
-	})
-	.refine((d) => d.salePrice >= 0, {
-		path: ["salePrice"],
-		message: i18next.t("product.validation.salePriceNonNegative"),
-	})
-	.refine((d) => d.retailPrice >= 0, {
-		path: ["retailPrice"],
-		message: i18next.t("product.validation.retailPriceNonNegative"),
-	})
-
-	.refine((d) => d.type === "Sale" || d.supplyPrice > 0, {
-		path: ["supplyPrice"],
-		message: i18next.t("product.validation.supplyPricePositive"),
-	})
-
-	// Type: Sale → sale>0, retail>0
-	.refine((d) => d.type !== "Sale" || d.salePrice > 0, {
-		path: ["salePrice"],
-		message: i18next.t("product.validation.salePricePositive"),
-	})
-	.refine((d) => d.type !== "Sale" || d.retailPrice > 0, {
-		path: ["retailPrice"],
-		message: i18next.t("product.validation.retailPricePositive"),
-	})
-
-	// Type: Supply → sale==0, retail==0
-	.refine((d) => d.type !== "Supply" || d.salePrice === 0, {
-		path: ["salePrice"],
-		message: i18next.t("product.validation.salePriceMustBeZero"),
-	})
-	.refine((d) => d.type !== "Supply" || d.retailPrice === 0, {
-		path: ["retailPrice"],
-		message: i18next.t("product.validation.retailPriceMustBeZero"),
-	})
-
-	// Cross-price comparisons when not Supply
-	.refine((d) => d.type === "Supply" || d.salePrice > d.supplyPrice, {
-		path: ["salePrice"],
-		message: i18next.t("product.validation.saleGreaterThanSupply"),
-	})
-	.refine((d) => d.type === "Supply" || d.retailPrice > d.supplyPrice, {
-		path: ["retailPrice"],
-		message: i18next.t("product.validation.retailGreaterThanSupply"),
-	})
-	.refine((d) => d.type === "Supply" || d.salePrice > d.retailPrice, {
-		path: ["salePrice"],
-		message: i18next.t("product.validation.saleGreaterThanRetail"),
-	});
+	attachments: z
+		.custom<
+			File[] | undefined
+		>((files): files is File[] | undefined => files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)))
+		.optional(),
+});
 
 export type ProductFormInputs = z.input<typeof ProductSchema>;
 export type ProductFormValues = z.output<typeof ProductSchema>;

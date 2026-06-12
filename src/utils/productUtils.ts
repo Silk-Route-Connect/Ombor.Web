@@ -1,5 +1,14 @@
-import { Product, ProductPackaging, ProductTransaction } from "models/product";
+import { Measurement, Product, ProductPackaging, ProductTransaction } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
+
+/** Short unit codes for the «Ед. изм.» column, keyed by the domain enum. */
+export const MEASUREMENT_SHORT: Record<Measurement, string> = {
+	Unit: "шт",
+	Gram: "г",
+	Kilogram: "кг",
+	Liter: "л",
+	None: "—",
+};
 
 export function isAvialableForSale(product: Product) {
 	return product.salePrice >= 0;
@@ -36,6 +45,8 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 		salePrice: Number(product.salePrice),
 		retailPrice: Number(product.retailPrice),
 
+		lowStockThreshold: product.lowStockThreshold ?? null,
+
 		packaging: product.packaging
 			? {
 					size: product.packaging.size,
@@ -44,7 +55,6 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 				}
 			: undefined,
 		attachments: undefined,
-		notes: product.notes,
 	};
 };
 
@@ -67,6 +77,11 @@ const IMAGE_BASE_URL = import.meta.env.VITE_OMBOR_API_BASE_URL ?? "";
 export function getImageFullUrl(path?: string): string | undefined {
 	if (!path) {
 		return undefined;
+	}
+
+	// Self-contained URLs (mock object URLs, inline data URIs) need no base.
+	if (/^(data|blob|https?):/.test(path)) {
+		return path;
 	}
 
 	const base = IMAGE_BASE_URL.replace(/\/+$|\\+$/, "");

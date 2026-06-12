@@ -1,8 +1,5 @@
-import { toQueryString } from "utils/toQueryParameters";
-
 import {
 	CreateProductRequest,
-	GetProductsRequest,
 	Product,
 	ProductTransaction,
 	UpdateProductRequest,
@@ -21,16 +18,15 @@ const primitiveTypes = ["string", "number", "boolean"];
 export class ProductApi {
 	private readonly baseUrl: string = "/api/products";
 
-	async getAll(request?: GetProductsRequest): Promise<Product[]> {
-		const url = this.getUrl(request);
-		const response = await http.get<Product[]>(url);
+	/** Full dataset — no query params; search/filter/sort/paging are client-side. */
+	async getAll(): Promise<Product[]> {
+		const response = await http.get<Product[]>(this.baseUrl);
 
 		return response.data;
 	}
 
 	async getById(id: number): Promise<Product> {
-		const url = this.getUrlWithId(id);
-		const response = await http.get<Product>(url);
+		const response = await http.get<Product>(this.getUrlWithId(id));
 
 		return response.data;
 	}
@@ -43,34 +39,29 @@ export class ProductApi {
 	}
 
 	async create(request: CreateProductRequest): Promise<Product> {
-		const url = this.getUrl();
 		const form = this.getFormData(request);
+		const response = await http.post<Product>(this.baseUrl, form, formHeaders);
 
-		const response = await http.post<Product>(url, form, formHeaders);
 		return response.data;
 	}
 
 	async update(request: UpdateProductRequest): Promise<Product> {
-		const url = this.getUrlWithId(request.id);
 		const form = this.getFormData(request);
-		const response = await http.put<Product>(url, form, formHeaders);
+		const response = await http.put<Product>(this.getUrlWithId(request.id), form, formHeaders);
 
 		return response.data;
 	}
 
-	async delete(id: number): Promise<void> {
-		const url = this.getUrlWithId(id);
-		await http.delete(url);
+	async archive(id: number): Promise<Product> {
+		const response = await http.post<Product>(`${this.getUrlWithId(id)}/archive`);
+
+		return response.data;
 	}
 
-	private getUrl(request?: GetProductsRequest): string {
-		if (!request) {
-			return this.baseUrl;
-		}
+	async restore(id: number): Promise<Product> {
+		const response = await http.post<Product>(`${this.getUrlWithId(id)}/restore`);
 
-		const query = toQueryString(request);
-
-		return query ? `${this.baseUrl}?${query}` : this.baseUrl;
+		return response.data;
 	}
 
 	private getUrlWithId(id: number): string {
