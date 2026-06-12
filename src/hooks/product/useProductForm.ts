@@ -50,7 +50,7 @@ export interface UseProductFormResult {
 
 const DEFAULT_VALUES: ProductFormInputs = {
 	name: "",
-	categoryId: 0,
+	categoryId: null,
 	measurement: "Unit",
 	type: "All",
 	sku: "",
@@ -61,10 +61,11 @@ const DEFAULT_VALUES: ProductFormInputs = {
 	salePrice: 0,
 	retailPrice: 0,
 
+	lowStockThreshold: null,
+
 	packaging: undefined,
 
 	attachments: undefined,
-	notes: undefined,
 };
 
 export type ProductFormPayload = ProductFormInputs;
@@ -83,7 +84,7 @@ export const useProductForm = ({
 		defaultValues: DEFAULT_VALUES,
 	});
 
-	const { control, formState, setValue, handleSubmit, reset, clearErrors, trigger } = form;
+	const { control, formState, setValue, handleSubmit, reset, clearErrors } = form;
 
 	const [initialImages, setInitialImages] = useState<ProductImage[]>([]);
 	const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
@@ -208,26 +209,26 @@ export const useProductForm = ({
 		setMainSelection({ kind: "new", index });
 	}, []);
 
+	// The type segmented control decides which price is shown; zero the hidden
+	// one so it never carries a stale value. retailPrice is dormant (no UI).
 	useEffect(() => {
 		if (!watchedType) {
 			return;
 		}
 
 		if (watchedType === "Supply") {
-			setValue("salePrice", 0, { shouldDirty: true, shouldValidate: true });
-			setValue("retailPrice", 0, { shouldDirty: true, shouldValidate: true });
-			clearErrors(["salePrice", "retailPrice"]);
+			setValue("salePrice", 0, { shouldValidate: false });
+			clearErrors(["salePrice"]);
 		} else if (watchedType === "Sale") {
+			setValue("supplyPrice", 0, { shouldValidate: false });
 			clearErrors(["supplyPrice"]);
-		} else {
-			clearErrors(["supplyPrice", "salePrice", "retailPrice"]);
 		}
-
-		void trigger(["supplyPrice", "salePrice", "retailPrice"]);
-	}, [watchedType, setValue, clearErrors, trigger]);
+	}, [watchedType, setValue, clearErrors]);
 
 	const submit = handleSubmit(onSave);
-	const canSave = formState.isValid && formState.isDirty && !isSaving;
+	// Save stays enabled (hard rule 5): validation runs on submit and reports
+	// inline; the button is only inert while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,

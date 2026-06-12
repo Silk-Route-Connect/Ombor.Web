@@ -1,9 +1,12 @@
 import React from "react";
 import { Control, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { ProductFormInputs } from "schemas/ProductSchema";
+import { designTokens } from "theme";
 
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import {
 	Box,
 	Collapse,
@@ -28,6 +31,41 @@ const toNumberOrZero = (raw: string): number => {
 	return value === "" ? 0 : Number(value);
 };
 
+/** Bundle `.switch`: 42×24 pill, gray-300 track (primary when on), 20px knob. */
+const switchSx = {
+	width: 42,
+	height: 24,
+	p: 0,
+	"& .MuiSwitch-switchBase": {
+		p: "2px",
+		"&.Mui-checked": {
+			transform: "translateX(18px)",
+			color: "#fff",
+			"& + .MuiSwitch-track": { bgcolor: "primary.main", opacity: 1 },
+		},
+	},
+	"& .MuiSwitch-thumb": {
+		width: 20,
+		height: 20,
+		bgcolor: "#fff",
+		boxShadow: (theme: { shadows: string[] }) => theme.shadows[1],
+	},
+	"& .MuiSwitch-track": { borderRadius: 999, bgcolor: designTokens.gray300, opacity: 1 },
+} as const;
+
+/** Label-above-input row per the bundle's `.frow` (7px gap). */
+const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+	<Stack sx={{ gap: "7px" }}>
+		<FormFieldLabel label={label} />
+		{children}
+	</Stack>
+);
+
+/**
+ * «Фасовка» per the bundle: pack-head title (box icon + 14px/700 text) with
+ * the 42×24 switch on the right; when enabled, the fields sit in a tinted
+ * bordered card (surface-sub, r-md, 16px padding, two-column 14px grid).
+ */
 const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 	control,
 	disabled,
@@ -39,20 +77,20 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 	const { t } = useTranslation();
 
 	return (
-		<Stack spacing={2}>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-				}}
-			>
-				<Typography variant="subtitle1">{t("product.packaging")}</Typography>
+		<Box>
+			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+				<Box sx={{ display: "inline-flex", alignItems: "center", gap: "9px" }}>
+					<Inventory2OutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+					<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{t("product.packaging")}</Typography>
+				</Box>
 
 				<FormControlLabel
-					label={hasPackaging ? t("common.enabled") : t("common.enable")}
+					label={t("common.enable")}
+					labelPlacement="start"
+					sx={{ mr: 0, gap: "10px", "& .MuiFormControlLabel-label": { fontSize: 13.5 } }}
 					control={
 						<Switch
+							sx={switchSx}
 							checked={hasPackaging}
 							onChange={(_, checked) => (checked ? enablePackaging() : disablePackaging())}
 							disabled={disabled}
@@ -62,66 +100,90 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 			</Box>
 
 			<Collapse in={hasPackaging} unmountOnExit>
-				<Stack spacing={2}>
-					<Controller
-						name="packaging.size"
-						control={control}
-						render={({ field, fieldState }) => (
-							<NumericField
-								{...field}
-								value={field.value}
-								label={t("product.packaging.size")}
-								min={2}
-								step={1}
-								selectOnFocus
-								disabled={disabled}
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-								onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
-							/>
-						)}
-					/>
+				<Box
+					sx={{
+						mt: "14px",
+						p: "16px",
+						border: "1px solid",
+						borderColor: "divider",
+						borderRadius: "8px",
+						bgcolor: designTokens.gray25,
+						display: "grid",
+						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+						gap: "14px",
+					}}
+				>
+					<Field label={t("product.packaging.size")}>
+						<Controller
+							name="packaging.size"
+							control={control}
+							render={({ field, fieldState }) => (
+								<NumericField
+									{...field}
+									value={field.value}
+									size="small"
+									min={2}
+									step={1}
+									selectOnFocus
+									disabled={disabled}
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+									onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
+								/>
+							)}
+						/>
+					</Field>
 
-					<Controller
-						name="packaging.label"
-						control={control}
-						render={({ field, fieldState }) => (
-							<TextField
-								{...field}
-								label={t("product.packaging.label")}
-								fullWidth
-								disabled={disabled}
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-							/>
-						)}
-					/>
+					<Field label={t("product.packaging.label")}>
+						<Controller
+							name="packaging.label"
+							control={control}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									value={field.value ?? ""}
+									size="small"
+									fullWidth
+									placeholder={t("product.form.packLabelPlaceholder")}
+									disabled={disabled}
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+								/>
+							)}
+						/>
+					</Field>
 
-					<Controller
-						name="packaging.barcode"
-						control={control}
-						render={({ field, fieldState }) => (
-							<TextField
-								{...field}
-								label={t("product.packaging.barcode")}
-								fullWidth
-								disabled={disabled}
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-							/>
-						)}
-					/>
+					<Field label={t("product.packaging.barcode")}>
+						<Controller
+							name="packaging.barcode"
+							control={control}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									value={field.value ?? ""}
+									size="small"
+									fullWidth
+									placeholder={t("product.form.optionalPlaceholder")}
+									disabled={disabled}
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+								/>
+							)}
+						/>
+					</Field>
 
-					<TextField
-						label={t("product.packaging.price")}
-						value={packPrice ?? "0"}
-						fullWidth
-						aria-readonly
-						slotProps={{ input: { readOnly: true } }}
-					/>
-				</Stack>
+					<Field label={t("product.packaging.price")}>
+						<TextField
+							value={packPrice ?? "0"}
+							size="small"
+							fullWidth
+							aria-readonly
+							slotProps={{ input: { readOnly: true } }}
+						/>
+					</Field>
+				</Box>
 			</Collapse>
-		</Stack>
+		</Box>
 	);
 };
 

@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { useFilePreviews } from "hooks/product/useFilePreviews";
 import { UseProductFormResult } from "hooks/product/useProductForm";
 import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
 
-import { Box, Stack, TextField } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { Alert, Box, Divider, Stack, TextField } from "@mui/material";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";
@@ -20,6 +21,11 @@ export interface ProductFormFieldsProps {
 	imagesBaseUrlResolver?: (url: string) => string;
 }
 
+/**
+ * Dialog body per the bundle: core fields (with the image block in the top
+ * grid's left column), a section divider (20px margins), «Фасовка», and the
+ * description textarea (20px above).
+ */
 const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	api,
 	disabled,
@@ -43,19 +49,18 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 		selectMainNew,
 	} = api;
 
-	const { control, setValue } = form;
+	const { control, setValue, formState } = form;
 
 	const previews = useFilePreviews(attachments);
+
+	const errorCount = Object.keys(formState.errors).length;
+	const showErrorBanner = formState.isSubmitted && errorCount > 0;
 
 	const resolveUrl = useMemo(
 		() => (src: string) =>
 			imagesBaseUrlResolver ? imagesBaseUrlResolver(src) : (getImageFullUrl(src) ?? src),
 		[imagesBaseUrlResolver],
 	);
-
-	const handleAddAttachments = (files: FileList) => {
-		addAttachments(files);
-	};
 
 	const handleAddMainImage = (file: File) => {
 		const insertionIndex = attachments.length;
@@ -69,63 +74,69 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	};
 
 	return (
-		<Grid container spacing={3}>
-			<Grid size={{ xs: 12, md: 4 }}>
-				<ProductFormImages
-					disabled={disabled}
-					existingImages={existingImages}
-					attachments={attachments}
-					attachmentPreviews={previews}
-					mainSelection={mainSelection}
-					onSetMainExisting={selectMainExisting}
-					onSetMainNew={selectMainNew}
-					onRemoveExisting={markImageForRemoval}
-					onRemoveAttachment={removeAttachment}
-					onAddAttachments={handleAddAttachments}
-					onAddMainAndMakeActive={handleAddMainImage}
-					resolveUrl={resolveUrl}
-				/>
-			</Grid>
+		<Box>
+			{showErrorBanner && (
+				<Alert severity="error" icon={<ErrorOutlineIcon />} variant="outlined" sx={{ mb: "16px" }}>
+					{t("product.form.errorBanner")}
+				</Alert>
+			)}
 
-			<Grid size={{ xs: 12, md: 8 }}>
-				<Stack spacing={2}>
-					<ProductFormCoreFields
-						control={control}
-						setValue={setValue}
+			<ProductFormCoreFields
+				control={control}
+				setValue={setValue}
+				disabled={disabled}
+				onGenerateSku={onGenerateSku}
+				imagesSlot={
+					<ProductFormImages
 						disabled={disabled}
-						onGenerateSku={onGenerateSku}
+						existingImages={existingImages}
+						attachments={attachments}
+						attachmentPreviews={previews}
+						mainSelection={mainSelection}
+						onSetMainExisting={selectMainExisting}
+						onSetMainNew={selectMainNew}
+						onRemoveExisting={markImageForRemoval}
+						onRemoveAttachment={removeAttachment}
+						onAddAttachments={addAttachments}
+						onAddMainAndMakeActive={handleAddMainImage}
+						resolveUrl={resolveUrl}
 					/>
+				}
+			/>
 
-					<Box>
-						<ProductFormPackaging
-							control={control}
+			<Divider sx={{ my: "20px" }} />
+
+			<ProductFormPackaging
+				control={control}
+				disabled={disabled}
+				hasPackaging={hasPackaging}
+				packPrice={packPrice}
+				enablePackaging={enablePackaging}
+				disablePackaging={disablePackaging}
+			/>
+
+			<Stack sx={{ gap: "7px", mt: "20px" }}>
+				<FormFieldLabel label={t("product.description")} />
+				<Controller
+					name="description"
+					control={control}
+					render={({ field, fieldState }) => (
+						<TextField
+							{...field}
+							value={field.value ?? ""}
+							size="small"
+							fullWidth
+							multiline
+							minRows={3}
+							placeholder={t("product.form.descriptionPlaceholder")}
+							error={!!fieldState.error}
+							helperText={fieldState.error?.message}
 							disabled={disabled}
-							hasPackaging={hasPackaging}
-							packPrice={packPrice}
-							enablePackaging={enablePackaging}
-							disablePackaging={disablePackaging}
 						/>
-					</Box>
-
-					<Controller
-						name="description"
-						control={control}
-						render={({ field, fieldState }) => (
-							<TextField
-								{...field}
-								label={t("product.description")}
-								fullWidth
-								multiline
-								minRows={3}
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-								disabled={disabled}
-							/>
-						)}
-					/>
-				</Stack>
-			</Grid>
-		</Grid>
+					)}
+				/>
+			</Stack>
+		</Box>
 	);
 };
 
