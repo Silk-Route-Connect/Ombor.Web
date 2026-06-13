@@ -14,6 +14,15 @@ export function isAvialableForSale(product: Product) {
 	return product.salePrice >= 0;
 }
 
+/**
+ * Total value of stock on hand: Σ(quantity × per-warehouse WAC) over the served
+ * inventory items. Display arithmetic over server-provided fields — both
+ * operands are served (hard rule 8); the backend may serve this directly later.
+ */
+export function stockValue(product: Product): number {
+	return product.inventoryItems.reduce((sum, item) => sum + item.quantity * item.averageCost, 0);
+}
+
 export function calculateLineTotals(unitPrice: number, quantity: number, discount: number) {
 	const lineTotal = unitPrice * quantity;
 	const discountAmount = (lineTotal * discount) / 100;

@@ -60,3 +60,12 @@ export function formatCurrency(value: number): string {
 export function formatPrice(value: number): string {
 	return formatCurrency(value);
 }
+
+/**
+ * Space-grouped formatter for non-money quantities (stock counts, units). Same
+ * grouping as money, but named for intent so quantity displays don't read as
+ * currency. 340 → "340", 1500 → "1 500".
+ */
+export function formatQuantity(value: number): string {
+	return currencyFormatter.format(value);
+}

@@ -1,13 +1,15 @@
+import ArchivedBadge from "components/product/ArchivedBadge";
+import ProductTypeChip from "components/product/ProductTypeChip";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
-import { Product, ProductType } from "models/product";
-import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { Product } from "models/product";
+import { numericSx } from "theme";
+import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { getImageFullUrl, MEASUREMENT_SHORT } from "utils/productUtils";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import { alpha, Box, Chip, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface BuildColumnsOptions {
 	t: TFunction;
@@ -15,13 +17,6 @@ interface BuildColumnsOptions {
 	onArchive: (product: Product) => void;
 	onRestore: (product: Product) => void;
 }
-
-/** Type chip palette key (soft pill), mirroring the prototype PRTYPE tones. */
-const TYPE_COLOR: Record<ProductType, "primary" | "success" | "info"> = {
-	All: "primary",
-	Sale: "success",
-	Supply: "info",
-};
 
 /** Archived rows dim their secondary cells (bundle: tr.is-archived → opacity .55). */
 const archivedCellSx = (product: Product) => (product.isArchived ? { opacity: 0.55 } : undefined);
@@ -121,25 +116,7 @@ export function buildProductColumns({
 					>
 						{product.name}
 					</Typography>
-					{product.isArchived && (
-						<Chip
-							label={t("product.table.archivedBadge")}
-							size="small"
-							sx={{
-								height: "auto",
-								py: "1px",
-								fontSize: 10.5,
-								fontWeight: 600,
-								letterSpacing: "0.02em",
-								textTransform: "uppercase",
-								color: designTokens.gray500,
-								bgcolor: designTokens.gray100,
-								border: "1px solid",
-								borderColor: designTokens.gray200,
-								"& .MuiChip-label": { px: "7px" },
-							}}
-						/>
-					)}
+					{product.isArchived && <ArchivedBadge />}
 				</Box>
 			),
 		},
@@ -194,23 +171,7 @@ export function buildProductColumns({
 			headerName: t("product.table.type"),
 			width: "9%",
 			sortable: true,
-			renderCell: (product) => {
-				const color = TYPE_COLOR[product.type];
-				return (
-					<Chip
-						label={t(`product.type.${product.type}`)}
-						size="small"
-						sx={(theme) => ({
-							height: 22,
-							fontSize: 12,
-							fontWeight: 600,
-							bgcolor: alpha(theme.palette[color].main, 0.12),
-							color: theme.palette[color].main,
-							opacity: product.isArchived ? 0.55 : 1,
-						})}
-					/>
-				);
-			},
+			renderCell: (product) => <ProductTypeChip type={product.type} dimmed={product.isArchived} />,
 		},
 		{
 			key: "totalStock",
@@ -229,7 +190,7 @@ export function buildProductColumns({
 						...archivedCellSx(product),
 					}}
 				>
-					{formatCurrency(product.totalStock)}
+					{formatQuantity(product.totalStock)}
 				</Typography>
 			),
 		},

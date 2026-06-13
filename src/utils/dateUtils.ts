@@ -78,6 +78,15 @@ export const formatDateTime = (value: Date | string): string => {
 };
 
 /**
+ * Formats a date as "dd.MM.yyyy" — the display format for dates in tables
+ * (per the Ombor Design System).
+ */
+export const formatDate = (value: Date | string): string => {
+	const date = toDate(value);
+	return [pad(date.getDate()), pad(date.getMonth() + 1), date.getFullYear()].join(".");
+};
+
+/**
  * Formats a date as "yyyy-MM-dd" (ISO date format, useful for keys)
  */
 export const formatISODate = (date: Date | string): string => {
