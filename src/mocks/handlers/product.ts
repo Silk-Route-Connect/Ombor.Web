@@ -5,7 +5,9 @@ import {
 	addProduct,
 	editProduct,
 	findProduct,
+	listProductMovements,
 	listProducts,
+	listProductTransactions,
 	ProductWrite,
 	setProductArchived,
 	skuExists,
@@ -20,6 +22,8 @@ const LIST_URL = "*/api/products";
 const ITEM_URL = "*/api/products/:id";
 const ARCHIVE_URL = "*/api/products/:id/archive";
 const RESTORE_URL = "*/api/products/:id/restore";
+const TRANSACTIONS_URL = "*/api/products/:id/transactions";
+const MOVEMENTS_URL = "*/api/products/:id/movements";
 
 const NAME_MIN = 2;
 const NAME_MAX = 250;
@@ -127,8 +131,9 @@ export const productHandlers = [
 	// CONTRACT: GET /api/products
 	// query: none — full dataset, archived included (carry the isArchived flag;
 	//        client-side search/filter/sort/pagination)
-	// response 200: Product[] (totalStock + per-warehouse inventoryItems served
-	//               per hard rule 8; no product-level WAC aggregate in v1)
+	// response 200: Product[] (totalStock, value-weighted averageCost and
+	//               per-warehouse inventoryItems all served per hard rule 8;
+	//               the averageCost aggregate is surfaced on detail only)
 	// errors: 401
 	http.get(LIST_URL, async () => {
 		await delay(300);
@@ -150,11 +155,43 @@ export const productHandlers = [
 		return HttpResponse.json(product);
 	}),
 
+	// CONTRACT: GET /api/products/:id/transactions
+	// query: none — full per-product history, newest first (client-side list ops)
+	// response 200: ProductTransaction[] (signed quantity: positive into stock)
+	// errors: 404 ProblemDetails, 401
+	http.get(TRANSACTIONS_URL, async ({ params }) => {
+		await delay(250);
+
+		const id = Number(params.id);
+		if (!findProduct(id)) {
+			return problem(404, "Not Found", "Товар не найден");
+		}
+
+		return HttpResponse.json(listProductTransactions(id));
+	}),
+
+	// CONTRACT: GET /api/products/:id/movements
+	// query: none — full warehouse ledger, newest first (client-side list ops)
+	// response 200: ProductMovement[] — `balanceAfter` is the served running
+	//               total across warehouses (hard rule 8); the opening stock is
+	//               the remainder before the oldest movement
+	// errors: 404 ProblemDetails, 401
+	http.get(MOVEMENTS_URL, async ({ params }) => {
+		await delay(250);
+
+		const id = Number(params.id);
+		if (!findProduct(id)) {
+			return problem(404, "Not Found", "Товар не найден");
+		}
+
+		return HttpResponse.json(listProductMovements(id));
+	}),
+
 	// CONTRACT: POST /api/products
 	// body: multipart/form-data — CreateProductRequest fields + `attachments` files.
 	//   No initial-quantity block: a product is created at zero stock and stocked
 	//   later via an opening-stock event (canon rule 22).
-	// response 201: Product (empty inventoryItems, totalStock 0)
+	// response 201: Product (empty inventoryItems, totalStock 0, averageCost null)
 	// errors: 400 ValidationProblemDetails (name / sku / duplicate sku), 401
 	http.post(LIST_URL, async ({ request }) => {
 		await delay(350);

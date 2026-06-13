@@ -59,6 +59,11 @@ export type Product = {
 	inventoryItems: ProductInventoryItem[];
 	/** Served sum of quantities across warehouses (hard rule 8). */
 	totalStock: number;
+	/**
+	 * Served value-weighted WAC across warehouses; null when there is no stock.
+	 * Surfaced on the product detail page only (list shows no WAC column).
+	 */
+	averageCost: number | null;
 };
 
 export type CreateProductRequest = {
@@ -92,8 +97,27 @@ export type ProductTransaction = {
 	transactionType: TransactionType;
 	partnerId: number;
 	partnerName: string;
-	date: Date;
+	/** ISO date string. */
+	date: string;
+	/** Signed quantity in base units: positive into stock, negative out. */
 	quantity: number;
 	unitPrice: number;
 	discount: number;
+};
+
+/** A stock movement in the product's warehouse ledger. */
+export type ProductMovementKind = TransactionType;
+
+export type ProductMovement = {
+	id: number;
+	productId: number;
+	/** ISO date string. */
+	date: string;
+	kind: ProductMovementKind;
+	inventoryId: number;
+	inventoryName: string;
+	/** Signed delta in base units: positive into stock, negative out. */
+	quantity: number;
+	/** Served running total across all warehouses after this movement (hard rule 8). */
+	balanceAfter: number;
 };

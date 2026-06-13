@@ -3,7 +3,9 @@ import {
 	Product,
 	ProductImage,
 	ProductInventoryItem,
+	ProductMovement,
 	ProductPackaging,
+	ProductTransaction,
 	ProductType,
 } from "../../models/product";
 import {
@@ -297,8 +299,11 @@ const seed: ProductSeed[] = [
 		retailPrice: 108000,
 		measurement: "Unit",
 		type: "All",
-		// active but out of stock
-		stock: [],
+		// sold out: zero quantity at both warehouses, history exists
+		stock: [
+			{ inventoryId: 1, quantity: 0, averageCost: 60000 },
+			{ inventoryId: 2, quantity: 0, averageCost: 60000 },
+		],
 	},
 	// ── Фильмы (2) ───────────────────────────────────────────────────────────
 	{
@@ -524,14 +529,24 @@ function toInventoryItems(stock: StockSpec[]): ProductInventoryItem[] {
 	}));
 }
 
-/** Served aggregate: total quantity across warehouses (hard rule 8). */
-function totalStockOf(items: ProductInventoryItem[]): number {
-	return items.reduce((sum, i) => sum + i.quantity, 0);
+/** Served aggregates: total quantity and value-weighted WAC across warehouses
+ * (hard rule 8). The WAC aggregate is surfaced on the detail page only. */
+function aggregate(items: ProductInventoryItem[]): {
+	totalStock: number;
+	averageCost: number | null;
+} {
+	const totalStock = items.reduce((sum, i) => sum + i.quantity, 0);
+	if (totalStock <= 0) {
+		return { totalStock, averageCost: null };
+	}
+
+	const totalValue = items.reduce((sum, i) => sum + i.quantity * i.averageCost, 0);
+	return { totalStock, averageCost: Math.round(totalValue / totalStock) };
 }
 
 function buildProduct(spec: ProductSeed): Product {
 	const items = toInventoryItems(spec.stock ?? []);
-	const totalStock = totalStockOf(items);
+	const { totalStock, averageCost } = aggregate(items);
 	const lowStockThreshold = spec.lowStockThreshold ?? null;
 
 	return {
@@ -554,6 +569,7 @@ function buildProduct(spec: ProductSeed): Product {
 		images: spec.imageColors ? [seedImage(spec.id * 100 + 1, spec.name, spec.imageColors)] : [],
 		inventoryItems: items,
 		totalStock,
+		averageCost,
 	};
 }
 
@@ -635,6 +651,7 @@ export function addProduct(write: ProductWrite): Product {
 		images: write.images,
 		inventoryItems: [],
 		totalStock: 0,
+		averageCost: null,
 	};
 	products = [created, ...products];
 
@@ -697,4 +714,216 @@ export function setProductArchived(id: number, archived: boolean): Product | und
 	}
 
 	return existing;
+}
+
+/* ───────────────────── history: transactions + movements ──────────────────
+ * Deterministic per-product ledgers derived from the seeded warehouse
+ * holdings, so the list, the detail stock table, the transaction history and
+ * the movements ledger all reconcile (seed-data rule 2):
+ *  - per warehouse: opening + Σ(movement deltas) = current quantity, and the
+ *    running balance never goes negative (rule 20);
+ *  - supplies are priced at the warehouse WAC (so the served averageCost is
+ *    exactly consistent with the purchase history); sales/refunds at salePrice;
+ *  - `balanceAfter` is the served running total across all warehouses
+ *    (hard rule 8) — the total opening stock is its remainder before the
+ *    oldest movement.
+ * Products created in-session start with an empty history.
+ */
+
+const HISTORY_PARTNERS = [
+	{ id: 1, name: "Магазин «Хоразм»" },
+	{ id: 2, name: "ИП Рахимов А." },
+	{ id: 3, name: "Дилшод Савдо" },
+	{ id: 4, name: "ООО «Бухоро Трейд»" },
+	{ id: 5, name: "Магазин «Чорсу»" },
+	{ id: 6, name: "Нодира Юсупова" },
+];
+
+type LedgerEvent = {
+	kind: ProductMovement["kind"];
+	inventoryId: number;
+	/** Signed delta in base units. */
+	quantity: number;
+	unitPrice: number;
+	daysAgo: number;
+};
+
+type ProductHistory = { transactions: ProductTransaction[]; movements: ProductMovement[] };
+
+const MS_PER_DAY = 86_400_000;
+
+function isoDaysAgo(daysAgo: number): string {
+	return new Date(Date.now() - daysAgo * MS_PER_DAY).toISOString();
+}
+
+/** Plan one warehouse's flows: opening + events land exactly on `final`. */
+function planWarehouseFlows(
+	product: Product,
+	item: ProductInventoryItem,
+	warehouseIndex: number,
+): { opening: number; events: LedgerEvent[] } {
+	const final = item.quantity;
+	const stagger = warehouseIndex * 3 + (product.id % 4);
+	const events: LedgerEvent[] = [];
+
+	if (final === 0 && item.averageCost > 0) {
+		// Sold out: one supply fully consumed by two sales.
+		const supplied = 40 + (product.id % 5) * 6;
+		const firstSale = Math.round(supplied * 0.6);
+		events.push(
+			{
+				kind: "Supply",
+				inventoryId: item.inventoryId,
+				quantity: supplied,
+				unitPrice: item.averageCost,
+				daysAgo: 41 - stagger,
+			},
+			{
+				kind: "Sale",
+				inventoryId: item.inventoryId,
+				quantity: -firstSale,
+				unitPrice: product.salePrice,
+				daysAgo: 27 - stagger,
+			},
+			{
+				kind: "Sale",
+				inventoryId: item.inventoryId,
+				quantity: -(supplied - firstSale),
+				unitPrice: product.salePrice,
+				daysAgo: 13 - stagger,
+			},
+		);
+		return { opening: 0, events };
+	}
+
+	const opening = Math.round(final * 0.35);
+	const net = final - opening;
+	const refund = Math.round(final * 0.05);
+	const sold = Math.round(final * 0.25);
+
+	if (product.type === "Supply") {
+		// Purchase-only consumable: stock arrives by supply alone.
+		events.push({
+			kind: "Supply",
+			inventoryId: item.inventoryId,
+			quantity: net,
+			unitPrice: item.averageCost,
+			daysAgo: 33 - stagger,
+		});
+		return { opening, events };
+	}
+
+	if (product.type === "Sale") {
+		// Sale-only: carried in as opening stock, then sold down (+ a refund).
+		const saleOut = sold > 0 ? sold : 1;
+		events.push({
+			kind: "Sale",
+			inventoryId: item.inventoryId,
+			quantity: -saleOut,
+			unitPrice: product.salePrice,
+			daysAgo: 24 - stagger,
+		});
+		if (refund > 0) {
+			events.push({
+				kind: "SaleRefund",
+				inventoryId: item.inventoryId,
+				quantity: refund,
+				unitPrice: product.salePrice,
+				daysAgo: 9 - stagger,
+			});
+		}
+		return { opening: final + saleOut - refund, events };
+	}
+
+	// Both-type: supply in, sale out, then a small sale refund back in.
+	const supplied = net + sold - refund;
+	events.push({
+		kind: "Supply",
+		inventoryId: item.inventoryId,
+		quantity: supplied,
+		unitPrice: item.averageCost,
+		daysAgo: 38 - stagger,
+	});
+	if (sold > 0) {
+		events.push({
+			kind: "Sale",
+			inventoryId: item.inventoryId,
+			quantity: -sold,
+			unitPrice: product.salePrice,
+			daysAgo: 22 - stagger,
+		});
+	}
+	if (refund > 0) {
+		events.push({
+			kind: "SaleRefund",
+			inventoryId: item.inventoryId,
+			quantity: refund,
+			unitPrice: product.salePrice,
+			daysAgo: 8 - stagger,
+		});
+	}
+	return { opening, events };
+}
+
+function buildHistory(product: Product): ProductHistory {
+	const allEvents: LedgerEvent[] = [];
+	let totalOpening = 0;
+
+	product.inventoryItems.forEach((item, index) => {
+		const { opening, events } = planWarehouseFlows(product, item, index);
+		totalOpening += opening;
+		allEvents.push(...events);
+	});
+
+	if (allEvents.length === 0) {
+		return { transactions: [], movements: [] };
+	}
+
+	// Chronological (oldest first) to thread the served running balance.
+	const chronological = [...allEvents].sort((a, b) => b.daysAgo - a.daysAgo);
+
+	let balance = totalOpening;
+	const movements: ProductMovement[] = chronological.map((event, index) => {
+		balance += event.quantity;
+		return {
+			id: product.id * 1000 + index + 1,
+			productId: product.id,
+			date: isoDaysAgo(event.daysAgo),
+			kind: event.kind,
+			inventoryId: event.inventoryId,
+			inventoryName: inventoryName(event.inventoryId),
+			quantity: event.quantity,
+			balanceAfter: balance,
+		};
+	});
+
+	const transactions: ProductTransaction[] = chronological.map((event, index) => {
+		const partner = HISTORY_PARTNERS[(product.id + index) % HISTORY_PARTNERS.length];
+		return {
+			id: product.id * 1000 + index + 1,
+			productId: product.id,
+			transactionType: event.kind,
+			partnerId: partner.id,
+			partnerName: partner.name,
+			date: isoDaysAgo(event.daysAgo),
+			quantity: event.quantity,
+			unitPrice: event.unitPrice,
+			discount: 0,
+		};
+	});
+
+	// Served newest first.
+	return { transactions: transactions.reverse(), movements: movements.reverse() };
+}
+
+const histories = new Map<number, ProductHistory>(
+	products.map((product) => [product.id, buildHistory(product)]),
+);
+
+export function listProductTransactions(productId: number): ProductTransaction[] {
+	return histories.get(productId)?.transactions ?? [];
+}
+
+export function listProductMovements(productId: number): ProductMovement[] {
+	return histories.get(productId)?.movements ?? [];
 }

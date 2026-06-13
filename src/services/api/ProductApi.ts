@@ -1,6 +1,7 @@
 import {
 	CreateProductRequest,
 	Product,
+	ProductMovement,
 	ProductTransaction,
 	UpdateProductRequest,
 } from "../../models/product";
@@ -34,6 +35,13 @@ export class ProductApi {
 	async getTransactions(productId: number): Promise<ProductTransaction[]> {
 		const url = `${this.getUrlWithId(productId)}/transactions`;
 		const response = await http.get<ProductTransaction[]>(url);
+
+		return response.data;
+	}
+
+	async getMovements(productId: number): Promise<ProductMovement[]> {
+		const url = `${this.getUrlWithId(productId)}/movements`;
+		const response = await http.get<ProductMovement[]>(url);
 
 		return response.data;
 	}
