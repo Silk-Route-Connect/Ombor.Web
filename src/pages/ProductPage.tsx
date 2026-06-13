@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductHeader from "components/product/Header/ProductHeader";
 import ProductsTable from "components/product/Table/ProductsTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
+import { productDetailPath } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -17,6 +19,7 @@ import { Box } from "@mui/material";
 
 const ProductPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { productStore, categoryStore } = useStore();
 
 	useEffect(() => {
@@ -104,6 +107,7 @@ const ProductPage: React.FC = observer(() => {
 				data={productStore.filteredProducts}
 				isFiltering={isFiltering}
 				onCreate={productStore.openCreate}
+				onOpen={(product) => navigate(productDetailPath(product.id))}
 				onEdit={productStore.openEdit}
 				onArchive={productStore.openArchive}
 				onRestore={productStore.openRestore}

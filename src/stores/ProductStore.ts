@@ -28,7 +28,6 @@ export interface IProductStore {
 	filteredProducts: Loadable<Product[]>;
 	archivedCount: number;
 
-	selectedProduct: Product | null;
 	searchTerm: string;
 	categoryFilter: Category | null;
 	typeFilter: ProductTypeFilter;
@@ -40,9 +39,10 @@ export interface IProductStore {
 
 	getAll(): Promise<void>;
 	create(request: CreateProductRequest): Promise<void>;
-	update(request: UpdateProductRequest): Promise<void>;
-	archive(product: Product): Promise<void>;
-	restore(product: Product): Promise<void>;
+	/** Resolve with the fresh product on success, or null on failure. */
+	update(request: UpdateProductRequest): Promise<Product | null>;
+	archive(product: Product): Promise<Product | null>;
+	restore(product: Product): Promise<Product | null>;
 
 	setSearch(term: string): void;
 	setCategoryFilter(category: Category | null): void;
@@ -74,10 +74,6 @@ export class ProductStore implements IProductStore {
 	private readonly notificationStore: NotificationStore;
 
 	allProducts: Loadable<Product[]> = "loading";
-	// Kept for interface compatibility / the detail flow (session b); intentionally
-	// not set by the list flow so the legacy SelectedProductStore reaction does not
-	// fire against the (unmocked) transactions endpoint.
-	selectedProduct: Product | null = null;
 	searchTerm = "";
 	categoryFilter: Category | null = null;
 	typeFilter: ProductTypeFilter = "all";
@@ -175,12 +171,12 @@ export class ProductStore implements IProductStore {
 		this.notificationStore.success(i18next.t("product.success.create"));
 	}
 
-	async update(request: UpdateProductRequest): Promise<void> {
+	async update(request: UpdateProductRequest): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("product.error.update"));
-			return;
+			return null;
 		}
 
 		runInAction(() => {
@@ -191,32 +187,35 @@ export class ProductStore implements IProductStore {
 
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.update"));
+		return result.data;
 	}
 
-	async archive(product: Product): Promise<void> {
+	async archive(product: Product): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.archive(product.id));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("product.error.archive"));
-			return;
+			return null;
 		}
 
 		this.replaceProduct(result.data);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.archive", { name: product.name }));
+		return result.data;
 	}
 
-	async restore(product: Product): Promise<void> {
+	async restore(product: Product): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.restore(product.id));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("product.error.restore"));
-			return;
+			return null;
 		}
 
 		this.replaceProduct(result.data);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.restore", { name: product.name }));
+		return result.data;
 	}
 
 	setSearch(term: string): void {

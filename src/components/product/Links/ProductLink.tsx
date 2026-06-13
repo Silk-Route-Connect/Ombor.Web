@@ -1,4 +1,6 @@
 import React from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { productDetailPath } from "routing/paths";
 
 import { Link } from "@mui/material";
 
@@ -7,11 +9,13 @@ interface ProductLinkProps {
 	name: string;
 }
 
+/** Navigates to the product's routed detail page. */
 const ProductLink: React.FC<ProductLinkProps> = ({ id, name }) => (
 	<Link
-		href={`/products/${id}`}
+		component={RouterLink}
+		to={productDetailPath(id)}
 		underline="none"
-		sx={{ color: "primary.main", "&:hover": { textDecoration: "underline" } }}
+		sx={{ color: "primary.main", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}
 	>
 		{name}
 	</Link>

@@ -17,6 +17,7 @@ interface ProductsTableProps {
 	data: Loadable<Product[]>;
 	isFiltering: boolean;
 	onCreate: () => void;
+	onOpen: (product: Product) => void;
 	onEdit: (product: Product) => void;
 	onArchive: (product: Product) => void;
 	onRestore: (product: Product) => void;
@@ -75,6 +76,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 	data,
 	isFiltering,
 	onCreate,
+	onOpen,
 	onEdit,
 	onArchive,
 	onRestore,
@@ -93,6 +95,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 			columns={columns}
 			pagination
 			rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+			onRowClick={onOpen}
 			onSort={onSort}
 		/>
 	);

@@ -10,6 +10,7 @@ import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
 import PayrollPage from "pages/PayrollPage";
 import PlaceholderPage from "pages/PlaceholderPage";
+import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
 import TemplatePage from "pages/TemplatePage";
@@ -51,6 +52,7 @@ function App() {
 								<Route index element={<PlaceholderPage titleKey="sidebar.dashboard" />} />
 								<Route path={PATHS.categories} element={<CategoryPage />} />
 								<Route path={PATHS.products} element={<ProductPage />} />
+								<Route path={PATHS.productDetail} element={<ProductDetailPage />} />
 								<Route
 									path={PATHS.warehouses}
 									element={<PlaceholderPage titleKey="sidebar.warehouses" />}
