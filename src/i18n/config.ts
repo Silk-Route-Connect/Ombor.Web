@@ -9,6 +9,7 @@ import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
 import payrollRu from "./ru/payroll.json";
 import productRu from "./ru/product.json";
+import stockAdjustmentRu from "./ru/stockAdjustment.json";
 import supplierRu from "./ru/supplier.json";
 import supplyRu from "./ru/supply.json";
 import templateRu from "./ru/template.json";
@@ -59,6 +60,7 @@ const resources = {
 			...employeeRu,
 			...payrollRu,
 			...warehouseRu,
+			...stockAdjustmentRu,
 		},
 	},
 	uz: {
