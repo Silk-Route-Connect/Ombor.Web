@@ -81,6 +81,7 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 - Commit under the repository's existing git identity only. **Never modify git config** (user.name / user.email).
 - **No attribution trailers, ever** — no `Co-Authored-By`, no `Generated with Claude Code`, in commits or PR descriptions.
 - Commit message format: `(<branch-name>) - <clear imperative summary>`, e.g. `(redesign) - migrate build tooling from CRA to Vite`. Small, scoped commits.
+- **Decide the target branch before committing a feature.** When a module gets its own branch, agree the name (`redesign/<module>`, using the module/sidebar slug) and its base branch up front — don't author commits on one branch meaning to move them later. The `(<branch-name>)` prefix must match the branch the commits will actually live on.
 - No push, no force operations, no history rewriting unless explicitly asked.
 
 ## Session discipline
@@ -89,6 +90,8 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 - If a needed fact is missing or a canon doc contradicts the task, **stop and ask** — never proceed silently on an assumption.
 - Omitting or altering any designed element is never a unilateral call. If the prototype shows something the backend/canon can't support, or canon and prototype conflict, pause and ask the user mid-session — do not implement the deviation and report it in the summary. End-of-session "gap lists" are for discoveries that didn't change what you built, not for justifying changes you decided alone.
 - If you discover a gap between code and canon that's outside the current task, report it at the end of the session; don't fix it silently.
+- **Don't work around blockers that depend on the user or their environment — surface them and ask.** When something is failing because of the local setup (backend down, a port in use, CORS, credentials, env), stop and ask rather than building a workaround or weakening the app to get past it (e.g. never add an auth bypass to dodge a login that fails). State what you observed and what you think the cause is; the user can usually fix it fast.
+- **Preview verification needs real auth on the right origin.** The dev preview must run on **`http://localhost:3000`** so the backend's CORS allowlist accepts it and login works; on any other port login fails at the browser (`net::ERR_FAILED`, not a 401). If `:3000` is taken by the user's own dev server, ask them to stop it (don't kill it yourself), then start the preview on `:3000` and log in with real credentials. Do not bypass the auth guard to verify.
 
 ---
 

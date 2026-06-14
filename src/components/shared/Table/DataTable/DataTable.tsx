@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loadable } from "helpers/Loading";
 import { numericSx } from "theme";
 
@@ -64,6 +65,7 @@ export function DataTable<T extends { id: string | number }>({
 	onRowClick,
 	onSort,
 }: Readonly<DataTableProps<T>>) {
+	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(
 		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
@@ -231,6 +233,10 @@ export function DataTable<T extends { id: string | number }>({
 					rowsPerPage={rowsPerPage}
 					onRowsPerPageChange={handleRowsPerPageChange}
 					rowsPerPageOptions={rowsPerPageOptions}
+					labelRowsPerPage={t("common.table.rowsPerPage")}
+					labelDisplayedRows={({ from, to, count }) =>
+						t("common.table.displayedRows", { from, to, total: count })
+					}
 					sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}
 				/>
 			)}
