@@ -11,14 +11,14 @@ export const PartnerTypeSchema = z.custom<PartnerType>(
 );
 
 const phoneRegex = /^\+?\d{7,15}$/;
-export const PhoneNumberSchema = z
+const PhoneNumberSchema = z
 	.string()
 	.transform((v) => v.replace(/\s+/g, ""))
 	.refine((v) => v === "" || phoneRegex.test(v), {
-		message: i18next.t("partner.validation.invalidPhone"),
+		message: i18next.t("partner.validation.phoneNumbersInvalid"),
 	});
 
-const stringOrUndefinedTrimmed = (max: number, key: string) =>
+const optionalTrimmed = (max: number, key: string) =>
 	z
 		.string()
 		.trim()
@@ -37,11 +37,11 @@ export const PartnerSchema = z.object({
 		.min(2, i18next.t("partner.validation.nameRequired"))
 		.max(100, i18next.t("partner.validation.nameTooLong")),
 
-	companyName: stringOrUndefinedTrimmed(100, "partner.validation.companyNameTooLong"),
+	companyName: optionalTrimmed(100, "partner.validation.companyNameTooLong"),
 
-	address: stringOrUndefinedTrimmed(200, "partner.validation.addressTooLong"),
+	address: optionalTrimmed(200, "partner.validation.addressTooLong"),
 
-	telegram: stringOrUndefinedTrimmed(200, "partner.validation.telegramTooLong"),
+	telegram: optionalTrimmed(100, "partner.validation.telegramTooLong"),
 
 	email: z
 		.string()
@@ -52,20 +52,27 @@ export const PartnerSchema = z.object({
 		.transform((v) => (v === "" ? undefined : v))
 		.optional(),
 
+	// At least one valid phone is required (prototype: «Укажите хотя бы один номер»).
 	phoneNumbers: z
 		.array(PhoneNumberSchema)
-		.max(MAX_PHONES_COUNT, i18next.t("partner.phoneNumbers.maxLimit"))
+		.max(MAX_PHONES_COUNT, i18next.t("partner.validation.phoneNumbersMaxLimit"))
 		.transform((arr) => arr.filter((v) => v !== ""))
-		.optional()
-		.default([]),
+		.refine((arr) => arr.length >= 1, {
+			message: i18next.t("partner.validation.phoneRequired"),
+		}),
 
-	isActive: z.boolean(),
+	// Opening balance is captured at creation only (locked on edit).
+	openingType: z.enum(["receivable", "payable"]),
 
-	balance: z
-		.number()
-		.min(-1_000_000_000, i18next.t("partner.validation.minBalance"))
+	openingAmount: z
+		.number({ message: i18next.t("partner.validation.openingAmountInvalid") })
+		.min(0, i18next.t("partner.validation.openingAmountInvalid"))
 		.max(1_000_000_000, i18next.t("partner.validation.maxBalance")),
 });
 
 export type PartnerFormInputs = z.input<typeof PartnerSchema>;
 export type PartnerFormValues = z.output<typeof PartnerSchema>;
+
+/** Compute the signed opening balance from the form's type + amount. */
+export const signedOpeningBalance = (values: PartnerFormValues): number =>
+	values.openingType === "payable" ? -values.openingAmount : values.openingAmount;

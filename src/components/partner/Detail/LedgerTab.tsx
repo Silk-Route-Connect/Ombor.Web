@@ -1,0 +1,264 @@
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import GhostButton from "components/shared/Buttons/GhostButton";
+import { PartnerLedgerEntry } from "models/partner";
+import { designTokens, numericSx } from "theme";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { balanceColor } from "utils/partnerUtils";
+
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SwapVertIcon from "@mui/icons-material/SwapVert";
+import { Box } from "@mui/material";
+
+import { bodyCellSx, EmptyRecords, headCellSx, LedgerCard } from "./detailTable";
+import FilterDropdown from "./FilterDropdown";
+import { formatSigned, LedgerPeriod, withinPeriod } from "./ledgerHelpers";
+import { EventCell, eventLabelKey } from "./ledgerMeta";
+
+type EventFilter = "all" | "sale" | "supply" | "payment" | "refund" | "opening";
+
+interface LedgerTabProps {
+	ledger: PartnerLedgerEntry[];
+	partnerName: string;
+	onOpenSource: (entry: PartnerLedgerEntry) => void;
+}
+
+const matchesEventFilter = (entry: PartnerLedgerEntry, filter: EventFilter): boolean => {
+	if (filter === "all") {
+		return true;
+	}
+	if (filter === "refund") {
+		return entry.type === "refund-sale" || entry.type === "refund-supply";
+	}
+	return entry.type === filter;
+};
+
+export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpenSource }) => {
+	const { t } = useTranslation();
+	const [eventFilter, setEventFilter] = useState<EventFilter>("all");
+	const [period, setPeriod] = useState<LedgerPeriod>("all");
+
+	const rows = ledger.filter(
+		(e) => withinPeriod(e.date, period) && matchesEventFilter(e, eventFilter),
+	);
+
+	const description = (e: PartnerLedgerEntry): React.ReactNode => {
+		if (e.type === "opening") {
+			return (
+				<Box component="span" sx={{ color: "text.secondary" }}>
+					{t("partner.ledger.openingDesc")}
+				</Box>
+			);
+		}
+		if (e.method) {
+			return (
+				<Box component="span" sx={{ color: "text.secondary", fontSize: 12.5 }}>
+					{e.method}
+					{e.allocation ? ` · ${e.allocation}` : ""}
+				</Box>
+			);
+		}
+		return (
+			<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
+				<Box component="span" sx={{ color: "primary.main", fontWeight: 500 }}>
+					{e.reference}
+				</Box>
+				{e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}
+			</Box>
+		);
+	};
+
+	const handleExport = () => {
+		exportToCsv<PartnerLedgerEntry>(
+			`partner_${partnerName}_ledger_${csvDateStamp()}`,
+			[
+				{ header: t("partner.ledger.col.date"), value: (e) => formatDate(e.date) },
+				{ header: t("partner.ledger.col.event"), value: (e) => t(eventLabelKey(e.type)) },
+				{
+					header: t("partner.ledger.col.description"),
+					value: (e) =>
+						e.type === "opening"
+							? t("partner.ledger.openingDesc")
+							: e.method
+								? `${e.method}${e.allocation ? ` · ${e.allocation}` : ""}`
+								: `${e.reference ?? ""}${e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}`,
+				},
+				{ header: t("partner.ledger.col.amount"), value: (e) => e.delta },
+				{ header: t("partner.ledger.col.balanceAfter"), value: (e) => e.balance },
+			],
+			rows,
+		);
+	};
+
+	return (
+		<>
+			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: "14px", flexWrap: "wrap" }}>
+				<FilterDropdown<EventFilter>
+					label={t("partner.ledger.eventFilter")}
+					icon={<FilterListIcon sx={{ fontSize: 15 }} />}
+					value={eventFilter}
+					onChange={setEventFilter}
+					options={[
+						{ value: "all", label: t("partner.ledger.event.all") },
+						{ value: "sale", label: t("partner.ledger.event.sale") },
+						{ value: "supply", label: t("partner.ledger.event.supply") },
+						{ value: "payment", label: t("partner.ledger.event.payment") },
+						{ value: "refund", label: t("partner.ledger.event.refund") },
+						{ value: "opening", label: t("partner.ledger.event.opening") },
+					]}
+				/>
+				<FilterDropdown<LedgerPeriod>
+					label={t("partner.ledger.periodFilter")}
+					icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
+					value={period}
+					onChange={setPeriod}
+					options={[
+						{ value: "all", label: t("partner.ledger.period.all") },
+						{ value: "90", label: t("partner.ledger.period.90") },
+						{ value: "30", label: t("partner.ledger.period.30") },
+					]}
+				/>
+				<Box sx={{ flexGrow: 1 }} />
+				<GhostButton
+					icon={<FileDownloadOutlinedIcon sx={{ fontSize: "16px !important" }} />}
+					onClick={handleExport}
+					sx={{ py: "6px", px: "12px", fontSize: 13 }}
+				>
+					{t("partner.ledger.csv")}
+				</GhostButton>
+			</Box>
+
+			<LedgerCard>
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						gap: "22px",
+						p: "11px 18px",
+						bgcolor: designTokens.gray25,
+						borderBottom: "1px solid",
+						borderColor: "divider",
+						fontSize: 12.5,
+						color: "text.secondary",
+						flexWrap: "wrap",
+					}}
+				>
+					<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
+						<Box component="b" sx={{ color: "success.main", fontWeight: 700 }}>
+							+
+						</Box>
+						{t("partner.ledger.legendPos")}
+					</Box>
+					<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
+						<Box component="b" sx={{ color: "error.main", fontWeight: 700 }}>
+							−
+						</Box>
+						{t("partner.ledger.legendNeg")}
+					</Box>
+					<Box sx={{ flexGrow: 1 }} />
+					<Box
+						component="span"
+						sx={{
+							display: "inline-flex",
+							alignItems: "center",
+							gap: "6px",
+							color: "text.disabled",
+						}}
+					>
+						<InfoOutlinedIcon sx={{ fontSize: 13 }} />
+						{t("partner.ledger.legendBalance")}
+					</Box>
+				</Box>
+
+				{rows.length === 0 ? (
+					<EmptyRecords
+						icon={<SwapVertIcon sx={{ fontSize: 22 }} />}
+						title={t("partner.ledger.empty.title")}
+						body={t("partner.ledger.empty.body")}
+					/>
+				) : (
+					<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+						<thead>
+							<tr>
+								<Box component="th" sx={headCellSx}>
+									{t("partner.ledger.col.date")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("partner.ledger.col.event")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("partner.ledger.col.description")}
+								</Box>
+								<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
+									{t("partner.ledger.col.amount")}
+								</Box>
+								<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
+									{t("partner.ledger.col.balanceAfter")}
+								</Box>
+							</tr>
+						</thead>
+						<tbody>
+							{rows.map((e) => {
+								const isOpening = e.type === "opening";
+								return (
+									<Box
+										component="tr"
+										key={e.id}
+										onClick={() => !isOpening && onOpenSource(e)}
+										sx={{
+											cursor: isOpening ? "default" : "pointer",
+											bgcolor: isOpening ? designTokens.primarySoft : "transparent",
+											"&:hover": {
+												bgcolor: isOpening ? designTokens.primarySoft : designTokens.gray25,
+											},
+										}}
+									>
+										<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+											{formatDate(e.date)}
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											<EventCell type={e.type} label={t(eventLabelKey(e.type))} />
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											{description(e)}
+										</Box>
+										<Box
+											component="td"
+											sx={{
+												...bodyCellSx,
+												textAlign: "right",
+												...numericSx,
+												fontWeight: 600,
+												color: balanceColor(e.delta),
+											}}
+										>
+											{formatSigned(e.delta)}
+										</Box>
+										<Box
+											component="td"
+											sx={{
+												...bodyCellSx,
+												textAlign: "right",
+												...numericSx,
+												fontWeight: 700,
+												color: balanceColor(e.balance),
+											}}
+										>
+											{formatSigned(e.balance)}
+										</Box>
+									</Box>
+								);
+							})}
+						</tbody>
+					</Box>
+				)}
+			</LedgerCard>
+		</>
+	);
+};
+
+export default LedgerTab;

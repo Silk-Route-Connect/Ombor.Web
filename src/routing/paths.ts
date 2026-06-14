@@ -11,6 +11,7 @@ export const PATHS = {
 	adjustments: "/adjustments",
 	transfers: "/transfers",
 	partners: "/partners",
+	partnerDetail: "/partners/:id",
 	orders: "/orders",
 	sales: "/sales",
 	supplies: "/supplies",
@@ -35,6 +36,9 @@ export const productDetailPath = (id: number): string => `/products/${id}`;
 
 /** Concrete detail route for a warehouse (PATHS.warehouseDetail with the id bound). */
 export const warehouseDetailPath = (id: number): string => `/warehouses/${id}`;
+
+/** Concrete detail route for a partner (PATHS.partnerDetail with the id bound). */
+export const partnerDetailPath = (id: number): string => `/partners/${id}`;
 
 export const TRANSACTION_ROUTES: Record<TransactionType, string> = {
 	Sale: "/sales",

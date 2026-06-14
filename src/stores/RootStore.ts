@@ -6,6 +6,7 @@ import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEm
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";
 import { NotificationStore } from "./NotificationStore";
+import { IPartnerLedgerStore, PartnerLedgerStore } from "./PartnerLedgerStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
 import { IPaymentStore, PaymentStore } from "./PaymentStore";
 import ProductStore, { IProductStore } from "./ProductStore";
@@ -25,6 +26,7 @@ export class RootStore {
 	categoryStore: ICategoryStore;
 	productStore: IProductStore;
 	partnerStore: IPartnerStore;
+	partnerLedgerStore: IPartnerLedgerStore;
 	saleStore: ISaleStore;
 	templateStore: TemplateStore;
 	transactionStore: ITransactionStore;
@@ -47,6 +49,7 @@ export class RootStore {
 		this.categoryStore = new CategoryStore(this.notificationStore);
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
+		this.partnerLedgerStore = new PartnerLedgerStore(this.notificationStore);
 		this.saleStore = new SaleStore();
 		this.templateStore = new TemplateStore(this.notificationStore);
 		this.transactionStore = new TransactionStore(this.notificationStore);

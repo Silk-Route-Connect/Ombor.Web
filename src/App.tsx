@@ -6,6 +6,7 @@ import CategoryPage from "pages/CategoryPage";
 import CreateTransactionPage from "pages/CreateTransactionPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
+import PartnerDetailPage from "pages/PartnerDetailPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
 import PayrollPage from "pages/PayrollPage";
@@ -62,6 +63,7 @@ function App() {
 								<Route path={PATHS.adjustments} element={<StockAdjustmentPage />} />
 								<Route path={PATHS.transfers} element={<TransferPage />} />
 								<Route path={PATHS.partners} element={<PartnerPage />} />
+								<Route path={PATHS.partnerDetail} element={<PartnerDetailPage />} />
 								<Route
 									path={PATHS.orders}
 									element={<PlaceholderPage titleKey="sidebar.orders" />}

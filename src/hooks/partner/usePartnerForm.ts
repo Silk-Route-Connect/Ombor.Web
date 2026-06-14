@@ -1,30 +1,33 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { Partner } from "models/partner";
 import { PartnerFormInputs, PartnerFormValues, PartnerSchema } from "schemas/PartnerSchema";
 import { emptyPartnerFormDefaults, mapPartnerToFormPayload } from "utils/partnerUtils";
-
-export type PartnerFormPayload = PartnerFormValues;
 
 interface UsePartnerFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
 	partner?: Partner | null;
-	onSave: (partner: PartnerFormPayload) => void;
+	onSave: (values: PartnerFormValues) => void;
 	onClose: () => void;
 }
 
 interface UsePartnerFormResult {
 	form: UseFormReturn<PartnerFormInputs>;
-	canSave: boolean;
+	submit: () => void;
 	discardOpen: boolean;
-	submit: () => Promise<void>;
 	requestClose: () => void;
 	confirmDiscard: () => void;
 	cancelDiscard: () => void;
 }
 
+/**
+ * Create/edit form state for a partner. Mirrors the shared form-hook pattern:
+ * zod-validated, reset on open, dirty-close confirmation. The submit button is
+ * always enabled — validation runs on submit and reports inline (rules 5/7).
+ */
 export function usePartnerForm({
 	isOpen,
 	isSaving,
@@ -41,51 +44,20 @@ export function usePartnerForm({
 	});
 
 	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
 		form.reset(partner ? mapPartnerToFormPayload(partner) : { ...emptyPartnerFormDefaults });
-	}, [partner, isOpen, form]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [partner, isOpen]);
 
-	const {
-		handleSubmit,
-		formState: { isDirty, isValid },
-	} = form;
-
-	const [discardOpen, setDiscardOpen] = useState(false);
-
-	const cancelDiscard = () => setDiscardOpen(false);
-	const confirmDiscard = () => {
-		setDiscardOpen(false);
-		onClose();
-	};
-
-	const submit = handleSubmit((data) =>
-		onSave({
-			...data,
-			phoneNumbers: data.phoneNumbers ?? [],
-		}),
+	const { discardOpen, requestClose, confirmDiscard, cancelDiscard } = useDirtyClose(
+		form.formState.isDirty,
+		isSaving,
+		onClose,
 	);
 
-	const requestClose = useCallback(() => {
-		if (isSaving) {
-			return;
-		}
+	const submit = form.handleSubmit((data) => onSave(data as PartnerFormValues));
 
-		if (isDirty) {
-			setDiscardOpen(true);
-			return;
-		}
-
-		onClose();
-	}, [isSaving, isDirty, onClose]);
-
-	const canSave = isValid && !isSaving && (partner ? isDirty : true);
-
-	return {
-		form,
-		canSave,
-		discardOpen,
-		submit,
-		requestClose,
-		confirmDiscard,
-		cancelDiscard,
-	};
+	return { form, submit, discardOpen, requestClose, confirmDiscard, cancelDiscard };
 }
