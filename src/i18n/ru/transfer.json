@@ -1,0 +1,68 @@
+{
+  "transfer.error.getAll": "Не удалось загрузить перемещения",
+  "transfer.error.create": "Не удалось провести перемещение",
+
+  "transfer.success.create": "Перемещение проведено: {{from}} → {{to}}, {{positions}} поз.",
+
+  "transfer.title": "Перемещения",
+  "transfer.create": "Новое перемещение",
+  "transfer.unitFallback": "ед.",
+
+  "transfer.title.create": "Новое перемещение",
+
+  "transfer.filter.allWarehouses": "Все склады",
+
+  "transfer.table.date": "Дата",
+  "transfer.table.from": "Откуда",
+  "transfer.table.to": "Куда",
+  "transfer.table.positions": "Позиций",
+  "transfer.table.units": "Единиц",
+  "transfer.table.createdBy": "Автор",
+  "transfer.table.product": "Товар",
+  "transfer.table.sku": "Артикул",
+  "transfer.table.quantity": "Кол-во",
+  "transfer.table.unit": "Ед.",
+
+  "transfer.empty.title": "Пока нет перемещений",
+  "transfer.empty.body": "Перемещения переносят товар между складами. Оба склада обновляются сразу — без статусов и подтверждений. Создайте первое перемещение.",
+  "transfer.empty.searchTitle": "Ничего не найдено",
+  "transfer.empty.searchBody": "По выбранному складу перемещений нет. Измените фильтр.",
+
+  "transfer.detail.title": "Перемещение",
+  "transfer.detail.from": "Откуда",
+  "transfer.detail.to": "Куда",
+  "transfer.detail.totalPositions": "Итого позиций: {{positions}}",
+  "transfer.detail.immutableHintBefore": "Перемещение проведено и",
+  "transfer.detail.immutableHintBold": "неизменяемо",
+  "transfer.detail.immutableHintAfter": ". Остатки обоих складов были обновлены в момент создания.",
+
+  "transfer.field.from": "Со склада",
+  "transfer.field.to": "На склад",
+  "transfer.field.lines": "Позиции",
+  "transfer.field.note": "Примечание",
+
+  "transfer.form.subtitle": "Перенос товара между складами",
+  "transfer.form.errorBanner": "Заполните количество для выбранных товаров.",
+  "transfer.form.sameWarehouseBanner": "Склад-источник и склад-получатель не могут совпадать.",
+  "transfer.form.noLinesBanner": "Добавьте хотя бы одну позицию с товаром и количеством.",
+  "transfer.form.overStockBanner": "Количество в одной из позиций превышает остаток на складе-источнике.",
+  "transfer.form.sameWarehouseField": "Выберите разные склады",
+  "transfer.form.productPlaceholder": "Выберите товар…",
+  "transfer.form.available": "На складе «{{warehouse}}»:",
+  "transfer.form.overStockSuffix": "— запрошено {{requested}} {{unit}}",
+  "transfer.form.addLine": "Добавить товар",
+  "transfer.form.notePlaceholder": "Например: Пополнение филиала",
+  "transfer.form.positionsCount": "Позиций:",
+  "transfer.form.submit": "Провести перемещение",
+  "transfer.form.immutableHintBefore": "Перемещение проводится",
+  "transfer.form.immutableHintBold": "сразу и необратимо",
+  "transfer.form.immutableHintAfter": "— остатки обоих складов обновятся немедленно. Запись нельзя изменить или удалить.",
+
+  "transfer.validation.fromRequired": "Выберите склад-источник",
+  "transfer.validation.toRequired": "Выберите склад-получатель",
+  "transfer.validation.sameWarehouse": "Склады должны быть разными",
+  "transfer.validation.linesRequired": "Добавьте хотя бы одну позицию",
+  "transfer.validation.lineProductRequired": "Выберите товар",
+  "transfer.validation.lineQuantityPositive": "Укажите количество",
+  "transfer.validation.noteMax": "Примечание не должно превышать 500 символов."
+}
