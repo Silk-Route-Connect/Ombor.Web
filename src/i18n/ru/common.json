@@ -38,6 +38,9 @@
   "common.dash": "—",
   "common.pageInDevelopment": "Страница в разработке",
 
+  "common.table.rowsPerPage": "Строк на странице:",
+  "common.table.displayedRows": "{{from}}–{{to}} из {{total}}",
+
   "page.activityLog.title": "Журнал действий",
   "page.newOrder.title": "Новый заказ",
   "page.newPayment.title": "Новый платёж",
