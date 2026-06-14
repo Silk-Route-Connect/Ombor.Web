@@ -7,6 +7,7 @@ export const PATHS = {
 	productDetail: "/products/:id",
 	categories: "/categories",
 	warehouses: "/warehouses",
+	warehouseDetail: "/warehouses/:id",
 	adjustments: "/adjustments",
 	transfers: "/transfers",
 	partners: "/partners",
@@ -31,6 +32,9 @@ export const PATHS = {
 
 /** Concrete detail route for a product (PATHS.productDetail with the id bound). */
 export const productDetailPath = (id: number): string => `/products/${id}`;
+
+/** Concrete detail route for a warehouse (PATHS.warehouseDetail with the id bound). */
+export const warehouseDetailPath = (id: number): string => `/warehouses/${id}`;
 
 export const TRANSACTION_ROUTES: Record<TransactionType, string> = {
 	Sale: "/sales",

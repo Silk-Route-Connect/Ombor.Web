@@ -15,6 +15,8 @@ import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
 import TemplatePage from "pages/TemplatePage";
 import TransactionPage from "pages/TransactionPage";
+import WarehouseDetailPage from "pages/WarehouseDetailPage";
+import WarehousePage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
 import { PATHS } from "routing/paths";
 import RequireAuth from "routing/RequireAuth";
@@ -53,10 +55,8 @@ function App() {
 								<Route path={PATHS.categories} element={<CategoryPage />} />
 								<Route path={PATHS.products} element={<ProductPage />} />
 								<Route path={PATHS.productDetail} element={<ProductDetailPage />} />
-								<Route
-									path={PATHS.warehouses}
-									element={<PlaceholderPage titleKey="sidebar.warehouses" />}
-								/>
+								<Route path={PATHS.warehouses} element={<WarehousePage />} />
+								<Route path={PATHS.warehouseDetail} element={<WarehouseDetailPage />} />
 								<Route
 									path={PATHS.adjustments}
 									element={<PlaceholderPage titleKey="sidebar.adjustments" />}
