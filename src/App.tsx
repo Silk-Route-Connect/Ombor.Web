@@ -16,6 +16,7 @@ import RegisterPage from "pages/RegisterPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
 import TransactionPage from "pages/TransactionPage";
+import TransferPage from "pages/TransferPage";
 import WarehouseDetailPage from "pages/WarehouseDetailPage";
 import WarehousePage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
@@ -59,10 +60,7 @@ function App() {
 								<Route path={PATHS.warehouses} element={<WarehousePage />} />
 								<Route path={PATHS.warehouseDetail} element={<WarehouseDetailPage />} />
 								<Route path={PATHS.adjustments} element={<StockAdjustmentPage />} />
-								<Route
-									path={PATHS.transfers}
-									element={<PlaceholderPage titleKey="sidebar.transfers" />}
-								/>
+								<Route path={PATHS.transfers} element={<TransferPage />} />
 								<Route path={PATHS.partners} element={<PartnerPage />} />
 								<Route
 									path={PATHS.orders}
