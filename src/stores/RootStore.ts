@@ -14,6 +14,7 @@ import { ISelectedPartnerStore, SelectedPartnerStore } from "./SelectedPartnerSt
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
 import { ISelectedWarehouseStore, SelectedWarehouseStore } from "./SelectedWarehouseStore";
+import { IStockAdjustmentStore, StockAdjustmentStore } from "./StockAdjustmentStore";
 import { TemplateStore } from "./TemplateStore";
 import { ITransactionStore, TransactionStore } from "./TransactionStore";
 import { IWarehouseStore, WarehouseStore } from "./WarehouseStore";
@@ -33,6 +34,7 @@ export class RootStore {
 	inventoryStore: IInventoryStore;
 	warehouseStore: IWarehouseStore;
 	selectedWarehouseStore: ISelectedWarehouseStore;
+	stockAdjustmentStore: IStockAdjustmentStore;
 	authStore: AuthStore;
 	employeeStore: IEmployeeStore;
 	selectedEmployeeStore: ISelectedEmployeeStore;
@@ -56,6 +58,7 @@ export class RootStore {
 		this.inventoryStore = new InventoryStore(this.notificationStore);
 		this.warehouseStore = new WarehouseStore(this.notificationStore);
 		this.selectedWarehouseStore = new SelectedWarehouseStore(this.notificationStore);
+		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
 		this.authStore = new AuthStore();
 		this.employeeStore = new EmployeeStore(this.notificationStore);
 		this.selectedEmployeeStore = new SelectedEmployeeStore(
