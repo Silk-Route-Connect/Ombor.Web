@@ -13,6 +13,7 @@ import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
+import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
 import TransactionPage from "pages/TransactionPage";
 import WarehouseDetailPage from "pages/WarehouseDetailPage";
@@ -57,10 +58,7 @@ function App() {
 								<Route path={PATHS.productDetail} element={<ProductDetailPage />} />
 								<Route path={PATHS.warehouses} element={<WarehousePage />} />
 								<Route path={PATHS.warehouseDetail} element={<WarehouseDetailPage />} />
-								<Route
-									path={PATHS.adjustments}
-									element={<PlaceholderPage titleKey="sidebar.adjustments" />}
-								/>
+								<Route path={PATHS.adjustments} element={<StockAdjustmentPage />} />
 								<Route
 									path={PATHS.transfers}
 									element={<PlaceholderPage titleKey="sidebar.transfers" />}
