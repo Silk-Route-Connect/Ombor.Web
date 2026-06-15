@@ -123,5 +123,11 @@
   "employee.restore.body": "Сотрудник снова станет активным, и по нему можно будет проводить выплаты.",
 
   "employee.success.terminate": "Сотрудник уволен",
-  "employee.success.restore": "Сотрудник восстановлен"
+  "employee.success.restore": "Сотрудник восстановлен",
+
+  "employee.form.namePlaceholder": "Например: Бахром Саидов",
+  "employee.form.positionPlaceholder": "Например: Продавец-кассир",
+  "employee.form.emailPlaceholder": "name@example.com",
+  "employee.form.telegramPlaceholder": "@username",
+  "employee.form.addressPlaceholder": "Город, улица, дом"
 }
