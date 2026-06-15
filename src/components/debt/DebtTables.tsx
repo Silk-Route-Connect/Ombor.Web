@@ -461,9 +461,9 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 										<Box
 											sx={{
 												width: "100%",
-												height: 4,
+												height: 5,
 												borderRadius: "999px",
-												bgcolor: "grey.100",
+												bgcolor: designTokens.gray300,
 												overflow: "hidden",
 											}}
 										>
