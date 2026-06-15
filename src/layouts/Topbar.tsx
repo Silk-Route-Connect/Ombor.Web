@@ -1,6 +1,7 @@
 import React, { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { UI_LANGUAGES } from "i18n/languages";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
@@ -23,12 +24,6 @@ import {
 } from "@mui/material";
 
 export const TOPBAR_HEIGHT = 60;
-
-const LANGUAGES: Array<{ code: string; label: string }> = [
-	{ code: "ru", label: "Русский" },
-	{ code: "uz", label: "O‘zbekcha" },
-	// uz-Cyrl joins this list when its resources land (wired in i18n/config.ts).
-];
 
 const CREATE_ACTIONS: Array<{ labelKey: string; to: string }> = [
 	{ labelKey: "topbar.quickActions.sale", to: PATHS.newSale },
@@ -192,7 +187,7 @@ const Topbar: React.FC = observer(() => {
 				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 				transformOrigin={{ vertical: "top", horizontal: "right" }}
 			>
-				{LANGUAGES.map((lang) => (
+				{UI_LANGUAGES.map((lang) => (
 					<MenuItem
 						key={lang.code}
 						selected={i18n.language === lang.code}
