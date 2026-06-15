@@ -77,8 +77,8 @@ _Done:_ over-refund impossible; refunds adjust stock and balances correctly.
 
 ### 11. Orders
 
-Order lifecycle per Domain model state machine; warehouse chosen at creation; auto-promotion to Sale on Delivered; no stock reservation while pending.
-_Done:_ a Delivered order becomes a Sale against the order's warehouse; promotion fails cleanly on insufficient stock.
+Order lifecycle per Domain model state machine; warehouse chosen at delivery confirmation; auto-promotion to Sale on Delivered; no stock reservation while pending.
+_Done:_ a Delivered order becomes a Sale against the chosen warehouse; promotion fails cleanly on insufficient stock.
 
 ### 12. Templates
 
