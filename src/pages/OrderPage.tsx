@@ -42,6 +42,13 @@ const OrderPage: React.FC = observer(() => {
 			{ header: t("order.col.customer"), value: (o) => o.customerName },
 			{ header: t("order.col.positions"), value: (o) => o.lines.length },
 			{ header: t("order.col.total"), value: (o) => orderTotal(o.lines) },
+			{
+				header: t("order.col.delivery"),
+				value: (o) =>
+					o.deliveryDate
+						? `${formatDate(o.deliveryDate)}${o.deliveryTime ? ` ${o.deliveryTime}` : ""}`
+						: "—",
+			},
 			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },
 			{
 				header: t("order.col.source"),

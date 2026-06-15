@@ -1,4 +1,5 @@
 import React from "react";
+import OrderDeliveryCell from "components/order/OrderDeliveryCell";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
 import { Column } from "components/shared/Table/DataTable/DataTable";
@@ -73,6 +74,11 @@ export function buildOrderColumns(
 					{formatCurrency(o.total)}
 				</Box>
 			),
+		},
+		{
+			key: "delivery",
+			headerName: t("order.col.delivery"),
+			renderCell: (o) => <OrderDeliveryCell order={o} />,
 		},
 		{
 			key: "status",

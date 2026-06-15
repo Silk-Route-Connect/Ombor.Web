@@ -40,9 +40,15 @@ function isoAt(daysAgo: number, hour: number, minute: number): string {
 	return d.toISOString();
 }
 
-/** Date-only ISO ("YYYY-MM-DD") `daysAhead` after BASE (negative = past). */
-function isoDateAhead(daysAhead: number): string {
-	const d = new Date(BASE.getTime() + daysAhead * MS_PER_DAY);
+/**
+ * Date-only ISO ("YYYY-MM-DD") `daysAhead` from the real today (negative = past).
+ * Delivery dates are forward-looking, so they anchor to the real current date —
+ * this keeps the «overdue / upcoming» states meaningful whenever the demo runs.
+ */
+function isoDeliveryDate(daysAhead: number): string {
+	const d = new Date();
+	d.setHours(0, 0, 0, 0);
+	d.setDate(d.getDate() + daysAhead);
 	const pad = (n: number) => String(n).padStart(2, "0");
 	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
@@ -69,8 +75,10 @@ type OrderSeed = {
 	status: OrderStatus;
 	address: string | null;
 	notes: string | null;
-	/** Requested delivery date as days from BASE (positive = future, negative = past), or null. */
+	/** Requested delivery date as days from today (positive = future, negative = past), or null. */
 	deliveryDaysAhead?: number | null;
+	/** Requested delivery time ("HH:mm"), or null. */
+	deliveryTime?: string | null;
 	warehouseId: number | null;
 	saleId: number | null;
 	lines: LineSpec[];
@@ -104,6 +112,7 @@ const seed: OrderSeed[] = [
 		address: "ул. Бабура 27, кв. 12, Ташкент",
 		notes: "Доставить до 10 июня, позвонить за час",
 		deliveryDaysAhead: 1,
+		deliveryTime: "12:00",
 		warehouseId: null,
 		saleId: null,
 		lines: [
@@ -124,7 +133,8 @@ const seed: OrderSeed[] = [
 		status: "Shipping",
 		address: "ул. Навои 3, Самарканд",
 		notes: null,
-		deliveryDaysAhead: 0,
+		deliveryDaysAhead: -1,
+		deliveryTime: "10:00",
 		warehouseId: null,
 		saleId: null,
 		lines: [
@@ -146,6 +156,7 @@ const seed: OrderSeed[] = [
 		address: "ул. Амира Темура 88, Ташкент",
 		notes: "Оплата при получении",
 		deliveryDaysAhead: -2,
+		deliveryTime: "14:00",
 		warehouseId: 1,
 		saleId: 1041,
 		lines: [
@@ -289,7 +300,8 @@ function build(spec: OrderSeed): Order {
 		status: spec.status,
 		source: spec.source,
 		deliveryAddress: spec.address,
-		deliveryDate: spec.deliveryDaysAhead == null ? null : isoDateAhead(spec.deliveryDaysAhead),
+		deliveryDate: spec.deliveryDaysAhead == null ? null : isoDeliveryDate(spec.deliveryDaysAhead),
+		deliveryTime: spec.deliveryTime ?? null,
 		notes: spec.notes,
 		warehouseId: spec.warehouseId,
 		warehouseName: spec.warehouseId ? (findWarehouse(spec.warehouseId)?.name ?? null) : null,
@@ -464,6 +476,7 @@ export function updateOrder(id: number, request: UpdateOrderRequest): Order | un
 		source: request.source,
 		deliveryAddress: request.deliveryAddress ?? null,
 		deliveryDate: request.deliveryDate ?? null,
+		deliveryTime: request.deliveryTime ?? null,
 		notes: request.notes ?? null,
 		lines: priced,
 		total: priced.reduce((s, l) => s + l.total, 0),

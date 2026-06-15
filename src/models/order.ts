@@ -71,8 +71,10 @@ export type Order = {
 	source: OrderSource;
 	/** Free-text delivery address (the backend AddressDto is geo-only; redesign uses text). */
 	deliveryAddress: string | null;
-	/** Requested/expected delivery date (ISO date), or null if unset. */
+	/** Requested/expected delivery date (ISO date "YYYY-MM-DD"), or null if unset. */
 	deliveryDate: string | null;
+	/** Requested delivery time ("HH:mm"), or null when only a date is set. */
+	deliveryTime: string | null;
 	notes: string | null;
 	/** Write-off warehouse, chosen at delivery confirmation (prototype flow). */
 	warehouseId: number | null;
@@ -109,6 +111,7 @@ export type UpdateOrderRequest = {
 	source: OrderSource;
 	deliveryAddress?: string | null;
 	deliveryDate?: string | null;
+	deliveryTime?: string | null;
 	notes?: string | null;
 	lines: OrderLineRequest[];
 };

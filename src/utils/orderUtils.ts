@@ -45,6 +45,31 @@ export const ORDER_NEXT_STEP: Partial<Record<OrderStatus, OrderForwardStep>> = {
 	Shipping: { to: "Delivered", action: "deliver", promote: true },
 };
 
+/**
+ * An order is overdue when it is still pre-delivery and its requested delivery
+ * date is before today — flagged on the list/detail, never hidden.
+ */
+export function isOrderOverdue(order: Pick<Order, "status" | "deliveryDate">): boolean {
+	if (!order.deliveryDate || !PRE_DELIVERY.includes(order.status)) {
+		return false;
+	}
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const due = new Date(`${order.deliveryDate}T00:00:00`);
+	return due.getTime() < today.getTime();
+}
+
+/** Visual state of an order's delivery date: overdue · done · upcoming. */
+export type DeliveryDateState = "overdue" | "done" | "upcoming";
+export function deliveryDateState(
+	order: Pick<Order, "status" | "deliveryDate">,
+): DeliveryDateState {
+	if (isOrderOverdue(order)) {
+		return "overdue";
+	}
+	return order.status === "Delivered" || order.status === "Returned" ? "done" : "upcoming";
+}
+
 export const isOrderEditable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderCancelable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderFinal = (status: OrderStatus): boolean =>

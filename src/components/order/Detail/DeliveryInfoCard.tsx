@@ -2,10 +2,12 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import OrderCard from "components/order/Detail/OrderCard";
 import { Order } from "models/order";
-import { numericSx } from "theme";
+import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
+import { isOrderOverdue } from "utils/orderUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -46,7 +48,9 @@ const Row: React.FC<{ icon: React.ReactNode; label: string; children: React.Reac
 		</Box>
 		<Box sx={{ minWidth: 0 }}>
 			<Typography sx={{ fontSize: 12, color: "text.secondary" }}>{label}</Typography>
-			<Typography sx={{ fontSize: 13.5, fontWeight: 500, mt: "2px" }}>{children}</Typography>
+			<Typography component="div" sx={{ fontSize: 13.5, fontWeight: 500, mt: "2px" }}>
+				{children}
+			</Typography>
 		</Box>
 	</Box>
 );
@@ -80,8 +84,37 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 				label={t("order.detail.deliveryDate")}
 			>
 				{order.deliveryDate ? (
-					<Box component="span" sx={numericSx}>
-						{formatDate(order.deliveryDate)}
+					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+						<Box component="span" sx={numericSx}>
+							{formatDate(order.deliveryDate)}
+						</Box>
+						<Box component="span" sx={{ fontSize: 12.5, color: "text.disabled" }}>
+							{order.deliveryTime
+								? t("order.detail.deliveryAtTime", { time: order.deliveryTime })
+								: t("order.detail.deliveryNoTime")}
+						</Box>
+						{isOrderOverdue(order) && (
+							<Box
+								component="span"
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: "4px",
+									px: "7px",
+									py: "1px",
+									borderRadius: "999px",
+									fontSize: 11,
+									fontWeight: 700,
+									color: "error.main",
+									bgcolor: designTokens.errorBg,
+									border: "1px solid",
+									borderColor: designTokens.errorBorder,
+								}}
+							>
+								<ErrorOutlineIcon sx={{ fontSize: 12 }} />
+								{t("order.detail.overdue")}
+							</Box>
+						)}
 					</Box>
 				) : (
 					<Dash label={t("order.detail.noDeliveryDate")} />

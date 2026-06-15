@@ -139,6 +139,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	const [lines, setLines] = useState<EditLine[]>([]);
 	const [address, setAddress] = useState("");
 	const [deliveryDate, setDeliveryDate] = useState("");
+	const [deliveryTime, setDeliveryTime] = useState("");
 	const [note, setNote] = useState("");
 	const [submitted, setSubmitted] = useState(false);
 	const [dirty, setDirty] = useState(false);
@@ -162,6 +163,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			setLines(order.lines.map((l) => ({ ...l })));
 			setAddress(order.deliveryAddress ?? "");
 			setDeliveryDate(order.deliveryDate ?? "");
+			setDeliveryTime(order.deliveryTime ?? "");
 			setNote(order.notes ?? "");
 			setSubmitted(false);
 			setDirty(false);
@@ -212,12 +214,20 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	};
 
 	const clientErr = submitted && !client;
+	const deliverErr = submitted && !deliveryDate;
 	const linesErr = submitted && lines.length === 0;
-	const showBanner = clientErr || linesErr;
+	const showBanner = clientErr || deliverErr || linesErr;
+	const missing = [
+		clientErr && t("order.field.clientLower"),
+		deliverErr && t("order.field.deliveryDateLower"),
+		linesErr && t("order.field.linesLower"),
+	]
+		.filter(Boolean)
+		.join(", ");
 
 	const submit = () => {
 		setSubmitted(true);
-		if (!client || lines.length === 0 || !order) {
+		if (!client || !deliveryDate || lines.length === 0 || !order) {
 			return;
 		}
 		onSave({
@@ -226,6 +236,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			source,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
+			deliveryTime: deliveryTime || null,
 			notes: note.trim() || null,
 			lines: lines.map((l) => ({
 				productId: l.productId,
@@ -271,11 +282,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 							variant="outlined"
 							sx={{ mb: "16px" }}
 						>
-							{clientErr && linesErr
-								? t("order.edit.errBoth")
-								: clientErr
-									? t("order.edit.errClient")
-									: t("order.edit.errLines")}
+							{t("order.edit.errFields", { fields: missing })}
 						</Alert>
 					)}
 
@@ -320,6 +327,48 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 									</MenuItem>
 								))}
 							</TextField>
+						</Box>
+					</Box>
+
+					<Box
+						sx={{
+							display: "grid",
+							gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+							gap: "18px",
+							mb: "18px",
+						}}
+					>
+						<Box>
+							<FormFieldLabel label={t("order.field.deliveryDate")} required />
+							<TextField
+								type="date"
+								size="small"
+								fullWidth
+								value={deliveryDate}
+								disabled={isSaving}
+								error={deliverErr}
+								helperText={deliverErr ? t("order.edit.deliveryDateRequired") : undefined}
+								onChange={(e) => {
+									setDeliveryDate(e.target.value);
+									markDirty();
+								}}
+								sx={{ mt: "7px" }}
+							/>
+						</Box>
+						<Box>
+							<FormFieldLabel label={t("order.field.deliveryTime")} />
+							<TextField
+								type="time"
+								size="small"
+								fullWidth
+								value={deliveryTime}
+								disabled={isSaving}
+								onChange={(e) => {
+									setDeliveryTime(e.target.value);
+									markDirty();
+								}}
+								sx={{ mt: "7px" }}
+							/>
 						</Box>
 					</Box>
 
@@ -549,21 +598,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 							/>
 						</Box>
 						<Box>
-							<FormFieldLabel label={t("order.field.deliveryDate")} />
-							<TextField
-								type="date"
-								size="small"
-								fullWidth
-								value={deliveryDate}
-								disabled={isSaving}
-								onChange={(e) => {
-									setDeliveryDate(e.target.value);
-									markDirty();
-								}}
-								sx={{ mt: "7px" }}
-							/>
-						</Box>
-						<Box sx={{ gridColumn: { xs: "auto", sm: "1 / -1" } }}>
 							<FormFieldLabel label={t("order.field.note")} />
 							<TextField
 								size="small"
