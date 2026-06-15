@@ -4,6 +4,7 @@ import i18next from "i18next";
 import authRu from "./ru/auth.json";
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
+import debtRu from "./ru/debt.json";
 import employeeRu from "./ru/employee.json";
 import orderRu from "./ru/order.json";
 import partnerRu from "./ru/partner.json";
@@ -67,6 +68,7 @@ const resources = {
 			...transferRu,
 			...orderRu,
 			...walletRu,
+			...debtRu,
 		},
 	},
 	uz: {
