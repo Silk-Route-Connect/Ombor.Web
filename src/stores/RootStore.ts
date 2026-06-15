@@ -4,6 +4,7 @@ import { IPayrollStore, PayrollStore } from "stores/PayrollStore";
 import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEmployeeStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
+import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
 import InventoryStore, { IInventoryStore } from "./InventoryStore";
 import { NotificationStore } from "./NotificationStore";
@@ -53,6 +54,7 @@ export class RootStore {
 	walletStore: IWalletStore;
 	selectedWalletStore: ISelectedWalletStore;
 	debtStore: IDebtStore;
+	dashboardStore: IDashboardStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -84,6 +86,7 @@ export class RootStore {
 		this.walletStore = new WalletStore(this.notificationStore);
 		this.selectedWalletStore = new SelectedWalletStore(this.notificationStore);
 		this.debtStore = new DebtStore(this.notificationStore);
+		this.dashboardStore = new DashboardStore(this.notificationStore);
 	}
 }
 

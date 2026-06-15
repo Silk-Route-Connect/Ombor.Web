@@ -4,6 +4,7 @@ import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
 import CreateTransactionPage from "pages/CreateTransactionPage";
+import DashboardPage from "pages/DashboardPage";
 import DebtPage from "pages/DebtPage";
 import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
@@ -62,7 +63,7 @@ function App() {
 
 						<Route element={<RequireAuth />}>
 							<Route path={PATHS.dashboard} element={<AppLayout />}>
-								<Route index element={<PlaceholderPage titleKey="sidebar.dashboard" />} />
+								<Route index element={<DashboardPage />} />
 								<Route path={PATHS.categories} element={<CategoryPage />} />
 								<Route path={PATHS.products} element={<ProductPage />} />
 								<Route path={PATHS.productDetail} element={<ProductDetailPage />} />

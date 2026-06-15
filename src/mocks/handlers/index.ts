@@ -1,6 +1,7 @@
 import { RequestHandler } from "msw";
 
 import { categoryHandlers } from "./category";
+import { dashboardHandlers } from "./dashboard";
 import { debtHandlers } from "./debt";
 import { orderHandlers } from "./order";
 import { partnerHandlers } from "./partner";
@@ -39,4 +40,5 @@ export const handlers: RequestHandler[] = [
 	...walletHandlers,
 	...paymentHandlers,
 	...debtHandlers,
+	...dashboardHandlers,
 ];
