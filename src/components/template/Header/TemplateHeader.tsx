@@ -1,62 +1,75 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
+import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { Partner } from "models/partner";
+import SegmentedControl, {
+	SegmentedOption,
+} from "components/shared/SegmentedControl/SegmentedControl";
+import { TemplateTypeFilter } from "stores/TemplateStore";
 
 import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface TemplateHeaderProps {
+	totalCount: number | null;
 	searchValue: string;
-	selectedPartner: Partner | null;
-	titleCount: string;
-
+	typeFilter: TemplateTypeFilter;
 	onSearch: (value: string) => void;
-	onPartnerChange: (value: Partner | null) => void;
+	onTypeChange: (value: TemplateTypeFilter) => void;
 	onCreate: () => void;
 }
 
+/**
+ * Templates page header. Dataset-level create on the title row; the view-shaping
+ * search + type segment on the row below (locked pattern 11). The prototype
+ * carries no export action, so none is added.
+ */
 const TemplateHeader: React.FC<TemplateHeaderProps> = ({
+	totalCount,
 	searchValue,
-	selectedPartner,
-	titleCount,
+	typeFilter,
 	onSearch,
-	onPartnerChange,
+	onTypeChange,
 	onCreate,
 }) => {
 	const { t } = useTranslation();
 
+	const title = totalCount == null ? t("template.title") : `${t("template.title")} (${totalCount})`;
+
+	const typeOptions: SegmentedOption<TemplateTypeFilter>[] = [
+		{ value: "all", label: t("template.filter.all") },
+		{ value: "Sale", label: t("template.type.Sale") },
+		{ value: "Supply", label: t("template.type.Supply") },
+	];
+
 	return (
-		<Box
-			display="flex"
-			flexWrap="wrap"
-			justifyContent="space-between"
-			alignItems="center"
-			mb={3}
-			sx={{ gap: 2 }}
-		>
-			<Typography variant="h5">{`${t("templatesTitle")}(${titleCount})`}</Typography>
-			<Box display="flex" alignItems="center" sx={{ gap: 2 }}>
+		<>
+			<PageHeader
+				title={title}
+				subtitle={t("template.subtitle")}
+				actions={
+					<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+						{t("template.create")}
+					</PrimaryButton>
+				}
+			/>
+
+			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
 					value={searchValue}
 					onChange={onSearch}
-					placeholder={t("searchTemplatesPlaceholder")}
+					placeholder={t("template.searchPlaceholder")}
+					sx={{ width: { xs: "100%", sm: 340 } }}
 				/>
-				<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
-					<PartnerAutocomplete
-						value={selectedPartner}
-						type="Both"
-						size="small"
-						onChange={onPartnerChange}
-					/>
-				</FormControl>
-				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-					{t("add")}
-				</PrimaryButton>
+				<SegmentedControl<TemplateTypeFilter>
+					options={typeOptions}
+					value={typeFilter}
+					onChange={onTypeChange}
+				/>
+				<Box sx={{ flexGrow: 1 }} />
 			</Box>
-		</Box>
+		</>
 	);
 };
 
