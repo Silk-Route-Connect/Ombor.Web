@@ -1,178 +1,212 @@
-import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
-import { Loadable } from "helpers/Loading";
-import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
+import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
-import { Partner } from "models/partner";
-import { CreatePaymentRequest, Payment, PaymentDirection } from "models/payment";
-import PaymentApi from "services/api/PaymentApi";
+import { matchesSearch } from "utils/stringUtils";
 
+import { Loadable, tryRun } from "../helpers/helpers";
+import i18next from "../i18n/config";
+import {
+	CreatePaymentRecordRequest,
+	OutstandingTransaction,
+	PaymentFormData,
+	PaymentRecord,
+	PaymentType,
+} from "../models/payment";
+import PaymentApi from "../services/api/PaymentApi";
 import { NotificationStore } from "./NotificationStore";
 
+export type PaymentTypeFilter = PaymentType | "all";
+
+/** Summary stat cards: income / expense totals + count over the filtered view. */
+export type PaymentSummary = {
+	income: number;
+	expense: number;
+	count: number;
+};
+
 export interface IPaymentStore {
-	allPayments: Loadable<Payment[]>;
-	incomes: Loadable<Payment[]>;
-	expenses: Loadable<Payment[]>;
-	filteredPayments: Loadable<Payment[]>;
-	selectedPayment: Loadable<Payment> | null;
-	isSaving: boolean;
+	allPayments: Loadable<PaymentRecord[]>;
+	filteredPayments: Loadable<PaymentRecord[]>;
+	summary: PaymentSummary;
+	walletOptions: { id: number; name: string }[];
 
-	// client-side controls
 	searchTerm: string;
-	filterPartner: Partner | null;
-	filterDirection: PaymentDirection | null;
-	sortField: keyof Payment | null;
-	sortOrder: SortOrder;
+	typeFilter: PaymentTypeFilter;
+	walletFilter: number | "all";
+	isSaving: boolean;
+	isCreateOpen: boolean;
 
-	// actions
+	formData: Loadable<PaymentFormData>;
+	outstanding: Loadable<OutstandingTransaction[]>;
+
 	getAll(): Promise<void>;
-	getById(paymentId: number): Promise<void>;
-	create(request: CreatePaymentRequest): Promise<void>;
+	getFormData(): Promise<void>;
+	loadOutstanding(partnerId: number): Promise<void>;
+	clearOutstanding(): void;
+	create(request: CreatePaymentRecordRequest): Promise<PaymentRecord | null>;
 
-	// setters for filters & sorting
-	setSearch(searchTerm: string): void;
-	setFilterPartner(partner: Partner | null): void;
-	setFilterDirection(direction: PaymentDirection | null): void;
-	setSort(field: keyof Payment, order: SortOrder): void;
-	setSelectedPayment(payment: Payment | null): void;
+	setSearch(term: string): void;
+	setTypeFilter(type: PaymentTypeFilter): void;
+	setWalletFilter(walletId: number | "all"): void;
+
+	openCreate(): void;
+	closeCreate(): void;
 }
 
 export class PaymentStore implements IPaymentStore {
 	private readonly notificationStore: NotificationStore;
 
-	allPayments: Loadable<Payment[]> = [];
-	selectedPayment: Loadable<Payment> | null = null;
-	isSaving: boolean = false;
-	searchTerm: string = "";
-	filterPartner: Partner | null = null;
-	filterDirection: PaymentDirection | null = null;
-	sortField: keyof Payment | null = null;
-	sortOrder: SortOrder = "asc";
+	allPayments: Loadable<PaymentRecord[]> = "loading";
+	formData: Loadable<PaymentFormData> = "loading";
+	outstanding: Loadable<OutstandingTransaction[]> = "loading";
+
+	searchTerm = "";
+	typeFilter: PaymentTypeFilter = "all";
+	walletFilter: number | "all" = "all";
+	isSaving = false;
+	isCreateOpen = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	get filteredPayments(): Loadable<Payment[]> {
+	get filteredPayments(): Loadable<PaymentRecord[]> {
 		if (this.allPayments === "loading") {
 			return "loading";
 		}
 
-		let payments = this.allPayments;
+		let rows = this.allPayments;
 
-		const searchTerm = this.searchTerm.trim().toLowerCase();
-		if (searchTerm) {
-			payments = payments.filter(
-				(el) =>
-					el.notes?.toLocaleLowerCase().includes(searchTerm) ||
-					el.partnerName?.toLocaleLowerCase().includes(searchTerm) ||
-					el.id.toString() === searchTerm,
+		if (this.typeFilter !== "all") {
+			rows = rows.filter((p) => p.type === this.typeFilter);
+		}
+		if (this.walletFilter !== "all") {
+			rows = rows.filter((p) => p.walletId === this.walletFilter);
+		}
+		if (this.searchTerm.trim()) {
+			rows = rows.filter(
+				(p) =>
+					matchesSearch(p.number, this.searchTerm) ||
+					matchesSearch(p.partnerName, this.searchTerm) ||
+					matchesSearch(p.employeeName, this.searchTerm),
 			);
 		}
 
-		const partnerId = this.filterPartner?.id;
-		if (partnerId) {
-			payments = payments.filter((el) => el.partnerId === partnerId);
-		}
-
-		if (this.filterDirection) {
-			payments = payments.filter((el) => el.direction === this.filterDirection);
-		}
-
-		return payments;
+		return rows;
 	}
 
-	get incomes(): Loadable<Payment[]> {
-		if (this.filteredPayments === "loading") {
-			return "loading";
+	/** Income / expense / count over the currently filtered view. */
+	get summary(): PaymentSummary {
+		const rows = this.filteredPayments;
+		if (rows === "loading") {
+			return { income: 0, expense: 0, count: 0 };
 		}
-
-		return this.filteredPayments.filter((el) => el.direction === "Income");
+		return rows.reduce(
+			(acc, p) => ({
+				income: acc.income + (p.direction === "Income" ? p.amount : 0),
+				expense: acc.expense + (p.direction === "Expense" ? p.amount : 0),
+				count: acc.count + 1,
+			}),
+			{ income: 0, expense: 0, count: 0 },
+		);
 	}
 
-	get expenses(): Loadable<Payment[]> {
-		if (this.filteredPayments === "loading") {
-			return "loading";
+	/** Distinct wallets seen across all payments — drives the wallet filter. */
+	get walletOptions(): { id: number; name: string }[] {
+		if (this.allPayments === "loading") {
+			return [];
 		}
-
-		return this.filteredPayments.filter((el) => el.direction === "Expense");
+		const seen = new Map<number, string>();
+		for (const p of this.allPayments) {
+			if (!seen.has(p.walletId)) {
+				seen.set(p.walletId, p.walletName);
+			}
+		}
+		return [...seen.entries()].map(([id, name]) => ({ id, name }));
 	}
 
 	async getAll(): Promise<void> {
-		if (this.allPayments === "loading") {
-			return;
-		}
-
 		runInAction(() => (this.allPayments = "loading"));
+
 		const result = await tryRun(() => PaymentApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payments.error.getAll"));
+			this.notificationStore.error(i18next.t("payment.error.getAll"));
 		}
 
-		const data = result.status === "fail" ? [] : result.data;
-		runInAction(() => (this.allPayments = data));
+		runInAction(() => (this.allPayments = result.status === "success" ? result.data : []));
 	}
 
-	async getById(paymentId: number): Promise<void> {
-		if (this.selectedPayment === "loading") {
-			return;
-		}
-
-		runInAction(() => (this.selectedPayment = "loading"));
-		const result = await tryRun(() => PaymentApi.getById(paymentId));
+	async getFormData(): Promise<void> {
+		const result = await tryRun(() => PaymentApi.getFormData());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payments.error.getById"));
-		}
-
-		const data = result.status === "fail" ? null : result.data;
-		runInAction(() => (this.selectedPayment = data));
-	}
-
-	async create(request: CreatePaymentRequest): Promise<void> {
-		const result = await tryRun(() => PaymentApi.create(request));
-
-		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payments.error.create"));
-			return;
+			this.notificationStore.error(i18next.t("payment.error.formData"));
 		}
 
 		runInAction(() => {
-			if (this.allPayments === "loading") {
-				return;
-			}
-
-			this.allPayments = [result.data, ...this.allPayments];
-			this.selectedPayment = result.data;
-			this.notificationStore.success("payments.success.create");
+			this.formData =
+				result.status === "success" ? result.data : { partners: [], employees: [], wallets: [] };
 		});
 	}
 
-	setSelectedPayment(payment: Payment | null): void {
-		this.selectedPayment = payment;
+	async loadOutstanding(partnerId: number): Promise<void> {
+		runInAction(() => (this.outstanding = "loading"));
+
+		const result = await tryRun(() => PaymentApi.getOutstanding(partnerId));
+
+		runInAction(() => {
+			this.outstanding = result.status === "success" ? result.data : [];
+		});
 	}
 
-	setSearch(searchTerm: string): void {
-		this.searchTerm = searchTerm;
+	clearOutstanding(): void {
+		this.outstanding = "loading";
 	}
 
-	setFilterPartner(partner: Partner | null): void {
-		if (!partner) {
-			this.filterPartner = null;
-		} else {
-			this.filterPartner = partner;
+	async create(request: CreatePaymentRecordRequest): Promise<PaymentRecord | null> {
+		const result = await withSaving(this, () => PaymentApi.create(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("payment.error.create"));
+			return null;
 		}
+
+		runInAction(() => {
+			if (this.allPayments !== "loading") {
+				this.allPayments = [result.data, ...this.allPayments];
+			}
+			// Reference figures (advance / outstanding / wallet balance) moved —
+			// refetch form data lazily next time the modal opens.
+			this.formData = "loading";
+		});
+
+		this.closeCreate();
+		this.notificationStore.success(
+			i18next.t("payment.success.create", { number: result.data.number }),
+		);
+		return result.data;
 	}
 
-	setFilterDirection(direction: PaymentDirection | null): void {
-		this.filterDirection = direction;
+	setSearch(term: string): void {
+		this.searchTerm = term;
 	}
 
-	setSort(field: keyof Payment, order: SortOrder): void {
-		this.sortField = field;
-		this.sortOrder = order;
+	setTypeFilter(type: PaymentTypeFilter): void {
+		this.typeFilter = type;
+	}
+
+	setWalletFilter(walletId: number | "all"): void {
+		this.walletFilter = walletId;
+	}
+
+	openCreate(): void {
+		this.isCreateOpen = true;
+	}
+
+	closeCreate(): void {
+		this.isCreateOpen = false;
 	}
 }
+
+export default PaymentStore;

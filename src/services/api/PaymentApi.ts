@@ -1,59 +1,59 @@
-import { CreatePaymentRequest, GetPaymentsRequest, Payment } from "models/payment";
-
-import BaseApi, { PrimitiveTypes } from "./BaseApi";
+import {
+	CreatePaymentRecordRequest,
+	OutstandingTransaction,
+	PaymentFormData,
+	PaymentRecord,
+} from "../../models/payment";
 import http from "./http";
 
-class PaymentApi extends BaseApi {
-	constructor() {
-		super("payments");
-	}
+/**
+ * Payments API over the target v1 contract (`/api/payments`) for the redesigned
+ * standalone Платежи page. The resource is mocked (docs/mocking.md) — the live
+ * backend DTO is the legacy removed-enum model (method / currency / exchangeRate),
+ * stale for the source/allocation model (business-rules §B). All derived figures
+ * (partner balance + advance, wallet balance, allocation summary) are served.
+ * The legacy New Sale debt-payment flow posts the legacy shape via TransactionApi
+ * and is untouched.
+ */
+class PaymentApi {
+	private readonly baseUrl: string = "/api/payments";
 
-	async getAll(request?: GetPaymentsRequest): Promise<Payment[]> {
-		const url = this.getUrl(request);
-		const response = await http.get<Payment[]>(url);
-
-		return response.data;
-	}
-
-	async getById(id: number): Promise<Payment> {
-		const url = this.getUrl(id);
-		const response = await http.get<Payment>(url);
-
-		return response.data;
-	}
-
-	async create(request: CreatePaymentRequest): Promise<Payment> {
-		const url = this.getUrl();
-		const formData = this.getPaymentFormData(request);
-
-		const response = await http.post<Payment>(url, formData, this.formHeaders);
+	/** Full collection — newest first; search/filter are client-side in v1. */
+	async getAll(): Promise<PaymentRecord[]> {
+		const response = await http.get<PaymentRecord[]>(this.baseUrl);
 
 		return response.data;
 	}
 
-	private getPaymentFormData(request: CreatePaymentRequest): FormData {
-		const form = new FormData();
+	async getById(id: number): Promise<PaymentRecord> {
+		const response = await http.get<PaymentRecord>(`${this.baseUrl}/${id}`);
 
-		Object.entries(request).forEach(([key, val]) => {
-			if (val == null) return;
+		return response.data;
+	}
 
-			if (typeof val === "object") {
-				return;
-			}
+	/** Reference data for the create modal (partners, employees, wallets). */
+	async getFormData(): Promise<PaymentFormData> {
+		const response = await http.get<PaymentFormData>(`${this.baseUrl}/form-data`);
 
-			if (PrimitiveTypes.includes(typeof val)) {
-				form.append(key, String(val));
-			}
+		return response.data;
+	}
+
+	/** A partner's open transactions for the settlement modal (FIFO order). */
+	async getOutstanding(partnerId: number): Promise<OutstandingTransaction[]> {
+		const response = await http.get<OutstandingTransaction[]>(`${this.baseUrl}/outstanding`, {
+			params: { partnerId },
 		});
 
-		if (request.attachments) {
-			request.attachments.forEach((file) => {
-				form.append("attachments", file, file.name);
-			});
-		}
+		return response.data;
+	}
 
-		return form;
+	/** Record an immutable payment (rule 1). */
+	async create(request: CreatePaymentRecordRequest): Promise<PaymentRecord> {
+		const response = await http.post<PaymentRecord>(this.baseUrl, request);
+
+		return response.data;
 	}
 }
 
-export default new PaymentApi();
+const paymentApi = new PaymentApi();
+export default paymentApi;

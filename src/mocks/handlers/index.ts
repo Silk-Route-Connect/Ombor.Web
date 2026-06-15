@@ -3,6 +3,7 @@ import { RequestHandler } from "msw";
 import { categoryHandlers } from "./category";
 import { orderHandlers } from "./order";
 import { partnerHandlers } from "./partner";
+import { paymentHandlers } from "./payment";
 import { productHandlers } from "./product";
 import { stockAdjustmentHandlers } from "./stockAdjustment";
 import { templateHandlers } from "./template";
@@ -35,4 +36,5 @@ export const handlers: RequestHandler[] = [
 	...templateHandlers,
 	...orderHandlers,
 	...walletHandlers,
+	...paymentHandlers,
 ];
