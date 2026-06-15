@@ -57,8 +57,8 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 			<Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
 				<TextField
 					id={`phone-${row.id}`}
-					label={t("phoneNumber")}
 					type="tel"
+					size="small"
 					fullWidth
 					value={toLocal(row.value)}
 					disabled={disabled}
@@ -68,9 +68,6 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 					onChange={(e) => onChange(row.id, toStored(e.target.value))}
 					onBlur={onBlur}
 					slotProps={{
-						// The +998 prefix is a fixed, non-editable adornment — keep the
-						// label shrunk so it doesn't collide with it.
-						inputLabel: { shrink: true },
 						input: {
 							inputMode: "numeric",
 							startAdornment: (
