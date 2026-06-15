@@ -1,25 +1,35 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
-import EmployeeSidePane from "components/employee/SidePane/EmployeeSidePane";
-import EmployeeTable from "components/employee/Table/EmployeeTable";
+import EmployeesTable from "components/employee/Table/EmployeesTable";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { observer } from "mobx-react-lite";
+import { Employee } from "models/employee";
+import { employeeDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { formatDate } from "utils/dateUtils";
+import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
+import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 import { Box } from "@mui/material";
 
 const EmployeePage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { employeeStore, payrollStore } = useStore();
 
 	useEffect(() => {
 		employeeStore.getAll();
 	}, [employeeStore]);
+
+	const { dialogMode } = employeeStore;
+	const dialogKind = dialogMode.kind;
 
 	const handleFormSave = (payload: EmployeeFormPayload) =>
 		employeeStore.selectedEmployee
@@ -31,42 +41,43 @@ const EmployeePage: React.FC = observer(() => {
 		employeeStore.closeDialog();
 	};
 
-	const handleDeleteConfirmed = () => {
-		if (employeeStore.selectedEmployee) {
-			employeeStore.delete(employeeStore.selectedEmployee.id);
-		}
+	const handleExport = (): void => {
+		const rows =
+			employeeStore.filteredEmployees === "loading" ? [] : employeeStore.filteredEmployees;
+		const columns: CsvColumn<Employee>[] = [
+			{ header: t("employee.name"), value: (e) => e.name },
+			{ header: t("employee.position"), value: (e) => e.position },
+			{ header: t("employee.salary"), value: (e) => e.salary },
+			{ header: t("employee.status"), value: (e) => t(`employee.status.${e.status}`) },
+			{ header: t("employee.dateOfEmployment"), value: (e) => formatDate(e.dateOfEmployment) },
+		];
+		exportToCsv(`employees_${csvDateStamp()}`, columns, rows);
 	};
 
-	const employeesCount = useMemo(() => {
-		if (employeeStore.filteredEmployees === "loading") {
-			return "";
-		}
-
-		return employeeStore.filteredEmployees.length.toString();
-	}, [employeeStore.filteredEmployees]);
-
-	const { dialogMode } = employeeStore;
-	const dialogKind = dialogMode.kind;
+	const all = employeeStore.allEmployees === "loading" ? [] : employeeStore.allEmployees;
+	const isFiltering =
+		employeeStore.searchTerm.trim().length > 0 || employeeStore.filterStatus !== null;
 
 	return (
 		<Box>
 			<EmployeeHeader
 				searchValue={employeeStore.searchTerm}
 				selectedStatus={employeeStore.filterStatus}
-				titleCount={employeesCount}
-				onSearch={(value) => employeeStore.setSearch(value)}
-				onStatusChange={(value) => employeeStore.setFilterStatus(value)}
+				onSearch={employeeStore.setSearch}
+				onStatusChange={employeeStore.setFilterStatus}
 				onCreate={employeeStore.openCreate}
+				onExport={handleExport}
 			/>
 
-			<EmployeeTable
-				data={employeeStore.filteredEmployees}
-				pagination
-				onSort={employeeStore.setSort}
+			<EmployeesTable
+				rows={employeeStore.filteredEmployees}
+				isFiltering={isFiltering && all.length > 0}
+				onOpen={(employee) => navigate(employeeDetailPath(employee.id))}
+				onCreate={employeeStore.openCreate}
+				onPay={employeeStore.openPayment}
 				onEdit={employeeStore.openEdit}
-				onDelete={employeeStore.openDelete}
-				onPayment={employeeStore.openPayment}
-				onViewDetails={employeeStore.openDetails}
+				onTerminate={employeeStore.openTerminate}
+				onRestore={employeeStore.openRestore}
 			/>
 
 			<EmployeeFormModal
@@ -85,23 +96,42 @@ const EmployeePage: React.FC = observer(() => {
 				onSave={handlePayrollSave}
 			/>
 
-			<EmployeeSidePane
-				open={dialogKind === "details"}
-				employee={employeeStore.selectedEmployee}
-				onClose={employeeStore.closeDialog}
-				onEdit={employeeStore.openEdit}
-				onDelete={employeeStore.openDelete}
-				onPayment={employeeStore.openPayment}
+			<ConfirmDialog
+				isOpen={dialogKind === "terminate"}
+				icon={<PersonOffOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="warning"
+				title={t("employee.terminate.title", {
+					name: dialogKind === "terminate" ? dialogMode.employee.name : "",
+				})}
+				content={t("employee.terminate.body")}
+				confirmLabel={t("employee.action.terminate")}
+				cancelLabel={t("common.cancel")}
+				confirmVariant="danger"
+				onCancel={employeeStore.closeDialog}
+				onConfirm={() => {
+					if (dialogKind === "terminate") {
+						void employeeStore.terminate(dialogMode.employee);
+					}
+				}}
 			/>
 
 			<ConfirmDialog
-				isOpen={dialogKind === "delete"}
-				title={t("common.deleteTitle")}
-				content={t("employee.deleteConfirmation", {
-					employeeName: employeeStore.selectedEmployee?.name ?? "",
+				isOpen={dialogKind === "restore"}
+				icon={<RestartAltOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="info"
+				title={t("employee.restore.title", {
+					name: dialogKind === "restore" ? dialogMode.employee.name : "",
 				})}
-				onConfirm={handleDeleteConfirmed}
+				content={t("employee.restore.body")}
+				confirmLabel={t("employee.action.restore")}
+				cancelLabel={t("common.cancel")}
+				confirmVariant="primary"
 				onCancel={employeeStore.closeDialog}
+				onConfirm={() => {
+					if (dialogKind === "restore") {
+						void employeeStore.restore(dialogMode.employee);
+					}
+				}}
 			/>
 		</Box>
 	);
