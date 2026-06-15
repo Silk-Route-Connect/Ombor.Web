@@ -13,6 +13,7 @@ export const PATHS = {
 	partners: "/partners",
 	partnerDetail: "/partners/:id",
 	orders: "/orders",
+	orderDetail: "/orders/:id",
 	sales: "/sales",
 	salesDetail: "/sales/:id",
 	supplies: "/supplies",
@@ -41,6 +42,9 @@ export const warehouseDetailPath = (id: number): string => `/warehouses/${id}`;
 
 /** Concrete detail route for a partner (PATHS.partnerDetail with the id bound). */
 export const partnerDetailPath = (id: number): string => `/partners/${id}`;
+
+/** Concrete detail route for an order (PATHS.orderDetail with the id bound). */
+export const orderDetailPath = (id: number): string => `/orders/${id}`;
 
 /** Concrete detail route for a sale/sale-refund transaction. */
 export const saleDetailPath = (id: number): string => `/sales/${id}`;

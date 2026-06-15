@@ -5,6 +5,7 @@ import authRu from "./ru/auth.json";
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
 import employeeRu from "./ru/employee.json";
+import orderRu from "./ru/order.json";
 import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
 import payrollRu from "./ru/payroll.json";
@@ -63,6 +64,7 @@ const resources = {
 			...warehouseRu,
 			...stockAdjustmentRu,
 			...transferRu,
+			...orderRu,
 		},
 	},
 	uz: {

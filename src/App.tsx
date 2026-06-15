@@ -6,6 +6,8 @@ import CategoryPage from "pages/CategoryPage";
 import CreateTransactionPage from "pages/CreateTransactionPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
+import OrderDetailPage from "pages/OrderDetailPage";
+import OrderPage from "pages/OrderPage";
 import PartnerDetailPage from "pages/PartnerDetailPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentPage from "pages/PaymentPage";
@@ -65,10 +67,8 @@ function App() {
 								<Route path={PATHS.transfers} element={<TransferPage />} />
 								<Route path={PATHS.partners} element={<PartnerPage />} />
 								<Route path={PATHS.partnerDetail} element={<PartnerDetailPage />} />
-								<Route
-									path={PATHS.orders}
-									element={<PlaceholderPage titleKey="sidebar.orders" />}
-								/>
+								<Route path={PATHS.orders} element={<OrderPage />} />
+								<Route path={PATHS.orderDetail} element={<OrderDetailPage />} />
 								<Route path={PATHS.supplies} element={<TransactionPage mode="Supply" />} />
 								<Route
 									path={PATHS.suppliesDetail}
