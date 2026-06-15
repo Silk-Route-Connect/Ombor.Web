@@ -5,6 +5,7 @@ import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
 import CreateTransactionPage from "pages/CreateTransactionPage";
 import DebtPage from "pages/DebtPage";
+import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
 import OrderDetailPage from "pages/OrderDetailPage";
@@ -100,6 +101,7 @@ function App() {
 									element={<PlaceholderPage titleKey="page.newPayment.title" />}
 								/>
 								<Route path={PATHS.employees} element={<EmployeePage />} />
+								<Route path={PATHS.employeeDetail} element={<EmployeeDetailPage />} />
 								<Route path={PATHS.payrolls} element={<PayrollPage />} />
 								<Route
 									path={PATHS.activityLog}

@@ -21,6 +21,8 @@ export type DialogMode =
 	| { kind: "delete"; employee: Employee }
 	| { kind: "details"; employee: Employee }
 	| { kind: "payment"; employee: Employee }
+	| { kind: "terminate"; employee: Employee }
+	| { kind: "restore"; employee: Employee }
 	| { kind: "none" };
 
 export interface IEmployeeStore {
@@ -43,6 +45,10 @@ export interface IEmployeeStore {
 	create(request: CreateEmployeeRequest): Promise<void>;
 	update(request: UpdateEmployeeRequest): Promise<void>;
 	delete(employeeId: number): Promise<void>;
+	/** Set status to Terminated («Уволить») — a status change, not a hard delete. */
+	terminate(employee: Employee): Promise<void>;
+	/** Set status back to Active («Восстановить»). */
+	restore(employee: Employee): Promise<void>;
 
 	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
@@ -56,6 +62,8 @@ export interface IEmployeeStore {
 	openDelete(employee: Employee): void;
 	openDetails(employee: Employee): void;
 	openPayment(employee: Employee): void;
+	openTerminate(employee: Employee): void;
+	openRestore(employee: Employee): void;
 	closeDialog(): void;
 }
 
@@ -188,6 +196,50 @@ export class EmployeeStore implements IEmployeeStore {
 		this.notificationStore.success(i18next.t("employees.success.delete"));
 	}
 
+	async terminate(employee: Employee): Promise<void> {
+		await this.setStatus(employee, "Terminated", i18next.t("employee.success.terminate"));
+	}
+
+	async restore(employee: Employee): Promise<void> {
+		await this.setStatus(employee, "Active", i18next.t("employee.success.restore"));
+	}
+
+	private async setStatus(
+		employee: Employee,
+		status: EmployeeStatus,
+		successMessage: string,
+	): Promise<void> {
+		const request: UpdateEmployeeRequest = {
+			id: employee.id,
+			name: employee.name,
+			position: employee.position,
+			salary: employee.salary,
+			status,
+			dateOfEmployment: employee.dateOfEmployment,
+			contactInfo: employee.contactInfo,
+		};
+		const result = await withSaving(this, () => EmployeeApi.update(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("employees.error.update"));
+			return;
+		}
+
+		runInAction(() => {
+			if (this.allEmployees !== "loading") {
+				this.allEmployees = this.allEmployees.map((el) =>
+					el.id === result.data.id ? result.data : el,
+				);
+			}
+			if (this.selectedEmployee?.id === result.data.id) {
+				this.selectedEmployee = result.data;
+			}
+		});
+
+		this.closeDialog();
+		this.notificationStore.success(successMessage);
+	}
+
 	setSearch(term: string): void {
 		this.searchTerm = term;
 	}
@@ -225,6 +277,14 @@ export class EmployeeStore implements IEmployeeStore {
 
 	openPayment(employee: Employee): void {
 		this.setDialog({ kind: "payment", employee: employee });
+	}
+
+	openTerminate(employee: Employee): void {
+		this.setDialog({ kind: "terminate", employee: employee });
+	}
+
+	openRestore(employee: Employee): void {
+		this.setDialog({ kind: "restore", employee: employee });
 	}
 
 	closeDialog(): void {
