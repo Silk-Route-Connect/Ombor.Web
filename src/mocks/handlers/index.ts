@@ -7,6 +7,7 @@ import { orderHandlers } from "./order";
 import { partnerHandlers } from "./partner";
 import { paymentHandlers } from "./payment";
 import { productHandlers } from "./product";
+import { settingsHandlers } from "./settings";
 import { stockAdjustmentHandlers } from "./stockAdjustment";
 import { templateHandlers } from "./template";
 import { transactionHandlers } from "./transaction";
@@ -41,4 +42,5 @@ export const handlers: RequestHandler[] = [
 	...paymentHandlers,
 	...debtHandlers,
 	...dashboardHandlers,
+	...settingsHandlers,
 ];

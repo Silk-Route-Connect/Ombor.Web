@@ -20,6 +20,7 @@ import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
+import SettingsPage from "pages/SettingsPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
 import TransactionDetailPage from "pages/TransactionDetailPage";
@@ -108,10 +109,7 @@ function App() {
 									path={PATHS.activityLog}
 									element={<PlaceholderPage titleKey="page.activityLog.title" />}
 								/>
-								<Route
-									path={PATHS.settings}
-									element={<PlaceholderPage titleKey="sidebar.settings" />}
-								/>
+								<Route path={PATHS.settings} element={<SettingsPage />} />
 							</Route>
 						</Route>
 					</Routes>
