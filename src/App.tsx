@@ -10,6 +10,7 @@ import OrderDetailPage from "pages/OrderDetailPage";
 import OrderPage from "pages/OrderPage";
 import PartnerDetailPage from "pages/PartnerDetailPage";
 import PartnerPage from "pages/PartnerPage";
+import PaymentDetailPage from "pages/PaymentDetailPage";
 import PaymentPage from "pages/PaymentPage";
 import PayrollPage from "pages/PayrollPage";
 import PlaceholderPage from "pages/PlaceholderPage";
@@ -83,7 +84,7 @@ function App() {
 								/>
 								<Route path={PATHS.templates} element={<TemplatePage />} />
 								<Route path={PATHS.payments} element={<PaymentPage />} />
-								<Route path={`${PATHS.payments}/:id`} element={<PaymentPage />} />
+								<Route path={`${PATHS.payments}/:id`} element={<PaymentDetailPage />} />
 								<Route path={PATHS.debts} element={<PlaceholderPage titleKey="sidebar.debts" />} />
 								<Route path={PATHS.wallets} element={<WalletPage />} />
 								<Route path={PATHS.walletDetail} element={<WalletDetailPage />} />

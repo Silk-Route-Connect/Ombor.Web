@@ -43,6 +43,12 @@ export const designTokens = {
 	errorBorder: "#EFC9C4", // --error-border, danger button outline
 	successBg: "#E5F2EC", // --success-bg, income / cash-wallet tint
 	infoBg: "#E7F0F6", // --info-bg, bank-wallet tint
+	successBorder: "#C2E0D2", // --success-border, income badge outline
+	infoBorder: "#C5DBEA", // --info-border, deposit badge outline
+	saffronBadgeBorder: "#ECD3A4", // saffron badge outline (withdrawal)
+	purpleBg: "#ECE7F7", // payroll badge fill
+	purpleText: "#6A4BB0", // payroll badge text
+	purpleBorder: "#D6CBEE", // payroll badge outline
 } as const;
 
 // Elevation tokens --e-1/--e-2/--e-3 (border-first, restrained).

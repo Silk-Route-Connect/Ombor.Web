@@ -1,89 +1,105 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
+import GhostButton from "components/shared/Buttons/GhostButton";
+import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { Partner } from "models/partner";
-import { PaymentDirection } from "models/payment";
+import { PAYMENT_TYPES, PaymentType } from "models/payment";
+import { PaymentTypeFilter } from "stores/PaymentStore";
 
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, MenuItem, TextField, Typography } from "@mui/material";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
+import { Box } from "@mui/material";
 
-const PAYMENT_DIRECTIONS: PaymentDirection[] = ["Income", "Expense"];
+import { PAYMENT_TYPE_META } from "../PaymentPresentation";
+import PaymentFilterDropdown, { FilterOption } from "./PaymentFilterDropdown";
 
 interface PaymentHeaderProps {
-	titleCount: number;
-	selectedDirection: PaymentDirection | null;
-	selectedPartner: Partner | null;
-	searchTerm: string;
+	searchValue: string;
+	typeFilter: PaymentTypeFilter;
+	walletFilter: number | "all";
+	walletOptions: { id: number; name: string }[];
 	onSearch: (value: string) => void;
-	onDirectionChange: (value: PaymentDirection | null) => void;
-	onPartnerChange: (value: Partner | null) => void;
+	onTypeChange: (value: PaymentTypeFilter) => void;
+	onWalletChange: (value: number | "all") => void;
 	onCreate: () => void;
+	onExport: () => void;
 }
 
+/**
+ * Payments page header. Per locked pattern 11: dataset-level actions (create,
+ * «Экспорт») sit on the title row; the view-shaping search + type + wallet
+ * filters sit on the filter row below (the prototype's period date filter is
+ * omitted — locked pattern 12).
+ */
 const PaymentHeader: React.FC<PaymentHeaderProps> = ({
-	titleCount,
-	selectedDirection,
-	selectedPartner,
-	searchTerm,
+	searchValue,
+	typeFilter,
+	walletFilter,
+	walletOptions,
 	onSearch,
-	onDirectionChange,
-	onPartnerChange,
+	onTypeChange,
+	onWalletChange,
 	onCreate,
+	onExport,
 }) => {
 	const { t } = useTranslation();
 
+	const typeOptions: FilterOption<PaymentTypeFilter>[] = [
+		{ value: "all", label: t("payment.filter.allTypes") },
+		...PAYMENT_TYPES.map((type: PaymentType) => ({
+			value: type,
+			label: t(PAYMENT_TYPE_META[type].labelKey),
+		})),
+	];
+
+	const walletFilterOptions: FilterOption<number | "all">[] = [
+		{ value: "all", label: t("payment.filter.allWallets") },
+		...walletOptions.map((w) => ({ value: w.id, label: w.name })),
+	];
+
 	return (
-		<Box
-			display="flex"
-			flexWrap="wrap"
-			justifyContent="space-between"
-			alignItems="center"
-			mb={3}
-			sx={{ gap: 2 }}
-		>
-			<Typography variant="h5">
-				{t("payment.headerTitle")}({titleCount})
-			</Typography>
-			<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
+		<>
+			<PageHeader
+				title={t("payment.title")}
+				actions={
+					<>
+						<GhostButton
+							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							onClick={onExport}
+						>
+							{t("common.export")}
+						</GhostButton>
+						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+							{t("payment.create")}
+						</PrimaryButton>
+					</>
+				}
+			/>
+
+			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
-					value={searchTerm}
+					value={searchValue}
 					onChange={onSearch}
-					placeholder={t("payment.searchPayments")}
+					placeholder={t("payment.searchPlaceholder")}
+					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
-				<TextField
-					select
-					size="small"
-					margin="dense"
-					sx={{ minWidth: 250 }}
-					label={t("payment.direction")}
-					value={selectedDirection ?? "all"}
-					onChange={(e) => {
-						const value = e.target.value;
-						onDirectionChange(value === "all" ? null : (value as PaymentDirection));
-					}}
-				>
-					<MenuItem value="all">{t("payment.direction.All")}</MenuItem>
-					{PAYMENT_DIRECTIONS.map((d) => (
-						<MenuItem key={d} value={d}>
-							{t(`payment.direction.${d}`)}
-						</MenuItem>
-					))}
-				</TextField>
-				<FormControl size="small" margin="dense" sx={{ minWidth: 250 }}>
-					<PartnerAutocomplete
-						value={selectedPartner}
-						type="Supplier"
-						size="small"
-						onChange={onPartnerChange}
-					/>
-				</FormControl>
-				<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-					{t("add")}
-				</PrimaryButton>
+				<PaymentFilterDropdown
+					icon={<LayersOutlinedIcon sx={{ fontSize: 15 }} />}
+					value={typeFilter}
+					options={typeOptions}
+					onChange={onTypeChange}
+				/>
+				<PaymentFilterDropdown
+					icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 15 }} />}
+					value={walletFilter}
+					options={walletFilterOptions}
+					onChange={onWalletChange}
+				/>
 			</Box>
-		</Box>
+		</>
 	);
 };
 

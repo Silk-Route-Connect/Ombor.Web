@@ -1,207 +1,196 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import EmployeeLink from "components/employee/Link/EmployeeLink";
-import PartnerLink from "components/partner/Links/PartnerLink";
-import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
 import { Loadable } from "helpers/Loading";
-import { Payment, PaymentDirection, PaymentType } from "models/payment";
-import { formatDateTime } from "utils/dateUtils";
+import { PaymentRecord } from "models/payment";
+import { designTokens, numericSx } from "theme";
+import { formatDate } from "utils/dateUtils";
+import { formatCurrency } from "utils/formatCurrency";
 
-import {
-	AccountBalance,
-	Category,
-	CreditCard,
-	LocalAtm,
-	SwapHoriz,
-	Work,
-} from "@mui/icons-material";
-import { Chip, Tooltip, Typography, useTheme } from "@mui/material";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 
 interface PaymentsTableProps {
-	payments: Loadable<Payment[]>;
-	onPaymentClick?: (payment: Payment) => void;
-	onSort?: (field: keyof Payment, order: SortOrder) => void;
-	pagination?: boolean;
+	rows: Loadable<PaymentRecord[]>;
+	isFiltering: boolean;
+	onOpen: (payment: PaymentRecord) => void;
 }
 
-const MAX_NOTES_LENGTH = 25;
+const headCellSx = {
+	textAlign: "left",
+	fontSize: 12,
+	fontWeight: 600,
+	color: "text.secondary",
+	p: "11px 16px",
+	borderBottom: "1px solid",
+	borderColor: "divider",
+	whiteSpace: "nowrap",
+	bgcolor: "background.paper",
+} as const;
 
-export const PaymentsTable: React.FC<PaymentsTableProps> = ({
-	payments,
-	onPaymentClick,
-	onSort,
-	pagination = true,
-}) => {
+const bodyCellSx = {
+	p: "13px 16px",
+	borderBottom: "1px solid",
+	borderColor: "divider",
+	fontSize: 13.5,
+	verticalAlign: "middle",
+} as const;
+
+/**
+ * Payments list per the bundle: № · Дата · Тип · Направление · Партнёр /
+ * Сотрудник · Касса · Сумма. Payments are immutable — there are no row actions
+ * (rule 1); a row opens the full-page detail. Amounts are unsigned (direction is
+ * carried by the badge + green/red colour, consistent with the wallet ledger).
+ */
+export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering, onOpen }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
-	const renderNotes = (notes?: string): React.ReactNode => {
-		if (!notes) {
-			return t("common.dash");
-		}
-
-		if (notes.length <= MAX_NOTES_LENGTH) {
-			return notes;
-		}
-
-		const truncatedNotes = notes.substring(0, MAX_NOTES_LENGTH) + "...";
-
+	if (rows === "loading") {
 		return (
-			<Tooltip title={notes} placement="top" arrow>
-				<Typography component="span" sx={{ cursor: "help" }}>
-					{truncatedNotes}
-				</Typography>
-			</Tooltip>
+			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+				<CircularProgress />
+			</Box>
 		);
-	};
-
-	const renderEmployee = (payment: Payment): React.ReactNode => {
-		if (!payment.employeeId || !payment.employeeName) {
-			return t("common.dash");
-		}
-
-		return <EmployeeLink id={payment.employeeId} name={payment.employeeName} />;
-	};
-
-	const renderPartner = (payment: Payment): React.ReactNode => {
-		if (payment.type === "Payroll") {
-			return renderEmployee(payment);
-		}
-
-		if (!payment.partnerId || !payment.partnerName) {
-			return t("common.dash");
-		}
-
-		return <PartnerLink id={payment.partnerId} name={payment.partnerName} />;
-	};
-
-	const getDirectionColor = (direction: PaymentDirection) => {
-		return direction === "Income" ? theme.palette.success.main : theme.palette.error.main;
-	};
-
-	const renderDirection = (direction: PaymentDirection): React.ReactNode => {
-		return (
-			<Chip
-				label={t(`payment.direction.${direction}`)}
-				size="small"
-				sx={{
-					backgroundColor: `${getDirectionColor(direction)}15`,
-					color: getDirectionColor(direction),
-					border: `1px solid ${getDirectionColor(direction)}40`,
-					fontWeight: 500,
-				}}
-			/>
-		);
-	};
-
-	const getTypeIcon = (type: PaymentType) => {
-		switch (type) {
-			case "Transaction":
-				return <SwapHoriz />;
-			case "Deposit":
-				return <AccountBalance />;
-			case "Withdrawal":
-				return <LocalAtm />;
-			case "Payroll":
-				return <Work />;
-			case "General":
-				return <Category />;
-			default:
-				return <CreditCard />;
-		}
-	};
-
-	const renderType = (type: PaymentType): React.ReactNode => {
-		return (
-			<Chip
-				icon={getTypeIcon(type)}
-				label={t(`payment.type.${type}`)}
-				variant="outlined"
-				size="small"
-				sx={{
-					backgroundColor: theme.palette.grey[50],
-					borderColor: theme.palette.grey[300],
-					"& .MuiChip-icon": {
-						color: theme.palette.text.secondary,
-					},
-				}}
-			/>
-		);
-	};
-
-	const columns: Column<Payment>[] = [
-		{
-			key: "id",
-			field: "id",
-			headerName: t("payment.number"),
-			width: "10%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => `#${payment.id}`,
-		},
-		{
-			key: "date",
-			field: "date",
-			headerName: t("payment.date"),
-			width: "15%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => formatDateTime(payment.date),
-		},
-		{
-			key: "partner",
-			headerName: t("payment.partner"),
-			width: "15%",
-			align: "left",
-			sortable: true,
-			renderCell: renderPartner,
-		},
-		{
-			key: "amount",
-			field: "amount",
-			headerName: t("payment.amount"),
-			width: "15%",
-			align: "right",
-			sortable: true,
-			renderCell: (payment) => payment.amount.toLocaleString(),
-		},
-		{
-			key: "direction",
-			field: "direction",
-			headerName: t("payment.direction"),
-			width: "10%",
-			align: "center",
-			sortable: true,
-			renderCell: (payment) => renderDirection(payment.direction),
-		},
-		{
-			key: "type",
-			field: "type",
-			headerName: t("payment.type"),
-			width: "10%",
-			align: "center",
-			sortable: true,
-			renderCell: (payment) => renderType(payment.type),
-		},
-		{
-			key: "notes",
-			field: "notes",
-			headerName: t("payment.notes"),
-			width: "20%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => renderNotes(payment.notes),
-		},
-	];
+	}
 
 	return (
-		<DataTable
-			rows={payments}
-			columns={columns}
-			pagination={pagination}
-			onRowClick={onPaymentClick}
-			onSort={onSort}
-		/>
+		<Paper
+			elevation={1}
+			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+		>
+			{rows.length === 0 ? (
+				<Box sx={{ p: "52px 24px 58px", textAlign: "center" }}>
+					<Box
+						sx={{
+							width: 56,
+							height: 56,
+							borderRadius: 2,
+							mx: "auto",
+							mb: 2,
+							display: "grid",
+							placeItems: "center",
+							bgcolor: "grey.50",
+							border: 1,
+							borderColor: "divider",
+							color: "text.disabled",
+						}}
+					>
+						<ReceiptLongOutlinedIcon sx={{ fontSize: 26 }} />
+					</Box>
+					<Typography variant="h2" sx={{ mb: 0.75 }}>
+						{isFiltering ? t("payment.empty.searchTitle") : t("payment.empty.title")}
+					</Typography>
+					<Typography
+						variant="body2"
+						sx={{ color: "text.secondary", maxWidth: 400, mx: "auto", lineHeight: 1.6 }}
+					>
+						{isFiltering ? t("payment.empty.searchBody") : t("payment.empty.body")}
+					</Typography>
+				</Box>
+			) : (
+				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+					<thead>
+						<tr>
+							<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
+								{t("payment.table.number")}
+							</Box>
+							<Box component="th" sx={headCellSx}>
+								{t("payment.table.date")}
+							</Box>
+							<Box component="th" sx={headCellSx}>
+								{t("payment.table.type")}
+							</Box>
+							<Box component="th" sx={headCellSx}>
+								{t("payment.table.direction")}
+							</Box>
+							<Box component="th" sx={headCellSx}>
+								{t("payment.table.party")}
+							</Box>
+							<Box component="th" sx={headCellSx}>
+								{t("payment.table.wallet")}
+							</Box>
+							<Box component="th" sx={{ ...headCellSx, textAlign: "right", pr: "18px" }}>
+								{t("payment.table.amount")}
+							</Box>
+						</tr>
+					</thead>
+					<tbody>
+						{rows.map((p) => {
+							const party = p.partnerName ?? p.employeeName;
+							return (
+								<Box
+									component="tr"
+									key={p.id}
+									onClick={() => onOpen(p)}
+									sx={{ cursor: "pointer", "&:hover": { bgcolor: designTokens.gray25 } }}
+								>
+									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
+										<Box
+											component="span"
+											sx={{ ...numericSx, fontWeight: 700, color: "primary.main" }}
+										>
+											{p.number}
+										</Box>
+									</Box>
+									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, color: "text.secondary" }}>
+										{formatDate(p.date)}
+									</Box>
+									<Box component="td" sx={bodyCellSx}>
+										<PaymentTypeBadge type={p.type} />
+									</Box>
+									<Box component="td" sx={bodyCellSx}>
+										<PaymentDirectionBadge direction={p.direction} />
+									</Box>
+									<Box component="td" sx={bodyCellSx}>
+										{party ? (
+											<Box component="span" sx={{ fontWeight: 600 }}>
+												{party}
+											</Box>
+										) : (
+											<Box component="span" sx={{ color: "text.disabled" }}>
+												—
+											</Box>
+										)}
+									</Box>
+									<Box component="td" sx={bodyCellSx}>
+										<Box
+											component="span"
+											sx={{
+												display: "inline-flex",
+												alignItems: "center",
+												gap: "7px",
+												color: designTokens.gray700,
+												whiteSpace: "nowrap",
+											}}
+										>
+											<AccountBalanceWalletOutlinedIcon
+												sx={{ fontSize: 14, color: "text.disabled" }}
+											/>
+											{p.walletName}
+										</Box>
+									</Box>
+									<Box
+										component="td"
+										sx={{
+											...bodyCellSx,
+											textAlign: "right",
+											pr: "18px",
+											...numericSx,
+											fontWeight: 700,
+											fontSize: 15,
+											color: p.direction === "Income" ? "success.main" : "error.main",
+										}}
+									>
+										{formatCurrency(p.amount)}
+									</Box>
+								</Box>
+							);
+						})}
+					</tbody>
+				</Box>
+			)}
+		</Paper>
 	);
 };
 
