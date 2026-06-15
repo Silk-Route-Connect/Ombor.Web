@@ -41,6 +41,8 @@ export const designTokens = {
 	warningBg: "#FBF0DC", // --warning-bg, dialog icon tile
 	errorBg: "#FBEAE8", // --error-bg, danger button hover fill
 	errorBorder: "#EFC9C4", // --error-border, danger button outline
+	successBg: "#E5F2EC", // --success-bg, income / cash-wallet tint
+	infoBg: "#E7F0F6", // --info-bg, bank-wallet tint
 } as const;
 
 // Elevation tokens --e-1/--e-2/--e-3 (border-first, restrained).

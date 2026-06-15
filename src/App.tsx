@@ -21,6 +21,8 @@ import TemplatePage from "pages/TemplatePage";
 import TransactionDetailPage from "pages/TransactionDetailPage";
 import TransactionPage from "pages/TransactionPage";
 import TransferPage from "pages/TransferPage";
+import WalletDetailPage from "pages/WalletDetailPage";
+import WalletPage from "pages/WalletPage";
 import WarehouseDetailPage from "pages/WarehouseDetailPage";
 import WarehousePage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
@@ -83,10 +85,8 @@ function App() {
 								<Route path={PATHS.payments} element={<PaymentPage />} />
 								<Route path={`${PATHS.payments}/:id`} element={<PaymentPage />} />
 								<Route path={PATHS.debts} element={<PlaceholderPage titleKey="sidebar.debts" />} />
-								<Route
-									path={PATHS.wallets}
-									element={<PlaceholderPage titleKey="sidebar.wallets" />}
-								/>
+								<Route path={PATHS.wallets} element={<WalletPage />} />
+								<Route path={PATHS.walletDetail} element={<WalletDetailPage />} />
 								<Route path={PATHS.newSale} element={<CreateTransactionPage mode="Sale" />} />
 								<Route path={PATHS.newSupply} element={<CreateTransactionPage mode="Supply" />} />
 								<Route
