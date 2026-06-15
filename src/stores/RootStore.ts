@@ -15,11 +15,13 @@ import { ISaleStore, SaleStore } from "./SaleStore";
 import { ISelectedPartnerStore, SelectedPartnerStore } from "./SelectedPartnerStore";
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
+import { ISelectedWalletStore, SelectedWalletStore } from "./SelectedWalletStore";
 import { ISelectedWarehouseStore, SelectedWarehouseStore } from "./SelectedWarehouseStore";
 import { IStockAdjustmentStore, StockAdjustmentStore } from "./StockAdjustmentStore";
 import { TemplateStore } from "./TemplateStore";
 import { ITransactionStore, TransactionStore } from "./TransactionStore";
 import { ITransferStore, TransferStore } from "./TransferStore";
+import { IWalletStore, WalletStore } from "./WalletStore";
 import { IWarehouseStore, WarehouseStore } from "./WarehouseStore";
 
 export class RootStore {
@@ -45,6 +47,8 @@ export class RootStore {
 	employeeStore: IEmployeeStore;
 	selectedEmployeeStore: ISelectedEmployeeStore;
 	payrollStore: IPayrollStore;
+	walletStore: IWalletStore;
+	selectedWalletStore: ISelectedWalletStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -72,6 +76,8 @@ export class RootStore {
 			this.notificationStore,
 		);
 		this.payrollStore = new PayrollStore(this.notificationStore, this.employeeStore);
+		this.walletStore = new WalletStore(this.notificationStore);
+		this.selectedWalletStore = new SelectedWalletStore(this.notificationStore);
 	}
 }
 

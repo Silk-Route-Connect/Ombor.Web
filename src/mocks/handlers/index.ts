@@ -8,6 +8,7 @@ import { stockAdjustmentHandlers } from "./stockAdjustment";
 import { templateHandlers } from "./template";
 import { transactionHandlers } from "./transaction";
 import { transferHandlers } from "./transfer";
+import { walletHandlers } from "./wallet";
 import { warehouseHandlers } from "./warehouse";
 
 /**
@@ -33,4 +34,5 @@ export const handlers: RequestHandler[] = [
 	...transactionHandlers,
 	...templateHandlers,
 	...orderHandlers,
+	...walletHandlers,
 ];
