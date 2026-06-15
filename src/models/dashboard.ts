@@ -14,20 +14,6 @@ export type TimeSeriesConfig = {
 	strokeDasharray?: string;
 };
 
-/**
- * Per-partner activity metrics rendered on the (legacy) partner-detail charts —
- * distinct from the dashboard read model below. Kept for `SelectedPartnerStore`.
- */
-export type DashboardMetrics = {
-	salesOverTime: TimeSeriesPoint[];
-	saleRefundsOverTime: TimeSeriesPoint[];
-	suppliesOverTime: TimeSeriesPoint[];
-	supplyRefundsOverTime: TimeSeriesPoint[];
-	transactionCount: number;
-	refundCount: number;
-	outstandingCount: number;
-};
-
 /* ───────────────────────── Главное (dashboard) ───────────────────────── */
 
 /**

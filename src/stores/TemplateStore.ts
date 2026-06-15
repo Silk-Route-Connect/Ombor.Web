@@ -3,7 +3,6 @@ import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
-import { Partner } from "models/partner";
 import {
 	CreateTemplateRequest,
 	GetTemplateByIdRequest,
@@ -33,12 +32,6 @@ export interface ITemplateStore {
 	searchTerm: string;
 	typeFilter: TemplateTypeFilter;
 
-	// legacy New Sale/Supply autocomplete surface (kept until that flow is rebuilt)
-	filteredTemplates: Loadable<Template[]>;
-	supplyTemplates: Loadable<Template[]>;
-	saleTemplates: Loadable<Template[]>;
-	selectedPartner: Partner | null;
-
 	// UI state
 	selectedTemplate: Template | null;
 	dialogMode: DialogMode;
@@ -56,9 +49,6 @@ export interface ITemplateStore {
 	setTypeFilter(type: TemplateTypeFilter): void;
 	resetFilters(): void;
 
-	// legacy autocomplete filter
-	setSelectedPartner(partner?: Partner | null): void;
-
 	// dialogs
 	openCreate(): void;
 	openEdit(template: Template): void;
@@ -73,7 +63,6 @@ export class TemplateStore implements ITemplateStore {
 
 	searchTerm: string = "";
 	typeFilter: TemplateTypeFilter = "all";
-	selectedPartner: Partner | null = null;
 
 	selectedTemplate: Template | null = null;
 	dialogMode: DialogMode = { kind: "none" };
@@ -105,41 +94,6 @@ export class TemplateStore implements ITemplateStore {
 		}
 
 		return [...templates];
-	}
-
-	/**
-	 * Legacy surface for the still-unbuilt New Sale/Supply template autocomplete —
-	 * narrows by the picked partner only (the autocomplete does its own text
-	 * search). Decoupled from the list's search/type so the two views never
-	 * cross-contaminate.
-	 */
-	get filteredTemplates(): Loadable<Template[]> {
-		if (this.allTemplates === "loading") {
-			return "loading";
-		}
-
-		const partnerId = this.selectedPartner?.id;
-		if (!partnerId) {
-			return [...this.allTemplates];
-		}
-
-		return this.allTemplates.filter((el) => el.partnerId === partnerId);
-	}
-
-	get supplyTemplates(): Loadable<Template[]> {
-		if (this.filteredTemplates === "loading") {
-			return "loading";
-		}
-
-		return this.filteredTemplates.filter((el) => el.type === "Supply");
-	}
-
-	get saleTemplates(): Loadable<Template[]> {
-		if (this.filteredTemplates === "loading") {
-			return "loading";
-		}
-
-		return this.filteredTemplates.filter((el) => el.type === "Sale");
 	}
 
 	async getAll() {
@@ -243,10 +197,6 @@ export class TemplateStore implements ITemplateStore {
 	resetFilters(): void {
 		this.searchTerm = "";
 		this.typeFilter = "all";
-	}
-
-	setSelectedPartner(partner?: Partner | null): void {
-		this.selectedPartner = partner ?? null;
 	}
 
 	openCreate(): void {

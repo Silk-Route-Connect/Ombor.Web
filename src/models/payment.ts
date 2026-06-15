@@ -79,16 +79,6 @@ export type TransactionPayment = {
 	notes?: string;
 };
 
-export type CreateTransactionPaymentRequest = {
-	transactionId: number;
-	amount: number;
-	method: PaymentMethod;
-	currency: PaymentCurrency;
-	exchangeRate: number;
-	notes?: string;
-	attachments?: File[];
-};
-
 export type GetPaymentsRequest = {
 	type?: PaymentType;
 };

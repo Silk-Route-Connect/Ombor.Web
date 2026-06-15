@@ -1,13 +1,13 @@
-import { CreateTransactionPaymentRequest, Payment, TransactionPayment } from "models/payment";
+import { TransactionPayment } from "models/payment";
 import {
 	CreateRefundRequest,
-	CreateTransactionRequest,
+	CreateTransactionEntryRequest,
 	GetTransactionsRequest,
 	TransactionLine,
 	TransactionRecord,
 } from "models/transaction";
 
-import BaseApi, { PrimitiveTypes } from "./BaseApi";
+import BaseApi from "./BaseApi";
 import http from "./http";
 
 class TransactionApi extends BaseApi {
@@ -43,22 +43,15 @@ class TransactionApi extends BaseApi {
 		return response.data;
 	}
 
-	async getOpenTransactions(partnerId: number): Promise<TransactionRecord[]> {
-		const query: GetTransactionsRequest = {
-			partnerId,
-			statuses: ["Open", "PartiallyPaid"],
-		};
-		const url = this.getUrl(query);
-		const response = await http.get<TransactionRecord[]>(url);
-
-		return response.data;
-	}
-
-	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
+	/**
+	 * Create a sale or supply from the redesigned POS entry screen. Posts the JSON
+	 * v1 contract (direction, partner, warehouse, lines, single-wallet payment,
+	 * settlements, overpayment disposition); the mock computes totals + payment
+	 * status and returns the created TransactionRecord.
+	 */
+	async createTransactionEntry(request: CreateTransactionEntryRequest): Promise<TransactionRecord> {
 		const url = this.getUrl();
-		const form = this.getFormData(request);
-
-		const response = await http.post<TransactionRecord>(url, form, this.formHeaders);
+		const response = await http.post<TransactionRecord>(url, request);
 
 		return response.data;
 	}
@@ -73,82 +66,6 @@ class TransactionApi extends BaseApi {
 		const response = await http.post<TransactionRecord>(url, request);
 
 		return response.data;
-	}
-
-	async createPayment(request: CreateTransactionPaymentRequest): Promise<Payment> {
-		const url = `${this.getUrlWithId(request.transactionId)}/payments`;
-		const form = this.getPaymentFormData(request);
-
-		const response = await http.post<Payment>(url, form, this.formHeaders);
-
-		return response.data;
-	}
-
-	private getFormData(request: CreateTransactionRequest): FormData {
-		const form = new FormData();
-
-		Object.entries(request).forEach(([key, val]) => {
-			if (val == null) return;
-
-			if (typeof val === "object") {
-				return;
-			}
-
-			if (PrimitiveTypes.includes(typeof val)) {
-				form.append(key, String(val));
-			}
-		});
-
-		request.payments.forEach((payment, i) => {
-			form.append(`payments[${i}].amount`, String(payment.amount));
-			form.append(`payments[${i}].exchangeRate`, String(payment.exchangeRate));
-			form.append(`payments[${i}].method`, String(payment.method));
-			form.append(`payments[${i}].currency`, String(payment.currency));
-		});
-
-		request.debtPayments?.forEach((debtPayment, i) => {
-			form.append(`debtPayments[${i}].amount`, String(debtPayment.amount));
-			form.append(`debtPayments[${i}].transactionId`, String(debtPayment.transactionId));
-		});
-
-		request.lines.forEach((line, i) => {
-			form.append(`lines[${i}].productId`, String(line.productId));
-			form.append(`lines[${i}].unitPrice`, String(line.unitPrice));
-			form.append(`lines[${i}].quantity`, String(line.quantity));
-			form.append(`lines[${i}].discount`, String(line.discount));
-		});
-
-		if (request.attachments) {
-			request.attachments.forEach((file) => {
-				form.append("attachments", file, file.name);
-			});
-		}
-
-		return form;
-	}
-
-	private getPaymentFormData(request: CreateTransactionPaymentRequest): FormData {
-		const form = new FormData();
-
-		Object.entries(request).forEach(([key, val]) => {
-			if (val == null) return;
-
-			if (typeof val === "object") {
-				return;
-			}
-
-			if (PrimitiveTypes.includes(typeof val)) {
-				form.append(key, String(val));
-			}
-		});
-
-		if (request.attachments) {
-			request.attachments.forEach((file) => {
-				form.append("attachments", file, file.name);
-			});
-		}
-
-		return form;
 	}
 }
 

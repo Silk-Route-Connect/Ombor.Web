@@ -3,10 +3,9 @@ import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
-import { CreateTransactionPaymentRequest } from "models/payment";
 import {
 	CreateRefundRequest,
-	CreateTransactionRequest,
+	CreateTransactionEntryRequest,
 	PaymentStatus,
 	TransactionRecord,
 } from "models/transaction";
@@ -37,8 +36,7 @@ export interface ITransactionStore {
 	dialogMode: TransactionDialogMode;
 
 	getAll(): Promise<void>;
-	create(request: CreateTransactionRequest): Promise<void>;
-	createPayment(request: CreateTransactionPaymentRequest): Promise<void>;
+	createTransactionEntry(request: CreateTransactionEntryRequest): Promise<TransactionRecord | null>;
 	createRefund(
 		transaction: TransactionRecord,
 		request: CreateRefundRequest,
@@ -129,13 +127,20 @@ export class TransactionStore implements ITransactionStore {
 		runInAction(() => (this.allTransactions = result.status === "success" ? result.data : []));
 	}
 
-	/** Legacy create flow (New Sale / New Supply) — kept for CreateTransactionPage. */
-	async create(request: CreateTransactionRequest): Promise<void> {
-		const result = await withSaving(this, () => TransactionApi.create(request));
+	/**
+	 * Redesigned POS New Sale / New Supply create. Posts the JSON v1 contract; on
+	 * success the created transaction is prepended to the feed and returned for
+	 * navigation. Self-contained mock: stock, partner balance and wallet balance
+	 * are not mutated (known limitation, like refunds/transfers).
+	 */
+	async createTransactionEntry(
+		request: CreateTransactionEntryRequest,
+	): Promise<TransactionRecord | null> {
+		const result = await withSaving(this, () => TransactionApi.createTransactionEntry(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transactions.errors.create"));
-			return;
+			this.notificationStore.error(i18next.t(`transaction.new.error.${request.direction}`));
+			return null;
 		}
 
 		runInAction(() => {
@@ -143,18 +148,12 @@ export class TransactionStore implements ITransactionStore {
 				this.allTransactions = [result.data, ...this.allTransactions];
 			}
 		});
-		this.notificationStore.success(i18next.t("transactions.success.create"));
-	}
-
-	/** Legacy standalone payment creation — kept for the create flow. */
-	async createPayment(request: CreateTransactionPaymentRequest): Promise<void> {
-		const result = await withSaving(this, () => TransactionApi.createPayment(request));
-
-		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transactions.errors.createPayment"));
-		} else {
-			this.notificationStore.success(i18next.t("transactions.success.createPayment"));
-		}
+		this.notificationStore.success(
+			i18next.t(`transaction.new.success.${request.direction}`, {
+				number: result.data.transactionNumber,
+			}),
+		);
+		return result.data;
 	}
 
 	async createRefund(

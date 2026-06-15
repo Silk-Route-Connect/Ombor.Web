@@ -1,4 +1,4 @@
-import { PaymentCurrency, PaymentMethod } from "./payment";
+import { SettlementInput } from "./payment";
 
 export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 
@@ -96,31 +96,43 @@ export type CreateRefundRequest = {
 	lines: CreateRefundLine[];
 };
 
-export type CreateTransactionRequest = {
-	partnerId: number;
-	type: TransactionType;
-	lines: CreateTransactionLine[];
-	payments: TransactionPaymentRecord[];
-	debtPayments?: DebtPayment[];
-	notes?: string;
-	attachments?: File[];
-};
+/* ─────────────────── Redesigned POS New Sale / New Supply ───────────────────
+ * The redesigned full-page New Sale and New Supply (one component, parameterized
+ * by direction) post the JSON contract below to `POST /api/transactions` (mocked
+ * at the target v1 contract — docs/mocking.md). Source/allocation handling
+ * follows business-rules §B: one Wallet source, this transaction's
+ * TransactionSettlement, optional other-open-transaction settlements, and the
+ * disposition of any remaining excess (ChangeReturn memo or AdvanceCredit,
+ * rule 40). */
 
-export type CreateTransactionLine = {
+/** Disposition of payment excess remaining after the transaction + settlements. */
+export type OverpaymentDisposition = "change" | "advance";
+
+/** One product line of a New Sale/Supply (discount is % or fixed amount — rules 37–38). */
+export type CreateTransactionEntryLine = {
 	productId: number;
-	unitPrice: number;
 	quantity: number;
+	unitPrice: number;
+	/** Discount value: percent when discountType is "pct", currency amount when "fixed". */
 	discount: number;
+	discountType: TransactionLineDiscountType;
 };
 
-export type DebtPayment = {
-	transactionId: number;
-	amount: number;
-};
-
-export type TransactionPaymentRecord = {
-	amount: number;
-	method: PaymentMethod;
-	currency: PaymentCurrency;
-	exchangeRate: number;
+export type CreateTransactionEntryRequest = {
+	/** Sale (goods out) or Supply (goods in) — selects pricing, stock rules, signs. */
+	direction: "Sale" | "Supply";
+	partnerId: number;
+	warehouseId: number;
+	lines: CreateTransactionEntryLine[];
+	notes?: string;
+	/** Wallet the money moves through (always present; amount may be 0). */
+	walletId: number;
+	/** Amount tendered through the wallet. 0 ⇒ a full-credit transaction (deliberate). */
+	paidAmount: number;
+	/** Excess allocated to the partner's other open transactions (settlement modal). */
+	settlements: SettlementInput[];
+	/** What to do with the excess left after the transaction + settlements (rule 40). */
+	overpayment: OverpaymentDisposition;
+	/** Attachment metadata — the self-contained mock does not store binaries. */
+	attachments?: TransactionAttachment[];
 };

@@ -45,9 +45,6 @@ export interface IPartnerStore {
 	isSaving: boolean;
 	dialogMode: PartnerDialogMode;
 
-	/** Legacy: the partner picked in the transaction flow (drives SelectedPartnerStore). */
-	selectedPartner: Partner | null;
-
 	getAll(): Promise<void>;
 	create(request: CreatePartnerRequest): Promise<void>;
 	update(request: UpdatePartnerRequest): Promise<Partner | null>;
@@ -58,7 +55,6 @@ export interface IPartnerStore {
 	setSearch(term: string): void;
 	setTypeFilter(type: PartnerTypeFilter): void;
 	setShowArchived(show: boolean): void;
-	setSelectedPartner(partnerId?: number | null): void;
 
 	openCreate(): void;
 	openEdit(partner: Partner): void;
@@ -78,7 +74,6 @@ export class PartnerStore implements IPartnerStore {
 	showArchived = false;
 	isSaving = false;
 	dialogMode: PartnerDialogMode = { kind: "none" };
-	selectedPartner: Partner | null = null;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -263,15 +258,6 @@ export class PartnerStore implements IPartnerStore {
 		this.showArchived = show;
 	}
 
-	setSelectedPartner(partnerId?: number | null): void {
-		if (this.allPartners === "loading") {
-			return;
-		}
-		this.selectedPartner = partnerId
-			? (this.allPartners.find((p) => p.id === partnerId) ?? null)
-			: null;
-	}
-
 	openCreate(): void {
 		this.dialogMode = { kind: "form" };
 	}
@@ -304,9 +290,6 @@ export class PartnerStore implements IPartnerStore {
 		runInAction(() => {
 			if (this.allPartners !== "loading") {
 				this.allPartners = this.allPartners.map((p) => (p.id === updated.id ? updated : p));
-			}
-			if (this.selectedPartner?.id === updated.id) {
-				this.selectedPartner = updated;
 			}
 		});
 	}

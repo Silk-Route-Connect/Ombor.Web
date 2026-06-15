@@ -459,6 +459,93 @@ export function listTransactions(): TransactionRecord[] {
 	return [...transactions];
 }
 
+/* ──────────────────── sale / supply creation ────────────────────
+ * The redesigned POS New Sale / New Supply post the v1 contract; the handler
+ * resolves partner / warehouse / product names (this module stays self-contained
+ * — it doesn't import the other mocks) and passes a resolved write here. The
+ * created transaction joins the feed so the Sales/Supplies list shows it;
+ * totalPaid is the portion of the tender applied to THIS transaction (excess
+ * goes to debts / advance / change, which the self-contained mock does not
+ * reflect). Stock, partner balance and wallet balance are NOT mutated — a known
+ * mock limitation, like refunds. */
+
+export type TransactionEntryWriteLine = {
+	productId: number;
+	productName: string;
+	unit?: string;
+	quantity: number;
+	unitPrice: number;
+	discount: number;
+	discountType: "pct" | "fixed";
+};
+
+export type TransactionEntryWrite = {
+	direction: "Sale" | "Supply";
+	partnerId: number;
+	partnerName: string;
+	warehouseName: string;
+	createdBy: string;
+	notes?: string;
+	lines: TransactionEntryWriteLine[];
+	paidAmount: number;
+	attachments?: TransactionAttachment[];
+};
+
+/** Next document number — one past the highest numeric number of that type. */
+function nextNumber(type: "Sale" | "Supply"): string {
+	const base = type === "Sale" ? 1042 : 2018;
+	const max = transactions
+		.filter((t) => t.type === type)
+		.map((t) => Number(t.transactionNumber))
+		.filter((n) => !Number.isNaN(n))
+		.reduce((hi, n) => Math.max(hi, n), base);
+	return String(max + 1);
+}
+
+export function addTransactionEntry(write: TransactionEntryWrite): TransactionRecord {
+	const id = nextId++;
+	const lines: TransactionLine[] = write.lines.map((l) => {
+		const line: TransactionLine = {
+			id: nextLineId++,
+			productId: l.productId,
+			productName: l.productName,
+			transactionId: id,
+			unitPrice: l.unitPrice,
+			quantity: l.quantity,
+			discount: l.discount,
+			discountType: l.discount > 0 ? l.discountType : undefined,
+			unit: l.unit,
+			total: 0,
+		};
+		line.total = lineNet(line);
+		return line;
+	});
+	const totalDue = txTotal(lines);
+	const totalPaid = Math.min(Math.max(write.paidAmount, 0), totalDue);
+	const record: TransactionRecord = {
+		id,
+		transactionNumber: nextNumber(write.direction),
+		type: write.direction,
+		date: new Date(todayIso()),
+		time: nowTime(),
+		partnerId: write.partnerId,
+		partnerName: write.partnerName,
+		warehouseName: write.warehouseName,
+		createdBy: write.createdBy,
+		lines,
+		totalDue,
+		totalPaid,
+		remaining: Math.max(totalDue - totalPaid, 0),
+		paymentStatus: payStatusOf(totalDue, totalPaid),
+		status: "Open",
+		payments: [],
+		attachments: write.attachments ?? [],
+		notes: write.notes || undefined,
+	};
+	transactions = [record, ...transactions];
+	return record;
+}
+
 export function findTransaction(id: number): TransactionRecord | undefined {
 	return transactions.find((t) => t.id === id);
 }

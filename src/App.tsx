@@ -3,12 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
-import CreateTransactionPage from "pages/CreateTransactionPage";
 import DashboardPage from "pages/DashboardPage";
 import DebtPage from "pages/DebtPage";
 import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
+import NewSalePage from "pages/NewSalePage";
+import NewSupplyPage from "pages/NewSupplyPage";
 import OrderDetailPage from "pages/OrderDetailPage";
 import OrderPage from "pages/OrderPage";
 import PartnerDetailPage from "pages/PartnerDetailPage";
@@ -92,8 +93,8 @@ function App() {
 								<Route path={PATHS.debts} element={<DebtPage />} />
 								<Route path={PATHS.wallets} element={<WalletPage />} />
 								<Route path={PATHS.walletDetail} element={<WalletDetailPage />} />
-								<Route path={PATHS.newSale} element={<CreateTransactionPage mode="Sale" />} />
-								<Route path={PATHS.newSupply} element={<CreateTransactionPage mode="Supply" />} />
+								<Route path={PATHS.newSale} element={<NewSalePage />} />
+								<Route path={PATHS.newSupply} element={<NewSupplyPage />} />
 								<Route
 									path={PATHS.newOrder}
 									element={<PlaceholderPage titleKey="page.newOrder.title" />}

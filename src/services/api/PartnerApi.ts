@@ -1,5 +1,3 @@
-import { Payment } from "models/payment";
-
 import {
 	CreatePartnerRequest,
 	Partner,
@@ -36,13 +34,6 @@ class PartnerApi extends BaseApi {
 	/** The dispute-grade running-balance ledger, newest first. */
 	async getLedger(id: number): Promise<PartnerLedgerEntry[]> {
 		const response = await http.get<PartnerLedgerEntry[]>(`${this.getUrlWithId(id)}/ledger`);
-
-		return response.data;
-	}
-
-	/** Legacy: payments for a partner — still consumed by the transaction flow. */
-	async getPayments(id: number): Promise<Payment[]> {
-		const response = await http.get<Payment[]>(`${this.getUrlWithId(id)}/payments`);
 
 		return response.data;
 	}

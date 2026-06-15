@@ -1,7 +1,16 @@
-import { delay, http, HttpResponse } from "msw";
+import { delay, http, HttpResponse, passthrough } from "msw";
 
-import { CreateRefundRequest } from "../../models/transaction";
-import { addRefund, findTransaction, listTransactions } from "../data/transaction";
+import { CreateRefundRequest, CreateTransactionEntryRequest } from "../../models/transaction";
+import { MEASUREMENT_SHORT } from "../../utils/productUtils";
+import { findPartner } from "../data/partner";
+import { findProduct } from "../data/product";
+import {
+	addRefund,
+	addTransactionEntry,
+	findTransaction,
+	listTransactions,
+} from "../data/transaction";
+import { findWarehouse } from "../data/warehouse";
 
 /**
  * Origin-agnostic matchers. The redesigned Sales/Supplies pages read the whole
@@ -32,6 +41,69 @@ export const transactionHandlers = [
 	http.get(LIST_URL, async () => {
 		await delay(300);
 		return HttpResponse.json(listTransactions());
+	}),
+
+	// CONTRACT: POST /api/transactions  (redesigned POS New Sale / New Supply — JSON)
+	// body: CreateTransactionEntryRequest { direction; partnerId; warehouseId; lines[];
+	//   walletId; paidAmount; settlements[]; overpayment; notes?; attachments? }. Validates
+	//   partner, warehouse and at least one positive-qty line, then creates the transaction
+	//   (totals computed from lines). Settlement/overpayment handling is illustrative — the
+	//   self-contained mock doesn't mutate stock / partner balance / wallet balance.
+	// Any non-JSON (legacy multipart) POST to the same URL is passed through.
+	// response 201: TransactionDto (the created sale/supply)
+	// errors: 400 ValidationProblemDetails, 401
+	http.post(LIST_URL, async ({ request }) => {
+		if (!(request.headers.get("content-type") ?? "").includes("application/json")) {
+			return passthrough();
+		}
+
+		await delay(350);
+		const body = (await request.json()) as Partial<CreateTransactionEntryRequest>;
+		const direction = body.direction === "Supply" ? "Supply" : "Sale";
+		const errors: Record<string, string[]> = {};
+
+		const partner = body.partnerId ? findPartner(body.partnerId) : undefined;
+		const warehouse = body.warehouseId ? findWarehouse(body.warehouseId) : undefined;
+		const lines = (body.lines ?? []).filter((l) => l.quantity > 0);
+
+		if (!partner) {
+			errors.partnerId = [direction === "Supply" ? "Выберите поставщика" : "Выберите партнёра"];
+		}
+		if (!warehouse) {
+			errors.warehouseId = ["Выберите склад"];
+		}
+		if (lines.length === 0) {
+			errors.lines = ["Добавьте хотя бы одну позицию"];
+		}
+
+		if (Object.keys(errors).length > 0) {
+			return validationProblem(errors);
+		}
+
+		const record = addTransactionEntry({
+			direction,
+			partnerId: partner!.id,
+			partnerName: partner!.name,
+			warehouseName: warehouse!.name,
+			createdBy: "Бахром Саидов",
+			notes: body.notes,
+			paidAmount: Number(body.paidAmount) || 0,
+			attachments: body.attachments ?? [],
+			lines: lines.map((l) => {
+				const product = findProduct(l.productId);
+				return {
+					productId: l.productId,
+					productName: product?.name ?? `#${l.productId}`,
+					unit: product ? MEASUREMENT_SHORT[product.measurement] : undefined,
+					quantity: l.quantity,
+					unitPrice: l.unitPrice,
+					discount: l.discount,
+					discountType: l.discountType,
+				};
+			}),
+		});
+
+		return HttpResponse.json(record, { status: 201 });
 	}),
 
 	// CONTRACT: POST /api/transactions/{id}/refund
