@@ -2,11 +2,33 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Box, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 
 export type PhoneRowField = {
 	id: string;
 	value: string;
+};
+
+/** Fixed country code — the app is Uzbekistan-only, so every number is +998. */
+const COUNTRY_PREFIX = "+998";
+/** Uzbek national numbers are 9 digits after the country code (e.g. 90 123 45 67). */
+const LOCAL_MAX = 9;
+
+/** Strip the stored value down to the editable national part (digits after +998). */
+const toLocal = (value: string): string => {
+	const digits = value.replace(/\D/g, "");
+	const national = digits.startsWith("998") ? digits.slice(3) : digits;
+	return national.slice(0, LOCAL_MAX);
+};
+
+/**
+ * Rebuild the stored value from the typed national digits. Kept empty when the
+ * user clears the field so the entry is treated as blank (and filtered out),
+ * rather than persisting a bare «+998».
+ */
+const toStored = (input: string): string => {
+	const national = input.replace(/\D/g, "").slice(0, LOCAL_MAX);
+	return national === "" ? "" : COUNTRY_PREFIX + national;
 };
 
 interface PhoneRowProps {
@@ -38,14 +60,26 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 					label={t("phoneNumber")}
 					type="tel"
 					fullWidth
-					value={row.value}
+					value={toLocal(row.value)}
 					disabled={disabled}
 					error={!!error}
 					helperText={error}
-					onChange={(e) => onChange(row.id, e.target.value)}
+					placeholder="90 123 45 67"
+					onChange={(e) => onChange(row.id, toStored(e.target.value))}
 					onBlur={onBlur}
 					slotProps={{
+						// The +998 prefix is a fixed, non-editable adornment — keep the
+						// label shrunk so it doesn't collide with it.
+						inputLabel: { shrink: true },
 						input: {
+							inputMode: "numeric",
+							startAdornment: (
+								<InputAdornment position="start">
+									<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
+										{COUNTRY_PREFIX}
+									</Typography>
+								</InputAdornment>
+							),
 							endAdornment: canDelete ? (
 								<InputAdornment position="end">
 									<IconButton
