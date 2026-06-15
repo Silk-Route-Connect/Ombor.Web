@@ -4,6 +4,7 @@ import { categoryHandlers } from "./category";
 import { partnerHandlers } from "./partner";
 import { productHandlers } from "./product";
 import { stockAdjustmentHandlers } from "./stockAdjustment";
+import { transactionHandlers } from "./transaction";
 import { transferHandlers } from "./transfer";
 import { warehouseHandlers } from "./warehouse";
 
@@ -25,4 +26,5 @@ export const handlers: RequestHandler[] = [
 	...stockAdjustmentHandlers,
 	...transferHandlers,
 	...partnerHandlers,
+	...transactionHandlers,
 ];

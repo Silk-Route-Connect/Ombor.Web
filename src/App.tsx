@@ -16,6 +16,7 @@ import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
+import TransactionDetailPage from "pages/TransactionDetailPage";
 import TransactionPage from "pages/TransactionPage";
 import TransferPage from "pages/TransferPage";
 import WarehouseDetailPage from "pages/WarehouseDetailPage";
@@ -69,7 +70,15 @@ function App() {
 									element={<PlaceholderPage titleKey="sidebar.orders" />}
 								/>
 								<Route path={PATHS.supplies} element={<TransactionPage mode="Supply" />} />
+								<Route
+									path={PATHS.suppliesDetail}
+									element={<TransactionDetailPage direction="Supply" />}
+								/>
 								<Route path={PATHS.sales} element={<TransactionPage mode="Sale" />} />
+								<Route
+									path={PATHS.salesDetail}
+									element={<TransactionDetailPage direction="Sale" />}
+								/>
 								<Route path={PATHS.templates} element={<TemplatePage />} />
 								<Route path={PATHS.payments} element={<PaymentPage />} />
 								<Route path={`${PATHS.payments}/:id`} element={<PaymentPage />} />

@@ -54,10 +54,7 @@ export class RootStore {
 		this.templateStore = new TemplateStore(this.notificationStore);
 		this.transactionStore = new TransactionStore(this.notificationStore);
 		this.selectedPartnerStore = new SelectedPartnerStore(this.partnerStore, this.notificationStore);
-		this.selectedTransactionStore = new SelectedTransactionStore(
-			this.notificationStore,
-			this.transactionStore,
-		);
+		this.selectedTransactionStore = new SelectedTransactionStore(this.notificationStore);
 		this.selectedProductStore = new SelectedProductStore(this.notificationStore);
 		this.paymentStore = new PaymentStore(this.notificationStore);
 		this.inventoryStore = new InventoryStore(this.notificationStore);

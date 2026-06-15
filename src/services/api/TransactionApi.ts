@@ -1,5 +1,6 @@
 import { CreateTransactionPaymentRequest, Payment, TransactionPayment } from "models/payment";
 import {
+	CreateRefundRequest,
 	CreateTransactionRequest,
 	GetTransactionsRequest,
 	TransactionLine,
@@ -58,6 +59,18 @@ class TransactionApi extends BaseApi {
 		const form = this.getFormData(request);
 
 		const response = await http.post<TransactionRecord>(url, form, this.formHeaders);
+
+		return response.data;
+	}
+
+	/**
+	 * Create a refund against a transaction (the only action on an immutable
+	 * sale/supply). The mock validates type match, the cumulative-qty cap (rule 5)
+	 * and the mandatory reason (rule 7), then appends and returns the refund.
+	 */
+	async createRefund(id: number, request: CreateRefundRequest): Promise<TransactionRecord> {
+		const url = `${this.getUrlWithId(id)}/refund`;
+		const response = await http.post<TransactionRecord>(url, request);
 
 		return response.data;
 	}
