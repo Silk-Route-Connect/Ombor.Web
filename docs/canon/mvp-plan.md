@@ -27,8 +27,8 @@ Defines what ships in v1. Anything not listed is deferred — adding to this lis
 
 ### 1. Auth
 
-Registration, login, OTP verification. Multi-user per tenant.
-_Done:_ a business registers, verifies, logs in; a second user joins the same tenant. _(Design: prompted, review pending.)_
+Registration, login, OTP verification, password reset. Multi-user per tenant.
+_Done:_ a business registers, verifies, logs in; a second user joins the same tenant; a user resets a forgotten password. _(Design: built — two-panel surface; OTP 4-digit; register collects Имя+Фамилия, email/Telegram dropped; password reset mocked pending backend.)_
 
 ### 2. Dashboard
 

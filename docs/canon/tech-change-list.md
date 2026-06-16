@@ -102,6 +102,11 @@ Target: rule 1 — endpoints removed, corrections via reverse payments; any numb
 **Status:** not started
 Target: rule 41 — users deactivated (auth blocked, audit attribution preserved, reactivation allowed), never hard-deleted. Invite flow per Settings design; mechanism (email link vs direct credential creation) decided at implementation.
 
+### Auth: password reset
+
+**Status:** not started
+Target: the «Восстановление пароля» flow needs `POST /api/auth/forgot-password`, `/verify-reset-code`, `/reset-password` (phone → code → new password). Backend currently exposes only login/register/verification/refresh/logout; the frontend mocks these three at the target v1 contract (docs/mocking.md, demo code `1234`). OTP/reset code length is 4 digits, matching `/verification`.
+
 ### Tenant profile
 
 **Status:** not started
