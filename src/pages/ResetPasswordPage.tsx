@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { AuthBackLink, AuthHead, AuthLink, AuthSuccessBadge } from "components/auth/AuthChrome";
-import {
-	AuthCodeInput,
-	AuthDemoHint,
-	AuthPasswordField,
-	AuthPhoneField,
-} from "components/auth/AuthFields";
+import { AuthCodeInput, AuthPasswordField, AuthPhoneField } from "components/auth/AuthFields";
 import { useCountdown } from "hooks/auth/useCountdown";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
@@ -150,11 +145,6 @@ const ResetPasswordPage: React.FC = observer(() => {
 						<AuthLink onClick={() => void resend()}>{t("auth.otp.resend")}</AuthLink>
 					)}
 				</Typography>
-				<Box sx={{ mt: "18px" }}>
-					<AuthDemoHint>
-						{t("auth.reset.demoCode")} <b>1234</b>
-					</AuthDemoHint>
-				</Box>
 				<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
 					<Button
 						variant="contained"

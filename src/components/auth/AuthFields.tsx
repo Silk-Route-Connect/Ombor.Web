@@ -5,7 +5,6 @@ import { formatNationalPhone, onlyDigits } from "utils/authValidation";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
@@ -39,6 +38,14 @@ const inputSx = {
 	minWidth: 0,
 	fontSize: 14,
 	"& input::placeholder": { color: "text.disabled", opacity: 1 },
+	// Suppress the browser autofill background tint — keep the field on the shell's
+	// own (white) background. The long transition defers the autofill paint.
+	"& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active":
+		{
+			transition: "background-color 9999s ease-in-out 0s",
+			WebkitTextFillColor: "currentColor",
+			caretColor: "currentColor",
+		},
 } as const;
 
 const labelSx = {
@@ -288,7 +295,7 @@ export const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-			<Box sx={{ display: "flex", gap: "10px" }} onPaste={onPaste}>
+			<Box sx={{ display: "flex", justifyContent: "center", gap: "12px" }} onPaste={onPaste}>
 				{cells.map((c, i) => {
 					const errored = Boolean(error);
 					return (
@@ -305,8 +312,9 @@ export const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAt(i, e.target.value)}
 							onKeyDown={(e: React.KeyboardEvent) => onKey(i, e)}
 							sx={{
-								flex: 1,
-								height: 54,
+								width: 52,
+								height: 52,
+								flex: "0 0 auto",
 								textAlign: "center",
 								...numericSx,
 								fontSize: 22,
@@ -355,28 +363,6 @@ export const AuthBanner: React.FC<{ children: React.ReactNode }> = ({ children }
 		}}
 	>
 		<ErrorOutlineIcon sx={{ fontSize: 17, flex: "0 0 auto", mt: "1px" }} />
-		<Box>{children}</Box>
-	</Box>
-);
-
-/* ── demo hint (used on the mocked reset-code step) ── */
-export const AuthDemoHint: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-	<Box
-		sx={{
-			display: "flex",
-			alignItems: "center",
-			gap: "9px",
-			p: "10px 12px",
-			borderRadius: "8px",
-			border: "1px dashed",
-			borderColor: designTokens.primaryLine,
-			bgcolor: designTokens.primarySoft,
-			color: "primary.main",
-			fontSize: 12,
-			lineHeight: 1.45,
-		}}
-	>
-		<InfoOutlinedIcon sx={{ fontSize: 16, flex: "0 0 auto" }} />
 		<Box>{children}</Box>
 	</Box>
 );
