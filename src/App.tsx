@@ -22,6 +22,7 @@ import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
+import ResetPasswordPage from "pages/ResetPasswordPage";
 import SettingsPage from "pages/SettingsPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
@@ -62,6 +63,7 @@ function App() {
 						<Route element={<GuestOnly />}>
 							<Route path={PATHS.login} element={<LoginPage />} />
 							<Route path={PATHS.register} element={<RegisterPage />} />
+							<Route path={PATHS.resetPassword} element={<ResetPasswordPage />} />
 						</Route>
 
 						<Route element={<RequireAuth />}>

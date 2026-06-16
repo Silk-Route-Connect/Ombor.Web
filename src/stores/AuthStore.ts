@@ -1,5 +1,12 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { LoginRequest, RegisterRequest, VerifyPhoneRequest } from "models/auth";
+import {
+	ForgotPasswordRequest,
+	LoginRequest,
+	RegisterRequest,
+	ResetPasswordRequest,
+	VerifyPhoneRequest,
+	VerifyResetCodeRequest,
+} from "models/auth";
 import { authApi } from "services/api/AuthApi";
 import { AuthTokenBridge } from "services/auth/tokenBridge";
 
@@ -120,18 +127,26 @@ export class AuthStore {
 
 	/* -------------------- Auth flows -------------------- */
 
-	public async login(request: LoginRequest): Promise<void> {
-		const result = await authApi.login(request);
-
+	/**
+	 * Commit a fresh access token and enter the app. Shared by login and the
+	 * post-registration welcome step ("Начать работу"), which obtains the token
+	 * via `verifyOtp` first but only enters once the user dismisses the welcome.
+	 */
+	public enterWithTokens(accessToken: string): void {
 		runInAction(() => {
-			this.accessToken = result.accessToken;
-			this.user = userFromAccessToken(result.accessToken);
+			this.accessToken = accessToken;
+			this.user = userFromAccessToken(accessToken);
 			this.status = "authenticated";
 		});
 
 		if (this.sideEffects.onRedirectToApp) {
 			this.sideEffects.onRedirectToApp();
 		}
+	}
+
+	public async login(request: LoginRequest): Promise<void> {
+		const result = await authApi.login(request);
+		this.enterWithTokens(result.accessToken);
 	}
 
 	/**
@@ -143,24 +158,38 @@ export class AuthStore {
 	}
 
 	/**
-	 * Verify phone: on success backend returns tokens and sets refresh cookie.
-	 * We store access token and enter the app.
+	 * Verify the registration OTP. On success the backend returns tokens and sets
+	 * the refresh cookie; we return the access token WITHOUT entering the app yet,
+	 * so the caller can show the welcome screen before `enterWithTokens` commits.
 	 */
-	public async verifyPhone(request: VerifyPhoneRequest): Promise<void> {
+	public async verifyOtp(request: VerifyPhoneRequest): Promise<string> {
 		const response = await authApi.verifyPhone(request);
 
-		if (response.success !== true) {
+		if (response.success !== true || !response.accessToken) {
 			throw new Error(response.message ?? "OTP verification failed");
 		}
 
-		runInAction(() => {
-			this.accessToken = response.accessToken;
-			this.user = userFromAccessToken(response.accessToken);
-			this.status = "authenticated";
-		});
+		return response.accessToken;
+	}
 
-		if (this.sideEffects.onRedirectToApp) {
-			this.sideEffects.onRedirectToApp();
+	/* ── Password reset (mocked target v1 contract). None of these enter the app —
+	 * the user logs in afterwards with the new password. ── */
+
+	public async requestPasswordReset(request: ForgotPasswordRequest) {
+		return authApi.forgotPassword(request);
+	}
+
+	public async verifyResetCode(request: VerifyResetCodeRequest): Promise<void> {
+		const response = await authApi.verifyResetCode(request);
+		if (response.success !== true) {
+			throw new Error(response.message ?? "Reset code verification failed");
+		}
+	}
+
+	public async resetPassword(request: ResetPasswordRequest): Promise<void> {
+		const response = await authApi.resetPassword(request);
+		if (response.success !== true) {
+			throw new Error(response.message ?? "Password reset failed");
 		}
 	}
 
