@@ -1,8 +1,9 @@
 import { delay, http, HttpResponse } from "msw";
 
-import { OrderStatus, UpdateOrderRequest } from "../../models/order";
+import { CreateOrderRequest, OrderStatus, UpdateOrderRequest } from "../../models/order";
 import {
 	cancelOrder,
+	createOrder,
 	deliverOrder,
 	findOrder,
 	listOrders,
@@ -48,6 +49,27 @@ export const orderHandlers = [
 		const searchTerm = url.searchParams.get("searchTerm");
 		const rawStatus = url.searchParams.get("status");
 		return HttpResponse.json(listOrders(searchTerm, rawStatus as OrderStatus | null));
+	}),
+
+	// CONTRACT: POST /api/orders (CreateOrderRequest) → Order (new Pending order)
+	//   400 ValidationProblemDetails when customer, warehouse or lines are missing.
+	http.post(LIST_URL, async ({ request }) => {
+		await delay(350);
+		const body = (await request.json().catch(() => ({}))) as Partial<CreateOrderRequest>;
+		const errors: Record<string, string[]> = {};
+		if (!Number(body.customerId)) {
+			errors.customerId = ["Выберите клиента"];
+		}
+		if (!Number(body.warehouseId)) {
+			errors.warehouseId = ["Выберите склад"];
+		}
+		if (!Array.isArray(body.lines) || body.lines.length === 0) {
+			errors.lines = ["Добавьте хотя бы одну позицию"];
+		}
+		if (Object.keys(errors).length > 0) {
+			return validationProblem(errors);
+		}
+		return HttpResponse.json(createOrder(body as CreateOrderRequest), { status: 201 });
 	}),
 
 	// CONTRACT: POST /api/orders/{id}/process → Order (Pending → Processing)

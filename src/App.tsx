@@ -8,6 +8,7 @@ import DebtPage from "pages/DebtPage";
 import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
+import NewOrderPage from "pages/NewOrderPage";
 import NewSalePage from "pages/NewSalePage";
 import NewSupplyPage from "pages/NewSupplyPage";
 import OrderDetailPage from "pages/OrderDetailPage";
@@ -95,10 +96,7 @@ function App() {
 								<Route path={PATHS.walletDetail} element={<WalletDetailPage />} />
 								<Route path={PATHS.newSale} element={<NewSalePage />} />
 								<Route path={PATHS.newSupply} element={<NewSupplyPage />} />
-								<Route
-									path={PATHS.newOrder}
-									element={<PlaceholderPage titleKey="page.newOrder.title" />}
-								/>
+								<Route path={PATHS.newOrder} element={<NewOrderPage />} />
 								<Route
 									path={PATHS.newPayment}
 									element={<PlaceholderPage titleKey="page.newPayment.title" />}

@@ -3,7 +3,7 @@ import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
-import { Order, UpdateOrderRequest } from "models/order";
+import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
 import { countByStatus, ORDER_NEXT_STEP, OrderStatusFilter } from "utils/orderUtils";
 
@@ -189,6 +189,24 @@ export class OrderStore {
 			"order.error.transition",
 			true,
 		);
+	}
+
+	/** Create a new order (the full-page New Order screen). Returns it on success for navigation. */
+	async create(request: CreateOrderRequest): Promise<Order | null> {
+		const result = await withSaving(this, () => OrderApi.create(request));
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("order.error.create"));
+			return null;
+		}
+		runInAction(() => {
+			if (this.allOrders !== "loading") {
+				this.allOrders = [result.data, ...this.allOrders];
+			}
+		});
+		this.notificationStore.success(
+			i18next.t("order.toast.created", { number: result.data.orderNumber }),
+		);
+		return result.data;
 	}
 
 	async update(request: UpdateOrderRequest): Promise<void> {

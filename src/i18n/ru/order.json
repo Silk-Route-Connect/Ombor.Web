@@ -97,6 +97,7 @@
   "order.detail.downloadInfo": "Готовится PDF заказа…",
 
   "order.field.client": "Клиент",
+  "order.field.warehouse": "Склад",
   "order.field.source": "Источник заказа",
   "order.field.lines": "Позиции",
   "order.field.address": "Адрес доставки",
@@ -120,7 +121,8 @@
   "order.edit.discount": "Скидка",
   "order.edit.addressPlaceholder": "Город, улица, дом…",
   "order.edit.notePlaceholder": "Комментарий к заказу…",
-  "order.edit.warehouseHint": "Склад для списания выбирается при подтверждении доставки — не сейчас.",
+  "order.edit.warehouseNone": "Не выбран",
+  "order.edit.warehouseHint": "Склад — это предполагаемое место списания. Остаток не резервируется, окончательная проверка наличия выполняется при подтверждении доставки.",
 
   "order.deliver.title": "Подтвердить доставку",
   "order.deliver.subtitle": "Заказ #{{number}} · {{customer}}",
@@ -147,6 +149,45 @@
   "order.confirm.return.body": "Будет создан возврат продажи #{{saleId}}. Исходная продажа останется в учёте без изменений.",
   "order.confirm.return.confirm": "Оформить возврат",
 
+  "order.new.title": "Новый заказ",
+  "order.new.cancel": "Отмена",
+  "order.new.optional": "необязательно",
+  "order.new.field.warehouse": "Склад",
+  "order.new.pickClient": "Выберите клиента, чтобы увидеть баланс",
+  "order.new.editableNote": "Заказ можно изменить или отменить до доставки. Деньги и склад не затрагиваются.",
+  "order.new.submit": "Создать заказ",
+
+  "order.new.err.client": "Выберите клиента",
+  "order.new.err.warehouse": "Выберите склад",
+  "order.new.err.deliveryDate": "Укажите дату доставки",
+
+  "order.new.cart.title": "Позиции",
+  "order.new.cart.clear": "Очистить",
+  "order.new.cart.addProduct": "Добавить товар",
+  "order.new.cart.emptyTitle": "Позиций пока нет",
+  "order.new.cart.emptyErrorTitle": "Добавьте хотя бы одну позицию",
+  "order.new.cart.emptyBody": "Найдите товар в строке поиска выше — он добавится сюда",
+
+  "order.new.summary.delivery": "Доставка",
+  "order.new.summary.subtotal": "Подытог",
+  "order.new.summary.discount": "Скидка",
+  "order.new.summary.total": "Итого",
+
+  "order.new.line.qty": "Кол-во · {{unit}}",
+  "order.new.line.price": "Цена за {{unit}}",
+  "order.new.line.discount": "Скидка",
+  "order.new.line.fixedHint": "Фиксированная сумма скидки на позицию",
+  "order.new.line.remove": "Удалить позицию",
+  "order.new.line.inStock": "На складе: {{count}} {{unit}}",
+  "order.new.line.noWarehouse": "Выберите склад, чтобы увидеть остаток",
+  "order.new.line.overStock": "· больше остатка (не блокирует)",
+
+  "order.new.dialog.unsaved.title": "Несохранённые изменения",
+  "order.new.dialog.unsaved.body": "Новый заказ ещё не создан. Если выйти, введённые данные будут потеряны.",
+  "order.new.dialog.unsaved.stay": "Остаться",
+  "order.new.dialog.unsaved.leave": "Выйти без сохранения",
+
+  "order.toast.created": "Заказ #{{number}} создан",
   "order.toast.processed": "Заказ #{{number}}: взят в обработку",
   "order.toast.shipped": "Заказ #{{number}}: отправлен",
   "order.toast.delivered": "Заказ #{{number}} доставлен · создана продажа #{{saleId}}",
@@ -156,6 +197,7 @@
   "order.toast.updated": "Заказ #{{number}} обновлён",
 
   "order.error.getAll": "Не удалось загрузить заказы",
+  "order.error.create": "Не удалось создать заказ",
   "order.error.transition": "Не удалось изменить статус заказа",
   "order.error.deliver": "Не удалось подтвердить доставку",
   "order.error.update": "Не удалось обновить заказ"

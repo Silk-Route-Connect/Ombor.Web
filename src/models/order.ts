@@ -104,11 +104,31 @@ export type OrderLineRequest = {
 	discountType: OrderLineDiscountType;
 };
 
+/**
+ * Create a new order (the full-page New Order screen). Carries the chosen
+ * customer, the intended warehouse (stock guidance only — never reserved, picked
+ * again at delivery), source, requested delivery date/time, address, note and
+ * lines. The created order starts Pending.
+ */
+export type CreateOrderRequest = {
+	customerId: number;
+	source: OrderSource;
+	/** Intended write-off warehouse (stock is shown for guidance; not reserved here). */
+	warehouseId: number;
+	deliveryAddress?: string | null;
+	deliveryDate?: string | null;
+	deliveryTime?: string | null;
+	notes?: string | null;
+	lines: OrderLineRequest[];
+};
+
 /** Edit an open order (customer, source, address, note, lines) — orders are editable pre-delivery. */
 export type UpdateOrderRequest = {
 	id: number;
 	customerId: number;
 	source: OrderSource;
+	/** Intended write-off warehouse (optional; stock guidance only, re-picked at delivery). */
+	warehouseId?: number | null;
 	deliveryAddress?: string | null;
 	deliveryDate?: string | null;
 	deliveryTime?: string | null;

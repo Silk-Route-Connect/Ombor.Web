@@ -123,7 +123,10 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 			<Row icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 16 }} />} label={t("order.detail.note")}>
 				{order.notes ? order.notes : <Dash label={t("order.detail.noNote")} />}
 			</Row>
-			{order.warehouseName && (
+			{/* Surface the write-off warehouse only once it actually applies (delivered /
+			    returned). A pre-delivery order may carry an *intended* warehouse, but stock
+			    isn't touched yet, so it must not read as «Склад списания». */}
+			{order.warehouseName && (order.status === "Delivered" || order.status === "Returned") && (
 				<Row
 					icon={<WarehouseOutlinedIcon sx={{ fontSize: 16 }} />}
 					label={t("order.detail.warehouse")}
