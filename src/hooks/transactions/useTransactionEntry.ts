@@ -5,7 +5,6 @@ import { Product } from "models/product";
 import {
 	CreateTransactionEntryRequest,
 	OverpaymentDisposition,
-	TransactionAttachment,
 	TransactionLineDiscountType,
 } from "models/transaction";
 import PaymentApi from "services/api/PaymentApi";
@@ -42,14 +41,6 @@ const itemLine = (it: CartItem) => ({
 	discount: it.discountValue,
 	discountType: it.discountType,
 });
-
-const fileKind = (name: string): TransactionAttachment["kind"] =>
-	/\.(png|jpe?g|gif|webp|bmp)$/i.test(name) ? "img" : "pdf";
-
-const fileSize = (bytes: number): string =>
-	bytes >= 1_048_576
-		? `${(bytes / 1_048_576).toFixed(1)} МБ`
-		: `${Math.max(1, Math.round(bytes / 1024))} КБ`;
 
 export interface UseTransactionEntry {
 	direction: TransactionDirection;
@@ -255,11 +246,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		paidAmount: paid,
 		settlements: settleAlloc.filter((a) => a.amount > 0),
 		overpayment: useAdvance ? "advance" : "change",
-		attachments: attachments.map((f) => ({
-			name: f.name,
-			kind: fileKind(f.name),
-			size: fileSize(f.size),
-		})),
+		attachments,
 	});
 
 	return {

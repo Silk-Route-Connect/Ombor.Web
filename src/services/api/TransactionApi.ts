@@ -44,14 +44,21 @@ class TransactionApi extends BaseApi {
 	}
 
 	/**
-	 * Create a sale or supply from the redesigned POS entry screen. Posts the JSON
-	 * v1 contract (direction, partner, warehouse, lines, single-wallet payment,
-	 * settlements, overpayment disposition); the mock computes totals + payment
-	 * status and returns the created TransactionRecord.
+	 * Create a sale or supply from the redesigned POS entry screen. Sent as
+	 * multipart/form-data: a single `payload` part with the JSON contract
+	 * (direction, partner, warehouse, lines, single-wallet payment, settlements,
+	 * overpayment disposition) plus zero or more `attachments` file parts — so the
+	 * structured body stays a single JSON blob while the binaries are transmitted.
+	 * The server stores the files and returns the created TransactionRecord (see the
+	 * POST /api/transactions CONTRACT block in mocks/handlers/transaction.ts).
 	 */
 	async createTransactionEntry(request: CreateTransactionEntryRequest): Promise<TransactionRecord> {
-		const url = this.getUrl();
-		const response = await http.post<TransactionRecord>(url, request);
+		const { attachments, ...payload } = request;
+		const form = new FormData();
+		form.append("payload", JSON.stringify(payload));
+		attachments?.forEach((file) => form.append("attachments", file, file.name));
+
+		const response = await http.post<TransactionRecord>(this.getUrl(), form, this.formHeaders);
 
 		return response.data;
 	}

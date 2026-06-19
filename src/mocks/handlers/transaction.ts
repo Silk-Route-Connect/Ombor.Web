@@ -1,6 +1,10 @@
-import { delay, http, HttpResponse, passthrough } from "msw";
+import { delay, http, HttpResponse } from "msw";
 
-import { CreateRefundRequest, CreateTransactionEntryRequest } from "../../models/transaction";
+import {
+	CreateRefundRequest,
+	CreateTransactionEntryRequest,
+	TransactionAttachment,
+} from "../../models/transaction";
 import { MEASUREMENT_SHORT } from "../../utils/productUtils";
 import { findPartner } from "../data/partner";
 import { findProduct } from "../data/product";
@@ -14,10 +18,9 @@ import { findWarehouse } from "../data/warehouse";
 
 /**
  * Origin-agnostic matchers. The redesigned Sales/Supplies pages read the whole
- * transaction collection (sales + supplies + refunds) and create refunds; the
- * read side + refund are mocked at the v1 contract (docs/mocking.md). The legacy
- * `POST /api/transactions` create flow (New Sale / New Supply) is intentionally
- * NOT handled here — it passes through untouched.
+ * transaction collection (sales + supplies + refunds), create sales/supplies
+ * (multipart) and create refunds (JSON) — all mocked at the v1 contract
+ * (docs/mocking.md).
  */
 const LIST_URL = "*/api/transactions";
 const ITEM_URL = "*/api/transactions/:id";
@@ -29,6 +32,15 @@ function validationProblem(errors: Record<string, string[]>, status = 400) {
 		{ status },
 	);
 }
+
+/** Derive the served attachment metadata from an uploaded multipart file part. */
+const fileKind = (name: string): TransactionAttachment["kind"] =>
+	/\.(png|jpe?g|gif|webp|bmp)$/i.test(name) ? "img" : "pdf";
+
+const fileSize = (bytes: number): string =>
+	bytes >= 1_048_576
+		? `${(bytes / 1_048_576).toFixed(1)} МБ`
+		: `${Math.max(1, Math.round(bytes / 1024))} КБ`;
 
 export const transactionHandlers = [
 	// CONTRACT: GET /api/transactions
@@ -43,22 +55,29 @@ export const transactionHandlers = [
 		return HttpResponse.json(listTransactions());
 	}),
 
-	// CONTRACT: POST /api/transactions  (redesigned POS New Sale / New Supply — JSON)
-	// body: CreateTransactionEntryRequest { direction; partnerId; warehouseId; lines[];
-	//   walletId; paidAmount; settlements[]; overpayment; notes?; attachments? }. Validates
-	//   partner, warehouse and at least one positive-qty line, then creates the transaction
-	//   (totals computed from lines). Settlement/overpayment handling is illustrative — the
-	//   self-contained mock doesn't mutate stock / partner balance / wallet balance.
-	// Any non-JSON (legacy multipart) POST to the same URL is passed through.
+	// CONTRACT: POST /api/transactions  (redesigned POS New Sale / New Supply)
+	// Content-Type: multipart/form-data with two kinds of part:
+	//   • `payload`  — one JSON part: CreateTransactionEntryRequest minus files
+	//                  { direction; partnerId; warehouseId; lines[]; walletId; paidAmount;
+	//                    settlements[]; overpayment; notes? }
+	//   • `attachments` — zero or more binary file parts (receipts / invoices / photos)
+	// The structured body is sent as a single JSON part (too nested to flatten into form
+	// fields), and JSON alone can't carry binaries — hence multipart. **The real backend must
+	// persist each file to blob storage and return served attachment metadata (name/kind/size
+	// + a url/id) on the transaction.** This self-contained mock stores attachment METADATA
+	// ONLY (no binary store) and doesn't mutate stock / partner balance / wallet balance;
+	// settlement/overpayment handling is illustrative. Validates partner, warehouse and ≥1
+	// positive-qty line; totals computed from lines.
 	// response 201: TransactionDto (the created sale/supply)
 	// errors: 400 ValidationProblemDetails, 401
 	http.post(LIST_URL, async ({ request }) => {
-		if (!(request.headers.get("content-type") ?? "").includes("application/json")) {
-			return passthrough();
-		}
-
 		await delay(350);
-		const body = (await request.json()) as Partial<CreateTransactionEntryRequest>;
+		const form = await request.formData();
+		const payloadRaw = form.get("payload");
+		const body = (
+			typeof payloadRaw === "string" ? JSON.parse(payloadRaw) : {}
+		) as Partial<CreateTransactionEntryRequest>;
+		const files = form.getAll("attachments").filter((f): f is File => f instanceof File);
 		const direction = body.direction === "Supply" ? "Supply" : "Sale";
 		const errors: Record<string, string[]> = {};
 
@@ -88,7 +107,11 @@ export const transactionHandlers = [
 			createdBy: "Бахром Саидов",
 			notes: body.notes,
 			paidAmount: Number(body.paidAmount) || 0,
-			attachments: body.attachments ?? [],
+			attachments: files.map((f) => ({
+				name: f.name,
+				kind: fileKind(f.name),
+				size: fileSize(f.size),
+			})),
 			lines: lines.map((l) => {
 				const product = findProduct(l.productId);
 				return {

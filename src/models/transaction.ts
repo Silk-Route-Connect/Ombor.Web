@@ -98,12 +98,14 @@ export type CreateRefundRequest = {
 
 /* ─────────────────── Redesigned POS New Sale / New Supply ───────────────────
  * The redesigned full-page New Sale and New Supply (one component, parameterized
- * by direction) post the JSON contract below to `POST /api/transactions` (mocked
- * at the target v1 contract — docs/mocking.md). Source/allocation handling
- * follows business-rules §B: one Wallet source, this transaction's
- * TransactionSettlement, optional other-open-transaction settlements, and the
- * disposition of any remaining excess (ChangeReturn memo or AdvanceCredit,
- * rule 40). */
+ * by direction) create via `POST /api/transactions` as **multipart/form-data**:
+ * a single `payload` part carrying the JSON below (everything except files) plus
+ * zero or more `attachments` file parts (the structured body is too nested to
+ * flatten into form fields, and JSON alone can't carry binaries — full contract
+ * in the POST handler's CONTRACT block). Source/allocation handling follows business-rules
+ * §B: one Wallet source, this transaction's TransactionSettlement, optional
+ * other-open-transaction settlements, and the disposition of any remaining
+ * excess (ChangeReturn memo or AdvanceCredit, rule 40). */
 
 /** Disposition of payment excess remaining after the transaction + settlements. */
 export type OverpaymentDisposition = "change" | "advance";
@@ -133,6 +135,6 @@ export type CreateTransactionEntryRequest = {
 	settlements: SettlementInput[];
 	/** What to do with the excess left after the transaction + settlements (rule 40). */
 	overpayment: OverpaymentDisposition;
-	/** Attachment metadata — the self-contained mock does not store binaries. */
-	attachments?: TransactionAttachment[];
+	/** Files sent as multipart `attachments` parts (the server stores the binaries). */
+	attachments?: File[];
 };
