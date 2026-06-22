@@ -13,7 +13,7 @@ import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletTransferModal from "components/wallet/Form/WalletTransferModal";
 import { observer } from "mobx-react-lite";
 import { Wallet, WalletOperation } from "models/wallet";
-import { PATHS } from "routing/paths";
+import { PATHS, paymentDetailPath } from "routing/paths";
 import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
@@ -94,8 +94,11 @@ const WalletDetailPage: React.FC = observer(() => {
 	};
 
 	const handleOpenPayment = (operation: WalletOperation): void => {
-		// Self-contained mock (like the Orders → Sale link): payment numbers are
-		// illustrative and don't cross-reference the (legacy) Payments mock.
+		if (operation.paymentId) {
+			navigate(paymentDetailPath(operation.paymentId));
+			return;
+		}
+		// Fallback for the self-contained mock (no real payment id to link to).
 		notificationStore.info(t("wallet.operations.openPayment", { number: operation.paymentNumber }));
 	};
 

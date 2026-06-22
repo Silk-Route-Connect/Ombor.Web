@@ -117,6 +117,10 @@
   "payment.alloc.settlement": "Погашение транзакции",
   "payment.alloc.advance": "Зачисление аванса",
   "payment.alloc.change": "Сдача",
+  "payment.alloc.txRef": "Транзакция",
+  "payment.alloc.sale": "Продажа",
+  "payment.alloc.supply": "Поставка",
+  "payment.alloc.advanceTarget": "Аванс партнёра",
 
   "payment.form.title": "Новый платёж",
   "payment.form.subtitle": "Самостоятельный платёж · вне продажи или поставки",

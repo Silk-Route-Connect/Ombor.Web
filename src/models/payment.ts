@@ -69,14 +69,16 @@ export type CreatePaymentRequest = {
 	attachments?: File[];
 };
 
+/** The reshaped GET /transactions/{id}/payments line — wallet, not method (M2f). */
 export type TransactionPayment = {
-	paymentId: number;
+	id: number;
 	transactionId: number;
 	amount: number;
-	date: string;
-	currency: PaymentCurrency;
-	method: PaymentMethod;
+	paymentNumber: string;
+	walletName: string;
+	walletType: WalletType;
 	notes?: string;
+	date: string;
 };
 
 export type GetPaymentsRequest = {
@@ -121,10 +123,10 @@ export type PaymentSource = {
 export type PaymentAllocationEntry = {
 	id: number;
 	allocationType: PaymentAllocationKind;
-	/** Set for TransactionSettlement; null otherwise. */
+	/** Set for TransactionSettlement; null otherwise. The UI composes the label. */
 	transactionId: number | null;
-	/** Display reference, e.g. «Продажа #1042» or «Аванс партнёра». */
-	reference: string;
+	/** Type of the settled transaction (routes the link); null for advance/change. */
+	transactionType?: "Sale" | "Supply" | "SaleRefund" | "SupplyRefund" | null;
 	amount: number;
 };
 

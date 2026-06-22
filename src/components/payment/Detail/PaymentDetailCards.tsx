@@ -1,7 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { PaymentAllocationKind, PaymentRecord } from "models/payment";
+import { saleDetailPath, supplyDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
@@ -140,6 +142,7 @@ const allocCellSx = {
 /** Распределение (allocations) table with a «Распределено» footer. */
 export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const settling = payment.allocations.filter((a) => a.allocationType !== "ChangeReturn");
 	const total = settling.reduce((s, a) => s + a.amount, 0);
 
@@ -198,6 +201,32 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 						const meta = ALLOC_META[a.allocationType];
 						const isChange = a.allocationType === "ChangeReturn";
 						const isSettlement = a.allocationType === "TransactionSettlement";
+						const isSupplyTx =
+							a.transactionType === "Supply" || a.transactionType === "SupplyRefund";
+						// The server no longer bakes a display reference — compose it here.
+						const txWord = a.transactionType
+							? isSupplyTx
+								? t("payment.alloc.supply")
+								: t("payment.alloc.sale")
+							: t("payment.alloc.txRef");
+						const targetLabel =
+							a.allocationType === "AdvanceCredit"
+								? t("payment.alloc.advanceTarget")
+								: a.allocationType === "ChangeReturn"
+									? t("payment.alloc.change")
+									: a.transactionId
+										? `${txWord} #${a.transactionId}`
+										: t("payment.alloc.settlement");
+						// Settlement rows link to the settled transaction (split sale/supply route).
+						const canOpenTx = isSettlement && a.transactionId != null && a.transactionType != null;
+						const openTx = () => {
+							if (a.transactionId == null) {
+								return;
+							}
+							navigate(
+								isSupplyTx ? supplyDetailPath(a.transactionId) : saleDetailPath(a.transactionId),
+							);
+						};
 						return (
 							<Box
 								component="tr"
@@ -207,13 +236,16 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 								<Box component="td" sx={allocCellSx}>
 									<Box
 										component="span"
+										onClick={canOpenTx ? openTx : undefined}
 										sx={{
 											fontWeight: 600,
 											color: isSettlement ? "primary.main" : "text.primary",
 											fontStyle: isChange ? "italic" : "normal",
+											cursor: canOpenTx ? "pointer" : "default",
+											"&:hover": canOpenTx ? { textDecoration: "underline" } : undefined,
 										}}
 									>
-										{a.reference}
+										{targetLabel}
 									</Box>
 								</Box>
 								<Box component="td" sx={{ ...allocCellSx, fontSize: 12.5, color: meta.color }}>

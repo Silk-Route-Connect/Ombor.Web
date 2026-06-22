@@ -25,7 +25,6 @@ export const PATHS = {
 	walletDetail: "/wallets/:id",
 	employees: "/employees",
 	employeeDetail: "/employees/:id",
-	payrolls: "/payrolls",
 	activityLog: "/activity-log",
 	settings: "/settings",
 	newSale: "/sales/new",
@@ -53,6 +52,9 @@ export const employeeDetailPath = (id: number): string => `/employees/${id}`;
 
 /** Concrete detail route for an order (PATHS.orderDetail with the id bound). */
 export const orderDetailPath = (id: number): string => `/orders/${id}`;
+
+/** Concrete detail route for a payment (PATHS.payments with the id bound). */
+export const paymentDetailPath = (id: number): string => `/payments/${id}`;
 
 /** Concrete detail route for a sale/sale-refund transaction. */
 export const saleDetailPath = (id: number): string => `/sales/${id}`;

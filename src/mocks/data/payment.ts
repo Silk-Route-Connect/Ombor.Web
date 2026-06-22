@@ -134,25 +134,19 @@ function walletSource(walletId: number, amount: number): PaymentSource {
 	};
 }
 
-function settlement(
-	transactionId: number,
-	reference: string,
-	amount: number,
-): PaymentAllocationEntry {
+function settlement(transactionId: number, amount: number): PaymentAllocationEntry {
 	return {
 		id: nextAllocId++,
 		allocationType: "TransactionSettlement",
 		transactionId,
-		reference,
 		amount,
 	};
 }
-function advanceCredit(amount: number, reference = "Аванс партнёра"): PaymentAllocationEntry {
+function advanceCredit(amount: number): PaymentAllocationEntry {
 	return {
 		id: nextAllocId++,
 		allocationType: "AdvanceCredit",
 		transactionId: null,
-		reference,
 		amount,
 	};
 }
@@ -180,11 +174,7 @@ let payments: PaymentRecord[] = [
 		salary: null,
 		createdBy: AUTHOR,
 		sources: [walletSource(1, 1_200_000)],
-		allocations: [
-			settlement(1042, "Продажа #1042", 800_000),
-			settlement(1038, "Продажа #1038", 200_000),
-			advanceCredit(200_000),
-		],
+		allocations: [settlement(1042, 800_000), settlement(1038, 200_000), advanceCredit(200_000)],
 	},
 	{
 		id: 519,
@@ -280,7 +270,7 @@ let payments: PaymentRecord[] = [
 		salary: null,
 		createdBy: "Малика Усманова",
 		sources: [walletSource(3, 1_000_000)],
-		allocations: [settlement(2017, "Поставка #2017", 1_000_000)],
+		allocations: [settlement(2017, 1_000_000)],
 	},
 	{
 		id: 515,
@@ -352,7 +342,7 @@ let payments: PaymentRecord[] = [
 		salary: null,
 		createdBy: AUTHOR,
 		sources: [walletSource(2, 780_000)],
-		allocations: [settlement(1036, "Продажа #1036", 780_000)],
+		allocations: [settlement(1036, 780_000)],
 	},
 	{
 		id: 512,
@@ -376,7 +366,7 @@ let payments: PaymentRecord[] = [
 		salary: null,
 		createdBy: AUTHOR,
 		sources: [walletSource(2, 500_000)],
-		allocations: [settlement(1038, "Продажа #1038", 500_000)],
+		allocations: [settlement(1038, 500_000)],
 	},
 ];
 
@@ -424,9 +414,6 @@ export function listOutstanding(partnerId: number): OutstandingTransaction[] {
 
 /* ───────────────────────── create (mutation) ───────────────────────── */
 
-const txnRefLabel = (type: "Sale" | "Supply", id: number) =>
-	`${type === "Sale" ? "Продажа" : "Поставка"} #${id}`;
-
 export function addPayment(req: CreatePaymentRecordRequest): PaymentRecord {
 	const wallet = walletById(req.walletId)!;
 	const partner = req.partnerId != null ? partnerById(req.partnerId) : undefined;
@@ -440,8 +427,7 @@ export function addPayment(req: CreatePaymentRecordRequest): PaymentRecord {
 		let settledTotal = 0;
 		for (const s of req.settlements) {
 			const row = outstanding.find((o) => o.id === s.transactionId);
-			const label = row ? txnRefLabel(row.type, row.id) : `#${s.transactionId}`;
-			allocations.push(settlement(s.transactionId, label, s.amount));
+			allocations.push(settlement(s.transactionId, s.amount));
 			settledTotal += s.amount;
 			if (row) {
 				row.paid += s.amount;

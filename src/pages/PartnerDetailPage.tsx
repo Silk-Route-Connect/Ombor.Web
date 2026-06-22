@@ -14,7 +14,7 @@ import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import PartnerDialogs from "components/partner/PartnerDialogs";
 import { observer } from "mobx-react-lite";
 import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
-import { PATHS } from "routing/paths";
+import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 
@@ -50,10 +50,32 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const payments = useMemo(() => derivePayments(ledger), [ledger]);
 
 	const goBack = () => navigate(PATHS.partners);
-	const openSource = (entry: PartnerLedgerEntry) =>
-		notificationStore.info(
-			`${entry.reference ?? t(`partner.event.${entry.type}`)} — ${t("common.pageInDevelopment")}`,
-		);
+	const openSource = (entry: PartnerLedgerEntry) => {
+		if (!entry.sourceId) {
+			// Fallback for the self-contained mock (no real source id to link to).
+			notificationStore.info(
+				`${entry.reference ?? t(`partner.event.${entry.type}`)} — ${t("common.pageInDevelopment")}`,
+			);
+			return;
+		}
+		switch (entry.type) {
+			case "sale":
+			case "refund-sale":
+				navigate(saleDetailPath(entry.sourceId));
+				break;
+			case "supply":
+			case "refund-supply":
+				navigate(supplyDetailPath(entry.sourceId));
+				break;
+			case "payment":
+			case "deposit":
+			case "withdraw":
+				navigate(paymentDetailPath(entry.sourceId));
+				break;
+			default:
+				break; // opening — not navigable
+		}
+	};
 
 	if (partner === "loading" || partnerLedgerStore.ledger === "loading") {
 		return (

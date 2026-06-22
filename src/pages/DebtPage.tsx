@@ -9,7 +9,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
-import { partnerDetailPath } from "routing/paths";
+import { partnerDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -20,7 +20,7 @@ import { Box, CircularProgress } from "@mui/material";
 const DebtPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { debtStore, notificationStore } = useStore();
+	const { debtStore } = useStore();
 
 	useEffect(() => {
 		debtStore.getAll();
@@ -53,14 +53,11 @@ const DebtPage: React.FC = observer(() => {
 	};
 
 	const openTransaction = (d: Debt): void => {
-		// Self-contained mock (like the Payments payment rows): the document
-		// numbers are illustrative and don't cross-reference the Transactions mock.
-		notificationStore.info(
-			t("debt.openTransaction", {
-				type: t(d.direction === "Receivable" ? "debt.txType.sale" : "debt.txType.supply"),
-				number: d.number,
-			}),
-		);
+		const path =
+			d.transactionType === "Supply" || d.transactionType === "SupplyRefund"
+				? supplyDetailPath(d.transactionId)
+				: saleDetailPath(d.transactionId);
+		navigate(path);
 	};
 
 	return (
