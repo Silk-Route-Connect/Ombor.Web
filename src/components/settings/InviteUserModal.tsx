@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
-import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
-import { ContactType, InviteUserRequest } from "models/settings";
+import { InviteUserRequest } from "models/settings";
 import { designTokens } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -20,26 +19,21 @@ interface Props {
 	onInvite: (request: InviteUserRequest) => void;
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /**
- * Invite-user modal — email or phone, with on-submit inline validation (the send
- * button is never disabled, hard rule 5). Role is a locked «Администратор» (roles
- * are not split in MVP).
+ * Invite-user modal — phone only in v1 (login is phone-based; the backend rejects
+ * email invites). On-submit inline validation; the send button is never disabled
+ * (hard rule 5). Role is a locked «Администратор» (roles are not split in MVP).
  */
 const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite }) => {
 	const { t } = useTranslation();
-	const [method, setMethod] = useState<ContactType>("email");
 	const [value, setValue] = useState("");
 	const [submitted, setSubmitted] = useState(false);
 
 	const trimmed = value.trim();
-	const valid =
-		method === "email" ? EMAIL_RE.test(trimmed) : trimmed.replace(/\D/g, "").length >= 9;
+	const valid = trimmed.replace(/\D/g, "").length >= 9;
 	const showError = submitted && !valid;
 
 	const reset = (): void => {
-		setMethod("email");
 		setValue("");
 		setSubmitted(false);
 	};
@@ -50,7 +44,7 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 	const submit = (): void => {
 		setSubmitted(true);
 		if (valid) {
-			onInvite({ method, value: trimmed });
+			onInvite({ method: "phone", value: trimmed });
 			reset();
 		}
 	};
@@ -85,26 +79,7 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 			<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", p: "20px 24px" }}>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
 					<Typography sx={{ fontSize: 13, fontWeight: 600, color: designTokens.gray700 }}>
-						{t("settings.invite.method")}
-					</Typography>
-					<SegmentedControl<ContactType>
-						fullWidth
-						value={method}
-						onChange={(m) => {
-							setMethod(m);
-							setValue("");
-							setSubmitted(false);
-						}}
-						options={[
-							{ value: "email", label: t("settings.invite.email") },
-							{ value: "phone", label: t("settings.invite.phone") },
-						]}
-					/>
-				</Box>
-
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-					<Typography sx={{ fontSize: 13, fontWeight: 600, color: designTokens.gray700 }}>
-						{method === "email" ? t("settings.invite.email") : t("settings.invite.phone")}
+						{t("settings.invite.phone")}
 						<Box component="span" sx={{ color: "error.main" }}>
 							{" *"}
 						</Box>
@@ -115,8 +90,8 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 						autoFocus
 						error={showError}
 						value={value}
-						inputMode={method === "phone" ? "tel" : "email"}
-						placeholder={method === "email" ? "name@company.uz" : "+998 90 123 45 67"}
+						inputMode="tel"
+						placeholder="+998 90 123 45 67"
 						onChange={(e) => setValue(e.target.value)}
 						sx={{ "& .MuiInputBase-root": { fontSize: 14 } }}
 					/>
@@ -131,9 +106,7 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 							}}
 						>
 							<ErrorOutlineIcon sx={{ fontSize: 13 }} />
-							{method === "email"
-								? t("settings.invite.errorEmail")
-								: t("settings.invite.errorPhone")}
+							{t("settings.invite.errorPhone")}
 						</Box>
 					)}
 				</Box>

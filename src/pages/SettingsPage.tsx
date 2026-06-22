@@ -27,6 +27,7 @@ const SettingsPage: React.FC = observer(() => {
 	const { settingsStore, notificationStore } = useStore();
 
 	const [draft, setDraft] = useState<Organization | null>(null);
+	const [logoFile, setLogoFile] = useState<File | null>(null);
 	const [active, setActive] = useState<string>("org");
 	const [inviteOpen, setInviteOpen] = useState(false);
 	const [confirmUser, setConfirmUser] = useState<TenantUser | null>(null);
@@ -105,7 +106,11 @@ const SettingsPage: React.FC = observer(() => {
 
 	const onSave = (): void => {
 		if (draft) {
-			void settingsStore.saveOrganization(draft);
+			void settingsStore.saveOrganization(draft, logoFile).then((ok) => {
+				if (ok) {
+					setLogoFile(null);
+				}
+			});
 		}
 	};
 	const onReset = (): void => {
@@ -161,10 +166,14 @@ const SettingsPage: React.FC = observer(() => {
 						<OrganizationSection
 							org={draft}
 							onChange={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
+							onLogoFile={setLogoFile}
 						/>
 						<LanguageSection
 							currentCode={i18n.language}
-							onSelect={(code) => void i18n.changeLanguage(code)}
+							onSelect={(code) => {
+								void i18n.changeLanguage(code);
+								void settingsStore.updateLanguage(code);
+							}}
 						/>
 						<CurrencySection />
 						<UsersSection

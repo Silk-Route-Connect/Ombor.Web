@@ -12,7 +12,8 @@ export interface ISettingsStore {
 	saving: boolean;
 
 	load(): Promise<void>;
-	saveOrganization(org: Organization): Promise<boolean>;
+	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
+	updateLanguage(code: string): Promise<void>;
 	inviteUser(request: InviteUserRequest): Promise<boolean>;
 	deactivateUser(user: TenantUser): Promise<void>;
 	reactivateUser(user: TenantUser): Promise<void>;
@@ -57,10 +58,10 @@ export class SettingsStore implements ISettingsStore {
 		});
 	}
 
-	async saveOrganization(org: Organization): Promise<boolean> {
+	async saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean> {
 		runInAction(() => (this.saving = true));
 
-		const result = await tryRun(() => SettingsApi.updateOrganization(org));
+		const result = await tryRun(() => SettingsApi.updateOrganization(org, logoFile));
 
 		runInAction(() => {
 			this.saving = false;
@@ -75,6 +76,19 @@ export class SettingsStore implements ISettingsStore {
 		}
 		this.notificationStore.success(i18next.t("settings.saved"));
 		return true;
+	}
+
+	/**
+	 * Persist the per-user interface language. The i18n locale already changed in
+	 * the UI; this records it on the server (the header globe). The backend enum is
+	 * ru | uz-Latn | uz-Cyrl, so the app's "uz" maps to "uz-Latn".
+	 */
+	async updateLanguage(code: string): Promise<void> {
+		const language = code === "uz" ? "uz-Latn" : code;
+		const result = await tryRun(() => SettingsApi.updateLanguage(language));
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("settings.lang.saveError"));
+		}
 	}
 
 	async inviteUser(request: InviteUserRequest): Promise<boolean> {

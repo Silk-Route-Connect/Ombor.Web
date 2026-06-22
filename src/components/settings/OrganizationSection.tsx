@@ -14,6 +14,8 @@ import SettingsSectionCard from "./SettingsSectionCard";
 interface Props {
 	org: Organization;
 	onChange: (patch: Partial<Organization>) => void;
+	/** The newly-selected logo file (null when removed) — uploaded on save (multipart). */
+	onLogoFile: (file: File | null) => void;
 }
 
 const LabeledField: React.FC<{
@@ -47,7 +49,7 @@ const LabeledField: React.FC<{
 const fieldSx = { "& .MuiInputBase-root": { fontSize: 14 } } as const;
 
 /** Организация — editable company profile + logo (mvp-plan §18). */
-const OrganizationSection: React.FC<Props> = ({ org, onChange }) => {
+const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => {
 	const { t } = useTranslation();
 	const fileRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +69,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange }) => {
 		const reader = new FileReader();
 		reader.onload = (ev) => onChange({ logoUrl: String(ev.target?.result ?? "") });
 		reader.readAsDataURL(file);
+		onLogoFile(file);
 		e.target.value = "";
 	};
 
@@ -165,7 +168,10 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange }) => {
 									<GhostButton
 										size="small"
 										icon={<CloseIcon sx={{ fontSize: "17px !important" }} />}
-										onClick={() => onChange({ logoUrl: null })}
+										onClick={() => {
+											onChange({ logoUrl: null });
+											onLogoFile(null);
+										}}
 									>
 										{t("settings.org.removeLogo")}
 									</GhostButton>
