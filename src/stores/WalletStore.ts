@@ -169,10 +169,11 @@ export class WalletStore implements IWalletStore {
 			return null;
 		}
 
-		this.replaceWallet(result.data);
+		// Backend returns 204 — refresh the served figures, then surface the updated wallet.
+		await this.getAll();
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("wallet.success.archive", { name: wallet.name }));
-		return result.data;
+		return this.findWallet(wallet.id);
 	}
 
 	async restore(wallet: Wallet): Promise<Wallet | null> {
@@ -183,10 +184,11 @@ export class WalletStore implements IWalletStore {
 			return null;
 		}
 
-		this.replaceWallet(result.data);
+		// Backend returns 204 — refresh the served figures, then surface the updated wallet.
+		await this.getAll();
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("wallet.success.restore", { name: wallet.name }));
-		return result.data;
+		return this.findWallet(wallet.id);
 	}
 
 	async createTransfer(request: CreateTransferRequest): Promise<WalletTransfer | null> {
@@ -243,6 +245,13 @@ export class WalletStore implements IWalletStore {
 
 	closeDialog(): void {
 		this.dialogMode = { kind: "none" };
+	}
+
+	private findWallet(id: number): Wallet | null {
+		if (this.allWallets === "loading") {
+			return null;
+		}
+		return this.allWallets.find((w) => w.id === id) ?? null;
 	}
 
 	private replaceWallet(updated: Wallet): void {

@@ -48,6 +48,7 @@ export type Wallet = {
  * inter-wallet move (its `transferId` links to the WalletTransfer detail).
  */
 export const WALLET_OPERATION_KINDS = [
+	"Opening",
 	"Payment",
 	"Deposit",
 	"Expense",
@@ -67,13 +68,15 @@ export type WalletOperation = {
 	direction: WalletOperationDirection;
 	/** Payment number («P-520») for partner payments; null for transfers. */
 	paymentNumber: string | null;
-	/** Partner / recipient name, or the transfer direction («→ Расчётный счёт»). */
-	party: string;
+	/** Partner / recipient name, or the transfer direction («→ Расчётный счёт»); null for non-party ops (e.g. Opening). */
+	party: string | null;
 	amount: number;
 	/** Served running balance of the wallet after this event (hard rule 8). */
 	balanceAfter: number;
 	/** Set when this row is an inter-wallet transfer — opens the transfer detail. */
 	transferId: number | null;
+	/** Set for payment-kind operations — opens the payment detail. */
+	paymentId?: number | null;
 };
 
 /** An inter-wallet transfer — auditable, immutable once created (rule 16). */

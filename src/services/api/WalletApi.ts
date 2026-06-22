@@ -58,16 +58,14 @@ class WalletApi {
 		return response.data;
 	}
 
-	async archive(id: number): Promise<Wallet> {
-		const response = await http.post<Wallet>(`${this.getUrlWithId(id)}/archive`);
-
-		return response.data;
+	/** Archive — soft-delete (rule 29). The backend returns 204 No Content. */
+	async archive(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/archive`);
 	}
 
-	async restore(id: number): Promise<Wallet> {
-		const response = await http.post<Wallet>(`${this.getUrlWithId(id)}/restore`);
-
-		return response.data;
+	/** Restore an archived wallet. The backend returns 204 No Content. */
+	async restore(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
 	/** Record an inter-wallet transfer — an audited, immutable event (rule 16). */

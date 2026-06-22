@@ -217,7 +217,7 @@ export const walletHandlers = [
 	// CONTRACT: POST /api/wallets/:id/archive
 	// Soft-delete (rule 29); an archived wallet with residual money still counts
 	// in totals (rule 31).
-	// response 200: Wallet (isArchived true)
+	// response 204: No Content
 	// errors: 404 ProblemDetails, 401
 	http.post(ARCHIVE_URL, async ({ params }) => {
 		await delay(250);
@@ -227,11 +227,11 @@ export const walletHandlers = [
 			return problem(404, "Not Found", "Касса не найдена");
 		}
 
-		return HttpResponse.json(updated);
+		return new HttpResponse(null, { status: 204 });
 	}),
 
 	// CONTRACT: POST /api/wallets/:id/restore
-	// response 200: Wallet (isArchived false)
+	// response 204: No Content
 	// errors: 404 ProblemDetails, 401
 	http.post(RESTORE_URL, async ({ params }) => {
 		await delay(250);
@@ -241,6 +241,6 @@ export const walletHandlers = [
 			return problem(404, "Not Found", "Касса не найдена");
 		}
 
-		return HttpResponse.json(updated);
+		return new HttpResponse(null, { status: 204 });
 	}),
 ];

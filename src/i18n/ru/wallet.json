@@ -96,6 +96,7 @@
   "wallet.operations.emptyFiltered": "По выбранным условиям движений не найдено.",
   "wallet.operations.openPayment": "Платёж {{number}} — переход в раздел «Платежи» появится после его перестройки",
 
+  "wallet.operation.Opening": "Начальный остаток",
   "wallet.operation.Payment": "Оплата",
   "wallet.operation.Deposit": "Депозит",
   "wallet.operation.Expense": "Общий",
