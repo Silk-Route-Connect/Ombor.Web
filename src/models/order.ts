@@ -26,8 +26,11 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export const ORDER_SOURCES = ["None", "Telegram", "OmborWeb"] as const;
 export type OrderSource = (typeof ORDER_SOURCES)[number];
 
-/** A line discount is either a percentage or a fixed amount (mirrors transactions). */
-export type OrderLineDiscountType = "pct" | "fixed";
+/**
+ * A line discount is either a percentage or a fixed amount (mirrors transactions).
+ * Wire values are the canonical backend enum names `DiscountType { Percentage, Fixed }`.
+ */
+export type OrderLineDiscountType = "Percentage" | "Fixed";
 
 export type OrderLine = {
 	id: number;
@@ -38,7 +41,7 @@ export type OrderLine = {
 	measurement: Measurement;
 	quantity: number;
 	unitPrice: number;
-	/** Discount value: percent when discountType is "pct", currency when "fixed", 0 = none. */
+	/** Discount value: percent when discountType is "Percentage", currency when "Fixed", 0 = none. */
 	discount: number;
 	discountType: OrderLineDiscountType;
 	/** Net line amount after the line discount (served). */

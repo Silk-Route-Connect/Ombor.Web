@@ -199,7 +199,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 				quantity: 1,
 				unitPrice: p.salePrice,
 				discount: 0,
-				discountType: "pct",
+				discountType: "Percentage",
 			},
 		]);
 		markDirty();
@@ -531,7 +531,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 														overflow: "hidden",
 													}}
 												>
-													{(["pct", "fixed"] as OrderLineDiscountType[]).map((dt) => {
+													{(["Percentage", "Fixed"] as OrderLineDiscountType[]).map((dt) => {
 														const on = line.discountType === dt;
 														return (
 															<Button
@@ -547,7 +547,11 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 																	bgcolor: on ? designTokens.primarySoft : "transparent",
 																}}
 															>
-																{dt === "pct" ? "%" : <AttachMoneyIcon sx={{ fontSize: 16 }} />}
+																{dt === "Percentage" ? (
+																	"%"
+																) : (
+																	<AttachMoneyIcon sx={{ fontSize: 16 }} />
+																)}
 															</Button>
 														);
 													})}

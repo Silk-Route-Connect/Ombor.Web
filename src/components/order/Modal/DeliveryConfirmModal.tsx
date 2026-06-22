@@ -75,7 +75,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 	}
 
 	const stockIn = (productId: number): number =>
-		productById.get(productId)?.inventoryItems.find((i) => i.inventoryId === warehouseId)
+		productById.get(productId)?.warehouseItems.find((i) => i.warehouseId === warehouseId)
 			?.quantity ?? 0;
 
 	const checks = order.lines.map((l) => {

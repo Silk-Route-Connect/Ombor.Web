@@ -88,7 +88,7 @@ export function lineDiscountAmount(
 		return 0;
 	}
 	const gross = lineGross(line);
-	return line.discountType === "pct"
+	return line.discountType === "Percentage"
 		? Math.round((gross * line.discount) / 100)
 		: Math.min(line.discount, gross);
 }
@@ -113,7 +113,7 @@ export function discountShortLabel(
 	if (!line.discount) {
 		return null;
 	}
-	return line.discountType === "pct"
+	return line.discountType === "Percentage"
 		? `−${line.discount}%`
 		: `−${line.discount.toLocaleString("ru-RU")}`;
 }

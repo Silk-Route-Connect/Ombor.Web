@@ -56,7 +56,7 @@ function isoDeliveryDate(daysAhead: number): string {
 /** Current served stock of a product in a warehouse (hard rule 8). */
 export function availableStock(productId: number, warehouseId: number): number {
 	const product = findProduct(productId);
-	return product?.inventoryItems.find((i) => i.inventoryId === warehouseId)?.quantity ?? 0;
+	return product?.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0;
 }
 
 type LineSpec = {
@@ -117,7 +117,7 @@ const seed: OrderSeed[] = [
 		saleId: null,
 		lines: [
 			{ productId: 3, quantity: 30 },
-			{ productId: 5, quantity: 2, discount: 10, discountType: "pct" },
+			{ productId: 5, quantity: 2, discount: 10, discountType: "Percentage" },
 			{ productId: 9, quantity: 8 },
 			{ productId: 2, quantity: 10 },
 		],
@@ -256,10 +256,10 @@ function buildLine(id: number, spec: LineSpec): OrderLine {
 	const product = findProduct(spec.productId);
 	const unitPrice = product?.salePrice ?? 0;
 	const discount = spec.discount ?? 0;
-	const discountType: OrderLineDiscountType = spec.discountType ?? "pct";
+	const discountType: OrderLineDiscountType = spec.discountType ?? "Percentage";
 	const gross = spec.quantity * unitPrice;
 	const discountAmount = discount
-		? discountType === "pct"
+		? discountType === "Percentage"
 			? Math.round((gross * discount) / 100)
 			: Math.min(discount, gross)
 		: 0;
@@ -460,7 +460,7 @@ export function updateOrder(id: number, request: UpdateOrderRequest): Order | un
 		const gross = request.lines[i].quantity * request.lines[i].unitPrice;
 		const disc = request.lines[i].discount;
 		const discAmount = disc
-			? request.lines[i].discountType === "pct"
+			? request.lines[i].discountType === "Percentage"
 				? Math.round((gross * disc) / 100)
 				: Math.min(disc, gross)
 			: 0;
