@@ -50,16 +50,14 @@ class PartnerApi extends BaseApi {
 		return response.data;
 	}
 
-	async archive(id: number): Promise<Partner> {
-		const response = await http.post<Partner>(`${this.getUrlWithId(id)}/archive`);
-
-		return response.data;
+	/** Archive — the backend returns 204 No Content (no body). */
+	async archive(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/archive`);
 	}
 
-	async restore(id: number): Promise<Partner> {
-		const response = await http.post<Partner>(`${this.getUrlWithId(id)}/restore`);
-
-		return response.data;
+	/** Restore — the backend returns 204 No Content (no body). */
+	async restore(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
 	/** Hard-delete — allowed by the mock only when the partner is unreferenced (409 otherwise). */

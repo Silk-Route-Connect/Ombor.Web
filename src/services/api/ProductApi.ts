@@ -60,16 +60,14 @@ export class ProductApi {
 		return response.data;
 	}
 
-	async archive(id: number): Promise<Product> {
-		const response = await http.post<Product>(`${this.getUrlWithId(id)}/archive`);
-
-		return response.data;
+	/** Archive — the backend returns 204 No Content (no body). */
+	async archive(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/archive`);
 	}
 
-	async restore(id: number): Promise<Product> {
-		const response = await http.post<Product>(`${this.getUrlWithId(id)}/restore`);
-
-		return response.data;
+	/** Restore — the backend returns 204 No Content (no body). */
+	async restore(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
 	private getUrlWithId(id: number): string {

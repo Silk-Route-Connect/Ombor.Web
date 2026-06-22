@@ -207,10 +207,11 @@ export class PartnerStore implements IPartnerStore {
 			return null;
 		}
 
-		this.replacePartner(result.data);
+		// Backend returns 204 — refetch the updated partner to refresh the row.
+		const updated = await this.refreshPartner(partner.id);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("partner.success.archive", { name: partner.name }));
-		return result.data;
+		return updated;
 	}
 
 	async restore(partner: Partner): Promise<Partner | null> {
@@ -221,10 +222,10 @@ export class PartnerStore implements IPartnerStore {
 			return null;
 		}
 
-		this.replacePartner(result.data);
+		const updated = await this.refreshPartner(partner.id);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("partner.success.restore", { name: partner.name }));
-		return result.data;
+		return updated;
 	}
 
 	async remove(partner: Partner): Promise<boolean> {
@@ -284,6 +285,16 @@ export class PartnerStore implements IPartnerStore {
 
 	closeDialog(): void {
 		this.dialogMode = { kind: "none" };
+	}
+
+	/** Refetch a single partner (after a 204 mutation) and update the row in place. */
+	private async refreshPartner(id: number): Promise<Partner | null> {
+		const result = await tryRun(() => PartnerApi.getById(id));
+		const updated = result.status === "success" ? result.data : null;
+		if (updated) {
+			this.replacePartner(updated);
+		}
+		return updated;
 	}
 
 	private replacePartner(updated: Partner): void {

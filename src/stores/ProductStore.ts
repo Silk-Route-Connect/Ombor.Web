@@ -198,10 +198,11 @@ export class ProductStore implements IProductStore {
 			return null;
 		}
 
-		this.replaceProduct(result.data);
+		// Backend returns 204 — refetch the updated product to refresh the row.
+		const updated = await this.refreshProduct(product.id);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.archive", { name: product.name }));
-		return result.data;
+		return updated;
 	}
 
 	async restore(product: Product): Promise<Product | null> {
@@ -212,10 +213,10 @@ export class ProductStore implements IProductStore {
 			return null;
 		}
 
-		this.replaceProduct(result.data);
+		const updated = await this.refreshProduct(product.id);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.restore", { name: product.name }));
-		return result.data;
+		return updated;
 	}
 
 	setSearch(term: string): void {
@@ -257,6 +258,16 @@ export class ProductStore implements IProductStore {
 
 	closeDialog(): void {
 		this.dialogMode = { kind: "none" };
+	}
+
+	/** Refetch a single product (after a 204 mutation) and update the row in place. */
+	private async refreshProduct(id: number): Promise<Product | null> {
+		const result = await tryRun(() => ProductApi.getById(id));
+		const updated = result.status === "success" ? result.data : null;
+		if (updated) {
+			this.replaceProduct(updated);
+		}
+		return updated;
 	}
 
 	private replaceProduct(updated: Product): void {
