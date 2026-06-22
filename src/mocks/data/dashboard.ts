@@ -84,9 +84,9 @@ const PERIOD_CONFIG: Record<DashboardPeriod, PeriodConfig> = {
 
 /** Three self-contained money locations for the payments-chart filter. */
 const WALLETS: DashboardWallet[] = [
-	{ id: 1, name: "Наличные UZS", type: "cash" },
-	{ id: 2, name: "Банковский счёт", type: "bank" },
-	{ id: 3, name: "Наличные USD", type: "cash" },
+	{ id: 1, name: "Наличные UZS", type: "Cash" },
+	{ id: 2, name: "Банковский счёт", type: "Bank" },
+	{ id: 3, name: "Карта", type: "Card" },
 ];
 
 // Split a magnitude across the three wallets with seeded, stable weights.

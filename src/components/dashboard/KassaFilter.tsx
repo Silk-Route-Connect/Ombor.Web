@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DashboardWallet } from "models/dashboard";
+import { WalletType } from "models/wallet";
 import { designTokens } from "theme";
 
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
+import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -13,12 +15,15 @@ import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/materia
 /** "all" = combined; otherwise the wallet index in `wallets`. */
 export type KassaSelection = "all" | number;
 
-const walletIcon = (type: "cash" | "bank"): React.ReactNode =>
-	type === "bank" ? (
-		<AccountBalanceOutlinedIcon sx={{ fontSize: 16 }} />
-	) : (
-		<PaymentsOutlinedIcon sx={{ fontSize: 16 }} />
-	);
+const walletIcon = (type: WalletType): React.ReactNode => {
+	if (type === "Bank") {
+		return <AccountBalanceOutlinedIcon sx={{ fontSize: 16 }} />;
+	}
+	if (type === "Card") {
+		return <CreditCardOutlinedIcon sx={{ fontSize: 16 }} />;
+	}
+	return <PaymentsOutlinedIcon sx={{ fontSize: 16 }} />;
+};
 
 interface Props {
 	wallets: DashboardWallet[];

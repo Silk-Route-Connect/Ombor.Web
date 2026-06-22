@@ -1,3 +1,5 @@
+import { WalletType } from "./wallet";
+
 /**
  * Time-series primitives consumed by the shared `TimeSeriesChart`. Kept generic
  * (a `date` plus arbitrary numeric series keyed by `dataKey`).
@@ -44,7 +46,7 @@ export type DashboardSeriesPoint = {
 export type DashboardWallet = {
 	id: number;
 	name: string;
-	type: "cash" | "bank";
+	type: WalletType;
 };
 
 /** A KPI card figure: the value, a period-over-period delta, and a sparkline. */
