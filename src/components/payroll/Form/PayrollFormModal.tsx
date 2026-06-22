@@ -34,9 +34,9 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 		discardOpen,
 		confirmDiscard,
 		cancelDiscard,
+		wallets,
 		selectedEmployee,
 		setEmployeeId,
-		isEditMode,
 		isEmployeeLocked,
 	} = usePayrollForm({
 		isOpen,
@@ -46,7 +46,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 		onClose,
 	});
 
-	const title = isEditMode ? t("payroll.editTitle") : t("payroll.createTitle");
+	const title = t("payroll.createTitle");
 
 	return (
 		<>
@@ -85,7 +85,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
 							/>
 						</Box>
 					)}
-					<PayrollFormFields form={form} disabled={isSaving} />
+					<PayrollFormFields form={form} wallets={wallets} disabled={isSaving} />
 				</DialogContent>
 
 				<FormDialogFooter

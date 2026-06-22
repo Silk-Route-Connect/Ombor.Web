@@ -10,7 +10,7 @@ import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedCo
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { observer } from "mobx-react-lite";
-import { Payment } from "models/payment";
+import { PaymentRecord } from "models/payment";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
@@ -229,15 +229,14 @@ const EmployeeDetailPage: React.FC = observer(() => {
 	};
 
 	const handlePayrollSave = async (payload: PayrollFormPayload) => {
-		await payrollStore.create(payload);
-		employeeStore.closeDialog();
-		await selectedEmployeeStore.getPayrollHistory();
+		const ok = await payrollStore.create(payload);
+		if (ok) {
+			employeeStore.closeDialog();
+			await selectedEmployeeStore.getPayrollHistory();
+		}
 	};
 
-	const methodLabel = (payment: Payment): string => {
-		const method = payment.components?.[0]?.method;
-		return method ? t(`payment.method.${method}`) : "—";
-	};
+	const walletLabel = (payment: PaymentRecord): string => payment.walletName || "—";
 
 	if (employee === null) {
 		return (
@@ -485,7 +484,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 										</Box>
 									</Box>
 									<Box component="td" sx={{ ...bodyCellSx, color: "text.secondary" }}>
-										{periodLabel(p.date)}
+										{p.period ?? periodLabel(p.date)}
 									</Box>
 									<Box
 										component="td"
@@ -503,7 +502,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 										component="td"
 										sx={{ ...bodyCellSx, pr: "18px", color: designTokens.gray700 }}
 									>
-										{methodLabel(p)}
+										{walletLabel(p)}
 									</Box>
 								</Box>
 							))}

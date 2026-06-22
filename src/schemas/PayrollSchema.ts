@@ -1,26 +1,16 @@
 import i18next from "i18n/config";
-import { ALL_PAYMENT_CURRENCIES } from "models/payment";
-import { PAYROLL_PAYMENT_METHODS } from "models/payroll";
 import { z } from "zod";
 
-const requiredEnum = <T extends readonly string[]>(values: T, key: string) =>
-	z.custom<T[number]>((v) => typeof v === "string" && (values as readonly string[]).includes(v), {
-		message: i18next.t(key),
-	});
-
+/** Payroll create form — UZS-only, wallet-sourced, period-tagged (rule 9). */
 export const PayrollSchema = z.object({
 	employeeId: z.number().positive(i18next.t("payroll.validation.employeeRequired")),
 
+	walletId: z.number().positive(i18next.t("payroll.validation.walletRequired")),
+
 	amount: z.number().positive(i18next.t("payment.validation.amountPositive")),
 
-	currency: requiredEnum(ALL_PAYMENT_CURRENCIES, "payment.validation.currencyInvalid"),
-
-	method: requiredEnum(PAYROLL_PAYMENT_METHODS, "payment.validation.methodInvalid"),
-
-	exchangeRate: z
-		.number()
-		.positive(i18next.t("payment.validation.exchangeRatePositive"))
-		.optional(),
+	/** Backend period token «YYYY-MM». */
+	period: z.string().regex(/^\d{4}-\d{2}$/, i18next.t("payroll.validation.periodRequired")),
 
 	notes: z.string().max(500, i18next.t("payment.validation.notesTooLong")).optional(),
 });

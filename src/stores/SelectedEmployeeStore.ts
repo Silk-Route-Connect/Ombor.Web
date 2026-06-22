@@ -3,7 +3,7 @@ import { tryRun } from "helpers/TryRun";
 import i18next from "i18n/config";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Employee } from "models/employee";
-import { Payment } from "models/payment";
+import { PaymentRecord } from "models/payment";
 import PayrollApi from "services/api/PayrollApi";
 import { DateFilter, isWithinDateRange, PresetOption } from "utils/dateUtils";
 
@@ -11,8 +11,8 @@ import { IEmployeeStore } from "./EmployeeStore";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ISelectedEmployeeStore {
-	payrollHistory: Loadable<Payment[]>;
-	filteredPayrollHistory: Loadable<Payment[]>;
+	payrollHistory: Loadable<PaymentRecord[]>;
+	filteredPayrollHistory: Loadable<PaymentRecord[]>;
 	readonly dateFilter: DateFilter;
 
 	getPayrollHistory(): Promise<void>;
@@ -25,7 +25,7 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 	private readonly employeeStore: IEmployeeStore;
 	private readonly notificationStore: NotificationStore;
 
-	payrollHistory: Loadable<Payment[]> = [];
+	payrollHistory: Loadable<PaymentRecord[]> = [];
 	dateFilter: DateFilter = { type: "preset", preset: "week" };
 
 	constructor(employeeStore: IEmployeeStore, notificationStore: NotificationStore) {
@@ -36,7 +36,7 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 		this.registerReactions();
 	}
 
-	get filteredPayrollHistory(): Loadable<Payment[]> {
+	get filteredPayrollHistory(): Loadable<PaymentRecord[]> {
 		if (this.payrollHistory === "loading") {
 			return "loading";
 		}

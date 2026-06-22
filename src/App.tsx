@@ -16,7 +16,6 @@ import PartnerDetailPage from "pages/PartnerDetailPage";
 import PartnerPage from "pages/PartnerPage";
 import PaymentDetailPage from "pages/PaymentDetailPage";
 import PaymentPage from "pages/PaymentPage";
-import PayrollPage from "pages/PayrollPage";
 import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
@@ -105,7 +104,6 @@ function App() {
 								/>
 								<Route path={PATHS.employees} element={<EmployeePage />} />
 								<Route path={PATHS.employeeDetail} element={<EmployeeDetailPage />} />
-								<Route path={PATHS.payrolls} element={<PayrollPage />} />
 								<Route
 									path={PATHS.activityLog}
 									element={<PlaceholderPage titleKey="page.activityLog.title" />}

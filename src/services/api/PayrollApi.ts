@@ -1,11 +1,5 @@
-import { Payment } from "models/payment";
-import {
-	CreatePayrollRequest,
-	DeletePayrollRequest,
-	GetPayrollByIdRequest,
-	GetPayrollHistoryRequest,
-	UpdatePayrollRequest,
-} from "models/payroll";
+import { PaymentRecord } from "models/payment";
+import { CreatePayrollRequest, GetPayrollHistoryRequest } from "models/payroll";
 
 import BaseApi from "./BaseApi";
 import http from "./http";
@@ -15,50 +9,23 @@ class PayrollApi extends BaseApi {
 		super("employees");
 	}
 
-	async getAll(): Promise<Payment[]> {
-		const response = await http.get<Payment[]>("api/payments?Type=Payroll");
-
-		return response.data;
-	}
-
-	async getHistory(request: GetPayrollHistoryRequest): Promise<Payment[]> {
+	async getHistory(request: GetPayrollHistoryRequest): Promise<PaymentRecord[]> {
 		const url = this.buildUrl(request.employeeId);
-		const response = await http.get<Payment[]>(url);
+		const response = await http.get<PaymentRecord[]>(url);
 
 		return response.data;
 	}
 
-	async getById(request: GetPayrollByIdRequest): Promise<Payment> {
-		const url = this.buildUrl(request.employeeId, request.paymentId);
-		const response = await http.get<Payment>(url);
-
-		return response.data;
-	}
-
-	async create(request: CreatePayrollRequest): Promise<Payment> {
+	/** Create a payroll payment. Immutable (rule 1) — there is no update/delete. */
+	async create(request: CreatePayrollRequest): Promise<PaymentRecord> {
 		const url = this.buildUrl(request.employeeId);
-		const response = await http.post<Payment>(url, request);
+		const response = await http.post<PaymentRecord>(url, request);
 
 		return response.data;
 	}
 
-	async update(request: UpdatePayrollRequest): Promise<Payment> {
-		const { employeeId, paymentId } = request;
-		const url = this.buildUrl(employeeId, paymentId);
-		const response = await http.put<Payment>(url, request);
-
-		return response.data;
-	}
-
-	async delete(request: DeletePayrollRequest): Promise<void> {
-		const url = this.buildUrl(request.employeeId, request.paymentId);
-		await http.delete(url);
-	}
-
-	private buildUrl(employeeId: number, paymentId?: number): string {
-		return paymentId
-			? `${this.baseUrl}/${employeeId}/payrolls/${paymentId}`
-			: `${this.baseUrl}/${employeeId}/payrolls`;
+	private buildUrl(employeeId: number): string {
+		return `${this.baseUrl}/${employeeId}/payrolls`;
 	}
 }
 

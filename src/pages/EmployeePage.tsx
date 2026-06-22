@@ -37,8 +37,10 @@ const EmployeePage: React.FC = observer(() => {
 			: employeeStore.create({ ...payload });
 
 	const handlePayrollSave = async (payload: PayrollFormPayload) => {
-		await payrollStore.create(payload);
-		employeeStore.closeDialog();
+		const ok = await payrollStore.create(payload);
+		if (ok) {
+			employeeStore.closeDialog();
+		}
 	};
 
 	const handleExport = (): void => {
