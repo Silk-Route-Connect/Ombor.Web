@@ -124,7 +124,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 	// per-warehouse availability, so it lives here rather than in the zod schema.
 	const guardedSave = (values: StockAdjustmentFormValues) => {
 		const avail =
-			selected?.inventoryItems.find((i) => i.inventoryId === values.warehouseId)?.quantity ?? 0;
+			selected?.warehouseItems.find((i) => i.warehouseId === values.warehouseId)?.quantity ?? 0;
 		if (values.direction === "Decrease" && values.quantity > avail) {
 			return;
 		}
@@ -163,7 +163,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 	const unit = selected ? MEASUREMENT_SHORT[selected.measurement] : t("adjustment.unitFallback");
 
 	const avail = useMemo(
-		() => selected?.inventoryItems.find((i) => i.inventoryId === warehouseId)?.quantity ?? 0,
+		() => selected?.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0,
 		[selected, warehouseId],
 	);
 

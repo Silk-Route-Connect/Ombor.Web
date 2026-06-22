@@ -112,7 +112,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 	);
 
 	const availFor = (productId: number): number =>
-		productById.get(productId)?.inventoryItems.find((i) => i.inventoryId === fromWarehouseId)
+		productById.get(productId)?.warehouseItems.find((i) => i.warehouseId === fromWarehouseId)
 			?.quantity ?? 0;
 
 	const lineIsOver = (productId: number, quantity: number): boolean =>
@@ -128,7 +128,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				l.quantity >
 				(productById
 					.get(l.productId)
-					?.inventoryItems.find((i) => i.inventoryId === values.fromWarehouseId)?.quantity ?? 0),
+					?.warehouseItems.find((i) => i.warehouseId === values.fromWarehouseId)?.quantity ?? 0),
 		);
 		if (over) {
 			return;

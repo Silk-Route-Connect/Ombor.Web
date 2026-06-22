@@ -117,7 +117,7 @@ const TXN_TO_MOVEMENT: Record<TransactionType, WarehouseMovementKind> = {
 function derivedStock(warehouseId: number): Map<number, WarehouseStockItem> {
 	const items = new Map<number, WarehouseStockItem>();
 	for (const product of listProducts()) {
-		const holding = product.inventoryItems.find((i) => i.inventoryId === warehouseId);
+		const holding = product.warehouseItems.find((i) => i.warehouseId === warehouseId);
 		if (!holding) {
 			continue;
 		}
@@ -168,7 +168,7 @@ function currentHolding(warehouseId: number, productId: number): Holding {
 		return override;
 	}
 	const product = findProduct(productId);
-	const item = product?.inventoryItems.find((i) => i.inventoryId === warehouseId);
+	const item = product?.warehouseItems.find((i) => i.warehouseId === warehouseId);
 	return { quantity: item?.quantity ?? 0, averageCost: item?.averageCost ?? 0 };
 }
 
@@ -186,7 +186,7 @@ function derivedMovements(warehouseId: number): WarehouseMovement[] {
 
 	for (const product of listProducts()) {
 		const productMovements = listProductMovements(product.id).filter(
-			(m) => m.inventoryId === warehouseId,
+			(m) => m.warehouseId === warehouseId,
 		);
 		if (productMovements.length === 0) {
 			continue;
@@ -196,7 +196,7 @@ function derivedMovements(warehouseId: number): WarehouseMovement[] {
 			listProductTransactions(product.id).map((txn) => [txn.id, txn.partnerName]),
 		);
 
-		const holding = product.inventoryItems.find((i) => i.inventoryId === warehouseId);
+		const holding = product.warehouseItems.find((i) => i.warehouseId === warehouseId);
 		// productMovements are newest-first; the newest leaves the warehouse at its
 		// current quantity. Step backward to recover each balanceAfter.
 		let balance = holding?.quantity ?? 0;

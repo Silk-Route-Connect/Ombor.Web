@@ -24,9 +24,9 @@ export type ProductPackaging = {
  * served by the backend (hard rule 8): `averageCost` is the warehouse-local
  * value-weighted unit cost (WAC), never recomputed client-side.
  */
-export type ProductInventoryItem = {
-	inventoryId: number;
-	inventoryName: string;
+export type ProductWarehouseItem = {
+	warehouseId: number;
+	warehouseName: string;
 	quantity: number;
 	averageCost: number;
 };
@@ -56,7 +56,7 @@ export type Product = {
 	packaging?: ProductPackaging;
 	images: ProductImage[];
 
-	inventoryItems: ProductInventoryItem[];
+	warehouseItems: ProductWarehouseItem[];
 	/** Served sum of quantities across warehouses (hard rule 8). */
 	totalStock: number;
 	/**
@@ -114,8 +114,8 @@ export type ProductMovement = {
 	/** ISO date string. */
 	date: string;
 	kind: ProductMovementKind;
-	inventoryId: number;
-	inventoryName: string;
+	warehouseId: number;
+	warehouseName: string;
 	/** Signed delta in base units: positive into stock, negative out. */
 	quantity: number;
 	/** Served running total across all warehouses after this movement (hard rule 8). */

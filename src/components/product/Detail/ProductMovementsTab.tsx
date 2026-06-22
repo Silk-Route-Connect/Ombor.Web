@@ -76,7 +76,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ moveme
 										sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
 									>
 										<WarehouseOutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
-										{movement.inventoryName}
+										{movement.warehouseName}
 									</Box>
 								</td>
 								<td className="r">

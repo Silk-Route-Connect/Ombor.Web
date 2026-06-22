@@ -167,12 +167,12 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 							{unit}
 						</Box>
 					</Typography>
-					{product.inventoryItems.length > 0 && (
+					{product.warehouseItems.length > 0 && (
 						<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary", mt: "10px" }}>
-							{product.inventoryItems
+							{product.warehouseItems
 								.map(
 									(item) =>
-										`${item.inventoryName.replace("Склад ", "")}: ${formatQuantity(item.quantity)}`,
+										`${item.warehouseName.replace("Склад ", "")}: ${formatQuantity(item.quantity)}`,
 								)
 								.join(" · ")}
 						</Typography>

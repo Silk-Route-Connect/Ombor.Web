@@ -2,11 +2,11 @@ import {
 	Measurement,
 	Product,
 	ProductImage,
-	ProductInventoryItem,
 	ProductMovement,
 	ProductPackaging,
 	ProductTransaction,
 	ProductType,
+	ProductWarehouseItem,
 } from "../../models/product";
 import {
 	adjustCategoryProductCount,
@@ -29,7 +29,7 @@ import {
  * (non-archived) products referencing it, so the Categories page stays exact.
  *
  * Served aggregates (hard rule 8): `totalStock` is computed here from
- * `inventoryItems`, never on the client. Per-warehouse `averageCost` stays on
+ * `warehouseItems`, never on the client. Per-warehouse `averageCost` stays on
  * the inventory items (the detail page consumes it); the product-level WAC
  * aggregate was dropped from the list contract (decision 2026-06-12).
  */
@@ -40,7 +40,7 @@ const WAREHOUSES: Record<number, string> = {
 	2: "Склад Чиланзар",
 };
 
-type StockSpec = { inventoryId: number; quantity: number; averageCost: number };
+type StockSpec = { warehouseId: number; quantity: number; averageCost: number };
 
 type ProductSeed = {
 	id: number;
@@ -98,8 +98,8 @@ const seed: ProductSeed[] = [
 		type: "All",
 		imageColors: ["#2F4858", "#5B7B8C"],
 		stock: [
-			{ inventoryId: 1, quantity: 60, averageCost: 96000 },
-			{ inventoryId: 2, quantity: 25, averageCost: 97500 },
+			{ warehouseId: 1, quantity: 60, averageCost: 96000 },
+			{ warehouseId: 2, quantity: 25, averageCost: 97500 },
 		],
 	},
 	{
@@ -113,7 +113,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 132000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 40, averageCost: 79000 }],
+		stock: [{ warehouseId: 1, quantity: 40, averageCost: 79000 }],
 	},
 	{
 		id: 3,
@@ -129,8 +129,8 @@ const seed: ProductSeed[] = [
 		lowStockThreshold: 100,
 		packaging: { size: 50, label: "Коробка 50 шт", barcode: "4780100100046" },
 		stock: [
-			{ inventoryId: 1, quantity: 200, averageCost: 18200 },
-			{ inventoryId: 2, quantity: 140, averageCost: 18500 },
+			{ warehouseId: 1, quantity: 200, averageCost: 18200 },
+			{ warehouseId: 2, quantity: 140, averageCost: 18500 },
 		],
 	},
 	{
@@ -144,7 +144,7 @@ const seed: ProductSeed[] = [
 		measurement: "Unit",
 		type: "All",
 		lowStockThreshold: 25,
-		stock: [{ inventoryId: 1, quantity: 18, averageCost: 131000 }],
+		stock: [{ warehouseId: 1, quantity: 18, averageCost: 131000 }],
 	},
 	// ── Компьютеры (10) ──────────────────────────────────────────────────────
 	{
@@ -160,8 +160,8 @@ const seed: ProductSeed[] = [
 		type: "All",
 		imageColors: ["#1D3557", "#457B9D"],
 		stock: [
-			{ inventoryId: 1, quantity: 30, averageCost: 425000 },
-			{ inventoryId: 2, quantity: 12, averageCost: 430000 },
+			{ warehouseId: 1, quantity: 30, averageCost: 425000 },
+			{ warehouseId: 2, quantity: 12, averageCost: 430000 },
 		],
 	},
 	{
@@ -174,7 +174,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 95000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 75, averageCost: 56000 }],
+		stock: [{ warehouseId: 1, quantity: 75, averageCost: 56000 }],
 	},
 	{
 		id: 7,
@@ -203,8 +203,8 @@ const seed: ProductSeed[] = [
 		type: "All",
 		imageColors: ["#6B4A2B", "#8A5A30"],
 		stock: [
-			{ inventoryId: 1, quantity: 120, averageCost: 38500 },
-			{ inventoryId: 2, quantity: 80, averageCost: 39000 },
+			{ warehouseId: 1, quantity: 120, averageCost: 38500 },
+			{ warehouseId: 2, quantity: 80, averageCost: 39000 },
 		],
 	},
 	{
@@ -217,7 +217,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 245000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 45, averageCost: 147000 }],
+		stock: [{ warehouseId: 1, quantity: 45, averageCost: 147000 }],
 	},
 	{
 		id: 10,
@@ -230,7 +230,7 @@ const seed: ProductSeed[] = [
 		measurement: "Unit",
 		type: "All",
 		lowStockThreshold: 30,
-		stock: [{ inventoryId: 1, quantity: 22, averageCost: 322000 }],
+		stock: [{ warehouseId: 1, quantity: 22, averageCost: 322000 }],
 	},
 	// ── Обувь (4) ────────────────────────────────────────────────────────────
 	{
@@ -246,8 +246,8 @@ const seed: ProductSeed[] = [
 		type: "All",
 		imageColors: ["#264653", "#2A9D8F"],
 		stock: [
-			{ inventoryId: 1, quantity: 38, averageCost: 283000 },
-			{ inventoryId: 2, quantity: 17, averageCost: 286000 },
+			{ warehouseId: 1, quantity: 38, averageCost: 283000 },
+			{ warehouseId: 2, quantity: 17, averageCost: 286000 },
 		],
 	},
 	{
@@ -260,7 +260,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 630000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 12, averageCost: 415000 }],
+		stock: [{ warehouseId: 1, quantity: 12, averageCost: 415000 }],
 	},
 	// ── Книги (17) ───────────────────────────────────────────────────────────
 	{
@@ -274,7 +274,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 145000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 60, averageCost: 86000 }],
+		stock: [{ warehouseId: 1, quantity: 60, averageCost: 86000 }],
 	},
 	{
 		id: 14,
@@ -287,7 +287,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 105000,
 		measurement: "Unit",
 		type: "Sale",
-		stock: [{ inventoryId: 1, quantity: 40, averageCost: 72000 }],
+		stock: [{ warehouseId: 1, quantity: 40, averageCost: 72000 }],
 	},
 	{
 		id: 15,
@@ -301,8 +301,8 @@ const seed: ProductSeed[] = [
 		type: "All",
 		// sold out: zero quantity at both warehouses, history exists
 		stock: [
-			{ inventoryId: 1, quantity: 0, averageCost: 60000 },
-			{ inventoryId: 2, quantity: 0, averageCost: 60000 },
+			{ warehouseId: 1, quantity: 0, averageCost: 60000 },
+			{ warehouseId: 2, quantity: 0, averageCost: 60000 },
 		],
 	},
 	// ── Фильмы (2) ───────────────────────────────────────────────────────────
@@ -316,7 +316,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 82000,
 		measurement: "Unit",
 		type: "Sale",
-		stock: [{ inventoryId: 1, quantity: 55, averageCost: 52000 }],
+		stock: [{ warehouseId: 1, quantity: 55, averageCost: 52000 }],
 	},
 	// ── Игрушки (7) ──────────────────────────────────────────────────────────
 	{
@@ -333,8 +333,8 @@ const seed: ProductSeed[] = [
 		imageColors: ["#E76F51", "#F4A261"],
 		packaging: { size: 12, label: "Коробка 12 шт", barcode: null },
 		stock: [
-			{ inventoryId: 1, quantity: 80, averageCost: 66000 },
-			{ inventoryId: 2, quantity: 40, averageCost: 67000 },
+			{ warehouseId: 1, quantity: 80, averageCost: 66000 },
+			{ warehouseId: 2, quantity: 40, averageCost: 67000 },
 		],
 	},
 	{
@@ -347,7 +347,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 95000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 35, averageCost: 49000 }],
+		stock: [{ warehouseId: 1, quantity: 35, averageCost: 49000 }],
 	},
 	// ── Детское (20) ─────────────────────────────────────────────────────────
 	{
@@ -362,8 +362,8 @@ const seed: ProductSeed[] = [
 		measurement: "Unit",
 		type: "All",
 		stock: [
-			{ inventoryId: 1, quantity: 90, averageCost: 111000 },
-			{ inventoryId: 2, quantity: 60, averageCost: 112000 },
+			{ warehouseId: 1, quantity: 90, averageCost: 111000 },
+			{ warehouseId: 2, quantity: 60, averageCost: 112000 },
 		],
 	},
 	{
@@ -377,7 +377,7 @@ const seed: ProductSeed[] = [
 		measurement: "Gram",
 		type: "All",
 		packaging: { size: 24, label: "Коробка 24 шт", barcode: null },
-		stock: [{ inventoryId: 1, quantity: 300, averageCost: 12200 }],
+		stock: [{ warehouseId: 1, quantity: 300, averageCost: 12200 }],
 	},
 	// ── Дом (13) ─────────────────────────────────────────────────────────────
 	{
@@ -390,7 +390,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 130000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 50, averageCost: 73000 }],
+		stock: [{ warehouseId: 1, quantity: 50, averageCost: 73000 }],
 	},
 	{
 		id: 22,
@@ -403,8 +403,8 @@ const seed: ProductSeed[] = [
 		measurement: "Unit",
 		type: "All",
 		stock: [
-			{ inventoryId: 1, quantity: 28, averageCost: 96000 },
-			{ inventoryId: 2, quantity: 15, averageCost: 97000 },
+			{ warehouseId: 1, quantity: 28, averageCost: 96000 },
+			{ warehouseId: 2, quantity: 15, averageCost: 97000 },
 		],
 	},
 	{
@@ -418,7 +418,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 86000,
 		measurement: "Kilogram",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 64, averageCost: 48500 }],
+		stock: [{ warehouseId: 1, quantity: 64, averageCost: 48500 }],
 	},
 	// ── Красота (16) ─────────────────────────────────────────────────────────
 	{
@@ -431,7 +431,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 43000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 140, averageCost: 22500 }],
+		stock: [{ warehouseId: 1, quantity: 140, averageCost: 22500 }],
 	},
 	{
 		id: 25,
@@ -445,7 +445,7 @@ const seed: ProductSeed[] = [
 		type: "All",
 		lowStockThreshold: 120,
 		imageColors: ["#7A5230", "#A06A38"],
-		stock: [{ inventoryId: 1, quantity: 95, averageCost: 31500 }],
+		stock: [{ warehouseId: 1, quantity: 95, averageCost: 31500 }],
 	},
 	// ── Здоровье (11) ────────────────────────────────────────────────────────
 	{
@@ -458,7 +458,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 85000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 70, averageCost: 45500 }],
+		stock: [{ warehouseId: 1, quantity: 70, averageCost: 45500 }],
 	},
 	// ── Музыка (9) ───────────────────────────────────────────────────────────
 	{
@@ -471,7 +471,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 70000,
 		measurement: "Unit",
 		type: "All",
-		stock: [{ inventoryId: 1, quantity: 42, averageCost: 38500 }],
+		stock: [{ warehouseId: 1, quantity: 42, averageCost: 38500 }],
 	},
 	// ── No category — supply-only consumable ────────────────────────────────
 	{
@@ -485,7 +485,7 @@ const seed: ProductSeed[] = [
 		retailPrice: 0,
 		measurement: "Unit",
 		type: "Supply",
-		stock: [{ inventoryId: 1, quantity: 80, averageCost: 15200 }],
+		stock: [{ warehouseId: 1, quantity: 80, averageCost: 15200 }],
 	},
 	// ── Archived samples (hidden by default; revealed by the «Архив» toggle) ──
 	{
@@ -499,7 +499,7 @@ const seed: ProductSeed[] = [
 		measurement: "Unit",
 		type: "All",
 		isArchived: true,
-		stock: [{ inventoryId: 1, quantity: 30, averageCost: 25500 }],
+		stock: [{ warehouseId: 1, quantity: 30, averageCost: 25500 }],
 	},
 	{
 		id: 30,
@@ -516,14 +516,14 @@ const seed: ProductSeed[] = [
 	},
 ];
 
-function inventoryName(inventoryId: number): string {
-	return WAREHOUSES[inventoryId] ?? `Склад #${inventoryId}`;
+function warehouseName(warehouseId: number): string {
+	return WAREHOUSES[warehouseId] ?? `Склад #${warehouseId}`;
 }
 
-function toInventoryItems(stock: StockSpec[]): ProductInventoryItem[] {
+function toInventoryItems(stock: StockSpec[]): ProductWarehouseItem[] {
 	return stock.map((s) => ({
-		inventoryId: s.inventoryId,
-		inventoryName: inventoryName(s.inventoryId),
+		warehouseId: s.warehouseId,
+		warehouseName: warehouseName(s.warehouseId),
 		quantity: s.quantity,
 		averageCost: s.averageCost,
 	}));
@@ -531,7 +531,7 @@ function toInventoryItems(stock: StockSpec[]): ProductInventoryItem[] {
 
 /** Served aggregates: total quantity and value-weighted WAC across warehouses
  * (hard rule 8). The WAC aggregate is surfaced on the detail page only. */
-function aggregate(items: ProductInventoryItem[]): {
+function aggregate(items: ProductWarehouseItem[]): {
 	totalStock: number;
 	averageCost: number | null;
 } {
@@ -567,7 +567,7 @@ function buildProduct(spec: ProductSeed): Product {
 		isArchived: spec.isArchived ?? false,
 		packaging: spec.packaging,
 		images: spec.imageColors ? [seedImage(spec.id * 100 + 1, spec.name, spec.imageColors)] : [],
-		inventoryItems: items,
+		warehouseItems: items,
 		totalStock,
 		averageCost,
 	};
@@ -649,7 +649,7 @@ export function addProduct(write: ProductWrite): Product {
 		isArchived: false,
 		packaging: write.packaging,
 		images: write.images,
-		inventoryItems: [],
+		warehouseItems: [],
 		totalStock: 0,
 		averageCost: null,
 	};
@@ -741,7 +741,7 @@ const HISTORY_PARTNERS = [
 
 type LedgerEvent = {
 	kind: ProductMovement["kind"];
-	inventoryId: number;
+	warehouseId: number;
 	/** Signed delta in base units. */
 	quantity: number;
 	unitPrice: number;
@@ -759,7 +759,7 @@ function isoDaysAgo(daysAgo: number): string {
 /** Plan one warehouse's flows: opening + events land exactly on `final`. */
 function planWarehouseFlows(
 	product: Product,
-	item: ProductInventoryItem,
+	item: ProductWarehouseItem,
 	warehouseIndex: number,
 ): { opening: number; events: LedgerEvent[] } {
 	const final = item.quantity;
@@ -773,21 +773,21 @@ function planWarehouseFlows(
 		events.push(
 			{
 				kind: "Supply",
-				inventoryId: item.inventoryId,
+				warehouseId: item.warehouseId,
 				quantity: supplied,
 				unitPrice: item.averageCost,
 				daysAgo: 41 - stagger,
 			},
 			{
 				kind: "Sale",
-				inventoryId: item.inventoryId,
+				warehouseId: item.warehouseId,
 				quantity: -firstSale,
 				unitPrice: product.salePrice,
 				daysAgo: 27 - stagger,
 			},
 			{
 				kind: "Sale",
-				inventoryId: item.inventoryId,
+				warehouseId: item.warehouseId,
 				quantity: -(supplied - firstSale),
 				unitPrice: product.salePrice,
 				daysAgo: 13 - stagger,
@@ -805,7 +805,7 @@ function planWarehouseFlows(
 		// Purchase-only consumable: stock arrives by supply alone.
 		events.push({
 			kind: "Supply",
-			inventoryId: item.inventoryId,
+			warehouseId: item.warehouseId,
 			quantity: net,
 			unitPrice: item.averageCost,
 			daysAgo: 33 - stagger,
@@ -818,7 +818,7 @@ function planWarehouseFlows(
 		const saleOut = sold > 0 ? sold : 1;
 		events.push({
 			kind: "Sale",
-			inventoryId: item.inventoryId,
+			warehouseId: item.warehouseId,
 			quantity: -saleOut,
 			unitPrice: product.salePrice,
 			daysAgo: 24 - stagger,
@@ -826,7 +826,7 @@ function planWarehouseFlows(
 		if (refund > 0) {
 			events.push({
 				kind: "SaleRefund",
-				inventoryId: item.inventoryId,
+				warehouseId: item.warehouseId,
 				quantity: refund,
 				unitPrice: product.salePrice,
 				daysAgo: 9 - stagger,
@@ -839,7 +839,7 @@ function planWarehouseFlows(
 	const supplied = net + sold - refund;
 	events.push({
 		kind: "Supply",
-		inventoryId: item.inventoryId,
+		warehouseId: item.warehouseId,
 		quantity: supplied,
 		unitPrice: item.averageCost,
 		daysAgo: 38 - stagger,
@@ -847,7 +847,7 @@ function planWarehouseFlows(
 	if (sold > 0) {
 		events.push({
 			kind: "Sale",
-			inventoryId: item.inventoryId,
+			warehouseId: item.warehouseId,
 			quantity: -sold,
 			unitPrice: product.salePrice,
 			daysAgo: 22 - stagger,
@@ -856,7 +856,7 @@ function planWarehouseFlows(
 	if (refund > 0) {
 		events.push({
 			kind: "SaleRefund",
-			inventoryId: item.inventoryId,
+			warehouseId: item.warehouseId,
 			quantity: refund,
 			unitPrice: product.salePrice,
 			daysAgo: 8 - stagger,
@@ -869,7 +869,7 @@ function buildHistory(product: Product): ProductHistory {
 	const allEvents: LedgerEvent[] = [];
 	let totalOpening = 0;
 
-	product.inventoryItems.forEach((item, index) => {
+	product.warehouseItems.forEach((item, index) => {
 		const { opening, events } = planWarehouseFlows(product, item, index);
 		totalOpening += opening;
 		allEvents.push(...events);
@@ -890,8 +890,8 @@ function buildHistory(product: Product): ProductHistory {
 			productId: product.id,
 			date: isoDaysAgo(event.daysAgo),
 			kind: event.kind,
-			inventoryId: event.inventoryId,
-			inventoryName: inventoryName(event.inventoryId),
+			warehouseId: event.warehouseId,
+			warehouseName: warehouseName(event.warehouseId),
 			quantity: event.quantity,
 			balanceAfter: balance,
 		};

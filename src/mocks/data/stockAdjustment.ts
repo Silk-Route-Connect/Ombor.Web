@@ -32,7 +32,7 @@ function isoAt(daysAgo: number, hour: number, minute: number): string {
 /** Current served quantity of a product in a warehouse (hard rule 8). */
 function availIn(productId: number, warehouseId: number): number {
 	const product = findProduct(productId);
-	return product?.inventoryItems.find((i) => i.inventoryId === warehouseId)?.quantity ?? 0;
+	return product?.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0;
 }
 
 type AdjustmentSeed = {

@@ -138,15 +138,15 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 						</tr>
 					</thead>
 					<tbody>
-						{product.inventoryItems.map((item) => (
-							<tr key={item.inventoryId}>
+						{product.warehouseItems.map((item) => (
+							<tr key={item.warehouseId}>
 								<td>
 									<Box
 										component="span"
 										sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
 									>
 										<WarehouseOutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
-										{item.inventoryName}
+										{item.warehouseName}
 									</Box>
 								</td>
 								<td className="r">

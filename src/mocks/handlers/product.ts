@@ -132,7 +132,7 @@ export const productHandlers = [
 	// query: none — full dataset, archived included (carry the isArchived flag;
 	//        client-side search/filter/sort/pagination)
 	// response 200: Product[] (totalStock, value-weighted averageCost and
-	//               per-warehouse inventoryItems all served per hard rule 8;
+	//               per-warehouse warehouseItems all served per hard rule 8;
 	//               the averageCost aggregate is surfaced on detail only)
 	// errors: 401
 	http.get(LIST_URL, async () => {
@@ -191,7 +191,7 @@ export const productHandlers = [
 	// body: multipart/form-data — CreateProductRequest fields + `attachments` files.
 	//   No initial-quantity block: a product is created at zero stock and stocked
 	//   later via an opening-stock event (canon rule 22).
-	// response 201: Product (empty inventoryItems, totalStock 0, averageCost null)
+	// response 201: Product (empty warehouseItems, totalStock 0, averageCost null)
 	// errors: 400 ValidationProblemDetails (name / sku / duplicate sku), 401
 	http.post(LIST_URL, async ({ request }) => {
 		await delay(350);
