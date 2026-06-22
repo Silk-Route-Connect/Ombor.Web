@@ -19,8 +19,8 @@ export type DebtTransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefu
 export type Debt = {
 	/** The source transaction id. */
 	transactionId: number;
-	/** Human number shown as «#1042». */
-	number: number;
+	/** Human document label, e.g. «S-1024» (provisional — display-only); null if unset. */
+	number: string | null;
 	direction: DebtDirection;
 	transactionType: DebtTransactionType;
 
@@ -32,8 +32,8 @@ export type Debt = {
 
 	/** ISO transaction date. */
 	date: string;
-	/** ISO due date (date + payment terms). */
-	dueDate: string;
+	/** ISO due date; null when due on receipt (then overdueDays is 0). */
+	dueDate: string | null;
 
 	total: number;
 	paid: number;

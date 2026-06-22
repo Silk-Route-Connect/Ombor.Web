@@ -216,8 +216,6 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-06-05",
 		delta: -1200000,
 		balance: 3865000,
-		method: "Наличные",
-		allocation: "к Продажа #1042",
 		reference: "PAY-2061",
 	},
 	{
@@ -236,8 +234,6 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-05-28",
 		delta: -500000,
 		balance: 2725000,
-		method: "Карта",
-		allocation: "к Продажа #1038",
 		reference: "PAY-2044",
 	},
 	{
@@ -266,8 +262,6 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-05-15",
 		delta: -2000000,
 		balance: 1750000,
-		method: "Наличные",
-		allocation: "к Продажа #1031 (1 250 000) + Аванс (750 000)",
 		reference: "PAY-2009",
 	},
 	{
@@ -285,7 +279,6 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 
 /* ──────────────────────── generic ledger generator ────────────────────── */
 
-const PAY_METHODS = ["Наличные", "Карта", "Банк"];
 const round10 = (n: number) => Math.round(n / 10000) * 10000;
 const pickStatus = (r: number): PartnerLedgerStatus =>
 	r < 0.45 ? "paid" : r < 0.78 ? "partial" : "unpaid";
@@ -296,8 +289,6 @@ type ChronoEvent = {
 	delta: number;
 	balance: number;
 	reference?: string;
-	method?: string;
-	allocation?: string;
 	itemCount?: number;
 	status?: PartnerLedgerStatus;
 };
@@ -365,8 +356,6 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: round10((Math.floor(rng(c + 5) * 16) + 5) * 100000),
 					balance: 0,
-					method: PAY_METHODS[Math.floor(rng(c + 8) * 3)],
-					allocation: "к Поставка #" + (saleNo - 1),
 					reference: "PAY-" + payNo++,
 				};
 			}
@@ -397,8 +386,6 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: (rng(c + 2) < 0.5 ? -1 : 1) * round10((Math.floor(rng(c + 5) * 14) + 5) * 100000),
 					balance: 0,
-					method: PAY_METHODS[Math.floor(rng(c + 8) * 3)],
-					allocation: "Распределена",
 					reference: "PAY-" + payNo++,
 				};
 			}
@@ -420,8 +407,6 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: -round10((Math.floor(rng(c + 5) * 16) + 5) * 100000),
 					balance: 0,
-					method: PAY_METHODS[Math.floor(rng(c + 8) * 3)],
-					allocation: "к Продажа #" + (saleNo - 1),
 					reference: "PAY-" + payNo++,
 				};
 			}

@@ -126,7 +126,7 @@ export function listDebts(): Debt[] {
 		const isReceivable = s.direction === "Receivable";
 		return {
 			transactionId: s.number,
-			number: s.number,
+			number: String(s.number),
 			direction: s.direction,
 			transactionType: isReceivable ? "Sale" : "Supply",
 			partnerId: s.partnerId,

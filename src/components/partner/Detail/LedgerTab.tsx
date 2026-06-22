@@ -54,14 +54,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				</Box>
 			);
 		}
-		if (e.method) {
-			return (
-				<Box component="span" sx={{ color: "text.secondary", fontSize: 12.5 }}>
-					{e.method}
-					{e.allocation ? ` · ${e.allocation}` : ""}
-				</Box>
-			);
-		}
 		return (
 			<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
 				<Box component="span" sx={{ color: "primary.main", fontWeight: 500 }}>
@@ -83,9 +75,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					value: (e) =>
 						e.type === "opening"
 							? t("partner.ledger.openingDesc")
-							: e.method
-								? `${e.method}${e.allocation ? ` · ${e.allocation}` : ""}`
-								: `${e.reference ?? ""}${e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}`,
+							: `${e.reference ?? ""}${e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}`,
 				},
 				{ header: t("partner.ledger.col.amount"), value: (e) => e.delta },
 				{ header: t("partner.ledger.col.balanceAfter"), value: (e) => e.balance },

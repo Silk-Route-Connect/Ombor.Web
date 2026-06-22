@@ -4,12 +4,13 @@ import { PartnerLedgerEntry } from "models/partner";
 import { numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { balanceColor } from "utils/partnerUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { Box } from "@mui/material";
 
-import { bodyCellSx, EmptyRecords, headCellSx, LedgerCard, NeutralChip } from "./detailTable";
+import { bodyCellSx, EmptyRecords, headCellSx, LedgerCard } from "./detailTable";
 import FilterDropdown from "./FilterDropdown";
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
@@ -60,14 +61,11 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, onOpen }) =>
 								<Box component="th" sx={headCellSx}>
 									{t("partner.pays.col.type")}
 								</Box>
-								<Box component="th" sx={headCellSx}>
-									{t("partner.pays.col.method")}
-								</Box>
 								<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
 									{t("partner.pays.col.amount")}
 								</Box>
 								<Box component="th" sx={headCellSx}>
-									{t("partner.pays.col.allocation")}
+									{t("partner.pays.col.wallet")}
 								</Box>
 							</tr>
 						</thead>
@@ -85,15 +83,6 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, onOpen }) =>
 									<Box component="td" sx={bodyCellSx}>
 										<EventCell type={p.type} label={t(eventLabelKey(p.type))} />
 									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										{p.method ? (
-											<NeutralChip label={p.method} />
-										) : (
-											<Box component="span" sx={{ color: "text.secondary" }}>
-												—
-											</Box>
-										)}
-									</Box>
 									<Box
 										component="td"
 										sx={{
@@ -101,15 +90,15 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, onOpen }) =>
 											textAlign: "right",
 											...numericSx,
 											fontWeight: 600,
-											color: "success.main",
+											color: balanceColor(p.delta),
 										}}
 									>
 										{formatCurrency(Math.abs(p.delta))}
 									</Box>
 									<Box component="td" sx={{ ...bodyCellSx, fontSize: 13, color: "text.primary" }}>
-										{p.allocation ?? (
+										{p.walletName ?? (
 											<Box component="span" sx={{ color: "text.secondary" }}>
-												{t("partner.pays.advance")}
+												{t("common.dash")}
 											</Box>
 										)}
 									</Box>

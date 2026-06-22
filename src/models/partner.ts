@@ -1,3 +1,5 @@
+import { WalletType } from "./wallet";
+
 export type PartnerType = "Customer" | "Supplier" | "Both";
 
 export type Partner = {
@@ -59,6 +61,11 @@ export type PartnerLedgerEntry = {
 	/** Stable key within the partner's ledger. */
 	id: number;
 	type: PartnerLedgerEventType;
+	/**
+	 * Id of the entity this row references — a transaction (sale/supply/refund-*) or a
+	 * payment (payment/deposit/withdraw); null for opening. Drives row navigation.
+	 */
+	sourceId?: number | null;
 	/** ISO date of the event. */
 	date: string;
 	/** Signed balance impact (UZS): + partner owes us, − we owe. */
@@ -67,14 +74,13 @@ export type PartnerLedgerEntry = {
 	balance: number;
 	/** Source-document reference, e.g. "#1042" (transaction) or "PAY-2061" (payment). */
 	reference?: string;
-	/** Payment method label (payments only), e.g. «Наличные». */
-	method?: string;
-	/** Allocation description (payments only), e.g. «к Продажа #1042». */
-	allocation?: string;
 	/** Line-item count (transactions only). */
 	itemCount?: number;
 	/** Settlement status (transactions only). */
 	status?: PartnerLedgerStatus;
+	/** Wallet the payment moved through — payment rows only; null on opening/transaction rows. */
+	walletName?: string | null;
+	walletType?: WalletType | null;
 };
 
 export type CreatePartnerRequest = {

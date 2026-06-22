@@ -131,6 +131,7 @@
   "partner.pays.col.method": "Способ",
   "partner.pays.col.amount": "Сумма, UZS",
   "partner.pays.col.allocation": "Распределение",
+  "partner.pays.col.wallet": "Касса",
   "partner.pays.advance": "Аванс",
   "partner.pays.empty.title": "Нет записей",
   "partner.pays.empty.body": "С этим партнёром ещё не проводились платежи.",
