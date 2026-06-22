@@ -1,14 +1,80 @@
 import { TransactionPayment } from "models/payment";
 import {
-	CreateRefundRequest,
-	CreateTransactionEntryRequest,
+	CreateTransactionRefundRequest,
+	CreateTransactionRequest,
 	GetTransactionsRequest,
+	TransactionAttachment,
 	TransactionLine,
+	TransactionPaymentLine,
 	TransactionRecord,
+	TransactionStatus,
+	TransactionType,
 } from "models/transaction";
+import { payStatusOf } from "utils/transactionUtils";
 
 import BaseApi from "./BaseApi";
 import http from "./http";
+
+/** Discriminates a refund create (SaleRefund/SupplyRefund) from a sale/supply entry. */
+const isRefundRequest = (r: CreateTransactionRequest): r is CreateTransactionRefundRequest =>
+	r.type === "SaleRefund" || r.type === "SupplyRefund";
+
+/**
+ * Raw transaction as the backend serves it — the list `TransactionDto` (lean) and
+ * the detail `TransactionDetailDto` (rich) are a structural superset. Mapped to the
+ * frontend `TransactionRecord`: `number`→`transactionNumber`, `date` string→Date,
+ * derived `time` + `paymentStatus`, `remaining` defaulted from the totals.
+ */
+type RawTransaction = {
+	id: number;
+	number?: string | null;
+	partnerId: number;
+	partnerName: string;
+	date: string;
+	type: TransactionType;
+	status: TransactionStatus;
+	totalDue: number;
+	totalPaid: number;
+	lines: TransactionLine[] | null;
+	originalTransactionId?: number | null;
+	refundReason?: string | null;
+	// detail-only
+	warehouseName?: string | null;
+	remaining?: number;
+	payments?: TransactionPaymentLine[] | null;
+	createdBy?: string | null;
+	notes?: string | null;
+	attachments?: TransactionAttachment[] | null;
+};
+
+const timeOf = (iso: string): string => {
+	const d = new Date(iso);
+	return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+/** Backend DTO → frontend TransactionRecord (shared by the list + detail). */
+const toRecord = (raw: RawTransaction): TransactionRecord => ({
+	id: raw.id,
+	partnerId: raw.partnerId,
+	partnerName: raw.partnerName,
+	date: new Date(raw.date),
+	transactionNumber: raw.number ?? undefined,
+	totalDue: raw.totalDue,
+	totalPaid: raw.totalPaid,
+	type: raw.type,
+	status: raw.status,
+	lines: raw.lines ?? [],
+	time: timeOf(raw.date),
+	warehouseName: raw.warehouseName ?? undefined,
+	createdBy: raw.createdBy ?? undefined,
+	paymentStatus: payStatusOf(raw.totalDue, raw.totalPaid),
+	remaining: raw.remaining ?? Math.max(0, raw.totalDue - raw.totalPaid),
+	originalTransactionId: raw.originalTransactionId ?? undefined,
+	refundReason: raw.refundReason ?? undefined,
+	payments: raw.payments ?? undefined,
+	attachments: raw.attachments ?? undefined,
+	notes: raw.notes ?? undefined,
+});
 
 class TransactionApi extends BaseApi {
 	constructor() {
@@ -17,16 +83,16 @@ class TransactionApi extends BaseApi {
 
 	async getAll(request?: GetTransactionsRequest | null): Promise<TransactionRecord[]> {
 		const url = this.getUrl(request);
-		const response = await http.get<TransactionRecord[]>(url);
+		const response = await http.get<RawTransaction[]>(url);
 
-		return response.data;
+		return response.data.map(toRecord);
 	}
 
 	async getById(id: number): Promise<TransactionRecord> {
 		const url = this.getUrlWithId(id);
-		const response = await http.get<TransactionRecord>(url);
+		const response = await http.get<RawTransaction>(url);
 
-		return response.data;
+		return toRecord(response.data);
 	}
 
 	async getPayments(transactionId: number): Promise<TransactionPayment[]> {
@@ -44,33 +110,50 @@ class TransactionApi extends BaseApi {
 	}
 
 	/**
-	 * Create a sale or supply from the redesigned POS entry screen. Sent as
-	 * multipart/form-data: a single `payload` part with the JSON contract
-	 * (direction, partner, warehouse, lines, single-wallet payment, settlements,
-	 * overpayment disposition) plus zero or more `attachments` file parts — so the
-	 * structured body stays a single JSON blob while the binaries are transmitted.
-	 * The server stores the files and returns the created TransactionRecord (see the
-	 * POST /api/transactions CONTRACT block in mocks/handlers/transaction.ts).
+	 * Create a transaction through the single immutable create path: a sale/supply
+	 * entry (from the POS) or a refund (type SaleRefund/SupplyRefund) — the server
+	 * branches on `type`. Sent as multipart/form-data with **flat, indexed form
+	 * fields** (the ASP.NET model-binder shape: `Lines[0].ProductId`, …), plus the
+	 * `Attachments` file parts. Returns the created transaction.
 	 */
-	async createTransactionEntry(request: CreateTransactionEntryRequest): Promise<TransactionRecord> {
-		const { attachments, ...payload } = request;
+	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
 		const form = new FormData();
-		form.append("payload", JSON.stringify(payload));
-		attachments?.forEach((file) => form.append("attachments", file, file.name));
+		form.append("Type", request.type);
+
+		if (isRefundRequest(request)) {
+			form.append("OriginalTransactionId", String(request.originalTransactionId));
+			form.append("RefundReason", request.refundReason);
+			request.lines.forEach((line, i) => {
+				form.append(`Lines[${i}].ProductId`, String(line.productId));
+				form.append(`Lines[${i}].Quantity`, String(line.quantity));
+				form.append(`Lines[${i}].UnitPrice`, String(line.unitPrice));
+				form.append(`Lines[${i}].Discount`, "0");
+				form.append(`Lines[${i}].DiscountType`, "Percentage");
+			});
+		} else {
+			form.append("PartnerId", String(request.partnerId));
+			form.append("WarehouseId", String(request.warehouseId));
+			form.append("WalletId", String(request.walletId));
+			form.append("PaidAmount", String(request.paidAmount));
+			form.append("Overpayment", request.overpayment === "advance" ? "Advance" : "Change");
+			if (request.notes) {
+				form.append("Notes", request.notes);
+			}
+			request.lines.forEach((line, i) => {
+				form.append(`Lines[${i}].ProductId`, String(line.productId));
+				form.append(`Lines[${i}].Quantity`, String(line.quantity));
+				form.append(`Lines[${i}].UnitPrice`, String(line.unitPrice));
+				form.append(`Lines[${i}].Discount`, String(line.discount));
+				form.append(`Lines[${i}].DiscountType`, line.discountType);
+			});
+			request.settlements.forEach((s, i) => {
+				form.append(`Settlements[${i}].TransactionId`, String(s.transactionId));
+				form.append(`Settlements[${i}].Amount`, String(s.amount));
+			});
+			request.attachments?.forEach((file) => form.append("Attachments", file, file.name));
+		}
 
 		const response = await http.post<TransactionRecord>(this.getUrl(), form, this.formHeaders);
-
-		return response.data;
-	}
-
-	/**
-	 * Create a refund against a transaction (the only action on an immutable
-	 * sale/supply). The mock validates type match, the cumulative-qty cap (rule 5)
-	 * and the mandatory reason (rule 7), then appends and returns the refund.
-	 */
-	async createRefund(id: number, request: CreateRefundRequest): Promise<TransactionRecord> {
-		const url = `${this.getUrlWithId(id)}/refund`;
-		const response = await http.post<TransactionRecord>(url, request);
 
 		return response.data;
 	}

@@ -136,10 +136,10 @@ export class TransactionStore implements ITransactionStore {
 	async createTransactionEntry(
 		request: CreateTransactionEntryRequest,
 	): Promise<TransactionRecord | null> {
-		const result = await withSaving(this, () => TransactionApi.createTransactionEntry(request));
+		const result = await withSaving(this, () => TransactionApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t(`transaction.new.error.${request.direction}`));
+			this.notificationStore.error(i18next.t(`transaction.new.error.${request.type}`));
 			return null;
 		}
 
@@ -149,7 +149,7 @@ export class TransactionStore implements ITransactionStore {
 			}
 		});
 		this.notificationStore.success(
-			i18next.t(`transaction.new.success.${request.direction}`, {
+			i18next.t(`transaction.new.success.${request.type}`, {
 				number: result.data.transactionNumber,
 			}),
 		);
@@ -160,8 +160,16 @@ export class TransactionStore implements ITransactionStore {
 		transaction: TransactionRecord,
 		request: CreateRefundRequest,
 	): Promise<TransactionRecord | null> {
+		// A refund is created through the same typed POST /api/transactions; the type
+		// discriminates a refund of a sale vs a supply (the original is never a refund).
+		const refundType = transaction.type === "Supply" ? "SupplyRefund" : "SaleRefund";
 		const result = await withSaving(this, () =>
-			TransactionApi.createRefund(transaction.id, request),
+			TransactionApi.create({
+				type: refundType,
+				originalTransactionId: transaction.id,
+				refundReason: request.reason,
+				lines: request.lines,
+			}),
 		);
 
 		if (result.status === "fail") {

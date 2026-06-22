@@ -1,10 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 
-import {
-	CreateRefundRequest,
-	CreateTransactionEntryRequest,
-	TransactionAttachment,
-} from "../../models/transaction";
+import { TransactionAttachment } from "../../models/transaction";
 import { MEASUREMENT_SHORT } from "../../utils/productUtils";
 import { findPartner } from "../data/partner";
 import { findProduct } from "../data/product";
@@ -18,13 +14,12 @@ import { findWarehouse } from "../data/warehouse";
 
 /**
  * Origin-agnostic matchers. The redesigned Sales/Supplies pages read the whole
- * transaction collection (sales + supplies + refunds), create sales/supplies
- * (multipart) and create refunds (JSON) — all mocked at the v1 contract
- * (docs/mocking.md).
+ * transaction collection (sales + supplies + refunds) and create all four types —
+ * sales, supplies and their refunds — through the single typed POST /api/transactions
+ * (multipart), all mocked at the v1 contract (docs/mocking.md).
  */
 const LIST_URL = "*/api/transactions";
 const ITEM_URL = "*/api/transactions/:id";
-const REFUND_URL = "*/api/transactions/:id/refund";
 
 function validationProblem(errors: Record<string, string[]>, status = 400) {
 	return HttpResponse.json(
@@ -55,30 +50,67 @@ export const transactionHandlers = [
 		return HttpResponse.json(listTransactions());
 	}),
 
-	// CONTRACT: POST /api/transactions  (redesigned POS New Sale / New Supply)
-	// Content-Type: multipart/form-data with two kinds of part:
-	//   • `payload`  — one JSON part: CreateTransactionEntryRequest minus files
-	//                  { direction; partnerId; warehouseId; lines[]; walletId; paidAmount;
-	//                    settlements[]; overpayment; notes? }
-	//   • `attachments` — zero or more binary file parts (receipts / invoices / photos)
-	// The structured body is sent as a single JSON part (too nested to flatten into form
-	// fields), and JSON alone can't carry binaries — hence multipart. **The real backend must
-	// persist each file to blob storage and return served attachment metadata (name/kind/size
-	// + a url/id) on the transaction.** This self-contained mock stores attachment METADATA
-	// ONLY (no binary store) and doesn't mutate stock / partner balance / wallet balance;
-	// settlement/overpayment handling is illustrative. Validates partner, warehouse and ≥1
-	// positive-qty line; totals computed from lines.
-	// response 201: TransactionDto (the created sale/supply)
-	// errors: 400 ValidationProblemDetails, 401
+	// CONTRACT: POST /api/transactions — the single immutable create path for all
+	// four types, discriminated by `payload.type`:
+	//   • Sale / Supply — the POS entry: multipart with a `payload` JSON part
+	//     { type; partnerId; warehouseId; lines[]; walletId; paidAmount; settlements[];
+	//       overpayment; notes? } plus zero or more `attachments` binary file parts.
+	//   • SaleRefund / SupplyRefund — a refund: `payload` { type; originalTransactionId;
+	//     refundReason; lines[] }, no attachments. Validates type match (never a refund
+	//     of a refund — rule 4), the mandatory reason (rule 7) and the cumulative
+	//     per-line cap (rule 5).
+	// The structured body is a single JSON part (too nested to flatten; JSON alone can't
+	// carry binaries — hence multipart). **The real backend persists each file to blob
+	// storage and returns served attachment metadata on the transaction.** This
+	// self-contained mock stores attachment METADATA only and does not mutate stock /
+	// partner balance / wallet balance; settlement/overpayment handling is illustrative.
+	// response 201: TransactionDto (the created transaction)
+	// errors: 400 ValidationProblemDetails, 404, 401
 	http.post(LIST_URL, async ({ request }) => {
 		await delay(350);
 		const form = await request.formData();
 		const payloadRaw = form.get("payload");
-		const body = (
-			typeof payloadRaw === "string" ? JSON.parse(payloadRaw) : {}
-		) as Partial<CreateTransactionEntryRequest>;
+		const body = (typeof payloadRaw === "string" ? JSON.parse(payloadRaw) : {}) as {
+			type?: string;
+			partnerId?: number;
+			warehouseId?: number;
+			notes?: string;
+			paidAmount?: number;
+			originalTransactionId?: number;
+			refundReason?: string;
+			lines?: {
+				productId: number;
+				quantity: number;
+				unitPrice: number;
+				productName?: string;
+				discount?: number;
+				discountType?: "Percentage" | "Fixed";
+			}[];
+		};
+
+		// Refund branch — created through the same endpoint, discriminated by type.
+		if (body.type === "SaleRefund" || body.type === "SupplyRefund") {
+			const result = addRefund(Number(body.originalTransactionId), {
+				reason: body.refundReason ?? "",
+				lines: (body.lines ?? []).map((l) => ({
+					productId: l.productId,
+					productName: l.productName ?? findProduct(l.productId)?.name ?? `#${l.productId}`,
+					quantity: l.quantity,
+					unitPrice: l.unitPrice,
+				})),
+			});
+			if (!result.ok) {
+				if (result.status === 404) {
+					return new HttpResponse(null, { status: 404 });
+				}
+				return validationProblem(result.errors, result.status);
+			}
+			return HttpResponse.json(result.refund, { status: 201 });
+		}
+
+		// Sale / Supply entry branch.
 		const files = form.getAll("attachments").filter((f): f is File => f instanceof File);
-		const direction = body.direction === "Supply" ? "Supply" : "Sale";
+		const direction = body.type === "Supply" ? "Supply" : "Sale";
 		const errors: Record<string, string[]> = {};
 
 		const partner = body.partnerId ? findPartner(body.partnerId) : undefined;
@@ -120,32 +152,13 @@ export const transactionHandlers = [
 					unit: product ? MEASUREMENT_SHORT[product.measurement] : undefined,
 					quantity: l.quantity,
 					unitPrice: l.unitPrice,
-					discount: l.discount,
-					discountType: l.discountType,
+					discount: l.discount ?? 0,
+					discountType: l.discountType ?? "Percentage",
 				};
 			}),
 		});
 
 		return HttpResponse.json(record, { status: 201 });
-	}),
-
-	// CONTRACT: POST /api/transactions/{id}/refund
-	// body: CreateRefundRequest { reason; lines: { productId; productName; quantity; unitPrice }[] }
-	//   Validates type match (refund of a sale/supply, never of a refund — rule 4),
-	//   mandatory reason (rule 7) and the cumulative per-line cap (rule 5).
-	// response 201: TransactionDto (the created refund)
-	// errors: 400 ValidationProblemDetails, 404, 401
-	http.post(REFUND_URL, async ({ params, request }) => {
-		await delay(350);
-		const body = (await request.json()) as CreateRefundRequest;
-		const result = addRefund(Number(params.id), body);
-		if (!result.ok) {
-			if (result.status === 404) {
-				return new HttpResponse(null, { status: 404 });
-			}
-			return validationProblem(result.errors, result.status);
-		}
-		return HttpResponse.json(result.refund, { status: 201 });
 	}),
 
 	// CONTRACT: GET /api/transactions/{id} → TransactionDto (enriched + payments)

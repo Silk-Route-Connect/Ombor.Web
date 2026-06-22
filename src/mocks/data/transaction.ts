@@ -6,6 +6,7 @@ import {
 	TransactionRecord,
 	TransactionType,
 } from "../../models/transaction";
+import { WalletType } from "../../models/wallet";
 import { lineNet, payStatusOf, txTotal } from "../../utils/transactionUtils";
 
 /**
@@ -18,8 +19,8 @@ import { lineNet, payStatusOf, txTotal } from "../../utils/transactionUtils";
  * (docs/mocking.md). Seed ported from the design's sales-data.jsx / supplies-data.jsx;
  * every total is COMPUTED from line items so each screen reconciles.
  *
- * The legacy `POST /api/transactions` create flow (New Sale / New Supply) is left
- * to passthrough — only the redesign's reads + `POST /{id}/refund` are mocked.
+ * All four types — sales, supplies and their refunds — are created through the
+ * single `POST /api/transactions` (mocked here, discriminated by `type`).
  * Refunds don't mutate Products stock (known mock limitation, like Transfers).
  */
 
@@ -343,7 +344,7 @@ let nextLineId = 1;
 
 function buildLines(txId: number, seed: SeedLine[]): TransactionLine[] {
 	return seed.map((l) => {
-		const discountType = l.disc ? (l.disc.type === "pct" ? "pct" : "fixed") : undefined;
+		const discountType = l.disc ? (l.disc.type === "pct" ? "Percentage" : "Fixed") : undefined;
 		const discount = l.disc ? l.disc.v : 0;
 		const line: TransactionLine = {
 			id: nextLineId++,
@@ -362,8 +363,27 @@ function buildLines(txId: number, seed: SeedLine[]): TransactionLine[] {
 	});
 }
 
-const toPayments = (seed: SeedPayment[] | undefined): TransactionPaymentLine[] =>
-	(seed ?? []).map((p) => ({ id: p.id, date: isoOf(p.date), method: p.method, amount: p.amount }));
+/** Map the seed's legacy method label to the reshaped wallet (name + type). */
+const methodToWallet = (method: string): { walletName: string; walletType: WalletType } => {
+	if (method === "Карта") return { walletName: "Карта", walletType: "Card" };
+	if (method === "Перевод" || method === "Банк") return { walletName: method, walletType: "Bank" };
+	return { walletName: "Наличные", walletType: "Cash" };
+};
+
+let nextPaymentId = 1;
+const toPayments = (txId: number, seed: SeedPayment[] | undefined): TransactionPaymentLine[] =>
+	(seed ?? []).map((p) => {
+		const wallet = methodToWallet(p.method);
+		return {
+			id: nextPaymentId++,
+			transactionId: txId,
+			paymentNumber: p.id,
+			amount: p.amount,
+			walletName: wallet.walletName,
+			walletType: wallet.walletType,
+			date: isoOf(p.date),
+		};
+	});
 
 const toAttachments = (seed: SeedAttachment[] | undefined): TransactionAttachment[] =>
 	(seed ?? []).map((a) => ({ name: a.name, kind: a.type, size: a.size }));
@@ -372,7 +392,7 @@ function buildTxn(seed: SeedTxn, type: TransactionType): TransactionRecord {
 	const id = nextId++;
 	const lines = buildLines(id, seed.lines);
 	const totalDue = txTotal(lines);
-	const payments = toPayments(seed.payments);
+	const payments = toPayments(id, seed.payments);
 	const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
 	return {
 		id,
@@ -476,7 +496,7 @@ export type TransactionEntryWriteLine = {
 	quantity: number;
 	unitPrice: number;
 	discount: number;
-	discountType: "pct" | "fixed";
+	discountType: "Percentage" | "Fixed";
 };
 
 export type TransactionEntryWrite = {

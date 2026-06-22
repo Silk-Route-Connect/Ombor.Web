@@ -144,7 +144,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				quantity: item.quantity,
 				unitPrice: item.unitPrice,
 				discountValue: item.discount ?? 0,
-				discountType: "pct",
+				discountType: "Percentage",
 			};
 			return [cartItem];
 		});

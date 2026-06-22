@@ -1,4 +1,5 @@
 import { SettlementInput } from "./payment";
+import { WalletType } from "./wallet";
 
 export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 
@@ -7,8 +8,11 @@ export type TransactionStatus = "Open" | "Closed" | "PartiallyPaid" | "Overdue";
 /** Derived payment state shown on the redesign list/detail (rule: computed from total vs paid). */
 export type PaymentStatus = "paid" | "partial" | "unpaid";
 
-/** A line discount is either a percentage or a fixed amount (business-rules §E, rules 37–38). */
-export type TransactionLineDiscountType = "pct" | "fixed";
+/**
+ * A line discount is either a percentage or a fixed amount (business-rules §E, rules 37–38).
+ * Wire values are the canonical backend enum names `DiscountType { Percentage, Fixed }`.
+ */
+export type TransactionLineDiscountType = "Percentage" | "Fixed";
 
 export type GetTransactionsRequest = {
 	searchTerm?: string | null;
@@ -17,13 +21,23 @@ export type GetTransactionsRequest = {
 	statuses?: TransactionStatus[];
 };
 
-/** A payment row shown on the transaction detail (simplified view of an allocation). */
+/**
+ * A payment row shown on the transaction detail — the reshaped
+ * GET /transactions/{id}/payments line. The legacy `method` is replaced by the
+ * wallet the payment moved through (name + type); `paymentNumber` is the display number.
+ */
 export type TransactionPaymentLine = {
-	id: string;
-	date: string;
-	/** Localized method label, e.g. «Наличные». */
-	method: string;
+	id: number;
+	transactionId: number;
+	/** Human payment number, e.g. «P-512» (shown as the row label). */
+	paymentNumber: string;
 	amount: number;
+	/** Wallet the payment moved through (replaces the legacy method label). */
+	walletName: string;
+	walletType: WalletType;
+	notes?: string;
+	/** ISO date string. */
+	date: string;
 };
 
 export type TransactionAttachment = {
@@ -74,7 +88,7 @@ export type TransactionLine = {
 	quantity: number;
 	/** Net line amount after the line discount. */
 	total: number;
-	/** Discount value: percent when discountType is "pct", currency amount when "fixed", 0 = none. */
+	/** Discount value: percent when discountType is "Percentage", currency amount when "Fixed", 0 = none. */
 	discount: number;
 	/** Measurement short label (e.g. «кг», «шт») — redesign. */
 	unit?: string;
@@ -90,7 +104,11 @@ export type CreateRefundLine = {
 	unitPrice: number;
 };
 
-/** Refund-creation payload (POST /api/transactions/{id}/refund). */
+/**
+ * Refund basket entered in the refund modal (mandatory reason + the lines to
+ * reverse). The store assembles the full CreateTransactionRefundRequest from this
+ * plus the original transaction (type + id).
+ */
 export type CreateRefundRequest = {
 	reason: string;
 	lines: CreateRefundLine[];
@@ -115,14 +133,14 @@ export type CreateTransactionEntryLine = {
 	productId: number;
 	quantity: number;
 	unitPrice: number;
-	/** Discount value: percent when discountType is "pct", currency amount when "fixed". */
+	/** Discount value: percent when discountType is "Percentage", currency amount when "Fixed". */
 	discount: number;
 	discountType: TransactionLineDiscountType;
 };
 
 export type CreateTransactionEntryRequest = {
 	/** Sale (goods out) or Supply (goods in) — selects pricing, stock rules, signs. */
-	direction: "Sale" | "Supply";
+	type: "Sale" | "Supply";
 	partnerId: number;
 	warehouseId: number;
 	lines: CreateTransactionEntryLine[];
@@ -138,3 +156,25 @@ export type CreateTransactionEntryRequest = {
 	/** Files sent as multipart `attachments` parts (the server stores the binaries). */
 	attachments?: File[];
 };
+
+/**
+ * Refund create payload — a refund is created through the SAME `POST /api/transactions`
+ * as sales/supplies (one immutable create path; there is no separate `/{id}/refund`).
+ * `type` discriminates a refund of a sale vs a supply; it carries the original
+ * transaction id and the mandatory reason (business-rules §A, rule 7). A refund moves
+ * no money, so it has no wallet / payment fields.
+ */
+export type CreateTransactionRefundRequest = {
+	type: "SaleRefund" | "SupplyRefund";
+	originalTransactionId: number;
+	refundReason: string;
+	lines: CreateRefundLine[];
+};
+
+/**
+ * The unified create-transaction request: a sale/supply entry or a refund, posted to
+ * `POST /api/transactions` (multipart) — the server branches on `type`.
+ */
+export type CreateTransactionRequest =
+	| CreateTransactionEntryRequest
+	| CreateTransactionRefundRequest;

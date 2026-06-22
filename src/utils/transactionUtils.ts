@@ -41,7 +41,7 @@ export const lineNet = (
 	if (!line.discount || !line.discountType) {
 		return gross;
 	}
-	return line.discountType === "pct"
+	return line.discountType === "Percentage"
 		? Math.round(gross * (1 - line.discount / 100))
 		: gross - line.discount;
 };
@@ -53,7 +53,9 @@ export const discountLabel = (
 	if (!line.discount || !line.discountType) {
 		return null;
 	}
-	return line.discountType === "pct" ? `−${line.discount}%` : `−${formatCurrency(line.discount)}`;
+	return line.discountType === "Percentage"
+		? `−${line.discount}%`
+		: `−${formatCurrency(line.discount)}`;
 };
 
 /** Effective per-unit price after the line discount (used to seed refund prices). */

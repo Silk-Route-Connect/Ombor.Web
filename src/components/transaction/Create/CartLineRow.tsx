@@ -268,13 +268,13 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 								overflow: "hidden",
 							}}
 						>
-							{(["pct", "fixed"] as const).map((type) => {
+							{(["Percentage", "Fixed"] as const).map((type) => {
 								const selected = item.discountType === type;
 								return (
 									<ButtonBase
 										key={type}
 										onClick={() => onChange({ discountType: type })}
-										title={type === "fixed" ? t("transaction.new.line.fixedHint") : undefined}
+										title={type === "Fixed" ? t("transaction.new.line.fixedHint") : undefined}
 										sx={{
 											px: "9px",
 											fontSize: 12,
@@ -283,7 +283,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 											bgcolor: selected ? designTokens.primarySoft : "background.paper",
 										}}
 									>
-										{type === "pct" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
+										{type === "Percentage" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
 									</ButtonBase>
 								);
 							})}

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import PartnerAvatar from "components/partner/PartnerAvatar";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import { PaymentStatus, TransactionLine, TransactionRecord } from "models/transaction";
+import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
@@ -24,7 +25,6 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Typography } from "@mui/material";
@@ -496,10 +496,9 @@ export const RefundFinancialCard: React.FC<{
 
 /* ─────────────────────────── payments ─────────────────────────── */
 
-const METHOD_ICON = (method: string): React.ReactNode => {
-	if (method === "Карта") return <CreditCardOutlinedIcon sx={{ fontSize: 17 }} />;
-	if (method === "Перевод") return <SendOutlinedIcon sx={{ fontSize: 17 }} />;
-	if (method === "Банк") return <AccountBalanceOutlinedIcon sx={{ fontSize: 17 }} />;
+const WALLET_ICON = (type: WalletType): React.ReactNode => {
+	if (type === "Card") return <CreditCardOutlinedIcon sx={{ fontSize: 17 }} />;
+	if (type === "Bank") return <AccountBalanceOutlinedIcon sx={{ fontSize: 17 }} />;
 	return <PaymentsOutlinedIcon sx={{ fontSize: 17 }} />;
 };
 
@@ -524,7 +523,7 @@ export const PaymentsCard: React.FC<{
 				payments.map((p) => (
 					<Box
 						key={p.id}
-						onClick={() => onOpenPayment(p.id)}
+						onClick={() => onOpenPayment(p.paymentNumber)}
 						sx={{
 							display: "flex",
 							alignItems: "center",
@@ -548,11 +547,11 @@ export const PaymentsCard: React.FC<{
 								color: "primary.main",
 							}}
 						>
-							{METHOD_ICON(p.method)}
+							{WALLET_ICON(p.walletType)}
 						</Box>
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "primary.main" }}>
-								{t("transaction.detail.paymentLabel", { id: p.id })}
+								{t("transaction.detail.paymentLabel", { id: p.paymentNumber })}
 							</Typography>
 							<Box
 								sx={{
@@ -571,7 +570,7 @@ export const PaymentsCard: React.FC<{
 									component="span"
 									sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
 								/>
-								{p.method}
+								{p.walletName}
 							</Box>
 						</Box>
 						<Box

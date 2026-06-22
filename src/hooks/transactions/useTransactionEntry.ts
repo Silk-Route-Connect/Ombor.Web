@@ -15,7 +15,7 @@ export type CartItem = {
 	product: Product;
 	quantity: number;
 	unitPrice: number;
-	/** Percent (0–100) when discountType is "pct"; a per-line currency amount when "fixed". */
+	/** Percent (0–100) when discountType is "Percentage"; a per-line currency amount when "Fixed". */
 	discountValue: number;
 	discountType: TransactionLineDiscountType;
 };
@@ -31,7 +31,7 @@ export const stockAt = (product: Product, warehouseId: number | null): number =>
 	if (warehouseId == null) {
 		return 0;
 	}
-	return product.inventoryItems.find((i) => i.inventoryId === warehouseId)?.quantity ?? 0;
+	return product.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0;
 };
 
 /** Line math mirrors utils/transactionUtils so the created record reconciles on the detail. */
@@ -174,7 +174,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 					quantity: 1,
 					unitPrice: defaultPrice(product),
 					discountValue: 0,
-					discountType: "pct",
+					discountType: "Percentage",
 				},
 			];
 		});
@@ -188,7 +188,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 	const clearItems = () => setItems([]);
 
 	const applyBulk = (pct: number) =>
-		setItems((cur) => cur.map((it) => ({ ...it, discountType: "pct", discountValue: pct })));
+		setItems((cur) => cur.map((it) => ({ ...it, discountType: "Percentage", discountValue: pct })));
 
 	const loadItems = (next: CartItem[]) => setItems(next);
 
@@ -231,7 +231,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 	const dirty = items.length > 0 || notes.trim().length > 0 || attachments.length > 0;
 
 	const buildPayload = (): CreateTransactionEntryRequest => ({
-		direction,
+		type: direction,
 		partnerId: partner?.id ?? 0,
 		warehouseId: warehouseId ?? 0,
 		lines: items.map((it) => ({
