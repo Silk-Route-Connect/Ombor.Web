@@ -132,10 +132,11 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	onSave,
 }) => {
 	const { t } = useTranslation();
-	const { partnerStore, productStore } = useStore();
+	const { partnerStore, productStore, warehouseStore } = useStore();
 
 	const [client, setClient] = useState<Partner | null>(null);
 	const [source, setSource] = useState<OrderSource>("None");
+	const [warehouseId, setWarehouseId] = useState<number | "">("");
 	const [lines, setLines] = useState<EditLine[]>([]);
 	const [address, setAddress] = useState("");
 	const [deliveryDate, setDeliveryDate] = useState("");
@@ -152,14 +153,21 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 		[productStore.allProducts],
 	);
 	const allPartners = partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
+	const warehouses = useMemo(
+		() =>
+			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses,
+		[warehouseStore.filteredWarehouses],
+	);
 
 	// Reset the form from the order whenever the modal (re)opens.
 	useEffect(() => {
 		if (isOpen && order) {
 			partnerStore.getAll();
 			productStore.getAll();
+			warehouseStore.getAll();
 			setClient(allPartners.find((p) => p.id === order.customerId) ?? null);
 			setSource(order.source);
+			setWarehouseId(order.warehouseId ?? "");
 			setLines(order.lines.map((l) => ({ ...l })));
 			setAddress(order.deliveryAddress ?? "");
 			setDeliveryDate(order.deliveryDate ?? "");
@@ -234,6 +242,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			id: order.id,
 			customerId: client.id,
 			source,
+			warehouseId: warehouseId === "" ? null : warehouseId,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
 			deliveryTime: deliveryTime || null,
@@ -289,7 +298,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 					<Box
 						sx={{
 							display: "grid",
-							gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+							gridTemplateColumns: { xs: "1fr", sm: "1.3fr 1fr 1fr" },
 							gap: "18px",
 							mb: "18px",
 						}}
@@ -307,6 +316,33 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 									}}
 								/>
 							</Box>
+						</Box>
+						<Box>
+							<FormFieldLabel label={t("order.field.warehouse")} />
+							<TextField
+								select
+								size="small"
+								fullWidth
+								value={warehouseId === "" ? "" : String(warehouseId)}
+								disabled={isSaving}
+								slotProps={{ select: { displayEmpty: true } }}
+								onChange={(e) => {
+									setWarehouseId(e.target.value === "" ? "" : Number(e.target.value));
+									markDirty();
+								}}
+								sx={{ mt: "7px" }}
+							>
+								<MenuItem value="">
+									<Box component="span" sx={{ color: "text.disabled" }}>
+										{t("order.edit.warehouseNone")}
+									</Box>
+								</MenuItem>
+								{warehouses.map((w) => (
+									<MenuItem key={w.id} value={String(w.id)}>
+										{w.name}
+									</MenuItem>
+								))}
+							</TextField>
 						</Box>
 						<Box>
 							<FormFieldLabel label={t("order.field.source")} />

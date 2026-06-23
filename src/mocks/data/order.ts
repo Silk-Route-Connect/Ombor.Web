@@ -1,4 +1,5 @@
 import {
+	CreateOrderRequest,
 	DeliverOrderRequest,
 	Order,
 	OrderLine,
@@ -315,6 +316,7 @@ function build(spec: OrderSeed): Order {
 let orders: Order[] = seed.map(build);
 let nextSaleId = 1042;
 let nextItemId = 1000;
+let nextOrderId = 1 + Math.max(...seed.map((s) => s.id));
 
 const now = (): string => new Date().toISOString();
 
@@ -445,6 +447,60 @@ export function deliverOrder(request: DeliverOrderRequest): DeliverResult {
 	return { ok: true, order: updated! };
 }
 
+/** Net line from a create/update request line (honours the edited unit price). */
+function pricedLine(id: number, line: CreateOrderRequest["lines"][number]): OrderLine {
+	const base = buildLine(id, {
+		productId: line.productId,
+		quantity: line.quantity,
+		discount: line.discount,
+		discountType: line.discountType,
+	});
+	const gross = line.quantity * line.unitPrice;
+	const discAmount = line.discount
+		? line.discountType === "pct"
+			? Math.round((gross * line.discount) / 100)
+			: Math.min(line.discount, gross)
+		: 0;
+	return { ...base, unitPrice: line.unitPrice, total: gross - discAmount };
+}
+
+/**
+ * Create a new Pending order. The intended warehouse is recorded but stock is NOT
+ * reserved (it is re-picked and checked at delivery); promotion stays
+ * self-contained, like the rest of this mock. Lines reference real products and
+ * the customer a real partner; totals are computed from the line items.
+ */
+export function createOrder(request: CreateOrderRequest): Order {
+	const id = nextOrderId++;
+	const partner = findPartner(request.customerId);
+	const warehouse = findWarehouse(request.warehouseId);
+	const lines = request.lines.map((line) => pricedLine(nextItemId++, line));
+	const at = now();
+	const order: Order = {
+		id,
+		orderNumber: String(id),
+		customerId: request.customerId,
+		customerName: partner?.name ?? `#${request.customerId}`,
+		customerType: partner?.type ?? "Customer",
+		customerBalance: partner?.balance ?? 0,
+		date: at,
+		status: "Pending",
+		source: request.source,
+		deliveryAddress: request.deliveryAddress ?? null,
+		deliveryDate: request.deliveryDate ?? null,
+		deliveryTime: request.deliveryTime ?? null,
+		notes: request.notes ?? null,
+		warehouseId: warehouse?.id ?? null,
+		warehouseName: warehouse?.name ?? null,
+		saleId: null,
+		total: lines.reduce((s, l) => s + l.total, 0),
+		lines,
+		history: [{ at, from: null, to: "Pending", by: ME }],
+	};
+	orders = [order, ...orders];
+	return order;
+}
+
 export function updateOrder(id: number, request: UpdateOrderRequest): Order | undefined {
 	const partner = findPartner(request.customerId);
 	const lines = request.lines.map((line) =>
@@ -467,6 +523,11 @@ export function updateOrder(id: number, request: UpdateOrderRequest): Order | un
 		return { ...l, unitPrice: request.lines[i].unitPrice, total: gross - discAmount };
 	});
 
+	// Intended warehouse is optional on edit: when the field is omitted (undefined)
+	// keep the existing one; an explicit value sets it and an explicit null clears it.
+	const warehouseProvided = request.warehouseId !== undefined;
+	const warehouse = request.warehouseId != null ? findWarehouse(request.warehouseId) : undefined;
+
 	return patch(id, (order) => ({
 		...order,
 		customerId: request.customerId,
@@ -474,6 +535,8 @@ export function updateOrder(id: number, request: UpdateOrderRequest): Order | un
 		customerType: partner?.type ?? order.customerType,
 		customerBalance: partner?.balance ?? order.customerBalance,
 		source: request.source,
+		warehouseId: warehouseProvided ? (warehouse?.id ?? null) : order.warehouseId,
+		warehouseName: warehouseProvided ? (warehouse?.name ?? null) : order.warehouseName,
 		deliveryAddress: request.deliveryAddress ?? null,
 		deliveryDate: request.deliveryDate ?? null,
 		deliveryTime: request.deliveryTime ?? null,

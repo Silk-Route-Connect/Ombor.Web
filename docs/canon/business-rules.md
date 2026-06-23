@@ -1,9 +1,9 @@
 # Ombor — business rules
 
-**Status:** canon. Supersedes `rules.md` and the domain-model / enum sections of `claude-context.md`, both of which retire.
-**Last updated:** 2026-06-11
+**Status:** active decision record — current best thinking, revisable when we learn better; not a frozen spec. Supersedes `rules.md` and the domain-model / enum sections of `claude-context.md`.
+**Last updated:** 2026-06-13
 
-This document is the spec the implementation must obey: hard rules first, then the domain model they constrain, then the consolidated enum reference. Pair with `mvp-plan.md` for feature scope and `product-brief.md` for vision and reasoning. When a rule and a feature description conflict, the rule wins.
+The spec the implementation follows: hard rules first, then the domain model they constrain, then the consolidated enum reference. Pair with `mvp-plan.md` for feature scope and `product-brief.md` for vision and reasoning. When a rule and a feature description conflict, the rule wins; when a decision changes, change the rule — don't work around it silently.
 
 ---
 
@@ -13,7 +13,7 @@ These must never be violated. If implementation requires breaking one, stop and 
 
 ### A. Immutability & corrections
 
-1. **Transactions, payments, payroll, stock adjustments, and transfers are immutable.** No PUT or DELETE on TransactionRecord, Payment, PaymentComponent, PaymentAllocation, Payroll, StockAdjustment, or Transfer. Corrections are made only via reverse / counter events.
+1. **Transactions, payments, payroll, stock adjustments, and transfers are immutable.** No PUT or DELETE on TransactionRecord, Payment, PaymentComponent, PaymentAllocation, Payroll, StockAdjustment, or Transfer. Corrections are made only via reverse / counter events. (Payroll specifically: no PUT/DELETE on payroll payments; an employee may receive any number of payroll payments per month; payroll flows through the redesigned payment model — no PaymentMethod / currency / exchange-rate fields.)
 2. **Refund transactions require `OriginalTransactionId`** (required for SaleRefund and SupplyRefund; null for all other transaction types).
 3. **Refund type must match original type.** SaleRefund references a Sale only; SupplyRefund references a Supply only.
 4. **A refund cannot be refunded.** `OriginalTransactionId` must point to a non-refund transaction.
@@ -47,7 +47,7 @@ These must never be violated. If implementation requires breaking one, stop and 
 19. **Stock always leaves at WAC.** A Sale's stock-out is COGS; a StockAdjustment decrease is loss, reported as a distinct line separate from COGS.
 20. **Hard-block negative stock** at write time. A StockAdjustment decrease cannot take stock below zero.
 21. **Stock moves in base units.** A line entered in packages decrements base units (package count × package size). The entered package count is retained on the line for audit.
-22. **Product creation never moves stock**. A product is always created at zero quantity — it is a definition, nothing more. All initial stock enters through the **warehouse opening-stock flow:** an audited stock-in event with per-product quantity and unit cost, scoped to a warehouse. Products expose stock only as served read models — per-warehouse InventoryItems and the aggregates `totalStock` / value-weighted `averageCost`.
+22. **Product creation never moves stock.** A product is always created at zero quantity — it is a definition, nothing more. All initial stock enters through the **warehouse opening-stock flow:** an audited stock-in event with per-product quantity and unit cost, scoped to a warehouse. Products expose stock only as served read models — per-warehouse InventoryItems and the aggregates `totalStock` / value-weighted `averageCost`.
 
 ### E. Stock adjustments
 
@@ -74,42 +74,42 @@ These must never be violated. If implementation requires breaking one, stop and 
 
 ### I. Multi-tenancy
 
-34. **Every tenant-scoped query — including new endpoints — filters by `TenantId` through the shared scoping mechanism**, not a hand-written filter per endpoint, so a new endpoint cannot silently skip it. (The concrete mechanism is confirmed in the Phase-1 Code audit.) Tenant-scoped entities: Product, Partner, Category, Inventory, InventoryItem, Wallet, TransactionRecord, TransactionLine, Payment, PaymentComponent, PaymentAllocation, StockAdjustment, Transfer, Template, TemplateItem, Employee, Order, OrderLine, audit log entries.
+34. **Every organization-scoped query — including new endpoints — filters by `OrganizationId` through the shared scoping mechanism**, not a hand-written filter per endpoint, so a new endpoint cannot silently skip it. (The backend entity is `Organization`, keyed by `OrganizationId`; the concrete scoping mechanism is confirmed in the Code audit.) Organization-scoped entities: Product, Partner, Category, Inventory, InventoryItem, Wallet, TransactionRecord, TransactionLine, Payment, PaymentComponent, PaymentAllocation, StockAdjustment, Transfer, Template, TemplateItem, Employee, Order, OrderLine, audit log entries.
 
 ### J. Multi-user & scope discipline
 
-35. **Multi-user in MVP with no role-based access** — every user in a tenant can perform every action. Audit is the sole accountability mechanism. Roles and permissions are v2; do not design them speculatively.
+35. **Multi-user in MVP with no role-based access** — every user in an organization can perform every action. Audit is the sole accountability mechanism. Roles and permissions are v2; do not design them speculatively.
 36. **Do not add features beyond `mvp-plan.md` without an explicit decision.** Surface scope questions; don't expand silently.
 
 ### K. Discounts
 
-37. **Discounts are line-level only** (percentage or fixed amount, per line). There is no transaction-level discount input.
+37. **Discounts are line-level only** (percentage or fixed amount, per line). There is no transaction-level discount input. A **fixed** discount is a currency amount taken off the **whole line** (`unitPrice × quantity − discount`), not a per-unit amount, and is clamped to the line gross. A **percentage** discount is `unitPrice × quantity × discount / 100`. Both `discount` and `discountType` are persisted end to end — a fixed amount is never converted to a percentage (so it doesn't rescale when a mutable line in an Order or Template is later re-priced).
 38. **The transaction's total discount is computed** — the sum of line discounts in currency, plus a derived effective percentage. A bulk "apply X% to all lines" control **overwrites** each line's discount; it does not stack and creates no separate total field.
 
-### L. System entities & payment gating
+### L. Partners & payment gating
 
-39. **Every tenant has a system partner «Розничный покупатель»** (walk-in retail customer) — created automatically at tenant setup, default partner for POS retail sales, never editable, never archivable, never deletable.
+39. **Every sale requires an explicitly chosen partner** — there is no anonymous or system "walk-in" partner, and `Transaction.partnerId` is required (non-null) for all sales, POS included. To support walk-in retail, the user creates and names an ordinary partner (e.g. «Розничный покупатель», «Не сохранённый клиент») and links walk-in sales to it; this is the user's choice, not a system concept. The starter partner seeded at setup (rule 42) is an ordinary partner the user may use, rename, or delete like any other.
 40. **Advance gating:** an AdvanceCredit allocation is permitted only when the partner has no remaining outstanding debt after the payment's other settling allocations. The backend rejects it otherwise; the UI offers the advance option only at zero outstanding debt. On overpayment against existing debt, change return is the default and settling other open transactions is the opt-in (UI behavior per design-handoff).
 
 ### M. Users
 
 41. **Users are deactivated, never hard-deleted.** A deactivated user cannot authenticate but remains resolvable as an audit actor and in all historical attributions. Reactivation is allowed. (Same principle as rule 32: audit entries reference users; deleting one would orphan the trail.)
 
-### N. Tenant Setup
+### N. Organization setup
 
-42. Tenant setup seeds starter records: one Cash wallet, one warehouse, one category — plus the system partner «Розничный покупатель» (rule 39). Starter records are ordinary entities with no special protection: editable, archivable, and deletable under the normal rules. Only the rule-39 partner is system-protected.
+42. **Organization setup seeds starter records: one Cash wallet, one warehouse, one category, and one partner.** All four are **ordinary entities** with no special protection or system flag — editable, archivable, and deletable under the normal rules, indistinguishable in the data model from records the user creates later. They exist only so a brand-new organization can transact immediately without first building reference data; a user who doesn't need one deletes or ignores it.
 
 ---
 
 ## Domain model
 
-**Tenant** — the single top-level scope (the backend domain model names the entity `Tenant`, keyed by `TenantId`). It scopes every other entity; every user and every piece of data belongs to exactly one tenant.
+**Organization** — the single top-level scope (backend entity `Organization`, keyed by `OrganizationId`). It scopes every other entity; every user and every piece of data belongs to exactly one organization.
 
-**Partner** — a customer, a supplier, or both. Balance = net of receivable and payable, computed per read from the event log — transactions, payments, and _settling_ allocations (TransactionSettlement and AdvanceCredit); ChangeReturn allocations are audit memos and never move the balance — not stored. The first event the balance sums is the partner's opening balance, recorded as an auditable event at creation. Every tenant has a system-created partner **«Розничный покупатель»** for walk-in retail sales: auto-created at tenant setup, type Customer, the default partner in the POS sale flow, and neither editable nor archivable (rule 39).
+**Partner** — a customer, a supplier, or both. Balance = net of receivable and payable, computed per read from the event log — transactions, payments, and _settling_ allocations (TransactionSettlement and AdvanceCredit); ChangeReturn allocations are audit memos and never move the balance — not stored. The first event the balance sums is the partner's opening balance, recorded as an auditable event at creation. Organization setup seeds one ordinary starter partner (rule 42) — not a system actor, fully editable/deletable; the user manages walk-in retail by creating and naming a partner of their own.
 
-**Product** — definition of a sellable / suppliable good: name, SKU, optional description / barcode / category, unit of measurement, packaging details. Carries sale, supply, and retail prices interpreted by ProductType; **retail price is a dormant backend-only field in MVP**. Category is required; the non-null invariant is held by ordinary rules — a category referenced by products cannot be deleted, and a product cannot be created without one. (No protected "default" category exists; tenant setup seeds a starter category per rule 42.). Archivable. Holds no quantity — stock lives on InventoryItem.
+**Product** — definition of a sellable / suppliable good: name, SKU, optional description / barcode / category, unit of measurement, packaging details. Carries sale, supply, and retail prices interpreted by ProductType; **retail price is a dormant backend-only field in MVP**. Category is required; the non-null invariant is held by ordinary rules — a category referenced by products cannot be deleted, and a product cannot be created without one. (No protected "default" category exists; organization setup seeds a starter category per rule 42.) Archivable. Holds no quantity — stock lives on InventoryItem.
 
-**Transaction (TransactionRecord)** — an instantaneous, immutable, partner-facing event. Four types: **Sale, Supply, SaleRefund, SupplyRefund**. Has lines (product, quantity, unit price, line discount), a partner, a warehouse (`InventoryId`), an optional note, optional attachments, and a date. Refund types require `OriginalTransactionId` pointing to a non-refund transaction of the matching type. A transaction creates a receivable or payable; **payment is a separate, optional event** — entering a transaction does not move money by itself.
+**Transaction (TransactionRecord)** — an instantaneous, immutable, partner-facing event. Four types: **Sale, Supply, SaleRefund, SupplyRefund**. Has lines (product, quantity, unit price, line discount), a partner (required), a warehouse (`InventoryId`), an optional note, optional attachments, and a date. Refund types require `OriginalTransactionId` pointing to a non-refund transaction of the matching type. A transaction creates a receivable or payable; **payment is a separate, optional event** — entering a transaction does not move money by itself.
 
 **StockAdjustment** — standalone, immutable, audited, partner-less, payment-less stock event with a direction (Decrease | Increase) and a mandatory reason. Decrease = loss (damage / theft / expiry / loss), recorded at WAC and reported as a distinct loss line. Increase = an audited stock-in that restores units (correcting a mistaken decrease, or recording found stock) at current WAC, with no linkage to any prior decrease. _(Replaces the former WriteOff transaction type.)_
 

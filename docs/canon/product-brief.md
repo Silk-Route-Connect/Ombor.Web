@@ -36,7 +36,7 @@ Every segment shares the same core need: track what comes in, what goes out, who
 - Large retailers who've outgrown simple tooling
 - Production-heavy businesses needing BOM and raw-material tracking
 - Businesses with foreign-currency-denominated contractual debts (possible later expansion)
-- The walk-in consumers of our customers — they aren't users; they appear as sales to the system walk-in partner («Розничный покупатель»)
+- The walk-in consumers of our customers — they aren't users; they appear as sales linked to whatever partner the business chooses to represent walk-in trade
 
 ---
 
@@ -95,7 +95,7 @@ An advance is money held on a partner's behalf — from an overpayment or a stan
 
 ### Walk-in retail via a system partner
 
-Walk-in B2C sales don't justify creating a real partner per buyer, but every transaction must have a partner for the ledger to stay uniform. A system-created, non-editable «Розничный покупатель» partner absorbs all anonymous retail sales — POS defaults to it. One partner model, no nullable-partner special cases, and the retail revenue stream is still queryable as a unit.
+Every sale needs a partner for the ledger to stay uniform and disputes to stay traceable, so we don't allow anonymous sales — but we also don't impose a system "walk-in" actor. At setup we seed one ordinary partner (alongside a wallet, warehouse, and category) so a new business can transact on day one; it's editable, renamable, and deletable like any record the user creates. A business that does frequent walk-in retail names a partner for it («Розничный покупатель», «Не сохранённый клиент», whatever fits); one that doesn't, ignores or deletes the seeded one. Forcing an explicit partner choice on every sale is deliberate — it prevents un-attributed transactions and pushes the user to name counterparties in a way that makes their own audit trail more legible.
 
 ### Single currency in MVP; multi-currency is a later, dedicated effort
 

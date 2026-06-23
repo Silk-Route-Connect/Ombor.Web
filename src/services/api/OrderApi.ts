@@ -1,4 +1,10 @@
-import { GetOrderByIdRequest, GetOrdersRequest, Order, UpdateOrderRequest } from "models/order";
+import {
+	CreateOrderRequest,
+	GetOrderByIdRequest,
+	GetOrdersRequest,
+	Order,
+	UpdateOrderRequest,
+} from "models/order";
 
 import BaseApi from "./BaseApi";
 import http from "./http";
@@ -17,6 +23,12 @@ class OrderApi extends BaseApi {
 	async getAll(request?: GetOrdersRequest | null): Promise<Order[]> {
 		const url = this.getUrl(request);
 		const response = await http.get<Order[]>(url);
+
+		return response.data;
+	}
+
+	async create(request: CreateOrderRequest): Promise<Order> {
+		const response = await http.post<Order>(this.getUrl(), request);
 
 		return response.data;
 	}

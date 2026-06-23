@@ -1,11 +1,17 @@
 import {
+	ForgotPasswordRequest,
+	ForgotPasswordResponse,
 	LoginRequest,
 	LoginResponse,
 	RefreshTokenResponse,
 	RegisterRequest,
 	RegisterResponse,
+	ResetPasswordRequest,
+	ResetPasswordResponse,
 	VerifyOtpResponse,
 	VerifyPhoneRequest,
+	VerifyResetCodeRequest,
+	VerifyResetCodeResponse,
 } from "models/auth";
 import http from "services/api/http";
 
@@ -18,6 +24,9 @@ export const AuthEndpoints = {
 	verification: `${AUTH_BASE}/verification`,
 	refresh: `${AUTH_BASE}/refresh-token`,
 	logout: `${AUTH_BASE}/logout`,
+	forgotPassword: `${AUTH_BASE}/forgot-password`,
+	verifyResetCode: `${AUTH_BASE}/verify-reset-code`,
+	resetPassword: `${AUTH_BASE}/reset-password`,
 } as const;
 
 class AuthApi {
@@ -53,6 +62,29 @@ class AuthApi {
 
 	async logout(): Promise<void> {
 		await http.post<void>(AuthEndpoints.logout);
+	}
+
+	/* ── Password reset (mocked target v1 contract — see models/auth.ts) ── */
+
+	async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+		const { data } = await http.post<ForgotPasswordResponse>(AuthEndpoints.forgotPassword, request);
+
+		return data;
+	}
+
+	async verifyResetCode(request: VerifyResetCodeRequest): Promise<VerifyResetCodeResponse> {
+		const { data } = await http.post<VerifyResetCodeResponse>(
+			AuthEndpoints.verifyResetCode,
+			request,
+		);
+
+		return data;
+	}
+
+	async resetPassword(request: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+		const { data } = await http.post<ResetPasswordResponse>(AuthEndpoints.resetPassword, request);
+
+		return data;
 	}
 }
 

@@ -33,6 +33,7 @@ export const PATHS = {
 	newPayment: "/payments/new",
 	login: "/login",
 	register: "/register",
+	resetPassword: "/reset-password",
 } as const;
 
 /** Concrete detail route for a product (PATHS.productDetail with the id bound). */

@@ -1,5 +1,6 @@
 import { RequestHandler } from "msw";
 
+import { authHandlers } from "./auth";
 import { categoryHandlers } from "./category";
 import { dashboardHandlers } from "./dashboard";
 import { debtHandlers } from "./debt";
@@ -29,6 +30,7 @@ import { warehouseHandlers } from "./warehouse";
  * SKU / unit the redesign needs); lines reference real products and partners.
  */
 export const handlers: RequestHandler[] = [
+	...authHandlers,
 	...categoryHandlers,
 	...productHandlers,
 	...warehouseHandlers,

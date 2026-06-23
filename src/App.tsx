@@ -8,6 +8,7 @@ import DebtPage from "pages/DebtPage";
 import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
 import LoginPage from "pages/LoginPage";
+import NewOrderPage from "pages/NewOrderPage";
 import NewSalePage from "pages/NewSalePage";
 import NewSupplyPage from "pages/NewSupplyPage";
 import OrderDetailPage from "pages/OrderDetailPage";
@@ -20,6 +21,7 @@ import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
+import ResetPasswordPage from "pages/ResetPasswordPage";
 import SettingsPage from "pages/SettingsPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
 import TemplatePage from "pages/TemplatePage";
@@ -60,6 +62,7 @@ function App() {
 						<Route element={<GuestOnly />}>
 							<Route path={PATHS.login} element={<LoginPage />} />
 							<Route path={PATHS.register} element={<RegisterPage />} />
+							<Route path={PATHS.resetPassword} element={<ResetPasswordPage />} />
 						</Route>
 
 						<Route element={<RequireAuth />}>
@@ -94,10 +97,7 @@ function App() {
 								<Route path={PATHS.walletDetail} element={<WalletDetailPage />} />
 								<Route path={PATHS.newSale} element={<NewSalePage />} />
 								<Route path={PATHS.newSupply} element={<NewSupplyPage />} />
-								<Route
-									path={PATHS.newOrder}
-									element={<PlaceholderPage titleKey="page.newOrder.title" />}
-								/>
+								<Route path={PATHS.newOrder} element={<NewOrderPage />} />
 								<Route
 									path={PATHS.newPayment}
 									element={<PlaceholderPage titleKey="page.newPayment.title" />}
