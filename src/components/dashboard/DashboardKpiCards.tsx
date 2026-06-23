@@ -201,7 +201,8 @@ const DashboardKpiCards: React.FC<Props> = ({
 	const { t } = useTranslation();
 	const motion = !usePrefersReducedMotion();
 
-	const pct = (v: number): string => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
+	const pct = (v: number | null | undefined): string =>
+		v === null || v === undefined ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
 	const openWord = (n: number): string => t("dashboard.kpi.open", { count: n });
 
 	const cards: CardSpec[] = [
