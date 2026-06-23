@@ -215,13 +215,13 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 								overflow: "hidden",
 							}}
 						>
-							{(["pct", "fixed"] as const).map((type) => {
+							{(["Percentage", "Fixed"] as const).map((type) => {
 								const selected = item.discountType === type;
 								return (
 									<ButtonBase
 										key={type}
 										onClick={() => onChange({ discountType: type })}
-										title={type === "fixed" ? t("order.new.line.fixedHint") : undefined}
+										title={type === "Fixed" ? t("order.new.line.fixedHint") : undefined}
 										sx={{
 											px: "9px",
 											fontSize: 12,
@@ -230,7 +230,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 											bgcolor: selected ? designTokens.primarySoft : "background.paper",
 										}}
 									>
-										{type === "pct" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
+										{type === "Percentage" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
 									</ButtonBase>
 								);
 							})}

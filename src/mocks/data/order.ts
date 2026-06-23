@@ -457,7 +457,7 @@ function pricedLine(id: number, line: CreateOrderRequest["lines"][number]): Orde
 	});
 	const gross = line.quantity * line.unitPrice;
 	const discAmount = line.discount
-		? line.discountType === "pct"
+		? line.discountType === "Percentage"
 			? Math.round((gross * line.discount) / 100)
 			: Math.min(line.discount, gross)
 		: 0;

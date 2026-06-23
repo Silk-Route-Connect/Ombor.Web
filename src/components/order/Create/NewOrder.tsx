@@ -41,7 +41,7 @@ const lineDiscountOf = (it: CartItem): number => {
 		return 0;
 	}
 	const gross = it.quantity * it.unitPrice;
-	return it.discountType === "pct"
+	return it.discountType === "Percentage"
 		? Math.round((gross * it.discountValue) / 100)
 		: Math.min(it.discountValue, gross);
 };
@@ -108,7 +108,7 @@ export const NewOrder: React.FC = observer(() => {
 							quantity: 1,
 							unitPrice: product.salePrice,
 							discountValue: 0,
-							discountType: "pct",
+							discountType: "Percentage",
 						},
 					],
 		);
