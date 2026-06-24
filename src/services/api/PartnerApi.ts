@@ -39,9 +39,13 @@ class PartnerApi extends BaseApi {
 	}
 
 	async create(request: CreatePartnerRequest): Promise<Partner> {
-		const response = await http.post<Partner>(this.getUrl(), request);
+		// The create response is a lean `CreatePartnerResponse` — it has no
+		// server-computed `balance` / `isDeletable` / `activityCount`. Re-read the
+		// full partner by id so the list shows the server-computed balance straight
+		// away (rule 12) instead of «не число» until the next reload (F-011).
+		const { data } = await http.post<{ id: number }>(this.getUrl(), request);
 
-		return response.data;
+		return this.getById(data.id);
 	}
 
 	async update(request: UpdatePartnerRequest): Promise<Partner> {

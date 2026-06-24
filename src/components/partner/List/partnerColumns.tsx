@@ -87,7 +87,7 @@ export function buildPartnerColumns(
 			headerName: t("partner.table.balance"),
 			align: "right",
 			renderCell: (p) =>
-				p.balance === 0 ? (
+				!Number.isFinite(p.balance) || p.balance === 0 ? (
 					<Muted />
 				) : (
 					<Box
