@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import { Wallet } from "models/wallet";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
 
@@ -62,14 +63,22 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, wallets, di
 			</Grid>
 
 			<Grid size={{ xs: 12 }}>
-				<TextField
-					{...register("amount", { valueAsNumber: true })}
-					label={`${t("payment.amount")}*`}
-					type="number"
-					error={!!errors.amount}
-					helperText={errors.amount?.message}
-					fullWidth
-					disabled={disabled}
+				<Controller
+					name="amount"
+					control={control}
+					render={({ field }) => (
+						<MoneyField
+							value={field.value}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							name={field.name}
+							inputRef={field.ref}
+							label={`${t("payment.amount")}*`}
+							error={!!errors.amount}
+							helperText={errors.amount?.message}
+							disabled={disabled}
+						/>
+					)}
 				/>
 			</Grid>
 

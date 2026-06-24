@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
@@ -54,14 +55,7 @@ const PriceRow: React.FC<{
 		>
 			{value != null && value > 0 ? formatCurrency(value) : "—"}
 			{extra}
-			{showCurrency && (
-				<Box
-					component="span"
-					sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "4px" }}
-				>
-					UZS
-				</Box>
-			)}
+			{showCurrency && <UzsUnit />}
 		</Typography>
 	</Box>
 );
@@ -192,7 +186,8 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 							{t("product.detail.stock.value")}
 						</Typography>
 						<Typography component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 16 }}>
-							{formatCurrency(totalValue)} UZS
+							{formatCurrency(totalValue)}
+							<UzsUnit />
 						</Typography>
 					</Box>
 				</Box>

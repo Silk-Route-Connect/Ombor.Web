@@ -5,7 +5,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useWalletForm } from "hooks/wallet/useWalletForm";
@@ -248,18 +248,17 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 										name="openingBalance"
 										control={control}
 										render={({ field, fieldState }) => (
-											<NumericField
-												{...field}
-												value={field.value || ""}
+											<MoneyField
+												value={field.value}
+												onChange={field.onChange}
+												onBlur={field.onBlur}
+												name={field.name}
+												inputRef={field.ref}
 												size="small"
-												min={0}
 												placeholder="0"
 												disabled={isSaving}
 												error={!!fieldState.error}
 												helperText={fieldState.error?.message}
-												onChange={(e) =>
-													field.onChange(e.target.value === "" ? 0 : Number(e.target.value))
-												}
 												slotProps={{
 													input: {
 														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
