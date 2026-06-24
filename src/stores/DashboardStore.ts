@@ -1,13 +1,16 @@
 import { makeAutoObservable, runInAction } from "mobx";
 
-import { Loadable, tryRun } from "../helpers/helpers";
+import { tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
 import { DashboardData, DashboardPeriod } from "../models/dashboard";
 import DashboardApi from "../services/api/DashboardApi";
 import { NotificationStore } from "./NotificationStore";
 
 export interface IDashboardStore {
-	data: Loadable<DashboardData | null>;
+	/** The last successfully-loaded snapshot; null before the first load. */
+	data: DashboardData | null;
+	/** True while a fetch is in flight (initial load or a period re-fetch). */
+	isLoading: boolean;
 	period: DashboardPeriod;
 	/** True when the served snapshot has no activity (new business). */
 	isEmpty: boolean;
@@ -18,14 +21,16 @@ export interface IDashboardStore {
 
 /**
  * «Главное» dashboard — a read-only morning briefing. Holds the served snapshot
- * and the active period; switching period re-fetches. The snapshot is mocked at
- * the target v1 contract (no backend endpoint); its debt figures reconcile with
- * the «Долги» page (rule 12).
+ * and the active period; switching period re-fetches. The previous snapshot is
+ * kept during a re-fetch (so the header + period selector stay mounted and only
+ * the content shows a spinner). The snapshot is mocked at the target v1 contract
+ * (no backend endpoint); its debt figures reconcile with the «Долги» page (rule 12).
  */
 export class DashboardStore implements IDashboardStore {
 	private readonly notificationStore: NotificationStore;
 
-	data: Loadable<DashboardData | null> = "loading";
+	data: DashboardData | null = null;
+	isLoading = false;
 	period: DashboardPeriod = "month";
 
 	constructor(notificationStore: NotificationStore) {
@@ -34,17 +39,22 @@ export class DashboardStore implements IDashboardStore {
 	}
 
 	async load(): Promise<void> {
-		runInAction(() => (this.data = "loading"));
+		runInAction(() => (this.isLoading = true));
 
 		const result = await tryRun(() => DashboardApi.get(this.period));
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("dashboard.error.load"));
-			runInAction(() => (this.data = null));
+			// Keep the previous snapshot (if any) so a transient re-fetch failure
+			// doesn't blank the page; the toast reports the error.
+			runInAction(() => (this.isLoading = false));
 			return;
 		}
 
-		runInAction(() => (this.data = result.data));
+		runInAction(() => {
+			this.data = result.data;
+			this.isLoading = false;
+		});
 	}
 
 	setPeriod(period: DashboardPeriod): void {
@@ -57,7 +67,7 @@ export class DashboardStore implements IDashboardStore {
 
 	/** A new business with no revenue, debts, or recent activity. */
 	get isEmpty(): boolean {
-		if (this.data === "loading" || this.data === null) {
+		if (this.data === null) {
 			return false;
 		}
 		const d = this.data;

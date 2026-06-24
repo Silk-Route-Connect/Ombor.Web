@@ -43,20 +43,11 @@ const DashboardPage: React.FC = observer(() => {
 		dashboardStore.load();
 	}, [dashboardStore]);
 
-	const state = dashboardStore.data;
-
-	if (state === "loading" || state === null) {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				{state === "loading" && <CircularProgress />}
-			</Box>
-		);
-	}
-
-	const data = state;
+	const { data, isLoading } = dashboardStore;
+	const period = dashboardStore.period;
 	const empty = dashboardStore.isEmpty;
 
-	const periodSub = empty ? t("dashboard.newBusiness") : t(`dashboard.period.sub.${data.period}`);
+	const periodSub = empty ? t("dashboard.newBusiness") : t(`dashboard.period.sub.${period}`);
 
 	const goDebts = (card: "receivable" | "payable" | "overdue"): void => {
 		debtStore.applyCard(card);
@@ -82,93 +73,121 @@ const DashboardPage: React.FC = observer(() => {
 		<Box>
 			<PageHeader
 				title={t("dashboard.title")}
-				subtitle={`${data.businessName} · ${periodSub}`}
-				actions={<PeriodControl period={data.period} onChange={dashboardStore.setPeriod} />}
+				subtitle={data ? `${data.businessName} · ${periodSub}` : undefined}
+				actions={<PeriodControl period={period} onChange={dashboardStore.setPeriod} />}
 			/>
 
-			{empty && <DashboardWelcome onStep={onWelcomeStep} />}
+			{data === null ? (
+				isLoading && (
+					<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+						<CircularProgress />
+					</Box>
+				)
+			) : (
+				<Box sx={{ position: "relative" }}>
+					{isLoading && (
+						<Box
+							sx={{
+								position: "absolute",
+								inset: 0,
+								zIndex: 2,
+								display: "flex",
+								justifyContent: "center",
+								pt: 12,
+								bgcolor: "rgba(247,248,250,0.55)",
+							}}
+						>
+							<CircularProgress />
+						</Box>
+					)}
 
-			<DashboardKpiCards
-				data={data}
-				onRevenue={() => navigate(PATHS.sales)}
-				onReceivable={() => goDebts("receivable")}
-				onPayable={() => goDebts("payable")}
-				onOverdue={() => goDebts("overdue")}
-			/>
+					<Box
+						sx={{
+							opacity: isLoading ? 0.55 : 1,
+							transition: "opacity 150ms ease",
+							pointerEvents: isLoading ? "none" : "auto",
+						}}
+					>
+						{empty && <DashboardWelcome onStep={onWelcomeStep} />}
 
-			<Box
-				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", lg: "7fr 3fr" },
-					gap: "16px",
-					alignItems: "stretch",
-					...staggerChildrenSx(4, motion, { base: 240 }),
-				}}
-			>
-				<ChartPanel<ChartKind>
-					title={t("dashboard.chart.salesSupplies.title")}
-					subtitle={t("dashboard.chart.salesSupplies.sub")}
-					legend={[
-						{ label: t("dashboard.chart.sales"), color: theme.palette.primary.main },
-						{ label: t("dashboard.chart.supplies"), color: theme.palette.secondary.main },
-					]}
-					chartType={salesType}
-					onChartType={setSalesType}
-					typeOptions={[
-						{ value: "line", label: t("dashboard.chart.line") },
-						{ value: "bar", label: t("dashboard.chart.bars") },
-					]}
-				>
-					<SalesSuppliesChart series={data.series} chartType={salesType} />
-				</ChartPanel>
+						<DashboardKpiCards
+							data={data}
+							onRevenue={() => navigate(PATHS.sales)}
+							onReceivable={() => goDebts("receivable")}
+							onPayable={() => goDebts("payable")}
+							onOverdue={() => goDebts("overdue")}
+						/>
 
-				<AgingPanel
-					aging={data.aging}
-					receivableTotal={data.receivable.value}
-					overdue={data.overdue.value}
-					overdueCount={data.overdue.count}
-				/>
+						<Box
+							sx={{
+								display: "grid",
+								gridTemplateColumns: { xs: "1fr", lg: "7fr 3fr" },
+								gap: "16px",
+								alignItems: "stretch",
+								...staggerChildrenSx(4, motion, { base: 240 }),
+							}}
+						>
+							<ChartPanel<ChartKind>
+								title={t("dashboard.chart.salesSupplies.title")}
+								subtitle={t("dashboard.chart.salesSupplies.sub")}
+								legend={[
+									{ label: t("dashboard.chart.sales"), color: theme.palette.primary.main },
+									{ label: t("dashboard.chart.supplies"), color: theme.palette.secondary.main },
+								]}
+								chartType={salesType}
+								onChartType={setSalesType}
+								typeOptions={[
+									{ value: "line", label: t("dashboard.chart.line") },
+									{ value: "bar", label: t("dashboard.chart.bars") },
+								]}
+							>
+								<SalesSuppliesChart series={data.series} chartType={salesType} />
+							</ChartPanel>
 
-				<ChartPanel<ChartKind>
-					title={t("dashboard.chart.payments.title")}
-					subtitle={t("dashboard.chart.payments.sub")}
-					legend={[
-						{ label: t("dashboard.chart.payin"), color: theme.palette.success.main },
-						{ label: t("dashboard.chart.payout"), color: theme.palette.error.main },
-					]}
-					chartType={paymentsType}
-					onChartType={setPaymentsType}
-					typeOptions={[
-						{ value: "bar", label: t("dashboard.chart.bars") },
-						{ value: "line", label: t("dashboard.chart.netLine") },
-					]}
-					extra={<KassaFilter wallets={data.wallets} value={kassa} onChange={setKassa} />}
-				>
-					<PaymentsChart series={data.series} chartType={paymentsType} kassa={kassa} />
-				</ChartPanel>
+							<AgingPanel
+								aging={data.aging}
+								receivableTotal={data.receivable.value}
+								overdue={data.overdue.value}
+								overdueCount={data.overdue.count}
+							/>
 
-				<TopDebtorsPanel
-					debtors={data.topDebtors}
-					onOpenDebtor={(id) => navigate(partnerDetailPath(id))}
-					onAllPartners={() => navigate(PATHS.partners)}
-				/>
-			</Box>
+							<ChartPanel<ChartKind>
+								title={t("dashboard.chart.payments.title")}
+								subtitle={t("dashboard.chart.payments.sub")}
+								legend={[
+									{ label: t("dashboard.chart.payin"), color: theme.palette.success.main },
+									{ label: t("dashboard.chart.payout"), color: theme.palette.error.main },
+								]}
+								chartType={paymentsType}
+								onChartType={setPaymentsType}
+								typeOptions={[
+									{ value: "bar", label: t("dashboard.chart.bars") },
+									{ value: "line", label: t("dashboard.chart.netLine") },
+								]}
+								extra={<KassaFilter wallets={data.wallets} value={kassa} onChange={setKassa} />}
+							>
+								<PaymentsChart series={data.series} chartType={paymentsType} kassa={kassa} />
+							</ChartPanel>
 
-			<Box
-				sx={
-					motion
-						? { animation: `${fadeUp} 460ms ${EASE} both`, animationDelay: "540ms" }
-						: undefined
-				}
-			>
-				<RecentTransactionsTable
-					rows={data.recentTransactions}
-					onSales={() => navigate(PATHS.sales)}
-					onSupplies={() => navigate(PATHS.supplies)}
-					onOrders={() => navigate(PATHS.orders)}
-					onOpen={onRecentRow}
-				/>
-			</Box>
+							<TopDebtorsPanel
+								debtors={data.topDebtors}
+								onOpenDebtor={(id) => navigate(partnerDetailPath(id))}
+								onAllPartners={() => navigate(PATHS.partners)}
+							/>
+						</Box>
+
+						<Box
+							sx={
+								motion
+									? { animation: `${fadeUp} 460ms ${EASE} both`, animationDelay: "540ms" }
+									: undefined
+							}
+						>
+							<RecentTransactionsTable rows={data.recentTransactions} onOpen={onRecentRow} />
+						</Box>
+					</Box>
+				</Box>
+			)}
 		</Box>
 	);
 });

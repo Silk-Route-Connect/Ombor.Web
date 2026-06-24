@@ -5,7 +5,6 @@ import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, Paper, Typography } from "@mui/material";
@@ -60,47 +59,17 @@ const StatusChip: React.FC<{ status: DashboardTxStatus }> = ({ status }) => {
 
 interface Props {
 	rows: DashboardRecentTransaction[];
-	onSales: () => void;
-	onSupplies: () => void;
-	onOrders: () => void;
 	onOpen: (tx: DashboardRecentTransaction) => void;
 }
-
-/** A small "open the full list" link in the panel header. */
-const SeeAllLink: React.FC<{ label: string; onClick: () => void }> = ({ label, onClick }) => (
-	<Box
-		onClick={onClick}
-		sx={{
-			display: "inline-flex",
-			alignItems: "center",
-			gap: "2px",
-			color: "primary.main",
-			fontSize: 13,
-			fontWeight: 600,
-			cursor: "pointer",
-			whiteSpace: "nowrap",
-			"&:hover": { textDecoration: "underline" },
-		}}
-	>
-		{label}
-		<ChevronRightIcon sx={{ fontSize: 16 }} />
-	</Box>
-);
 
 /**
  * «Последние транзакции» — a read-only preview of the latest sales/supplies (no
  * pagination, by design — it's a briefing, not a browser). A row click toasts
- * (self-contained mock, like the Долги rows). The header carries explicit links
- * to the full, paginated/filterable lists: Продажи (sales + sale-refunds),
- * Поставки (supplies + supply-refunds) and Заказы.
+ * (self-contained mock, like the Долги rows). The full lists live on the dedicated
+ * pages; the prototype's «Все продажи / поставки / заказы» header links were
+ * removed (owner decision) — this is a preview, not a navigation hub.
  */
-const RecentTransactionsTable: React.FC<Props> = ({
-	rows,
-	onSales,
-	onSupplies,
-	onOrders,
-	onOpen,
-}) => {
+const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 	const { t } = useTranslation();
 
 	return (
@@ -114,22 +83,10 @@ const RecentTransactionsTable: React.FC<Props> = ({
 				mt: "16px",
 			}}
 		>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-					p: "16px 20px",
-				}}
-			>
+			<Box sx={{ display: "flex", alignItems: "center", p: "16px 20px" }}>
 				<Typography sx={{ fontSize: 15, fontWeight: 600 }}>
 					{t("dashboard.recent.title")}
 				</Typography>
-				<Box sx={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-					<SeeAllLink label={t("dashboard.recent.allSales")} onClick={onSales} />
-					<SeeAllLink label={t("dashboard.recent.allSupplies")} onClick={onSupplies} />
-					<SeeAllLink label={t("dashboard.recent.allOrders")} onClick={onOrders} />
-				</Box>
 			</Box>
 
 			<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
