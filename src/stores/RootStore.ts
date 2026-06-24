@@ -4,6 +4,7 @@ import { IPayrollStore, PayrollStore } from "stores/PayrollStore";
 import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEmployeeStore";
 
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
+import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
 import { NotificationStore } from "./NotificationStore";
@@ -53,6 +54,7 @@ export class RootStore {
 	debtStore: IDebtStore;
 	dashboardStore: IDashboardStore;
 	settingsStore: ISettingsStore;
+	connectivityStore: IConnectivityStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
@@ -84,6 +86,9 @@ export class RootStore {
 		this.debtStore = new DebtStore(this.notificationStore);
 		this.dashboardStore = new DashboardStore(this.notificationStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
+		// Registers the ConnectivityBridge reporters used by the http error
+		// interceptor — construct it so the wiring exists before any request.
+		this.connectivityStore = new ConnectivityStore(this.notificationStore);
 	}
 }
 

@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import {
 	ForgotPasswordRequest,
+	ForgotPasswordResponse,
 	LoginRequest,
 	RegisterRequest,
 	ResetPasswordRequest,
@@ -175,8 +176,17 @@ export class AuthStore {
 	/* ── Password reset (mocked target v1 contract). None of these enter the app —
 	 * the user logs in afterwards with the new password. ── */
 
-	public async requestPasswordReset(request: ForgotPasswordRequest) {
-		return authApi.forgotPassword(request);
+	public async requestPasswordReset(
+		request: ForgotPasswordRequest,
+	): Promise<ForgotPasswordResponse> {
+		const response = await authApi.forgotPassword(request);
+		// A well-formed response carries the code TTL. Anything else — including a
+		// proxy 200 with no/HTML body when the endpoint is missing — is treated as a
+		// failure so the page surfaces an error instead of silently advancing (F-023).
+		if (typeof response?.expiresInMinutes !== "number") {
+			throw new Error("Invalid forgot-password response");
+		}
+		return response;
 	}
 
 	public async verifyResetCode(request: VerifyResetCodeRequest): Promise<void> {

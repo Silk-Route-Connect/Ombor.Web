@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 
 import { Box } from "@mui/material";
 
+import OfflineBanner from "./OfflineBanner";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
@@ -16,6 +17,7 @@ export default function AppLayout() {
 			<Sidebar />
 			<Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 				<Topbar />
+				<OfflineBanner />
 				<Box component="main" sx={{ flex: 1, overflow: "auto", p: 3 }}>
 					<Outlet />
 				</Box>
