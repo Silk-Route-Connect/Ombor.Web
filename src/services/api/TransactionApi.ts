@@ -121,6 +121,7 @@ class TransactionApi extends BaseApi {
 		form.append("Type", request.type);
 
 		if (isRefundRequest(request)) {
+			form.append("PartnerId", String(request.partnerId));
 			form.append("OriginalTransactionId", String(request.originalTransactionId));
 			form.append("RefundReason", request.refundReason);
 			request.lines.forEach((line, i) => {

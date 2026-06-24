@@ -162,10 +162,12 @@ export type CreateTransactionEntryRequest = {
  * as sales/supplies (one immutable create path; there is no separate `/{id}/refund`).
  * `type` discriminates a refund of a sale vs a supply; it carries the original
  * transaction id and the mandatory reason (business-rules §A, rule 7). A refund moves
- * no money, so it has no wallet / payment fields.
+ * no money, so it has no wallet / payment fields. `partnerId` (the original
+ * transaction's partner) is required by the backend.
  */
 export type CreateTransactionRefundRequest = {
 	type: "SaleRefund" | "SupplyRefund";
+	partnerId: number;
 	originalTransactionId: number;
 	refundReason: string;
 	lines: CreateRefundLine[];

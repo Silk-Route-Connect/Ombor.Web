@@ -166,6 +166,7 @@ export class TransactionStore implements ITransactionStore {
 		const result = await withSaving(this, () =>
 			TransactionApi.create({
 				type: refundType,
+				partnerId: transaction.partnerId,
 				originalTransactionId: transaction.id,
 				refundReason: request.reason,
 				lines: request.lines,
