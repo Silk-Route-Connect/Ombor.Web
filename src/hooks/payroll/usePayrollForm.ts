@@ -107,7 +107,7 @@ export function usePayrollForm({
 
 	const {
 		handleSubmit,
-		formState: { isDirty, isValid },
+		formState: { isDirty },
 	} = form;
 
 	const { discardOpen, requestClose, confirmDiscard, cancelDiscard } = useDirtyClose(
@@ -118,7 +118,9 @@ export function usePayrollForm({
 
 	const submit = handleSubmit(onSave);
 
-	const canSave = isValid && !isSaving;
+	// Save stays enabled (hard rule 5): handleSubmit blocks an invalid form and
+	// surfaces inline errors; the button is only inert while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,
