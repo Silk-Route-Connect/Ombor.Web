@@ -59,7 +59,6 @@ const DEFAULT_VALUES: ProductFormInputs = {
 
 	supplyPrice: 0,
 	salePrice: 0,
-	retailPrice: 0,
 
 	lowStockThreshold: null,
 
@@ -210,7 +209,7 @@ export const useProductForm = ({
 	}, []);
 
 	// The type segmented control decides which price is shown; zero the hidden
-	// one so it never carries a stale value. retailPrice is dormant (no UI).
+	// one so it never carries a stale value.
 	useEffect(() => {
 		if (!watchedType) {
 			return;

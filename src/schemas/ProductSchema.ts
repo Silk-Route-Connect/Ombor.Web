@@ -1,7 +1,7 @@
 import i18next from "i18n/config";
 import { z } from "zod";
 
-export const MEASUREMENTS = ["Unit", "Gram", "Kilogram", "Liter", "None"] as const;
+export const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"] as const;
 export type Measurement = (typeof MEASUREMENTS)[number];
 
 export const PRODUCT_TYPES = ["All", "Sale", "Supply"] as const;
@@ -78,10 +78,11 @@ export const ProductPackagingSchema = z.object({
  * Product form contract — aligned to the redesigned create/edit modal: only
  * Название and Артикул are required; Категория is optional (no default-category
  * concept — canon rule 42); prices are optional and merely non-negative. The
- * hidden price for the chosen type is zeroed by the form hook, and `retailPrice`
- * is a dormant field with no UI (kept at 0). Initial stock is not captured here:
- * a product is created at zero stock and stocked later via an opening-stock
- * event (canon rule 22, Warehouse Detail) — see the session notes.
+ * hidden price for the chosen type is zeroed by the form hook. `retailPrice` is
+ * not part of this contract (dropped from create/edit; kept read-only on the
+ * served model only). Initial stock is not captured here: a product is created
+ * at zero stock and stocked later via an opening-stock event (canon rule 22,
+ * Warehouse Detail) — see the session notes.
  */
 export const ProductSchema = z.object({
 	name: z
@@ -108,10 +109,10 @@ export const ProductSchema = z.object({
 		.optional(),
 
 	// Prices are non-negative; the type segmented control determines which are
-	// shown, and the form hook zeroes the hidden ones. retailPrice is dormant.
+	// shown, and the form hook zeroes the hidden one. retailPrice is not part of
+	// the create/edit contract (kept read-only on the served model only).
 	supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
 	salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
-	retailPrice: z.number().min(0, i18next.t("product.validation.retailPriceNonNegative")),
 
 	lowStockThreshold: z.number().int().min(0).nullable().optional(),
 

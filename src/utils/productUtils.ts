@@ -3,10 +3,12 @@ import { ProductFormInputs } from "schemas/ProductSchema";
 
 /** Short unit codes for the «Ед. изм.» column, keyed by the domain enum. */
 export const MEASUREMENT_SHORT: Record<Measurement, string> = {
-	Unit: "шт",
 	Gram: "г",
 	Kilogram: "кг",
-	Liter: "л",
+	Ton: "т",
+	Piece: "шт",
+	Box: "кор",
+	Unit: "ед",
 	None: "—",
 };
 
@@ -52,7 +54,6 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 
 		supplyPrice: Number(product.supplyPrice),
 		salePrice: Number(product.salePrice),
-		retailPrice: Number(product.retailPrice),
 
 		lowStockThreshold: product.lowStockThreshold ?? null,
 

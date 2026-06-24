@@ -72,7 +72,6 @@ const ProductDetailPage: React.FC = observer(() => {
 			barcode: payload.barcode,
 			salePrice: payload.salePrice,
 			supplyPrice: payload.supplyPrice,
-			retailPrice: payload.retailPrice,
 			measurement: payload.measurement,
 			type: payload.type,
 			lowStockThreshold: payload.lowStockThreshold ?? null,

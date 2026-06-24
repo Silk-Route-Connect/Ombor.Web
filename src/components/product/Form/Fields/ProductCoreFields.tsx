@@ -3,7 +3,7 @@ import { Control, Controller, UseFormSetValue, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { ProductType } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
@@ -20,13 +20,8 @@ export interface ProductFormCoreFieldsProps {
 	onGenerateSku?: () => void;
 }
 
-const MEASUREMENTS = ["Unit", "Gram", "Kilogram", "Liter", "None"] as const;
+const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"] as const;
 const TYPES: ProductType[] = ["Sale", "Supply", "All"];
-
-const toNumberOrZero = (raw: string): number => {
-	const val = raw.trim();
-	return val === "" ? 0 : Number(val);
-};
 
 const uzsSuffix = {
 	input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
@@ -241,16 +236,16 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								name="salePrice"
 								control={control}
 								render={({ field, fieldState }) => (
-									<NumericField
-										{...field}
+									<MoneyField
 										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										name={field.name}
+										inputRef={field.ref}
 										size="small"
-										min={0}
-										step={1}
 										disabled={disabled}
 										error={!!fieldState.error}
 										helperText={fieldState.error?.message}
-										onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 										slotProps={uzsSuffix}
 									/>
 								)}
@@ -263,16 +258,16 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								name="supplyPrice"
 								control={control}
 								render={({ field, fieldState }) => (
-									<NumericField
-										{...field}
+									<MoneyField
 										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										name={field.name}
+										inputRef={field.ref}
 										size="small"
-										min={0}
-										step={1}
 										disabled={disabled}
 										error={!!fieldState.error}
 										helperText={fieldState.error?.message}
-										onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 										slotProps={uzsSuffix}
 									/>
 								)}

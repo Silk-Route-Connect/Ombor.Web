@@ -29,7 +29,7 @@ const NAME_MIN = 2;
 const NAME_MAX = 250;
 const SKU_MAX = 100;
 
-const MEASUREMENTS: Measurement[] = ["Unit", "Gram", "Kilogram", "Liter", "None"];
+const MEASUREMENTS: Measurement[] = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"];
 const TYPES: ProductType[] = ["All", "Sale", "Supply"];
 
 /** ASP.NET ProblemDetails (matches the backend's error shape — see openapi.json). */
@@ -98,7 +98,6 @@ function parseWrite(form: FormData): ProductWrite {
 		barcode: str(form.get("barcode")),
 		salePrice: num(form.get("salePrice")),
 		supplyPrice: num(form.get("supplyPrice")),
-		retailPrice: num(form.get("retailPrice")),
 		measurement: measurement && MEASUREMENTS.includes(measurement) ? measurement : "Unit",
 		type: type && TYPES.includes(type) ? type : "All",
 		lowStockThreshold: lowStockRaw == null || lowStockRaw === "" ? null : num(lowStockRaw),

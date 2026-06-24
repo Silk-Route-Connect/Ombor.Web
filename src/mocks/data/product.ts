@@ -441,7 +441,7 @@ const seed: ProductSeed[] = [
 		salePrice: 54000,
 		supplyPrice: 31000,
 		retailPrice: 59000,
-		measurement: "Liter",
+		measurement: "Piece",
 		type: "All",
 		lowStockThreshold: 120,
 		imageColors: ["#7A5230", "#A06A38"],
@@ -620,7 +620,6 @@ export type ProductWrite = {
 	barcode?: string;
 	salePrice: number;
 	supplyPrice: number;
-	retailPrice: number;
 	measurement: Product["measurement"];
 	type: Product["type"];
 	lowStockThreshold?: number | null;
@@ -641,7 +640,9 @@ export function addProduct(write: ProductWrite): Product {
 		barcode: write.barcode,
 		salePrice: write.salePrice,
 		supplyPrice: write.supplyPrice,
-		retailPrice: write.retailPrice,
+		// retailPrice is no longer collected by the create/edit form (dropped from
+		// the contract); kept as a dormant field on the record, created at 0.
+		retailPrice: 0,
 		measurement: write.measurement,
 		type: write.type,
 		lowStockThreshold: write.lowStockThreshold ?? null,
@@ -678,7 +679,6 @@ export function editProduct(id: number, write: ProductWrite): Product | undefine
 	existing.barcode = write.barcode;
 	existing.salePrice = write.salePrice;
 	existing.supplyPrice = write.supplyPrice;
-	existing.retailPrice = write.retailPrice;
 	existing.measurement = write.measurement;
 	existing.type = write.type;
 	existing.lowStockThreshold = write.lowStockThreshold ?? null;

@@ -1,6 +1,14 @@
 import { TransactionType } from "./transaction";
 
-export const PRODUCT_MEASUREMENTS = ["Unit", "Gram", "Kilogram", "Liter", "None"] as const;
+export const PRODUCT_MEASUREMENTS = [
+	"Gram",
+	"Kilogram",
+	"Ton",
+	"Piece",
+	"Box",
+	"Unit",
+	"None",
+] as const;
 export type Measurement = (typeof PRODUCT_MEASUREMENTS)[number];
 
 export const PRODUCT_TYPES = ["All", "Sale", "Supply"] as const;
@@ -43,7 +51,11 @@ export type Product = {
 
 	salePrice: number;
 	supplyPrice: number;
-	/** Dormant field — carried in the contract, never surfaced in the UI (canon). */
+	/**
+	 * Dormant, read-only field. Removed from the create/edit contract (the form no
+	 * longer collects or sends it); still served by the backend from the entity and
+	 * never surfaced in the UI. Pending full removal from the contract backend-side.
+	 */
 	retailPrice: number;
 
 	measurement: Measurement;
@@ -75,7 +87,6 @@ export type CreateProductRequest = {
 
 	salePrice: number;
 	supplyPrice: number;
-	retailPrice: number;
 
 	measurement: Measurement;
 	type: ProductType;
