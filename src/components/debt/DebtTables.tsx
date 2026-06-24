@@ -1,5 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import {
+	tableBodyCellSx as bodyCellSx,
+	tableHeadCellSx as headCellSx,
+} from "components/shared/Table/tableStyles";
 import { Debt } from "models/debt";
 import { DebtPartnerGroup } from "stores/DebtStore";
 import { designTokens, numericSx } from "theme";
@@ -12,26 +16,6 @@ import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box, Paper, Typography } from "@mui/material";
-
-const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-const bodyCellSx = {
-	p: "13px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
 
 const Chip: React.FC<{ tone: "success" | "warning" | "info"; label: string }> = ({
 	tone,

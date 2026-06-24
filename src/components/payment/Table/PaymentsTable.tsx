@@ -1,6 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import {
+	tableBodyCellSx as bodyCellSx,
+	tableHeadCellSx as headCellSx,
+} from "components/shared/Table/tableStyles";
 import { Loadable } from "helpers/Loading";
 import { PaymentRecord } from "models/payment";
 import { designTokens, numericSx } from "theme";
@@ -16,26 +20,6 @@ interface PaymentsTableProps {
 	isFiltering: boolean;
 	onOpen: (payment: PaymentRecord) => void;
 }
-
-const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-const bodyCellSx = {
-	p: "13px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
 
 /**
  * Payments list per the bundle: № · Дата · Тип · Направление · Партнёр /

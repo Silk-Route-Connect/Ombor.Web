@@ -1,6 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import ArchivedBadge from "components/product/ArchivedBadge";
+import {
+	tableBodyCellSx as bodyCellSx,
+	tableHeadCellSx as headCellSx,
+} from "components/shared/Table/tableStyles";
 import { WalletActionMenu } from "components/wallet/Table/WalletActionMenu";
 import { WalletTypeAvatar, WalletTypeBadge } from "components/wallet/WalletPresentation";
 import { Loadable } from "helpers/Loading";
@@ -26,26 +30,6 @@ interface WalletsTableProps {
 	onArchive: (wallet: Wallet) => void;
 	onRestore: (wallet: Wallet) => void;
 }
-
-const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-const bodyCellSx = {
-	p: "13px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
 
 const moneySx = { ...numericSx, fontWeight: 700, fontSize: 15, letterSpacing: "-0.01em" } as const;
 

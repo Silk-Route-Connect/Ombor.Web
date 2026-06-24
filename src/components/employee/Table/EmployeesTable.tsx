@@ -2,6 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeStatusBadge } from "components/employee/EmployeeStatusBadge";
 import EmployeeActionMenu from "components/employee/Table/ActionMenu/EmployeeActionMenu";
+import {
+	tableBodyCellSx as bodyCellSx,
+	tableHeadCellSx as headCellSx,
+} from "components/shared/Table/tableStyles";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
 import { designTokens, numericSx } from "theme";
@@ -22,26 +26,6 @@ interface EmployeesTableProps {
 	onTerminate: (employee: Employee) => void;
 	onRestore: (employee: Employee) => void;
 }
-
-const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-const bodyCellSx = {
-	p: "13px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
 
 const Avatar: React.FC<{ name: string; dim?: boolean }> = ({ name, dim }) => (
 	<Box
