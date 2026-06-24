@@ -141,13 +141,7 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 							</Box>
 						</FinRow>
 						<FinRow label={t("order.col.source")}>
-							{order.source === "None" ? (
-								<Box component="span" sx={{ color: "text.disabled" }}>
-									—
-								</Box>
-							) : (
-								<OrderSourceChip source={order.source} />
-							)}
+							<OrderSourceChip source={order.source} />
 						</FinRow>
 						<FinRow label={t("order.col.status")}>
 							<OrderStatusChip status={order.status} />

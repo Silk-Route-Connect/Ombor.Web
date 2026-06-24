@@ -90,7 +90,7 @@ const seed: OrderSeed[] = [
 	{
 		id: 210,
 		customerId: 1, // Антонина Давыдова
-		source: "None",
+		source: "OmborWeb",
 		status: "Pending",
 		address: "ул. Шота Руставели 14, Ташкент",
 		notes: null,
@@ -130,7 +130,7 @@ const seed: OrderSeed[] = [
 	{
 		id: 208,
 		customerId: 8, // Дима Мирзадова
-		source: "None",
+		source: "OmborWeb",
 		status: "Shipping",
 		address: "ул. Навои 3, Самарканд",
 		notes: null,
@@ -176,7 +176,7 @@ const seed: OrderSeed[] = [
 	{
 		id: 206,
 		customerId: 6, // Виктория Собянина
-		source: "None",
+		source: "OmborWeb",
 		status: "Cancelled",
 		address: null,
 		notes: "Клиент передумал — отменено по телефону",

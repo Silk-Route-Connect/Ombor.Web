@@ -23,7 +23,9 @@ export const ORDER_STATUSES = [
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export const ORDER_SOURCES = ["None", "Telegram", "OmborWeb"] as const;
+// Mirrors the backend `OrderSource` enum. Source is required on create; there is
+// no «Нет»/None — an order is always either a web (OmborWeb) or Telegram order.
+export const ORDER_SOURCES = ["Telegram", "OmborWeb"] as const;
 export type OrderSource = (typeof ORDER_SOURCES)[number];
 
 /**

@@ -8,21 +8,11 @@ import { Box } from "@mui/material";
 
 interface OrderSourceChipProps {
 	source: OrderSource;
-	/** Render a muted dash for `None` instead of nothing (list cell). */
-	dashWhenNone?: boolean;
 }
 
-/** Source badge: OmborWeb (info) / Telegram (blue) / None (dash). */
-export const OrderSourceChip: React.FC<OrderSourceChipProps> = ({ source, dashWhenNone }) => {
+/** Source badge: OmborWeb (info) / Telegram (blue). */
+export const OrderSourceChip: React.FC<OrderSourceChipProps> = ({ source }) => {
 	const { t } = useTranslation();
-
-	if (source === "None") {
-		return dashWhenNone ? (
-			<Box component="span" sx={{ ...{ fontFamily: "inherit" }, color: "text.disabled" }}>
-				—
-			</Box>
-		) : null;
-	}
 
 	const isWeb = source === "OmborWeb";
 	const sx = isWeb

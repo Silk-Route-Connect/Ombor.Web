@@ -88,7 +88,7 @@ export function buildOrderColumns(
 		{
 			key: "source",
 			headerName: t("order.col.source"),
-			renderCell: (o) => <OrderSourceChip source={o.source} dashWhenNone />,
+			renderCell: (o) => <OrderSourceChip source={o.source} />,
 		},
 	];
 }

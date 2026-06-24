@@ -64,7 +64,7 @@ export const NewOrder: React.FC = observer(() => {
 
 	const [client, setClient] = useState<Partner | null>(null);
 	const [warehouseId, setWarehouseId] = useState<number | null>(null);
-	const [source, setSource] = useState<OrderSource>("None");
+	const [source, setSource] = useState<OrderSource>("OmborWeb");
 	const [items, setItems] = useState<CartItem[]>([]);
 	const [address, setAddress] = useState("");
 	const [note, setNote] = useState("");
@@ -130,7 +130,7 @@ export const NewOrder: React.FC = observer(() => {
 		note.trim() !== "" ||
 		deliveryDate !== "" ||
 		deliveryTime !== "" ||
-		source !== "None";
+		source !== "OmborWeb";
 
 	const tone = client ? balancePresentation(client.balance) : null;
 	const warehouseName = warehouses.find((w) => w.id === warehouseId)?.name ?? "";

@@ -52,7 +52,7 @@ const OrderPage: React.FC = observer(() => {
 			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },
 			{
 				header: t("order.col.source"),
-				value: (o) => (o.source === "None" ? "—" : t(`order.source.${o.source}`)),
+				value: (o) => t(`order.source.${o.source}`),
 			},
 		];
 		exportToCsv(`orders_${csvDateStamp()}`, csvColumns, rows);

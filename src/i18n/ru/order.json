@@ -33,7 +33,6 @@
   "order.status.Rejected": "Отклонён",
   "order.status.Returned": "Возвращён",
 
-  "order.source.None": "Нет",
   "order.source.Telegram": "Telegram",
   "order.source.OmborWeb": "OmborWeb",
 

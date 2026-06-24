@@ -59,7 +59,7 @@ type EditLine = {
 	discountType: OrderLineDiscountType;
 };
 
-const SOURCE_OPTIONS: OrderSource[] = ["None", "Telegram", "OmborWeb"];
+const SOURCE_OPTIONS: OrderSource[] = ["Telegram", "OmborWeb"];
 
 const QtyStepper: React.FC<{
 	value: number;
@@ -135,7 +135,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	const { partnerStore, productStore, warehouseStore } = useStore();
 
 	const [client, setClient] = useState<Partner | null>(null);
-	const [source, setSource] = useState<OrderSource>("None");
+	const [source, setSource] = useState<OrderSource>("OmborWeb");
 	const [warehouseId, setWarehouseId] = useState<number | "">("");
 	const [lines, setLines] = useState<EditLine[]>([]);
 	const [address, setAddress] = useState("");
