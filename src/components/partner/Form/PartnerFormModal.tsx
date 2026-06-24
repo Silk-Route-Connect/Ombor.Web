@@ -14,6 +14,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDate as formatLocaleDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { balanceColor } from "utils/partnerUtils";
+import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -29,6 +30,7 @@ import {
 	DialogActions,
 	DialogContent,
 	IconButton,
+	InputAdornment,
 	LinearProgress,
 	TextField,
 	Typography,
@@ -207,14 +209,26 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 											{phones.map((phone, i) => (
 												<Box key={i} sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
 													<TextField
-														value={phone}
-														onChange={(e) => setAt(i, e.target.value)}
+														value={uzNationalPart(phone)}
+														onChange={(e) => setAt(i, uzPhoneToStored(e.target.value))}
 														size="small"
 														fullWidth
-														placeholder={t("partner.form.phonePlaceholder")}
+														inputMode="numeric"
+														placeholder="90 123 45 67"
 														disabled={isSaving}
 														error={isSubmitted && Boolean(phoneErrors) && i === 0}
 														sx={numericSx}
+														slotProps={{
+															input: {
+																startAdornment: (
+																	<InputAdornment position="start">
+																		<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
+																			{UZ_COUNTRY_PREFIX}
+																		</Typography>
+																	</InputAdornment>
+																),
+															},
+														}}
 													/>
 													{phones.length > 1 && (
 														<IconButton

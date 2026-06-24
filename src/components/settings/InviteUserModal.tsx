@@ -4,13 +4,14 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { InviteUserRequest } from "models/settings";
 import { designTokens } from "theme";
+import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
 
 import CloseIcon from "@mui/icons-material/Close";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import { Box, Dialog, IconButton, TextField, Typography } from "@mui/material";
+import { Box, Dialog, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 
 interface Props {
 	isOpen: boolean;
@@ -26,11 +27,11 @@ interface Props {
  */
 const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite }) => {
 	const { t } = useTranslation();
+	// `value` holds the editable national digits; the «+998» prefix is fixed.
 	const [value, setValue] = useState("");
 	const [submitted, setSubmitted] = useState(false);
 
-	const trimmed = value.trim();
-	const valid = trimmed.replace(/\D/g, "").length >= 9;
+	const valid = value.length === 9;
 	const showError = submitted && !valid;
 
 	const reset = (): void => {
@@ -44,7 +45,8 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 	const submit = (): void => {
 		setSubmitted(true);
 		if (valid) {
-			onInvite({ method: "phone", value: trimmed });
+			// Send a normalized E.164 number (+998XXXXXXXXX), matching login/register.
+			onInvite({ method: "phone", value: uzPhoneToStored(value) });
 			reset();
 		}
 	};
@@ -90,9 +92,20 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 						autoFocus
 						error={showError}
 						value={value}
-						inputMode="tel"
-						placeholder="+998 90 123 45 67"
-						onChange={(e) => setValue(e.target.value)}
+						inputMode="numeric"
+						placeholder="90 123 45 67"
+						onChange={(e) => setValue(uzNationalPart(e.target.value))}
+						slotProps={{
+							input: {
+								startAdornment: (
+									<InputAdornment position="start">
+										<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
+											{UZ_COUNTRY_PREFIX}
+										</Typography>
+									</InputAdornment>
+								),
+							},
+						}}
 						sx={{ "& .MuiInputBase-root": { fontSize: 14 } }}
 					/>
 					{showError && (
