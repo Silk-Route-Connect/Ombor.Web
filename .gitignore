@@ -51,3 +51,11 @@ pnpm-debug.log*
 # Optional build outputs (if you ever use other tools)
 /dist
 /storybook-static
+
+# Playwright MCP scratch output (page snapshots, console logs, seed temp files)
+.playwright-mcp/
+
+# Manual test-sweep artifacts: findings (canonical lives in the Obsidian vault) + evidence screenshots.
+# The reusable test-plan.md and test-cases/ ARE tracked.
+docs/testing/findings.md
+docs/testing/screenshots/
