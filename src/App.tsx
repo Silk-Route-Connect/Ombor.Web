@@ -11,6 +11,7 @@ import LoginPage from "pages/LoginPage";
 import NewOrderPage from "pages/NewOrderPage";
 import NewSalePage from "pages/NewSalePage";
 import NewSupplyPage from "pages/NewSupplyPage";
+import NotFoundPage from "pages/NotFoundPage";
 import OrderDetailPage from "pages/OrderDetailPage";
 import OrderPage from "pages/OrderPage";
 import PartnerDetailPage from "pages/PartnerDetailPage";
@@ -109,6 +110,7 @@ function App() {
 									element={<PlaceholderPage titleKey="page.activityLog.title" />}
 								/>
 								<Route path={PATHS.settings} element={<SettingsPage />} />
+								<Route path="*" element={<NotFoundPage />} />
 							</Route>
 						</Route>
 					</Routes>
