@@ -78,6 +78,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 
 	const handleOpeningSave = async (payload: OpeningStockFormValues): Promise<void> => {
 		const updated = await warehouseStore.addOpeningStock(warehouse.id, {
+			warehouseId: warehouse.id,
 			items: [
 				{ productId: payload.productId, quantity: payload.quantity, unitCost: payload.unitCost },
 			],

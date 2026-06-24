@@ -99,9 +99,11 @@ export type OpeningStockLine = {
 /**
  * Opening-stock event payload (mirrors AddOpeningStockRequest). The redesigned
  * modal submits a single line; the contract carries a list so it can grow to a
- * multi-line entry later. The `note` rides along for the audit trail (rule 22/26).
+ * multi-line entry later. `warehouseId` is required by the backend and must match
+ * the route id. The `note` rides along for the audit trail (rule 22/26).
  */
 export type AddOpeningStockRequest = {
+	warehouseId: number;
 	items: OpeningStockLine[];
 	note: string | null;
 };
