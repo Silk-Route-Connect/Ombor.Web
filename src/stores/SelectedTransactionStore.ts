@@ -20,14 +20,19 @@ export interface ISelectedTransactionStore {
 }
 
 /**
- * State for the routed transaction detail page. Loads the whole collection once
- * (the v1 list serves full records incl. lines + payments) and resolves the open
- * transaction, its refund history, and — for a refund — its original, all
- * client-side (docs/mocking.md).
+ * State for the routed transaction detail page. The open transaction is loaded
+ * from the **detail** endpoint (`getById`) — only the rich `TransactionDetailDto`
+ * carries `warehouseName`, `payments`, and the transaction `number`; the lean
+ * list DTO omits them. The whole collection is loaded alongside to resolve the
+ * refund relationships (refund history, and — for a refund — its original) client-
+ * side, for which the lean records suffice (docs/mocking.md).
  */
 export class SelectedTransactionStore implements ISelectedTransactionStore {
 	private readonly notificationStore: NotificationStore;
 
+	/** The open transaction, from the rich detail endpoint. */
+	private detail: Loadable<TransactionRecord | null> = "loading";
+	/** The full collection, for resolving refund relationships only. */
 	private all: Loadable<TransactionRecord[]> = "loading";
 	private currentId: number | null = null;
 
@@ -37,10 +42,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 	}
 
 	get transaction(): Loadable<TransactionRecord | null> {
-		if (this.all === "loading") {
-			return "loading";
-		}
-		return this.all.find((t) => t.id === this.currentId) ?? null;
+		return this.detail;
 	}
 
 	get refundsOfCurrent(): TransactionRecord[] {
@@ -51,7 +53,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 	}
 
 	get originalOfCurrent(): TransactionRecord | null {
-		const current = this.transaction;
+		const current = this.detail;
 		if (current === "loading" || !current?.originalTransactionId || this.all === "loading") {
 			return null;
 		}
@@ -61,19 +63,27 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 	async load(id: number): Promise<void> {
 		runInAction(() => {
 			this.currentId = id;
+			this.detail = "loading";
 			this.all = "loading";
 		});
 
-		const result = await tryRun(() => TransactionApi.getAll());
+		const [detailResult, allResult] = await Promise.all([
+			tryRun(() => TransactionApi.getById(id)),
+			tryRun(() => TransactionApi.getAll()),
+		]);
 
-		if (result.status === "fail") {
+		if (detailResult.status === "fail") {
 			this.notificationStore.error(i18next.t("transactions.errors.getById"));
 		}
 
-		runInAction(() => (this.all = result.status === "success" ? result.data : []));
+		runInAction(() => {
+			this.detail = detailResult.status === "success" ? detailResult.data : null;
+			this.all = allResult.status === "success" ? allResult.data : [];
+		});
 	}
 
 	clear(): void {
+		this.detail = "loading";
 		this.all = "loading";
 		this.currentId = null;
 	}
