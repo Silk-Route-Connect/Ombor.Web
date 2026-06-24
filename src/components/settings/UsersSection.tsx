@@ -93,8 +93,11 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 		if (u.online) {
 			return { text: t("settings.users.onlineNow"), online: true };
 		}
+		// An active user with no recorded activity reads as «Активен» — the backend
+		// returns active:true with no separate pending/invite status, so we never
+		// mislabel a registered account (e.g. the owner) as «Приглашён» (F-005).
 		return {
-			text: u.lastActiveAt ? formatDate(u.lastActiveAt) : t("settings.users.invited"),
+			text: u.lastActiveAt ? formatDate(u.lastActiveAt) : t("settings.users.active"),
 			online: false,
 		};
 	};

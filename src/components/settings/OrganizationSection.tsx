@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { Organization } from "models/settings";
+import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
@@ -48,9 +49,14 @@ const LabeledField: React.FC<{
 
 const fieldSx = { "& .MuiInputBase-root": { fontSize: 14 } } as const;
 
+/** Max logo size, enforced client-side before upload (matches the «до 2 МБ» hint). */
+const MAX_LOGO_BYTES = 2 * 1024 * 1024;
+const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg"];
+
 /** Организация — editable company profile + logo (mvp-plan §18). */
 const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => {
 	const { t } = useTranslation();
+	const { notificationStore } = useStore();
 	const fileRef = useRef<HTMLInputElement>(null);
 
 	const initials = org.name
@@ -63,14 +69,23 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 
 	const onFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const file = e.target.files?.[0];
+		// Reset the input first so re-selecting the same (rejected) file still fires.
+		e.target.value = "";
 		if (!file) {
+			return;
+		}
+		if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+			notificationStore.error(t("settings.org.logoInvalidType"));
+			return;
+		}
+		if (file.size > MAX_LOGO_BYTES) {
+			notificationStore.error(t("settings.org.logoTooLarge"));
 			return;
 		}
 		const reader = new FileReader();
 		reader.onload = (ev) => onChange({ logoUrl: String(ev.target?.result ?? "") });
 		reader.readAsDataURL(file);
 		onLogoFile(file);
-		e.target.value = "";
 	};
 
 	return (

@@ -17,6 +17,8 @@
   "settings.org.uploadLogo": "Загрузить",
   "settings.org.removeLogo": "Убрать",
   "settings.org.logoHint": "PNG или JPG, до 2 МБ",
+  "settings.org.logoTooLarge": "Файл слишком большой — максимум 2 МБ.",
+  "settings.org.logoInvalidType": "Загрузите изображение в формате PNG или JPG.",
 
   "settings.lang.title": "Язык",
   "settings.lang.subtitle": "Язык интерфейса для вашего аккаунта",
@@ -39,7 +41,7 @@
   "settings.users.deactivated": "Деактивирован",
   "settings.users.deactivatedSince": "с {{date}}",
   "settings.users.onlineNow": "Активен сейчас",
-  "settings.users.invited": "Приглашён",
+  "settings.users.active": "Активен",
   "settings.users.deactivate": "Деактивировать",
   "settings.users.reactivate": "Реактивировать",
   "settings.users.footnote": "Роли пока не разделяются — у всех доступ администратора. Пользователи не удаляются — история операций ссылается на них.",
