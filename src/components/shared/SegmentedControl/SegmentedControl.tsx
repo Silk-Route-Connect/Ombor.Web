@@ -32,7 +32,12 @@ export function SegmentedControl<T extends string>({
 	return (
 		<Box
 			sx={{
+				// 40px tall to match the sibling form controls in module headers
+				// (search / dropdown / archive toggle are all 40px); the items
+				// stretch to fill the track so the selected card is full-height.
 				display: fullWidth ? "flex" : "inline-flex",
+				alignItems: "stretch",
+				height: 40,
 				width: fullWidth ? "100%" : "auto",
 				bgcolor: designTokens.gray100,
 				borderRadius: "8px",
@@ -51,7 +56,6 @@ export function SegmentedControl<T extends string>({
 							flex: fullWidth ? 1 : "0 0 auto",
 							justifyContent: "center",
 							px: "13px",
-							py: "6px",
 							fontSize: 13,
 							fontWeight: selected ? 600 : 500,
 							fontFamily: "inherit",
