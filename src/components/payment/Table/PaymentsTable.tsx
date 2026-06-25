@@ -4,6 +4,7 @@ import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/Paym
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,
+	tableRowSx,
 } from "components/shared/Table/tableStyles";
 import { Loadable } from "helpers/Loading";
 import { PaymentRecord } from "models/payment";
@@ -103,12 +104,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 						{rows.map((p) => {
 							const party = p.partnerName ?? p.employeeName;
 							return (
-								<Box
-									component="tr"
-									key={p.id}
-									onClick={() => onOpen(p)}
-									sx={{ cursor: "pointer", "&:hover": { bgcolor: designTokens.gray25 } }}
-								>
+								<Box component="tr" key={p.id} onClick={() => onOpen(p)} sx={tableRowSx}>
 									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
 										<Box
 											component="span"

@@ -20,7 +20,6 @@ import {
 	TablePagination,
 	TableRow,
 	TableSortLabel,
-	useTheme,
 } from "@mui/material";
 
 import {
@@ -83,7 +82,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	tableLayout = "auto",
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE);
 	const [orderBy, setOrderBy] = useState<keyof T | null>(null);
@@ -210,13 +208,9 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</TableHead>
 
 				<TableBody>
-					{displayedRows.map((row, index) => {
+					{displayedRows.map((row) => {
 						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
 						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
-
-						const isOdd = index % 2 === 0;
-						const baseColor = isOdd ? theme.palette.grey[50] : "inherit";
-						const backgroundColor = isOpen ? theme.palette.action.hover : baseColor;
 
 						return (
 							<React.Fragment key={row.id}>
@@ -224,7 +218,10 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 									hover={isSelectable || Boolean(renderExpanded)}
 									onClick={() => handleRowClickInternal(row)}
 									sx={{
-										backgroundColor,
+										// White rows; the open row carries a light tint, and hover
+										// matches the shared DataTable (unified table style).
+										bgcolor: isOpen ? "grey.100" : "inherit",
+										"&:hover": { bgcolor: "grey.100" },
 										cursor: isSelectable ? "pointer" : "default",
 									}}
 								>

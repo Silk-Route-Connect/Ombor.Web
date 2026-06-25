@@ -18,9 +18,20 @@ export const tableHeadCellSx = {
 } as const;
 
 export const tableBodyCellSx = {
-	p: "13px 16px",
+	// 56px rows with centred content — matches the shared DataTable height.
+	height: 56,
+	p: "8px 16px",
 	borderBottom: "1px solid",
 	borderColor: "divider",
 	fontSize: 13.5,
 	verticalAlign: "middle",
+} as const;
+
+/**
+ * Clickable-row style for the hand-rolled tables: white with a clear grey-100
+ * hover, matching the shared `DataTable` (the unified table look — F-025).
+ */
+export const tableRowSx = {
+	cursor: "pointer",
+	"&:hover": { bgcolor: "grey.100" },
 } as const;

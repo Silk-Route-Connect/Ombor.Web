@@ -189,7 +189,7 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 								onClick={() => onOpen(g)}
 								sx={{
 									cursor: "pointer",
-									"&:hover": { bgcolor: designTokens.gray25, "& .go": { opacity: 1 } },
+									"&:hover": { bgcolor: "grey.100", "& .go": { opacity: 1 } },
 								}}
 							>
 								<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
@@ -368,7 +368,7 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 								onClick={() => onOpen(d)}
 								sx={{
 									cursor: "pointer",
-									"&:hover": { bgcolor: designTokens.gray25, "& .go": { opacity: 1 } },
+									"&:hover": { bgcolor: "grey.100", "& .go": { opacity: 1 } },
 								}}
 							>
 								<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>

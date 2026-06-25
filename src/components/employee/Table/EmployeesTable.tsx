@@ -5,6 +5,7 @@ import EmployeeActionMenu from "components/employee/Table/ActionMenu/EmployeeAct
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,
+	tableRowSx,
 } from "components/shared/Table/tableStyles";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
@@ -135,7 +136,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 									component="tr"
 									key={employee.id}
 									onClick={() => onOpen(employee)}
-									sx={{ cursor: "pointer", "&:hover": { bgcolor: designTokens.gray25 } }}
+									sx={tableRowSx}
 								>
 									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
 										<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>

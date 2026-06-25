@@ -28,9 +28,10 @@ export const BODY_CELL_SX: SxProps<Theme> = {
 	height: 56,
 };
 
-export const ROW_STRIPE_SX: SxProps<Theme> = {
-	"&:nth-of-type(odd)": { bgcolor: "grey.50" },
-	"&:hover": { bgcolor: "action.selected" },
+// Clean white rows with a clear hover (no zebra) — the unified table style.
+// Row dividers come from the MUI TableCell bottom border.
+export const ROW_SX: SxProps<Theme> = {
+	"&:hover": { bgcolor: "grey.100" },
 	minHeight: 56,
 };
 

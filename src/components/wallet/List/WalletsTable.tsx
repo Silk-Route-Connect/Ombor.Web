@@ -4,6 +4,7 @@ import ArchivedBadge from "components/product/ArchivedBadge";
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,
+	tableRowSx,
 } from "components/shared/Table/tableStyles";
 import { WalletActionMenu } from "components/wallet/Table/WalletActionMenu";
 import { WalletTypeAvatar, WalletTypeBadge } from "components/wallet/WalletPresentation";
@@ -160,12 +161,7 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 						{rows.map((wallet) => {
 							const archived = wallet.isArchived;
 							return (
-								<Box
-									component="tr"
-									key={wallet.id}
-									onClick={() => onOpen(wallet)}
-									sx={{ cursor: "pointer", "&:hover": { bgcolor: designTokens.gray25 } }}
-								>
+								<Box component="tr" key={wallet.id} onClick={() => onOpen(wallet)} sx={tableRowSx}>
 									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
 										<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
 											<WalletTypeAvatar type={wallet.type} archived={archived} />
