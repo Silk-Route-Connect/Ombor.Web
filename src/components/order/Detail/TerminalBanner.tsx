@@ -25,7 +25,7 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 		return null;
 	}
 
-	const last = order.history[order.history.length - 1];
+	const last = order.history?.[order.history.length - 1];
 	const danger = order.status === "Rejected" || order.status === "Returned";
 	const tone = danger
 		? {
@@ -83,20 +83,22 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 					{t(`order.terminal.${order.status}.body`)}
 				</Typography>
 			</Box>
-			<Box
-				sx={{
-					ml: "auto",
-					fontSize: 12,
-					textAlign: "right",
-					whiteSpace: "nowrap",
-					color: tone.color,
-				}}
-			>
-				<Box component="span" sx={numericSx}>
-					{formatDate(last.at)}, {timeOf(last.at)}
-				</Box>{" "}
-				· {last.by}
-			</Box>
+			{last && (
+				<Box
+					sx={{
+						ml: "auto",
+						fontSize: 12,
+						textAlign: "right",
+						whiteSpace: "nowrap",
+						color: tone.color,
+					}}
+				>
+					<Box component="span" sx={numericSx}>
+						{formatDate(last.at)}, {timeOf(last.at)}
+					</Box>{" "}
+					· {last.by}
+				</Box>
+			)}
 		</Box>
 	);
 };
