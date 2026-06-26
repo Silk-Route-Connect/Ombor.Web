@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ArchivedBadge from "components/product/ArchivedBadge";
+import TablePager from "components/shared/Table/TablePager";
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,

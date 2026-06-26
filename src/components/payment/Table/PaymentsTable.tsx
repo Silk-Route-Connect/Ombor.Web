@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import TablePager from "components/shared/Table/TablePager";
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,
@@ -30,6 +31,11 @@ interface PaymentsTableProps {
  */
 export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering, onOpen }) => {
 	const { t } = useTranslation();
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+
+	// Reset to the first page whenever the filtered set changes.
+	useEffect(() => setPage(0), [rows]);
 
 	if (rows === "loading") {
 		return (
@@ -38,6 +44,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 			</Box>
 		);
 	}
+
+	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
 	return (
 		<Paper
@@ -74,7 +82,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 					</Typography>
 				</Box>
 			) : (
-				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+				<>
+					<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 					<thead>
 						<tr>
 							<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
@@ -101,7 +110,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 						</tr>
 					</thead>
 					<tbody>
-						{rows.map((p) => {
+						{paged.map((p) => {
 							const party = p.partnerName ?? p.employeeName;
 							return (
 								<Box component="tr" key={p.id} onClick={() => onOpen(p)} sx={tableRowSx}>
@@ -168,7 +177,18 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 							);
 						})}
 					</tbody>
-				</Box>
+					</Box>
+					<TablePager
+						count={rows.length}
+						page={page}
+						rowsPerPage={rowsPerPage}
+						onPageChange={setPage}
+						onRowsPerPageChange={(value) => {
+							setRowsPerPage(value);
+							setPage(0);
+						}}
+					/>
+				</>
 			)}
 		</Paper>
 	);

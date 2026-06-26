@@ -7,7 +7,7 @@
  */
 export const tableHeadCellSx = {
 	textAlign: "left",
-	fontSize: 12,
+	fontSize: 12.5,
 	fontWeight: 600,
 	color: "text.secondary",
 	p: "11px 16px",

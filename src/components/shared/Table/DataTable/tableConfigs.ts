@@ -13,11 +13,14 @@ export const HEADER_CONTAINER_SX: SxProps<Theme> = {
 	top: 0,
 };
 
+// Header font kept in sync with the hand-rolled tables' `tableHeadCellSx`
+// (components/shared/Table/tableStyles.ts) so every table header matches.
 export const HEADER_CELL_SX: SxProps<Theme> = {
 	borderBottom: 1,
 	borderColor: "divider",
+	fontSize: 12.5,
 	fontWeight: 600,
-	typography: "subtitle2",
+	color: "text.secondary",
 	bgcolor: "grey.100",
 };
 
