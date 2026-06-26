@@ -84,99 +84,102 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 			) : (
 				<>
 					<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-					<thead>
-						<tr>
-							<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
-								{t("payment.table.number")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("payment.table.date")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("payment.table.type")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("payment.table.direction")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("payment.table.party")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("payment.table.wallet")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right", pr: "18px" }}>
-								{t("payment.table.amount")}
-							</Box>
-						</tr>
-					</thead>
-					<tbody>
-						{paged.map((p) => {
-							const party = p.partnerName ?? p.employeeName;
-							return (
-								<Box component="tr" key={p.id} onClick={() => onOpen(p)} sx={tableRowSx}>
-									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
-										<Box
-											component="span"
-											sx={{ ...numericSx, fontWeight: 700, color: "primary.main" }}
-										>
-											{p.number}
+						<thead>
+							<tr>
+								<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
+									{t("payment.table.number")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("payment.table.date")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("payment.table.type")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("payment.table.direction")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("payment.table.party")}
+								</Box>
+								<Box component="th" sx={headCellSx}>
+									{t("payment.table.wallet")}
+								</Box>
+								<Box component="th" sx={{ ...headCellSx, textAlign: "right", pr: "18px" }}>
+									{t("payment.table.amount")}
+								</Box>
+							</tr>
+						</thead>
+						<tbody>
+							{paged.map((p) => {
+								const party = p.partnerName ?? p.employeeName;
+								return (
+									<Box component="tr" key={p.id} onClick={() => onOpen(p)} sx={tableRowSx}>
+										<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
+											<Box
+												component="span"
+												sx={{ ...numericSx, fontWeight: 700, color: "primary.main" }}
+											>
+												{p.number}
+											</Box>
 										</Box>
-									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, color: "text.secondary" }}>
-										{formatDate(p.date)}
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										<PaymentTypeBadge type={p.type} />
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										<PaymentDirectionBadge direction={p.direction} />
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										{party ? (
-											<Box component="span" sx={{ fontWeight: 600 }}>
-												{party}
-											</Box>
-										) : (
-											<Box component="span" sx={{ color: "text.disabled" }}>
-												—
-											</Box>
-										)}
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
 										<Box
-											component="span"
+											component="td"
+											sx={{ ...bodyCellSx, ...numericSx, color: "text.secondary" }}
+										>
+											{formatDate(p.date)}
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											<PaymentTypeBadge type={p.type} />
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											<PaymentDirectionBadge direction={p.direction} />
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											{party ? (
+												<Box component="span" sx={{ fontWeight: 600 }}>
+													{party}
+												</Box>
+											) : (
+												<Box component="span" sx={{ color: "text.disabled" }}>
+													—
+												</Box>
+											)}
+										</Box>
+										<Box component="td" sx={bodyCellSx}>
+											<Box
+												component="span"
+												sx={{
+													display: "inline-flex",
+													alignItems: "center",
+													gap: "7px",
+													color: designTokens.gray700,
+													whiteSpace: "nowrap",
+												}}
+											>
+												<AccountBalanceWalletOutlinedIcon
+													sx={{ fontSize: 14, color: "text.disabled" }}
+												/>
+												{p.walletName}
+											</Box>
+										</Box>
+										<Box
+											component="td"
 											sx={{
-												display: "inline-flex",
-												alignItems: "center",
-												gap: "7px",
-												color: designTokens.gray700,
-												whiteSpace: "nowrap",
+												...bodyCellSx,
+												textAlign: "right",
+												pr: "18px",
+												...numericSx,
+												fontWeight: 700,
+												fontSize: 15,
+												color: p.direction === "Income" ? "success.main" : "error.main",
 											}}
 										>
-											<AccountBalanceWalletOutlinedIcon
-												sx={{ fontSize: 14, color: "text.disabled" }}
-											/>
-											{p.walletName}
+											{formatCurrency(p.amount)}
 										</Box>
 									</Box>
-									<Box
-										component="td"
-										sx={{
-											...bodyCellSx,
-											textAlign: "right",
-											pr: "18px",
-											...numericSx,
-											fontWeight: 700,
-											fontSize: 15,
-											color: p.direction === "Income" ? "success.main" : "error.main",
-										}}
-									>
-										{formatCurrency(p.amount)}
-									</Box>
-								</Box>
-							);
-						})}
-					</tbody>
+								);
+							})}
+						</tbody>
 					</Box>
 					<TablePager
 						count={rows.length}
