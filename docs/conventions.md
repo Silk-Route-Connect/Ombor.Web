@@ -47,9 +47,12 @@ i18n/ru/        <module>.json — the module's namespace
 
 ## Tables
 
-- All data tables go through shared `DataTable` (or `ExpandableDataTable`) with a per-module `*TableConfigs` file defining columns — no bespoke `<table>` markup, no raw MUI `Table` in module code.
+- All data tables go through shared `DataTable` (or `ExpandableDataTable`) with a per-module `*TableConfigs` file defining columns — no bespoke `<table>` markup, no raw MUI `Table` in module code. The canonical look (DSN-1: header/footer bands, zebra rows, 52px height, tabular numerics) lives in `components/shared/Table/DataTable/tableConfigs.ts` — never restyle a table per-module.
 - **Labels resolve at render time, never at module import.** Config files (table columns, menus, label maps) store i18n keys or accept `t` as a parameter; they must not call `t()` in module scope, or a live language switch won't update them.
-- Row actions live in an `ActionMenu` (three-dot) cell via the shared ActionMenuCell components.
+- **Every column is sortable by default.** Give a column a `field` (or a `sortValue` accessor for `renderCell`-only columns); set `sortable: false` to opt out. The `actions` column and long free-text/notes columns are never sortable. With no `onSort` the table sorts client-side; pass `onSort` to control ordering from the store. Set the initial order with `defaultSort` — **date-desc** on event/feed tables, **name-asc** on master-data tables.
+- **Column order (left → right):** №/ID → date → primary entity → type/status chip → descriptive → money (right-aligned, tabular) → ⋮ actions. New and edited configs follow this; existing tables adopt it in their module passes.
+- **Pagination** is 10 / 25 / 50 rows (the `DataTable` default); override per table only with a documented reason.
+- Row actions live in a three-dot `ActionMenu` cell via the shared `components/shared/ActionMenuCell/MenuActionCell` — give each row a `tone` (`normal` / `warn` / `danger`) for the DSN-1 menu treatment rather than colouring icons by hand.
 - Numeric columns use tabular figures (theme handles this — see design-handoff) and right alignment.
 
 ## Styling

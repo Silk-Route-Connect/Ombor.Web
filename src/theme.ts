@@ -90,6 +90,7 @@ export const radius = {
 	sm: 6, // --r-sm, inputs / small buttons
 	md: 8, // --r-md, DEFAULT — buttons / cards / fields
 	lg: 12, // --r-lg, large cards / modals / slide-over
+	xl: 16, // --r-xl, cards / data-table container (MUI borderRadius:2)
 	pill: 999, // --r-pill, chips / outlined buttons
 } as const;
 
