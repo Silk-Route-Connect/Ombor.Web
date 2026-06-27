@@ -12,6 +12,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { designTokens } from "theme";
 import { formatCurrency, formatShortNumber } from "utils/formatCurrency";
 
 import { useTheme } from "@mui/material";
@@ -20,7 +21,7 @@ import ChartTooltip from "./ChartTooltip";
 import { usePrefersReducedMotion } from "./motion";
 
 const HEIGHT = 230;
-const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: "#5E6E6E" } as const;
+const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
 
 interface Props {
 	series: DashboardSeriesPoint[];
@@ -82,7 +83,10 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						tick={AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
-					<Tooltip content={renderTooltip} cursor={{ stroke: "#CDD6D5", strokeDasharray: "3 3" }} />
+					<Tooltip
+						content={renderTooltip}
+						cursor={{ stroke: designTokens.gray300, strokeDasharray: "3 3" }}
+					/>
 					<Area
 						type="monotone"
 						dataKey="sales"

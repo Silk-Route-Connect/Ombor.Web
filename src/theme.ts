@@ -31,7 +31,7 @@ const SUCCESS = "#17835A"; // --success
 const WARNING = "#C57E14"; // --warning
 const ERROR = "#C53D31"; // --error
 const INFO = "#2A6F97"; // --info
-const INK = "#162A2B"; // --gray-900, primary text / ink
+const INK = "#1C2625"; // --fg-1, primary text / ink (cool, per the Design System)
 
 /**
  * Design-token values used by components where the MUI palette has no slot
@@ -39,23 +39,26 @@ const INK = "#162A2B"; // --gray-900, primary text / ink
  * from the theme instead of inlining hex.
  */
 export const designTokens = {
-	// neutral ramp (warm-cool gray, faint teal cast)
-	gray0: "#FFFFFF", // --gray-0, surface
-	gray25: "#F8FAFA", // --gray-25, zebra / subtle fill
-	gray50: "#F1F4F3", // --gray-50, app canvas / hover fill
-	gray100: "#E8ECEB", // --gray-100, segmented-control track
-	gray200: "#E1E8E6", // --gray-200, default border
-	gray300: "#CDD6D5", // --gray-300, strong border / input outline
-	gray400: "#A7B2B1", // --gray-400, DECORATION ONLY — placeholder icons / disabled, never data text
-	gray500: "#7E8A89", // --gray-500, badge text (≥18px only — ~3.4:1)
-	gray600: "#5E6E6E", // --gray-600, secondary / muted text
-	gray700: "#3E4A4A", // --gray-700, toggle label
-	gray800: "#28302F", // --gray-800
-	gray900: INK, // --gray-900, ink
-	// data-bearing secondary text — AA ≥4.5:1 on #FFFFFF / #F8FAFA (≈5:1).
+	// Neutral ramp — warm "Stone" per the Design System (colors_and_type.css).
+	// Surfaces / borders / decoration are warm stone; the text steps (gray-500/600,
+	// gray-900) stay COOL, matching the DS's cool `--fg-*` text tokens — the DS is
+	// warm paper + cool ink, not a single warm ramp. Do not warm the text steps.
+	gray0: "#FFFFFF", // --stone-0, surface
+	gray25: "#FAF8F4", // --bg-subtle (--stone-50), zebra / subtle fill
+	gray50: "#F4F1EA", // --bg-page (--stone-100), app canvas
+	gray100: "#ECE8DF", // --divider, light track / in-body row divider
+	gray200: "#E4DFD5", // --border, default hairline
+	gray300: "#D4CDBF", // --border-strong, strong border / input outline
+	gray400: "#B8AF9F", // --stone-400, DECORATION / disabled — never data text
+	gray500: "#87908E", // --fg-3, tertiary text (kept cool)
+	gray600: "#565F5E", // --fg-2, secondary / muted text (kept cool)
+	gray700: "#3E4A4A", // text-tier neutral, kept cool (no DS token between fg-1/fg-2)
+	gray800: "#28302F", // text-tier neutral, kept cool (no DS token)
+	gray900: INK, // --fg-1, ink (cool)
+	// data-bearing secondary text — AA ≥4.5:1 on #FFFFFF / #FAF8F4 (≈6:1).
 	// Use for any READABLE secondary string: SKU, dates, №, meta. gray-400 is
 	// decoration only; gray-600 (= this token) or darker for data text.
-	textSecondary: "#5E6E6E", // --text-secondary (= --gray-600)
+	textSecondary: "#565F5E", // --fg-2 (= --gray-600), cool secondary text
 	// saffron (accent) ramp
 	saffron100: "#F6DEAE", // --saffron-100, supply / supply-refund chip border
 	saffron600: "#B5710F", // --saffron-600, archive action icon
@@ -216,6 +219,21 @@ const theme = createTheme({
 		warning: { main: WARNING },
 		error: { main: ERROR },
 		info: { main: INFO },
+		// Warm "Stone" neutral scale (DS colors_and_type.css) — overrides MUI's
+		// default cool grey so every `grey.*` reference (and MUI internals)
+		// resolves warm. Light steps = warm fills/borders; dark steps = stone.
+		grey: {
+			50: "#FAF8F4", // --bg-subtle, lightest fill (row / table hover)
+			100: "#EFEBE2", // --bg-sunken, track / selected / header fill
+			200: "#E9E4DA", // --stone-200, chip bg / heavy hairline
+			300: "#DAD3C6", // --stone-300, strong border
+			400: "#B8AF9F", // --stone-400, disabled
+			500: "#8C8576", // --stone-500
+			600: "#5E5849", // --stone-600
+			700: "#3D3A30", // --stone-700
+			800: "#272620", // --stone-800
+			900: "#1A1A16", // --stone-900
+		},
 		text: {
 			primary: INK, // --ink
 			secondary: designTokens.textSecondary, // --text-secondary (data-bearing secondary text)

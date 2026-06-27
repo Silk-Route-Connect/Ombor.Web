@@ -363,7 +363,7 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 					t("payment.detail.salary"),
 					<Box component="span" sx={numericSx}>
 						{formatCurrency(payment.salary ?? 0)}{" "}
-						<small style={{ fontSize: 11, color: "#A7B2B1" }}>UZS</small>
+						<small style={{ fontSize: 11, color: designTokens.gray400 }}>UZS</small>
 					</Box>,
 				)}
 				<Box sx={{ p: "15px 18px", gridColumn: "1 / -1", borderRight: "none !important" }}>

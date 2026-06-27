@@ -1,5 +1,5 @@
 import React from "react";
-import { numericSx } from "theme";
+import { designTokens, numericSx } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -18,7 +18,7 @@ export type TooltipRow = {
 const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ heading, rows }) => (
 	<Box
 		sx={{
-			bgcolor: "#162A2B",
+			bgcolor: designTokens.gray900,
 			color: "#fff",
 			borderRadius: "8px",
 			boxShadow: 16,
@@ -26,7 +26,7 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 			minWidth: 132,
 		}}
 	>
-		<Box sx={{ ...numericSx, fontSize: 11, color: "#A7B2B1", mb: "6px" }}>{heading}</Box>
+		<Box sx={{ ...numericSx, fontSize: 11, color: designTokens.gray400, mb: "6px" }}>{heading}</Box>
 		{rows.map((r) => (
 			<Box
 				key={r.label}
@@ -46,7 +46,7 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 				<Box
 					sx={{ width: 8, height: 8, borderRadius: "2px", flex: "0 0 auto", bgcolor: r.color }}
 				/>
-				<Box sx={{ color: "#CDD6D5" }}>{r.label}</Box>
+				<Box sx={{ color: designTokens.gray300 }}>{r.label}</Box>
 				<Box sx={{ ...numericSx, ml: "auto", fontWeight: 600, pl: "14px" }}>{r.value}</Box>
 			</Box>
 		))}

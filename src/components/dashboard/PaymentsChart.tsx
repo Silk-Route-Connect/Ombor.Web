@@ -13,6 +13,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { designTokens } from "theme";
 import { formatCurrency, formatShortNumber } from "utils/formatCurrency";
 
 import { useTheme } from "@mui/material";
@@ -22,7 +23,7 @@ import { KassaSelection } from "./KassaFilter";
 import { usePrefersReducedMotion } from "./motion";
 
 const HEIGHT = 230;
-const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: "#5E6E6E" } as const;
+const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
 
 type Row = { label: string; payin: number; payout: number; payoutNeg: number; net: number };
 
@@ -97,7 +98,7 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						tick={AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(Math.abs(v as number))}
 					/>
-					<ReferenceLine y={0} stroke="#A7B2B1" strokeWidth={1.3} />
+					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
 					<Tooltip content={renderTooltip} cursor={{ fill: "rgba(18,103,107,0.05)" }} />
 					<Bar dataKey="payin" fill={green} radius={[3, 3, 0, 0]} maxBarSize={14} {...anim} />
 					<Bar
@@ -126,8 +127,11 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						tick={AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
-					<ReferenceLine y={0} stroke="#A7B2B1" strokeWidth={1.3} />
-					<Tooltip content={renderTooltip} cursor={{ stroke: "#CDD6D5", strokeDasharray: "3 3" }} />
+					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
+					<Tooltip
+						content={renderTooltip}
+						cursor={{ stroke: designTokens.gray300, strokeDasharray: "3 3" }}
+					/>
 					<Area
 						type="linear"
 						dataKey="net"
