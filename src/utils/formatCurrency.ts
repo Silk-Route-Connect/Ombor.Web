@@ -1,24 +1,6 @@
 import i18next from "i18n/config";
 
 /**
- * Formats a number with commas as thousand separators.
- * E.g. 1500   → "1,500"
- *       21003000 → "21,003,000"
- */
-export function formatNumberWithCommas(value: number): string {
-	const sign = getSign(value);
-	return `${sign}${value.toLocaleString()}`;
-}
-
-function getSign(value: number): string {
-	if (value === 0 || value < 0) {
-		return "";
-	}
-
-	return "+";
-}
-
-/**
  * Abbreviate a large integer with translated suffixes:
  *   1 000      → "1 тыс"
  *   10 000     → "10 тыс"
@@ -52,13 +34,11 @@ const currencyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits
 
 /**
  * Canonical money formatter (UZS, no currency symbol): 1250000 → "1 250 000".
+ * All money display routes through this — never hand-assemble separators
+ * (`toLocaleString`, manual grouping) or symbols anywhere.
  */
 export function formatCurrency(value: number): string {
 	return currencyFormatter.format(value);
-}
-
-export function formatPrice(value: number): string {
-	return formatCurrency(value);
 }
 
 /**

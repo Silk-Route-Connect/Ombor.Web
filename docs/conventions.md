@@ -72,8 +72,13 @@ i18n/ru/        <module>.json — the module's namespace
 
 ## Formatting & display
 
-- Money: always `formatCurrency` (UZS). No currency symbols or separators assembled by hand.
-- Dates: `date-fns` via `dateUtils` — one display format per context, reuse existing format constants.
+Each formatter is a small shared unit — locate and reuse it; never re-implement or hand-assemble.
+
+- Money: always `formatCurrency` (UZS, space-grouped «1 250 000»). No currency symbols or separators assembled by hand — no `toLocaleString`, no manual grouping.
+- Entity ids: `formatEntityId` (numeric id → «№123»). The «№» prefix is never assembled inline and the raw id is never shown bare (display-only; persisted per-document numbering is a v2 concern).
+- Dates: `formatDate` / `formatDateTime` (`dateUtils`, `date-fns`) — the DSN-1 canonical `DD.MM.YYYY` via the `DATE_FORMAT` constant; one display format per context, reuse the constant.
+- Phones: `PhoneListField` + `phoneUtils` — `formatUzNational` groups the body live as «XX XXX XX XX» behind the fixed «+998»; `formatUzPhone` for read-only display.
+- Dropdowns: order options with `byLabel` (`sortUtils`, alphabetical, ru-locale, numeric-aware) unless a picker is intentionally relevance/recency ranked.
 - Balances: colored, natural-language labeled (see design-handoff) — never raw +/− signs.
 
 ## Naming & TypeScript

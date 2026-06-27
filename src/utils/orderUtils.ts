@@ -1,4 +1,5 @@
 ﻿import { Order, OrderLine, OrderStatus } from "models/order";
+import { formatCurrency } from "utils/formatCurrency";
 
 /** Chip tone per status (maps to the MUI palette; "neutral" is a gray treatment). */
 export type OrderStatusTone = "neutral" | "info" | "warning" | "success" | "error";
@@ -115,7 +116,7 @@ export function discountShortLabel(
 	}
 	return line.discountType === "Percentage"
 		? `−${line.discount}%`
-		: `−${line.discount.toLocaleString("ru-RU")}`;
+		: `−${formatCurrency(line.discount)}`;
 }
 
 /** Status tabs on the list toolbar (the prototype omits Rejected / Returned). */

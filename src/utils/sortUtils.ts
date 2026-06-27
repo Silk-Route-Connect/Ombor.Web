@@ -1,3 +1,14 @@
+/**
+ * Default option ordering for selects / dropdowns: alphabetical by the option's
+ * display label — ru-locale, numeric-aware (so «Склад 2» precedes «Склад 10»),
+ * case-insensitive. Returns a new array. Use this for any picker whose order is
+ * not intentionally relevance / recency ranked (those keep their own order).
+ */
+export const byLabel = <T>(items: T[], labelOf: (item: T) => string): T[] =>
+	[...items].sort((a, b) =>
+		labelOf(a).localeCompare(labelOf(b), "ru", { numeric: true, sensitivity: "base" }),
+	);
+
 export const sort = <T>(data: T[], field: keyof T, order: "asc" | "desc"): T[] => {
 	const asc = order === "asc" ? 1 : -1;
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
+import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
@@ -39,7 +39,7 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 					type="tel"
 					size="small"
 					fullWidth
-					value={uzNationalPart(row.value)}
+					value={formatUzNational(row.value)}
 					disabled={disabled}
 					error={!!error}
 					helperText={error}

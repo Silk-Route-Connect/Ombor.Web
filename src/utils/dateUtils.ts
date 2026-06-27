@@ -1,4 +1,13 @@
+import { format as formatDateFns, isValid } from "date-fns";
+
 export type PresetOption = "week" | "month" | "alltime";
+
+/**
+ * DSN-1 canonical date display format (DD.MM.YYYY) and its datetime sibling.
+ * The single source for date display — change here to propagate everywhere.
+ */
+export const DATE_FORMAT = "dd.MM.yyyy";
+export const DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
 
 export type DateFilter =
 	| { type: "preset"; preset: PresetOption }
@@ -65,25 +74,22 @@ export const daysAgo = (days: number): Date => startOfDay(addDays(new Date(), -d
 const pad = (n: number, width = 2): string => n.toString().padStart(width, "0");
 
 /**
- * Formats a date as "dd-MM-yyyy HH:mm" (24-hour format)
- */
-export const formatDateTime = (value: Date | string): string => {
-	const date = toDate(value);
-
-	const datePart = [pad(date.getDate()), pad(date.getMonth() + 1), date.getFullYear()].join("-");
-
-	const timePart = [pad(date.getHours()), pad(date.getMinutes())].join(":");
-
-	return `${datePart} ${timePart}`;
-};
-
-/**
- * Formats a date as "dd.MM.yyyy" — the display format for dates in tables
- * (per the Ombor Design System).
+ * Canonical date display (DSN-1: DD.MM.YYYY) — every table / detail / card date
+ * routes through here. date-fns formatting; an invalid date renders as "" rather
+ * than "NaN.NaN.NaN".
  */
 export const formatDate = (value: Date | string): string => {
 	const date = toDate(value);
-	return [pad(date.getDate()), pad(date.getMonth() + 1), date.getFullYear()].join(".");
+	return isValid(date) ? formatDateFns(date, DATE_FORMAT) : "";
+};
+
+/**
+ * Canonical date+time display (DD.MM.YYYY HH:mm, 24-hour) — the date portion uses
+ * the same DSN-1 separator as `formatDate`.
+ */
+export const formatDateTime = (value: Date | string): string => {
+	const date = toDate(value);
+	return isValid(date) ? formatDateFns(date, DATETIME_FORMAT) : "";
 };
 
 /**
