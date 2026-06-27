@@ -1,5 +1,3 @@
-import { TransactionType } from "models/transaction";
-
 /** Canonical route paths — the only place URL literals are declared. */
 export const PATHS = {
 	dashboard: "/",
@@ -62,10 +60,3 @@ export const saleDetailPath = (id: number): string => `/sales/${id}`;
 
 /** Concrete detail route for a supply/supply-refund transaction. */
 export const supplyDetailPath = (id: number): string => `/supplies/${id}`;
-
-export const TRANSACTION_ROUTES: Record<TransactionType, string> = {
-	Sale: "/sales",
-	Supply: "/supplies",
-	SaleRefund: "/refunds/sales",
-	SupplyRefund: "/refunds/supplies",
-};

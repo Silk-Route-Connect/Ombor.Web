@@ -1,20 +1,15 @@
 import React from "react";
-
-import { Link } from "@mui/material";
+import DetailLink from "components/shared/Link/DetailLink";
+import { employeeDetailPath } from "routing/paths";
 
 interface EmployeeLinkProps {
 	id: number;
 	name: string;
 }
 
+/** Navigates to the employee's routed detail page. */
 const EmployeeLink: React.FC<EmployeeLinkProps> = ({ id, name }) => (
-	<Link
-		href={`/employees/${id}`}
-		underline="none"
-		sx={{ color: "primary.main", "&:hover": { textDecoration: "underline" } }}
-	>
-		{name}
-	</Link>
+	<DetailLink to={employeeDetailPath(id)}>{name}</DetailLink>
 );
 
 export default EmployeeLink;

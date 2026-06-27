@@ -1,52 +1,43 @@
 import React from "react";
-import i18next from "i18n/config";
+import { useTranslation } from "react-i18next";
+import DetailLink from "components/shared/Link/DetailLink";
 import { PaymentAllocation } from "models/payment";
+import { saleDetailPath, supplyDetailPath } from "routing/paths";
 
-import { Link } from "@mui/material";
-
-// TODO: Fix this to use proper options
-const labelMap = {
-	AdvancePayment: "",
-	ChangeReturn: "",
-	Sale: i18next.t("paymentAllocationSale"),
-	Supply: i18next.t("paymentAllocationSupply"),
-	SaleRefund: i18next.t("paymentAllocationSaleRefund"),
-	SupplyRefund: i18next.t("paymentAllocationSupplyRefund"),
-} as const;
-
-const routeMap = {
-	AdvancePayment: "",
-	ChangeReturn: "",
-	Sale: "/sales/",
-	Supply: "/supplies/",
-	SaleRefund: "/sale-refunds/",
-	SupplyRefund: "/supply-refunds/",
-} as const;
+/** i18n label key per linkable allocation type (resolved at render, not import). */
+const LABEL_KEY: Record<"Sale" | "Supply" | "SaleRefund" | "SupplyRefund", string> = {
+	Sale: "paymentAllocationSale",
+	Supply: "paymentAllocationSupply",
+	SaleRefund: "paymentAllocationSaleRefund",
+	SupplyRefund: "paymentAllocationSupplyRefund",
+};
 
 interface AllocationLinkProps {
 	allocation: PaymentAllocation;
 }
 
+/**
+ * Links a payment allocation to its settled transaction's detail page. Supplies
+ * (and supply refunds) route to `/supplies/:id`, sales to `/sales/:id`; advance /
+ * change allocations have no transaction to open.
+ */
 const AllocationLink: React.FC<AllocationLinkProps> = ({ allocation }) => {
+	const { t } = useTranslation();
 	const { transactionId, type } = allocation;
 
 	if (!transactionId) {
 		return <>-</>;
 	}
-
-	if (allocation.type === "AdvancePayment") {
+	if (type === "AdvancePayment" || type === "ChangeReturn") {
 		return null;
 	}
 
-	if (allocation.type === "ChangeReturn") {
-		return null;
-	}
+	const to =
+		type === "Supply" || type === "SupplyRefund"
+			? supplyDetailPath(transactionId)
+			: saleDetailPath(transactionId);
 
-	return (
-		<Link href={`${routeMap[type]}${transactionId}`} underline="hover" sx={{ color: "#1976d2" }}>
-			{labelMap[type]} #{transactionId}
-		</Link>
-	);
+	return <DetailLink to={to}>{`${t(LABEL_KEY[type])} #${transactionId}`}</DetailLink>;
 };
 
 export default AllocationLink;

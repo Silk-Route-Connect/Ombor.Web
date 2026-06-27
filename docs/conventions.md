@@ -27,6 +27,8 @@ i18n/ru/        <module>.json — the module's namespace
 
 `SidePane/` folders are legacy (CLAUDE.md hard rule 3): never extend, replace with `Detail/` + a routed detail page when the module is rewritten, then delete.
 
+`Links/<Module>Link.tsx` is a thin typed wrapper over the shared `components/shared/Link/EntityLink.tsx` base (the single place link styling lives — theme-primary, underline-on-hover, SPA nav). A wrapper supplies only the entity's route (resolved from `routing/paths.ts`, never a string literal) and display text; never restyle a link or hand-write a path per-module.
+
 ## MobX
 
 - Stores own state and async work; components stay thin. Wrap every component that reads observables in `observer()`.
