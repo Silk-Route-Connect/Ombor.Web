@@ -1,38 +1,57 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { TransactionType } from "models/transaction";
-import { designTokens } from "theme";
+import { chipTokens } from "theme";
 
-import { alpha, Chip, useTheme } from "@mui/material";
+import { SvgIconComponent } from "@mui/icons-material";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
+import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
+import { Box } from "@mui/material";
 
-/** Chip tones per the bundle's TXN_TONE: sale success, supply info, refunds neutral. */
-const isNeutral = (kind: TransactionType) => kind === "SaleRefund" || kind === "SupplyRefund";
+/** Transaction type → chipTokens key (DSN-1: teal=Sale, saffron=Supply, refunds outlined). */
+const TYPE_TOKEN: Record<TransactionType, keyof typeof chipTokens> = {
+	Sale: "sale",
+	Supply: "supply",
+	SaleRefund: "saleRefund",
+	SupplyRefund: "supplyRefund",
+};
+
+/** Type → leading icon, matched by meaning (sell / inbound supply / reversal). */
+const TYPE_ICON: Record<TransactionType, SvgIconComponent> = {
+	Sale: SellOutlinedIcon,
+	Supply: LocalShippingOutlinedIcon,
+	SaleRefund: UndoOutlinedIcon,
+	SupplyRefund: UndoOutlinedIcon,
+};
 
 export const TransactionKindChip: React.FC<{ kind: TransactionType }> = ({ kind }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-
-	const palette =
-		kind === "Sale"
-			? { bg: alpha(theme.palette.success.main, 0.12), color: theme.palette.success.main }
-			: kind === "Supply"
-				? { bg: alpha(theme.palette.info.main, 0.12), color: theme.palette.info.main }
-				: { bg: designTokens.gray100, color: designTokens.gray700 };
+	const tk = chipTokens[TYPE_TOKEN[kind]];
+	const Icon = TYPE_ICON[kind];
 
 	return (
-		<Chip
-			label={t(`product.txn.${kind}`)}
-			size="small"
+		<Box
+			component="span"
 			sx={{
+				display: "inline-flex",
+				alignItems: "center",
+				gap: "5px",
 				height: 22,
+				px: "9px",
+				borderRadius: "999px",
 				fontSize: 12,
 				fontWeight: 600,
-				bgcolor: palette.bg,
-				color: palette.color,
-				border: isNeutral(kind) ? "1px solid" : "none",
-				borderColor: isNeutral(kind) ? designTokens.gray200 : undefined,
+				whiteSpace: "nowrap",
+				border: "1px solid",
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
-		/>
+		>
+			<Icon sx={{ fontSize: 13 }} />
+			{t(`product.txn.${kind}`)}
+		</Box>
 	);
 };
 

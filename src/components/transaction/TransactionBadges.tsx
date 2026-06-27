@@ -1,12 +1,40 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { PaymentStatus, TransactionType } from "models/transaction";
-import { designTokens } from "theme";
-import { directionOf, isRefundType, STATUS_TONE } from "utils/transactionUtils";
+import { TransactionStatus, TransactionType } from "models/transaction";
+import { chipTokens } from "theme";
+import { directionOf, isRefundType } from "utils/transactionUtils";
 
-import { alpha, Box, useTheme } from "@mui/material";
+import { SvgIconComponent } from "@mui/icons-material";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
+import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
+import { Box } from "@mui/material";
 
-/** Type pill per the bundle's `.tx-badge`: base = primary-soft, refund = outlined. */
+/** Transaction type → chipTokens key (DSN-1: teal=Sale, saffron=Supply, refunds outlined). */
+const TYPE_TOKEN: Record<TransactionType, keyof typeof chipTokens> = {
+	Sale: "sale",
+	Supply: "supply",
+	SaleRefund: "saleRefund",
+	SupplyRefund: "supplyRefund",
+};
+
+/** Type → leading icon, matched by meaning (sell / inbound supply / reversal). */
+const TYPE_ICON: Record<TransactionType, SvgIconComponent> = {
+	Sale: SellOutlinedIcon,
+	Supply: LocalShippingOutlinedIcon,
+	SaleRefund: UndoOutlinedIcon,
+	SupplyRefund: UndoOutlinedIcon,
+};
+
+/** Transaction status → chipTokens key (the served `TransactionDto.Status` enum). */
+const STATUS_TOKEN: Record<TransactionStatus, keyof typeof chipTokens> = {
+	Open: "open",
+	PartiallyPaid: "partiallyPaid",
+	Overdue: "overdue",
+	Closed: "closed",
+};
+
+/** Type pill — colour + icon sourced from `chipTokens` (DSN-1 locked semantics). */
 export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boolean }> = ({
 	type,
 	large,
@@ -14,6 +42,8 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boo
 	const { t } = useTranslation();
 	const direction = directionOf(type);
 	const refund = isRefundType(type);
+	const tk = chipTokens[TYPE_TOKEN[type]];
+	const Icon = TYPE_ICON[type];
 	const label = refund
 		? t(`transaction.badge.refund.${direction}`)
 		: t(`transaction.badge.base.${direction}`);
@@ -24,6 +54,7 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boo
 			sx={{
 				display: "inline-flex",
 				alignItems: "center",
+				gap: "5px",
 				height: large ? 26 : 22,
 				px: large ? "13px" : "10px",
 				borderRadius: "999px",
@@ -31,31 +62,25 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boo
 				fontWeight: 600,
 				whiteSpace: "nowrap",
 				border: "1px solid",
-				...(refund
-					? { color: "text.secondary", borderColor: designTokens.gray300, bgcolor: "transparent" }
-					: {
-							color: "primary.main",
-							bgcolor: "primary.light",
-							borderColor: designTokens.primaryLine,
-						}),
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
 		>
+			<Icon sx={{ fontSize: large ? 15 : 13 }} />
 			{label}
 		</Box>
 	);
 };
 
 /** Soft payment-status chip (short label for the list, full for the detail). */
-export const TransactionStatusChip: React.FC<{ status: PaymentStatus; full?: boolean }> = ({
+export const TransactionStatusChip: React.FC<{ status: TransactionStatus; full?: boolean }> = ({
 	status,
 	full,
 }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-	const color = theme.palette[STATUS_TONE[status]].main;
-	const label = full
-		? t(`transaction.statusFull.${status}`)
-		: t(`transaction.statusFilter.${status}`);
+	const tk = chipTokens[STATUS_TOKEN[status]];
+	const label = full ? t(`transaction.status.${status}`) : t(`transaction.statusShort.${status}`);
 
 	return (
 		<Box
@@ -69,10 +94,10 @@ export const TransactionStatusChip: React.FC<{ status: PaymentStatus; full?: boo
 				fontSize: 11.5,
 				fontWeight: 600,
 				whiteSpace: "nowrap",
-				color,
-				bgcolor: alpha(color, 0.12),
 				border: "1px solid",
-				borderColor: alpha(color, 0.24),
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
 		>
 			{label}

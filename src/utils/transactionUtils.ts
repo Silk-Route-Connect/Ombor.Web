@@ -2,6 +2,7 @@ import {
 	PaymentStatus,
 	TransactionLine,
 	TransactionRecord,
+	TransactionStatus,
 	TransactionType,
 } from "models/transaction";
 import { formatCurrency } from "utils/formatCurrency";
@@ -79,11 +80,17 @@ export const payStatusOf = (totalDue: number, totalPaid: number): PaymentStatus 
 	return totalPaid > 0 ? "partial" : "unpaid";
 };
 
-/** MUI palette tone for a payment status (soft chip). */
-export const STATUS_TONE: Record<PaymentStatus, "success" | "warning" | "error"> = {
-	paid: "success",
-	partial: "warning",
-	unpaid: "error",
+/**
+ * Derive the served `TransactionStatus` enum from totals (the value the backend
+ * computes for `TransactionDto.Status`). Mirrors `payStatusOf` onto the canonical
+ * enum the chips key off. `Overdue` is due-date-driven and cannot be derived from
+ * totals alone, so it is served directly by the backend (never produced here).
+ */
+export const statusOf = (totalDue: number, totalPaid: number): TransactionStatus => {
+	if (totalDue - totalPaid <= 0) {
+		return "Closed";
+	}
+	return totalPaid > 0 ? "PartiallyPaid" : "Open";
 };
 
 /** Display label (e.g. «#1042» / «#1039-R1») for a transaction. */

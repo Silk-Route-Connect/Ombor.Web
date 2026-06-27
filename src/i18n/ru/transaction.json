@@ -30,7 +30,12 @@
   "transaction.status.Open": "Неоплачено",
   "transaction.status.PartiallyPaid": "Частично оплачено",
   "transaction.status.Closed": "Оплачено",
+  "transaction.status.Overdue": "Просрочено",
   "transaction.status.Refunded": "Возвращено",
+  "transaction.statusShort.Open": "Не оплачено",
+  "transaction.statusShort.PartiallyPaid": "Частично",
+  "transaction.statusShort.Closed": "Оплачено",
+  "transaction.statusShort.Overdue": "Просрочено",
   "transaction.noLines": "Нет добавленных продуктов",
   "transaction.total": "Итого",
   "transaction.line.unitPrice": "Цена за ед.",
@@ -109,10 +114,6 @@
   "transaction.badge.base.Supply": "Поставка",
   "transaction.badge.refund.Sale": "Возврат",
   "transaction.badge.refund.Supply": "Возврат поставки",
-
-  "transaction.statusFull.paid": "Оплачено",
-  "transaction.statusFull.partial": "Частично оплачено",
-  "transaction.statusFull.unpaid": "Не оплачено",
 
   "transaction.empty.title.Sale": "Пока нет продаж",
   "transaction.empty.title.Supply": "Пока нет поставок",

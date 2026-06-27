@@ -1,31 +1,46 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { AdjustmentDirection } from "models/stockAdjustment";
+import { chipTokens } from "theme";
 
-import { alpha, Chip, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 
 /**
- * Direction chip per the bundle's `DirBadge`: Списание error-tinted (red),
- * Оприходование success-tinted (green).
+ * Direction chip per the bundle's `DirBadge`: Списание loss (red), Оприходование
+ * gain (green). Colours are sourced from `chipTokens` — an Increase reuses the
+ * income (green) token, a Decrease the expense (red) token: the green/red intent
+ * is identical even though stock movement is not money (no inline hex, no
+ * per-component colour logic).
  */
+const DIRECTION_TOKEN: Record<AdjustmentDirection, keyof typeof chipTokens> = {
+	Increase: "income",
+	Decrease: "expense",
+};
+
 export const DirectionChip: React.FC<{ direction: AdjustmentDirection }> = ({ direction }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-
-	const color = direction === "Decrease" ? theme.palette.error.main : theme.palette.success.main;
+	const tk = chipTokens[DIRECTION_TOKEN[direction]];
 
 	return (
-		<Chip
-			label={t(`adjustment.direction.${direction}`)}
-			size="small"
+		<Box
+			component="span"
 			sx={{
+				display: "inline-flex",
+				alignItems: "center",
 				height: 22,
+				px: "9px",
+				borderRadius: "999px",
 				fontSize: 12,
 				fontWeight: 600,
-				bgcolor: alpha(color, 0.12),
-				color,
+				whiteSpace: "nowrap",
+				border: "1px solid",
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
-		/>
+		>
+			{t(`adjustment.direction.${direction}`)}
+		</Box>
 	);
 };
 

@@ -15,11 +15,19 @@ interface PartnerTypeChipProps {
 	type: PartnerType;
 }
 
-/** Soft pill per the bundle's `.chip-soft` — tinted background, colored text. */
+/**
+ * Soft pill per the bundle's `.chip-soft` — tinted background, colored text.
+ * `Both` reads as «Клиент + Поставщик» (composed from the localized type labels),
+ * never the raw enum; Customer / Supplier render their single label.
+ */
 export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const color = theme.palette[TONE[type]].main;
+	const label =
+		type === "Both"
+			? `${t("partner.typeShort.Customer")} + ${t("partner.typeShort.Supplier")}`
+			: t(`partner.typeShort.${type}`);
 
 	return (
 		<Box
@@ -40,7 +48,7 @@ export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type }) => {
 				borderColor: alpha(color, 0.24),
 			}}
 		>
-			{t(`partner.typeShort.${type}`)}
+			{label}
 		</Box>
 	);
 };

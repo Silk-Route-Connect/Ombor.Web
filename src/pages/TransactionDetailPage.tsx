@@ -20,7 +20,7 @@ import RefundModal from "components/transaction/Refund/RefundModal";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { isRefundType, payStatusOf, TransactionDirection } from "utils/transactionUtils";
+import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
@@ -137,7 +137,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							total={tx.totalDue}
 							paid={tx.totalPaid}
 							remaining={tx.remaining ?? Math.max(tx.totalDue - tx.totalPaid, 0)}
-							status={tx.paymentStatus ?? payStatusOf(tx.totalDue, tx.totalPaid)}
+							status={tx.status}
 						/>
 					)}
 

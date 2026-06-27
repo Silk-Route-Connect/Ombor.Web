@@ -113,12 +113,12 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 			key: "status",
 			headerName: t("transaction.col.status"),
 			renderCell: (tx) =>
-				isRefundType(tx.type) || !tx.paymentStatus ? (
+				isRefundType(tx.type) ? (
 					<Box component="span" sx={{ color: "text.disabled" }}>
 						—
 					</Box>
 				) : (
-					<TransactionStatusChip status={tx.paymentStatus} />
+					<TransactionStatusChip status={tx.status} />
 				),
 		},
 	];

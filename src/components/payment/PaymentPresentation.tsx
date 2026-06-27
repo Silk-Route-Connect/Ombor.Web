@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirection, PaymentType } from "models/payment";
-import { designTokens } from "theme";
+import { chipTokens, designTokens } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -74,10 +74,11 @@ export const PaymentTypeBadge: React.FC<{ type: PaymentType }> = ({ type }) => {
 	);
 };
 
-/** Green ↓ Приход / red ↑ Расход pill (the `.dir-badge`). */
+/** Green ↓ Приход / red ↑ Расход pill (the `.dir-badge`), colours from `chipTokens`. */
 export const PaymentDirectionBadge: React.FC<{ direction: PaymentDirection }> = ({ direction }) => {
 	const { t } = useTranslation();
 	const income = direction === "Income";
+	const tk = income ? chipTokens.income : chipTokens.expense;
 	return (
 		<Box
 			component="span"
@@ -93,9 +94,9 @@ export const PaymentDirectionBadge: React.FC<{ direction: PaymentDirection }> = 
 				borderRadius: "999px",
 				whiteSpace: "nowrap",
 				border: "1px solid",
-				bgcolor: income ? designTokens.successBg : designTokens.errorBg,
-				color: income ? "success.main" : "error.main",
-				borderColor: income ? designTokens.successBorder : designTokens.errorBorder,
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
 		>
 			<Box

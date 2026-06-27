@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerAvatar from "components/partner/PartnerAvatar";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
-import { PaymentStatus, TransactionLine, TransactionRecord } from "models/transaction";
+import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -317,7 +317,7 @@ export const SaleFinancialCard: React.FC<{
 	total: number;
 	paid: number;
 	remaining: number;
-	status: PaymentStatus;
+	status: TransactionStatus;
 }> = ({ direction, total, paid, remaining, status }) => {
 	const { t } = useTranslation();
 	return (

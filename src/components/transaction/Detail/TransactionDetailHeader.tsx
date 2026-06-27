@@ -126,9 +126,7 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 								{tx.transactionNumber ?? tx.id}
 							</Typography>
 							<TransactionTypeBadge type={tx.type} large />
-							{!refund && tx.paymentStatus && (
-								<TransactionStatusChip status={tx.paymentStatus} full />
-							)}
+							{!refund && <TransactionStatusChip status={tx.status} full />}
 						</Box>
 						<Box
 							sx={{
