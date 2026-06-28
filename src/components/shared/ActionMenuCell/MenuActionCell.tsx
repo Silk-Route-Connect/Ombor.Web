@@ -104,22 +104,27 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) =>
 					const iconColor = iconColorFor(tone);
 					const labelColor = action.labelColor ?? labelColorFor(tone);
 					return [
-						action.dividerBefore && <Divider key={`${action.key}-divider`} sx={{ my: 0.5 }} />,
+						action.dividerBefore && <Divider key={`${action.key}-divider`} sx={{ my: 0.25 }} />,
 						<MenuItem
 							key={action.key}
 							onClick={(e) => handle(action.onClick, e)}
 							sx={{
 								borderRadius: `${radius.sm}px`,
 								px: 1.25,
-								py: "7px",
-								gap: 1.25,
+								py: "4px",
+								gap: 1,
 								fontSize: 14,
+								// MUI's MenuItem forces `.MuiListItemIcon-root { min-width: 36px }`,
+								// which left ~16px of dead space beside the 20px glyph. Collapse the
+								// icon box to its content so the gap above is the *only* icon↔text space.
+								"& .MuiListItemIcon-root": { minWidth: 0 },
 								"&:hover": { bgcolor: "action.hover" },
 							}}
 						>
-							<ListItemIcon sx={{ minWidth: 0, color: iconColor }}>{action.icon}</ListItemIcon>
+							<ListItemIcon sx={{ color: iconColor }}>{action.icon}</ListItemIcon>
 							<ListItemText
 								primary={action.label}
+								sx={{ my: 0 }}
 								slotProps={{ primary: { sx: { color: labelColor } } }}
 							/>
 						</MenuItem>,
