@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import { TFunction } from "i18next";
 import { Partner } from "models/partner";
 import { designTokens } from "theme";
 
@@ -9,33 +10,24 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 
-interface PartnerActionsMenuProps {
+interface PartnerActionHandlers {
 	partner: Partner;
 	onEdit: () => void;
 	onArchive: () => void;
 	onRestore: () => void;
 	onDelete: () => void;
-	/** Bordered trigger for the detail header; plain icon for table rows. */
-	bordered?: boolean;
 }
 
 /**
- * Row / header actions for a partner: edit, archive-or-restore, delete. Built on
- * the shared {@link ActionMenu} (DSN-1 tight padding + separators). Delete is
- * reference-gated by the caller (confirm vs «cannot delete»); partners are never
- * silently undeletable here.
+ * The partner action rows — edit, archive-or-restore, delete — shared by the
+ * list row menu and the detail-page header kebab so both stay in lockstep.
+ * Delete is reference-gated by the caller (confirm vs «cannot delete»).
  */
-export const PartnerActionsMenu: React.FC<PartnerActionsMenuProps> = ({
-	partner,
-	onEdit,
-	onArchive,
-	onRestore,
-	onDelete,
-	bordered = false,
-}) => {
-	const { t } = useTranslation();
-
-	const actions: ActionMenuRow[] = [
+export function buildPartnerActionRows(
+	t: TFunction,
+	{ partner, onEdit, onArchive, onRestore, onDelete }: PartnerActionHandlers,
+): ActionMenuRow[] {
+	return [
 		{
 			key: "edit",
 			label: t("common.edit"),
@@ -68,8 +60,24 @@ export const PartnerActionsMenu: React.FC<PartnerActionsMenuProps> = ({
 			onClick: onDelete,
 		},
 	];
+}
 
-	return <ActionMenu actions={actions} bordered={bordered} />;
+interface PartnerActionsMenuProps extends PartnerActionHandlers {
+	/** Bordered trigger for the detail header; plain icon for table rows. */
+	bordered?: boolean;
+}
+
+/**
+ * Row / header actions for a partner, built on the shared {@link ActionMenu}
+ * (DSN-1 tight padding + separators). Partners are never silently undeletable
+ * here — the caller decides whether delete confirms or warns.
+ */
+export const PartnerActionsMenu: React.FC<PartnerActionsMenuProps> = ({
+	bordered = false,
+	...handlers
+}) => {
+	const { t } = useTranslation();
+	return <ActionMenu actions={buildPartnerActionRows(t, handlers)} bordered={bordered} />;
 };
 
 export default PartnerActionsMenu;

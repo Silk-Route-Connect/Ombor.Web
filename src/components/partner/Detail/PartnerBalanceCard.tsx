@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import PartnerAvatar from "components/partner/PartnerAvatar";
+import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -10,6 +12,7 @@ import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalance
 import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -164,6 +167,45 @@ export const PartnerBalanceCard: React.FC<PartnerBalanceCardProps> = ({ partner,
 			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
 		>
 			<Box sx={{ p: "22px 24px" }}>
+				{/* identity row — type chip + company moved here from the page header */}
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						gap: "14px",
+						mb: "20px",
+						flexWrap: "wrap",
+					}}
+				>
+					<PartnerAvatar name={partner.name} size={44} dimmed={partner.isArchived} />
+					<Box
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							gap: "10px",
+							flexWrap: "wrap",
+							minWidth: 0,
+						}}
+					>
+						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} />
+						{partner.companyName && (
+							<Box
+								component="span"
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: "6px",
+									fontSize: 13.5,
+									color: "text.secondary",
+								}}
+							>
+								<Inventory2OutlinedIcon sx={{ fontSize: 14, color: "text.disabled" }} />
+								{partner.companyName}
+							</Box>
+						)}
+					</Box>
+				</Box>
+
 				<Box
 					sx={{
 						display: "flex",

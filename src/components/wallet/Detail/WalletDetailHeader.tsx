@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import ArchivedBadge from "components/product/ArchivedBadge";
+import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { WalletTypeBadge } from "components/wallet/WalletPresentation";
 import { Wallet } from "models/wallet";

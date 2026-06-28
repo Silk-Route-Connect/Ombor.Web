@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
-import ProductDetailHeader from "components/product/Detail/ProductDetailHeader";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
-import ProductDetailTabs, { ProductDetailTab } from "components/product/Detail/ProductDetailTabs";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
 import ProductOverviewTab from "components/product/Detail/ProductOverviewTab";
 import ProductTransactionsTab from "components/product/Detail/ProductTransactionsTab";
 import ProductFormModal from "components/product/Form/ProductFormModal";
+import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
 import { PATHS } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
+import { designTokens } from "theme";
 import { mapFormPackagingToPackaging } from "utils/productUtils";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import { Box, CircularProgress, Typography } from "@mui/material";
 
+type ProductDetailTab = "overview" | "transactions" | "movements";
+
 const ProductDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
 	const productId = Number(id);
 	const { productStore, selectedProductStore } = useStore();
@@ -38,8 +42,6 @@ const ProductDetailPage: React.FC = observer(() => {
 		setTab("overview");
 		return () => selectedProductStore.clear();
 	}, [productId, selectedProductStore]);
-
-	const goBack = () => navigate(PATHS.products);
 
 	const product = selectedProductStore.product;
 	const dialogMode = productStore.dialogMode;
@@ -102,14 +104,50 @@ const ProductDetailPage: React.FC = observer(() => {
 	const transactions = selectedProductStore.transactions;
 	const movements = selectedProductStore.movements;
 
+	// Edit + Archive/Restore — no delete for products (immutable stock history).
+	const actions: ActionMenuRow[] = [
+		{
+			key: "edit",
+			label: t("common.edit"),
+			icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
+			onClick: () => productStore.openEdit(product),
+		},
+		product.isArchived
+			? {
+					key: "restore",
+					label: t("common.restore"),
+					labelColor: "success.main",
+					dividerBefore: true,
+					icon: <UnarchiveOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
+					onClick: () => productStore.openRestore(product),
+				}
+			: {
+					key: "archive",
+					label: t("common.archive"),
+					labelColor: designTokens.saffron700,
+					dividerBefore: true,
+					icon: <ArchiveOutlinedIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />,
+					onClick: () => productStore.openArchive(product),
+				},
+	];
+
+	const tabs: DetailTabSpec<ProductDetailTab>[] = [
+		{ key: "overview", label: t("product.detail.tabs.overview") },
+		{
+			key: "transactions",
+			label: t("product.detail.tabs.transactions"),
+			count: transactions === "loading" ? undefined : transactions.length,
+		},
+		{ key: "movements", label: t("product.detail.tabs.movements") },
+	];
+
 	return (
 		<Box>
-			<ProductDetailHeader
-				product={product}
-				onBack={goBack}
-				onEdit={() => productStore.openEdit(product)}
-				onArchive={() => productStore.openArchive(product)}
-				onRestore={() => productStore.openRestore(product)}
+			<DetailPageHeader
+				breadcrumb={{ label: t("product.title"), to: PATHS.products }}
+				title={product.name}
+				actions={actions}
+				isArchived={product.isArchived}
 			/>
 
 			{product.isArchived && <ProductArchivedBanner />}
@@ -124,11 +162,7 @@ const ProductDetailPage: React.FC = observer(() => {
 				}}
 			>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
-					<ProductDetailTabs
-						value={tab}
-						transactionCount={transactions === "loading" ? null : transactions.length}
-						onChange={setTab}
-					/>
+					<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 
 					{tab === "overview" && <ProductOverviewTab product={product} />}
 					{tab === "transactions" &&

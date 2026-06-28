@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DetailCard from "components/shared/Detail/DetailCard";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
@@ -9,8 +10,6 @@ import { measurementLabel, unitInline } from "utils/productUtils";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Box, Stack, Typography } from "@mui/material";
-
-import DetailCard from "./DetailCard";
 
 interface ProductDetailRailProps {
 	product: Product;

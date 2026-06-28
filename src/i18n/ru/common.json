@@ -26,6 +26,8 @@
   "common.delete": "Удалить",
   "common.edit": "Редактировать",
   "common.archive": "Архивировать",
+  "common.archived": "Архив",
+  "common.back": "Назад",
   "common.restore": "Восстановить",
   "common.export": "Экспорт",
   "common.copy": "Копировать",

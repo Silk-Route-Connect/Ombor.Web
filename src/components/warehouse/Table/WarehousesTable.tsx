@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import ArchivedBadge from "components/product/ArchivedBadge";
+import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import { WarehouseActionMenu } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
 import { Loadable } from "helpers/Loading";
 import { Warehouse } from "models/warehouse";

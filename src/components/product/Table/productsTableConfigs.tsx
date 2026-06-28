@@ -1,6 +1,6 @@
-import ArchivedBadge from "components/product/ArchivedBadge";
 import ProductTypeChip from "components/product/ProductTypeChip";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
+import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import TruncatedText from "components/shared/Table/TruncatedText";

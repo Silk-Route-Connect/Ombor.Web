@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import DetailCard from "components/shared/Detail/DetailCard";
 import { Measurement, ProductTransaction } from "models/product";
 import { PATHS } from "routing/paths";
 import { designTokens, numericSx } from "theme";
@@ -12,7 +13,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
 import { Box, Link } from "@mui/material";
 
-import DetailCard from "./DetailCard";
 import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
 import HistoryEmptyState from "./HistoryEmptyState";
 import TransactionKindChip from "./TransactionKindChip";

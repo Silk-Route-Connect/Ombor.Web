@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import ArchivedBadge from "components/product/ArchivedBadge";
+import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import {
 	tableBodyCellSx as bodyCellSx,
 	tableHeadCellSx as headCellSx,

@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DetailCard from "components/shared/Detail/DetailCard";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { ProductMovement } from "models/product";
 import { numericSx } from "theme";
@@ -9,7 +10,6 @@ import { formatQuantity } from "utils/formatCurrency";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { Box } from "@mui/material";
 
-import DetailCard from "./DetailCard";
 import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
 import HistoryEmptyState from "./HistoryEmptyState";
 import TransactionKindChip from "./TransactionKindChip";

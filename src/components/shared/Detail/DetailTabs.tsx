@@ -1,38 +1,34 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
 import { designTokens, numericSx } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
-export type ProductDetailTab = "overview" | "transactions" | "movements";
-
-interface ProductDetailTabsProps {
-	value: ProductDetailTab;
-	transactionCount: number | null;
-	onChange: (tab: ProductDetailTab) => void;
+export interface DetailTabSpec<K extends string> {
+	key: K;
+	label: string;
+	/** Optional count pill; omit to render the tab without a badge. */
+	count?: number;
 }
 
-const TABS: ProductDetailTab[] = ["overview", "transactions", "movements"];
+interface DetailTabsProps<K extends string> {
+	tabs: DetailTabSpec<K>[];
+	active: K;
+	onChange: (key: K) => void;
+}
 
 /**
- * Underline tabs per the bundle's `.prod-tabs`/`.tab`: 2px primary underline
- * on the active tab, with a count pill on «Транзакции».
+ * Shared detail-page underline tabs per the DSN-1 `.prod-tabs`/`.tab`: a 2px
+ * primary underline on the active tab and an optional tabular count pill. Used
+ * by every full-page detail layout so the tab chrome lives in one place.
  */
-export const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({
-	value,
-	transactionCount,
-	onChange,
-}) => {
-	const { t } = useTranslation();
-
+export function DetailTabs<K extends string>({ tabs, active, onChange }: DetailTabsProps<K>) {
 	return (
 		<Box sx={{ display: "flex", gap: "4px", borderBottom: 1, borderColor: "divider" }}>
-			{TABS.map((tab) => {
-				const selected = tab === value;
+			{tabs.map((tab) => {
+				const selected = tab.key === active;
 				return (
 					<ButtonBase
-						key={tab}
-						onClick={() => onChange(tab)}
+						key={tab.key}
+						onClick={() => onChange(tab.key)}
 						sx={{
 							display: "inline-flex",
 							alignItems: "center",
@@ -48,22 +44,24 @@ export const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({
 							"&:hover": { color: selected ? "primary.main" : "text.primary" },
 						}}
 					>
-						{t(`product.detail.tabs.${tab}`)}
-						{tab === "transactions" && transactionCount != null && (
+						{tab.label}
+						{tab.count != null && (
 							<Box
 								component="span"
 								sx={{
 									...numericSx,
 									fontSize: 11,
 									fontWeight: 700,
-									borderRadius: "999px",
+									minWidth: 18,
+									textAlign: "center",
 									px: "7px",
 									py: "1px",
+									borderRadius: "999px",
 									color: selected ? "primary.main" : "text.secondary",
 									bgcolor: selected ? designTokens.primarySoft : designTokens.gray100,
 								}}
 							>
-								{transactionCount}
+								{tab.count}
 							</Box>
 						)}
 					</ButtonBase>
@@ -71,6 +69,6 @@ export const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({
 			})}
 		</Box>
 	);
-};
+}
 
-export default ProductDetailTabs;
+export default DetailTabs;

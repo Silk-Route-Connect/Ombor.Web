@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DetailCard from "components/shared/Detail/DetailCard";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
@@ -12,7 +13,6 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
-import DetailCard from "./DetailCard";
 import { cardIconSx, detailTableSx } from "./detailTableSx";
 
 interface ProductOverviewTabProps {

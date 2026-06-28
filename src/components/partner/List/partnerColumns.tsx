@@ -3,6 +3,7 @@ import PartnerLink from "components/partner/Links/PartnerLink";
 import PartnerActionsMenu from "components/partner/PartnerActionsMenu";
 import PartnerAvatar from "components/partner/PartnerAvatar";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { Partner } from "models/partner";
@@ -18,28 +19,6 @@ interface PartnerColumnHandlers {
 	onRestore: (partner: Partner) => void;
 	onDelete: (partner: Partner) => void;
 }
-
-const ArchivedBadge: React.FC<{ label: string }> = ({ label }) => (
-	<Box
-		component="span"
-		sx={{
-			fontSize: 10.5,
-			fontWeight: 600,
-			letterSpacing: "0.02em",
-			textTransform: "uppercase",
-			color: designTokens.gray500,
-			bgcolor: designTokens.gray100,
-			border: "1px solid",
-			borderColor: designTokens.gray200,
-			px: "7px",
-			py: "1px",
-			borderRadius: "999px",
-			whiteSpace: "nowrap",
-		}}
-	>
-		{label}
-	</Box>
-);
 
 const Muted: React.FC = () => (
 	<Box component="span" sx={{ color: "text.secondary" }}>

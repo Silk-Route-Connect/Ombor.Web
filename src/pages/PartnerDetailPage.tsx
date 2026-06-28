@@ -6,12 +6,13 @@ import { derivePayments, deriveTransactions } from "components/partner/Detail/le
 import LedgerTab from "components/partner/Detail/LedgerTab";
 import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
 import PartnerBalanceCard from "components/partner/Detail/PartnerBalanceCard";
-import PartnerDetailHeader from "components/partner/Detail/PartnerDetailHeader";
-import PartnerDetailTabs, { PartnerDetailTab } from "components/partner/Detail/PartnerDetailTabs";
 import PaymentsTab from "components/partner/Detail/PaymentsTab";
 import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
+import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import { observer } from "mobx-react-lite";
 import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
 import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -21,6 +22,8 @@ import { useStore } from "stores/StoreContext";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+
+type PartnerDetailTab = "ledger" | "transactions" | "payments";
 
 const PartnerDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -135,14 +138,18 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const noHistory = partner.activityCount === 0;
 	const dialogMode = partnerStore.dialogMode;
 
-	const tabs = [
-		{ value: "ledger" as const, label: t("partner.tab.ledger"), count: ledger.length },
-		{
-			value: "transactions" as const,
-			label: t("partner.tab.transactions"),
-			count: transactions.length,
-		},
-		{ value: "payments" as const, label: t("partner.tab.payments"), count: payments.length },
+	const actions = buildPartnerActionRows(t, {
+		partner,
+		onEdit: () => partnerStore.openEdit(partner),
+		onArchive: () => partnerStore.openArchive(partner),
+		onRestore: () => partnerStore.openRestore(partner),
+		onDelete: handleDelete,
+	});
+
+	const tabs: DetailTabSpec<PartnerDetailTab>[] = [
+		{ key: "ledger", label: t("partner.tab.ledger"), count: ledger.length },
+		{ key: "transactions", label: t("partner.tab.transactions"), count: transactions.length },
+		{ key: "payments", label: t("partner.tab.payments"), count: payments.length },
 	];
 
 	const renderTab = () => {
@@ -186,13 +193,12 @@ const PartnerDetailPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PartnerDetailHeader
-				partner={partner}
-				onBack={goBack}
-				onEdit={() => partnerStore.openEdit(partner)}
-				onArchive={() => partnerStore.openArchive(partner)}
-				onRestore={() => partnerStore.openRestore(partner)}
-				onDelete={handleDelete}
+			<DetailPageHeader
+				breadcrumb={{ label: t("partner.title"), to: PATHS.partners }}
+				title={partner.name}
+				actions={actions}
+				isArchived={partner.isArchived}
+				archivedLabel={t("partner.badge.archived")}
 			/>
 
 			{partner.isArchived && <PartnerArchivedBanner />}
@@ -200,7 +206,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 			<PartnerBalanceCard partner={partner} ledger={ledger} />
 
 			<Stack sx={{ gap: "16px", mt: "20px" }}>
-				<PartnerDetailTabs value={tab} tabs={tabs} onChange={setTab} />
+				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 				{renderTab()}
 			</Stack>
 
