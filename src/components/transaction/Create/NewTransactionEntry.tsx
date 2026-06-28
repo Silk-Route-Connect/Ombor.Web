@@ -26,14 +26,13 @@ import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, Button, ButtonBase, InputBase, Link, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, InputBase, Typography } from "@mui/material";
 
 const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
@@ -268,31 +267,6 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 
 	return (
 		<Box>
-			{/* breadcrumb */}
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "14px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={tryLeave}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t(`transaction.list.title.${direction}`)}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography component="b" sx={{ fontSize: 13, fontWeight: 600, color: "text.primary" }}>
-					{t(`transaction.new.title.${direction}`)}
-				</Typography>
-			</Box>
-
 			{/* header */}
 			<Box
 				sx={{

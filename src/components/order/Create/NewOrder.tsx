@@ -24,14 +24,13 @@ import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { Avatar, Box, ButtonBase, InputBase, Link, Typography } from "@mui/material";
+import { Avatar, Box, ButtonBase, InputBase, Typography } from "@mui/material";
 
 const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
@@ -172,31 +171,6 @@ export const NewOrder: React.FC = observer(() => {
 
 	return (
 		<Box>
-			{/* breadcrumb */}
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "14px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={tryLeave}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t("order.title")}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography component="b" sx={{ fontSize: 13, fontWeight: 600, color: "text.primary" }}>
-					{t("order.new.title")}
-				</Typography>
-			</Box>
-
 			{/* header */}
 			<Box
 				sx={{

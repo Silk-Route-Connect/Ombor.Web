@@ -144,7 +144,7 @@ const ProductDetailPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<DetailPageHeader
-				breadcrumb={{ label: t("product.title"), to: PATHS.products }}
+				backTo={PATHS.products}
 				title={product.name}
 				actions={actions}
 				isArchived={product.isArchived}

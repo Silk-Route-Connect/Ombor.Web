@@ -9,7 +9,6 @@ import { designTokens, numericSx } from "theme";
 import AddIcon from "@mui/icons-material/Add";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -18,7 +17,6 @@ import {
 	Box,
 	ButtonBase,
 	IconButton,
-	Link,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -92,8 +90,8 @@ const DetailActionsMenu: React.FC<{ onEdit: () => void; onArchive: () => void }>
 };
 
 /**
- * Detail header per the bundle: «Склады › name» breadcrumb, bordered back
- * chevron, 24px title with the address meta row, and either the «Начальный
+ * Detail header per the bundle: bordered back chevron, 24px title with the
+ * address meta row, and either the «Начальный
  * остаток» child-event button + ⋮ actions menu, or a primary «Восстановить» when
  * archived (locked pattern 2 — entity actions live in the ⋮ menu; standalone
  * buttons are reserved for child-event creation).
@@ -110,30 +108,6 @@ export const WarehouseDetailHeader: React.FC<WarehouseDetailHeaderProps> = ({
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "16px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={onBack}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t("warehouse.title")}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography component="b" sx={{ fontSize: 13, fontWeight: 600, color: "text.primary" }}>
-					{warehouse.name}
-				</Typography>
-			</Box>
-
 			<Box
 				sx={{
 					display: "flex",

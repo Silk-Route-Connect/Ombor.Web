@@ -11,7 +11,6 @@ import { formatDate } from "utils/dateUtils";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -21,7 +20,6 @@ import {
 	Box,
 	ButtonBase,
 	IconButton,
-	Link,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -59,33 +57,6 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "16px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={onBack}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t(`transaction.list.title.${direction}`)}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography
-					component="b"
-					sx={{ ...numericSx, fontSize: 13, fontWeight: 600, color: "text.primary" }}
-				>
-					#{tx.transactionNumber ?? tx.id}
-				</Typography>
-			</Box>
-
 			<Box
 				sx={{
 					display: "flex",

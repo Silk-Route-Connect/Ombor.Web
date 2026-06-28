@@ -4,9 +4,8 @@ import { PaymentRecord } from "models/payment";
 import { designTokens, numericSx } from "theme";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, ButtonBase, Link, Typography } from "@mui/material";
+import { Box, ButtonBase, Typography } from "@mui/material";
 
 interface PaymentDetailHeaderProps {
 	payment: PaymentRecord;
@@ -14,9 +13,9 @@ interface PaymentDetailHeaderProps {
 }
 
 /**
- * Payment detail header per the bundle (final iteration): «Платежи › P-520»
- * breadcrumb, bordered back chevron, and a minimal title «P-520 · Платёж» — all
- * other metadata lives in the «Информация» card. Followed by the immutability
+ * Payment detail header per the bundle (final iteration): a bordered back chevron
+ * and a minimal title «P-520 · Платёж» — all other metadata lives in the
+ * «Информация» card. Followed by the immutability
  * strip (payments are immutable — rule 1). No actions: reverse payment is not in
  * MVP, and there are no edit/delete affordances.
  */
@@ -25,33 +24,6 @@ export const PaymentDetailHeader: React.FC<PaymentDetailHeaderProps> = ({ paymen
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "14px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={onBack}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t("payment.title")}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography
-					component="b"
-					sx={{ ...numericSx, fontSize: 13, fontWeight: 600, color: "text.primary" }}
-				>
-					{payment.number}
-				</Typography>
-			</Box>
-
 			<Box sx={{ display: "flex", alignItems: "center", gap: "14px", mb: "20px" }}>
 				<ButtonBase
 					onClick={onBack}

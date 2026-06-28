@@ -194,7 +194,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<DetailPageHeader
-				breadcrumb={{ label: t("partner.title"), to: PATHS.partners }}
+				backTo={PATHS.partners}
 				title={partner.name}
 				actions={actions}
 				isArchived={partner.isArchived}

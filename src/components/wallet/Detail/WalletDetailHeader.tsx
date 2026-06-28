@@ -10,7 +10,6 @@ import { formatCurrency } from "utils/formatCurrency";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
@@ -18,7 +17,6 @@ import {
 	Box,
 	ButtonBase,
 	IconButton,
-	Link,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -91,8 +89,8 @@ const DetailActionsMenu: React.FC<{ onEdit: () => void; onArchive: () => void }>
 };
 
 /**
- * Wallet detail header per the bundle: «Касса › name» breadcrumb, bordered back
- * chevron, title with the type + archive badges, the «Начальный остаток · создана»
+ * Wallet detail header per the bundle: bordered back chevron, title with the
+ * type + archive badges, the «Начальный остаток · создана»
  * meta row, and either the ⋮ actions menu (edit / archive) or a primary
  * «Восстановить» when archived (locked pattern 2).
  */
@@ -107,30 +105,6 @@ export const WalletDetailHeader: React.FC<WalletDetailHeaderProps> = ({
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "16px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={onBack}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t("wallet.title")}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography component="b" sx={{ fontSize: 13, fontWeight: 600, color: "text.primary" }}>
-					{wallet.name}
-				</Typography>
-			</Box>
-
 			<Box
 				sx={{
 					display: "flex",

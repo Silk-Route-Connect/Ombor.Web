@@ -116,33 +116,6 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 			<Box
 				sx={{
 					display: "flex",
-					alignItems: "center",
-					gap: "8px",
-					mb: "16px",
-					fontSize: 13.5,
-					color: "text.secondary",
-				}}
-			>
-				<Box
-					component="span"
-					onClick={onBack}
-					sx={{
-						color: "primary.main",
-						cursor: "pointer",
-						"&:hover": { textDecoration: "underline" },
-					}}
-				>
-					{t("order.title")}
-				</Box>
-				<ChevronRightIcon sx={{ fontSize: 14, color: "text.disabled" }} />
-				<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
-					{t("order.detail.crumb", { number: order.orderNumber })}
-				</Box>
-			</Box>
-
-			<Box
-				sx={{
-					display: "flex",
 					alignItems: "flex-start",
 					justifyContent: "space-between",
 					gap: "16px",

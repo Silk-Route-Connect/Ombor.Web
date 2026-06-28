@@ -19,7 +19,6 @@ import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -30,7 +29,6 @@ import {
 	ButtonBase,
 	CircularProgress,
 	IconButton,
-	Link,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -250,30 +248,6 @@ const EmployeeDetailPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "7px",
-					mb: "16px",
-					fontSize: 13,
-					color: "text.secondary",
-				}}
-			>
-				<Link
-					component="button"
-					underline="hover"
-					onClick={() => navigate(PATHS.employees)}
-					sx={{ color: "text.secondary", fontSize: 13 }}
-				>
-					{t("employeesTitle")}
-				</Link>
-				<ChevronRightIcon sx={{ fontSize: 14 }} />
-				<Typography component="b" sx={{ fontSize: 13, fontWeight: 600, color: "text.primary" }}>
-					{employee.name}
-				</Typography>
-			</Box>
-
 			<Box sx={{ display: "flex", alignItems: "center", gap: "16px", mb: "22px" }}>
 				<ButtonBase
 					onClick={() => navigate(PATHS.employees)}
