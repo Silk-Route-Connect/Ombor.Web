@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import ArchivedBadge from "components/product/ArchivedBadge";
-import ProductTypeChip from "components/product/ProductTypeChip";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Product } from "models/product";
-import { designTokens, numericSx } from "theme";
+import { designTokens } from "theme";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -15,7 +14,6 @@ import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import {
 	Box,
 	ButtonBase,
-	Chip,
 	IconButton,
 	Link,
 	ListItemIcon,
@@ -91,9 +89,10 @@ const DetailActionsMenu: React.FC<{ onEdit: () => void; onArchive: () => void }>
 };
 
 /**
- * Detail header per the bundle: «Товары › name» breadcrumb, bordered back
- * chevron, 24px title with the SKU/category/type meta row, and either the
- * ⋮ actions menu or a primary «Восстановить» when archived.
+ * Detail header: «Товары › name» breadcrumb, bordered back chevron, and a
+ * compact 24px title — name only (SKU / category / type live in the Info widget;
+ * the archived badge is the one inline status cue) — plus the ⋮ actions menu or
+ * a primary «Восстановить» when archived.
  */
 export const ProductDetailHeader: React.FC<ProductDetailHeaderProps> = ({
 	product,
@@ -160,38 +159,22 @@ export const ProductDetailHeader: React.FC<ProductDetailHeaderProps> = ({
 						<ChevronLeftIcon sx={{ fontSize: 20 }} />
 					</ButtonBase>
 
-					<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
 						<Typography
 							component="h1"
-							sx={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25 }}
+							sx={{
+								fontSize: 24,
+								fontWeight: 700,
+								letterSpacing: "-0.02em",
+								lineHeight: 1.25,
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+								whiteSpace: "nowrap",
+							}}
 						>
 							{product.name}
 						</Typography>
-						<Box sx={{ display: "flex", alignItems: "center", gap: "9px", mt: "8px" }}>
-							<Typography
-								component="span"
-								sx={{ ...numericSx, fontSize: 13, color: "text.secondary" }}
-							>
-								{product.sku}
-							</Typography>
-							{product.categoryName && (
-								<Chip
-									label={product.categoryName}
-									size="small"
-									sx={{
-										height: 22,
-										fontSize: 12,
-										fontWeight: 600,
-										color: designTokens.gray700,
-										bgcolor: designTokens.gray100,
-										border: "1px solid",
-										borderColor: designTokens.gray200,
-									}}
-								/>
-							)}
-							<ProductTypeChip type={product.type} />
-							{product.isArchived && <ArchivedBadge />}
-						</Box>
+						{product.isArchived && <ArchivedBadge />}
 					</Box>
 				</Box>
 

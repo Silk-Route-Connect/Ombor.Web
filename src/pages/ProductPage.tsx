@@ -11,7 +11,7 @@ import { productDetailPath } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { mapFormPackagingToPackaging, MEASUREMENT_SHORT } from "utils/productUtils";
+import { mapFormPackagingToPackaging, measurementLabel } from "utils/productUtils";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
@@ -60,7 +60,7 @@ const ProductPage: React.FC = observer(() => {
 			{ header: t("product.table.name"), value: (p) => p.name },
 			{ header: t("product.table.sku"), value: (p) => p.sku },
 			{ header: t("product.table.category"), value: (p) => p.categoryName ?? "" },
-			{ header: t("product.table.measurement"), value: (p) => MEASUREMENT_SHORT[p.measurement] },
+			{ header: t("product.table.measurement"), value: (p) => measurementLabel(t, p.measurement) },
 			{ header: t("product.table.type"), value: (p) => t(`product.type.${p.type}`) },
 			{ header: t("product.table.stock"), value: (p) => p.totalStock },
 			{ header: t("product.table.salePrice"), value: (p) => p.salePrice || "" },
@@ -83,7 +83,8 @@ const ProductPage: React.FC = observer(() => {
 	const isFiltering =
 		productStore.searchTerm.trim().length > 0 ||
 		productStore.categoryFilter !== null ||
-		productStore.typeFilter !== "all";
+		productStore.typeFilter !== "all" ||
+		productStore.showArchived;
 
 	return (
 		<Box>

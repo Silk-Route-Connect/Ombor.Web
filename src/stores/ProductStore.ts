@@ -80,7 +80,8 @@ export class ProductStore implements IProductStore {
 	showArchived = false;
 	isSaving = false;
 	dialogMode: DialogMode = { kind: "none" };
-	sortField: keyof Product | null = null;
+	// Master-data default: name ascending (matches the table's defaultSort).
+	sortField: keyof Product | null = "name";
 	sortOrder: SortOrder = "asc";
 
 	constructor(notificationStore: NotificationStore) {
@@ -101,11 +102,11 @@ export class ProductStore implements IProductStore {
 			return "loading";
 		}
 
-		let products = this.allProducts;
-
-		if (!this.showArchived) {
-			products = products.filter((p) => !p.isArchived);
-		}
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only — DSN-2 — not active + archived).
+		let products = this.allProducts.filter((p) =>
+			this.showArchived ? p.isArchived : !p.isArchived,
+		);
 
 		const categoryId = this.categoryFilter?.id;
 		if (categoryId != null) {

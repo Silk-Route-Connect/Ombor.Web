@@ -8,6 +8,7 @@ import {
 	ProductType,
 	ProductWarehouseItem,
 } from "../../models/product";
+import { TransactionType } from "../../models/transaction";
 import {
 	adjustCategoryProductCount,
 	findCategory,
@@ -517,7 +518,7 @@ const seed: ProductSeed[] = [
 ];
 
 function warehouseName(warehouseId: number): string {
-	return WAREHOUSES[warehouseId] ?? `Склад #${warehouseId}`;
+	return WAREHOUSES[warehouseId] ?? `Склад №${warehouseId}`;
 }
 
 function toInventoryItems(stock: StockSpec[]): ProductWarehouseItem[] {
@@ -740,7 +741,9 @@ const HISTORY_PARTNERS = [
 ];
 
 type LedgerEvent = {
-	kind: ProductMovement["kind"];
+	// The synthetic product ledger only emits transaction kinds (no Opening here —
+	// opening stock is folded into the baseline balance / total row).
+	kind: TransactionType;
 	warehouseId: number;
 	/** Signed delta in base units. */
 	quantity: number;

@@ -95,6 +95,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 			columns={columns}
 			pagination
 			rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+			defaultSort={{ key: "name", order: "asc" }}
 			onRowClick={onOpen}
 			onSort={onSort}
 		/>

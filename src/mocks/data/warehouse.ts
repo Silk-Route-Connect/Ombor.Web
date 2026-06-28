@@ -1,4 +1,4 @@
-import { TransactionType } from "../../models/transaction";
+import { ProductMovementKind } from "../../models/product";
 import {
 	OpeningStockLine,
 	Warehouse,
@@ -106,11 +106,16 @@ let nextMovementId = 9_000_000;
 
 /* ───────────────────────────── stock (read) ───────────────────────────── */
 
-const TXN_TO_MOVEMENT: Record<TransactionType, WarehouseMovementKind> = {
+// Product-movement kind → warehouse-movement kind. Covers the full served enum
+// so a product movement of any kind maps cleanly.
+const TXN_TO_MOVEMENT: Record<ProductMovementKind, WarehouseMovementKind> = {
 	Sale: "Sale",
 	Supply: "Supply",
 	SaleRefund: "Refund",
 	SupplyRefund: "Refund",
+	Opening: "Opening",
+	Transfer: "Transfer",
+	Adjustment: "Adjustment",
 };
 
 /** Stock derived from the Products mock's per-warehouse inventory holdings. */

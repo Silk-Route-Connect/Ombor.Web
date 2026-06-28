@@ -16,16 +16,12 @@ export const GhostButton: React.FC<GhostButtonProps> = ({ icon, children, sx, ..
 	<Button
 		startIcon={icon}
 		sx={{
+			// Height, horizontal padding, font size and radius come from the theme's
+			// md control defaults — only the ghost-outline visuals live here.
 			bgcolor: "background.paper",
 			color: "text.primary",
 			border: "1px solid",
 			borderColor: designTokens.gray300,
-			borderRadius: "8px",
-			fontSize: 14,
-			fontWeight: 600,
-			px: "16px",
-			py: "9px",
-			lineHeight: 1.45,
 			whiteSpace: "nowrap",
 			"& .MuiButton-startIcon": { mr: "7px", ml: 0 },
 			"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },

@@ -116,8 +116,13 @@ export type ProductTransaction = {
 	discount: number;
 };
 
-/** A stock movement in the product's warehouse ledger. */
-export type ProductMovementKind = TransactionType;
+/**
+ * A stock movement in the product's warehouse ledger. The backend serves `kind`
+ * as a typed enum: the transaction kinds (Sale / Supply / SaleRefund /
+ * SupplyRefund) plus `Opening` (initial stock), `Transfer` (inter-warehouse
+ * move) and `Adjustment` (stock correction).
+ */
+export type ProductMovementKind = TransactionType | "Opening" | "Transfer" | "Adjustment";
 
 export type ProductMovement = {
 	id: number;

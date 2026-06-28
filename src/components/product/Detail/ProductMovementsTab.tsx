@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { ProductMovement } from "models/product";
 import { numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
 import DetailCard from "./DetailCard";
@@ -71,18 +71,12 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ moveme
 									<TransactionKindChip kind={movement.kind} />
 								</td>
 								<td>
-									<Box
-										component="span"
-										sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-									>
-										<WarehouseOutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
-										{movement.warehouseName}
-									</Box>
+									<WarehouseLink id={movement.warehouseId} name={movement.warehouseName} />
 								</td>
 								<td className="r">
 									{movement.quantity > 0 ? (
 										<Box component="span" sx={quantityInSx}>
-											+{formatQuantity(movement.quantity)}
+											{formatQuantity(movement.quantity)}
 										</Box>
 									) : (
 										<Dash />
@@ -91,7 +85,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ moveme
 								<td className="r">
 									{movement.quantity < 0 ? (
 										<Box component="span" sx={quantityOutSx}>
-											−{formatQuantity(Math.abs(movement.quantity))}
+											{formatQuantity(Math.abs(movement.quantity))}
 										</Box>
 									) : (
 										<Dash />

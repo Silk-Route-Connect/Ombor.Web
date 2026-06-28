@@ -2,11 +2,13 @@ import ArchivedBadge from "components/product/ArchivedBadge";
 import ProductTypeChip from "components/product/ProductTypeChip";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
+import TruncatedText from "components/shared/Table/TruncatedText";
 import { TFunction } from "i18next";
 import { Product } from "models/product";
-import { numericSx } from "theme";
+import { numericSx, typeScale } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { getImageFullUrl, MEASUREMENT_SHORT } from "utils/productUtils";
+import { getImageFullUrl, measurementLabel } from "utils/productUtils";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { Box, Typography } from "@mui/material";
@@ -31,12 +33,7 @@ const Money = ({ value, archived }: { value: number | null; archived?: boolean }
 	value != null && value > 0 ? (
 		<Typography
 			component="span"
-			sx={{
-				...numericSx,
-				fontWeight: 600,
-				color: "text.primary",
-				opacity: archived ? 0.55 : 1,
-			}}
+			sx={{ ...typeScale.numTable, color: "text.primary", opacity: archived ? 0.55 : 1 }}
 		>
 			{formatCurrency(value)}
 		</Typography>
@@ -84,8 +81,10 @@ const ProductThumb = ({ product }: { product: Product }) => {
 
 /**
  * Columns built at render time so labels resolve through the live `t`
- * (docs/conventions.md — no `t()` at module scope). Sorting, search, filtering
- * and pagination are all client-side via the store + shared DataTable.
+ * (docs/conventions.md — no `t()` at module scope). Order follows the canonical
+ * table convention: №/ID (SKU) → primary entity (name) → type chip → descriptive
+ * (category, unit) → money (stock, prices, right + tabular) → ⋮ actions. Sorting,
+ * search, filtering and pagination are all client-side via the store + DataTable.
  */
 export function buildProductColumns({
 	t,
@@ -95,37 +94,10 @@ export function buildProductColumns({
 }: BuildColumnsOptions): Column<Product>[] {
 	return [
 		{
-			key: "name",
-			field: "name",
-			headerName: t("product.table.name"),
-			width: "26%",
-			sortable: true,
-			renderCell: (product) => (
-				<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
-					<ProductThumb product={product} />
-					<Typography
-						component="span"
-						sx={{
-							fontWeight: 600,
-							color: product.isArchived ? "text.secondary" : "primary.main",
-							textDecoration: product.isArchived ? "line-through" : "none",
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
-						}}
-					>
-						{product.name}
-					</Typography>
-					{product.isArchived && <ArchivedBadge />}
-				</Box>
-			),
-		},
-		{
 			key: "sku",
 			field: "sku",
 			headerName: t("product.table.sku"),
-			width: "11%",
-			sortable: true,
+			width: "12%",
 			renderCell: (product) => (
 				<Typography
 					component="span"
@@ -141,11 +113,40 @@ export function buildProductColumns({
 			),
 		},
 		{
+			key: "name",
+			field: "name",
+			headerName: t("product.table.name"),
+			width: "24%",
+			renderCell: (product) => (
+				<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+					<ProductThumb product={product} />
+					<TruncatedText
+						text={product.name}
+						maxWidth={260}
+						sx={{
+							flex: 1,
+							minWidth: 0,
+							fontWeight: 600,
+							color: product.isArchived ? "text.secondary" : "primary.main",
+							textDecoration: product.isArchived ? "line-through" : "none",
+						}}
+					/>
+					{product.isArchived && <ArchivedBadge />}
+				</Box>
+			),
+		},
+		{
+			key: "type",
+			field: "type",
+			headerName: t("product.table.type"),
+			width: "9%",
+			renderCell: (product) => <ProductTypeChip type={product.type} dimmed={product.isArchived} />,
+		},
+		{
 			key: "categoryName",
 			field: "categoryName",
 			headerName: t("product.table.category"),
-			width: "15%",
-			sortable: true,
+			width: "13%",
 			renderCell: (product) =>
 				product.categoryName ? (
 					<Typography component="span" sx={{ color: "text.secondary", ...archivedCellSx(product) }}>
@@ -157,21 +158,17 @@ export function buildProductColumns({
 		},
 		{
 			key: "measurement",
+			field: "measurement",
 			headerName: t("product.table.measurement"),
-			width: "8%",
+			width: "11%",
 			renderCell: (product) => (
-				<Typography component="span" sx={{ color: "text.secondary", ...archivedCellSx(product) }}>
-					{MEASUREMENT_SHORT[product.measurement]}
+				<Typography
+					component="span"
+					sx={{ color: "text.secondary", whiteSpace: "nowrap", ...archivedCellSx(product) }}
+				>
+					{measurementLabel(t, product.measurement)}
 				</Typography>
 			),
-		},
-		{
-			key: "type",
-			field: "type",
-			headerName: t("product.table.type"),
-			width: "9%",
-			sortable: true,
-			renderCell: (product) => <ProductTypeChip type={product.type} dimmed={product.isArchived} />,
 		},
 		{
 			key: "totalStock",
@@ -179,13 +176,11 @@ export function buildProductColumns({
 			headerName: t("product.table.stock"),
 			width: "9%",
 			align: "right",
-			sortable: true,
 			renderCell: (product) => (
 				<Typography
 					component="span"
 					sx={{
-						...numericSx,
-						fontWeight: 700,
+						...typeScale.numTable,
 						color: product.totalStock === 0 ? "error.main" : "text.primary",
 						...archivedCellSx(product),
 					}}
@@ -198,24 +193,22 @@ export function buildProductColumns({
 			key: "salePrice",
 			field: "salePrice",
 			headerName: t("product.table.salePrice"),
-			width: "13%",
+			width: "11%",
 			align: "right",
-			sortable: true,
 			renderCell: (product) => <Money value={product.salePrice} archived={product.isArchived} />,
 		},
 		{
 			key: "supplyPrice",
 			field: "supplyPrice",
 			headerName: t("product.table.supplyPrice"),
-			width: "13%",
+			width: "11%",
 			align: "right",
-			sortable: true,
 			renderCell: (product) => <Money value={product.supplyPrice} archived={product.isArchived} />,
 		},
 		{
 			key: "actions",
 			headerName: "",
-			width: 56,
+			width: ACTIONS_COLUMN_WIDTH,
 			align: "right",
 			renderCell: (product) => (
 				<ProductActionMenu

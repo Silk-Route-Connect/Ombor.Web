@@ -8,11 +8,14 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { Category } from "models/category";
 import { ProductTypeFilter } from "stores/ProductStore";
-import { designTokens, numericSx } from "theme";
+import { designTokens } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { Box, ButtonBase } from "@mui/material";
+import { Box } from "@mui/material";
+
+/** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
+type ArchiveView = "active" | "archived";
 
 interface ProductHeaderProps {
 	/** Total dataset size (unfiltered, archived included) shown in the title. */
@@ -31,75 +34,6 @@ interface ProductHeaderProps {
 }
 
 const TYPE_TABS: ProductTypeFilter[] = ["all", "sale", "supply", "both"];
-
-/**
- * Archive toggle per the bundle's `.arch-toggle`: a white card (40px tall,
- * border-strong outline) holding a 30×18 switch pill, the label, and the
- * archived-count figure; the active state tints the card primary-soft.
- */
-const ArchiveToggle: React.FC<{
-	on: boolean;
-	count: number;
-	onToggle: (show: boolean) => void;
-}> = ({ on, count, onToggle }) => {
-	const { t } = useTranslation();
-
-	return (
-		<ButtonBase
-			onClick={() => onToggle(!on)}
-			title={t("product.filter.archiveTooltip")}
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "8px",
-				height: 40,
-				px: "13px",
-				borderRadius: "8px",
-				border: "1px solid",
-				borderColor: on ? designTokens.primaryLine : designTokens.gray300,
-				bgcolor: on ? designTokens.primarySoft : "background.paper",
-				fontSize: 13.5,
-				fontWeight: 600,
-				fontFamily: "inherit",
-				color: on ? "primary.main" : designTokens.gray700,
-				whiteSpace: "nowrap",
-				transition: "border-color .14s, background .14s, color .14s",
-				"&:hover": { borderColor: on ? designTokens.primaryLine : designTokens.gray400 },
-			}}
-		>
-			<Box
-				component="span"
-				sx={{
-					width: 30,
-					height: 18,
-					borderRadius: "999px",
-					bgcolor: on ? "primary.main" : designTokens.gray300,
-					position: "relative",
-					flex: "0 0 auto",
-					transition: "background .15s",
-					"&::after": {
-						content: '""',
-						position: "absolute",
-						top: 2,
-						left: 2,
-						width: 14,
-						height: 14,
-						borderRadius: "50%",
-						bgcolor: "#fff",
-						transition: "transform .15s",
-						transform: on ? "translateX(12px)" : "none",
-					},
-				}}
-			/>
-			{t("product.filter.archive")}
-			{count > 0 && (
-				<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-					{count}
-				</Box>
-			)}
-		</ButtonBase>
-	);
-};
 
 /**
  * Products page header. Per locked pattern 11: dataset-level actions (create,
@@ -175,7 +109,20 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 
 				<Box sx={{ flexGrow: 1 }} />
 
-				<ArchiveToggle on={showArchived} count={archivedCount} onToggle={onToggleArchived} />
+				<SegmentedControl<ArchiveView>
+					options={[
+						{ value: "active", label: t("product.filter.active") },
+						{
+							value: "archived",
+							label:
+								archivedCount > 0
+									? `${t("product.filter.archive")} (${archivedCount})`
+									: t("product.filter.archive"),
+						},
+					]}
+					value={showArchived ? "archived" : "active"}
+					onChange={(view) => onToggleArchived(view === "archived")}
+				/>
 			</Box>
 		</>
 	);

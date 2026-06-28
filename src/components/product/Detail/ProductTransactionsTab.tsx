@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Measurement, ProductTransaction } from "models/product";
 import { PATHS } from "routing/paths";
-import { numericSx } from "theme";
+import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { unitInline } from "utils/productUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
-import { Box, Button } from "@mui/material";
+import { Box, Link } from "@mui/material";
 
 import DetailCard from "./DetailCard";
 import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
@@ -29,7 +29,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const unit = MEASUREMENT_SHORT[measurement];
+	const unit = unitInline(t, measurement);
 
 	return (
 		<DetailCard
@@ -69,8 +69,8 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 									<td>{txn.partnerName}</td>
 									<td className="r">
 										<Box component="span" sx={txn.quantity > 0 ? quantityInSx : quantityOutSx}>
-											{txn.quantity > 0 ? "+" : "−"}
-											{formatQuantity(Math.abs(txn.quantity))} {unit}
+											{formatQuantity(Math.abs(txn.quantity))}
+											{unit ? ` ${unit}` : ""}
 										</Box>
 									</td>
 									<td className="r">
@@ -87,15 +87,33 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 							))}
 						</tbody>
 					</Box>
-					<Box sx={{ p: "13px 18px", borderTop: 1, borderColor: "divider" }}>
-						<Button
-							size="small"
-							endIcon={<ChevronRightIcon />}
+					{/* Warm footer band matching the total-row band of the Stocks /
+					    Movements tabs (so all three tabs read identically). */}
+					<Box
+						sx={{
+							px: "18px",
+							py: "12px",
+							bgcolor: designTokens.gray25,
+							borderTop: "1.5px solid",
+							borderColor: designTokens.gray300,
+						}}
+					>
+						<Link
+							component="button"
+							underline="hover"
 							onClick={() => navigate(PATHS.sales)}
-							sx={{ color: "primary.main", fontWeight: 600, px: "8px" }}
+							sx={{
+								display: "inline-flex",
+								alignItems: "center",
+								gap: "2px",
+								color: "primary.main",
+								fontSize: 13.5,
+								fontWeight: 600,
+							}}
 						>
 							{t("product.detail.txns.all")}
-						</Button>
+							<ChevronRightIcon sx={{ fontSize: 16 }} />
+						</Link>
 					</Box>
 				</>
 			)}

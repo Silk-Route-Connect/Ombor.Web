@@ -98,6 +98,25 @@ export const radius = {
 } as const;
 
 /**
+ * Explicit interactive-control heights — the single source so a header/filter
+ * row of mixed controls (buttons, inputs, search, selects, segmented) aligns at
+ * one height. Applied through the MUI component defaults below (and the custom
+ * SegmentedControl), never as per-component pixel values.
+ *
+ * - `md` = 38px — the DEFAULT: primary buttons, inputs, search, dropdowns/selects.
+ *   (≈14px text, ~9px vertical / 16px horizontal padding, 1px border.)
+ * - `sm` = 31px — compact / inline contexts only (e.g. dense table-row buttons);
+ *   never primary header actions.
+ *
+ * NB: the app's inputs use MUI `size="small"`, which we map to `md` (38px) — so
+ * `size="small"` inputs and default (`size="medium"`) buttons share one height.
+ */
+export const controlSize = {
+	md: { height: 38, fontSize: 14, paddingX: 16, paddingY: 9 },
+	sm: { height: 31, fontSize: 13, paddingX: 12 },
+} as const;
+
+/**
  * Type-scale entries that have no MUI typography variant home — the display
  * headline and the numeric scale (KPI / balance values). All numeric entries
  * carry tabular lining figures. Standard text steps live in `typography` below.
@@ -179,6 +198,13 @@ export const chipTokens = {
 		color: SUCCESS,
 		border: designTokens.successBorder,
 	}, // Closed
+	// Neutral — DS `.chip-neutral` (warm stone). Type-agnostic / "both" / opening.
+	neutral: {
+		variant: "soft",
+		bg: "#E9E4DA", // --stone-200, neutral chip fill
+		color: "#3D3A30", // --stone-700, neutral chip text
+		border: "#DAD3C6", // --stone-300, neutral chip outline
+	},
 	// Direction — income = success, expense = danger.
 	income: {
 		variant: "soft",
@@ -283,6 +309,20 @@ const theme = createTheme({
 					boxShadow: "none",
 					"&:hover": { boxShadow: "none" },
 				},
+				// Explicit, fixed heights so header/filter rows align (see controlSize).
+				// `height` (border-box) keeps contained + outlined buttons identical.
+				sizeMedium: {
+					height: controlSize.md.height,
+					paddingLeft: controlSize.md.paddingX,
+					paddingRight: controlSize.md.paddingX,
+					fontSize: controlSize.md.fontSize,
+				},
+				sizeSmall: {
+					height: controlSize.sm.height,
+					paddingLeft: controlSize.sm.paddingX,
+					paddingRight: controlSize.sm.paddingX,
+					fontSize: controlSize.sm.fontSize,
+				},
 			},
 		},
 		MuiTableCell: {
@@ -290,12 +330,20 @@ const theme = createTheme({
 				root: { borderColor: designTokens.gray200, fontSize: 14 },
 			},
 		},
+		// Inputs / search / selects use MUI size="small"; map it to md (38px) so it
+		// aligns with the default (md) buttons across a filter row.
+		MuiTextField: { defaultProps: { size: "small" } },
+		MuiSelect: { defaultProps: { size: "small" } },
 		MuiOutlinedInput: {
 			styleOverrides: {
-				// tokens.css small controls (--tinput, .search-box, .sdrop-trig) are
-				// uniformly 40px tall.
 				root: {
-					"&.MuiInputBase-sizeSmall": { minHeight: 40 },
+					"&.MuiInputBase-sizeSmall": { minHeight: controlSize.md.height },
+				},
+				// 14px text centred in the 38px control (md vertical padding ~9px).
+				inputSizeSmall: {
+					fontSize: controlSize.md.fontSize,
+					paddingTop: controlSize.md.paddingY,
+					paddingBottom: controlSize.md.paddingY,
 				},
 			},
 		},

@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT, stockValue } from "utils/productUtils";
+import { formatCurrency } from "utils/formatCurrency";
+import { measurementLabel, unitInline } from "utils/productUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -24,50 +24,56 @@ const PriceRow: React.FC<{
 	/** Bundle: the margin row carries the % note instead of the UZS suffix. */
 	showCurrency?: boolean;
 	extra?: React.ReactNode;
-}> = ({ label, value, valueColor, emphasized, showCurrency = true, extra }) => (
-	<Box
-		sx={{
-			display: "flex",
-			alignItems: "baseline",
-			justifyContent: "space-between",
-			py: "9px",
-		}}
-	>
-		<Typography
-			component="span"
+}> = ({ label, value, valueColor, emphasized, showCurrency = true, extra }) => {
+	// An empty/absent money value is a neutral «—» — never tinted with the value
+	// colour, and with no UZS suffix (a dash is "not set", not an amount).
+	const hasValue = value != null && value > 0;
+	return (
+		<Box
 			sx={{
-				fontSize: 13.5,
-				color: emphasized ? designTokens.gray700 : "text.secondary",
-				fontWeight: emphasized ? 600 : 400,
+				display: "flex",
+				alignItems: "baseline",
+				justifyContent: "space-between",
+				py: "9px",
 			}}
 		>
-			{label}
-		</Typography>
-		<Typography
-			component="span"
-			sx={{
-				...numericSx,
-				fontWeight: emphasized ? 800 : 700,
-				fontSize: emphasized ? 19 : 16,
-				letterSpacing: "-0.01em",
-				color: valueColor,
-			}}
-		>
-			{value != null && value > 0 ? formatCurrency(value) : "—"}
-			{extra}
-			{showCurrency && <UzsUnit />}
-		</Typography>
-	</Box>
-);
+			<Typography
+				component="span"
+				sx={{
+					fontSize: 13.5,
+					color: emphasized ? designTokens.gray700 : "text.secondary",
+					fontWeight: emphasized ? 600 : 400,
+				}}
+			>
+				{label}
+			</Typography>
+			<Typography
+				component="span"
+				sx={{
+					...numericSx,
+					fontWeight: emphasized ? 800 : 700,
+					fontSize: emphasized ? 19 : 16,
+					letterSpacing: "-0.01em",
+					color: hasValue ? valueColor : "text.disabled",
+				}}
+			>
+				{hasValue ? formatCurrency(value) : "—"}
+				{hasValue && extra}
+				{hasValue && showCurrency && <UzsUnit />}
+			</Typography>
+		</Box>
+	);
+};
 
 /**
- * Persistent right rail per the bundle: «Цены» (sale / supply / WAC / margin),
- * the stock hero with per-warehouse breakdown, and «Информация».
+ * Persistent right rail: «Цены» (sale / supply / avg-cost / margin) and
+ * «Информация». Stock-on-hand lives solely in the Overview tab's per-warehouse
+ * table — the redundant «Всего на складах» hero (with its cryptic id breakdown)
+ * was removed.
  */
 export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const unit = MEASUREMENT_SHORT[product.measurement];
-	const zero = product.totalStock === 0;
+	const unit = unitInline(t, product.measurement);
 
 	const costBasis = product.averageCost ?? (product.supplyPrice > 0 ? product.supplyPrice : null);
 	const margin =
@@ -77,10 +83,8 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 	const marginPct =
 		margin != null && costBasis != null ? ((margin / costBasis) * 100).toFixed(1) : null;
 
-	const totalValue = stockValue(product);
-
 	const packagingLabel = product.packaging
-		? (product.packaging.label ?? `${product.packaging.size} ${unit}`)
+		? (product.packaging.label ?? `${product.packaging.size}${unit ? ` ${unit}` : ""}`)
 		: "—";
 
 	return (
@@ -135,64 +139,6 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 				</Box>
 			</DetailCard>
 
-			{/* Всего на складах */}
-			<DetailCard>
-				<Box sx={{ p: "18px" }}>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-						{t("product.detail.stock.caption")}
-					</Typography>
-					<Typography
-						sx={{
-							...numericSx,
-							fontSize: 32,
-							fontWeight: 800,
-							letterSpacing: "-0.025em",
-							lineHeight: 1,
-							mt: "6px",
-							color: zero ? "error.main" : "text.primary",
-							opacity: product.isArchived ? 0.7 : 1,
-						}}
-					>
-						{formatQuantity(product.totalStock)}
-						<Box
-							component="span"
-							sx={{ fontSize: 15, fontWeight: 600, color: "text.disabled", ml: "6px" }}
-						>
-							{unit}
-						</Box>
-					</Typography>
-					{product.warehouseItems.length > 0 && (
-						<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary", mt: "10px" }}>
-							{product.warehouseItems
-								.map(
-									(item) =>
-										`${item.warehouseName.replace("Склад ", "")}: ${formatQuantity(item.quantity)}`,
-								)
-								.join(" · ")}
-						</Typography>
-					)}
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "baseline",
-							justifyContent: "space-between",
-							mt: "16px",
-							pt: "14px",
-							borderTop: 1,
-							borderColor: "divider",
-						}}
-					>
-						<Typography component="span" sx={{ fontSize: 13, color: "text.secondary" }}>
-							{t("product.detail.stock.value")}
-						</Typography>
-						<Typography component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 16 }}>
-							{formatCurrency(totalValue)}
-							<UzsUnit />
-						</Typography>
-					</Box>
-				</Box>
-			</DetailCard>
-
 			{/* Информация */}
 			<DetailCard
 				title={t("product.detail.info.title")}
@@ -212,7 +158,7 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 						{
 							id: "measurement",
 							label: t("product.measurement"),
-							value: `${t(`product.measurement.${product.measurement}`)} (${unit})`,
+							value: measurementLabel(t, product.measurement),
 						},
 						{ id: "packaging", label: t("product.packaging"), value: packagingLabel },
 					].map((row) => (

@@ -1,9 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { getImageFullUrl, MEASUREMENT_SHORT, stockValue } from "utils/productUtils";
+import { getImageFullUrl, measurementLabel, stockValue } from "utils/productUtils";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -53,7 +54,7 @@ const ZeroStockTag: React.FC = () => {
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
 	const zero = product.totalStock === 0;
-	const unit = MEASUREMENT_SHORT[product.measurement];
+	const unit = measurementLabel(t, product.measurement);
 	const totalValue = stockValue(product);
 
 	return (
@@ -141,13 +142,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 						{product.warehouseItems.map((item) => (
 							<tr key={item.warehouseId}>
 								<td>
-									<Box
-										component="span"
-										sx={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-									>
-										<WarehouseOutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
-										{item.warehouseName}
-									</Box>
+									<WarehouseLink id={item.warehouseId} name={item.warehouseName} />
 								</td>
 								<td className="r">
 									<Box

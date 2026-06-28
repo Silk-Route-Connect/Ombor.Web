@@ -57,7 +57,8 @@ export function buildCategoryColumns({
 			field: "description",
 			headerName: t("category.table.description"),
 			width: "48%",
-			sortable: true,
+			// Free-text column — non-sortable per the table convention.
+			sortable: false,
 			renderCell: (category) =>
 				category.description ? (
 					<Typography

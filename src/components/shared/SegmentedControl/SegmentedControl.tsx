@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { controlSize, designTokens } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -32,12 +32,12 @@ export function SegmentedControl<T extends string>({
 	return (
 		<Box
 			sx={{
-				// 40px tall to match the sibling form controls in module headers
-				// (search / dropdown / archive toggle are all 40px); the items
+				// md control height (theme controlSize) so it aligns with the sibling
+				// header/filter controls (search / dropdown / buttons); the items
 				// stretch to fill the track so the selected card is full-height.
 				display: fullWidth ? "flex" : "inline-flex",
 				alignItems: "stretch",
-				height: 40,
+				height: controlSize.md.height,
 				width: fullWidth ? "100%" : "auto",
 				bgcolor: designTokens.gray100,
 				borderRadius: "8px",

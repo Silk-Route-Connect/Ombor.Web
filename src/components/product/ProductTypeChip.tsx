@@ -1,14 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ProductType } from "models/product";
+import { chipTokens } from "theme";
 
-import { alpha, Chip } from "@mui/material";
+import { Box } from "@mui/material";
 
-/** Soft chip tone per the prototype PRTYPE map. */
-const TYPE_COLOR: Record<ProductType, "primary" | "success" | "info"> = {
-	All: "primary",
-	Sale: "success",
-	Supply: "info",
+/**
+ * Product type → chipTokens key (DSN-1): Sale=teal, Supply=saffron — the brand
+ * hues that carry transaction type — and All=neutral (type-agnostic, the DS
+ * `.chip-neutral`). Replaces the stale info/warning (blue/amber) mapping.
+ */
+const TYPE_TOKEN: Record<ProductType, keyof typeof chipTokens> = {
+	Sale: "sale",
+	Supply: "supply",
+	All: "neutral",
 };
 
 interface ProductTypeChipProps {
@@ -18,21 +23,29 @@ interface ProductTypeChipProps {
 
 export const ProductTypeChip: React.FC<ProductTypeChipProps> = ({ type, dimmed }) => {
 	const { t } = useTranslation();
-	const color = TYPE_COLOR[type];
+	const tk = chipTokens[TYPE_TOKEN[type]];
 
 	return (
-		<Chip
-			label={t(`product.type.${type}`)}
-			size="small"
-			sx={(theme) => ({
+		<Box
+			component="span"
+			sx={{
+				display: "inline-flex",
+				alignItems: "center",
 				height: 22,
+				px: "9px",
+				borderRadius: "999px",
 				fontSize: 12,
 				fontWeight: 600,
-				bgcolor: alpha(theme.palette[color].main, 0.12),
-				color: theme.palette[color].main,
+				whiteSpace: "nowrap",
+				border: "1px solid",
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 				opacity: dimmed ? 0.55 : 1,
-			})}
-		/>
+			}}
+		>
+			{t(`product.type.${type}`)}
+		</Box>
 	);
 };
 

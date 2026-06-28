@@ -84,47 +84,75 @@ export const ProductPackagingSchema = z.object({
  * at zero stock and stocked later via an opening-stock event (canon rule 22,
  * Warehouse Detail) — see the session notes.
  */
-export const ProductSchema = z.object({
-	name: z
-		.string()
-		.trim()
-		.min(2, i18next.t("product.validation.nameMin"))
-		.max(250, i18next.t("product.validation.nameMax")),
-	categoryId: z.number().int().positive().nullable(),
-	measurement: requiredEnum(MEASUREMENTS, "product.validation.invalidMeasurement"),
-	type: requiredEnum(PRODUCT_TYPES, "product.validation.invalidType"),
-	sku: z
-		.string()
-		.trim()
-		.min(1, i18next.t("product.validation.skuRequired"))
-		.max(100, i18next.t("product.validation.skuTooLong")),
-	description: optionalTrimmedMax(500, "product.validation.descriptionTooLong"),
-	barcode: z
-		.string()
-		.trim()
-		.refine((v) => v === "" || isValidBarcode(v), {
-			message: i18next.t("product.validation.invalidBarcode"),
-		})
-		.transform((v) => (v === "" ? undefined : v))
-		.optional(),
+export const ProductSchema = z
+	.object({
+		name: z
+			.string()
+			.trim()
+			.min(2, i18next.t("product.validation.nameMin"))
+			.max(250, i18next.t("product.validation.nameMax")),
+		categoryId: z
+			.number()
+			.int()
+			.positive()
+			.nullable()
+			.refine((v) => v !== null, { message: i18next.t("product.validation.categoryRequired") }),
+		measurement: requiredEnum(MEASUREMENTS, "product.validation.invalidMeasurement"),
+		type: requiredEnum(PRODUCT_TYPES, "product.validation.invalidType"),
+		sku: z
+			.string()
+			.trim()
+			.min(1, i18next.t("product.validation.skuRequired"))
+			.max(100, i18next.t("product.validation.skuTooLong")),
+		description: optionalTrimmedMax(500, "product.validation.descriptionTooLong"),
+		barcode: z
+			.string()
+			.trim()
+			.refine((v) => v === "" || isValidBarcode(v), {
+				message: i18next.t("product.validation.invalidBarcode"),
+			})
+			.transform((v) => (v === "" ? undefined : v))
+			.optional(),
 
-	// Prices are non-negative; the type segmented control determines which are
-	// shown, and the form hook zeroes the hidden one. retailPrice is not part of
-	// the create/edit contract (kept read-only on the served model only).
-	supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
-	salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
+		// Prices are non-negative; the type segmented control determines which are
+		// shown, and the form hook zeroes the hidden one. retailPrice is not part of
+		// the create/edit contract (kept read-only on the served model only).
+		supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
+		salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
 
-	lowStockThreshold: z.number().int().min(0).nullable().optional(),
+		lowStockThreshold: z.number().int().min(0).nullable().optional(),
 
-	// packaging is optional; when provided, size is required by ProductPackagingSchema
-	packaging: ProductPackagingSchema.optional(),
+		// packaging is optional; when provided, size is required by ProductPackagingSchema
+		packaging: ProductPackagingSchema.optional(),
 
-	attachments: z
-		.custom<
-			File[] | undefined
-		>((files): files is File[] | undefined => files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)))
-		.optional(),
-});
+		attachments: z
+			.custom<
+				File[] | undefined
+			>((files): files is File[] | undefined => files === undefined || (Array.isArray(files) && files.every((f) => f instanceof File)))
+			.optional(),
+	})
+	// The active price(s) for the chosen type must be set (> 0); the form hook
+	// zeroes the hidden one, so only validate the price(s) the type shows.
+	.superRefine((data, ctx) => {
+		const needsSale = data.type === "Sale" || data.type === "All";
+		const needsSupply = data.type === "Supply" || data.type === "All";
+
+		if (needsSale && !(data.salePrice > 0)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["salePrice"],
+				message: i18next.t("product.validation.salePriceRequired"),
+			});
+		}
+
+		if (needsSupply && !(data.supplyPrice > 0)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["supplyPrice"],
+				message: i18next.t("product.validation.supplyPriceRequired"),
+			});
+		}
+	});
 
 export type ProductFormInputs = z.input<typeof ProductSchema>;
 export type ProductFormValues = z.output<typeof ProductSchema>;

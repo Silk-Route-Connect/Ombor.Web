@@ -65,8 +65,10 @@ export const HEADER_CELL_SX: SxProps<Theme> = {
 	borderBottom: 1,
 	borderColor: "divider", // DSN --border (stronger band separator)
 	whiteSpace: "nowrap",
-	// Sort affordance: icon trails the label, teal-600 (--primary-dark) on active.
-	"& .MuiTableSortLabel-root": { color: "text.secondary" },
+	// Sort affordance: icon trails the label on ONE side (right) for every column —
+	// MUI flips to row-reverse for align="right" cells (icon on the left), so force
+	// row back. Teal-600 (--primary-dark) on active.
+	"& .MuiTableSortLabel-root": { color: "text.secondary", flexDirection: "row" },
 	"& .MuiTableSortLabel-root:hover": { color: "primary.dark" },
 	"& .MuiTableSortLabel-root.Mui-active": { color: "primary.dark" },
 	"& .MuiTableSortLabel-icon": { fontSize: 16, color: "inherit !important" },

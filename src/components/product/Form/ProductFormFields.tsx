@@ -7,8 +7,7 @@ import { UseProductFormResult } from "hooks/product/useProductForm";
 import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { Alert, Box, Divider, Stack, TextField } from "@mui/material";
+import { Box, Divider, Stack, TextField } from "@mui/material";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";
@@ -49,12 +48,9 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 		selectMainNew,
 	} = api;
 
-	const { control, setValue, formState } = form;
+	const { control, setValue } = form;
 
 	const previews = useFilePreviews(attachments);
-
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && errorCount > 0;
 
 	const resolveUrl = useMemo(
 		() => (src: string) =>
@@ -75,12 +71,6 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 
 	return (
 		<Box>
-			{showErrorBanner && (
-				<Alert severity="error" icon={<ErrorOutlineIcon />} variant="outlined" sx={{ mb: "16px" }}>
-					{t("product.form.errorBanner")}
-				</Alert>
-			)}
-
 			<ProductFormCoreFields
 				control={control}
 				setValue={setValue}

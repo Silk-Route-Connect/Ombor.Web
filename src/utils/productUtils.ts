@@ -1,3 +1,4 @@
+import { TFunction } from "i18next";
 import { Measurement, Product, ProductPackaging, ProductTransaction } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
@@ -11,6 +12,25 @@ export const MEASUREMENT_SHORT: Record<Measurement, string> = {
 	Unit: "ед",
 	None: "—",
 };
+
+/**
+ * Inline unit for a quantity value (e.g. «5 Килограмм») — the FULL localized
+ * term, or empty for `None` so a unit-less quantity reads «5» (never a bare
+ * trailing dash). For a dedicated unit column/field use {@link measurementLabel}.
+ * (`MEASUREMENT_SHORT` is kept for other modules that still render short codes.)
+ */
+export function unitInline(t: TFunction, measurement: Measurement): string {
+	return measurement === "None" ? "" : t(`product.measurement.${measurement}`);
+}
+
+/**
+ * Localized unit label for a dedicated unit column/field — the full term, or a
+ * bare «—» when unset (`None`). Never «Без единицы (—)» / «кор»; "—" means "not
+ * set" (matching the packaging field's convention).
+ */
+export function measurementLabel(t: TFunction, measurement: Measurement): string {
+	return measurement === "None" ? "—" : t(`product.measurement.${measurement}`);
+}
 
 export function isAvialableForSale(product: Product) {
 	return product.salePrice >= 0;

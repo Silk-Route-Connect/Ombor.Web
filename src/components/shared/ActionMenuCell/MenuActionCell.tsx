@@ -67,14 +67,18 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions }) => {
 					paper: {
 						// DSN-1 menu surface: hairline, soft elevation, rounded, padded.
 						sx: {
-							minWidth: 200,
+							minWidth: 176,
 							borderRadius: `${radius.md}px`,
 							border: 1,
 							borderColor: "divider",
 							boxShadow: 8,
-							p: 0.75,
+							p: 0.5,
 						},
 					},
+					// Drop MUI's default 8px MenuList padding so the only gap between the
+					// menu border and the items is the 4px paper padding (matches the
+					// design's tight spacing).
+					list: { sx: { py: 0 } },
 				}}
 			>
 				{actions.map((action) => {
@@ -88,8 +92,8 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions }) => {
 							onClick={(e) => handle(action.onClick, e)}
 							sx={{
 								borderRadius: `${radius.sm}px`,
-								px: 1.5,
-								py: "9px",
+								px: 1.25,
+								py: "7px",
 								gap: 1.25,
 								fontSize: 14,
 								"&:hover": { bgcolor: "action.hover" },
