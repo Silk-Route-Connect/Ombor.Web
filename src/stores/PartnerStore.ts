@@ -92,11 +92,11 @@ export class PartnerStore implements IPartnerStore {
 			return "loading";
 		}
 
-		let partners = this.allPartners;
-
-		if (!this.showArchived) {
-			partners = partners.filter((p) => !p.isArchived);
-		}
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only — DSN-2 — not active + archived).
+		let partners = this.allPartners.filter((p) =>
+			this.showArchived ? p.isArchived : !p.isArchived,
+		);
 
 		if (this.searchTerm.trim()) {
 			partners = partners.filter(

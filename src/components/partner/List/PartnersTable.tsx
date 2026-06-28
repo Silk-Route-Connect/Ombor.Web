@@ -111,6 +111,7 @@ export const PartnersTable: React.FC<PartnersTableProps> = ({
 			columns={columns}
 			pagination
 			rowsPerPageOptions={[10, 25, 50]}
+			defaultSort={{ key: "name", order: "asc" }}
 			onRowClick={onOpen}
 		/>
 	);

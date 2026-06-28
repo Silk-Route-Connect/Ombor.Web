@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { formatSigned } from "components/partner/Detail/ledgerHelpers";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -14,7 +15,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDate as formatLocaleDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { balanceColor } from "utils/partnerUtils";
-import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
+import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -121,26 +122,53 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 						</Alert>
 					)}
 
-					<Box sx={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-						{/* Name */}
-						<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-							<FormFieldLabel label={t("partner.form.name")} required />
-							<Controller
-								name="name"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										size="small"
-										fullWidth
-										autoFocus={!isEdit}
-										placeholder={t("partner.form.namePlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									/>
-								)}
-							/>
+					<Box sx={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+						{/* Name + Company on one row (PRT-7) */}
+						<Box
+							sx={{
+								display: "grid",
+								gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+								gap: "16px",
+							}}
+						>
+							<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+								<FormFieldLabel label={t("partner.form.name")} required />
+								<Controller
+									name="name"
+									control={control}
+									render={({ field, fieldState }) => (
+										<TextField
+											{...field}
+											size="small"
+											fullWidth
+											autoFocus={!isEdit}
+											placeholder={t("partner.form.namePlaceholder")}
+											disabled={isSaving}
+											error={!!fieldState.error}
+											helperText={fieldState.error?.message}
+										/>
+									)}
+								/>
+							</Box>
+							<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+								<FormFieldLabel label={t("partner.form.company")} />
+								<Controller
+									name="companyName"
+									control={control}
+									render={({ field, fieldState }) => (
+										<TextField
+											{...field}
+											value={field.value ?? ""}
+											size="small"
+											fullWidth
+											placeholder={t("partner.form.companyPlaceholder")}
+											disabled={isSaving}
+											error={!!fieldState.error}
+											helperText={fieldState.error?.message}
+										/>
+									)}
+								/>
+							</Box>
 						</Box>
 
 						{/* Type */}
@@ -159,27 +187,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 											value: type,
 											label: t(`partner.typeShort.${type}`),
 										}))}
-									/>
-								)}
-							/>
-						</Box>
-
-						{/* Company */}
-						<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-							<FormFieldLabel label={t("partner.form.company")} />
-							<Controller
-								name="companyName"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										value={field.value ?? ""}
-										size="small"
-										fullWidth
-										placeholder={t("partner.form.companyPlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
 									/>
 								)}
 							/>
@@ -209,7 +216,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 											{phones.map((phone, i) => (
 												<Box key={i} sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
 													<TextField
-														value={uzNationalPart(phone)}
+														value={formatUzNational(phone)}
 														onChange={(e) => setAt(i, uzPhoneToStored(e.target.value))}
 														size="small"
 														fullWidth
@@ -386,12 +393,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 							<LockedOpeningBalance partner={partner!} />
 						) : (
 							<Box>
-								<Typography
-									sx={{ fontSize: 12.5, color: "text.secondary", lineHeight: 1.55, mb: "16px" }}
-								>
-									{t("partner.form.openingLead")}
-								</Typography>
-
 								<Box sx={{ display: "flex", flexDirection: "column", gap: "7px", mb: "14px" }}>
 									<FormFieldLabel label={t("partner.form.openingType")} />
 									<Controller
@@ -476,7 +477,14 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 											</Box>
 										)}
 									/>
-									<Typography sx={{ fontSize: 12, color: "text.disabled", lineHeight: 1.45 }}>
+									<Typography
+										sx={{
+											fontSize: 12,
+											fontWeight: 600,
+											color: "text.secondary",
+											lineHeight: 1.45,
+										}}
+									>
 										{t("partner.form.openingHint")}
 									</Typography>
 								</Box>
@@ -588,8 +596,7 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 						color: balanceColor(partner.openingBalance),
 					}}
 				>
-					{partner.openingBalance >= 0 ? "+" : "−"}
-					{formatCurrency(Math.abs(partner.openingBalance))}
+					{formatSigned(partner.openingBalance)}
 					<Box
 						component="span"
 						sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "6px" }}
@@ -614,7 +621,7 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 				<InfoOutlinedIcon sx={{ fontSize: 15, color: "info.main", mt: "1px", flex: "0 0 auto" }} />
 				<Typography sx={{ fontSize: 12.5, color: "info.main", lineHeight: 1.55 }}>
 					{t("partner.form.openingLockedHelper", {
-						balance: `${partner.balance >= 0 ? "+" : "−"}${formatCurrency(Math.abs(partner.balance))}`,
+						balance: formatSigned(partner.balance),
 					})}
 				</Typography>
 			</Box>

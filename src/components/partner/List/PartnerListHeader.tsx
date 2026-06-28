@@ -6,11 +6,13 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { PartnerTypeFilter } from "stores/PartnerStore";
-import { designTokens, numericSx } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { Box, ButtonBase } from "@mui/material";
+import { Box } from "@mui/material";
+
+/** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
+type ArchiveView = "active" | "archived";
 
 interface PartnerListHeaderProps {
 	searchValue: string;
@@ -23,67 +25,6 @@ interface PartnerListHeaderProps {
 	onCreate: () => void;
 	onExport: () => void;
 }
-
-/** Archive toggle per the bundle's `.arch-toggle` (shared across list pages). */
-const ArchiveToggle: React.FC<{
-	on: boolean;
-	count: number;
-	onToggle: (show: boolean) => void;
-}> = ({ on, count, onToggle }) => {
-	const { t } = useTranslation();
-	return (
-		<ButtonBase
-			onClick={() => onToggle(!on)}
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "8px",
-				height: 40,
-				px: "13px",
-				borderRadius: "8px",
-				border: "1px solid",
-				borderColor: on ? designTokens.primaryLine : designTokens.gray300,
-				bgcolor: on ? designTokens.primarySoft : "background.paper",
-				fontSize: 13.5,
-				fontWeight: 600,
-				fontFamily: "inherit",
-				color: on ? "primary.main" : designTokens.gray700,
-				whiteSpace: "nowrap",
-				"&:hover": { borderColor: on ? designTokens.primaryLine : designTokens.gray400 },
-			}}
-		>
-			<Box
-				component="span"
-				sx={{
-					width: 30,
-					height: 18,
-					borderRadius: "999px",
-					bgcolor: on ? "primary.main" : designTokens.gray300,
-					position: "relative",
-					flex: "0 0 auto",
-					"&::after": {
-						content: '""',
-						position: "absolute",
-						top: 2,
-						left: 2,
-						width: 14,
-						height: 14,
-						borderRadius: "50%",
-						bgcolor: "#fff",
-						transform: on ? "translateX(12px)" : "none",
-						transition: "transform .15s",
-					},
-				}}
-			/>
-			{t("partner.list.archiveToggle")}
-			{count > 0 && (
-				<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-					{count}
-				</Box>
-			)}
-		</ButtonBase>
-	);
-};
 
 /** Partners list header (locked pattern 11): create/export on the title row, search/type/archive below. */
 export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
@@ -135,7 +76,20 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 					]}
 				/>
 				<Box sx={{ flexGrow: 1 }} />
-				<ArchiveToggle on={showArchived} count={archivedCount} onToggle={onToggleArchived} />
+				<SegmentedControl<ArchiveView>
+					value={showArchived ? "archived" : "active"}
+					onChange={(view) => onToggleArchived(view === "archived")}
+					options={[
+						{ value: "active", label: t("partner.filter.active") },
+						{
+							value: "archived",
+							label:
+								archivedCount > 0
+									? `${t("partner.filter.archive")} (${archivedCount})`
+									: t("partner.filter.archive"),
+						},
+					]}
+				/>
 			</Box>
 		</>
 	);

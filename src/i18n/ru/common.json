@@ -28,6 +28,8 @@
   "common.archive": "Архивировать",
   "common.restore": "Восстановить",
   "common.export": "Экспорт",
+  "common.copy": "Копировать",
+  "common.copied": "Скопировано",
   "common.payment": "Оплата",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",

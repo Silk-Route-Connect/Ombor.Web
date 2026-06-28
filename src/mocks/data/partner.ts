@@ -7,6 +7,7 @@ import {
 	PartnerType,
 	UpdatePartnerRequest,
 } from "../../models/partner";
+import { formatEntityId } from "../../utils/formatEntityId";
 
 /**
  * In-memory seed + mutation for the Partners mock. The redesigned «Партнёры»
@@ -224,7 +225,7 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-06-03",
 		delta: 2340000,
 		balance: 5065000,
-		reference: "#1042",
+		reference: formatEntityId(1042),
 		itemCount: 8,
 		status: "partial",
 	},
@@ -242,7 +243,7 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-05-25",
 		delta: -375000,
 		balance: 3225000,
-		reference: "#1038-R1",
+		reference: `${formatEntityId(1038)}-R1`,
 		itemCount: 2,
 		status: "done",
 	},
@@ -252,7 +253,7 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-05-22",
 		delta: 1850000,
 		balance: 3600000,
-		reference: "#1038",
+		reference: formatEntityId(1038),
 		itemCount: 5,
 		status: "paid",
 	},
@@ -270,7 +271,7 @@ const VIKTORIA: PartnerLedgerEntry[] = [
 		date: "2026-05-10",
 		delta: 1250000,
 		balance: 3750000,
-		reference: "#1031",
+		reference: formatEntityId(1031),
 		itemCount: 3,
 		status: "paid",
 	},
@@ -346,7 +347,7 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: -round10((Math.floor(rng(c + 3) * 18) + 6) * 100000),
 					balance: 0,
-					reference: "#" + saleNo++,
+					reference: formatEntityId(saleNo++),
 					itemCount: 2 + Math.floor(rng(c + 7) * 7),
 					status: pickStatus(rng(c + 9)),
 				};
@@ -366,7 +367,7 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: round10((Math.floor(rng(c + 3) * 16) + 6) * 100000),
 					balance: 0,
-					reference: "#" + saleNo++,
+					reference: formatEntityId(saleNo++),
 					itemCount: 2 + Math.floor(rng(c + 7) * 7),
 					status: pickStatus(rng(c + 9)),
 				};
@@ -376,7 +377,7 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: -round10((Math.floor(rng(c + 4) * 15) + 5) * 100000),
 					balance: 0,
-					reference: "#" + saleNo++,
+					reference: formatEntityId(saleNo++),
 					itemCount: 2 + Math.floor(rng(c + 6) * 6),
 					status: pickStatus(rng(c + 11)),
 				};
@@ -397,7 +398,7 @@ function genLedger(rec: PartnerRecord): PartnerLedgerEntry[] {
 					date,
 					delta: round10((Math.floor(rng(c + 3) * 18) + 6) * 100000),
 					balance: 0,
-					reference: "#" + saleNo++,
+					reference: formatEntityId(saleNo++),
 					itemCount: 2 + Math.floor(rng(c + 7) * 7),
 					status: pickStatus(rng(c + 9)),
 				};

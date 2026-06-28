@@ -43,6 +43,13 @@ export const warehouseDetailPath = (id: number): string => `/warehouses/${id}`;
 /** Concrete detail route for a partner (PATHS.partnerDetail with the id bound). */
 export const partnerDetailPath = (id: number): string => `/partners/${id}`;
 
+/**
+ * Partner detail deep-linked to the Транзакции tab, pre-filtered to outstanding
+ * debt — the target when opening a partner from the Debts page (B13/DBT-1).
+ */
+export const partnerDebtPath = (id: number): string =>
+	`${partnerDetailPath(id)}?tab=transactions&status=open`;
+
 /** Concrete detail route for a wallet (PATHS.walletDetail with the id bound). */
 export const walletDetailPath = (id: number): string => `/wallets/${id}`;
 

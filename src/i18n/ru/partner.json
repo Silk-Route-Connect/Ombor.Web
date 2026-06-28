@@ -17,6 +17,8 @@
   "partner.filter.all": "Все",
   "partner.filter.client": "Клиенты",
   "partner.filter.supplier": "Поставщики",
+  "partner.filter.active": "Активные",
+  "partner.filter.archive": "Архив",
   "partner.list.archiveToggle": "Архив",
 
   "partner.table.name": "Имя партнёра",
@@ -61,6 +63,7 @@
   "partner.detail.stat.supplies": "Поставки",
   "partner.detail.stat.payments": "Платежи",
   "partner.detail.stat.opening": "Начальный баланс",
+  "partner.detail.exportCsv": "Экспорт CSV",
 
   "partner.tab.ledger": "Журнал",
   "partner.tab.transactions": "Транзакции",
@@ -77,6 +80,7 @@
 
   "partner.ledger.eventFilter": "Событие",
   "partner.ledger.periodFilter": "Период",
+  "partner.ledger.search": "Поиск по журналу…",
   "partner.ledger.csv": "CSV",
   "partner.ledger.event.all": "Все события",
   "partner.ledger.event.sale": "Продажи",
@@ -102,6 +106,7 @@
 
   "partner.txns.typeFilter": "Тип",
   "partner.txns.statusFilter": "Статус",
+  "partner.txns.search": "Поиск по транзакциям…",
   "partner.txns.type.all": "Все типы",
   "partner.txns.type.sale": "Продажи",
   "partner.txns.type.supply": "Поставки",
@@ -122,6 +127,7 @@
   "partner.txns.emptyNew.body": "Партнёр только создан — пока есть только начальный баланс. Транзакции появятся после первой продажи или поставки.",
 
   "partner.pays.typeFilter": "Тип",
+  "partner.pays.search": "Поиск по платежам…",
   "partner.pays.type.all": "Все типы",
   "partner.pays.type.payment": "Оплаты",
   "partner.pays.type.deposit": "Депозиты",
@@ -159,12 +165,11 @@
   "partner.form.address": "Адрес",
   "partner.form.addressPlaceholder": "Город, улица, дом",
   "partner.form.openingSection": "Начальный баланс",
-  "partner.form.openingLead": "Баланс, который уже есть у партнёра до начала работы в системе — для переноса долгов из тетради или Excel. Если расчёты с нуля, оставьте 0.",
   "partner.form.openingType": "Тип остатка",
   "partner.form.openingReceivable": "Партнёр должен нам",
   "partner.form.openingPayable": "Мы должны партнёру",
   "partner.form.openingAmount": "Сумма",
-  "partner.form.openingHint": "Положительный = партнёр должен нам. Отрицательный = мы должны партнёру.",
+  "partner.form.openingHint": "«+» — партнёр должен нам, «−» — мы должны партнёру.",
   "partner.form.openingPreview": "Стартовая запись в книге:",
   "partner.form.openingLockedTitle": "Начальный баланс",
   "partner.form.openingLockedSub": "Записан {{date}} — изменить нельзя",

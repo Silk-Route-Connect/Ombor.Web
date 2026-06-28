@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable";
 import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
@@ -27,17 +27,28 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
 	const partnerId = Number(id);
+	const [searchParams] = useSearchParams();
 	const { partnerStore, partnerLedgerStore, notificationStore } = useStore();
 
-	const [tab, setTab] = useState<PartnerDetailTab>("ledger");
+	// Deep-link: a partner opened from Debts arrives with ?tab=transactions&status=open
+	// so it lands on the Транзакции tab pre-filtered to outstanding debt (B13/DBT-1).
+	const resolveTab = (raw: string | null): PartnerDetailTab =>
+		raw === "transactions" ? "transactions" : raw === "payments" ? "payments" : "ledger";
+	const initialTab = resolveTab(searchParams.get("tab"));
+	const statusParam = searchParams.get("status");
+	const initialStatus = (
+		["open", "paid", "partial", "unpaid"].includes(statusParam ?? "") ? statusParam : undefined
+	) as "open" | "paid" | "partial" | "unpaid" | undefined;
+
+	const [tab, setTab] = useState<PartnerDetailTab>(initialTab);
 
 	useEffect(() => {
 		if (Number.isFinite(partnerId)) {
 			void partnerLedgerStore.load(partnerId);
 		}
-		setTab("ledger");
+		setTab(initialTab);
 		return () => partnerLedgerStore.clear();
-	}, [partnerId, partnerLedgerStore]);
+	}, [partnerId, initialTab, partnerLedgerStore]);
 
 	const partner = partnerLedgerStore.partner;
 	const ledgerState = partnerLedgerStore.ledger;
@@ -150,7 +161,14 @@ const PartnerDetailPage: React.FC = observer(() => {
 					</LedgerCard>
 				);
 			}
-			return <TransactionsTab transactions={transactions} onOpen={openSource} />;
+			return (
+				<TransactionsTab
+					transactions={transactions}
+					partnerName={partner.name}
+					initialStatus={initialStatus}
+					onOpen={openSource}
+				/>
+			);
 		}
 		if (noHistory) {
 			return (
@@ -163,7 +181,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 				</LedgerCard>
 			);
 		}
-		return <PaymentsTab payments={payments} onOpen={openSource} />;
+		return <PaymentsTab payments={payments} partnerName={partner.name} onOpen={openSource} />;
 	};
 
 	return (

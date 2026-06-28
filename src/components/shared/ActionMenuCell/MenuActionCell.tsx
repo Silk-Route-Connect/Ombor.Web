@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { radius } from "theme";
+import { designTokens, radius } from "theme";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
@@ -27,6 +27,8 @@ export interface ActionMenuRow {
 
 interface ActionMenuProps {
 	actions: ActionMenuRow[];
+	/** Bordered 38px trigger for detail headers; plain icon for table rows (default). */
+	bordered?: boolean;
 }
 
 const iconColorFor = (tone: ActionTone): string =>
@@ -35,7 +37,7 @@ const iconColorFor = (tone: ActionTone): string =>
 const labelColorFor = (tone: ActionTone): string =>
 	tone === "danger" ? "error.main" : "text.primary";
 
-const ActionMenu: React.FC<ActionMenuProps> = ({ actions }) => {
+const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) => {
 	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 	const isOpen = Boolean(anchor);
 
@@ -54,7 +56,23 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions }) => {
 
 	return (
 		<>
-			<IconButton size="medium" onClick={openMenu} aria-label="actions">
+			<IconButton
+				size="medium"
+				onClick={openMenu}
+				aria-label="actions"
+				sx={
+					bordered
+						? {
+								width: 38,
+								height: 38,
+								borderRadius: `${radius.sm}px`,
+								border: "1px solid",
+								borderColor: designTokens.gray300,
+								color: designTokens.gray600,
+							}
+						: undefined
+				}
+			>
 				<MoreVertIcon />
 			</IconButton>
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
@@ -7,6 +7,8 @@ import { formatCurrency } from "utils/formatCurrency";
 import { balanceColor, balanceLabelKey } from "utils/partnerUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import CheckIcon from "@mui/icons-material/Check";
+import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
@@ -15,18 +17,64 @@ import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+
+import { formatSigned } from "./ledgerHelpers";
 
 interface PartnerBalanceCardProps {
 	partner: Partner;
 	ledger: PartnerLedgerEntry[];
 }
 
+/** Copy-to-clipboard affordance on a contact row — reveals on hover, ticks on copy. */
+const CopyButton: React.FC<{ value: string; label: string }> = ({ value, label }) => {
+	const { t } = useTranslation();
+	const [copied, setCopied] = useState(false);
+
+	const copy = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		try {
+			await navigator.clipboard.writeText(value);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1200);
+		} catch {
+			/* clipboard unavailable — no-op */
+		}
+	};
+
+	return (
+		<Tooltip title={copied ? t("common.copied") : label} placement="top">
+			<IconButton
+				className="copy-btn"
+				onClick={copy}
+				aria-label={label}
+				size="small"
+				sx={{
+					p: "3px",
+					color: copied ? "success.main" : "text.disabled",
+					opacity: copied ? 1 : 0,
+					transition: "opacity .12s, color .12s",
+					"&:hover": { color: copied ? "success.main" : "primary.main" },
+				}}
+			>
+				{copied ? (
+					<CheckIcon sx={{ fontSize: 14 }} />
+				) : (
+					<ContentCopyOutlinedIcon sx={{ fontSize: 14 }} />
+				)}
+			</IconButton>
+		</Tooltip>
+	);
+};
+
 const ContactRow: React.FC<{
 	icon: React.ReactNode;
 	children: React.ReactNode;
 	mono?: boolean;
-}> = ({ icon, children, mono }) => (
+	/** Raw text copied by the row's copy button (phone / email / telegram / address). */
+	copyValue?: string;
+	copyLabel?: string;
+}> = ({ icon, children, mono, copyValue, copyLabel }) => (
 	<Box
 		sx={{
 			display: "flex",
@@ -34,12 +82,14 @@ const ContactRow: React.FC<{
 			gap: "10px",
 			fontSize: 13.5,
 			color: "text.primary",
+			"&:hover .copy-btn": { opacity: 1 },
 		}}
 	>
 		<Box sx={{ color: "text.disabled", display: "inline-flex", flex: "0 0 auto" }}>{icon}</Box>
 		<Box component="span" sx={mono ? numericSx : undefined}>
 			{children}
 		</Box>
+		{copyValue && <CopyButton value={copyValue} label={copyLabel ?? ""} />}
 	</Box>
 );
 
@@ -143,7 +193,13 @@ export const PartnerBalanceCard: React.FC<PartnerBalanceCardProps> = ({ partner,
 						</Box>
 						<Box sx={{ display: "flex", flexDirection: "column", gap: "9px" }}>
 							{phones.map((phone, i) => (
-								<ContactRow key={i} icon={<PhoneOutlinedIcon sx={{ fontSize: 15 }} />} mono>
+								<ContactRow
+									key={i}
+									icon={<PhoneOutlinedIcon sx={{ fontSize: 15 }} />}
+									mono
+									copyValue={phone}
+									copyLabel={t("common.copy")}
+								>
 									{phone}
 									{i === 0 && phones.length > 1 && (
 										<Box
@@ -167,17 +223,30 @@ export const PartnerBalanceCard: React.FC<PartnerBalanceCardProps> = ({ partner,
 								</ContactRow>
 							))}
 							{partner.email && (
-								<ContactRow icon={<MailOutlineIcon sx={{ fontSize: 15 }} />}>
+								<ContactRow
+									icon={<MailOutlineIcon sx={{ fontSize: 15 }} />}
+									copyValue={partner.email}
+									copyLabel={t("common.copy")}
+								>
 									{partner.email}
 								</ContactRow>
 							)}
 							{partner.telegram && (
-								<ContactRow icon={<SendOutlinedIcon sx={{ fontSize: 15 }} />} mono>
+								<ContactRow
+									icon={<SendOutlinedIcon sx={{ fontSize: 15 }} />}
+									mono
+									copyValue={partner.telegram}
+									copyLabel={t("common.copy")}
+								>
 									{partner.telegram}
 								</ContactRow>
 							)}
 							{partner.address && (
-								<ContactRow icon={<PlaceOutlinedIcon sx={{ fontSize: 15 }} />}>
+								<ContactRow
+									icon={<PlaceOutlinedIcon sx={{ fontSize: 15 }} />}
+									copyValue={partner.address}
+									copyLabel={t("common.copy")}
+								>
 									{partner.address}
 								</ContactRow>
 							)}
@@ -236,8 +305,7 @@ export const PartnerBalanceCard: React.FC<PartnerBalanceCardProps> = ({ partner,
 								component="b"
 								sx={{ ...numericSx, fontWeight: 600, color: balanceColor(partner.openingBalance) }}
 							>
-								{partner.openingBalance >= 0 ? "+" : "−"}
-								{formatCurrency(Math.abs(partner.openingBalance))} UZS
+								{formatSigned(partner.openingBalance)} UZS
 							</Box>
 						</Box>
 					</Box>
@@ -271,7 +339,7 @@ export const PartnerBalanceCard: React.FC<PartnerBalanceCardProps> = ({ partner,
 				<Stat
 					icon={<FlagOutlinedIcon sx={{ fontSize: 14, color: "info.main" }} />}
 					label={t("partner.detail.stat.opening")}
-					value={`${partner.openingBalance >= 0 ? "+" : "−"}${formatCurrency(Math.abs(partner.openingBalance))}`}
+					value={formatSigned(partner.openingBalance)}
 					color={balanceColor(partner.openingBalance)}
 				/>
 			</Box>

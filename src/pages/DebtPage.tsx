@@ -9,7 +9,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
-import { partnerDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -108,7 +108,7 @@ const DebtPage: React.FC = observer(() => {
 						<PartnerDebtTable
 							groups={debtStore.partnerGroups}
 							anyFilter={anyFilter}
-							onOpen={(g) => navigate(partnerDetailPath(g.partnerId))}
+							onOpen={(g) => navigate(partnerDebtPath(g.partnerId))}
 						/>
 					) : (
 						<TransactionDebtTable
