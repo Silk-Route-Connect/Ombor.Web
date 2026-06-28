@@ -2,25 +2,10 @@ import React from "react";
 
 import { alpha, Box, Paper, Typography, useTheme } from "@mui/material";
 
-export const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "12px 18px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-export const bodyCellSx = {
-	p: "13px 18px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 14,
-	verticalAlign: "middle",
-} as const;
+export {
+	detailBodyCellSx as bodyCellSx,
+	detailHeadCellSx as headCellSx,
+} from "components/shared/Detail/detailTableChrome";
 
 /** Card wrapper for the detail tables (bundle `.ledger-card`). */
 export const LedgerCard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
