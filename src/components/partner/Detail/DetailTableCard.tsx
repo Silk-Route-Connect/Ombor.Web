@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { FOOTER_SX } from "components/shared/Table/DataTable/tableConfigs";
 
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box, Paper, TablePagination } from "@mui/material";
@@ -85,13 +86,7 @@ export const DetailTableCard: React.FC<DetailTableCardProps> = ({
 			{children}
 
 			{pagination && pagination.count > 0 && (
-				<Box
-					sx={{
-						borderTop: "1px solid",
-						borderColor: "divider",
-						"& .MuiTablePagination-root": { borderBottom: "none" },
-					}}
-				>
+				<Box sx={FOOTER_SX}>
 					<TablePagination
 						component="div"
 						count={pagination.count}
