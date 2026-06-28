@@ -13,8 +13,9 @@ interface DetailPageHeaderProps {
 	backTo: string;
 	/** The entity name — the title shows the name only (other fields live in the summary). */
 	title: string;
-	/** Kebab menu rows (DSN-1 ActionMenu). The page builds the status-aware set. */
-	actions: ActionMenuRow[];
+	/** Kebab menu rows (DSN-1 ActionMenu). The page builds the status-aware set;
+	 *  omit / pass an empty array for an action-less detail (e.g. immutable records). */
+	actions?: ActionMenuRow[];
 	isArchived?: boolean;
 	/** Override the archived-badge text (defaults to the shared «Архив»). */
 	archivedLabel?: string;
@@ -84,9 +85,11 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				</Box>
 			</Box>
 
-			<Box sx={{ flex: "0 0 auto" }}>
-				<ActionMenu actions={actions} bordered />
-			</Box>
+			{actions && actions.length > 0 && (
+				<Box sx={{ flex: "0 0 auto" }}>
+					<ActionMenu actions={actions} bordered />
+				</Box>
+			)}
 		</Box>
 	);
 };

@@ -59,7 +59,7 @@
   "common.enable": "Включить",
   "common.enabled": "Выключить",
 
-  "common.dialog.discardChanges.title": "Несохранённые изменения",
+  "common.dialog.discardChanges.title": "Закрыть форму?",
   "common.dialog.discardChanges.body": "Несохранённые изменения будут потеряны.",
   "common.dialog.discardChanges.confirm": "Закрыть",
   "common.dialog.discardChanges.cancel": "Продолжить",

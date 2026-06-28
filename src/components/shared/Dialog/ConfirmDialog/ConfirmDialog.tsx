@@ -80,16 +80,16 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 				paper: { sx: { width: 440, maxWidth: "94%", borderRadius: "12px" } },
 			}}
 		>
-			<Box sx={{ p: "24px 24px 4px" }}>
+			<Box sx={{ p: "24px 24px 4px", display: "flex", alignItems: "flex-start", gap: "16px" }}>
 				{icon && (
 					<Box
 						sx={{
 							width: 46,
 							height: 46,
+							flex: "0 0 auto",
 							borderRadius: "13px",
 							display: "grid",
 							placeItems: "center",
-							mb: "16px",
 							...ICON_TILE_SX[iconTone],
 						}}
 					>
@@ -97,13 +97,15 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 					</Box>
 				)}
 
-				<Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", mb: "8px" }}>
-					{title}
-				</Typography>
+				<Box sx={{ minWidth: 0, pt: "1px" }}>
+					<Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", mb: "8px" }}>
+						{title}
+					</Typography>
 
-				{content && (
-					<Box sx={{ fontSize: 13.5, color: "text.secondary", lineHeight: 1.62 }}>{content}</Box>
-				)}
+					{content && (
+						<Box sx={{ fontSize: 13.5, color: "text.secondary", lineHeight: 1.62 }}>{content}</Box>
+					)}
+				</Box>
 			</Box>
 
 			<Box sx={{ display: "flex", justifyContent: "flex-end", gap: "10px", p: "22px 24px" }}>
