@@ -38,7 +38,7 @@ const PaymentPage: React.FC = observer(() => {
 	const handleExport = (): void => {
 		const rows = paymentStore.filteredPayments === "loading" ? [] : paymentStore.filteredPayments;
 		const columns: CsvColumn<PaymentRecord>[] = [
-			{ header: t("payment.table.number"), value: (p) => p.number },
+			{ header: t("payment.table.number"), value: (p) => p.number || `№${p.id}` },
 			{ header: t("payment.table.date"), value: (p) => formatDate(p.date) },
 			{ header: t("payment.table.type"), value: (p) => t(PAYMENT_TYPE_META[p.type].labelKey) },
 			{
@@ -56,7 +56,8 @@ const PaymentPage: React.FC = observer(() => {
 	const isFiltering =
 		paymentStore.searchTerm.trim().length > 0 ||
 		paymentStore.typeFilter !== "all" ||
-		paymentStore.walletFilter !== "all";
+		paymentStore.walletFilter !== "all" ||
+		paymentStore.directionFilter !== "all";
 
 	return (
 		<Box>
@@ -72,7 +73,11 @@ const PaymentPage: React.FC = observer(() => {
 				onExport={handleExport}
 			/>
 
-			<PaymentSummaryStrip summary={paymentStore.summary} />
+			<PaymentSummaryStrip
+				summary={paymentStore.summary}
+				directionFilter={paymentStore.directionFilter}
+				onToggle={paymentStore.setDirectionFilter}
+			/>
 
 			<PaymentsTable
 				rows={paymentStore.filteredPayments}

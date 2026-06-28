@@ -7,6 +7,7 @@ import i18next from "../i18n/config";
 import {
 	CreatePaymentRecordRequest,
 	OutstandingTransaction,
+	PaymentDirection,
 	PaymentFormData,
 	PaymentRecord,
 	PaymentType,
@@ -32,6 +33,7 @@ export interface IPaymentStore {
 	searchTerm: string;
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
+	directionFilter: PaymentDirection | "all";
 	isSaving: boolean;
 	isCreateOpen: boolean;
 
@@ -47,6 +49,7 @@ export interface IPaymentStore {
 	setSearch(term: string): void;
 	setTypeFilter(type: PaymentTypeFilter): void;
 	setWalletFilter(walletId: number | "all"): void;
+	setDirectionFilter(direction: PaymentDirection): void;
 
 	openCreate(): void;
 	closeCreate(): void;
@@ -62,6 +65,7 @@ export class PaymentStore implements IPaymentStore {
 	searchTerm = "";
 	typeFilter: PaymentTypeFilter = "all";
 	walletFilter: number | "all" = "all";
+	directionFilter: PaymentDirection | "all" = "all";
 	isSaving = false;
 	isCreateOpen = false;
 
@@ -70,7 +74,12 @@ export class PaymentStore implements IPaymentStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	get filteredPayments(): Loadable<PaymentRecord[]> {
+	/**
+	 * Type + wallet + search filtered, but NOT the direction toggle — the scope the
+	 * summary cards total over, so the Приход / Расход cards stay stable references
+	 * you can toggle the table by (PAY-3).
+	 */
+	private get scopedPayments(): Loadable<PaymentRecord[]> {
 		if (this.allPayments === "loading") {
 			return "loading";
 		}
@@ -95,9 +104,20 @@ export class PaymentStore implements IPaymentStore {
 		return rows;
 	}
 
-	/** Income / expense / count over the currently filtered view. */
+	/** The table view — the scoped set plus the Приход / Расход direction toggle. */
+	get filteredPayments(): Loadable<PaymentRecord[]> {
+		const rows = this.scopedPayments;
+		if (rows === "loading") {
+			return "loading";
+		}
+		return this.directionFilter === "all"
+			? rows
+			: rows.filter((p) => p.direction === this.directionFilter);
+	}
+
+	/** Income / expense / count over the scoped view (excludes the direction toggle). */
 	get summary(): PaymentSummary {
-		const rows = this.filteredPayments;
+		const rows = this.scopedPayments;
 		if (rows === "loading") {
 			return { income: 0, expense: 0, count: 0 };
 		}
@@ -198,6 +218,11 @@ export class PaymentStore implements IPaymentStore {
 
 	setWalletFilter(walletId: number | "all"): void {
 		this.walletFilter = walletId;
+	}
+
+	/** Toggle the direction filter — clicking the active direction clears it (PAY-3). */
+	setDirectionFilter(direction: PaymentDirection): void {
+		this.directionFilter = this.directionFilter === direction ? "all" : direction;
 	}
 
 	openCreate(): void {

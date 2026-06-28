@@ -84,7 +84,7 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("payment.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
+					sx={{ width: { xs: "100%", sm: 350 } }}
 				/>
 				<PaymentFilterDropdown
 					icon={<LayersOutlinedIcon sx={{ fontSize: 15 }} />}
@@ -97,6 +97,7 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					value={walletFilter}
 					options={walletFilterOptions}
 					onChange={onWalletChange}
+					width={210}
 				/>
 			</Box>
 		</>

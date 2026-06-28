@@ -1,6 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import DetailCard from "components/shared/Detail/DetailCard";
+import { detailBodyCellSx, detailHeadCellSx } from "components/shared/Detail/detailTableChrome";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { PaymentAllocationKind, PaymentRecord } from "models/payment";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -18,43 +21,7 @@ import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import { Box, Paper, Typography } from "@mui/material";
-
-/** Bordered detail card with an icon + title head (the bundle's `.sd-card`). */
-export const DetailCard: React.FC<{
-	icon: React.ReactNode;
-	title: string;
-	count?: number;
-	children: React.ReactNode;
-}> = ({ icon, title, count, children }) => (
-	<Paper
-		elevation={1}
-		sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-	>
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "8px",
-				p: "13px 18px",
-				borderBottom: "1px solid",
-				borderColor: "divider",
-				bgcolor: designTokens.gray25,
-				fontSize: 14,
-				fontWeight: 600,
-			}}
-		>
-			<Box sx={{ display: "inline-flex", color: "text.secondary" }}>{icon}</Box>
-			{title}
-			{count != null && (
-				<Box component="span" sx={{ color: "text.disabled", fontWeight: 500 }}>
-					· {count}
-				</Box>
-			)}
-		</Box>
-		{children}
-	</Paper>
-);
+import { Box, Tooltip, Typography } from "@mui/material";
 
 /** Касса (source) card — single clean line per source (rule 9). */
 export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
@@ -97,7 +64,7 @@ export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ paymen
 								{s.sourceType === "Wallet" ? (
 									<span>
 										{s.walletName}{" "}
-										<Box component="span" sx={{ color: "text.disabled", fontWeight: 500 }}>
+										<Box component="span" sx={{ color: "text.secondary", fontWeight: 500 }}>
 											· {meta ? t(meta.labelKey) : ""}
 										</Box>
 									</span>
@@ -131,14 +98,6 @@ const ALLOC_META: Record<PaymentAllocationKind, { labelKey: string; color: strin
 	ChangeReturn: { labelKey: "payment.alloc.change", color: "text.secondary" },
 };
 
-const allocCellSx = {
-	p: "13px 18px",
-	borderBottom: "1px solid",
-	borderColor: designTokens.gray25,
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
-
 /** Распределение (allocations) table with a «Распределено» footer. */
 export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
@@ -151,47 +110,22 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 			icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 17 }} />}
 			title={t("payment.detail.allocation")}
 			count={payment.allocations.length}
+			headerExtra={
+				<Tooltip title={t("payment.detail.allocationTooltip")} placement="top">
+					<InfoOutlinedIcon sx={{ fontSize: 15, color: "text.disabled", cursor: "help" }} />
+				</Tooltip>
+			}
 		>
 			<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 				<thead>
 					<tr>
-						<Box
-							component="th"
-							sx={{
-								...allocCellSx,
-								textAlign: "left",
-								fontSize: 12,
-								fontWeight: 600,
-								color: "text.secondary",
-								bgcolor: "background.paper",
-							}}
-						>
+						<Box component="th" sx={detailHeadCellSx}>
 							{t("payment.detail.allocTarget")}
 						</Box>
-						<Box
-							component="th"
-							sx={{
-								...allocCellSx,
-								textAlign: "left",
-								fontSize: 12,
-								fontWeight: 600,
-								color: "text.secondary",
-								bgcolor: "background.paper",
-							}}
-						>
+						<Box component="th" sx={detailHeadCellSx}>
 							{t("payment.detail.allocType")}
 						</Box>
-						<Box
-							component="th"
-							sx={{
-								...allocCellSx,
-								textAlign: "right",
-								fontSize: 12,
-								fontWeight: 600,
-								color: "text.secondary",
-								bgcolor: "background.paper",
-							}}
-						>
+						<Box component="th" sx={{ ...detailHeadCellSx, textAlign: "right" }}>
 							{t("payment.detail.allocAmount")}
 						</Box>
 					</tr>
@@ -215,7 +149,7 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 								: a.allocationType === "ChangeReturn"
 									? t("payment.alloc.change")
 									: a.transactionId
-										? `${txWord} #${a.transactionId}`
+										? `${txWord} №${a.transactionId}`
 										: t("payment.alloc.settlement");
 						// Settlement rows link to the settled transaction (split sale/supply route).
 						const canOpenTx = isSettlement && a.transactionId != null && a.transactionType != null;
@@ -233,7 +167,7 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 								key={a.id}
 								sx={isChange ? { bgcolor: designTokens.gray25 } : undefined}
 							>
-								<Box component="td" sx={allocCellSx}>
+								<Box component="td" sx={detailBodyCellSx}>
 									<Box
 										component="span"
 										onClick={canOpenTx ? openTx : undefined}
@@ -248,10 +182,10 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 										{targetLabel}
 									</Box>
 								</Box>
-								<Box component="td" sx={{ ...allocCellSx, fontSize: 12.5, color: meta.color }}>
+								<Box component="td" sx={{ ...detailBodyCellSx, color: meta.color }}>
 									{t(meta.labelKey)}
 								</Box>
-								<Box component="td" sx={{ ...allocCellSx, textAlign: "right" }}>
+								<Box component="td" sx={{ ...detailBodyCellSx, textAlign: "right" }}>
 									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 										{formatCurrency(a.amount)}
 									</Box>
@@ -349,11 +283,8 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 				sx={{
 					display: "grid",
 					gridTemplateColumns: "1fr 1fr",
-					"& > *": { borderBottom: "1px solid", borderColor: designTokens.gray25 },
-					"& > *:nth-of-type(odd)": {
-						borderRight: "1px solid",
-						borderRightColor: designTokens.gray25,
-					},
+					"& > *": { borderBottom: "1px solid", borderColor: "divider" },
+					"& > *:nth-of-type(odd)": { borderRight: "1px solid", borderRightColor: "divider" },
 				}}
 			>
 				{item(t("payment.detail.employee"), payment.employeeName)}
@@ -412,13 +343,15 @@ export const PaymentInfoCard: React.FC<{
 				gap: "12px",
 				py: "12px",
 				borderBottom: "1px solid",
-				borderColor: designTokens.gray25,
+				borderColor: "divider",
 				"&:last-of-type": { borderBottom: "none" },
 			}}
 		>
 			<Box sx={{ color: "text.disabled", mt: "1px", display: "inline-flex" }}>{icon}</Box>
-			<Box>
-				<Typography sx={{ fontSize: 12, color: "text.secondary" }}>{key}</Typography>
+			<Box sx={{ minWidth: 0 }}>
+				<Typography sx={{ fontSize: 12, fontWeight: 600, color: "text.secondary" }}>
+					{key}
+				</Typography>
 				<Box sx={{ fontSize: 14, fontWeight: 600, mt: "2px" }}>{value}</Box>
 			</Box>
 		</Box>
@@ -469,7 +402,7 @@ export const PaymentInfoCard: React.FC<{
 				{row(
 					<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />,
 					t("payment.detail.walletLabel"),
-					payment.walletName,
+					<WalletLink id={payment.walletId} name={payment.walletName} />,
 				)}
 				{row(
 					<PersonOutlineIcon sx={{ fontSize: 16 }} />,

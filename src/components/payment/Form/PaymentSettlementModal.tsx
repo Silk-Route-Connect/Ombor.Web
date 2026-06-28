@@ -218,7 +218,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 												component="span"
 												sx={{ ...numericSx, fontWeight: 600, color: "primary.main" }}
 											>
-												#{r.id}
+												№{r.id}
 											</Box>{" "}
 											<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
 												{t(

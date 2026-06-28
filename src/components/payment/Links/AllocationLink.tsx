@@ -37,7 +37,7 @@ const AllocationLink: React.FC<AllocationLinkProps> = ({ allocation }) => {
 			? supplyDetailPath(transactionId)
 			: saleDetailPath(transactionId);
 
-	return <DetailLink to={to}>{`${t(LABEL_KEY[type])} #${transactionId}`}</DetailLink>;
+	return <DetailLink to={to}>{`${t(LABEL_KEY[type])} №${transactionId}`}</DetailLink>;
 };
 
 export default AllocationLink;

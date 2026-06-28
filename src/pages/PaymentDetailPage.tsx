@@ -9,7 +9,7 @@ import {
 	PaymentSourceCard,
 	PaymentWithdrawalCard,
 } from "components/payment/Detail/PaymentDetailCards";
-import PaymentDetailHeader from "components/payment/Detail/PaymentDetailHeader";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
@@ -54,7 +54,7 @@ const PaymentDetailPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PaymentDetailHeader payment={payment} onBack={() => navigate(PATHS.payments)} />
+			<DetailPageHeader backTo={PATHS.payments} title={payment.number || `№${payment.id}`} />
 
 			<Box
 				sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 340px" }, gap: "20px" }}

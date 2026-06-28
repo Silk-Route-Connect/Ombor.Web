@@ -64,7 +64,7 @@
 
   "payment.partnerType.Customer": "Клиент",
   "payment.partnerType.Supplier": "Поставщик",
-  "payment.partnerType.Both": "Оба",
+  "payment.partnerType.Both": "Клиент + Поставщик",
 
   "payment.filter.allTypes": "Все типы",
   "payment.filter.allWallets": "Все кассы",
@@ -73,9 +73,9 @@
   "payment.summary.expense": "Расход",
   "payment.summary.count": "Платежей",
 
-  "payment.table.number": "№",
+  "payment.table.number": "Платёж",
   "payment.table.date": "Дата",
-  "payment.table.type": "Тип",
+  "payment.table.type": "Тип операции",
   "payment.table.direction": "Направление",
   "payment.table.party": "Партнёр / Сотрудник",
   "payment.table.wallet": "Касса",
@@ -93,6 +93,7 @@
   "payment.detail.source": "Касса",
   "payment.detail.advanceSource": "Аванс партнёра",
   "payment.detail.allocation": "Распределение",
+  "payment.detail.allocationTooltip": "Распределение показывает, какие транзакции погасил этот платёж.",
   "payment.detail.allocTarget": "Назначение",
   "payment.detail.allocType": "Тип",
   "payment.detail.allocAmount": "Сумма",
@@ -142,7 +143,7 @@
   "payment.form.amount": "Сумма",
   "payment.form.overWithdraw": "Аванс партнёра: {{advance}} UZS. Нельзя вывести больше.",
   "payment.form.debtsBanner": "У партнёра есть открытые долги. При проведении откроется распределение.",
-  "payment.form.immutableWarn": "Платёж будет записан окончательно — изменить или удалить нельзя.",
+  "payment.form.immutableWarn": "Платёж нельзя изменить или удалить после проведения.",
   "payment.form.submit": "Провести платёж",
   "payment.form.submitSettle": "Распределить и провести",
 

@@ -60,6 +60,16 @@ const MONTHS = [
 ];
 const YEARS = ["2026", "2025"];
 
+/**
+ * Bounded, anchored-below dropdown menu — keeps long pickers (the partner list)
+ * from spilling as a full-page overlay; opens below the field, capped + scrollable (PAY-7).
+ */
+const DROPDOWN_MENU_PROPS = {
+	anchorOrigin: { vertical: "bottom" as const, horizontal: "left" as const },
+	transformOrigin: { vertical: "top" as const, horizontal: "left" as const },
+	slotProps: { paper: { sx: { maxHeight: 320, mt: "4px" } } },
+};
+
 export interface PaymentCreateModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
@@ -232,6 +242,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										size="small"
 										fullWidth
 										displayEmpty
+										MenuProps={DROPDOWN_MENU_PROPS}
 										value={field.value ? String(field.value) : ""}
 										error={!!fieldError("partnerId")}
 										onChange={(e) => field.onChange(Number(e.target.value))}
@@ -336,6 +347,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 											size="small"
 											fullWidth
 											displayEmpty
+											MenuProps={DROPDOWN_MENU_PROPS}
 											value={field.value ? String(field.value) : ""}
 											error={!!fieldError("employeeId")}
 											onChange={(e) => {
@@ -475,6 +487,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										size="small"
 										fullWidth
 										displayEmpty
+										MenuProps={DROPDOWN_MENU_PROPS}
 										value={field.value ? String(field.value) : ""}
 										error={!!fieldError("walletId")}
 										onChange={(e) => field.onChange(Number(e.target.value))}
@@ -570,7 +583,6 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 						px: "24px",
 						py: "14px",
 						gap: "14px",
-						flexWrap: "wrap",
 						borderTop: "1px solid",
 						borderColor: "divider",
 						bgcolor: designTokens.gray25,
@@ -581,9 +593,10 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							display: "inline-flex",
 							alignItems: "center",
 							gap: "8px",
+							flex: 1,
+							minWidth: 0,
 							fontSize: 12,
 							color: designTokens.saffron700,
-							maxWidth: 340,
 						}}
 					>
 						<ReportProblemOutlinedIcon
@@ -591,7 +604,6 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 						/>
 						{t("payment.form.immutableWarn")}
 					</Box>
-					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}
 					</GhostButton>
