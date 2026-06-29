@@ -250,6 +250,11 @@ function aggregate(warehouseId: number): {
 
 function toWarehouse(seedRow: WarehouseSeed): Warehouse {
 	const { productCount, totalUnits, stockValue } = aggregate(seedRow.id);
+	// Reference-gated delete (business-rules rule 32): a warehouse with any stock
+	// on hand or movement history (supply / sale / refund / adjustment / transfer /
+	// opening) may not be hard-deleted — it is archived instead. An unreferenced
+	// warehouse (e.g. one just created) is deletable. Mirrors Partner.isDeletable.
+	const isDeletable = productCount === 0 && listWarehouseMovements(seedRow.id).length === 0;
 	return {
 		id: seedRow.id,
 		name: seedRow.name,
@@ -258,6 +263,7 @@ function toWarehouse(seedRow: WarehouseSeed): Warehouse {
 		totalUnits,
 		stockValue,
 		isArchived: seedRow.isArchived ?? false,
+		isDeletable,
 	};
 }
 
@@ -313,6 +319,24 @@ export function setWarehouseArchived(id: number, archived: boolean): Warehouse |
 	}
 	row.isArchived = archived;
 	return toWarehouse(row);
+}
+
+/**
+ * Hard-delete an unreferenced warehouse (business-rules rule 32). The handler
+ * gates on `isDeletable` (409 otherwise), so by the time we get here the
+ * warehouse has no stock / movement overlay; clean any up defensively. Returns
+ * whether a row was removed.
+ */
+export function removeWarehouse(id: number): boolean {
+	const before = warehouses.length;
+	warehouses = warehouses.filter((w) => w.id !== id);
+	for (const key of [...overrides.keys()]) {
+		if (Number(key.split(":")[0]) === id) {
+			overrides.delete(key);
+		}
+	}
+	localMovements.delete(id);
+	return warehouses.length < before;
 }
 
 /**

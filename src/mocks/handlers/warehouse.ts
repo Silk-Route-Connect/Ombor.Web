@@ -9,6 +9,7 @@ import {
 	listWarehouseMovements,
 	listWarehouses,
 	listWarehouseStock,
+	removeWarehouse,
 	setWarehouseArchived,
 	warehouseNameExists,
 	WarehouseWrite,
@@ -171,6 +172,33 @@ export const warehouseHandlers = [
 		return HttpResponse.json(editWarehouse(id, write));
 	}),
 
+	// CONTRACT: DELETE /api/warehouses/:id
+	// Hard-delete, reference-gated (business-rules rule 32): allowed only for an
+	// unreferenced warehouse (`isDeletable`). A warehouse with any stock or
+	// movement history returns 409 — the client offers archiving instead.
+	// response 204: no content
+	// errors: 404 ProblemDetails, 409 ProblemDetails (referenced), 401
+	http.delete(ITEM_URL, async ({ params }) => {
+		await delay(300);
+
+		const id = Number(params.id);
+		const warehouse = findWarehouse(id);
+		if (!warehouse) {
+			return problem(404, "Not Found", "Склад не найден");
+		}
+
+		if (!warehouse.isDeletable) {
+			return problem(
+				409,
+				"Conflict",
+				"На склад ссылаются другие записи (остатки, движения, перемещения) — удаление невозможно. Архивируйте склад.",
+			);
+		}
+
+		removeWarehouse(id);
+		return new HttpResponse(null, { status: 204 });
+	}),
+
 	// CONTRACT: POST /api/warehouses/:id/archive
 	// Soft-delete (rule 29); an archived warehouse with residual stock still
 	// counts in totals (rule 31).
@@ -228,8 +256,9 @@ export const warehouseHandlers = [
 				if (!(line.quantity > 0)) {
 					errors[`items[${index}].quantity`] = ["Количество должно быть больше нуля"];
 				}
-				if (!(line.unitCost > 0)) {
-					errors[`items[${index}].unitCost`] = ["Себестоимость должна быть больше нуля"];
+				// Unit cost may be 0 (free / sample stock, per canon); only a negative is invalid.
+				if (line.unitCost < 0) {
+					errors[`items[${index}].unitCost`] = ["Не может быть отрицательным"];
 				}
 			});
 		}

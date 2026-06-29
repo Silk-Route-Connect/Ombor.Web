@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import GhostButton from "components/shared/Buttons/GhostButton";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import WarehouseArchivedBanner from "components/warehouse/Detail/WarehouseArchivedBanner";
-import WarehouseDetailHeader from "components/warehouse/Detail/WarehouseDetailHeader";
-import WarehouseDetailTabs, {
-	WarehouseDetailTab,
-} from "components/warehouse/Detail/WarehouseDetailTabs";
 import WarehouseEmptyStock from "components/warehouse/Detail/WarehouseEmptyStock";
 import WarehouseKpis from "components/warehouse/Detail/WarehouseKpis";
 import WarehouseMovementsTab from "components/warehouse/Detail/WarehouseMovementsTab";
 import WarehouseStockTab from "components/warehouse/Detail/WarehouseStockTab";
 import OpeningStockModal from "components/warehouse/Form/OpeningStockModal";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
+import { buildWarehouseActionRows } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
+import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
+import AddIcon from "@mui/icons-material/Add";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+
+type WarehouseDetailTab = "stock" | "movements";
 
 const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -70,18 +71,22 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	const reflect = async (updated: Warehouse | null): Promise<void> => {
-		if (updated) {
-			selectedWarehouseStore.applyWarehouse(updated);
+	const reflect = (updated: Warehouse): void => {
+		selectedWarehouseStore.applyWarehouse(updated);
+	};
+
+	const handleDelete = (): void => {
+		if (warehouse.isDeletable) {
+			warehouseStore.openDelete(warehouse);
+		} else {
+			warehouseStore.openCannotDelete(warehouse);
 		}
 	};
 
 	const handleOpeningSave = async (payload: OpeningStockFormValues): Promise<void> => {
 		const updated = await warehouseStore.addOpeningStock(warehouse.id, {
 			warehouseId: warehouse.id,
-			items: [
-				{ productId: payload.productId, quantity: payload.quantity, unitCost: payload.unitCost },
-			],
+			items: payload.items,
 			note: payload.note,
 		});
 		if (updated) {
@@ -98,15 +103,40 @@ const WarehouseDetailPage: React.FC = observer(() => {
 
 	const empty = warehouse.productCount === 0;
 
+	const actions = buildWarehouseActionRows(t, {
+		warehouse,
+		onEdit: () => warehouseStore.openEdit(warehouse),
+		onArchive: () => warehouseStore.openArchive(warehouse),
+		onRestore: () => warehouseStore.openRestore(warehouse),
+		onDelete: handleDelete,
+	});
+
+	// «Начальный остаток» — a child-event create action (locked pattern 2),
+	// kept as a standalone header button beside the lifecycle ⋮ kebab. Hidden on
+	// archived warehouses (no new operations until restored).
+	const primaryAction = warehouse.isArchived ? undefined : (
+		<GhostButton
+			icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
+			onClick={() => warehouseStore.openOpeningStock(warehouse)}
+		>
+			{t("warehouse.opening.action")}
+		</GhostButton>
+	);
+
+	const tabs: DetailTabSpec<WarehouseDetailTab>[] = [
+		{ key: "stock", label: t("warehouse.detail.tabs.stock"), count: stock.length },
+		{ key: "movements", label: t("warehouse.detail.tabs.movements"), count: movements.length },
+	];
+
 	return (
 		<Box>
-			<WarehouseDetailHeader
-				warehouse={warehouse}
-				onBack={goBack}
-				onEdit={() => warehouseStore.openEdit(warehouse)}
-				onArchive={() => warehouseStore.openArchive(warehouse)}
-				onRestore={() => warehouseStore.openRestore(warehouse)}
-				onOpeningStock={() => warehouseStore.openOpeningStock(warehouse)}
+			<DetailPageHeader
+				backTo={PATHS.warehouses}
+				title={warehouse.name}
+				actions={actions}
+				primaryAction={primaryAction}
+				isArchived={warehouse.isArchived}
+				archivedLabel={t("warehouse.table.archivedBadge")}
 			/>
 
 			{warehouse.isArchived && <WarehouseArchivedBanner />}
@@ -117,7 +147,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				<WarehouseEmptyStock onOpeningStock={() => warehouseStore.openOpeningStock(warehouse)} />
 			) : (
 				<Stack sx={{ gap: "16px" }}>
-					<WarehouseDetailTabs value={tab} onChange={setTab} />
+					<DetailTabs<WarehouseDetailTab> tabs={tabs} active={tab} onChange={setTab} />
 
 					{ledgersLoading ? (
 						<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
@@ -148,43 +178,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				onSave={handleOpeningSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("warehouse.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.warehouse.name : "",
-				})}
-				content={t("warehouse.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={warehouseStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						void warehouseStore.archive(dialogMode.warehouse).then(reflect);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("warehouse.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.warehouse.name : "",
-				})}
-				content={t("warehouse.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={warehouseStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						void warehouseStore.restore(dialogMode.warehouse).then(reflect);
-					}
-				}}
-			/>
+			<WarehouseDialogs onArchived={reflect} onRestored={reflect} onDeleted={goBack} />
 		</Box>
 	);
 });

@@ -75,6 +75,15 @@ class WarehouseApi {
 		return response.data;
 	}
 
+	/**
+	 * Hard-delete — allowed by the mock only when the warehouse is unreferenced
+	 * (204); a referenced warehouse returns 409 and must be archived instead
+	 * (business-rules rule 32). Mirrors PartnerApi.delete.
+	 */
+	async delete(id: number): Promise<void> {
+		await http.delete(this.getUrlWithId(id));
+	}
+
 	private getUrlWithId(id: number): string {
 		return `${this.baseUrl}/${id}`;
 	}

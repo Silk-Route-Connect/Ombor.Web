@@ -13,15 +13,7 @@ import { WarehouseFormValues } from "schemas/WarehouseSchema";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import {
-	Alert,
-	Dialog,
-	DialogContent,
-	LinearProgress,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Alert, Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
 
 export interface WarehouseFormModalProps {
 	isOpen: boolean;
@@ -47,6 +39,16 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 		isSaving,
 		onClose,
 	);
+
+	// B9: an unchanged edit shouldn't fire a needless save/«сохранено» toast. The
+	// button stays enabled (hard rule 5); it simply closes when nothing changed.
+	const handleSave = (): void => {
+		if (warehouse && !formState.isDirty) {
+			onClose();
+			return;
+		}
+		void submit();
+	};
 
 	const errorCount = Object.keys(formState.errors).length;
 	const showErrorBanner = formState.isSubmitted && errorCount > 0;
@@ -119,16 +121,13 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 									/>
 								)}
 							/>
-							<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-								{t("warehouse.form.addressHint")}
-							</Typography>
 						</Stack>
 					</Stack>
 				</DialogContent>
 
 				<FormDialogFooter
 					onCancel={requestClose}
-					onSave={submit}
+					onSave={handleSave}
 					canSave={canSave}
 					loading={isSaving}
 				/>

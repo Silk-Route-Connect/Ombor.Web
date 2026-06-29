@@ -16,6 +16,10 @@ interface DetailPageHeaderProps {
 	/** Kebab menu rows (DSN-1 ActionMenu). The page builds the status-aware set;
 	 *  omit / pass an empty array for an action-less detail (e.g. immutable records). */
 	actions?: ActionMenuRow[];
+	/** Optional standalone action node rendered left of the kebab. Reserved for
+	 *  child-event creation (locked pattern 2) — e.g. the warehouse «Начальный
+	 *  остаток» button; entity lifecycle actions stay in the {@link actions} kebab. */
+	primaryAction?: React.ReactNode;
 	isArchived?: boolean;
 	/** Override the archived-badge text (defaults to the shared «Архив»). */
 	archivedLabel?: string;
@@ -25,12 +29,15 @@ interface DetailPageHeaderProps {
  * Shared full-page detail header (locked pattern 2): a bordered back button, a
  * name-only title with the archived status badge, and a top-right bordered ⋮
  * menu. Geometry-agnostic — it slots into both the rail and the stacked detail
- * layouts without owning any page grid.
+ * layouts without owning any page grid. An optional `primaryAction` node renders
+ * left of the kebab for a child-event create button (e.g. warehouse «Начальный
+ * остаток»); lifecycle actions stay in the `actions` kebab.
  */
 export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 	backTo,
 	title,
 	actions,
+	primaryAction,
 	isArchived = false,
 	archivedLabel,
 }) => {
@@ -85,9 +92,10 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				</Box>
 			</Box>
 
-			{actions && actions.length > 0 && (
-				<Box sx={{ flex: "0 0 auto" }}>
-					<ActionMenu actions={actions} bordered />
+			{(primaryAction || (actions && actions.length > 0)) && (
+				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", flex: "0 0 auto" }}>
+					{primaryAction}
+					{actions && actions.length > 0 && <ActionMenu actions={actions} bordered />}
 				</Box>
 			)}
 		</Box>

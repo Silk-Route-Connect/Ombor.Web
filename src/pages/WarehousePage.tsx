@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
+import { buildWarehouseColumns } from "components/warehouse/Table/warehouseColumns";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
+import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
+import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -12,8 +14,6 @@ import { WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import { Box } from "@mui/material";
 
 const WarehousePage: React.FC = observer(() => {
@@ -27,6 +27,26 @@ const WarehousePage: React.FC = observer(() => {
 
 	const dialogMode = warehouseStore.dialogMode;
 	const editingWarehouse = dialogMode.kind === "form" ? (dialogMode.warehouse ?? null) : null;
+
+	const handleDelete = (warehouse: Warehouse): void => {
+		if (warehouse.isDeletable) {
+			warehouseStore.openDelete(warehouse);
+		} else {
+			warehouseStore.openCannotDelete(warehouse);
+		}
+	};
+
+	const columns = useMemo(
+		() =>
+			buildWarehouseColumns(t, {
+				onEdit: (w) => warehouseStore.openEdit(w),
+				onArchive: (w) => warehouseStore.openArchive(w),
+				onRestore: (w) => warehouseStore.openRestore(w),
+				onDelete: handleDelete,
+			}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[t],
+	);
 
 	const handleFormSave = (payload: WarehouseFormValues): void => {
 		const request: CreateWarehouseRequest = { name: payload.name, location: payload.location };
@@ -42,7 +62,7 @@ const WarehousePage: React.FC = observer(() => {
 		const rows =
 			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses;
 
-		const columns: CsvColumn<Warehouse>[] = [
+		const csvColumns: CsvColumn<Warehouse>[] = [
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
 			{ header: t("warehouse.table.address"), value: (w) => w.location ?? "" },
 			{ header: t("warehouse.table.products"), value: (w) => w.productCount },
@@ -55,7 +75,7 @@ const WarehousePage: React.FC = observer(() => {
 			},
 		];
 
-		exportToCsv(`warehouses_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, rows);
 	};
 
 	const all = warehouseStore.allWarehouses === "loading" ? null : warehouseStore.allWarehouses;
@@ -77,18 +97,17 @@ const WarehousePage: React.FC = observer(() => {
 				onExport={handleExport}
 			/>
 
+			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
+
 			<WarehousesTable
 				rows={warehouseStore.filteredWarehouses}
-				totals={warehouseStore.totals}
-				showArchived={warehouseStore.showArchived}
+				columns={columns}
 				isFiltering={isFiltering}
 				hasAny={hasAny}
 				hasActive={hasActive}
+				showArchived={warehouseStore.showArchived}
 				onOpen={(warehouse) => navigate(warehouseDetailPath(warehouse.id))}
 				onCreate={warehouseStore.openCreate}
-				onEdit={warehouseStore.openEdit}
-				onArchive={warehouseStore.openArchive}
-				onRestore={warehouseStore.openRestore}
 			/>
 
 			<WarehouseFormModal
@@ -99,43 +118,7 @@ const WarehousePage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("warehouse.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.warehouse.name : "",
-				})}
-				content={t("warehouse.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={warehouseStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						warehouseStore.archive(dialogMode.warehouse);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("warehouse.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.warehouse.name : "",
-				})}
-				content={t("warehouse.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={warehouseStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						warehouseStore.restore(dialogMode.warehouse);
-					}
-				}}
-			/>
+			<WarehouseDialogs />
 		</Box>
 	);
 });

@@ -26,6 +26,14 @@ export type Warehouse = {
 	stockValue: number;
 
 	isArchived: boolean;
+
+	/**
+	 * True when no other entity references the warehouse, so it may be
+	 * hard-deleted (business-rules rule 32 — a warehouse with stock / movement /
+	 * transfer / transaction history is never hard-deleted, only archived).
+	 * Mirrors {@link Partner.isDeletable}; computed server-side (hard rule 8).
+	 */
+	isDeletable: boolean;
 };
 
 /** One product's holding in a warehouse — the «Остатки» (stock) tab row. */

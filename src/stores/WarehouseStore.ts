@@ -17,6 +17,8 @@ export type WarehouseDialogMode =
 	| { kind: "form"; warehouse?: Warehouse }
 	| { kind: "archive"; warehouse: Warehouse }
 	| { kind: "restore"; warehouse: Warehouse }
+	| { kind: "delete"; warehouse: Warehouse }
+	| { kind: "cannotDelete"; warehouse: Warehouse }
 	| { kind: "opening"; warehouse: Warehouse }
 	| { kind: "none" };
 
@@ -43,6 +45,7 @@ export interface IWarehouseStore {
 	update(request: UpdateWarehouseRequest): Promise<Warehouse | null>;
 	archive(warehouse: Warehouse): Promise<Warehouse | null>;
 	restore(warehouse: Warehouse): Promise<Warehouse | null>;
+	remove(warehouse: Warehouse): Promise<boolean>;
 	addOpeningStock(warehouseId: number, request: AddOpeningStockRequest): Promise<Warehouse | null>;
 
 	setSearch(term: string): void;
@@ -52,6 +55,8 @@ export interface IWarehouseStore {
 	openEdit(warehouse: Warehouse): void;
 	openArchive(warehouse: Warehouse): void;
 	openRestore(warehouse: Warehouse): void;
+	openDelete(warehouse: Warehouse): void;
+	openCannotDelete(warehouse: Warehouse): void;
 	openOpeningStock(warehouse: Warehouse): void;
 	closeDialog(): void;
 }
@@ -83,11 +88,12 @@ export class WarehouseStore implements IWarehouseStore {
 			return "loading";
 		}
 
-		let warehouses = this.allWarehouses;
-
-		if (!this.showArchived) {
-			warehouses = warehouses.filter((w) => !w.isArchived);
-		}
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only, matching Partners/Products — not
+		// active + archived).
+		let warehouses = this.allWarehouses.filter((w) =>
+			this.showArchived ? w.isArchived : !w.isArchived,
+		);
 
 		if (this.searchTerm.trim()) {
 			warehouses = warehouses.filter(
@@ -98,13 +104,17 @@ export class WarehouseStore implements IWarehouseStore {
 		return warehouses;
 	}
 
-	/** Totals over the shown rows (archived included when the toggle is on). */
+	/**
+	 * Inventory totals across ALL warehouses — including archived ones that still
+	 * hold stock (business-rules rule 31) — for the list summary strip. A global
+	 * figure (not tied to the active/archive view), so it answers "how much stock
+	 * do I hold in total".
+	 */
 	get totals(): WarehouseTotals {
-		const rows = this.filteredWarehouses;
-		if (rows === "loading") {
+		if (this.allWarehouses === "loading") {
 			return { productCount: 0, totalUnits: 0, stockValue: 0 };
 		}
-		return rows.reduce(
+		return this.allWarehouses.reduce(
 			(acc, w) => ({
 				productCount: acc.productCount + w.productCount,
 				totalUnits: acc.totalUnits + w.totalUnits,
@@ -192,6 +202,25 @@ export class WarehouseStore implements IWarehouseStore {
 		return result.data;
 	}
 
+	async remove(warehouse: Warehouse): Promise<boolean> {
+		const result = await withSaving(this, () => WarehouseApi.delete(warehouse.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("warehouse.error.delete"));
+			return false;
+		}
+
+		runInAction(() => {
+			if (this.allWarehouses !== "loading") {
+				this.allWarehouses = this.allWarehouses.filter((w) => w.id !== warehouse.id);
+			}
+		});
+
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("warehouse.success.delete", { name: warehouse.name }));
+		return true;
+	}
+
 	async addOpeningStock(
 		warehouseId: number,
 		request: AddOpeningStockRequest,
@@ -231,6 +260,14 @@ export class WarehouseStore implements IWarehouseStore {
 
 	openRestore(warehouse: Warehouse): void {
 		this.dialogMode = { kind: "restore", warehouse };
+	}
+
+	openDelete(warehouse: Warehouse): void {
+		this.dialogMode = { kind: "delete", warehouse };
+	}
+
+	openCannotDelete(warehouse: Warehouse): void {
+		this.dialogMode = { kind: "cannotDelete", warehouse };
 	}
 
 	openOpeningStock(warehouse: Warehouse): void {

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useFieldArray, UseFieldArrayReturn, useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	OpeningStockFormInputs,
@@ -15,14 +15,19 @@ export interface UseOpeningStockFormOptions {
 
 export interface UseOpeningStockFormResult {
 	form: UseFormReturn<OpeningStockFormInputs>;
+	lines: UseFieldArrayReturn<OpeningStockFormInputs, "items", "key">;
 	canSave: boolean;
 	submit: () => Promise<void>;
 }
 
-const DEFAULT_VALUES: OpeningStockFormInputs = {
+const emptyLine = (): OpeningStockFormInputs["items"][number] => ({
 	productId: 0,
 	quantity: 0,
 	unitCost: 0,
+});
+
+const DEFAULT_VALUES: OpeningStockFormInputs = {
+	items: [emptyLine()],
 	note: "",
 };
 
@@ -39,15 +44,20 @@ export const useOpeningStockForm = ({
 		defaultValues: DEFAULT_VALUES,
 	});
 
-	const { reset, handleSubmit } = form;
+	const { reset, handleSubmit, control } = form;
+	// `key` keeps RHF's field id off the line's own shape.
+	const lines = useFieldArray({ control, name: "items", keyName: "key" });
 
 	useEffect(() => {
-		reset({ ...DEFAULT_VALUES });
+		reset({ ...DEFAULT_VALUES, items: [emptyLine()] });
 	}, [isOpen, reset]);
 
 	return {
 		form,
+		lines,
 		canSave: !isSaving,
 		submit: handleSubmit(onSave),
 	};
 };
+
+export { emptyLine };

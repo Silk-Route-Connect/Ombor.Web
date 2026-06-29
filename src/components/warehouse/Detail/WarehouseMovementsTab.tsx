@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { detailTableSx } from "components/product/Detail/detailTableSx";
+import DetailCard from "components/shared/Detail/DetailCard";
+import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import TablePager from "components/shared/Table/TablePager";
 import MovementKindChip from "components/warehouse/MovementKindChip";
@@ -17,7 +18,7 @@ import { matchesSearch } from "utils/stringUtils";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import { Box, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { Box, MenuItem, TextField, Typography } from "@mui/material";
 
 interface WarehouseMovementsTabProps {
 	movements: WarehouseMovement[];
@@ -66,10 +67,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
 	return (
-		<Paper
-			elevation={1}
-			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-		>
+		<DetailCard>
 			<Box
 				sx={{
 					display: "flex",
@@ -233,7 +231,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					/>
 				</>
 			)}
-		</Paper>
+		</DetailCard>
 	);
 };
 
