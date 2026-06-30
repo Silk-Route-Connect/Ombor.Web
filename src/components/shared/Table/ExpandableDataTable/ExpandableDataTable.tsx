@@ -82,6 +82,9 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	onSort?: (field: keyof T, order: SortOrder) => void;
 	renderExpanded?: (row: T) => React.ReactNode;
 	canExpand?: (row: T) => boolean;
+	/** Toggle the expand row on a whole-row click, not just the chevron (for
+	 *  rows whose only action is to expand — i.e. no `onRowClick` navigation). */
+	expandOnRowClick?: boolean;
 	className?: string;
 	expandedMaxHeight?: number;
 	tableLayout?: "auto" | "fixed";
@@ -97,6 +100,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	onSort,
 	renderExpanded,
 	canExpand,
+	expandOnRowClick = false,
 	className,
 	expandedMaxHeight = 300,
 	tableLayout = "auto",
@@ -249,11 +253,17 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 					{displayedRows.map((row, index) => {
 						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
 						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
+						const rowExpands = Boolean(expandOnRowClick && isExpandable);
 
 						return (
 							<React.Fragment key={row.id}>
 								<TableRow
-									onClick={() => handleRowClickInternal(row)}
+									onClick={() => {
+										handleRowClickInternal(row);
+										if (rowExpands) {
+											toggleExpandRow(row.id);
+										}
+									}}
 									sx={{
 										// DSN-1 body: open row carries the selected tint, even rows zebra,
 										// teal hover. (Zebra is by data index because the collapse rows
@@ -264,7 +274,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 												? designTokens.gray25
 												: "inherit",
 										"&:hover": { bgcolor: "action.hover" },
-										cursor: isSelectable ? "pointer" : "default",
+										cursor: isSelectable || rowExpands ? "pointer" : "default",
 									}}
 								>
 									{isExpandable ? (

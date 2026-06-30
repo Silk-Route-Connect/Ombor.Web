@@ -216,7 +216,11 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 				headerName: t("adjustment.table.warehouse"),
 				sortValue: (a) => a.warehouseName,
 				renderCell: (a) => (
-					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "7px", minWidth: 0 }}>
+					// stopPropagation so the link navigates without toggling the row's expander.
+					<Box
+						onClick={(e) => e.stopPropagation()}
+						sx={{ display: "inline-flex", alignItems: "center", gap: "7px", minWidth: 0 }}
+					>
 						<WarehouseOutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
 						<WarehouseLink id={a.warehouseId} name={a.warehouseName} />
 					</Box>
@@ -226,7 +230,11 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 				key: "product",
 				headerName: t("adjustment.table.product"),
 				sortValue: (a) => a.productName,
-				renderCell: (a) => <ProductLink id={a.productId} name={a.productName} />,
+				renderCell: (a) => (
+					<Box component="span" onClick={(e) => e.stopPropagation()}>
+						<ProductLink id={a.productId} name={a.productName} />
+					</Box>
+				),
 			},
 			{
 				key: "direction",
@@ -307,6 +315,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 			rowsPerPageOptions={[10, 25, 50]}
 			defaultSort={{ key: "date", order: "desc" }}
 			renderExpanded={(adjustment) => <AdjustmentDetail adjustment={adjustment} />}
+			expandOnRowClick
 		/>
 	);
 };
