@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
@@ -253,6 +254,11 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 												<WarehouseLink
 													id={movement.counterpartyWarehouseId}
 													name={movement.counterparty ?? "—"}
+												/>
+											) : movement.counterpartyPartnerId && movement.counterparty ? (
+												<PartnerLink
+													id={movement.counterpartyPartnerId}
+													name={movement.counterparty}
 												/>
 											) : movement.counterparty ? (
 												<Box component="span" sx={{ color: "text.secondary" }}>

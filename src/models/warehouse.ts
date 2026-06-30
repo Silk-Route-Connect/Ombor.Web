@@ -87,6 +87,14 @@ export type WarehouseMovement = {
 	 * backend adds it; the cell falls back to plain text meanwhile.
 	 */
 	counterpartyWarehouseId?: number | null;
+	/**
+	 * For partner events (Supply / Sale / Refund): the id of the counterparty
+	 * partner, so the counterparty cell can deep-link to the partner detail.
+	 * Optional — same situation as `counterpartyWarehouseId`: the current backend
+	 * serves `counterparty` only as free text with no id, so this is null until
+	 * the backend adds it; the cell falls back to plain text meanwhile.
+	 */
+	counterpartyPartnerId?: number | null;
 	/** Free-text note (adjustment reason, opening-stock note). */
 	note: string | null;
 	/** Signed delta in the product's base unit: positive into stock, negative out. */

@@ -30,8 +30,14 @@ export const detailHeadCellSx = {
 	whiteSpace: "nowrap",
 } as const;
 
-/** Body cell: 13.5px, warm `gray25` hairline row borders, vertically centered. */
+/**
+ * Body cell: 13.5px, warm `gray25` hairline row borders, vertically centered.
+ * A fixed `height` keeps rows uniform regardless of content — so a row carrying a
+ * 22px chip (e.g. the movements event chip) is the same height as a plain
+ * text/number row, both centered.
+ */
 export const detailBodyCellSx = {
+	height: 48,
 	p: "12px 18px",
 	borderBottom: "1px solid",
 	borderColor: designTokens.gray25,

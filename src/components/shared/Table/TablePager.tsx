@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import { TablePagination } from "@mui/material";
 
+import { FOOTER_SX } from "./DataTable/tableConfigs";
+
 interface TablePagerProps {
 	count: number;
 	page: number;
@@ -41,7 +43,7 @@ export const TablePager: React.FC<TablePagerProps> = ({
 			labelDisplayedRows={({ from, to, count: total }) =>
 				t("common.table.displayedRows", { from, to, total })
 			}
-			sx={{ borderTop: 1, borderColor: "divider" }}
+			sx={FOOTER_SX}
 		/>
 	);
 };

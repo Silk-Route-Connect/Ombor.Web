@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ProductLink from "components/product/Links/ProductLink";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
@@ -228,14 +229,12 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 							{paged.map((item) => (
 								<tr key={item.productId}>
 									<td>
-										<Box component="span" sx={{ fontWeight: 600 }}>
-											{item.productName}
-										</Box>
+										<ProductLink id={item.productId} name={item.productName} />
 									</td>
 									<td>
 										<Box
 											component="span"
-											sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
+											sx={{ ...numericSx, fontSize: 12, color: "text.secondary" }}
 										>
 											{item.sku}
 										</Box>
@@ -256,7 +255,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 										</Box>
 									</td>
 									<td className="r">
-										<Box component="span" sx={{ ...numericSx, color: "text.secondary" }}>
+										<Box component="span" sx={numericSx}>
 											{formatCurrency(item.averageCost)}
 										</Box>
 									</td>
