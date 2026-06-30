@@ -56,12 +56,16 @@
   "adjustment.field.note": "Примечание",
 
   "adjustment.form.subtitle": "Изменение остатка без продажи или поставки",
-  "adjustment.form.errorBanner": "Заполните обязательные поля ниже.",
-  "adjustment.form.overStockBanner": "Количество превышает доступный остаток — исправьте перед сохранением.",
+  "adjustment.form.errorBanner": "Проверьте отмеченные поля ниже.",
+  "adjustment.form.overStockBanner": "Списание превышает остаток на складе — после операции остаток уйдёт ниже нуля. Уменьшите количество.",
   "adjustment.form.decreaseHint": "Уменьшить остаток",
   "adjustment.form.increaseHint": "Увеличить остаток",
-  "adjustment.form.available": "На складе:",
-  "adjustment.form.overStockField": "Недостаточно товара: доступно {{available}} {{unit}}, запрошено {{requested}} {{unit}}",
+  "adjustment.form.productPlaceholder": "Поиск товаров…",
+  "adjustment.form.previewTitle": "Остаток после операции",
+  "adjustment.form.previewCurrent": "Текущий остаток",
+  "adjustment.form.previewChange": "Корректировка",
+  "adjustment.form.previewAfter": "После операции",
+  "adjustment.form.previewNegative": "Ниже нуля",
   "adjustment.form.reasonPlaceholder": "Выберите причину",
   "adjustment.form.notePlaceholder": "Дополнительные детали корректировки…",
   "adjustment.form.immutableHintBefore": "Корректировки",
@@ -71,6 +75,7 @@
   "adjustment.validation.warehouseRequired": "Выберите склад",
   "adjustment.validation.productRequired": "Выберите товар",
   "adjustment.validation.quantityPositive": "Укажите количество",
+  "adjustment.validation.nonNegative": "Не может быть отрицательным",
   "adjustment.validation.reasonRequired": "Выберите причину",
   "adjustment.validation.noteMax": "Примечание не должно превышать 500 символов."
 }

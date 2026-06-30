@@ -1,51 +1,55 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { WarehouseMovementKind } from "models/warehouse";
-import { designTokens } from "theme";
+import { chipTokens } from "theme";
 
-import { alpha, Chip, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 
 /**
- * Movement-type chip per the bundle's MOVE_TYPE tones: opening / transfer
- * neutral, supply info, sale primary, refund success, adjustment warning.
+ * Movement-type chip (WH-24) — one distinct treatment per stock-event kind,
+ * sourced from `chipTokens` (no inline `alpha`/per-component colour). Sale=teal /
+ * Supply=saffron reuse the transaction-type tokens; Opening is the neutral stone,
+ * Refund the teal outline (a reversal), Transfer info-blue, Adjustment
+ * warning-amber. Money green/red stays reserved for direction.
  */
-const NEUTRAL_KINDS: WarehouseMovementKind[] = ["Opening", "Transfer"];
+// Keyed by string (not the enum) so an unexpected backend kind — e.g. the split
+// `SaleRefund` / `SupplyRefund` rather than a collapsed `Refund` — falls back to
+// `neutral` instead of crashing (the served `kind` is a free string).
+const KIND_TOKEN: Record<string, keyof typeof chipTokens> = {
+	Sale: "sale",
+	Supply: "supply",
+	Opening: "neutral",
+	Refund: "saleRefund",
+	SaleRefund: "saleRefund",
+	SupplyRefund: "supplyRefund",
+	Adjustment: "adjustment",
+	Transfer: "transfer",
+};
 
 export const MovementKindChip: React.FC<{ kind: WarehouseMovementKind }> = ({ kind }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-
-	const palette = ((): { bg: string; color: string } => {
-		switch (kind) {
-			case "Supply":
-				return { bg: alpha(theme.palette.info.main, 0.12), color: theme.palette.info.main };
-			case "Sale":
-				return { bg: alpha(theme.palette.primary.main, 0.12), color: theme.palette.primary.main };
-			case "Refund":
-				return { bg: alpha(theme.palette.success.main, 0.12), color: theme.palette.success.main };
-			case "Adjustment":
-				return { bg: designTokens.warningBg, color: designTokens.saffron700 };
-			default:
-				return { bg: designTokens.gray100, color: designTokens.gray700 };
-		}
-	})();
-
-	const neutral = NEUTRAL_KINDS.includes(kind);
+	const tk = chipTokens[KIND_TOKEN[kind] ?? "neutral"];
 
 	return (
-		<Chip
-			label={t(`warehouse.movement.${kind}`)}
-			size="small"
+		<Box
+			component="span"
 			sx={{
+				display: "inline-flex",
+				alignItems: "center",
 				height: 22,
+				px: "9px",
+				borderRadius: "999px",
 				fontSize: 12,
 				fontWeight: 600,
-				bgcolor: palette.bg,
-				color: palette.color,
-				border: neutral ? "1px solid" : "none",
-				borderColor: neutral ? designTokens.gray200 : undefined,
+				whiteSpace: "nowrap",
+				border: "1px solid",
+				bgcolor: tk.bg,
+				color: tk.color,
+				borderColor: tk.border,
 			}}
-		/>
+		>
+			{t(`warehouse.movement.${kind}`)}
+		</Box>
 	);
 };
 

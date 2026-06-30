@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import ProductAutocomplete from "components/product/Autocomplete/ProductAutocomplete";
+import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -19,6 +19,7 @@ import { designTokens, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
@@ -160,6 +161,14 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen]);
 
+	const activeProducts: Product[] = useMemo(
+		() =>
+			productStore.allProducts === "loading"
+				? []
+				: productStore.allProducts.filter((p) => !p.isArchived),
+		[productStore.allProducts],
+	);
+
 	const unit = selected ? MEASUREMENT_SHORT[selected.measurement] : t("adjustment.unitFallback");
 
 	const avail = useMemo(
@@ -168,6 +177,10 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 	);
 
 	const overStock = direction === "Decrease" && selected != null && quantity > avail;
+	// «Остаток после операции» preview (ADJ-4): signed change + the resulting
+	// balance, which a Списание may not take below zero (rule 20).
+	const signedDelta = direction === "Decrease" ? -quantity : quantity;
+	const afterBalance = avail + signedDelta;
 
 	const reasons = reasonsFor(direction);
 	const errorCount = Object.keys(formState.errors).length;
@@ -263,7 +276,16 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("adjustment.field.product")} required />
-							<ProductAutocomplete type="All" value={selected} onChange={handleProductChange} />
+							<EntityAutocomplete<Product>
+								label=""
+								placeholder={t("adjustment.form.productPlaceholder")}
+								size="small"
+								options={activeProducts}
+								value={selected}
+								error={!!formState.errors.productId}
+								additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
+								onChange={handleProductChange}
+							/>
 							{formState.errors.productId && (
 								<Typography sx={{ fontSize: 12, color: "error.main" }}>
 									{formState.errors.productId.message}
@@ -294,35 +316,9 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 										/>
 									)}
 								/>
-								{direction === "Decrease" && selected && (
-									<Typography
-										sx={{ fontSize: 12, color: overStock ? "error.main" : "text.secondary" }}
-									>
-										{t("adjustment.form.available")}{" "}
-										<Box
-											component="span"
-											sx={{
-												...numericSx,
-												fontWeight: 700,
-												color: overStock ? "error.main" : designTokens.gray700,
-											}}
-										>
-											{formatQuantity(avail)} {unit}
-										</Box>
-									</Typography>
-								)}
-								{formState.errors.quantity && !overStock && (
+								{formState.errors.quantity && (
 									<Typography sx={{ fontSize: 12, color: "error.main" }}>
 										{formState.errors.quantity.message}
-									</Typography>
-								)}
-								{overStock && (
-									<Typography sx={{ fontSize: 12, color: "error.main" }}>
-										{t("adjustment.form.overStockField", {
-											available: formatQuantity(avail),
-											requested: formatQuantity(quantity),
-											unit,
-										})}
 									</Typography>
 								)}
 							</Stack>
@@ -359,6 +355,71 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 								/>
 							</Stack>
 						</Box>
+
+						{selected && (
+							<Box
+								sx={{
+									p: "12px 14px",
+									bgcolor: designTokens.gray25,
+									border: "1px solid",
+									borderColor: overStock ? designTokens.errorBorder : "divider",
+									borderRadius: "8px",
+								}}
+							>
+								<Typography
+									sx={{ fontSize: 11.5, fontWeight: 600, color: "text.secondary", mb: "8px" }}
+								>
+									{t("adjustment.form.previewTitle")}
+								</Typography>
+								<Box sx={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+									<Box>
+										<Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+											{t("adjustment.form.previewCurrent")}
+										</Typography>
+										<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 700, mt: "2px" }}>
+											{formatQuantity(avail)} {unit}
+										</Typography>
+									</Box>
+									<ArrowRightAltIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+									<Box>
+										<Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+											{t("adjustment.form.previewChange")}
+										</Typography>
+										<Typography
+											sx={{
+												...numericSx,
+												fontSize: 15,
+												fontWeight: 700,
+												mt: "2px",
+												color: direction === "Decrease" ? "error.main" : "success.main",
+											}}
+										>
+											{direction === "Decrease" ? "−" : "+"}
+											{formatQuantity(quantity)} {unit}
+										</Typography>
+									</Box>
+									<ArrowRightAltIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+									<Box>
+										<Typography sx={{ fontSize: 11, color: "text.secondary" }}>
+											{t("adjustment.form.previewAfter")}
+										</Typography>
+										<Typography
+											sx={{
+												...numericSx,
+												fontSize: 15,
+												fontWeight: 800,
+												mt: "2px",
+												color: overStock ? "error.main" : "text.primary",
+											}}
+										>
+											{overStock
+												? t("adjustment.form.previewNegative")
+												: `${formatQuantity(afterBalance)} ${unit}`}
+										</Typography>
+									</Box>
+								</Box>
+							</Box>
+						)}
 
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("adjustment.field.note")} />

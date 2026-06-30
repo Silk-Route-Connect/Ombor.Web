@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ProductLink from "components/product/Links/ProductLink";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import TablePager from "components/shared/Table/TablePager";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import MovementKindChip from "components/warehouse/MovementKindChip";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
@@ -176,12 +178,15 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 											<MovementKindChip kind={movement.kind} />
 										</td>
 										<td>
-											<Box component="span" sx={{ fontWeight: 600 }}>
-												{movement.productName}
-											</Box>
+											<ProductLink id={movement.productId} name={movement.productName} />
 										</td>
 										<td>
-											{movement.counterparty ? (
+											{movement.kind === "Transfer" && movement.counterpartyWarehouseId ? (
+												<WarehouseLink
+													id={movement.counterpartyWarehouseId}
+													name={movement.counterparty ?? "—"}
+												/>
+											) : movement.counterparty ? (
 												<Box component="span" sx={{ color: "text.secondary" }}>
 													{movement.counterparty}
 												</Box>

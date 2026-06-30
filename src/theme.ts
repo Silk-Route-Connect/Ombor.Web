@@ -218,6 +218,23 @@ export const chipTokens = {
 		color: ERROR,
 		border: designTokens.errorBorder,
 	}, // Expense (деньги из кассы)
+	// Warehouse stock-movement event types (WH-24). Sale/Supply reuse the
+	// transaction-type tokens above; Opening reuses `neutral`, Refund the teal
+	// outline (`saleRefund`). Money green/red stays reserved for direction, so
+	// these draw from the info / warning families — the income↔closed precedent:
+	// distinct semantic keys may share an appearance.
+	transfer: {
+		variant: "soft",
+		bg: designTokens.infoBg,
+		color: INFO,
+		border: designTokens.infoBorder,
+	}, // Transfer (movement) · stock-in direction
+	adjustment: {
+		variant: "soft",
+		bg: designTokens.warningBg,
+		color: WARNING,
+		border: designTokens.warningBorder,
+	}, // Adjustment (movement) · stock-out direction
 } as const;
 
 // Elevation tokens --e-1/--e-2/--e-3 (border-first, restrained).

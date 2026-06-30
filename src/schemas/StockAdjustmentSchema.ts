@@ -19,7 +19,22 @@ export const StockAdjustmentSchema = z.object({
 	warehouseId: z.number().int().positive(i18next.t("adjustment.validation.warehouseRequired")),
 	productId: z.number().int().positive(i18next.t("adjustment.validation.productRequired")),
 	direction: z.enum(ADJUSTMENT_DIRECTIONS),
-	quantity: z.number().positive(i18next.t("adjustment.validation.quantityPositive")),
+	// A negative value is the real failure (B10 — «Не может быть отрицательным»),
+	// distinct from an empty / zero quantity (must be > 0). superRefine adds at
+	// most one issue so the field shows the message that matches the input.
+	quantity: z.number().superRefine((value, ctx) => {
+		if (value < 0) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: i18next.t("adjustment.validation.nonNegative"),
+			});
+		} else if (value <= 0) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: i18next.t("adjustment.validation.quantityPositive"),
+			});
+		}
+	}),
 	// Empty until the user picks; the placeholder state is invalid (rule: mandatory
 	// reason). Modelled as a string + membership check so "" is a valid form input.
 	reason: z.string().refine((v) => (ALL_REASONS as readonly string[]).includes(v), {

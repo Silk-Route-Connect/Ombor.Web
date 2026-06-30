@@ -80,6 +80,13 @@ export type WarehouseMovement = {
 	 * («→ Склад Чиланзар»). Null for partner-less events (adjustments / opening).
 	 */
 	counterparty: string | null;
+	/**
+	 * For Transfer events: the id of the other warehouse, so the counterparty cell
+	 * can deep-link to it (WH-26). Optional — the current backend serves
+	 * `counterparty` only as free text with no id, so this is null until the
+	 * backend adds it; the cell falls back to plain text meanwhile.
+	 */
+	counterpartyWarehouseId?: number | null;
 	/** Free-text note (adjustment reason, opening-stock note). */
 	note: string | null;
 	/** Signed delta in the product's base unit: positive into stock, negative out. */

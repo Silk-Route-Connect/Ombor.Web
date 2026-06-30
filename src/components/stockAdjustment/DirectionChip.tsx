@@ -3,23 +3,28 @@ import { useTranslation } from "react-i18next";
 import { AdjustmentDirection } from "models/stockAdjustment";
 import { chipTokens } from "theme";
 
+import NorthEastIcon from "@mui/icons-material/NorthEast";
+import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { Box } from "@mui/material";
 
 /**
- * Direction chip per the bundle's `DirBadge`: Списание loss (red), Оприходование
- * gain (green). Colours are sourced from `chipTokens` — an Increase reuses the
- * income (green) token, a Decrease the expense (red) token: the green/red intent
- * is identical even though stock movement is not money (no inline hex, no
- * per-component colour logic).
+ * Direction chip (parked decision → resolved as a chip). Stock direction is NOT
+ * money, so green/red is reserved: Increase (оприходование, stock in) reads blue
+ * with an ↑ arrow, Decrease (списание, stock out) amber with a ↓ arrow — the
+ * `transfer` / `adjustment` chipToken appearances. The arrow + label carry the
+ * meaning; the colours are a distinct, non-money pair.
  */
-const DIRECTION_TOKEN: Record<AdjustmentDirection, keyof typeof chipTokens> = {
-	Increase: "income",
-	Decrease: "expense",
+// Keyed by string with an Increase fallback so an unexpected served `direction`
+// can't crash the row (the served value is a free string).
+const DIRECTION: Record<string, { token: keyof typeof chipTokens; Icon: typeof NorthEastIcon }> = {
+	Increase: { token: "transfer", Icon: NorthEastIcon },
+	Decrease: { token: "adjustment", Icon: SouthEastIcon },
 };
 
 export const DirectionChip: React.FC<{ direction: AdjustmentDirection }> = ({ direction }) => {
 	const { t } = useTranslation();
-	const tk = chipTokens[DIRECTION_TOKEN[direction]];
+	const { token, Icon } = DIRECTION[direction] ?? DIRECTION.Increase;
+	const tk = chipTokens[token];
 
 	return (
 		<Box
@@ -27,6 +32,7 @@ export const DirectionChip: React.FC<{ direction: AdjustmentDirection }> = ({ di
 			sx={{
 				display: "inline-flex",
 				alignItems: "center",
+				gap: "4px",
 				height: 22,
 				px: "9px",
 				borderRadius: "999px",
@@ -39,6 +45,7 @@ export const DirectionChip: React.FC<{ direction: AdjustmentDirection }> = ({ di
 				borderColor: tk.border,
 			}}
 		>
+			<Icon sx={{ fontSize: 13 }} />
 			{t(`adjustment.direction.${direction}`)}
 		</Box>
 	);
