@@ -83,7 +83,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 		isSaving,
 		onSave: guardedSave,
 	});
-	const { control, formState, watch } = form;
+	const { control, formState, watch, setValue } = form;
 	const watchedItems = watch("items");
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -224,7 +224,16 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 													value={product}
 													error={!!fieldState.error}
 													additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
-													onChange={(p) => field.onChange(p?.id ?? 0)}
+													onChange={(p) => {
+														field.onChange(p?.id ?? 0);
+														// Prefill the unit cost from the product's supply price
+														// (design parity) — only if the user hasn't entered one.
+														if (p && !((watchedItems?.[index]?.unitCost ?? 0) > 0)) {
+															setValue(`items.${index}.unitCost` as const, p.supplyPrice ?? 0, {
+																shouldDirty: true,
+															});
+														}
+													}}
 												/>
 											)}
 										/>
@@ -318,6 +327,60 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						{t("warehouse.opening.addLine")}
 					</Button>
 
+					<Box
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							gap: "22px",
+							mt: "18px",
+							p: "14px 18px",
+							bgcolor: designTokens.gray25,
+							border: "1px solid",
+							borderColor: "divider",
+							borderRadius: "8px",
+						}}
+					>
+						<Box>
+							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+								{t("warehouse.opening.summaryPositions")}
+							</Typography>
+							<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, mt: "2px" }}>
+								{completeLines.length}
+							</Typography>
+						</Box>
+						<Box>
+							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+								{t("warehouse.opening.summaryUnits")}
+							</Typography>
+							<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, mt: "2px" }}>
+								{formatQuantity(totalUnits)}
+							</Typography>
+						</Box>
+						<Box sx={{ flexGrow: 1 }} />
+						<Box sx={{ textAlign: "right" }}>
+							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+								{t("warehouse.opening.summaryValue")}
+							</Typography>
+							<Typography
+								sx={{
+									...numericSx,
+									fontWeight: 700,
+									fontSize: 16,
+									mt: "2px",
+									color: "primary.main",
+								}}
+							>
+								{formatCurrency(batchValue)}
+								<Box
+									component="span"
+									sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "5px" }}
+								>
+									UZS
+								</Box>
+							</Typography>
+						</Box>
+					</Box>
+
 					<Stack sx={{ gap: "7px", mt: "20px" }}>
 						<FormFieldLabel label={t("warehouse.opening.note")} />
 						<Controller
@@ -375,26 +438,12 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						flexWrap: "wrap",
 					}}
 				>
-					<Stack direction="row" sx={{ gap: "16px", fontSize: 12.5, color: "text.secondary" }}>
-						<Box>
-							{t("warehouse.opening.summaryPositions")}{" "}
-							<Box component="b" sx={numericSx}>
-								{completeLines.length}
-							</Box>
-						</Box>
-						<Box>
-							{t("warehouse.opening.summaryUnits")}{" "}
-							<Box component="b" sx={numericSx}>
-								{formatQuantity(totalUnits)}
-							</Box>
-						</Box>
-						<Box>
-							{t("warehouse.opening.summaryValue")}{" "}
-							<Box component="b" sx={numericSx}>
-								{formatCurrency(batchValue)} UZS
-							</Box>
-						</Box>
-					</Stack>
+					<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
+						{t("warehouse.opening.footerSummary", {
+							count: completeLines.length,
+							value: formatCurrency(batchValue),
+						})}
+					</Typography>
 					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}
