@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard from "components/shared/Detail/DetailCard";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { designTokens, numericSx } from "theme";
@@ -10,79 +12,41 @@ import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
-import { Box, MenuItem, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, MenuItem, TextField, Typography } from "@mui/material";
 
 interface WarehouseStockTabProps {
 	warehouse: Warehouse;
 	stock: WarehouseStockItem[];
 }
 
-type SortCol = "name" | "quantity" | "averageCost" | "value";
-type SortState = { col: SortCol; dir: "asc" | "desc" };
+type SortCol = "name" | "sku" | "category" | "unit" | "quantity" | "averageCost" | "value";
+
+/** Sort accessor per column — every column is sortable (string-locale or numeric via compareValues). */
+const SORT_ACCESSOR: Record<SortCol, (i: WarehouseStockItem) => string | number> = {
+	name: (i) => i.productName,
+	sku: (i) => i.sku,
+	category: (i) => i.categoryName ?? "",
+	unit: (i) => MEASUREMENT_SHORT[i.measurement],
+	quantity: (i) => i.quantity,
+	averageCost: (i) => i.averageCost,
+	value: (i) => i.value,
+};
 
 const ALL_CATEGORIES = "__all__";
 
-const SortableHeader: React.FC<{
-	col: SortCol;
-	label: string;
-	sort: SortState;
-	onSort: (col: SortCol) => void;
-	align?: "left" | "right";
-	/** Optional plain-language tooltip (e.g. the WAC explanation, D8) — no formula. */
-	tooltip?: string;
-}> = ({ col, label, sort, onSort, align = "left", tooltip }) => {
-	const active = sort.col === col;
-	return (
-		<Box
-			component="th"
-			className={align === "right" ? "r" : undefined}
-			onClick={() => onSort(col)}
-			sx={{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
-		>
-			<Box
-				component="span"
-				sx={{
-					display: "inline-flex",
-					alignItems: "center",
-					gap: "4px",
-					color: active ? "primary.main" : "inherit",
-				}}
-			>
-				{label}
-				{tooltip && (
-					<Tooltip title={tooltip} placement="top" arrow>
-						<InfoOutlinedIcon
-							onClick={(e) => e.stopPropagation()}
-							sx={{ fontSize: 14, color: "text.disabled", cursor: "help" }}
-						/>
-					</Tooltip>
-				)}
-				{active &&
-					(sort.dir === "asc" ? (
-						<ArrowUpwardIcon sx={{ fontSize: 13 }} />
-					) : (
-						<ArrowDownwardIcon sx={{ fontSize: 13 }} />
-					))}
-			</Box>
-		</Box>
-	);
-};
-
 /**
  * «Остатки» tab per the bundle: the warehouse's on-hand products with WAC and
- * stock value, searchable by name/SKU, filterable by category, sortable, with a
- * served «Итого по складу» summary row.
+ * stock value, searchable by name/SKU, filterable by category, sortable on every
+ * column, with a served «Итого по складу» summary row.
  */
 export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse, stock }) => {
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [category, setCategory] = useState(ALL_CATEGORIES);
-	const [sort, setSort] = useState<SortState>({ col: "value", dir: "desc" });
+	const [sortCol, setSortCol] = useState<SortCol>("value");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const categories = useMemo(() => {
 		const names = new Set<string>();
@@ -91,39 +55,40 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 	}, [stock]);
 
 	const rows = useMemo(() => {
-		const dir = sort.dir === "asc" ? 1 : -1;
-		return stock
-			.filter((item) => {
-				if (category !== ALL_CATEGORIES && item.categoryName !== category) {
-					return false;
-				}
-				if (
-					query.trim() &&
-					!matchesSearch(item.productName, query) &&
-					!matchesSearch(item.sku, query)
-				) {
-					return false;
-				}
-				return true;
-			})
-			.sort((a, b) => {
-				if (sort.col === "name") {
-					return a.productName.localeCompare(b.productName, "ru") * dir;
-				}
-				return (a[sort.col] - b[sort.col]) * dir;
-			});
-	}, [stock, query, category, sort]);
+		const filtered = stock.filter((item) => {
+			if (category !== ALL_CATEGORIES && item.categoryName !== category) {
+				return false;
+			}
+			if (
+				query.trim() &&
+				!matchesSearch(item.productName, query) &&
+				!matchesSearch(item.sku, query)
+			) {
+				return false;
+			}
+			return true;
+		});
+		const accessor = SORT_ACCESSOR[sortCol];
+		const sorted = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? sorted.reverse() : sorted;
+	}, [stock, query, category, sortCol, sortDir]);
 
-	const onSort = (col: SortCol) =>
-		setSort((prev) => ({ col, dir: prev.col === col && prev.dir === "desc" ? "asc" : "desc" }));
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	const isFiltering = query.trim() !== "" || category !== ALL_CATEGORIES;
 
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(25);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
 
 	// Reset to the first page whenever the filters or sort change.
-	useEffect(() => setPage(0), [query, category, sort]);
+	useEffect(() => setPage(0), [query, category, sortCol, sortDir]);
 
 	const lastPage = Math.max(0, Math.ceil(rows.length / rowsPerPage) - 1);
 	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -204,34 +169,56 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 					<Box component="table" sx={detailTableSx}>
 						<thead>
 							<tr>
-								<SortableHeader
+								<DetailSortHeader
 									col="name"
 									label={t("warehouse.stock.product")}
-									sort={sort}
+									active={sortCol === "name"}
+									dir={sortDir}
 									onSort={onSort}
 								/>
-								<Box component="th">{t("warehouse.stock.sku")}</Box>
-								<Box component="th">{t("warehouse.stock.category")}</Box>
-								<Box component="th">{t("warehouse.stock.unit")}</Box>
-								<SortableHeader
+								<DetailSortHeader
+									col="sku"
+									label={t("warehouse.stock.sku")}
+									active={sortCol === "sku"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="category"
+									label={t("warehouse.stock.category")}
+									active={sortCol === "category"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="unit"
+									label={t("warehouse.stock.unit")}
+									active={sortCol === "unit"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
 									col="quantity"
 									label={t("warehouse.stock.quantity")}
-									sort={sort}
+									active={sortCol === "quantity"}
+									dir={sortDir}
 									onSort={onSort}
 									align="right"
 								/>
-								<SortableHeader
+								<DetailSortHeader
 									col="averageCost"
 									label={t("warehouse.stock.wac")}
-									sort={sort}
+									active={sortCol === "averageCost"}
+									dir={sortDir}
 									onSort={onSort}
 									align="right"
 									tooltip={t("warehouse.stock.wacTooltip")}
 								/>
-								<SortableHeader
+								<DetailSortHeader
 									col="value"
 									label={t("warehouse.stock.value")}
-									sort={sort}
+									active={sortCol === "value"}
+									dir={sortDir}
 									onSort={onSort}
 									align="right"
 								/>

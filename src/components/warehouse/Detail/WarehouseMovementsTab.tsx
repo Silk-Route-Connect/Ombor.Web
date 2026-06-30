@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
 import DetailCard from "components/shared/Detail/DetailCard";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import MovementKindChip from "components/warehouse/MovementKindChip";
@@ -26,6 +28,8 @@ interface WarehouseMovementsTabProps {
 	movements: WarehouseMovement[];
 }
 
+type SortCol = "date" | "event" | "product" | "counterparty" | "quantity" | "balance";
+
 const ALL_TYPES = "__all__";
 
 const Dash: React.FC = () => (
@@ -37,34 +41,64 @@ const Dash: React.FC = () => (
 /**
  * «Движения» tab per the bundle: the warehouse stock ledger with typed event
  * chips, signed +/− quantities (green in / red out) and the served running
- * per-product balance. Searchable by product and filterable by event type.
+ * per-product balance. Searchable by product, filterable by event type, sortable
+ * on every column (defaults to date, newest first).
  */
 export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ movements }) => {
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [type, setType] = useState<WarehouseMovementKind | typeof ALL_TYPES>(ALL_TYPES);
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-	const rows = useMemo(
-		() =>
-			movements.filter((movement) => {
-				if (type !== ALL_TYPES && movement.kind !== type) {
-					return false;
-				}
-				if (query.trim() && !matchesSearch(movement.productName, query)) {
-					return false;
-				}
-				return true;
-			}),
-		[movements, query, type],
-	);
+	const rows = useMemo(() => {
+		const filtered = movements.filter((movement) => {
+			if (type !== ALL_TYPES && movement.kind !== type) {
+				return false;
+			}
+			if (query.trim() && !matchesSearch(movement.productName, query)) {
+				return false;
+			}
+			return true;
+		});
+		const accessor = (m: WarehouseMovement): string | number => {
+			switch (sortCol) {
+				case "date":
+					return m.date;
+				case "event":
+					return t(`warehouse.movement.${m.kind}`);
+				case "product":
+					return m.productName;
+				case "counterparty":
+					return m.counterparty ?? "";
+				case "quantity":
+					return m.quantity;
+				case "balance":
+					return m.balanceAfter;
+				default:
+					return "";
+			}
+		};
+		const sorted = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? sorted.reverse() : sorted;
+	}, [movements, query, type, sortCol, sortDir, t]);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	const isFiltering = query.trim() !== "" || type !== ALL_TYPES;
 
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(25);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
 
-	// Reset to the first page whenever the filters change.
-	useEffect(() => setPage(0), [query, type]);
+	// Reset to the first page whenever the filters or sort change.
+	useEffect(() => setPage(0), [query, type, sortCol, sortDir]);
 
 	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -148,16 +182,50 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					<Box component="table" sx={detailTableSx}>
 						<thead>
 							<tr>
-								<Box component="th">{t("warehouse.movements.date")}</Box>
-								<Box component="th">{t("warehouse.movements.event")}</Box>
-								<Box component="th">{t("warehouse.movements.product")}</Box>
-								<Box component="th">{t("warehouse.movements.counterparty")}</Box>
-								<Box component="th" className="r">
-									{t("warehouse.movements.quantity")}
-								</Box>
-								<Box component="th" className="r">
-									{t("warehouse.movements.balance")}
-								</Box>
+								<DetailSortHeader
+									col="date"
+									label={t("warehouse.movements.date")}
+									active={sortCol === "date"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="event"
+									label={t("warehouse.movements.event")}
+									active={sortCol === "event"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="product"
+									label={t("warehouse.movements.product")}
+									active={sortCol === "product"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="counterparty"
+									label={t("warehouse.movements.counterparty")}
+									active={sortCol === "counterparty"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="quantity"
+									label={t("warehouse.movements.quantity")}
+									active={sortCol === "quantity"}
+									dir={sortDir}
+									onSort={onSort}
+									align="right"
+								/>
+								<DetailSortHeader
+									col="balance"
+									label={t("warehouse.movements.balance")}
+									active={sortCol === "balance"}
+									dir={sortDir}
+									onSort={onSort}
+									align="right"
+								/>
 							</tr>
 						</thead>
 						<tbody>
