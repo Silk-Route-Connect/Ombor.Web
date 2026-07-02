@@ -55,6 +55,15 @@ i18n/ru/        <module>.json — the module's namespace
 - Row actions live in a three-dot `ActionMenu` cell via the shared `components/shared/ActionMenuCell/MenuActionCell` — give each row a `tone` (`normal` / `warn` / `danger`) for the DSN-1 menu treatment rather than colouring icons by hand.
 - Numeric columns use tabular figures (theme handles this — see design-handoff) and right alignment.
 
+## Detail pages
+
+- Detail pages are assembled from shared scaffold components — never a hand-rolled per-module header, tab bar, or card: `DetailPageHeader` (back + **name-only title** + `⋮` `ActionMenu` + optional `primaryAction` slot), `DetailTabs` (underline tabs + count pills), `DetailCard` (summary/rail card primitive), and `detailTableChrome` (warm chrome for detail-embedded tables).
+- **Title is the entity name only.** Type chips, company, and all reference fields render in the summary region (a `DetailCard` or the hero card), never in the header title.
+- **No breadcrumbs** — orientation is the H1 title, return is the back button, section-jump is the persistent sidebar.
+- **Geometry:** stacked (full-width summary above full-width tabbed content) by default; right-rail (`1fr {rail}`) only for entities with a compact, pin-worthy summary worth keeping visible beside wide tab tables (currently Product / Order / Transaction / Payment). Decision + rationale in design-handoff #20.
+- **Detail-embedded tables** use `detailTableChrome` (warm header band + a total band or a pager footer as config), not the list `DataTable`. Domain logic (e.g. the partner ledger's signed coloring + running balance) stays in the feature, wrapped by the chrome — the chrome styles, it doesn't compute.
+- `Selected<Module>Store` holds the open entity + child collections for the detail page (as above).
+
 ## Styling
 
 - `theme.ts` is the **only** styling source: colors, typography, spacing, radii. No hardcoded hex values, no magic pixel values — use `sx` with theme tokens.
