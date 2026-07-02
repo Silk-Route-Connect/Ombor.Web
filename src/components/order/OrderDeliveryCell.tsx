@@ -1,19 +1,22 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Order } from "models/order";
 import { numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
-import { deliveryDateState } from "utils/orderUtils";
+import { isOrderOverdue, shortDeliveryTime } from "utils/orderUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Box } from "@mui/material";
 
 /**
- * Delivery date/time cell (bundle `.o-deliver`): overdue = red + alert icon,
- * done (delivered/returned) = muted, upcoming = ink + calendar icon. A dash when
- * no delivery date is set.
+ * Delivery date/time cell — exactly two states: **overdue** (red + alert icon,
+ * still undelivered past the requested date) and **standard** (ink + calendar
+ * icon) for everything else. A dash when no delivery date is set.
  */
 export const OrderDeliveryCell: React.FC<{ order: Order }> = ({ order }) => {
+	const { t } = useTranslation();
+
 	if (!order.deliveryDate) {
 		return (
 			<Box component="span" sx={{ ...numericSx, color: "text.disabled" }}>
@@ -22,38 +25,31 @@ export const OrderDeliveryCell: React.FC<{ order: Order }> = ({ order }) => {
 		);
 	}
 
-	const state = deliveryDateState(order);
-	const overdue = state === "overdue";
-	const tone =
-		state === "overdue"
-			? { text: "error.main", icon: "error.main", weight: 700 }
-			: state === "done"
-				? { text: "text.disabled", icon: "text.disabled", weight: 500 }
-				: { text: "text.primary", icon: "primary.main", weight: 500 };
+	const overdue = isOrderOverdue(order);
 
 	return (
 		<Box
 			component="span"
-			title={overdue ? "Доставка просрочена" : undefined}
+			title={overdue ? t("order.list.overdueTooltip") : undefined}
 			sx={{
 				...numericSx,
 				display: "inline-flex",
 				alignItems: "center",
 				gap: "6px",
 				whiteSpace: "nowrap",
-				color: tone.text,
-				fontWeight: tone.weight,
+				color: overdue ? "error.main" : "text.primary",
+				fontWeight: overdue ? 700 : 500,
 			}}
 		>
 			{overdue ? (
-				<ErrorOutlineIcon sx={{ fontSize: 13, color: tone.icon }} />
+				<ErrorOutlineIcon sx={{ fontSize: 13, color: "error.main" }} />
 			) : (
-				<CalendarTodayOutlinedIcon sx={{ fontSize: 13, color: tone.icon }} />
+				<CalendarTodayOutlinedIcon sx={{ fontSize: 13, color: "text.secondary" }} />
 			)}
 			{formatDate(order.deliveryDate)}
 			{order.deliveryTime && (
-				<Box component="span" sx={{ color: overdue ? "error.main" : "text.disabled" }}>
-					· {order.deliveryTime}
+				<Box component="span" sx={{ color: overdue ? "error.main" : "text.secondary" }}>
+					· {shortDeliveryTime(order.deliveryTime)}
 				</Box>
 			)}
 		</Box>

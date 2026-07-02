@@ -12,7 +12,7 @@ import DeliveryConfirmModal from "components/order/Modal/DeliveryConfirmModal";
 import OrderFormModal from "components/order/Modal/OrderFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath, PATHS } from "routing/paths";
+import { partnerDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -50,10 +50,7 @@ const OrderDetailPage: React.FC = observer(() => {
 		);
 	}
 
-	const goBack = () => navigate(PATHS.orders);
 	const openCustomer = () => navigate(partnerDetailPath(order.customerId));
-	const openSale = (saleId: number) =>
-		notificationStore.info(t("order.detail.openSaleInfo", { id: saleId }));
 
 	const twoColSx = {
 		display: "grid",
@@ -68,14 +65,11 @@ const OrderDetailPage: React.FC = observer(() => {
 		<Box>
 			<OrderDetailHeader
 				order={order}
-				onBack={goBack}
 				onAdvance={orderStore.advance}
 				onEdit={orderStore.openEdit}
 				onCancel={orderStore.openCancel}
 				onReject={orderStore.openReject}
 				onReturn={orderStore.openReturn}
-				onOpenSale={openSale}
-				onOpenCustomer={openCustomer}
 				onDownload={() => notificationStore.info(t("order.detail.downloadInfo"))}
 			/>
 

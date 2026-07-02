@@ -1,34 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Order } from "models/order";
+import { PATHS, saleDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
+import { formatEntityId } from "utils/formatEntityId";
 import { isOrderEditable, ORDER_NEXT_STEP, PRE_DELIVERY } from "utils/orderUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import {
-	Box,
-	Divider,
-	IconButton,
-	ListItemIcon,
-	ListItemText,
-	Menu,
-	MenuItem,
-	Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const STEP_ICON: Record<string, React.ReactNode> = {
 	process: <CheckIcon />,
@@ -38,25 +33,28 @@ const STEP_ICON: Record<string, React.ReactNode> = {
 
 interface OrderDetailHeaderProps {
 	order: Order;
-	onBack: () => void;
 	onAdvance: (order: Order) => void;
 	onEdit: (order: Order) => void;
 	onCancel: (order: Order) => void;
 	onReject: (order: Order) => void;
 	onReturn: (order: Order) => void;
-	onOpenSale: (saleId: number) => void;
-	onOpenCustomer: () => void;
 	onDownload: () => void;
 }
 
+/**
+ * The promoted / original Sale reference tile beside the actions — a real
+ * router link to the sale's detail (the backend promotes a Delivered order to a
+ * real Sale; `saleId` is its transaction id). Entity-link affordance: pointer +
+ * underline-on-hover on the «№…» number.
+ */
 const SaleLink: React.FC<{
 	caption: string;
 	saleId: number;
 	muted?: boolean;
-	onClick: () => void;
-}> = ({ caption, saleId, muted, onClick }) => (
+}> = ({ caption, saleId, muted }) => (
 	<Box
-		onClick={onClick}
+		component={RouterLink}
+		to={saleDetailPath(saleId)}
 		sx={{
 			display: "flex",
 			alignItems: "center",
@@ -65,6 +63,8 @@ const SaleLink: React.FC<{
 			borderRadius: "8px",
 			cursor: "pointer",
 			border: "1px solid",
+			textDecoration: "none",
+			"&:hover .sale-link-num": { textDecoration: "underline" },
 			...(muted
 				? {
 						bgcolor: designTokens.gray50,
@@ -72,8 +72,8 @@ const SaleLink: React.FC<{
 						color: "text.secondary",
 					}
 				: {
-						bgcolor: "rgba(23,131,90,0.10)",
-						borderColor: "rgba(23,131,90,0.28)",
+						bgcolor: designTokens.successBg,
+						borderColor: designTokens.successBorder,
 						color: "success.main",
 					}),
 		}}
@@ -81,194 +81,133 @@ const SaleLink: React.FC<{
 		<ReceiptLongOutlinedIcon sx={{ fontSize: 17 }} />
 		<Box>
 			<Typography sx={{ fontSize: 11, lineHeight: 1.2 }}>{caption}</Typography>
-			<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 13.5, lineHeight: 1.3 }}>
-				#{saleId}
+			<Typography
+				className="sale-link-num"
+				sx={{ ...numericSx, fontWeight: 700, fontSize: 13.5, lineHeight: 1.3 }}
+			>
+				{formatEntityId(saleId)}
 			</Typography>
 		</Box>
 		<ChevronRightIcon sx={{ fontSize: 16 }} />
 	</Box>
 );
 
+/** Status-aware kebab rows for the shared ActionMenu (DSN-1 tones). */
+function buildOrderActionRows(
+	t: (key: string) => string,
+	order: Order,
+	handlers: Pick<
+		OrderDetailHeaderProps,
+		"onEdit" | "onCancel" | "onReject" | "onReturn" | "onDownload"
+	>,
+): ActionMenuRow[] {
+	const rows: ActionMenuRow[] = [];
+
+	if (isOrderEditable(order.status)) {
+		rows.push({
+			key: "edit",
+			label: t("common.edit"),
+			icon: <EditOutlinedIcon fontSize="small" />,
+			onClick: () => handlers.onEdit(order),
+		});
+	}
+
+	rows.push({
+		key: "download",
+		label: t("order.action.download"),
+		icon: <DownloadOutlinedIcon fontSize="small" />,
+		onClick: handlers.onDownload,
+	});
+
+	if (order.status === "Delivered") {
+		rows.push({
+			key: "return",
+			label: t("order.action.return"),
+			icon: <UndoOutlinedIcon fontSize="small" />,
+			tone: "danger",
+			onClick: () => handlers.onReturn(order),
+		});
+	}
+
+	if (PRE_DELIVERY.includes(order.status)) {
+		rows.push(
+			{
+				key: "reject",
+				label: t("order.action.reject"),
+				icon: <CloseIcon fontSize="small" />,
+				tone: "warn",
+				dividerBefore: true,
+				onClick: () => handlers.onReject(order),
+			},
+			{
+				key: "cancel",
+				label: t("order.action.cancel"),
+				icon: <DeleteOutlineIcon fontSize="small" />,
+				tone: "danger",
+				onClick: () => handlers.onCancel(order),
+			},
+		);
+	}
+
+	return rows;
+}
+
+/**
+ * Order detail header on the shared {@link DetailPageHeader}: «№…» title with the
+ * status + source chips beside it, a created-on / customer meta line, and the
+ * forward-transition button + Sale reference tile in the primary-action slot.
+ */
 export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	order,
-	onBack,
 	onAdvance,
 	onEdit,
 	onCancel,
 	onReject,
 	onReturn,
-	onOpenSale,
-	onOpenCustomer,
 	onDownload,
 }) => {
 	const { t } = useTranslation();
-	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-	const close = () => setAnchor(null);
-	const run = (fn: () => void) => () => {
-		close();
-		fn();
-	};
-
 	const step = ORDER_NEXT_STEP[order.status];
 
 	return (
-		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "flex-start",
-					justifyContent: "space-between",
-					gap: "16px",
-					flexWrap: "wrap",
-					mb: "18px",
-				}}
-			>
-				<Box sx={{ display: "flex", alignItems: "flex-start", gap: "12px", minWidth: 0 }}>
-					<IconButton
-						onClick={onBack}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							color: designTokens.gray600,
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</IconButton>
-					<Box sx={{ minWidth: 0 }}>
-						<Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-							<Typography
-								variant="h1"
-								sx={{ ...numericSx, display: "inline-flex", alignItems: "baseline" }}
-							>
-								<Box component="span" sx={{ color: "text.disabled", fontWeight: 600 }}>
-									#
-								</Box>
-								{order.orderNumber}
-							</Typography>
-							<OrderStatusChip status={order.status} withIcon />
-							<OrderSourceChip source={order.source} />
-						</Box>
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: "8px",
-								mt: "6px",
-								fontSize: 13.5,
-								color: "text.secondary",
-							}}
-						>
-							{t("order.detail.createdOn", { date: formatDate(order.date) })}
-							<Box
-								component="span"
-								sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-							/>
-							<Box
-								component="span"
-								onClick={onOpenCustomer}
-								sx={{
-									color: "primary.main",
-									fontWeight: 600,
-									cursor: "pointer",
-									"&:hover": { textDecoration: "underline" },
-								}}
-							>
-								{order.customerName}
-							</Box>
-						</Box>
+		<DetailPageHeader
+			backTo={PATHS.orders}
+			title={formatEntityId(order.orderNumber)}
+			titleExtra={
+				<>
+					<OrderStatusChip status={order.status} withIcon />
+					<OrderSourceChip source={order.source} />
+				</>
+			}
+			meta={
+				<>
+					{t("order.detail.createdOn", { date: formatDate(order.date) })}
+					<Box
+						component="span"
+						sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
+					/>
+					<Box component="span" sx={{ fontWeight: 600 }}>
+						<PartnerLink id={order.customerId} name={order.customerName} />
 					</Box>
-				</Box>
-
-				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+				</>
+			}
+			primaryAction={
+				<>
 					{step && (
 						<PrimaryButton icon={STEP_ICON[step.action]} onClick={() => onAdvance(order)}>
 							{t(`order.action.${step.action}`)}
 						</PrimaryButton>
 					)}
 					{order.status === "Delivered" && order.saleId != null && (
-						<SaleLink
-							caption={t("order.detail.promotedSale")}
-							saleId={order.saleId}
-							onClick={() => onOpenSale(order.saleId!)}
-						/>
+						<SaleLink caption={t("order.detail.promotedSale")} saleId={order.saleId} />
 					)}
 					{order.status === "Returned" && order.saleId != null && (
-						<SaleLink
-							caption={t("order.detail.originalSale")}
-							saleId={order.saleId}
-							muted
-							onClick={() => onOpenSale(order.saleId!)}
-						/>
+						<SaleLink caption={t("order.detail.originalSale")} saleId={order.saleId} muted />
 					)}
-					<IconButton
-						onClick={(e) => setAnchor(e.currentTarget)}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							color: designTokens.gray600,
-						}}
-					>
-						<MoreVertIcon sx={{ fontSize: 20 }} />
-					</IconButton>
-					<Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
-						{isOrderEditable(order.status) && (
-							<MenuItem onClick={run(() => onEdit(order))}>
-								<ListItemIcon>
-									<EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />
-								</ListItemIcon>
-								<ListItemText primary={t("common.edit")} />
-							</MenuItem>
-						)}
-						<MenuItem onClick={run(onDownload)}>
-							<ListItemIcon>
-								<DownloadOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />
-							</ListItemIcon>
-							<ListItemText primary={t("order.action.download")} />
-						</MenuItem>
-						{order.status === "Delivered" && (
-							<MenuItem onClick={run(() => onReturn(order))}>
-								<ListItemIcon>
-									<UndoOutlinedIcon fontSize="small" sx={{ color: "error.main" }} />
-								</ListItemIcon>
-								<ListItemText
-									primary={t("order.action.return")}
-									slotProps={{ primary: { sx: { color: "error.main" } } }}
-								/>
-							</MenuItem>
-						)}
-						{PRE_DELIVERY.includes(order.status) && <Divider />}
-						{PRE_DELIVERY.includes(order.status) && (
-							<MenuItem onClick={run(() => onReject(order))}>
-								<ListItemIcon>
-									<CloseIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />
-								</ListItemIcon>
-								<ListItemText
-									primary={t("order.action.reject")}
-									slotProps={{ primary: { sx: { color: designTokens.saffron700 } } }}
-								/>
-							</MenuItem>
-						)}
-						{PRE_DELIVERY.includes(order.status) && (
-							<MenuItem onClick={run(() => onCancel(order))}>
-								<ListItemIcon>
-									<DeleteOutlineIcon fontSize="small" sx={{ color: "error.main" }} />
-								</ListItemIcon>
-								<ListItemText
-									primary={t("order.action.cancel")}
-									slotProps={{ primary: { sx: { color: "error.main" } } }}
-								/>
-							</MenuItem>
-						)}
-					</Menu>
-				</Box>
-			</Box>
-		</>
+				</>
+			}
+			actions={buildOrderActionRows(t, order, { onEdit, onCancel, onReject, onReturn, onDownload })}
+		/>
 	);
 };
 

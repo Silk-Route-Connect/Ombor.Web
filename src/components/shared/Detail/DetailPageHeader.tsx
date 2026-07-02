@@ -16,6 +16,11 @@ interface DetailPageHeaderProps {
 	/** Kebab menu rows (DSN-1 ActionMenu). The page builds the status-aware set;
 	 *  omit / pass an empty array for an action-less detail (e.g. immutable records). */
 	actions?: ActionMenuRow[];
+	/** Inline badges after the title (same slot the archived badge uses) — e.g. the
+	 *  order's status + source chips. Keep to small chip-height (≤24px) elements. */
+	titleExtra?: React.ReactNode;
+	/** Secondary meta line under the title row (e.g. «Создан 12.06.2026 · Клиент»). */
+	meta?: React.ReactNode;
 	/** Optional standalone action node rendered left of the kebab. Reserved for
 	 *  child-event creation (locked pattern 2) — e.g. the warehouse «Начальный
 	 *  остаток» button; entity lifecycle actions stay in the {@link actions} kebab. */
@@ -38,6 +43,8 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 	title,
 	actions,
 	primaryAction,
+	titleExtra,
+	meta,
 	isArchived = false,
 	archivedLabel,
 }) => {
@@ -73,22 +80,39 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 					<ChevronLeftIcon sx={{ fontSize: 20 }} />
 				</ButtonBase>
 
-				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-					<Typography
-						component="h1"
-						sx={{
-							fontSize: 24,
-							fontWeight: 700,
-							letterSpacing: "-0.02em",
-							lineHeight: 1.25,
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
-						}}
-					>
-						{title}
-					</Typography>
-					{isArchived && <ArchivedBadge label={archivedLabel} />}
+				<Box sx={{ minWidth: 0 }}>
+					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+						<Typography
+							component="h1"
+							sx={{
+								fontSize: 24,
+								fontWeight: 700,
+								letterSpacing: "-0.02em",
+								lineHeight: 1.25,
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+								whiteSpace: "nowrap",
+							}}
+						>
+							{title}
+						</Typography>
+						{isArchived && <ArchivedBadge label={archivedLabel} />}
+						{titleExtra}
+					</Box>
+					{meta && (
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								gap: "8px",
+								mt: "6px",
+								fontSize: 13.5,
+								color: "text.secondary",
+							}}
+						>
+							{meta}
+						</Box>
+					)}
 				</Box>
 			</Box>
 

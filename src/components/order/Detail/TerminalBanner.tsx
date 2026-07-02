@@ -27,13 +27,15 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 
 	const last = order.history?.[order.history.length - 1];
 	const danger = order.status === "Rejected" || order.status === "Returned";
+	// Single --error red per tokens.css — the icon tile uses the error border
+	// tint as its fill to stand off the error-bg banner.
 	const tone = danger
 		? {
 				bg: designTokens.errorBg,
 				border: designTokens.errorBorder,
-				icBg: "#F5DAD4",
+				icBg: designTokens.errorBorder,
 				color: "error.main",
-				title: "#8E2A1E",
+				title: "error.main",
 			}
 		: {
 				bg: designTokens.gray50,
@@ -95,8 +97,8 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 				>
 					<Box component="span" sx={numericSx}>
 						{formatDate(last.at)}, {timeOf(last.at)}
-					</Box>{" "}
-					· {last.by}
+					</Box>
+					{last.by && <> · {last.by}</>}
 				</Box>
 			)}
 		</Box>

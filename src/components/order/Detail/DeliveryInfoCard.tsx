@@ -1,10 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import OrderCard from "components/order/Detail/OrderCard";
+import DetailCard from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
-import { isOrderOverdue } from "utils/orderUtils";
+import { isOrderOverdue, shortDeliveryTime } from "utils/orderUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -65,7 +65,7 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 	const { t } = useTranslation();
 
 	return (
-		<OrderCard
+		<DetailCard
 			title={t("order.detail.delivery")}
 			icon={<LocalShippingOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />}
 		>
@@ -88,9 +88,9 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 						<Box component="span" sx={numericSx}>
 							{formatDate(order.deliveryDate)}
 						</Box>
-						<Box component="span" sx={{ fontSize: 12.5, color: "text.disabled" }}>
+						<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
 							{order.deliveryTime
-								? t("order.detail.deliveryAtTime", { time: order.deliveryTime })
+								? t("order.detail.deliveryAtTime", { time: shortDeliveryTime(order.deliveryTime) })
 								: t("order.detail.deliveryNoTime")}
 						</Box>
 						{isOrderOverdue(order) && (
@@ -134,7 +134,7 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 					{order.warehouseName}
 				</Row>
 			)}
-		</OrderCard>
+		</DetailCard>
 	);
 };
 

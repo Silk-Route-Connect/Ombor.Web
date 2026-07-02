@@ -1,9 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import OrderCard from "components/order/Detail/OrderCard";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
 import PartnerAvatar from "components/partner/PartnerAvatar";
+import DetailCard from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -42,7 +42,7 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 	return (
 		<>
 			{/* partner mini */}
-			<OrderCard>
+			<DetailCard>
 				<Box sx={{ p: "16px 18px" }}>
 					<Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
 						<PartnerAvatar name={order.customerName} size={44} />
@@ -70,8 +70,9 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 									fontSize: 11,
 									fontWeight: 600,
 									color: "info.main",
-									bgcolor: "rgba(42,111,151,0.12)",
-									border: "1px solid rgba(42,111,151,0.24)",
+									bgcolor: designTokens.infoBg,
+									border: "1px solid",
+									borderColor: designTokens.infoBorder,
 								}}
 							>
 								{t(`order.partnerType.${order.customerType}`)}
@@ -97,10 +98,10 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 						</Typography>
 					</Box>
 				</Box>
-			</OrderCard>
+			</DetailCard>
 
 			{/* financial */}
-			<OrderCard>
+			<DetailCard>
 				<Box sx={{ p: "18px" }}>
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
 						{t("order.detail.orderAmount")}
@@ -169,7 +170,7 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 						</Box>
 					)}
 				</Box>
-			</OrderCard>
+			</DetailCard>
 
 			{/* promote-to-sale hint */}
 			{step?.promote && (

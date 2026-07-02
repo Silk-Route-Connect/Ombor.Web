@@ -59,11 +59,14 @@ export class OrderStore {
 			list = list.filter((o) => (Date.now() - Date.parse(o.date)) / MS_PER_DAY <= days);
 		}
 
+		// Numbers display as «№…» but people also type «#…» or the bare number —
+		// strip any leading prefix from the term and match against the raw number.
 		const term = this.searchTerm.trim().toLowerCase();
+		const numberTerm = term.replace(/^[№#]/, "");
 		if (term) {
 			list = list.filter(
 				(o) =>
-					`#${o.orderNumber}`.toLowerCase().includes(term) ||
+					(numberTerm !== "" && o.orderNumber.toLowerCase().includes(numberTerm)) ||
 					o.customerName.toLowerCase().includes(term),
 			);
 		}

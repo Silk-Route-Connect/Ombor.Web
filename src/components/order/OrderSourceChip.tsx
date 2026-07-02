@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { OrderSource } from "models/order";
+import { chipTokens, designTokens } from "theme";
 
 import LanguageIcon from "@mui/icons-material/Language";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
@@ -10,14 +11,18 @@ interface OrderSourceChipProps {
 	source: OrderSource;
 }
 
-/** Source badge: OmborWeb (info) / Telegram (blue). */
+/**
+ * Source badge — OmborWeb = neutral (our own channel), Telegram = the info
+ * family (the one blue in the tokens; Telegram's brand hue). Dormant-but-shown:
+ * Telegram orders don't arrive yet, but the value is served and displayed.
+ */
 export const OrderSourceChip: React.FC<OrderSourceChipProps> = ({ source }) => {
 	const { t } = useTranslation();
 
 	const isWeb = source === "OmborWeb";
-	const sx = isWeb
-		? { color: "info.main", bgcolor: "rgba(42,111,151,0.10)", borderColor: "rgba(42,111,151,0.28)" }
-		: { color: "#1E6FA8", bgcolor: "#E6F1FA", borderColor: "#BFDEF2" };
+	const chip = isWeb
+		? chipTokens.neutral
+		: { bg: designTokens.infoBg, color: "info.main", border: designTokens.infoBorder };
 
 	return (
 		<Box
@@ -33,11 +38,13 @@ export const OrderSourceChip: React.FC<OrderSourceChipProps> = ({ source }) => {
 				fontWeight: 600,
 				whiteSpace: "nowrap",
 				border: "1px solid",
-				...sx,
+				color: chip.color,
+				bgcolor: chip.bg,
+				borderColor: chip.border,
 			}}
 		>
 			{isWeb ? <LanguageIcon sx={{ fontSize: 13 }} /> : <SendOutlinedIcon sx={{ fontSize: 12 }} />}
-			{t(`order.source.${source}`)}
+			{t(`order.source.${source}`, { defaultValue: source })}
 		</Box>
 	);
 };

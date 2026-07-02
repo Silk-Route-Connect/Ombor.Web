@@ -62,7 +62,11 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 									borderStyle: dashed ? "dashed" : "solid",
 									transition: "all .15s",
 									...(done || current
-										? { bgcolor: "primary.main", borderColor: "primary.main", color: "#fff" }
+										? {
+												bgcolor: "primary.main",
+												borderColor: "primary.main",
+												color: designTokens.gray0,
+											}
 										: {
 												bgcolor: "background.paper",
 												borderColor: designTokens.gray300,
@@ -74,7 +78,9 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 								{done ? (
 									<CheckIcon sx={{ fontSize: 16 }} />
 								) : current ? (
-									<Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#fff" }} />
+									<Box
+										sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: designTokens.gray0 }}
+									/>
 								) : null}
 							</Box>
 							<Typography

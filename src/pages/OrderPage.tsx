@@ -6,11 +6,12 @@ import OrderListHeader from "components/order/List/OrderListHeader";
 import OrdersTable from "components/order/List/OrdersTable";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
-import { orderDetailPath, partnerDetailPath, PATHS } from "routing/paths";
+import { orderDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { orderTotal } from "utils/orderUtils";
+import { formatEntityId } from "utils/formatEntityId";
+import { shortDeliveryTime } from "utils/orderUtils";
 
 import { Box } from "@mui/material";
 
@@ -29,24 +30,21 @@ const OrderPage: React.FC = observer(() => {
 		orderStore.getAll();
 	}, [orderStore]);
 
-	const columns = useMemo(
-		() => buildOrderColumns(t, (o) => navigate(partnerDetailPath(o.customerId))),
-		[t, navigate],
-	);
+	const columns = useMemo(() => buildOrderColumns(t), [t]);
 
 	const handleExport = (): void => {
 		const rows = orderStore.listOrders === "loading" ? [] : orderStore.listOrders;
 		const csvColumns: CsvColumn<Order>[] = [
+			{ header: t("order.col.number"), value: (o) => formatEntityId(o.orderNumber) },
 			{ header: t("order.col.date"), value: (o) => formatDate(o.date) },
-			{ header: t("order.col.number"), value: (o) => `#${o.orderNumber}` },
 			{ header: t("order.col.customer"), value: (o) => o.customerName },
 			{ header: t("order.col.positions"), value: (o) => o.lines.length },
-			{ header: t("order.col.total"), value: (o) => orderTotal(o.lines) },
+			{ header: t("order.col.total"), value: (o) => o.total },
 			{
 				header: t("order.col.delivery"),
 				value: (o) =>
 					o.deliveryDate
-						? `${formatDate(o.deliveryDate)}${o.deliveryTime ? ` ${o.deliveryTime}` : ""}`
+						? `${formatDate(o.deliveryDate)}${o.deliveryTime ? ` ${shortDeliveryTime(o.deliveryTime)}` : ""}`
 						: "—",
 			},
 			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },

@@ -1,26 +1,43 @@
 ﻿import { Order, OrderLine, OrderStatus } from "models/order";
+import { chipTokens, designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-/** Chip tone per status (maps to the MUI palette; "neutral" is a gray treatment). */
-export type OrderStatusTone = "neutral" | "info" | "warning" | "success" | "error";
-
-/** Visual variant of the status chip (soft fill, struck-through, or outlined). */
-export type OrderChipVariant = "soft" | "strike" | "outline";
-
-export interface OrderStatusMeta {
-	tone: OrderStatusTone;
-	variant: OrderChipVariant;
+/** Resolved chip appearance (fill + text + border) — always drawn from `chipTokens`. */
+export interface OrderChipStyle {
+	bg: string;
+	color: string;
+	border: string;
 }
 
-/** Per-status chip styling. Labels live in i18n (`order.status.*`). */
+export interface OrderStatusMeta {
+	chip: OrderChipStyle;
+	/** Struck-through label (Cancelled — closed without consequence). */
+	strike?: boolean;
+	/** Accent colour for non-chip status marks (timeline dots, tab counts). */
+	accent: string;
+}
+
+/**
+ * Per-status chip styling via `chipTokens` — lifecycle semantics on the locked
+ * palette: work-in-progress states carry the brand hues (Processing = teal,
+ * Shipping = saffron), terminal states the semantic ones (Delivered = green =
+ * good-terminal, Returned / Rejected = red = bad-terminal; Rejected keeps the
+ * outline variant to stay distinguishable from Returned). Pending / Cancelled
+ * are neutral. Status chips may use the full semantic palette — the green/red
+ * money reservation applies to amount / balance figures, not status.
+ * Labels live in i18n (`order.status.*`).
+ */
 export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
-	Pending: { tone: "neutral", variant: "soft" },
-	Processing: { tone: "info", variant: "soft" },
-	Shipping: { tone: "warning", variant: "soft" },
-	Delivered: { tone: "success", variant: "soft" },
-	Cancelled: { tone: "neutral", variant: "strike" },
-	Rejected: { tone: "error", variant: "outline" },
-	Returned: { tone: "error", variant: "soft" },
+	Pending: { chip: chipTokens.neutral, accent: designTokens.gray400 },
+	Processing: { chip: chipTokens.sale, accent: chipTokens.sale.color },
+	Shipping: { chip: chipTokens.supply, accent: chipTokens.supply.color },
+	Delivered: { chip: chipTokens.closed, accent: chipTokens.closed.color },
+	Cancelled: { chip: chipTokens.neutral, strike: true, accent: designTokens.gray400 },
+	Rejected: {
+		chip: { bg: "transparent", color: chipTokens.overdue.color, border: chipTokens.overdue.border },
+		accent: chipTokens.overdue.color,
+	},
+	Returned: { chip: chipTokens.overdue, accent: chipTokens.overdue.color },
 };
 
 /** The linear happy-path drawn by the detail stepper. */
@@ -60,16 +77,11 @@ export function isOrderOverdue(order: Pick<Order, "status" | "deliveryDate">): b
 	return due.getTime() < today.getTime();
 }
 
-/** Visual state of an order's delivery date: overdue · done · upcoming. */
-export type DeliveryDateState = "overdue" | "done" | "upcoming";
-export function deliveryDateState(
-	order: Pick<Order, "status" | "deliveryDate">,
-): DeliveryDateState {
-	if (isOrderOverdue(order)) {
-		return "overdue";
-	}
-	return order.status === "Delivered" || order.status === "Returned" ? "done" : "upcoming";
-}
+/**
+ * Display form of a served delivery time. The backend serializes `TimeOnly` as
+ * «HH:mm:ss» (the mock seeds «HH:mm») — the UI shows «HH:mm» either way.
+ */
+export const shortDeliveryTime = (time: string): string => time.slice(0, 5);
 
 export const isOrderEditable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderCancelable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);

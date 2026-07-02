@@ -57,8 +57,8 @@ export type OrderStatusEvent = {
 	/** Previous status, or null for the creation event. */
 	from: OrderStatus | null;
 	to: OrderStatus;
-	/** Actor who made the transition. */
-	by: string;
+	/** Actor display name — null when the backend can't resolve the user. */
+	by: string | null;
 };
 
 export type Order = {

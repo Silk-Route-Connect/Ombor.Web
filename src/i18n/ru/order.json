@@ -6,8 +6,9 @@
 
   "order.filter.all": "Все",
 
-  "order.col.date": "Дата",
   "order.col.number": "Номер",
+  "order.col.date": "Дата",
+  "order.list.overdueTooltip": "Доставка просрочена",
   "order.col.customer": "Клиент",
   "order.col.positions": "Позиций",
   "order.col.total": "Сумма, UZS",
@@ -52,7 +53,6 @@
   "order.action.reject": "Отметить отклонён клиентом",
   "order.action.cancel": "Отменить заказ",
 
-  "order.detail.crumb": "Заказ #{{number}}",
   "order.detail.createdOn": "Создан {{date}}",
   "order.detail.promotedSale": "Оформлено как продажа",
   "order.detail.originalSale": "Исходная продажа",
@@ -92,7 +92,6 @@
   "order.terminal.Returned.body": "Создан возврат продажи. Исходная продажа остаётся в учёте.",
 
   "order.detail.notFound": "Заказ не найден",
-  "order.detail.openSaleInfo": "Продажа #{{id}} — оформлена при доставке заказа",
   "order.detail.downloadInfo": "Готовится PDF заказа…",
 
   "order.field.client": "Клиент",
@@ -107,7 +106,7 @@
   "order.field.deliveryDateLower": "дата доставки",
   "order.field.linesLower": "хотя бы одна позиция",
 
-  "order.edit.title": "Редактировать заказ #{{number}}",
+  "order.edit.title": "Редактировать заказ №{{number}}",
   "order.edit.subtitle": "Деньги и склад не затрагиваются — заказ можно изменить до доставки",
   "order.edit.errFields": "Заполните обязательные поля: {{fields}}.",
   "order.edit.deliveryDateRequired": "Укажите дату доставки",
@@ -124,7 +123,7 @@
   "order.edit.warehouseHint": "Склад — это предполагаемое место списания. Остаток не резервируется, окончательная проверка наличия выполняется при подтверждении доставки.",
 
   "order.deliver.title": "Подтвердить доставку",
-  "order.deliver.subtitle": "Заказ #{{number}} · {{customer}}",
+  "order.deliver.subtitle": "Заказ №{{number}} · {{customer}}",
   "order.deliver.lead": "Заказ будет доставлен и преобразован в продажу. Продажа будет записана окончательно и не подлежит изменению. Продолжить?",
   "order.deliver.warehouse": "Склад списания",
   "order.deliver.stockCheck": "Проверка остатков на складе",
@@ -138,14 +137,14 @@
   "order.deliver.confirm": "Доставить и создать продажу",
 
   "order.confirm.back": "Назад",
-  "order.confirm.cancel.title": "Отменить заказ #{{number}}?",
+  "order.confirm.cancel.title": "Отменить заказ №{{number}}?",
   "order.confirm.cancel.body": "Заказ {{customer}} будет отменён. Товар и деньги не затронуты. Действие необратимо.",
   "order.confirm.cancel.confirm": "Отменить заказ",
-  "order.confirm.reject.title": "Отметить заказ #{{number}} отклонённым?",
+  "order.confirm.reject.title": "Отметить заказ №{{number}} отклонённым?",
   "order.confirm.reject.body": "Заказ будет помечен как отклонён клиентом и закрыт без доставки.",
   "order.confirm.reject.confirm": "Отметить отклонённым",
-  "order.confirm.return.title": "Оформить возврат по заказу #{{number}}?",
-  "order.confirm.return.body": "Будет создан возврат продажи #{{saleId}}. Исходная продажа останется в учёте без изменений.",
+  "order.confirm.return.title": "Оформить возврат по заказу №{{number}}?",
+  "order.confirm.return.body": "Будет создан возврат продажи №{{saleId}}. Исходная продажа останется в учёте без изменений.",
   "order.confirm.return.confirm": "Оформить возврат",
 
   "order.new.title": "Новый заказ",
@@ -186,14 +185,14 @@
   "order.new.dialog.unsaved.stay": "Остаться",
   "order.new.dialog.unsaved.leave": "Выйти без сохранения",
 
-  "order.toast.created": "Заказ #{{number}} создан",
-  "order.toast.processed": "Заказ #{{number}}: взят в обработку",
-  "order.toast.shipped": "Заказ #{{number}}: отправлен",
-  "order.toast.delivered": "Заказ #{{number}} доставлен · создана продажа #{{saleId}}",
-  "order.toast.cancelled": "Заказ #{{number}} отменён",
-  "order.toast.rejected": "Заказ #{{number}} отмечен как отклонён",
-  "order.toast.returned": "Создан возврат по заказу #{{number}}",
-  "order.toast.updated": "Заказ #{{number}} обновлён",
+  "order.toast.created": "Заказ №{{number}} создан",
+  "order.toast.processed": "Заказ №{{number}}: взят в обработку",
+  "order.toast.shipped": "Заказ №{{number}}: отправлен",
+  "order.toast.delivered": "Заказ №{{number}} доставлен · создана продажа №{{saleId}}",
+  "order.toast.cancelled": "Заказ №{{number}} отменён",
+  "order.toast.rejected": "Заказ №{{number}} отмечен как отклонён",
+  "order.toast.returned": "Создан возврат по заказу №{{number}}",
+  "order.toast.updated": "Заказ №{{number}} обновлён",
 
   "order.error.getAll": "Не удалось загрузить заказы",
   "order.error.create": "Не удалось создать заказ",

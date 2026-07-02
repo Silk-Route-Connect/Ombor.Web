@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens } from "theme";
-import { ORDER_STATUS_TABS, OrderStatusFilter } from "utils/orderUtils";
+import { controlSize, designTokens, numericSx } from "theme";
+import { ORDER_STATUS_META, ORDER_STATUS_TABS, OrderStatusFilter } from "utils/orderUtils";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -14,9 +14,15 @@ interface OrderStatusTabsProps {
 const tabLabelKey = (tab: OrderStatusFilter): string =>
 	tab === "all" ? "order.filter.all" : `order.status.${tab}`;
 
+/** Count colour follows the tab's status chip accent («Все» keeps the primary hue). */
+const countColor = (tab: OrderStatusFilter): string =>
+	tab === "all" ? "primary.main" : ORDER_STATUS_META[tab].chip.color;
+
 /**
  * Status filter tabs with count pills (bundle `.seg` + `.seg-cnt`). Like the
- * shared SegmentedControl but each tab carries the live count for its status.
+ * shared SegmentedControl — same gray track, md control height so it aligns
+ * with the sibling header controls — but each tab carries the live count for
+ * its status, coloured with that status's chip accent.
  */
 export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts, onChange }) => {
 	const { t } = useTranslation();
@@ -25,11 +31,12 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 		<Box
 			sx={{
 				display: "inline-flex",
+				alignItems: "stretch",
+				height: controlSize.md.height,
 				bgcolor: designTokens.gray100,
 				borderRadius: "8px",
 				p: "3px",
 				gap: "2px",
-				flexWrap: "wrap",
 			}}
 		>
 			{ORDER_STATUS_TABS.map((tab) => {
@@ -44,7 +51,6 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 							alignItems: "center",
 							gap: "6px",
 							px: "13px",
-							py: "6px",
 							fontSize: 13,
 							fontWeight: selected ? 600 : 500,
 							fontFamily: "inherit",
@@ -59,10 +65,11 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 							<Box
 								component="span"
 								sx={{
-									...{ fontVariantNumeric: "tabular-nums" },
+									...numericSx,
 									fontSize: 11,
 									fontWeight: 700,
-									color: selected ? "primary.main" : "text.disabled",
+									color: countColor(tab),
+									opacity: selected ? 1 : 0.75,
 								}}
 							>
 								{count}

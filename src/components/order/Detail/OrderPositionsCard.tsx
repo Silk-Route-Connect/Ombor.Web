@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import OrderCard from "components/order/Detail/OrderCard";
+import DetailCard from "components/shared/Detail/DetailCard";
+import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -17,27 +18,6 @@ import { MEASUREMENT_SHORT } from "utils/productUtils";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { Box, Typography } from "@mui/material";
-
-const headCellSx = {
-	textAlign: "right",
-	fontSize: 11.5,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 14px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-} as const;
-
-const bodyCellSx = {
-	textAlign: "right",
-	fontSize: 13.5,
-	p: "13px 14px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	verticalAlign: "middle",
-	...numericSx,
-} as const;
 
 const FootRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
 	<Box
@@ -59,11 +39,11 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 	const total = orderTotal(order.lines);
 
 	return (
-		<OrderCard
+		<DetailCard
 			title={t("order.detail.positions")}
 			icon={<Inventory2OutlinedIcon sx={{ fontSize: 18, color: "text.secondary" }} />}
 			count={order.lines.length}
-			action={
+			headerExtra={
 				isOrderEditable(order.status) ? (
 					<Box
 						sx={{
@@ -81,56 +61,50 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 				) : undefined
 			}
 		>
-			<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+			<Box component="table" sx={detailTableSx}>
 				<thead>
 					<tr>
-						<Box component="th" sx={{ ...headCellSx, textAlign: "left", pl: "18px" }}>
-							{t("order.detail.col.product")}
-						</Box>
-						<Box component="th" sx={headCellSx}>
-							{t("order.detail.col.qty")}
-						</Box>
-						<Box component="th" sx={headCellSx}>
-							{t("order.detail.col.unitPrice")}
-						</Box>
-						<Box component="th" sx={headCellSx}>
-							{t("order.detail.col.discount")}
-						</Box>
-						<Box component="th" sx={{ ...headCellSx, pr: "18px" }}>
-							{t("order.detail.col.lineTotal")}
-						</Box>
+						<th>{t("order.detail.col.product")}</th>
+						<th className="r">{t("order.detail.col.qty")}</th>
+						<th className="r">{t("order.detail.col.unitPrice")}</th>
+						<th className="r">{t("order.detail.col.discount")}</th>
+						<th className="r">{t("order.detail.col.lineTotal")}</th>
 					</tr>
 				</thead>
 				<tbody>
 					{order.lines.map((l) => {
 						const disc = discountShortLabel(l);
 						return (
-							<Box component="tr" key={l.id}>
-								<Box
-									component="td"
-									sx={{ ...bodyCellSx, textAlign: "left", pl: "18px", fontFamily: "inherit" }}
-								>
-									<Typography component="span" sx={{ fontWeight: 600 }}>
+							<tr key={l.id}>
+								<td>
+									<Typography component="span" sx={{ fontSize: 13.5, fontWeight: 600 }}>
 										{l.productName}
 									</Typography>
 									<Typography
-										sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "2px" }}
+										sx={{ ...numericSx, fontSize: 12, color: "text.secondary", mt: "2px" }}
 									>
 										{l.sku}
 									</Typography>
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
-									{l.quantity}{" "}
-									<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
-										{MEASUREMENT_SHORT[l.measurement]}
+								</td>
+								<td className="r">
+									<Box component="span" sx={numericSx}>
+										{l.quantity}{" "}
+										<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
+											{MEASUREMENT_SHORT[l.measurement]}
+										</Box>
 									</Box>
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
-									{formatCurrency(l.unitPrice)}
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
+								</td>
+								<td className="r">
+									<Box component="span" sx={numericSx}>
+										{formatCurrency(l.unitPrice)}
+									</Box>
+								</td>
+								<td className="r">
 									{disc ? (
-										<Box component="span" sx={{ color: designTokens.saffron700, fontWeight: 600 }}>
+										<Box
+											component="span"
+											sx={{ ...numericSx, color: designTokens.saffron700, fontWeight: 600 }}
+										>
 											{disc}
 										</Box>
 									) : (
@@ -138,11 +112,13 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 											—
 										</Box>
 									)}
-								</Box>
-								<Box component="td" sx={{ ...bodyCellSx, pr: "18px", fontWeight: 700 }}>
-									{formatCurrency(lineNet(l))}
-								</Box>
-							</Box>
+								</td>
+								<td className="r">
+									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
+										{formatCurrency(lineNet(l))}
+									</Box>
+								</td>
+							</tr>
 						);
 					})}
 				</tbody>
@@ -154,6 +130,8 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
+					borderTop: "1px solid",
+					borderColor: "divider",
 					bgcolor: designTokens.gray25,
 				}}
 			>
@@ -185,7 +163,7 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 					</Box>
 				</Box>
 			</Box>
-		</OrderCard>
+		</DetailCard>
 	);
 };
 

@@ -92,7 +92,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 			rows={rows}
 			columns={columns}
 			pagination
-			rowsPerPageOptions={[25, 50, 100]}
+			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
 		/>
 	);
