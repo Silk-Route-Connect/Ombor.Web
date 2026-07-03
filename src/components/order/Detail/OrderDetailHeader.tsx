@@ -1,17 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
-import OrderSourceChip from "components/order/OrderSourceChip";
-import OrderStatusChip from "components/order/OrderStatusChip";
-import PartnerLink from "components/partner/Links/PartnerLink";
 import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
-import MetaDot from "components/shared/Detail/MetaDot";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Order } from "models/order";
 import { PATHS, saleDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
 import { formatEntityId } from "utils/formatEntityId";
 import { isOrderEditable, ORDER_NEXT_STEP, PRE_DELIVERY } from "utils/orderUtils";
 
@@ -154,9 +149,10 @@ function buildOrderActionRows(
 }
 
 /**
- * Order detail header on the shared {@link DetailPageHeader}: «№…» title with the
- * status + source chips beside it, a created-on / customer meta line, and the
- * forward-transition button + Sale reference tile in the primary-action slot.
+ * Order detail header on the shared {@link DetailPageHeader}: the «№…» title
+ * ONLY (name-only rule — status/source/customer/created-on live in the stepper,
+ * sidebar and history sections), with the forward-transition button + Sale
+ * reference tile in the primary-action slot.
  */
 export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	order,
@@ -174,21 +170,6 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 		<DetailPageHeader
 			backTo={PATHS.orders}
 			title={formatEntityId(order.orderNumber)}
-			titleExtra={
-				<>
-					<OrderStatusChip status={order.status} withIcon />
-					<OrderSourceChip source={order.source} />
-				</>
-			}
-			meta={
-				<>
-					{t("order.detail.createdOn", { date: formatDate(order.date) })}
-					<MetaDot />
-					<Box component="span" sx={{ fontWeight: 600 }}>
-						<PartnerLink id={order.customerId} name={order.customerName} />
-					</Box>
-				</>
-			}
 			primaryAction={
 				<>
 					{step && (

@@ -53,7 +53,6 @@
   "order.action.reject": "Отметить отклонён клиентом",
   "order.action.cancel": "Отменить заказ",
 
-  "order.detail.createdOn": "Создан {{date}}",
   "order.detail.promotedSale": "Оформлено как продажа",
   "order.detail.originalSale": "Исходная продажа",
   "order.detail.positions": "Позиции",

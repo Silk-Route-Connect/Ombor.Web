@@ -70,14 +70,11 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType }> = ({ type
 	);
 };
 
-/** Soft payment-status chip (short label for the list, full for the detail). */
-export const TransactionStatusChip: React.FC<{ status: TransactionStatus; full?: boolean }> = ({
-	status,
-	full,
-}) => {
+/** Soft payment-status chip. */
+export const TransactionStatusChip: React.FC<{ status: TransactionStatus }> = ({ status }) => {
 	const { t } = useTranslation();
 	const tk = chipTokens[STATUS_TOKEN[status]];
-	const label = full ? t(`transaction.status.${status}`) : t(`transaction.statusShort.${status}`);
+	const label = t(`transaction.statusShort.${status}`);
 
 	return (
 		<Box

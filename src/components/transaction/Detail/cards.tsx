@@ -1,7 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
-import PartnerAvatar from "components/partner/PartnerAvatar";
 import MetaDot from "components/shared/Detail/MetaDot";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
@@ -22,6 +21,7 @@ import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlin
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -261,46 +261,6 @@ export const RefundFooter: React.FC<{ lines: TransactionLine[] }> = ({ lines }) 
 				</Box>
 			</Box>
 		</Box>
-	);
-};
-
-/* ─────────────────────────── partner mini ─────────────────────────── */
-
-export const PartnerMiniCard: React.FC<{
-	name: string;
-	direction: TransactionDirection;
-	/** Partner id for the detail link; absent → the name renders as plain text. */
-	id?: number;
-}> = ({ name, direction, id }) => {
-	const { t } = useTranslation();
-	return (
-		<SdCard>
-			<Box sx={{ display: "flex", alignItems: "center", gap: "12px", p: "16px 18px" }}>
-				<PartnerAvatar name={name} size={44} />
-				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontSize: 15, fontWeight: 700 }}>
-						{id ? <PartnerLink id={id} name={name} /> : name}
-					</Typography>
-					<Box
-						component="span"
-						sx={{
-							display: "inline-flex",
-							mt: "4px",
-							px: "8px",
-							py: "1px",
-							borderRadius: "999px",
-							fontSize: 11,
-							fontWeight: 600,
-							color: "info.main",
-							bgcolor: "rgba(42,111,151,0.12)",
-							border: "1px solid rgba(42,111,151,0.24)",
-						}}
-					>
-						{t(`transaction.detail.partnerType.${direction}`)}
-					</Box>
-				</Box>
-			</Box>
-		</SdCard>
 	);
 };
 
@@ -745,6 +705,15 @@ export const AuditCard: React.FC<{ tx: TransactionRecord; isRefund: boolean }> =
 	const rows: Array<{ icon: React.ReactNode; k: string; v: React.ReactNode }> = [
 		{
 			icon: <PersonOutlineIcon sx={{ fontSize: 16 }} />,
+			k: t(`transaction.detail.partnerType.${direction}`),
+			v: (
+				<Box component="span" sx={{ fontWeight: 600 }}>
+					{tx.partnerId ? <PartnerLink id={tx.partnerId} name={tx.partnerName} /> : tx.partnerName}
+				</Box>
+			),
+		},
+		{
+			icon: <EventOutlinedIcon sx={{ fontSize: 16 }} />,
 			k: isRefund ? t("transaction.detail.createdRefund") : t("transaction.detail.createdSale"),
 			v: (
 				<>

@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
 	AuditCard,
 	NoteAttachmentsCard,
-	PartnerMiniCard,
 	PaymentsCard,
 	PositionsCard,
 	ReasonCard,
@@ -112,7 +111,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 				</Stack>
 
 				<Box sx={sideSx}>
-					<PartnerMiniCard name={tx.partnerName} direction={direction} id={tx.partnerId} />
+					<AuditCard tx={tx} isRefund={refund} />
 
 					{refund ? (
 						<RefundFinancialCard
@@ -131,8 +130,6 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							status={tx.status}
 						/>
 					)}
-
-					<AuditCard tx={tx} isRefund={refund} />
 
 					{!refund && (
 						<PaymentsCard
