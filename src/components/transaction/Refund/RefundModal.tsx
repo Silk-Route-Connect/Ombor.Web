@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import MetaDot from "components/shared/Detail/MetaDot";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
@@ -187,18 +188,12 @@ const RefundModal: React.FC<RefundModalProps> = ({
 						<PersonOutlineIcon sx={{ fontSize: 13, color: "text.disabled" }} />
 						{transaction.partnerName}
 					</Box>
-					<Box
-						component="span"
-						sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-					/>
+					<MetaDot />
 					<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
 						<WarehouseOutlinedIcon sx={{ fontSize: 13, color: "text.disabled" }} />
 						{transaction.warehouseName}
 					</Box>
-					<Box
-						component="span"
-						sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-					/>
+					<MetaDot />
 					<Box
 						component="span"
 						sx={{ display: "inline-flex", alignItems: "center", gap: "5px", ...numericSx }}
@@ -528,10 +523,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 								{posCount}
 							</Box>
 						</Box>
-						<Box
-							component="span"
-							sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-						/>
+						<MetaDot />
 						<Box component="span">
 							{t("transaction.refund.totalAmount")}{" "}
 							<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>

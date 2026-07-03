@@ -1,181 +1,97 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import MetaDot from "components/shared/Detail/MetaDot";
 import {
 	TransactionStatusChip,
 	TransactionTypeBadge,
 } from "components/transaction/TransactionBadges";
 import { TransactionRecord } from "models/transaction";
-import { designTokens, numericSx } from "theme";
+import { PATHS } from "routing/paths";
+import { numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
+import { formatEntityId } from "utils/formatEntityId";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import {
-	Box,
-	ButtonBase,
-	IconButton,
-	ListItemIcon,
-	ListItemText,
-	Menu,
-	MenuItem,
-	Typography,
-} from "@mui/material";
+import { Box } from "@mui/material";
 
 interface TransactionDetailHeaderProps {
 	tx: TransactionRecord;
 	direction: TransactionDirection;
-	onBack: () => void;
 	onCreateRefund: () => void;
-	onPartner: () => void;
 	onDownload: () => void;
 }
 
-const Dot: React.FC = () => (
-	<Box
-		component="span"
-		sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300, mx: "4px" }}
-	/>
-);
-
+/**
+ * Transaction detail header on the shared {@link DetailPageHeader}: «№…» title
+ * with the type + payment-status chips beside it and a date · partner meta line
+ * (the warehouse lives in the «Информация» card, not the header). Download stays
+ * the visible action; the refund create is the kebab's only row — refund details
+ * are kebab-less (a refund cannot be refunded).
+ */
 export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = ({
 	tx,
 	direction,
-	onBack,
 	onCreateRefund,
-	onPartner,
 	onDownload,
 }) => {
 	const { t } = useTranslation();
 	const refund = isRefundType(tx.type);
-	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+
+	const actions: ActionMenuRow[] = refund
+		? []
+		: [
+				{
+					key: "refund",
+					label: t("transaction.detail.createRefund"),
+					icon: <UndoOutlinedIcon fontSize="small" />,
+					onClick: onCreateRefund,
+				},
+			];
 
 	return (
-		<>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "flex-start",
-					justifyContent: "space-between",
-					gap: "20px",
-					mb: "20px",
-				}}
-			>
-				<Box sx={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
-					<ButtonBase
-						onClick={onBack}
-						aria-label={t("transaction.detail.back")}
-						sx={{
-							width: 40,
-							height: 40,
-							flex: "0 0 auto",
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							bgcolor: "background.paper",
-							color: designTokens.gray700,
-							"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</ButtonBase>
-
-					<Box sx={{ minWidth: 0 }}>
-						<Box sx={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
-							<Typography
-								component="h1"
-								sx={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}
-							>
-								<Box component="span" sx={{ color: "text.disabled", fontWeight: 600 }}>
-									#
-								</Box>
-								{tx.transactionNumber ?? tx.id}
-							</Typography>
-							<TransactionTypeBadge type={tx.type} large />
-							{!refund && <TransactionStatusChip status={tx.status} full />}
-						</Box>
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								flexWrap: "wrap",
-								gap: "2px",
-								mt: "5px",
-								fontSize: 13.5,
-								color: "text.secondary",
-								...numericSx,
-							}}
-						>
-							<EventOutlinedIcon sx={{ fontSize: 14, color: "text.disabled", mr: "6px" }} />
-							{formatDate(tx.date)}
-							{tx.time ? ` · ${tx.time}` : ""}
-							<Dot />
-							<Box
-								component="span"
-								onClick={onPartner}
-								sx={{
-									color: "primary.main",
-									fontWeight: 600,
-									cursor: "pointer",
-									fontFamily: "inherit",
-									"&:hover": { textDecoration: "underline" },
-								}}
-							>
-								{tx.partnerName}
-							</Box>
-							<Dot />
-							<WarehouseOutlinedIcon sx={{ fontSize: 14, color: "text.disabled", mr: "6px" }} />
-							{tx.warehouseName}
-						</Box>
+		<DetailPageHeader
+			backTo={direction === "Sale" ? PATHS.sales : PATHS.supplies}
+			title={formatEntityId(tx.transactionNumber ?? tx.id)}
+			titleExtra={
+				<>
+					<TransactionTypeBadge type={tx.type} />
+					{!refund && <TransactionStatusChip status={tx.status} full />}
+				</>
+			}
+			meta={
+				<>
+					<Box component="span" sx={{ ...numericSx, whiteSpace: "nowrap" }}>
+						{formatDate(tx.date)}
+						{tx.time ? ` · ${tx.time}` : ""}
 					</Box>
-				</Box>
-
-				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", flex: "0 0 auto" }}>
-					<GhostButton
-						icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-						onClick={onDownload}
-					>
-						{t("transaction.detail.download")}
-					</GhostButton>
-					{!refund && (
-						<>
-							<IconButton
-								onClick={(e) => setAnchor(e.currentTarget)}
-								aria-label="actions"
-								sx={{
-									width: 38,
-									height: 38,
-									borderRadius: "8px",
-									border: "1px solid",
-									borderColor: designTokens.gray300,
-									color: designTokens.gray600,
-								}}
-							>
-								<MoreVertIcon sx={{ fontSize: 20 }} />
-							</IconButton>
-							<Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
-								<MenuItem
-									onClick={() => {
-										setAnchor(null);
-										onCreateRefund();
-									}}
-								>
-									<ListItemIcon>
-										<UndoOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />
-									</ListItemIcon>
-									<ListItemText primary={t("transaction.detail.createRefund")} />
-								</MenuItem>
-							</Menu>
-						</>
+					<MetaDot />
+					{tx.partnerId ? (
+						<Box component="span" sx={{ fontWeight: 600 }}>
+							<PartnerLink id={tx.partnerId} name={tx.partnerName} />
+						</Box>
+					) : (
+						<Box component="span" sx={{ fontWeight: 600 }}>
+							{tx.partnerName}
+						</Box>
 					)}
-				</Box>
-			</Box>
-		</>
+				</>
+			}
+			primaryAction={
+				<GhostButton
+					icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+					onClick={onDownload}
+				>
+					{t("transaction.detail.download")}
+				</GhostButton>
+			}
+			actions={actions}
+		/>
 	);
 };
 

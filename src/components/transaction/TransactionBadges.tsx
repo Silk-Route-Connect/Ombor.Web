@@ -35,10 +35,7 @@ const STATUS_TOKEN: Record<TransactionStatus, keyof typeof chipTokens> = {
 };
 
 /** Type pill — colour + icon sourced from `chipTokens` (DSN-1 locked semantics). */
-export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boolean }> = ({
-	type,
-	large,
-}) => {
+export const TransactionTypeBadge: React.FC<{ type: TransactionType }> = ({ type }) => {
 	const { t } = useTranslation();
 	const direction = directionOf(type);
 	const refund = isRefundType(type);
@@ -55,10 +52,10 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boo
 				display: "inline-flex",
 				alignItems: "center",
 				gap: "5px",
-				height: large ? 26 : 22,
-				px: large ? "13px" : "10px",
+				height: 22,
+				px: "10px",
 				borderRadius: "999px",
-				fontSize: large ? 12.5 : 11.5,
+				fontSize: 11.5,
 				fontWeight: 600,
 				whiteSpace: "nowrap",
 				border: "1px solid",
@@ -67,7 +64,7 @@ export const TransactionTypeBadge: React.FC<{ type: TransactionType; large?: boo
 				borderColor: tk.border,
 			}}
 		>
-			<Icon sx={{ fontSize: large ? 15 : 13 }} />
+			<Icon sx={{ fontSize: 13 }} />
 			{label}
 		</Box>
 	);

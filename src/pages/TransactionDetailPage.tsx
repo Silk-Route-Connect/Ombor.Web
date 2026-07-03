@@ -18,7 +18,6 @@ import {
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
 import RefundModal from "components/transaction/Refund/RefundModal";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
@@ -43,9 +42,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 	}, [txId, selectedTransactionStore]);
 
 	const tx = selectedTransactionStore.transaction;
-	const listPath = direction === "Sale" ? PATHS.sales : PATHS.supplies;
 	const detailBase = direction === "Sale" ? "/sales" : "/supplies";
-	const goBack = () => navigate(listPath);
 	const openTransaction = (otherId: number) => navigate(`${detailBase}/${otherId}`);
 	const devToast = (name: string) =>
 		notificationStore.info(t("transaction.detail.devToast", { name }));
@@ -69,8 +66,6 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 	const refund = isRefundType(tx.type);
 	const refundsOf = selectedTransactionStore.refundsOfCurrent;
 	const original = selectedTransactionStore.originalOfCurrent;
-	const openPartner = () =>
-		tx.partnerId ? navigate(partnerDetailPath(tx.partnerId)) : devToast(tx.partnerName);
 
 	const twoColSx = {
 		display: "grid",
@@ -85,9 +80,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 			<TransactionDetailHeader
 				tx={tx}
 				direction={direction}
-				onBack={goBack}
 				onCreateRefund={() => transactionStore.openRefund(tx)}
-				onPartner={openPartner}
 				onDownload={() => devToast(t("transaction.detail.download"))}
 			/>
 
@@ -116,12 +109,10 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					{!refund && (tx.notes || (tx.attachments?.length ?? 0) > 0) && (
 						<NoteAttachmentsCard tx={tx} onOpenAttachment={(name) => devToast(name)} />
 					)}
-
-					<AuditCard tx={tx} isRefund={refund} />
 				</Stack>
 
 				<Box sx={sideSx}>
-					<PartnerMiniCard name={tx.partnerName} direction={direction} onOpen={openPartner} />
+					<PartnerMiniCard name={tx.partnerName} direction={direction} id={tx.partnerId} />
 
 					{refund ? (
 						<RefundFinancialCard
@@ -140,6 +131,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							status={tx.status}
 						/>
 					)}
+
+					<AuditCard tx={tx} isRefund={refund} />
 
 					{!refund && (
 						<PaymentsCard

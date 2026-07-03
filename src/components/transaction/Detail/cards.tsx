@@ -1,6 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import PartnerLink from "components/partner/Links/PartnerLink";
 import PartnerAvatar from "components/partner/PartnerAvatar";
+import MetaDot from "components/shared/Detail/MetaDot";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
@@ -267,25 +269,17 @@ export const RefundFooter: React.FC<{ lines: TransactionLine[] }> = ({ lines }) 
 export const PartnerMiniCard: React.FC<{
 	name: string;
 	direction: TransactionDirection;
-	onOpen: () => void;
-}> = ({ name, direction, onOpen }) => {
+	/** Partner id for the detail link; absent → the name renders as plain text. */
+	id?: number;
+}> = ({ name, direction, id }) => {
 	const { t } = useTranslation();
 	return (
 		<SdCard>
 			<Box sx={{ display: "flex", alignItems: "center", gap: "12px", p: "16px 18px" }}>
 				<PartnerAvatar name={name} size={44} />
 				<Box sx={{ minWidth: 0 }}>
-					<Typography
-						onClick={onOpen}
-						sx={{
-							fontSize: 15,
-							fontWeight: 700,
-							color: "primary.main",
-							cursor: "pointer",
-							"&:hover": { textDecoration: "underline" },
-						}}
-					>
-						{name}
+					<Typography sx={{ fontSize: 15, fontWeight: 700 }}>
+						{id ? <PartnerLink id={id} name={name} /> : name}
 					</Typography>
 					<Box
 						component="span"
@@ -566,10 +560,7 @@ export const PaymentsCard: React.FC<{
 								<Box component="span" sx={numericSx}>
 									{formatDate(p.date)}
 								</Box>
-								<Box
-									component="span"
-									sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-								/>
+								<MetaDot />
 								{p.walletName}
 							</Box>
 						</Box>
@@ -773,14 +764,18 @@ export const AuditCard: React.FC<{ tx: TransactionRecord; isRefund: boolean }> =
 				</>
 			),
 		},
-		{
+	];
+	// The lean backend DTO may omit the warehouse — drop the row rather than
+	// render an empty value.
+	if (tx.warehouseName) {
+		rows.push({
 			icon: <WarehouseOutlinedIcon sx={{ fontSize: 16 }} />,
 			k: isRefund
 				? t("transaction.detail.warehouse.refund")
 				: t(`transaction.detail.warehouse.${direction}`),
 			v: tx.warehouseName,
-		},
-	];
+		});
+	}
 	return (
 		<SdCard
 			title={t("transaction.detail.infoTitle")}
