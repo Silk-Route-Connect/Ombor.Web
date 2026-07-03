@@ -1,21 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import TablePager from "components/shared/Table/TablePager";
-import TemplateActionsMenu from "components/template/TemplateActionsMenu";
-import TemplateTypeChip from "components/template/TemplateTypeChip";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import ProductLink from "components/product/Links/ProductLink";
+import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
+import {
+	Column,
+	ExpandableDataTable,
+} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
+import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
-import { partnerDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import { Box, Button, CircularProgress, Collapse, Paper, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
 
 interface TemplatesTableProps {
 	rows: Loadable<Template[]>;
@@ -27,25 +31,8 @@ interface TemplatesTableProps {
 	onCreate: () => void;
 }
 
-const headCellSx = {
-	textAlign: "left",
-	fontSize: 12,
-	fontWeight: 600,
-	color: "text.secondary",
-	p: "11px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	whiteSpace: "nowrap",
-	bgcolor: "background.paper",
-} as const;
-
-const bodyCellSx = {
-	p: "12px 16px",
-	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 13.5,
-	verticalAlign: "middle",
-} as const;
+/** Keep an inner entity link from also toggling the row's expand click. */
+const stop = (e: React.MouseEvent) => e.stopPropagation();
 
 const innerHeadSx = {
 	textAlign: "left",
@@ -79,6 +66,9 @@ function positionsWord(n: number): string {
 
 const lineTotal = (item: Template["items"][number]): number =>
 	item.quantity * item.unitPrice * (1 - (item.discount ?? 0) / 100);
+
+const templateTotal = (template: Template): number =>
+	template.items.reduce((s, it) => s + lineTotal(it), 0);
 
 const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: () => void }> = ({
 	isFiltering,
@@ -125,11 +115,126 @@ const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: ()
 	);
 };
 
+/** The expand-row panel: the template's line items with the positions/total footer. */
+const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => {
+	const { t } = useTranslation();
+	const total = templateTotal(template);
+
+	return (
+		<Paper
+			elevation={1}
+			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+		>
+			<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+				<thead>
+					<tr>
+						<Box component="th" sx={innerHeadSx}>
+							{t("template.itemsTable.product")}
+						</Box>
+						<Box component="th" sx={innerHeadSx}>
+							{t("template.itemsTable.sku")}
+						</Box>
+						<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
+							{t("template.itemsTable.quantity")}
+						</Box>
+						<Box component="th" sx={innerHeadSx}>
+							{t("template.itemsTable.unit")}
+						</Box>
+						<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
+							{t("template.itemsTable.unitPrice")}
+						</Box>
+						<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
+							{t("template.itemsTable.lineTotal")}
+						</Box>
+					</tr>
+				</thead>
+				<tbody>
+					{template.items.map((item) => (
+						<Box component="tr" key={item.id}>
+							<Box component="td" sx={innerBodySx}>
+								<Box component="span" sx={{ fontWeight: 600 }}>
+									<ProductLink id={item.productId} name={item.productName} />
+								</Box>
+							</Box>
+							<Box component="td" sx={innerBodySx}>
+								<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
+									{item.sku}
+								</Box>
+							</Box>
+							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>
+								<Box component="span" sx={numericSx}>
+									{formatQuantity(item.quantity)}
+								</Box>
+							</Box>
+							<Box component="td" sx={innerBodySx}>
+								<Box component="span" sx={{ color: "text.secondary" }}>
+									{MEASUREMENT_SHORT[item.measurement]}
+								</Box>
+							</Box>
+							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>
+								<Box component="span" sx={numericSx}>
+									{formatCurrency(item.unitPrice)}
+								</Box>
+							</Box>
+							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>
+								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
+									{formatCurrency(lineTotal(item))}
+								</Box>
+							</Box>
+						</Box>
+					))}
+				</tbody>
+				<tfoot>
+					<tr>
+						<Box
+							component="td"
+							colSpan={5}
+							sx={{
+								p: "13px 16px",
+								borderTop: "1px solid",
+								borderColor: designTokens.gray300,
+								bgcolor: designTokens.gray25,
+								fontWeight: 700,
+								fontSize: 14,
+							}}
+						>
+							{t("template.itemsTable.footer", {
+								count: template.items.length,
+								word: positionsWord(template.items.length),
+							})}
+						</Box>
+						<Box
+							component="td"
+							sx={{
+								p: "13px 16px",
+								borderTop: "1px solid",
+								borderColor: designTokens.gray300,
+								bgcolor: designTokens.gray25,
+								textAlign: "right",
+							}}
+						>
+							<Box component="span" sx={{ ...numericSx, fontWeight: 800, fontSize: 16 }}>
+								{formatCurrency(total)}
+							</Box>
+							<Box
+								component="span"
+								sx={{ ml: "4px", fontSize: 12, fontWeight: 600, color: "text.disabled" }}
+							>
+								UZS
+							</Box>
+						</Box>
+					</tr>
+				</tfoot>
+			</Box>
+		</Paper>
+	);
+};
+
 /**
- * Templates list per the bundle: a table with an expandable detail row per
- * template that reveals its line items. The partner cell links to the partner
- * detail page; row actions (Edit · Delete) live in a ⋮ menu. Bespoke because the
- * shared DataTable can't carry accordion rows.
+ * Templates list on the shared ExpandableDataTable (warm bands, sortable
+ * columns, 10/25/50 pagination) — the per-row expand panel reveals the line
+ * items. A template is a mutable basket, so Edit/Delete live in the shared ⋮
+ * ActionMenu; the partner and product cells deep-link to their detail pages.
  */
 export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 	rows,
@@ -140,15 +245,99 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 	onCreate,
 }) => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const [expandedId, setExpandedId] = useState<number | null>(null);
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(25);
 
-	useEffect(() => {
-		setPage(0);
-		setExpandedId(null);
-	}, [rows]);
+	const columns = useMemo<Column<Template>[]>(
+		() => [
+			{
+				key: "name",
+				headerName: t("template.table.name"),
+				sortValue: (tp) => tp.name,
+				renderCell: (tp) => (
+					<Box component="span" sx={{ fontWeight: 600 }}>
+						{tp.name}
+					</Box>
+				),
+			},
+			{
+				key: "type",
+				headerName: t("template.table.type"),
+				sortValue: (tp) => t(`template.type.${tp.type}`),
+				renderCell: (tp) => <TransactionTypeBadge type={tp.type} />,
+			},
+			{
+				key: "partner",
+				headerName: t("template.table.partner"),
+				sortValue: (tp) => tp.partnerName,
+				renderCell: (tp) => (
+					<Box component="span" onClick={stop} sx={{ whiteSpace: "nowrap" }}>
+						<PartnerLink id={tp.partnerId} name={tp.partnerName} />
+					</Box>
+				),
+			},
+			{
+				key: "positions",
+				headerName: t("template.table.positions"),
+				align: "right",
+				sortValue: (tp) => tp.items.length,
+				renderCell: (tp) => (
+					<Box component="span" sx={numericSx}>
+						{tp.items.length}
+					</Box>
+				),
+			},
+			{
+				key: "total",
+				headerName: t("template.table.total"),
+				align: "right",
+				sortValue: (tp) => templateTotal(tp),
+				renderCell: (tp) => (
+					<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
+						{formatCurrency(templateTotal(tp))}
+					</Box>
+				),
+			},
+			{
+				key: "lastUsed",
+				headerName: t("template.table.lastUsed"),
+				sortValue: (tp) => tp.lastUsedAt ?? null,
+				renderCell: (tp) => (
+					<Box
+						component="span"
+						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
+					>
+						{tp.lastUsedAt ? formatDate(tp.lastUsedAt) : "—"}
+					</Box>
+				),
+			},
+			{
+				key: "actions",
+				headerName: "",
+				align: "right",
+				width: 56,
+				renderCell: (tp) => (
+					<ActionMenu
+						actions={[
+							{
+								key: "edit",
+								label: t("common.edit"),
+								icon: <EditOutlinedIcon fontSize="small" />,
+								onClick: () => onEdit(tp),
+							},
+							{
+								key: "delete",
+								label: t("common.delete"),
+								icon: <DeleteOutlineIcon fontSize="small" />,
+								tone: "danger",
+								dividerBefore: true,
+								onClick: () => onDelete(tp),
+							},
+						]}
+					/>
+				),
+			},
+		],
+		[t, onEdit, onDelete],
+	);
 
 	if (rows === "loading") {
 		return (
@@ -158,315 +347,27 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 		);
 	}
 
-	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+	if (rows.length === 0) {
+		return (
+			<Paper
+				elevation={1}
+				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+			>
+				<EmptyState isFiltering={isFiltering} hasAny={hasAny} onCreate={onCreate} />
+			</Paper>
+		);
+	}
 
 	return (
-		<Paper
-			elevation={1}
-			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-		>
-			{rows.length === 0 ? (
-				<EmptyState isFiltering={isFiltering} hasAny={hasAny} onCreate={onCreate} />
-			) : (
-				<>
-					<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-						<thead>
-							<tr>
-								<Box component="th" sx={{ ...headCellSx, width: 44, pl: "14px" }} />
-								<Box component="th" sx={headCellSx}>
-									{t("template.table.name")}
-								</Box>
-								<Box component="th" sx={headCellSx}>
-									{t("template.table.type")}
-								</Box>
-								<Box component="th" sx={headCellSx}>
-									{t("template.table.partner")}
-								</Box>
-								<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-									{t("template.table.positions")}
-								</Box>
-								<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-									{t("template.table.total")}
-								</Box>
-								<Box component="th" sx={headCellSx}>
-									{t("template.table.lastUsed")}
-								</Box>
-								<Box component="th" sx={{ ...headCellSx, width: 56 }} />
-							</tr>
-						</thead>
-						<tbody>
-							{paged.map((template) => {
-								const open = expandedId === template.id;
-								const total = template.items.reduce((s, it) => s + lineTotal(it), 0);
-								return (
-									<React.Fragment key={template.id}>
-										<Box
-											component="tr"
-											onClick={() => setExpandedId(open ? null : template.id)}
-											sx={{
-												cursor: "pointer",
-												bgcolor: open ? designTokens.primarySoft : "transparent",
-												"&:hover": {
-													bgcolor: open ? designTokens.primarySoft : designTokens.gray25,
-												},
-											}}
-										>
-											<Box component="td" sx={{ ...bodyCellSx, pl: "14px" }}>
-												<Box
-													sx={{
-														width: 26,
-														height: 26,
-														display: "grid",
-														placeItems: "center",
-														borderRadius: "6px",
-														color: open ? "primary.main" : "text.disabled",
-														bgcolor: open ? designTokens.primarySoft : "transparent",
-														transition: "background-color .2s ease, color .2s ease",
-													}}
-												>
-													<KeyboardArrowDownIcon
-														sx={{
-															fontSize: 18,
-															transition: "transform .25s ease",
-															transform: open ? "rotate(180deg)" : "rotate(0deg)",
-														}}
-													/>
-												</Box>
-											</Box>
-											<Box component="td" sx={bodyCellSx}>
-												<Box
-													component="span"
-													sx={{ fontWeight: 600, color: open ? "primary.main" : "text.primary" }}
-												>
-													{template.name}
-												</Box>
-											</Box>
-											<Box component="td" sx={bodyCellSx}>
-												<TemplateTypeChip type={template.type} />
-											</Box>
-											<Box component="td" sx={bodyCellSx}>
-												<Box
-													component="span"
-													onClick={(e) => {
-														e.stopPropagation();
-														navigate(partnerDetailPath(template.partnerId));
-													}}
-													sx={{
-														color: "primary.main",
-														cursor: "pointer",
-														whiteSpace: "nowrap",
-														"&:hover": { textDecoration: "underline" },
-													}}
-												>
-													{template.partnerName}
-												</Box>
-											</Box>
-											<Box component="td" sx={{ ...bodyCellSx, textAlign: "right" }}>
-												<Box component="span" sx={numericSx}>
-													{template.items.length}
-												</Box>
-											</Box>
-											<Box component="td" sx={{ ...bodyCellSx, textAlign: "right" }}>
-												<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-													{formatCurrency(total)}
-												</Box>
-											</Box>
-											<Box component="td" sx={bodyCellSx}>
-												<Box
-													component="span"
-													sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
-												>
-													{template.lastUsedAt ? formatDate(template.lastUsedAt) : "—"}
-												</Box>
-											</Box>
-											<Box
-												component="td"
-												sx={{ ...bodyCellSx, textAlign: "right", pr: "8px" }}
-												onClick={(e) => e.stopPropagation()}
-											>
-												<TemplateActionsMenu
-													template={template}
-													onEdit={onEdit}
-													onDelete={onDelete}
-												/>
-											</Box>
-										</Box>
-
-										<Box component="tr">
-											<Box component="td" colSpan={8} sx={{ p: 0, border: 0 }}>
-												<Collapse in={open} timeout="auto" unmountOnExit>
-													<Box
-														sx={{
-															bgcolor: "background.default",
-															borderBottom: 1,
-															borderColor: "divider",
-															p: "16px 20px 20px",
-														}}
-													>
-														<Paper
-															elevation={1}
-															sx={{
-																border: 1,
-																borderColor: "divider",
-																borderRadius: "12px",
-																overflow: "hidden",
-															}}
-														>
-															<Box
-																component="table"
-																sx={{ width: "100%", borderCollapse: "collapse" }}
-															>
-																<thead>
-																	<tr>
-																		<Box component="th" sx={innerHeadSx}>
-																			{t("template.itemsTable.product")}
-																		</Box>
-																		<Box component="th" sx={innerHeadSx}>
-																			{t("template.itemsTable.sku")}
-																		</Box>
-																		<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
-																			{t("template.itemsTable.quantity")}
-																		</Box>
-																		<Box component="th" sx={innerHeadSx}>
-																			{t("template.itemsTable.unit")}
-																		</Box>
-																		<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
-																			{t("template.itemsTable.unitPrice")}
-																		</Box>
-																		<Box component="th" sx={{ ...innerHeadSx, textAlign: "right" }}>
-																			{t("template.itemsTable.lineTotal")}
-																		</Box>
-																	</tr>
-																</thead>
-																<tbody>
-																	{template.items.map((item) => (
-																		<Box component="tr" key={item.id}>
-																			<Box component="td" sx={innerBodySx}>
-																				<Box component="span" sx={{ fontWeight: 600 }}>
-																					{item.productName}
-																				</Box>
-																			</Box>
-																			<Box component="td" sx={innerBodySx}>
-																				<Box
-																					component="span"
-																					sx={{
-																						...numericSx,
-																						fontSize: 12.5,
-																						color: "text.disabled",
-																					}}
-																				>
-																					{item.sku}
-																				</Box>
-																			</Box>
-																			<Box
-																				component="td"
-																				sx={{ ...innerBodySx, textAlign: "right" }}
-																			>
-																				<Box component="span" sx={numericSx}>
-																					{formatQuantity(item.quantity)}
-																				</Box>
-																			</Box>
-																			<Box component="td" sx={innerBodySx}>
-																				<Box component="span" sx={{ color: "text.secondary" }}>
-																					{MEASUREMENT_SHORT[item.measurement]}
-																				</Box>
-																			</Box>
-																			<Box
-																				component="td"
-																				sx={{ ...innerBodySx, textAlign: "right" }}
-																			>
-																				<Box component="span" sx={numericSx}>
-																					{formatCurrency(item.unitPrice)}
-																				</Box>
-																			</Box>
-																			<Box
-																				component="td"
-																				sx={{ ...innerBodySx, textAlign: "right" }}
-																			>
-																				<Box
-																					component="span"
-																					sx={{ ...numericSx, fontWeight: 700 }}
-																				>
-																					{formatCurrency(lineTotal(item))}
-																				</Box>
-																			</Box>
-																		</Box>
-																	))}
-																</tbody>
-																<tfoot>
-																	<tr>
-																		<Box
-																			component="td"
-																			colSpan={5}
-																			sx={{
-																				p: "13px 16px",
-																				borderTop: "1px solid",
-																				borderColor: designTokens.gray300,
-																				bgcolor: designTokens.gray25,
-																				fontWeight: 700,
-																				fontSize: 14,
-																			}}
-																		>
-																			{t("template.itemsTable.footer", {
-																				count: template.items.length,
-																				word: positionsWord(template.items.length),
-																			})}
-																		</Box>
-																		<Box
-																			component="td"
-																			sx={{
-																				p: "13px 16px",
-																				borderTop: "1px solid",
-																				borderColor: designTokens.gray300,
-																				bgcolor: designTokens.gray25,
-																				textAlign: "right",
-																			}}
-																		>
-																			<Box
-																				component="span"
-																				sx={{ ...numericSx, fontWeight: 800, fontSize: 16 }}
-																			>
-																				{formatCurrency(total)}
-																			</Box>
-																			<Box
-																				component="span"
-																				sx={{
-																					ml: "4px",
-																					fontSize: 12,
-																					fontWeight: 600,
-																					color: "text.disabled",
-																				}}
-																			>
-																				UZS
-																			</Box>
-																		</Box>
-																	</tr>
-																</tfoot>
-															</Box>
-														</Paper>
-													</Box>
-												</Collapse>
-											</Box>
-										</Box>
-									</React.Fragment>
-								);
-							})}
-						</tbody>
-					</Box>
-
-					<TablePager
-						count={rows.length}
-						page={page}
-						rowsPerPage={rowsPerPage}
-						onPageChange={setPage}
-						onRowsPerPageChange={(value) => {
-							setRowsPerPage(value);
-							setPage(0);
-						}}
-					/>
-				</>
-			)}
-		</Paper>
+		<ExpandableDataTable<Template>
+			rows={rows}
+			columns={columns}
+			pagination
+			defaultSort={{ key: "name", order: "asc" }}
+			renderExpanded={(template) => <TemplateItemsDetail template={template} />}
+			expandOnRowClick
+			expandedMaxHeight={480}
+		/>
 	);
 };
 

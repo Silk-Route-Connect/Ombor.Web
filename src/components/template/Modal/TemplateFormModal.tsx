@@ -16,7 +16,7 @@ import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { Template, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
@@ -26,8 +26,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import {
 	Alert,
 	alpha,
@@ -56,32 +56,33 @@ const toNumberOrZero = (raw: string): number => {
 	return value === "" ? 0 : Number(value);
 };
 
-/** The two big type cards (sale = info, supply = warning) per the bundle's `.tpl-typeseg`. */
-const TYPE_META: Record<
-	TemplateType,
-	{ tone: "info" | "warning"; icon: React.ReactNode; key: string }
-> = {
-	Sale: { tone: "info", icon: <ReceiptLongOutlinedIcon sx={{ fontSize: 18 }} />, key: "Sale" },
-	Supply: {
-		tone: "warning",
-		icon: <LocalShippingOutlinedIcon sx={{ fontSize: 18 }} />,
-		key: "Supply",
-	},
+/** Type → chipTokens key + the standard Sale/Supply icons (locked chip semantics). */
+const TYPE_TOKEN: Record<TemplateType, keyof typeof chipTokens> = {
+	Sale: "sale",
+	Supply: "supply",
 };
 
+const TYPE_ICON: Record<TemplateType, React.ReactNode> = {
+	Sale: <SellOutlinedIcon sx={{ fontSize: 16 }} />,
+	Supply: <LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />,
+};
+
+/**
+ * Sale/Supply toggle at the md control height (38px) so it lines up with the
+ * neighbouring inputs; the selected state carries the locked chip hues
+ * (Sale = teal, Supply = saffron — brand hues, not money green/red).
+ */
 const TypeToggle: React.FC<{
 	value: TemplateType;
 	disabled: boolean;
 	onChange: (type: TemplateType) => void;
 }> = ({ value, disabled, onChange }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	return (
 		<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-			{(Object.keys(TYPE_META) as TemplateType[]).map((type) => {
-				const meta = TYPE_META[type];
-				const color = theme.palette[meta.tone].main;
+			{(Object.keys(TYPE_TOKEN) as TemplateType[]).map((type) => {
+				const tk = chipTokens[TYPE_TOKEN[type]];
 				const selected = value === type;
 				return (
 					<Box
@@ -92,33 +93,22 @@ const TypeToggle: React.FC<{
 						sx={{
 							display: "flex",
 							alignItems: "center",
-							gap: "11px",
-							p: "12px 14px",
+							justifyContent: "center",
+							gap: "8px",
+							height: 38,
+							px: "12px",
 							borderRadius: "8px",
 							cursor: disabled ? "default" : "pointer",
 							border: "1.5px solid",
-							borderColor: selected ? alpha(color, 0.5) : designTokens.gray300,
-							bgcolor: selected ? alpha(color, 0.08) : "background.paper",
-							boxShadow: selected ? `0 0 0 3px ${alpha(color, 0.15)}` : "none",
-							transition: "border-color .14s, background-color .14s",
-							"&:hover": { borderColor: selected ? alpha(color, 0.5) : designTokens.gray400 },
+							borderColor: selected ? tk.color : designTokens.gray300,
+							bgcolor: selected ? tk.bg : "background.paper",
+							color: selected ? tk.color : designTokens.gray600,
+							transition: "border-color .14s, background-color .14s, color .14s",
+							"&:hover": { borderColor: selected ? tk.color : designTokens.gray400 },
 						}}
 					>
-						<Box
-							sx={{
-								width: 34,
-								height: 34,
-								borderRadius: "9px",
-								display: "grid",
-								placeItems: "center",
-								flex: "0 0 auto",
-								color: selected ? color : designTokens.gray600,
-								bgcolor: selected ? alpha(color, 0.12) : designTokens.gray100,
-							}}
-						>
-							{meta.icon}
-						</Box>
-						<Typography sx={{ fontSize: 14, fontWeight: 700, color: "text.primary" }}>
+						{TYPE_ICON[type]}
+						<Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "inherit" }}>
 							{t(`template.type.${type}`)}
 						</Typography>
 					</Box>
@@ -321,7 +311,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 										sx={{
 											mt: "7px",
 											width: "100%",
-											height: 46,
+											height: 38,
 											px: "13px",
 											font: "inherit",
 											fontSize: 14,
@@ -340,24 +330,24 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 							/>
 						</Box>
 						<Box>
-							<FormFieldLabel label={t("template.field.type")} />
+							<FormFieldLabel label={t("template.field.partner")} required />
 							<Box sx={{ mt: "7px" }}>
-								<TypeToggle value={templateType} disabled={isSaving} onChange={setTemplateType} />
+								<PartnerAutocomplete
+									type="Both"
+									size="small"
+									value={partnerValue}
+									onChange={(p) =>
+										setValue("partnerId", p?.id ?? 0, { shouldDirty: true, shouldValidate: true })
+									}
+								/>
 							</Box>
 						</Box>
 					</Box>
 
 					<Box sx={{ mb: "18px" }}>
-						<FormFieldLabel label={t("template.field.partner")} required />
+						<FormFieldLabel label={t("template.field.type")} />
 						<Box sx={{ mt: "7px" }}>
-							<PartnerAutocomplete
-								type="Both"
-								size="small"
-								value={partnerValue}
-								onChange={(p) =>
-									setValue("partnerId", p?.id ?? 0, { shouldDirty: true, shouldValidate: true })
-								}
-							/>
+							<TypeToggle value={templateType} disabled={isSaving} onChange={setTemplateType} />
 						</Box>
 					</Box>
 

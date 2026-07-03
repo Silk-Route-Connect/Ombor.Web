@@ -28,8 +28,6 @@
   "template.empty.searchTitle": "Шаблоны не найдены",
   "template.empty.searchBody": "Измените запрос поиска или фильтр по типу.",
 
-  "template.actions.label": "Действия",
-
   "template.title.create": "Новый шаблон",
   "template.title.edit": "Редактировать шаблон",
 
