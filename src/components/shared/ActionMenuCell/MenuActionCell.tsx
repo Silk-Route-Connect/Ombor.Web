@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { designTokens, radius } from "theme";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -38,6 +39,7 @@ const labelColorFor = (tone: ActionTone): string =>
 	tone === "danger" ? "error.main" : "text.primary";
 
 const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) => {
+	const { t } = useTranslation();
 	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 	const isOpen = Boolean(anchor);
 
@@ -59,7 +61,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) =>
 			<IconButton
 				size="medium"
 				onClick={openMenu}
-				aria-label="actions"
+				aria-label={t("common.actions")}
 				sx={
 					bordered
 						? {

@@ -346,6 +346,10 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 						rowsPerPage={rowsPerPage}
 						onRowsPerPageChange={handleRowsPerPageChange}
 						rowsPerPageOptions={rowsPerPageOptions}
+						labelRowsPerPage={t("common.table.rowsPerPage")}
+						labelDisplayedRows={({ from, to, count }) =>
+							t("common.table.displayedRows", { from, to, total: count })
+						}
 					/>
 				</Box>
 			)}
