@@ -2,9 +2,7 @@
 
 Running list of backend changes the frontend needs. Each item carries evidence from `docs/openapi.json` (the generated contract) and the user-visible symptom, so a backend session can act on it without the frontend context. **Frontend passes append here when they flag a gap; the backend session checks items off (and regenerates `openapi.json`).**
 
-> Round-1 backend findings (F-013 payroll tenancy, F-027 default partner type, F-029 payments `OrganizationId` scoping, and the backend halves of F-006/017/023) are tracked in `docs/testing/findings.md` — not duplicated here.
-
-Last verified against `openapi.json`: **2026-07-03** (Transactions module pass).
+Last verified against `openapi.json`: **2026-07-03** (Transactions module pass). The Round-1 backend items from `docs/testing/findings.md` (June 2026 manual sweep) are **absorbed below** (§ From Round 1) — findings.md stays as the historical test report; this doc is the live list.
 
 ---
 
@@ -43,6 +41,36 @@ Last verified against `openapi.json`: **2026-07-03** (Transactions module pass).
 - **Contract:** `OpeningStockLine` (~7029) = `productId` + `quantity` (**int32**) + `unitCost`; neither the line nor `AddOpeningStockRequest` carries a note.
 - **Symptom:** the opening-stock modal's note («Будет записано как событие начального остатка…» context) is silently dropped, and fractional quantities (e.g. 2.5 kg for weight-measured products) cannot be posted.
 - **Required:** add an optional `note` to `AddOpeningStockRequest`; widen `OpeningStockLine.quantity` to a decimal (matching how transaction lines measure quantity).
+
+---
+
+## From Round 1 (`docs/testing/findings.md`, June 2026 sweep — absorbed 2026-07-03)
+
+The frontend halves of all of these shipped in the frontend bug-fix pass; what remains is backend-only.
+
+### 6. F-006 (Blocker) — drop `RetailPrice` from the product contract + the `0 < supply < retail < sale` rule
+
+- **Contract (still open):** `RetailPrice` is still a field of the product create/update multipart requests (openapi ~2623/2998) and the served product DTOs (~6314).
+- **Symptom:** **product create is still blocked** — the form no longer sends `RetailPrice` (FE half shipped), so the backend's `0 < supply < retail < sale` validation rejects every create with 400.
+- **Required (owner decision):** remove `RetailPrice` from the API contract and drop the `retail` term from the price rule (keep the column in the DB/entity only, for later).
+
+### 7. F-013 + F-027 — default-partner seeding: don't auto-seed «Розничный покупатель», or seed it as **Both**
+
+- Two halves of one decision: stop auto-seeding the walk-in customer partner (the redesign has **no system walk-in partner** — partner is required on every sale), or if a default partner is kept, seed it as type **Both** (Supplier + Customer), not Customer-only.
+- Runtime/seeding behavior — not contract-visible; verify in the backend session.
+
+### 8. F-017 — invalid `OrderSource` should return **400, not 500**
+
+- FE half shipped (the «Нет»/`None` option was dropped; New Order defaults to `OmborWeb`), so the app no longer triggers it — but the API still 500s on an invalid enum value instead of a 400 validation error. Runtime behavior — not contract-visible.
+
+### 9. F-023 (High) — implement the password-reset endpoints
+
+- **Contract (still open):** `/api/auth/*` has only `register`, `verification`, `login`, `refresh-token`, `logout` — no reset endpoints.
+- **Required:** implement the target v1 contract the frontend already ships mocked (`POST /api/auth/forgot-password`, `/verify-reset-code`, `/reset-password` — see `src/mocks/handlers/auth.ts`). Until then, real users cannot reset a password (the flow works only against the mock's demo code).
+
+### 10. F-029 (High, suspected) — multi-tenant isolation: scope payments (and audit other resources) by `OrganizationId`
+
+- Rules.md #7 requires tenant scoping; the Round-1 sweep suspected payments aren't filtered/stamped by `OrganizationId`. Ran single-tenant, so unconfirmed — **needs a dedicated two-tenant test first**, then the fix and an audit of the other resources.
 
 ---
 
