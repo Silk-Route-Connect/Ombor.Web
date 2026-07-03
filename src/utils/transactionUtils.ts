@@ -1,10 +1,4 @@
-import {
-	PaymentStatus,
-	TransactionLine,
-	TransactionRecord,
-	TransactionStatus,
-	TransactionType,
-} from "models/transaction";
+import { TransactionLine, TransactionStatus, TransactionType } from "models/transaction";
 import { formatCurrency } from "utils/formatCurrency";
 
 /** A page direction: Sales (goods out, partner owes us) or Supplies (goods in, we owe). */
@@ -72,19 +66,11 @@ export const txDiscountTotal = (lines: TransactionLine[]): number =>
 export const txTotal = (lines: TransactionLine[]): number =>
 	lines.reduce((sum, l) => sum + lineNet(l), 0);
 
-/** Derive payment status from served totals (paid ⇒ remaining ≤ 0; partial ⇒ some paid). */
-export const payStatusOf = (totalDue: number, totalPaid: number): PaymentStatus => {
-	if (totalDue - totalPaid <= 0) {
-		return "paid";
-	}
-	return totalPaid > 0 ? "partial" : "unpaid";
-};
-
 /**
  * Derive the served `TransactionStatus` enum from totals (the value the backend
- * computes for `TransactionDto.Status`). Mirrors `payStatusOf` onto the canonical
- * enum the chips key off. `Overdue` is due-date-driven and cannot be derived from
- * totals alone, so it is served directly by the backend (never produced here).
+ * computes for `TransactionDto.Status`). `Overdue` is due-date-driven and cannot
+ * be derived from totals alone, so it is served directly by the backend (never
+ * produced here).
  */
 export const statusOf = (totalDue: number, totalPaid: number): TransactionStatus => {
 	if (totalDue - totalPaid <= 0) {
@@ -92,7 +78,3 @@ export const statusOf = (totalDue: number, totalPaid: number): TransactionStatus
 	}
 	return totalPaid > 0 ? "PartiallyPaid" : "Open";
 };
-
-/** Display label (e.g. «#1042» / «#1039-R1») for a transaction. */
-export const txNumber = (tx: Pick<TransactionRecord, "transactionNumber" | "id">): string =>
-	`#${tx.transactionNumber ?? tx.id}`;

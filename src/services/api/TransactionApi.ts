@@ -10,7 +10,6 @@ import {
 	TransactionStatus,
 	TransactionType,
 } from "models/transaction";
-import { payStatusOf } from "utils/transactionUtils";
 
 import BaseApi from "./BaseApi";
 import http from "./http";
@@ -23,7 +22,7 @@ const isRefundRequest = (r: CreateTransactionRequest): r is CreateTransactionRef
  * Raw transaction as the backend serves it — the list `TransactionDto` (lean) and
  * the detail `TransactionDetailDto` (rich) are a structural superset. Mapped to the
  * frontend `TransactionRecord`: `number`→`transactionNumber`, `date` string→Date,
- * derived `time` + `paymentStatus`, `remaining` defaulted from the totals.
+ * derived `time`, `remaining` defaulted from the totals.
  */
 type RawTransaction = {
 	id: number;
@@ -67,7 +66,6 @@ const toRecord = (raw: RawTransaction): TransactionRecord => ({
 	time: timeOf(raw.date),
 	warehouseName: raw.warehouseName ?? undefined,
 	createdBy: raw.createdBy ?? undefined,
-	paymentStatus: payStatusOf(raw.totalDue, raw.totalPaid),
 	remaining: raw.remaining ?? Math.max(0, raw.totalDue - raw.totalPaid),
 	originalTransactionId: raw.originalTransactionId ?? undefined,
 	refundReason: raw.refundReason ?? undefined,
@@ -114,7 +112,9 @@ class TransactionApi extends BaseApi {
 	 * entry (from the POS) or a refund (type SaleRefund/SupplyRefund) — the server
 	 * branches on `type`. Sent as multipart/form-data with **flat, indexed form
 	 * fields** (the ASP.NET model-binder shape: `Lines[0].ProductId`, …), plus the
-	 * `Attachments` file parts. Returns the created transaction.
+	 * `Attachments` file parts. Returns the created transaction mapped through
+	 * {@link toRecord} — the store prepends it into the live feed, so it must
+	 * carry a real `Date` (the wire `date` is an ISO string) and the derived fields.
 	 */
 	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
 		const form = new FormData();
@@ -154,9 +154,9 @@ class TransactionApi extends BaseApi {
 			request.attachments?.forEach((file) => form.append("Attachments", file, file.name));
 		}
 
-		const response = await http.post<TransactionRecord>(this.getUrl(), form, this.formHeaders);
+		const response = await http.post<RawTransaction>(this.getUrl(), form, this.formHeaders);
 
-		return response.data;
+		return toRecord(response.data);
 	}
 }
 

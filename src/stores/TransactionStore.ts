@@ -6,8 +6,8 @@ import { makeAutoObservable, runInAction } from "mobx";
 import {
 	CreateRefundRequest,
 	CreateTransactionEntryRequest,
-	PaymentStatus,
 	TransactionRecord,
+	TransactionStatus,
 } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
 import { matchesSearch } from "utils/stringUtils";
@@ -15,7 +15,7 @@ import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/trans
 
 import { NotificationStore } from "./NotificationStore";
 
-export type StatusFilter = "all" | PaymentStatus;
+export type StatusFilter = "all" | TransactionStatus;
 export type DateRangeFilter = "all" | "7" | "30" | "90";
 
 export type TransactionDialogMode =
@@ -92,7 +92,7 @@ export class TransactionStore implements ITransactionStore {
 
 		// Refunds carry no payment status — a status filter hides them (design parity).
 		if (this.statusFilter !== "all") {
-			list = list.filter((tx) => !isRefundType(tx.type) && tx.paymentStatus === this.statusFilter);
+			list = list.filter((tx) => !isRefundType(tx.type) && tx.status === this.statusFilter);
 		}
 
 		const term = this.searchTerm.trim();

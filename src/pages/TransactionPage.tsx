@@ -46,8 +46,8 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 		exportToCsv<TransactionRecord>(
 			`${mode === "Sale" ? "sales" : "supplies"}_${csvDateStamp()}`,
 			[
-				{ header: t("transaction.col.date"), value: (tx) => formatDate(tx.date) },
 				{ header: t("transaction.col.number"), value: (tx) => tx.transactionNumber ?? tx.id },
+				{ header: t("transaction.col.date"), value: (tx) => formatDate(tx.date) },
 				{
 					header: t("transaction.col.type"),
 					value: (tx) =>
@@ -63,10 +63,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 				},
 				{
 					header: t("transaction.col.status"),
-					value: (tx) =>
-						isRefundType(tx.type) || !tx.paymentStatus
-							? ""
-							: t(`transaction.statusFilter.${tx.paymentStatus}`),
+					value: (tx) => (isRefundType(tx.type) ? "" : t(`transaction.statusShort.${tx.status}`)),
 				},
 			],
 			rows,

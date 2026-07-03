@@ -99,7 +99,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 			rows={rows}
 			columns={columns}
 			pagination
-			rowsPerPageOptions={[25, 50, 100]}
+			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
 		/>
 	);

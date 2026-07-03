@@ -70,9 +70,10 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 					onChange={onStatusChange}
 					options={[
 						{ value: "all", label: t("transaction.statusFilter.all") },
-						{ value: "paid", label: t("transaction.statusFilter.paid") },
-						{ value: "partial", label: t("transaction.statusFilter.partial") },
-						{ value: "unpaid", label: t("transaction.statusFilter.unpaid") },
+						{ value: "Open", label: t("transaction.statusShort.Open") },
+						{ value: "PartiallyPaid", label: t("transaction.statusShort.PartiallyPaid") },
+						{ value: "Overdue", label: t("transaction.statusShort.Overdue") },
+						{ value: "Closed", label: t("transaction.statusShort.Closed") },
 					]}
 				/>
 				<Box sx={{ flexGrow: 1 }} />

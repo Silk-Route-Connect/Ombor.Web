@@ -7,7 +7,7 @@ import {
 	TransactionType,
 } from "../../models/transaction";
 import { WalletType } from "../../models/wallet";
-import { lineNet, payStatusOf, statusOf, txTotal } from "../../utils/transactionUtils";
+import { lineNet, statusOf, txTotal } from "../../utils/transactionUtils";
 
 /**
  * In-memory seed + mutation for the Transactions mock (Sales + Supplies + their
@@ -408,7 +408,6 @@ function buildTxn(seed: SeedTxn, type: TransactionType): TransactionRecord {
 		totalDue,
 		totalPaid,
 		remaining: Math.max(totalDue - totalPaid, 0),
-		paymentStatus: payStatusOf(totalDue, totalPaid),
 		status: statusOf(totalDue, totalPaid),
 		payments,
 		attachments: toAttachments(seed.attachments),
@@ -556,7 +555,6 @@ export function addTransactionEntry(write: TransactionEntryWrite): TransactionRe
 		totalDue,
 		totalPaid,
 		remaining: Math.max(totalDue - totalPaid, 0),
-		paymentStatus: payStatusOf(totalDue, totalPaid),
 		status: statusOf(totalDue, totalPaid),
 		payments: [],
 		attachments: write.attachments ?? [],

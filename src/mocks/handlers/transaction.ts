@@ -41,7 +41,7 @@ export const transactionHandlers = [
 	// CONTRACT: GET /api/transactions
 	// query: none — full collection (Sales + Supplies + refunds), newest-first;
 	//   client filters by direction + search/status/date. Each record carries
-	//   computed totalDue/totalPaid/remaining, paymentStatus, lines (with discount
+	//   computed totalDue/totalPaid/remaining, status, lines (with discount
 	//   type), payments, createdBy, warehouse, and refund linkage.
 	// response 200: TransactionDto[]
 	// errors: 401

@@ -5,9 +5,6 @@ export type TransactionType = "Sale" | "Supply" | "SaleRefund" | "SupplyRefund";
 
 export type TransactionStatus = "Open" | "Closed" | "PartiallyPaid" | "Overdue";
 
-/** Derived payment state shown on the redesign list/detail (rule: computed from total vs paid). */
-export type PaymentStatus = "paid" | "partial" | "unpaid";
-
 /**
  * A line discount is either a percentage or a fixed amount (business-rules §E, rules 37–38).
  * Wire values are the canonical backend enum names `DiscountType { Percentage, Fixed }`.
@@ -65,8 +62,6 @@ export type TransactionRecord = {
 	time?: string;
 	warehouseName?: string;
 	createdBy?: string;
-	/** Backend-derived payment status (paid/partial/unpaid). */
-	paymentStatus?: PaymentStatus;
 	/** Outstanding amount (totalDue − totalPaid). */
 	remaining?: number;
 	/** For refunds: the original transaction this reverses. */

@@ -90,12 +90,9 @@
   "transaction.list.exportCsv": "Экспорт CSV",
   "transaction.list.search.Sale": "Поиск по номеру или партнёру…",
   "transaction.list.search.Supply": "Поиск по номеру или поставщику…",
-  "transaction.list.refundOf": "Возврат к #{{number}}",
+  "transaction.list.refundOf": "Возврат к №{{number}}",
 
   "transaction.statusFilter.all": "Все",
-  "transaction.statusFilter.paid": "Оплачено",
-  "transaction.statusFilter.partial": "Частично",
-  "transaction.statusFilter.unpaid": "Не оплачено",
 
   "transaction.range.all": "Весь период",
   "transaction.range.7": "Последние 7 дней",
@@ -123,7 +120,6 @@
   "transaction.empty.searchBody.Sale": "По заданным условиям продаж и возвратов нет. Измените поиск, статус оплаты или период.",
   "transaction.empty.searchBody.Supply": "По заданным условиям поставок и возвратов нет. Измените поиск, статус оплаты или период.",
 
-  "transaction.detail.back": "Назад",
   "transaction.detail.notFound": "Транзакция не найдена",
   "transaction.detail.download": "Скачать",
   "transaction.detail.createRefund": "Создать возврат",
