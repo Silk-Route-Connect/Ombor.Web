@@ -1,9 +1,9 @@
 import React from "react";
-import OrderNumberCell from "components/order/List/OrderNumberCell";
 import OrderDeliveryCell from "components/order/OrderDeliveryCell";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import CopyableNumberCell from "components/shared/Table/CopyableNumberCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { Order } from "models/order";
@@ -28,7 +28,7 @@ export function buildOrderColumns(t: TFunction): Column<Order>[] {
 			key: "number",
 			headerName: t("order.col.number"),
 			sortValue: (o) => o.orderNumber,
-			renderCell: (o) => <OrderNumberCell orderNumber={o.orderNumber} />,
+			renderCell: (o) => <CopyableNumberCell value={o.orderNumber} />,
 		},
 		{
 			key: "date",

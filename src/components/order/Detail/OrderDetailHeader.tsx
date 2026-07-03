@@ -6,6 +6,7 @@ import OrderStatusChip from "components/order/OrderStatusChip";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import MetaDot from "components/shared/Detail/MetaDot";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Order } from "models/order";
 import { PATHS, saleDetailPath } from "routing/paths";
@@ -182,10 +183,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 			meta={
 				<>
 					{t("order.detail.createdOn", { date: formatDate(order.date) })}
-					<Box
-						component="span"
-						sx={{ width: 3, height: 3, borderRadius: "50%", bgcolor: designTokens.gray300 }}
-					/>
+					<MetaDot />
 					<Box component="span" sx={{ fontWeight: 600 }}>
 						<PartnerLink id={order.customerId} name={order.customerName} />
 					</Box>
