@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
-import {
-	tableBodyCellSx as bodyCellSx,
-	tableHeadCellSx as headCellSx,
-	tableRowSx,
-} from "components/shared/Table/tableStyles";
+import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { WalletActionMenu } from "components/wallet/Table/WalletActionMenu";
-import { WalletTypeAvatar, WalletTypeBadge } from "components/wallet/WalletPresentation";
+import {
+	WALLET_TYPE_META,
+	WalletTypeAvatar,
+	WalletTypeBadge,
+} from "components/wallet/WalletPresentation";
 import { Loadable } from "helpers/Loading";
 import { Wallet } from "models/wallet";
 import { designTokens, numericSx } from "theme";
@@ -93,10 +93,11 @@ const EmptyState: React.FC<{
 };
 
 /**
- * Wallet list per the bundle: name · type badge · balance · advances held · "our
- * money", each row opening the full-page detail. Totals live in the summary
- * strip above (rule 31), so there is no totals row; the static pager the
- * prototype drew is omitted (locked pattern 12).
+ * Wallet list on the shared DataTable (warm band, sortable columns, 10/25/50
+ * pager, name-asc default): name · type badge · balance · advances held · «our
+ * money», each row opening the full-page detail; row actions in the shared ⋮
+ * menu. Totals live in the summary strip above (rule 31), so there is no totals
+ * row.
  */
 export const WalletsTable: React.FC<WalletsTableProps> = ({
 	rows,
@@ -112,6 +113,88 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 }) => {
 	const { t } = useTranslation();
 
+	const columns = useMemo<Column<Wallet>[]>(
+		() => [
+			{
+				key: "name",
+				headerName: t("wallet.table.name"),
+				sortValue: (w) => w.name,
+				renderCell: (w) => (
+					<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+						<WalletTypeAvatar type={w.type} archived={w.isArchived} />
+						<Typography
+							component="span"
+							sx={{ fontWeight: 600, color: w.isArchived ? "text.secondary" : "text.primary" }}
+						>
+							{w.name}
+						</Typography>
+						{w.isArchived && <ArchivedBadge />}
+					</Box>
+				),
+			},
+			{
+				key: "type",
+				headerName: t("wallet.table.type"),
+				sortValue: (w) => t(WALLET_TYPE_META[w.type].labelKey),
+				renderCell: (w) => <WalletTypeBadge type={w.type} />,
+			},
+			{
+				key: "balance",
+				headerName: t("wallet.table.balance"),
+				align: "right",
+				sortValue: (w) => w.balance,
+				renderCell: (w) => (
+					<Box component="span" sx={moneySx}>
+						{formatCurrency(w.balance)}
+					</Box>
+				),
+			},
+			{
+				key: "advances",
+				headerName: t("wallet.table.advances"),
+				align: "right",
+				sortValue: (w) => w.advancesHeld,
+				renderCell: (w) =>
+					w.advancesHeld > 0 ? (
+						<Box component="span" sx={{ ...moneySx, color: designTokens.saffron700 }}>
+							{formatCurrency(w.advancesHeld)}
+						</Box>
+					) : (
+						<Box component="span" sx={{ color: designTokens.gray400, fontWeight: 600 }}>
+							—
+						</Box>
+					),
+			},
+			{
+				key: "ourMoney",
+				headerName: t("wallet.table.ourMoney"),
+				align: "right",
+				sortValue: (w) => w.ourMoney,
+				renderCell: (w) => (
+					<Box component="span" sx={{ ...moneySx, color: "success.main" }}>
+						{formatCurrency(w.ourMoney)}
+						<UzsSuffix />
+					</Box>
+				),
+			},
+			{
+				key: "actions",
+				headerName: "",
+				align: "right",
+				width: 56,
+				renderCell: (w) => (
+					<WalletActionMenu
+						wallet={w}
+						onEdit={() => onEdit(w)}
+						onArchive={() => onArchive(w)}
+						onRestore={() => onRestore(w)}
+					/>
+				),
+			},
+		],
+		[t, onEdit, onArchive, onRestore],
+	);
+
 	if (rows === "loading") {
 		return (
 			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
@@ -120,112 +203,32 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 		);
 	}
 
-	const emptyVariant = isFiltering
-		? "filtering"
-		: !hasAny
-			? "empty"
-			: !hasActive && !showArchived
-				? "allArchived"
-				: "filtering";
+	if (rows.length === 0) {
+		const variant = isFiltering
+			? "filtering"
+			: !hasAny
+				? "empty"
+				: !hasActive && !showArchived
+					? "allArchived"
+					: "filtering";
+		return (
+			<Paper
+				elevation={1}
+				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+			>
+				<EmptyState variant={variant} onCreate={onCreate} />
+			</Paper>
+		);
+	}
 
 	return (
-		<Paper
-			elevation={1}
-			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-		>
-			{rows.length === 0 ? (
-				<EmptyState variant={emptyVariant} onCreate={onCreate} />
-			) : (
-				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-					<thead>
-						<tr>
-							<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
-								{t("wallet.table.name")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("wallet.table.type")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("wallet.table.balance")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("wallet.table.advances")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right", pr: "8px" }}>
-								{t("wallet.table.ourMoney")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, width: 56 }} />
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((wallet) => {
-							const archived = wallet.isArchived;
-							return (
-								<Box component="tr" key={wallet.id} onClick={() => onOpen(wallet)} sx={tableRowSx}>
-									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
-										<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
-											<WalletTypeAvatar type={wallet.type} archived={archived} />
-											<Typography
-												component="span"
-												sx={{
-													fontWeight: 600,
-													color: archived ? "text.secondary" : "text.primary",
-												}}
-											>
-												{wallet.name}
-											</Typography>
-											{archived && <ArchivedBadge />}
-										</Box>
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										<WalletTypeBadge type={wallet.type} />
-									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, textAlign: "right", ...moneySx }}>
-										{formatCurrency(wallet.balance)}
-									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, textAlign: "right" }}>
-										{wallet.advancesHeld > 0 ? (
-											<Box component="span" sx={{ ...moneySx, color: designTokens.saffron700 }}>
-												{formatCurrency(wallet.advancesHeld)}
-											</Box>
-										) : (
-											<Box component="span" sx={{ color: designTokens.gray400, fontWeight: 600 }}>
-												—
-											</Box>
-										)}
-									</Box>
-									<Box
-										component="td"
-										sx={{
-											...bodyCellSx,
-											textAlign: "right",
-											pr: "8px",
-											...moneySx,
-											color: "success.main",
-										}}
-									>
-										{formatCurrency(wallet.ourMoney)}
-										<UzsSuffix />
-									</Box>
-									<Box
-										component="td"
-										sx={{ ...bodyCellSx, textAlign: "right" }}
-										onClick={(e) => e.stopPropagation()}
-									>
-										<WalletActionMenu
-											wallet={wallet}
-											onEdit={() => onEdit(wallet)}
-											onArchive={() => onArchive(wallet)}
-											onRestore={() => onRestore(wallet)}
-										/>
-									</Box>
-								</Box>
-							);
-						})}
-					</tbody>
-				</Box>
-			)}
-		</Paper>
+		<DataTable<Wallet>
+			rows={rows}
+			columns={columns}
+			pagination
+			defaultSort={{ key: "name", order: "asc" }}
+			onRowClick={onOpen}
+		/>
 	);
 };
 

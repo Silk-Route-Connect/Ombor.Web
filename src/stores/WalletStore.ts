@@ -86,11 +86,10 @@ export class WalletStore implements IWalletStore {
 			return "loading";
 		}
 
-		let wallets = this.allWallets;
-
-		if (!this.showArchived) {
-			wallets = wallets.filter((w) => !w.isArchived);
-		}
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only, not active + archived) — matches
+		// Partners/Warehouses (D1).
+		let wallets = this.allWallets.filter((w) => (this.showArchived ? w.isArchived : !w.isArchived));
 
 		if (this.searchTerm.trim()) {
 			wallets = wallets.filter((w) => matchesSearch(w.name, this.searchTerm));

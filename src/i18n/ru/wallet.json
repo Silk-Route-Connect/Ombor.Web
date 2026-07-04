@@ -18,8 +18,8 @@
   "wallet.create": "Новая касса",
   "wallet.searchPlaceholder": "Поиск по названию…",
 
+  "wallet.filter.active": "Активные",
   "wallet.filter.archive": "Архив",
-  "wallet.filter.archiveTooltip": "Показать неактивные кассы",
 
   "wallet.summary.balance": "Общий баланс",
   "wallet.summary.ourMoney": "Наши средства",
