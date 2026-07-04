@@ -32,6 +32,9 @@ const RAIL_WIDTH = 72; // collapsed icon rail
 const NAV_ICON = 22; // nav + footer icon size (expanded and rail)
 const NAV_CHEVRON = 18; // parent expand/collapse chevron
 
+// Dense POS create-pages open with the rail collapsed for room (design autoCollapse).
+const POS_ROUTES = new Set<string>([PATHS.newSale, PATHS.newSupply, PATHS.newOrder]);
+
 /* Collapse state persists across sessions (design: `ombor.sidebar.expanded`). */
 const SB_KEY = "ombor.sidebar.expanded";
 const readExpanded = (): boolean => {
@@ -347,7 +350,10 @@ const Sidebar: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 
-	const [expanded, setExpandedState] = useState(readExpanded);
+	// Start collapsed if we land directly on a POS page (avoids an expand→collapse flash).
+	const [expanded, setExpandedState] = useState(() =>
+		POS_ROUTES.has(pathname) ? false : readExpanded(),
+	);
 	const setExpanded = (value: boolean) => {
 		setExpandedState(value);
 		try {
@@ -370,6 +376,13 @@ const Sidebar: React.FC = observer(() => {
 				prev[owner.labelKey] ? prev : { ...prev, [owner.labelKey]: true },
 			);
 		}
+	}, [pathname]);
+
+	// Collapse to the rail on the dense POS pages; elsewhere reflect the saved
+	// preference. The auto-collapse is NOT persisted, so a manual toggle wins and
+	// the user's stored choice is restored the moment they leave a POS page.
+	useEffect(() => {
+		setExpandedState(POS_ROUTES.has(pathname) ? false : readExpanded());
 	}, [pathname]);
 
 	const toggleGroup = (labelKey: string) =>
