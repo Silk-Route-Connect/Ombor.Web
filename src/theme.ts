@@ -64,6 +64,10 @@ export const designTokens = {
 	saffron600: "#B5710F", // --saffron-600, archive action icon
 	saffron700: "#8F5A0C", // --saffron-700, archive action text / supply chip text
 	accentSoft: "#FBF0DC", // --accent-soft (= --saffron-50), supply chip fill
+	// Logo keystone — the DS accent verbatim (--amber-400 / --accent). The
+	// monogram's saffron «замковый камень». Distinct from the stale UI
+	// SAFFRON_500 (#D88A1E) kept for chips; the brand mark uses the DS accent.
+	logoKeystone: "#B8860B", // --amber-400 / --accent (DS) — brand mark only
 	// primary tints
 	primaryLine: "#C3DEDE", // --primary-line, hairline on tinted surfaces
 	primarySoft: "#E1EEEE", // --primary-soft, selected row / active nav / sale chip fill

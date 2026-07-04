@@ -1,31 +1,17 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import OmborMark from "components/shared/brand/OmborMark";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
-import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Typography } from "@mui/material";
 
-/** The Ombor wordmark lockup — a teal-on-white chip + name, reused by the mobile header. */
+/** The Ombor wordmark lockup — the brand monogram + name; reused by the mobile header. */
 export const BrandLockup: React.FC<{ dark?: boolean }> = ({ dark }) => (
 	<Box sx={{ display: "flex", alignItems: "center", gap: "11px" }}>
-		<Box
-			sx={{
-				width: 38,
-				height: 38,
-				borderRadius: "10px",
-				flex: "0 0 auto",
-				display: "grid",
-				placeItems: "center",
-				bgcolor: "background.paper",
-				color: "primary.main",
-				boxShadow: "0 2px 8px rgba(0,0,0,.18)",
-			}}
-		>
-			<WarehouseOutlinedIcon sx={{ fontSize: 21 }} />
-		</Box>
+		<OmborMark size={38} variant={dark ? "tile" : "reversed"} />
 		<Typography
 			sx={{
 				fontSize: 21,
