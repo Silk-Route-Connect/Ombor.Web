@@ -331,6 +331,21 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 				},
 			},
 			{
+				key: "age",
+				headerName: t("debt.txTable.age"),
+				sortValue: (d) => d.ageDays,
+				renderCell: (d) => (
+					<Box
+						sx={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-start" }}
+					>
+						<Box component="span" sx={{ ...numericSx, fontSize: 13.5, color: "text.secondary" }}>
+							{t("debt.ageDays", { days: d.ageDays })}
+						</Box>
+						{d.overdueDays > 0 && <OverdueChip days={d.overdueDays} />}
+					</Box>
+				),
+			},
+			{
 				key: "type",
 				headerName: t("debt.txTable.type"),
 				// Key off the actual type (incl. refunds) so the sort order matches the
@@ -378,38 +393,11 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 				headerName: t("debt.txTable.paid"),
 				align: "right",
 				sortValue: (d) => d.paid,
-				renderCell: (d) => {
-					const pct = d.total > 0 ? Math.round((d.paid / d.total) * 100) : 0;
-					return (
-						<Box
-							sx={{
-								display: "flex",
-								flexDirection: "column",
-								gap: "5px",
-								alignItems: "flex-end",
-								minWidth: 116,
-								ml: "auto",
-							}}
-						>
-							<Box component="span" sx={{ ...numericSx, fontSize: 13.5, color: "text.secondary" }}>
-								{formatCurrency(d.paid)}
-							</Box>
-							<Box
-								sx={{
-									width: "100%",
-									height: 5,
-									borderRadius: "999px",
-									bgcolor: designTokens.gray300,
-									overflow: "hidden",
-								}}
-							>
-								<Box
-									sx={{ height: "100%", width: `${Math.max(pct, 0)}%`, bgcolor: "primary.main" }}
-								/>
-							</Box>
-						</Box>
-					);
-				},
+				renderCell: (d) => (
+					<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
+						{formatCurrency(d.paid)}
+					</Box>
+				),
 			},
 			{
 				key: "remaining",
@@ -427,22 +415,6 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 						}}
 					>
 						{formatCurrency(d.remaining)}
-					</Box>
-				),
-			},
-			{
-				key: "age",
-				headerName: t("debt.txTable.age"),
-				align: "right",
-				sortValue: (d) => d.ageDays,
-				renderCell: (d) => (
-					<Box
-						sx={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-end" }}
-					>
-						<Box component="span" sx={{ ...numericSx, fontSize: 13.5, color: "text.secondary" }}>
-							{t("debt.ageDays", { days: d.ageDays })}
-						</Box>
-						{d.overdueDays > 0 && <OverdueChip days={d.overdueDays} />}
 					</Box>
 				),
 			},
