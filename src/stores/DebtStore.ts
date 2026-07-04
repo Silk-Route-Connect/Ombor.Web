@@ -10,7 +10,8 @@ import { NotificationStore } from "./NotificationStore";
 export type DebtTab = "partners" | "transactions";
 export type DebtDirectionFilter = DebtDirection | "all";
 export type DebtAgeBucket = "all" | "0-7" | "8-30" | "31-60" | "60+";
-export type DebtSort = "remaining" | "age" | "date";
+/** Initial-sort seed for the transactions table (column headers own ad-hoc sorting). */
+export type DebtTxPresetSort = "remaining" | "age";
 
 /** Top-of-page summary — totals over ALL debts (not the filtered view). */
 export type DebtSummary = {
@@ -27,6 +28,8 @@ export type DebtSummary = {
 
 /** A by-partner aggregate row. */
 export type DebtPartnerGroup = {
+	/** Row id for the shared DataTable — the partner id (one group per partner). */
+	id: number;
 	partnerId: number;
 	partnerName: string;
 	partnerCompany: string | null;
@@ -58,7 +61,10 @@ export interface IDebtStore {
 	searchTerm: string;
 	ageBucket: DebtAgeBucket;
 	directionFilter: DebtDirectionFilter;
-	sort: DebtSort;
+	/** Seeds the transactions table's initial sort (set by the card presets). */
+	txPresetSort: DebtTxPresetSort;
+	/** Bumped on every card click so the table re-seeds even for the same preset. */
+	txPresetNonce: number;
 	onlyOverdue: boolean;
 
 	getAll(): Promise<void>;
@@ -66,7 +72,6 @@ export interface IDebtStore {
 	setSearch(term: string): void;
 	setAgeBucket(bucket: DebtAgeBucket): void;
 	setDirectionFilter(dir: DebtDirectionFilter): void;
-	setSort(sort: DebtSort): void;
 	setOnlyOverdue(value: boolean): void;
 	clearFilters(): void;
 	/** A summary-card click jumps to the transactions tab with a preset filter. */
@@ -81,7 +86,8 @@ export class DebtStore implements IDebtStore {
 	searchTerm = "";
 	ageBucket: DebtAgeBucket = "all";
 	directionFilter: DebtDirectionFilter = "all";
-	sort: DebtSort = "remaining";
+	txPresetSort: DebtTxPresetSort = "remaining";
+	txPresetNonce = 0;
 	onlyOverdue = false;
 
 	constructor(notificationStore: NotificationStore) {
@@ -176,6 +182,7 @@ export class DebtStore implements IDebtStore {
 					first,
 				);
 				return {
+					id: first.partnerId,
 					partnerId: first.partnerId,
 					partnerName: first.partnerName,
 					partnerCompany: first.partnerCompany,
@@ -190,20 +197,12 @@ export class DebtStore implements IDebtStore {
 			.sort((a, b) => Math.abs(b.sum) - Math.abs(a.sum));
 	}
 
-	/** By-transaction rows: direction filter + sort over the shared filter. */
+	/** By-transaction rows: the direction filter over the shared filter — the
+	 *  shared DataTable owns the ordering (columns sort; presets seed it). */
 	get transactionRows(): Debt[] {
-		const rows = this.baseFiltered.filter((d) =>
+		return this.baseFiltered.filter((d) =>
 			this.directionFilter === "all" ? true : d.direction === this.directionFilter,
 		);
-		return [...rows].sort((a, b) => {
-			if (this.sort === "remaining") {
-				return b.remaining - a.remaining;
-			}
-			if (this.sort === "age") {
-				return b.ageDays - a.ageDays;
-			}
-			return Date.parse(b.date) - Date.parse(a.date);
-		});
 	}
 
 	setTab(tab: DebtTab): void {
@@ -218,9 +217,6 @@ export class DebtStore implements IDebtStore {
 	setDirectionFilter(dir: DebtDirectionFilter): void {
 		this.directionFilter = dir;
 	}
-	setSort(sort: DebtSort): void {
-		this.sort = sort;
-	}
 	setOnlyOverdue(value: boolean): void {
 		this.onlyOverdue = value;
 	}
@@ -234,16 +230,19 @@ export class DebtStore implements IDebtStore {
 
 	applyCard(card: "receivable" | "payable" | "overdue"): void {
 		this.tab = "transactions";
+		this.txPresetNonce += 1;
 		if (card === "receivable") {
 			this.directionFilter = "Receivable";
 			this.onlyOverdue = false;
+			this.txPresetSort = "remaining";
 		} else if (card === "payable") {
 			this.directionFilter = "Payable";
 			this.onlyOverdue = false;
+			this.txPresetSort = "remaining";
 		} else {
 			this.directionFilter = "all";
 			this.onlyOverdue = true;
-			this.sort = "age";
+			this.txPresetSort = "age";
 		}
 	}
 }

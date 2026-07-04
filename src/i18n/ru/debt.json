@@ -2,7 +2,6 @@
   "debt.error.getAll": "Не удалось загрузить задолженности",
 
   "debt.title": "Долги",
-  "debt.subtitle": "Открытые задолженности по всем партнёрам и транзакциям",
   "debt.exportCsv": "Скачать CSV",
 
   "debt.summary.receivable": "Нам должны",
@@ -29,11 +28,6 @@
   "debt.age.31-60": "31–60 дней",
   "debt.age.60+": "60+ дней",
 
-  "debt.sort.prefix": "Сортировка",
-  "debt.sort.remaining": "Остаток",
-  "debt.sort.age": "Возраст",
-  "debt.sort.date": "Дата",
-
   "debt.onlyOverdue": "Только просроченные",
   "debt.inTerm": "в сроке",
 
@@ -43,9 +37,6 @@
   "debt.partnerTable.oldest": "Старейший долг",
   "debt.partnerTable.amount": "Сумма долга",
   "debt.partnerTable.overdueCount": "{{count}} просрочено",
-
-  "debt.partnerType.customer": "Клиент",
-  "debt.partnerType.supplier": "Поставщик",
 
   "debt.txTable.document": "Документ",
   "debt.txTable.date": "Дата",
@@ -57,16 +48,11 @@
   "debt.txTable.age": "Возраст",
   "debt.txTable.ageCsv": "Возраст (дней)",
 
-  "debt.txType.sale": "Продажа",
-  "debt.txType.supply": "Поставка",
-
   "debt.ageDays": "{{days}} дн",
   "debt.overdueChip": "просрочка {{days}} дн",
 
   "debt.empty.title": "Нет открытых задолженностей",
   "debt.empty.body": "Все расчёты закрыты — дебиторской и кредиторской задолженности нет.",
   "debt.empty.filteredTitle": "Ничего не найдено",
-  "debt.empty.filteredBody": "Под выбранные фильтры не попала ни одна транзакция. Измените условия поиска.",
-
-  "debt.openTransaction": "Открытие: {{type}} #{{number}}"
+  "debt.empty.filteredBody": "Под выбранные фильтры не попала ни одна транзакция. Измените условия поиска."
 }

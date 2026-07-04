@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
-import { DebtAgeBucket, DebtDirectionFilter, DebtSort, DebtTab } from "stores/DebtStore";
+import { DebtAgeBucket, DebtDirectionFilter, DebtTab } from "stores/DebtStore";
 import { designTokens } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -10,7 +10,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
-import SwapVertIcon from "@mui/icons-material/SwapVert";
 import { Box, ButtonBase, ListItemText, Menu, MenuItem } from "@mui/material";
 
 interface DebtFiltersProps {
@@ -18,12 +17,10 @@ interface DebtFiltersProps {
 	searchTerm: string;
 	ageBucket: DebtAgeBucket;
 	directionFilter: DebtDirectionFilter;
-	sort: DebtSort;
 	onlyOverdue: boolean;
 	onSearch: (v: string) => void;
 	onAgeChange: (v: DebtAgeBucket) => void;
 	onDirectionChange: (v: DebtDirectionFilter) => void;
-	onSortChange: (v: DebtSort) => void;
 	onClearOverdue: () => void;
 }
 
@@ -98,20 +95,19 @@ function Dropdown<T extends string>({
 
 /**
  * Shared debt filter toolbar. Search is leftmost (established pattern); the
- * direction segmented + sort dropdown appear only on the transactions tab. The
- * prototype's date-range picker is omitted (locked pattern 12).
+ * direction segmented appears only on the transactions tab (column headers own
+ * the sorting there). The prototype's date-range picker is omitted (locked
+ * pattern 12).
  */
 export const DebtFilters: React.FC<DebtFiltersProps> = ({
 	tab,
 	searchTerm,
 	ageBucket,
 	directionFilter,
-	sort,
 	onlyOverdue,
 	onSearch,
 	onAgeChange,
 	onDirectionChange,
-	onSortChange,
 	onClearOverdue,
 }) => {
 	const { t } = useTranslation();
@@ -122,11 +118,6 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 		{ value: "8-30", label: t("debt.age.8-30") },
 		{ value: "31-60", label: t("debt.age.31-60") },
 		{ value: "60+", label: t("debt.age.60+") },
-	];
-	const sortOptions: { value: DebtSort; label: string }[] = [
-		{ value: "remaining", label: t("debt.sort.remaining") },
-		{ value: "age", label: t("debt.sort.age") },
-		{ value: "date", label: t("debt.sort.date") },
 	];
 
 	return (
@@ -180,19 +171,6 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 					{t("debt.onlyOverdue")}
 					<CloseIcon sx={{ fontSize: 14 }} />
 				</ButtonBase>
-			)}
-
-			{tab === "transactions" && (
-				<>
-					<Box sx={{ flexGrow: 1 }} />
-					<Dropdown
-						icon={<SwapVertIcon sx={{ fontSize: 15 }} />}
-						prefix={t("debt.sort.prefix")}
-						value={sort}
-						options={sortOptions}
-						onChange={onSortChange}
-					/>
-				</>
 			)}
 		</Box>
 	);

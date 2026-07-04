@@ -13,6 +13,7 @@ import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box, CircularProgress } from "@mui/material";
@@ -37,11 +38,15 @@ const DebtPage: React.FC = observer(() => {
 	const handleExport = (): void => {
 		const rows = debtStore.transactionRows;
 		const columns: CsvColumn<Debt>[] = [
-			{ header: t("debt.txTable.document"), value: (d) => `#${d.number}` },
+			{
+				header: t("debt.txTable.document"),
+				value: (d) => formatEntityId(d.number ?? d.transactionId),
+			},
 			{ header: t("debt.txTable.date"), value: (d) => formatDate(d.date) },
 			{
 				header: t("debt.txTable.type"),
-				value: (d) => t(d.direction === "Receivable" ? "debt.txType.sale" : "debt.txType.supply"),
+				value: (d) =>
+					t(`transaction.badge.base.${d.direction === "Receivable" ? "Sale" : "Supply"}`),
 			},
 			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
 			{ header: t("debt.txTable.total"), value: (d) => d.total },
@@ -64,7 +69,6 @@ const DebtPage: React.FC = observer(() => {
 		<Box>
 			<PageHeader
 				title={t("debt.title")}
-				subtitle={t("debt.subtitle")}
 				actions={
 					<GhostButton
 						icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
@@ -95,12 +99,10 @@ const DebtPage: React.FC = observer(() => {
 						searchTerm={debtStore.searchTerm}
 						ageBucket={debtStore.ageBucket}
 						directionFilter={debtStore.directionFilter}
-						sort={debtStore.sort}
 						onlyOverdue={debtStore.onlyOverdue}
 						onSearch={debtStore.setSearch}
 						onAgeChange={debtStore.setAgeBucket}
 						onDirectionChange={debtStore.setDirectionFilter}
-						onSortChange={debtStore.setSort}
 						onClearOverdue={() => debtStore.setOnlyOverdue(false)}
 					/>
 
@@ -111,9 +113,15 @@ const DebtPage: React.FC = observer(() => {
 							onOpen={(g) => navigate(partnerDebtPath(g.partnerId))}
 						/>
 					) : (
+						// Keyed by the preset nonce so any summary-card click re-seeds the
+						// table's sort — even re-clicking the same card after a manual
+						// header re-sort (defaultSort is initial-state only, and a same-value
+						// preset write wouldn't change a value-based key).
 						<TransactionDebtTable
+							key={debtStore.txPresetNonce}
 							rows={debtStore.transactionRows}
 							anyFilter={anyFilter}
+							defaultSort={{ key: debtStore.txPresetSort, order: "desc" }}
 							onOpen={openTransaction}
 						/>
 					)}
