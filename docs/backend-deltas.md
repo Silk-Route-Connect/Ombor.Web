@@ -2,7 +2,7 @@
 
 Running list of backend changes the frontend needs. Each item carries evidence from `docs/openapi.json` (the generated contract) and the user-visible symptom, so a backend session can act on it without the frontend context. **Frontend passes append here when they flag a gap; the backend session checks items off (and regenerates `openapi.json`).**
 
-Last verified against `openapi.json`: **2026-07-03** (Transactions + Templates module passes). The Round-1 backend items from `docs/testing/findings.md` (June 2026 manual sweep) are **absorbed below** (§ From Round 1) — findings.md stays as the historical test report; this doc is the live list.
+Last verified against `openapi.json`: **2026-07-04** — every item below re-checked; all still open (the contract is unchanged since 2026-07-03, so nothing has closed). Already-resolved deltas are removed, not archived here: this doc is the pending list only. Each frontend pass re-verifies before appending, so a resolved gap won't be re-flagged. The Round-1 backend items from `docs/testing/findings.md` (June 2026 manual sweep) are **absorbed below** (§ From Round 1) — findings.md stays as the historical test report; this doc is the live list.
 
 ---
 
@@ -85,12 +85,3 @@ The frontend halves of all of these shipped in the frontend bug-fix pass; what r
 ### 12. F-029 (High, suspected) — multi-tenant isolation: scope payments (and audit other resources) by `OrganizationId`
 
 - Rules.md #7 requires tenant scoping; the Round-1 sweep suspected payments aren't filtered/stamped by `OrganizationId`. Ran single-tenant, so unconfirmed — **needs a dedicated two-tenant test first**, then the fix and an audit of the other resources.
-
----
-
-## Closed (verified in the current `openapi.json` — don't re-flag)
-
-- **Warehouse delete (D9/WH-5):** `DELETE /api/warehouses/{id}` exists (409 when referenced) and `WarehouseDto.isDeletable` is served.
-- **Partner delete gating:** `PartnerDto` serves `isDeletable` + `activityCount`.
-- **Transfers author/note:** `TransferDto` serves `createdBy` + `note`; the unused `status` is gone.
-- **Payments redesigned contract:** `PaymentRecordDto` (number/type/direction/partner/employee…) replaced the legacy method/currency DTO.
