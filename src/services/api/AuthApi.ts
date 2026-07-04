@@ -1,3 +1,4 @@
+import i18n from "i18n/config";
 import {
 	ForgotPasswordRequest,
 	ForgotPasswordResponse,
@@ -16,6 +17,15 @@ import {
 import http from "services/api/http";
 
 const AUTH_BASE = "/api/auth" as const;
+
+/**
+ * The active UI locale for the `X-Ombor-Language` header — the backend seeds the
+ * new organization's language from it (verification SMS, defaults). Read live
+ * from the i18n instance (which the register-form language footer drives), so it
+ * follows the user's selection as more languages land. `resolvedLanguage`
+ * accounts for the fallback; defaults to `ru`.
+ */
+const activeLanguage = (): string => i18n.resolvedLanguage ?? i18n.language ?? "ru";
 
 export const AuthEndpoints = {
 	base: AUTH_BASE,
@@ -37,7 +47,11 @@ class AuthApi {
 	}
 
 	async register(request: RegisterRequest): Promise<RegisterResponse> {
-		const { data } = await http.post<RegisterResponse>(AuthEndpoints.register, request);
+		const { data } = await http.post<RegisterResponse>(AuthEndpoints.register, request, {
+			headers: {
+				"X-Ombor-Language": activeLanguage(),
+			},
+		});
 
 		return data;
 	}
