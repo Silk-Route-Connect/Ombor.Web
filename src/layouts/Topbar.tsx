@@ -43,8 +43,8 @@ function SearchField() {
 				alignItems: "center",
 				gap: 1.125,
 				width: 300,
+				height: 38, // align with the 38px header controls (buttons / icon buttons)
 				px: 1.625,
-				py: 1,
 				bgcolor: "background.default",
 				border: 1,
 				borderColor: "divider",
@@ -130,12 +130,7 @@ const Topbar: React.FC = observer(() => {
 
 			<SearchField />
 
-			<Button
-				variant="contained"
-				size="small"
-				startIcon={<AddIcon />}
-				onClick={openMenu(setCreateAnchor)}
-			>
+			<Button variant="contained" startIcon={<AddIcon />} onClick={openMenu(setCreateAnchor)}>
 				{t("topbar.create")}
 			</Button>
 			<Menu
