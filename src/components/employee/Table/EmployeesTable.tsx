@@ -1,12 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeStatusBadge } from "components/employee/EmployeeStatusBadge";
 import EmployeeActionMenu from "components/employee/Table/ActionMenu/EmployeeActionMenu";
-import {
-	tableBodyCellSx as bodyCellSx,
-	tableHeadCellSx as headCellSx,
-	tableRowSx,
-} from "components/shared/Table/tableStyles";
+import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
 import { designTokens, numericSx } from "theme";
@@ -47,6 +43,13 @@ const Avatar: React.FC<{ name: string; dim?: boolean }> = ({ name, dim }) => (
 	</Box>
 );
 
+/**
+ * Employees list on the shared DataTable (warm band, sortable columns, 10/25/50
+ * pager, name-asc default): сотрудник · должность · зарплата · статус · дата
+ * найма, each row opening the full-page detail; row actions in the shared ⋮ menu
+ * (Выплатить / Редактировать / Уволить·Восстановить — a status change, never a
+ * hard delete).
+ */
 export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 	rows,
 	isFiltering,
@@ -59,6 +62,86 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 }) => {
 	const { t } = useTranslation();
 
+	const columns = useMemo<Column<Employee>[]>(
+		() => [
+			{
+				key: "name",
+				headerName: t("employee.table.employee"),
+				sortValue: (e) => e.name,
+				renderCell: (e) => {
+					const terminated = e.status === "Terminated";
+					return (
+						<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+							<Avatar name={e.name} dim={terminated} />
+							<Typography
+								component="span"
+								sx={{ fontWeight: 600, color: terminated ? "text.secondary" : "text.primary" }}
+							>
+								{e.name}
+							</Typography>
+						</Box>
+					);
+				},
+			},
+			{
+				key: "position",
+				headerName: t("employee.position"),
+				sortValue: (e) => e.position,
+				renderCell: (e) => (
+					<Box component="span" sx={{ color: "text.secondary" }}>
+						{e.position}
+					</Box>
+				),
+			},
+			{
+				key: "salary",
+				headerName: t("employee.table.salary"),
+				align: "right",
+				sortValue: (e) => e.salary,
+				renderCell: (e) => (
+					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
+						{formatCurrency(e.salary)}
+					</Box>
+				),
+			},
+			{
+				key: "status",
+				headerName: t("employee.status"),
+				sortValue: (e) => t(`employee.status.${e.status}`),
+				renderCell: (e) => <EmployeeStatusBadge status={e.status} />,
+			},
+			{
+				key: "dateOfEmployment",
+				headerName: t("employee.dateOfEmployment"),
+				sortValue: (e) => e.dateOfEmployment,
+				renderCell: (e) => (
+					<Box
+						component="span"
+						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
+					>
+						{formatDate(e.dateOfEmployment)}
+					</Box>
+				),
+			},
+			{
+				key: "actions",
+				headerName: "",
+				align: "right",
+				width: 56,
+				renderCell: (e) => (
+					<EmployeeActionMenu
+						employee={e}
+						onPay={() => onPay(e)}
+						onEdit={() => onEdit(e)}
+						onTerminate={() => onTerminate(e)}
+						onRestore={() => onRestore(e)}
+					/>
+				),
+			},
+		],
+		[t, onPay, onEdit, onTerminate, onRestore],
+	);
+
 	if (rows === "loading") {
 		return (
 			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
@@ -67,12 +150,12 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 		);
 	}
 
-	return (
-		<Paper
-			elevation={1}
-			sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-		>
-			{rows.length === 0 ? (
+	if (rows.length === 0) {
+		return (
+			<Paper
+				elevation={1}
+				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+			>
 				<Box sx={{ p: "52px 24px 58px", textAlign: "center" }}>
 					<Box
 						sx={{
@@ -106,93 +189,18 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 						</Button>
 					)}
 				</Box>
-			) : (
-				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-					<thead>
-						<tr>
-							<Box component="th" sx={{ ...headCellSx, pl: "18px" }}>
-								{t("employee.table.employee")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("employee.position")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("employee.table.salary")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("employee.status")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("employee.dateOfEmployment")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, width: 56 }} />
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((employee) => {
-							const terminated = employee.status === "Terminated";
-							return (
-								<Box
-									component="tr"
-									key={employee.id}
-									onClick={() => onOpen(employee)}
-									sx={tableRowSx}
-								>
-									<Box component="td" sx={{ ...bodyCellSx, pl: "18px" }}>
-										<Box sx={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
-											<Avatar name={employee.name} dim={terminated} />
-											<Typography
-												component="span"
-												sx={{
-													fontWeight: 600,
-													color: terminated ? "text.secondary" : "text.primary",
-												}}
-											>
-												{employee.name}
-											</Typography>
-										</Box>
-									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, color: "text.secondary" }}>
-										{employee.position}
-									</Box>
-									<Box
-										component="td"
-										sx={{
-											...bodyCellSx,
-											textAlign: "right",
-											...numericSx,
-											fontWeight: 700,
-											fontSize: 15,
-										}}
-									>
-										{formatCurrency(employee.salary)}
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										<EmployeeStatusBadge status={employee.status} />
-									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, color: "text.secondary", ...numericSx }}>
-										{formatDate(employee.dateOfEmployment)}
-									</Box>
-									<Box
-										component="td"
-										sx={{ ...bodyCellSx, textAlign: "right" }}
-										onClick={(e) => e.stopPropagation()}
-									>
-										<EmployeeActionMenu
-											employee={employee}
-											onPay={() => onPay(employee)}
-											onEdit={() => onEdit(employee)}
-											onTerminate={() => onTerminate(employee)}
-											onRestore={() => onRestore(employee)}
-										/>
-									</Box>
-								</Box>
-							);
-						})}
-					</tbody>
-				</Box>
-			)}
-		</Paper>
+			</Paper>
+		);
+	}
+
+	return (
+		<DataTable<Employee>
+			rows={rows}
+			columns={columns}
+			pagination
+			defaultSort={{ key: "name", order: "asc" }}
+			onRowClick={onOpen}
+		/>
 	);
 };
 
