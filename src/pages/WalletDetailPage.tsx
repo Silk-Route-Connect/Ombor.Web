@@ -124,6 +124,7 @@ const WalletDetailPage: React.FC = observer(() => {
 			<WalletDetailHeader
 				wallet={wallet}
 				onBack={goBack}
+				onNewTransfer={() => walletStore.openTransfer(wallet.id)}
 				onEdit={() => walletStore.openEdit(wallet)}
 				onArchive={() => walletStore.openArchive(wallet)}
 				onRestore={() => void walletStore.restore(wallet).then(reflect)}

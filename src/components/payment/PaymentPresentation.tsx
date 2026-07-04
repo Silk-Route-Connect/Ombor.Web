@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
 import { PaymentDirection, PaymentType } from "models/payment";
-import { chipTokens, designTokens } from "theme";
+import { designTokens } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -74,43 +75,14 @@ export const PaymentTypeBadge: React.FC<{ type: PaymentType }> = ({ type }) => {
 	);
 };
 
-/** Green ↓ Приход / red ↑ Расход pill (the `.dir-badge`), colours from `chipTokens`. */
+/** Green ↓ Приход / red ↑ Расход pill — the shared {@link DirectionBadge}. */
 export const PaymentDirectionBadge: React.FC<{ direction: PaymentDirection }> = ({ direction }) => {
 	const { t } = useTranslation();
 	const income = direction === "Income";
-	const tk = income ? chipTokens.income : chipTokens.expense;
 	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "5px",
-				fontSize: 11.5,
-				fontWeight: 600,
-				pl: "7px",
-				pr: "9px",
-				py: "2px",
-				borderRadius: "999px",
-				whiteSpace: "nowrap",
-				border: "1px solid",
-				bgcolor: tk.bg,
-				color: tk.color,
-				borderColor: tk.border,
-			}}
-		>
-			<Box
-				component="span"
-				sx={{
-					...{ fontVariantNumeric: "tabular-nums" },
-					fontWeight: 800,
-					fontSize: 13,
-					lineHeight: 1,
-				}}
-			>
-				{income ? "↓" : "↑"}
-			</Box>
-			{t(income ? "payment.direction.income" : "payment.direction.expense")}
-		</Box>
+		<DirectionBadge
+			income={income}
+			label={t(income ? "payment.direction.income" : "payment.direction.expense")}
+		/>
 	);
 };

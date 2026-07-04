@@ -8,6 +8,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
+import AddIcon from "@mui/icons-material/Add";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -27,6 +28,7 @@ import {
 interface WalletDetailHeaderProps {
 	wallet: Wallet;
 	onBack: () => void;
+	onNewTransfer: () => void;
 	onEdit: () => void;
 	onArchive: () => void;
 	onRestore: () => void;
@@ -97,6 +99,7 @@ const DetailActionsMenu: React.FC<{ onEdit: () => void; onArchive: () => void }>
 export const WalletDetailHeader: React.FC<WalletDetailHeaderProps> = ({
 	wallet,
 	onBack,
+	onNewTransfer,
 	onEdit,
 	onArchive,
 	onRestore,
@@ -161,7 +164,14 @@ export const WalletDetailHeader: React.FC<WalletDetailHeaderProps> = ({
 							{t("common.restore")}
 						</PrimaryButton>
 					) : (
-						<DetailActionsMenu onEdit={onEdit} onArchive={onArchive} />
+						<>
+							{/* Child-event create in the primaryAction slot (WAL-13) — reachable
+							    from both tabs, next to the ⋮ menu (Order-detail pattern). */}
+							<PrimaryButton icon={<AddIcon />} onClick={onNewTransfer}>
+								{t("wallet.transfer.action")}
+							</PrimaryButton>
+							<DetailActionsMenu onEdit={onEdit} onArchive={onArchive} />
+						</>
 					)}
 				</Box>
 			</Box>
