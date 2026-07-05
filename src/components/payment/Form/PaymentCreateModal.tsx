@@ -21,6 +21,7 @@ import {
 	SettlementInput,
 } from "models/payment";
 import { PaymentFormValues } from "schemas/PaymentSchema";
+import { analytics } from "services/telemetry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -164,7 +165,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 
 	const onValid = (_values: PaymentFormValues): void => {
 		if (overWithdraw) {
-			return; // inline error shown; block submit
+			// inline error shown; block submit
+			analytics.capture("form_validation_failed", {
+				form: "payment_create",
+				field_count: 1,
+				first_field: "amount",
+			});
+			return;
 		}
 		if (type === "Transaction") {
 			setSettleOpen(true); // distribute, then create on confirm
@@ -173,7 +180,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		onSave(buildRequest([]));
 	};
 
-	const submit = handleSubmit(onValid);
+	const submit = handleSubmit(onValid, (errors) => {
+		const fields = Object.keys(errors);
+		analytics.capture("form_validation_failed", {
+			form: "payment_create",
+			field_count: fields.length,
+			first_field: fields[0],
+		});
+	});
 
 	const errorCount = Object.keys(formState.errors).length;
 	const showErrorBanner = formState.isSubmitted && (errorCount > 0 || overWithdraw);

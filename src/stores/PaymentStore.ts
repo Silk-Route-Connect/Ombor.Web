@@ -13,6 +13,7 @@ import {
 	PaymentType,
 } from "../models/payment";
 import PaymentApi from "../services/api/PaymentApi";
+import { analytics } from "../services/telemetry";
 import { NotificationStore } from "./NotificationStore";
 
 export type PaymentTypeFilter = PaymentType | "all";
@@ -205,6 +206,18 @@ export class PaymentStore implements IPaymentStore {
 		this.notificationStore.success(
 			i18next.t("payment.success.create", { number: result.data.number }),
 		);
+		analytics.capture("payment_recorded", {
+			payment_type: result.data.type,
+			direction: result.data.direction,
+			amount: result.data.amount,
+			// Only a TransactionSettlement allocation means a debt was actually
+			// settled — AdvanceCredit / ChangeReturn allocations exist too and must
+			// not count (matches the POS event's `settledSum > 0`).
+			has_settlement: result.data.allocations.some(
+				(a) => a.allocationType === "TransactionSettlement",
+			),
+			wallet_type: result.data.walletType,
+		});
 		return result.data;
 	}
 

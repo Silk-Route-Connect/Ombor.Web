@@ -10,6 +10,7 @@ import {
 	TransactionStatus,
 } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
+import { analytics } from "services/telemetry";
 import { matchesSearch } from "utils/stringUtils";
 import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/transactionUtils";
 
@@ -195,6 +196,12 @@ export class TransactionStore implements ITransactionStore {
 		this.notificationStore.success(
 			i18next.t("transaction.refund.success", { number: transaction.transactionNumber }),
 		);
+		analytics.capture("transaction_refunded", {
+			direction: transaction.type === "Supply" ? "Supply" : "Sale",
+			line_count: request.lines.length,
+			total: request.lines.reduce((s, l) => s + l.quantity * l.unitPrice, 0),
+			original_id: transaction.id,
+		});
 		return result.data;
 	}
 

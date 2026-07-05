@@ -12,6 +12,7 @@ import {
 	WalletTransfer,
 } from "../models/wallet";
 import WalletApi from "../services/api/WalletApi";
+import { analytics } from "../services/telemetry";
 import { NotificationStore } from "./NotificationStore";
 
 export type WalletDialogMode =
@@ -207,6 +208,7 @@ export class WalletStore implements IWalletStore {
 				to: result.data.toWalletName,
 			}),
 		);
+		analytics.capture("wallet_transfer_created", { amount: result.data.amount });
 		return result.data;
 	}
 

@@ -6,6 +6,7 @@ import { AuthBanner, AuthPasswordField, AuthPhoneField } from "components/auth/A
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
+import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { phoneError as phoneErrorOf } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
@@ -30,6 +31,14 @@ const LoginPage: React.FC = observer(() => {
 		setTried(true);
 		setBanner(null);
 		if (phoneErrorOf(phone) || !password) {
+			const failed = [phoneErrorOf(phone) ? "phone" : null, !password ? "password" : null].filter(
+				(f): f is string => f !== null,
+			);
+			analytics.capture("form_validation_failed", {
+				form: "login",
+				field_count: failed.length,
+				first_field: failed[0],
+			});
 			return;
 		}
 		setSubmitting(true);

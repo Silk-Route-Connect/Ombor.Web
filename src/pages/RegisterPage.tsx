@@ -22,6 +22,7 @@ import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { RegisterRequest } from "models/auth";
 import { PATHS } from "routing/paths";
+import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
 import {
@@ -89,15 +90,21 @@ const RegisterPage: React.FC = observer(() => {
 	const submitForm = async () => {
 		setTried(true);
 		setBanner(null);
-		if (
-			requiredError(company) ||
-			requiredError(firstName) ||
-			requiredError(lastName) ||
-			phoneErrorOf(phone) ||
-			passwordError(password) ||
-			confirmError(password, confirm) ||
-			!terms
-		) {
+		const failed = [
+			requiredError(company) ? "company" : null,
+			requiredError(firstName) ? "first_name" : null,
+			requiredError(lastName) ? "last_name" : null,
+			phoneErrorOf(phone) ? "phone" : null,
+			passwordError(password) ? "password" : null,
+			confirmError(password, confirm) ? "confirm" : null,
+			!terms ? "terms" : null,
+		].filter((f): f is string => f !== null);
+		if (failed.length > 0) {
+			analytics.capture("form_validation_failed", {
+				form: "register",
+				field_count: failed.length,
+				first_field: failed[0],
+			});
 			return;
 		}
 		const phoneE164 = normalizeUzPhoneToE164(phone);

@@ -16,6 +16,7 @@ import { CreateOrderRequest, OrderSource } from "models/order";
 import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { orderDetailPath, PATHS } from "routing/paths";
+import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -145,6 +146,17 @@ export const NewOrder: React.FC = observer(() => {
 	const submit = async () => {
 		setTried(true);
 		if (!valid || client == null || warehouseId == null) {
+			const failed = [
+				!client ? "client" : null,
+				warehouseId == null ? "warehouse" : null,
+				!deliveryDate ? "delivery_date" : null,
+				items.length === 0 ? "items" : null,
+			].filter((f): f is string => f !== null);
+			analytics.capture("form_validation_failed", {
+				form: "new_order",
+				field_count: failed.length,
+				first_field: failed[0],
+			});
 			return;
 		}
 		const payload: CreateOrderRequest = {

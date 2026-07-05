@@ -10,6 +10,7 @@ import {
 	StockAdjustment,
 } from "../models/stockAdjustment";
 import StockAdjustmentApi from "../services/api/StockAdjustmentApi";
+import { analytics } from "../services/telemetry";
 import { NotificationStore } from "./NotificationStore";
 
 export type DirectionFilter = "all" | AdjustmentDirection;
@@ -106,6 +107,10 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("adjustment.success.create"));
+		analytics.capture("stock_adjustment_created", {
+			direction: request.direction,
+			reason: request.reason,
+		});
 		return result.data;
 	}
 

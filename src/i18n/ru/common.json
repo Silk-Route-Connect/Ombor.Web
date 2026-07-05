@@ -46,6 +46,10 @@
   "common.dash": "—",
   "common.pageInDevelopment": "Страница в разработке",
 
+  "common.errorBoundary.title": "Что-то пошло не так",
+  "common.errorBoundary.message": "Произошла непредвиденная ошибка. Отчёт уже отправлен — мы разберёмся. Попробуйте перезагрузить страницу.",
+  "common.errorBoundary.reload": "Перезагрузить",
+
   "common.table.rowsPerPage": "Строк на странице:",
   "common.table.displayedRows": "{{from}}–{{to}} из {{total}}",
 

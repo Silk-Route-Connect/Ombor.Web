@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
@@ -36,6 +36,7 @@ import WarehousePage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
 import { PATHS } from "routing/paths";
 import RequireAuth from "routing/RequireAuth";
+import { SentryRoutes as Routes } from "services/telemetry";
 import { StoreProvider, useStore } from "stores/StoreContext";
 
 import AppBootstrap from "./AppBootstrap";

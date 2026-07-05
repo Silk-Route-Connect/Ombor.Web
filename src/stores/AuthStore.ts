@@ -10,6 +10,7 @@ import {
 } from "models/auth";
 import { authApi } from "services/api/AuthApi";
 import { AuthTokenBridge } from "services/auth/tokenBridge";
+import { analytics } from "services/telemetry";
 
 /** Auth lifecycle status for routing/guards */
 export type AuthStatus = "idle" | "checking" | "authenticated" | "unauthenticated";
@@ -117,6 +118,9 @@ export class AuthStore {
 				this.user = userFromAccessToken(tokens.accessToken);
 				this.status = "authenticated";
 			});
+			if (this.user) {
+				analytics.identify(this.user);
+			}
 		} catch {
 			runInAction(() => {
 				this.accessToken = null;
@@ -140,6 +144,10 @@ export class AuthStore {
 			this.status = "authenticated";
 		});
 
+		if (this.user) {
+			analytics.identify(this.user);
+		}
+
 		if (this.sideEffects.onRedirectToApp) {
 			this.sideEffects.onRedirectToApp();
 		}
@@ -148,6 +156,9 @@ export class AuthStore {
 	public async login(request: LoginRequest): Promise<void> {
 		const result = await authApi.login(request);
 		this.enterWithTokens(result.accessToken);
+		// Here, not in enterWithTokens — the register-welcome commit shares that
+		// method and must not count as a login.
+		analytics.capture("user_logged_in");
 	}
 
 	/**
@@ -169,6 +180,11 @@ export class AuthStore {
 		if (response.success !== true || !response.accessToken) {
 			throw new Error(response.message ?? "OTP verification failed");
 		}
+
+		// The backend confirms registration here — the welcome screen that follows
+		// is UX only. Firing here (not at enterWithTokens) avoids counting the
+		// welcome commit as a second event. Still anonymous; merged on identify.
+		analytics.capture("user_signed_up");
 
 		return response.accessToken;
 	}
@@ -201,6 +217,7 @@ export class AuthStore {
 		if (response.success !== true) {
 			throw new Error(response.message ?? "Password reset failed");
 		}
+		analytics.capture("password_reset_completed");
 	}
 
 	/**
@@ -218,6 +235,10 @@ export class AuthStore {
 			}
 		});
 
+		if (this.user) {
+			analytics.identify(this.user);
+		}
+
 		return accessToken;
 	}
 
@@ -226,6 +247,14 @@ export class AuthStore {
 	 * Calls API, clears state, resets other stores, then redirects to /login.
 	 */
 	public async logout(): Promise<void> {
+		// Capture while identity is still attached, then clear it — events after
+		// reset() would be anonymous. Only for real sessions: the forced-logout
+		// path can fire on an already-unauthenticated store.
+		if (this.status === "authenticated") {
+			analytics.capture("user_logged_out");
+		}
+		analytics.reset();
+
 		try {
 			await authApi.logout();
 		} catch {

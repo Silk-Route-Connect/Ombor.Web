@@ -6,6 +6,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 
 import App from "./App";
+import ErrorFallback from "./components/shared/ErrorFallback/ErrorFallback";
+import { initTelemetry } from "./services/telemetry";
 import theme from "./theme";
 
 import "@fontsource/onest/400.css";
@@ -19,12 +21,10 @@ import "./styles/global.scss";
 // the configured instance from "i18n/config" themselves.
 import "./i18n/config";
 
-Sentry.init({
-	dsn: import.meta.env.VITE_OMBOR_SENTRY_DSN,
-	// Setting this option to true will send default PII data to Sentry.
-	// For example, automatic IP address collection on events
-	sendDefaultPii: true,
-});
+// Sentry (errors/tracing/replay) + PostHog (product analytics). Each no-ops
+// when its key is absent — Netlify supplies keys only in the Production
+// deploy context (docs/observability-analytics-plan.md).
+initTelemetry();
 
 async function enableMocking(): Promise<void> {
 	if (import.meta.env.VITE_ENABLE_MOCKS !== "true") {
@@ -44,7 +44,11 @@ enableMocking().then(() => {
 		<React.StrictMode>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
-				<App />
+				{/* Last-resort boundary: reports the crash and shows a themed
+				    fallback instead of a blank screen. Works uninitialized too. */}
+				<Sentry.ErrorBoundary fallback={<ErrorFallback />}>
+					<App />
+				</Sentry.ErrorBoundary>
 			</ThemeProvider>
 		</React.StrictMode>,
 	);

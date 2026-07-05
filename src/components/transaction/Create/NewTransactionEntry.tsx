@@ -19,6 +19,7 @@ import { SettlementInput } from "models/payment";
 import { Product } from "models/product";
 import { Template } from "models/template";
 import { PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -73,6 +74,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 	const [bulkApplied, setBulkApplied] = useState(0);
 	/** Product id whose just-added line should grab + select its quantity field. */
 	const [focusQtyId, setFocusQtyId] = useState<number | null>(null);
+	/** Analytics: a template was loaded into this entry (see sale/supply_created). */
+	const [fromTemplate, setFromTemplate] = useState(false);
 	const searchRef = useRef<HTMLInputElement>(null);
 	const didFocusSearch = useRef(false);
 
@@ -149,6 +152,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		});
 		entry.loadItems(items);
 		setBulkApplied(0);
+		setFromTemplate(true);
 		notificationStore.success(t("transaction.new.template.loaded", { name: tpl.name }));
 	};
 
@@ -156,6 +160,18 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		setDialog("none");
 		const created = await transactionStore.createTransactionEntry(entry.buildPayload());
 		if (created) {
+			analytics.capture(isSale ? "sale_created" : "supply_created", {
+				line_count: entry.count,
+				subtotal: entry.subtotal,
+				discount_total: entry.discTotal,
+				total: entry.total,
+				from_template: fromTemplate,
+				has_attachments: entry.attachments.length > 0,
+				payment_kind: entry.payState,
+				has_settlement: entry.settledSum > 0,
+				overpayment_disposition:
+					entry.payState === "over" ? (entry.useAdvance ? "advance" : "change") : undefined,
+			});
 			navigate(detailPath(created.id));
 		}
 	};
@@ -163,6 +179,16 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 	const submit = () => {
 		entry.setTried(true);
 		if (!entry.valid) {
+			const failed = [
+				!entry.partner ? "partner" : null,
+				entry.items.length === 0 ? "items" : null,
+				entry.hasStockError ? "stock" : null,
+			].filter((f): f is string => f !== null);
+			analytics.capture("form_validation_failed", {
+				form: isSale ? "new_sale" : "new_supply",
+				field_count: failed.length,
+				first_field: failed[0],
+			});
 			return;
 		}
 		if (entry.paid === 0) {

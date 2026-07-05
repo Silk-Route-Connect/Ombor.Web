@@ -5,6 +5,7 @@ import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
+import { analytics } from "services/telemetry";
 import { countByStatus, ORDER_NEXT_STEP, OrderStatusFilter } from "utils/orderUtils";
 
 import { NotificationStore } from "./NotificationStore";
@@ -121,11 +122,14 @@ export class OrderStore {
 	}
 
 	private async runTransition(
+		id: number,
 		call: () => Promise<Order>,
 		successKey: string,
 		errorKey: string,
 		closeDialog = false,
 	): Promise<void> {
+		// Read the pre-transition status before the API overwrites it in the list.
+		const fromStatus = this.orderById(id)?.status;
 		const result = await withSaving(this, call);
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t(errorKey));
@@ -140,10 +144,15 @@ export class OrderStore {
 		this.notificationStore.success(
 			i18next.t(successKey, { number: result.data.orderNumber, saleId: result.data.saleId ?? "" }),
 		);
+		analytics.capture("order_status_changed", {
+			from_status: fromStatus,
+			to_status: result.data.status,
+		});
 	}
 
 	process(id: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.process(id),
 			"order.toast.processed",
 			"order.error.transition",
@@ -152,6 +161,7 @@ export class OrderStore {
 
 	ship(id: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.ship(id),
 			"order.toast.shipped",
 			"order.error.transition",
@@ -160,6 +170,7 @@ export class OrderStore {
 
 	deliver(id: number, warehouseId: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.deliver(id, warehouseId),
 			"order.toast.delivered",
 			"order.error.deliver",
@@ -169,6 +180,7 @@ export class OrderStore {
 
 	cancel(id: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.cancel(id),
 			"order.toast.cancelled",
 			"order.error.transition",
@@ -178,6 +190,7 @@ export class OrderStore {
 
 	reject(id: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.reject(id),
 			"order.toast.rejected",
 			"order.error.transition",
@@ -187,6 +200,7 @@ export class OrderStore {
 
 	returnOrder(id: number): Promise<void> {
 		return this.runTransition(
+			id,
 			() => OrderApi.returnOrder(id),
 			"order.toast.returned",
 			"order.error.transition",
@@ -209,6 +223,12 @@ export class OrderStore {
 		this.notificationStore.success(
 			i18next.t("order.toast.created", { number: result.data.orderNumber }),
 		);
+		analytics.capture("order_created", {
+			source: request.source,
+			line_count: request.lines.length,
+			total: result.data.total,
+			has_delivery_time: result.data.deliveryTime != null,
+		});
 		return result.data;
 	}
 

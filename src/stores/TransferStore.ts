@@ -5,6 +5,7 @@ import { Loadable, tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
 import { CreateTransferRequest, Transfer } from "../models/transfer";
 import TransferApi from "../services/api/TransferApi";
+import { analytics } from "../services/telemetry";
 import { NotificationStore } from "./NotificationStore";
 
 export type TransferDialogMode =
@@ -92,6 +93,7 @@ export class TransferStore implements ITransferStore {
 				positions: result.data.lines.length,
 			}),
 		);
+		analytics.capture("stock_transfer_created", { line_count: result.data.lines.length });
 		return result.data;
 	}
 
