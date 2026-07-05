@@ -26,18 +26,19 @@ No overlap: PostHog's own error-capture and replay stay **off** so each tool own
 
 ## 2. Verified environment (both MCPs live — 2026-07-05)
 
-| | Sentry | PostHog |
-|---|---|---|
-| Status | ✅ connected via MCP | ✅ connected via MCP |
-| Org | `silk-route-connect` | `Ombor` |
-| Project | **`ombor-web`** (exists already; `ombor-api` is the backend) | **Default project** (id `484526`) |
-| Region | **EU** — `https://de.sentry.io` | **US** — `us.posthog.com` (ingest `us.i.posthog.com`) |
-| Current state | SDK installed + bare `init` + HTTP-error reporting already wired | Greenfield — no SDK, no custom events flowing |
+|               | Sentry                                                           | PostHog                                               |
+| ------------- | ---------------------------------------------------------------- | ----------------------------------------------------- |
+| Status        | ✅ connected via MCP                                             | ✅ connected via MCP                                  |
+| Org           | `silk-route-connect`                                             | `Ombor`                                               |
+| Project       | **`ombor-web`** (exists already; `ombor-api` is the backend)     | **Default project** (id `484526`)                     |
+| Region        | **EU** — `https://de.sentry.io`                                  | **US** — `us.posthog.com` (ingest `us.i.posthog.com`) |
+| Current state | SDK installed + bare `init` + HTTP-error reporting already wired | Greenfield — no SDK, no custom events flowing         |
 
 > ⚠️ Region split (Sentry EU / PostHog US) is intentional-by-accident; fine for beta, note it
 > for any future data-residency requirement.
 
 ### What already exists in the repo (Sentry)
+
 - `@sentry/react@9` + `@sentry/cli` in `package.json`.
 - `Sentry.init({ dsn, sendDefaultPii: true })` in `src/index.tsx` — **bare**: no replay, no
   tracing, no `environment`, no `release`, no ErrorBoundary, no source maps.
@@ -70,13 +71,13 @@ No overlap: PostHog's own error-capture and replay stay **off** so each tool own
 
 New service module `src/services/telemetry/` (follows the existing `services/` convention):
 
-| File | Responsibility |
-|---|---|
-| `sentry.ts` | `initSentry()` — the full `Sentry.init`; exports the Router-wrapped `Routes` + `ErrorBoundary` helpers. |
-| `posthog.ts` | `initPostHog()` — creates + configures the `posthog-js` instance. |
+| File           | Responsibility                                                                                                                                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sentry.ts`    | `initSentry()` — the full `Sentry.init`; exports the Router-wrapped `Routes` + `ErrorBoundary` helpers.                                                                                                           |
+| `posthog.ts`   | `initPostHog()` — creates + configures the `posthog-js` instance.                                                                                                                                                 |
 | `analytics.ts` | Thin facade: `capture(event, props)`, `identify(user)`, `reset()`. Domain code imports **this**, never `posthog-js` directly. No-ops when telemetry is disabled. Also mirrors user context into `Sentry.setUser`. |
-| `events.ts` | Typed event-name constants + a discriminated union of event → props, so event calls are type-checked (no stringly-typed typos; matches the strict-TS repo). |
-| `index.ts` | Barrel + a single `initTelemetry()` called once from `src/index.tsx`. |
+| `events.ts`    | Typed event-name constants + a discriminated union of event → props, so event calls are type-checked (no stringly-typed typos; matches the strict-TS repo).                                                       |
+| `index.ts`     | Barrel + a single `initTelemetry()` called once from `src/index.tsx`.                                                                                                                                             |
 
 **Gating:** `initTelemetry()` initializes Sentry only when the DSN is present and PostHog only
 when the key is present. Netlify supplies those keys **only in the Production deploy context**,
@@ -104,12 +105,12 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 
 ### 5a. Client vars — `VITE_`-prefixed (baked into the bundle; public, not secret)
 
-| Variable | Value |
-|---|---|
-| `VITE_OMBOR_SENTRY_DSN` | `https://84bb737c6cfcd8d390525efba2411f35@o4508670634557440.ingest.de.sentry.io/4509377451655248` |
-| `VITE_OMBOR_POSTHOG_KEY` | `phc_zANZf293G6jYUdPfHFUMPWGxvxJdQfayyqfypaFjCV22` |
-| `VITE_OMBOR_POSTHOG_HOST` | `https://us.i.posthog.com` |
-| `VITE_OMBOR_ENVIRONMENT` | `production` |
+| Variable                  | Value                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------- |
+| `VITE_OMBOR_SENTRY_DSN`   | `https://84bb737c6cfcd8d390525efba2411f35@o4508670634557440.ingest.de.sentry.io/4509377451655248` |
+| `VITE_OMBOR_POSTHOG_KEY`  | `phc_zANZf293G6jYUdPfHFUMPWGxvxJdQfayyqfypaFjCV22`                                                |
+| `VITE_OMBOR_POSTHOG_HOST` | `https://us.i.posthog.com`                                                                        |
+| `VITE_OMBOR_ENVIRONMENT`  | `production`                                                                                      |
 
 > **Release** is auto-derived from Netlify's built-in `COMMIT_REF` (the deploy's git SHA) in the
 > build config — no manual var. The Sentry vite-plugin injects it for error/replay tagging +
@@ -118,12 +119,12 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 
 ### 5b. Build-only secrets — **NOT** `VITE_`-prefixed (source-map upload; never shipped to client)
 
-| Variable | Value |
-|---|---|
-| `SENTRY_AUTH_TOKEN` | *(you create it — Sentry → Settings → Auth Tokens, scopes `project:releases` + `org:read`)* |
-| `SENTRY_ORG` | `silk-route-connect` |
-| `SENTRY_PROJECT` | `ombor-web` |
-| `SENTRY_URL` | `https://de.sentry.io` |
+| Variable            | Value                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `SENTRY_AUTH_TOKEN` | _(you create it — Sentry → Settings → Auth Tokens, scopes `project:releases` + `org:read`)_ |
+| `SENTRY_ORG`        | `silk-route-connect`                                                                        |
+| `SENTRY_PROJECT`    | `ombor-web`                                                                                 |
+| `SENTRY_URL`        | `https://de.sentry.io`                                                                      |
 
 > `SENTRY_URL` is **required** — the org is on the EU region and the plugin defaults to US
 > (would 404 without it). These four are read only by the build; they never reach the client.
@@ -138,6 +139,7 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 ## 6. Task checklist (phased)
 
 ### Phase A — Telemetry scaffold
+
 - [x] Create `src/services/telemetry/` module (sentry.ts, posthog.ts, analytics.ts, events.ts, index.ts)
 - [x] Add `initTelemetry()` gating (keys present) and no-op fallback — `analytics.*` is safe to call unconditionally
 - [x] Update `src/vite-env.d.ts` with the new `VITE_OMBOR_*` vars (+ `__APP_RELEASE__` declaration)
@@ -145,6 +147,7 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 - [x] Expose the build release (Netlify `COMMIT_REF`) to the client via a Vite `define` so PostHog can tag `app_release`
 
 ### Phase B — Sentry upgrade
+
 - [x] Expand `Sentry.init`: `reactRouterV7BrowserTracingIntegration` + `replayIntegration`, `environment`, `release`, sample rates (`src/services/telemetry/sentry.ts`)
 - [x] Replay config for beta: `maskAllText: false`, `maskAllInputs: false`, `blockAllMedia: false`, **but** `mask: ['input[type="password"]']`
 - [x] Sample rates for low-traffic beta: `tracesSampleRate: 1.0`, `replaysSessionSampleRate: 1.0`, `replaysOnErrorSampleRate: 1.0`
@@ -154,6 +157,7 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 - [x] Add `@sentry/vite-plugin` to `vite.config.ts` (runs only when `SENTRY_AUTH_TOKEN` present; `release.name` = `COMMIT_REF`; `url` = `SENTRY_URL` for EU; hidden source maps, deleted from dist after upload)
 
 ### Phase C — PostHog install + init
+
 - [x] `npm i posthog-js` (+ `@sentry/vite-plugin` as devDependency)
 - [x] `initPostHog()` with key + US host; `person_profiles: 'always'` (decision #6); `defaults: '2025-05-24'`
 - [x] Disable overlap: `autocapture: true`, SPA pageviews on history change, **`disable_session_recording: true`** (Sentry owns replay), **`capture_exceptions: false`**
@@ -161,11 +165,13 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 - [x] Module singleton via the `analytics` facade (`services/telemetry/analytics.ts`) — domain code never imports `posthog-js` directly
 
 ### Phase D — User identification
+
 - [x] `analytics.identify()` in `AuthStore.enterWithTokens` / `bootstrap` / `refresh` (distinct_id = JWT user id)
 - [x] `analytics.reset()` in `AuthStore.logout` (after `user_logged_out` fires, while identity is still attached)
 - [x] Person props: `name`, `phone`, `organization` (beta max-capture); mirrored into `Sentry.setUser`
 
 ### Phase E — Domain event instrumentation (P0 — see §7; sites pinned by a 6-agent discovery workflow)
+
 - [x] Auth events — `user_signed_up` (verifyOtp = backend confirmation; welcome commit doesn't double-fire), `user_logged_in` (login() only — enterWithTokens is shared with register), `user_logged_out` (guarded to authenticated sessions), `password_reset_completed`
 - [x] Money flows — `sale_created`/`supply_created` (POS component, incl. `from_template` + `payment_kind`/`has_settlement`/`overpayment_disposition`), `transaction_refunded` (TransactionStore), `payment_recorded` (PaymentStore; POS settlement confirmed NOT to double-fire — it's embedded in the transaction request)
 - [x] Orders — `order_created` (OrderStore.create), `order_status_changed` (runTransition now takes `id`, reads pre-transition status for `from_status`)
@@ -174,12 +180,14 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 - [ ] P1/P2 events (see §7) — later batches; RHF entity modals (product/partner/etc.) join `form_validation_failed` then
 
 ### Phase F — Netlify env + pre-GA hardening
+
 - [ ] Miraziz: set the §5a + §5b vars in Netlify, **scoped to the Production deploy context**
 - [ ] Miraziz: create `SENTRY_AUTH_TOKEN`
 - [ ] Miraziz: confirm the Netlify Production context has the real `VITE_OMBOR_API_BASE_URL` (not localhost) + `VITE_ENABLE_MOCKS=false`
 - [ ] **Pre-GA debt:** re-enable replay masking, reconsider `sendDefaultPii`, review PII in event props + person properties (tracked from decision #2)
 
 ### Phase G — Live verification (before declaring done)
+
 - [ ] Prod build → trigger a test exception → confirm it lands in Sentry with a **source-mapped** stack
 - [ ] Confirm the error has a **linked session replay**
 - [ ] Confirm `$pageview` + one custom event land in PostHog live events
@@ -199,47 +207,47 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 
 ### P0 — launch-critical
 
-| Event | Fires when | Key properties |
-|---|---|---|
-| `user_signed_up` | Registration completed (welcome step) | — |
-| `user_logged_in` | Login success | — |
-| `user_logged_out` | Logout | — |
-| `password_reset_completed` | Reset flow success | — |
-| `sale_created` | New Sale POS submits | `line_count`, `subtotal`, `discount`, `total`, `from_template`, `has_attachments`, `payment_kind` (none/change/advance) |
-| `supply_created` | New Supply POS submits | `line_count`, `subtotal`, `discount`, `total`, `from_template` |
-| `transaction_refunded` | Refund created | `direction`, `line_count`, `total`, `original_id` |
-| `payment_recorded` | Standalone payment created | `payment_type` (Оплата/Депозит/Вывод/Зарплата/Общий), `direction`, `amount`, `has_settlement`, `wallet_type` |
-| `order_created` | New Order created | `source`, `line_count`, `total`, `has_delivery_time` |
-| `order_status_changed` | process/ship/deliver/cancel/reject/return | `from_status`, `to_status` |
-| `stock_adjustment_created` | Adjustment created | `direction` (Increase/Decrease), `line_count` |
-| `stock_transfer_created` | Stock transfer created | `line_count` |
-| `wallet_transfer_created` | Inter-wallet transfer | — |
-| `form_validation_failed` | On-submit inline validation fails (any modal/POS) | `form`, `field_count`, `first_field` |
+| Event                      | Fires when                                        | Key properties                                                                                                          |
+| -------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `user_signed_up`           | Registration completed (welcome step)             | —                                                                                                                       |
+| `user_logged_in`           | Login success                                     | —                                                                                                                       |
+| `user_logged_out`          | Logout                                            | —                                                                                                                       |
+| `password_reset_completed` | Reset flow success                                | —                                                                                                                       |
+| `sale_created`             | New Sale POS submits                              | `line_count`, `subtotal`, `discount`, `total`, `from_template`, `has_attachments`, `payment_kind` (none/change/advance) |
+| `supply_created`           | New Supply POS submits                            | `line_count`, `subtotal`, `discount`, `total`, `from_template`                                                          |
+| `transaction_refunded`     | Refund created                                    | `direction`, `line_count`, `total`, `original_id`                                                                       |
+| `payment_recorded`         | Standalone payment created                        | `payment_type` (Оплата/Депозит/Вывод/Зарплата/Общий), `direction`, `amount`, `has_settlement`, `wallet_type`            |
+| `order_created`            | New Order created                                 | `source`, `line_count`, `total`, `has_delivery_time`                                                                    |
+| `order_status_changed`     | process/ship/deliver/cancel/reject/return         | `from_status`, `to_status`                                                                                              |
+| `stock_adjustment_created` | Adjustment created                                | `direction` (Increase/Decrease), `line_count`                                                                           |
+| `stock_transfer_created`   | Stock transfer created                            | `line_count`                                                                                                            |
+| `wallet_transfer_created`  | Inter-wallet transfer                             | —                                                                                                                       |
+| `form_validation_failed`   | On-submit inline validation fails (any modal/POS) | `form`, `field_count`, `first_field`                                                                                    |
 
 ### P1 — soon after launch
 
-| Event | Fires when | Key properties |
-|---|---|---|
-| `product_created` / `_updated` / `_archived` | Product mutations | `product_type` |
-| `partner_created` / `_updated` / `_archived` | Partner mutations | `partner_type` |
-| `warehouse_created` / `category_created` / `employee_created` | Master-data create | — |
-| `employee_terminated` / `payroll_paid` | Employee lifecycle / payroll | — |
-| `template_created` / `_updated` / `template_used` | Template mutations + load-into-POS | `direction`, `line_count` |
-| `wallet_created` / `opening_stock_set` | Wallet + stock setup | — |
-| `csv_exported` | Any CSV export | `module`, `row_count` |
-| `bulk_discount_applied` | POS bulk discount | `discount_type` (percent/fixed), `value` |
-| `language_changed` | Locale switch | `locale` |
-| `dashboard_period_changed` / `dashboard_kpi_clicked` | Dashboard interactions | `period` / `kpi` |
-| `settings_organization_saved` / `user_invited` | Settings | — |
+| Event                                                         | Fires when                         | Key properties                           |
+| ------------------------------------------------------------- | ---------------------------------- | ---------------------------------------- |
+| `product_created` / `_updated` / `_archived`                  | Product mutations                  | `product_type`                           |
+| `partner_created` / `_updated` / `_archived`                  | Partner mutations                  | `partner_type`                           |
+| `warehouse_created` / `category_created` / `employee_created` | Master-data create                 | —                                        |
+| `employee_terminated` / `payroll_paid`                        | Employee lifecycle / payroll       | —                                        |
+| `template_created` / `_updated` / `template_used`             | Template mutations + load-into-POS | `direction`, `line_count`                |
+| `wallet_created` / `opening_stock_set`                        | Wallet + stock setup               | —                                        |
+| `csv_exported`                                                | Any CSV export                     | `module`, `row_count`                    |
+| `bulk_discount_applied`                                       | POS bulk discount                  | `discount_type` (percent/fixed), `value` |
+| `language_changed`                                            | Locale switch                      | `locale`                                 |
+| `dashboard_period_changed` / `dashboard_kpi_clicked`          | Dashboard interactions             | `period` / `kpi`                         |
+| `settings_organization_saved` / `user_invited`                | Settings                           | —                                        |
 
 ### P2 — deeper engagement / long-tail
 
-| Event | Fires when | Key properties |
-|---|---|---|
-| `pos_over_stock_blocked` | Sale cart hard-blocks over-stock | `product_id` |
-| `pos_keyboard_shortcut_used` | POS shortcut used | `shortcut` |
-| `backend_offline_shown` | OfflineBanner appears | — |
-| `detail_tab_switched` / `filter_applied` | Navigation micro-interactions | `tab` / `filter` |
+| Event                                    | Fires when                       | Key properties   |
+| ---------------------------------------- | -------------------------------- | ---------------- |
+| `pos_over_stock_blocked`                 | Sale cart hard-blocks over-stock | `product_id`     |
+| `pos_keyboard_shortcut_used`             | POS shortcut used                | `shortcut`       |
+| `backend_offline_shown`                  | OfflineBanner appears            | —                |
+| `detail_tab_switched` / `filter_applied` | Navigation micro-interactions    | `tab` / `filter` |
 
 ---
 
@@ -276,12 +284,12 @@ process-env `VITE_` var overrides the committed `.env.production`). Two things t
 - **2026-07-05** — Adversarial review (3 lenses → skeptic-verified per finding) found **3 real
   defects, 0 false positives**, all fixed + re-validated:
   1. **[major] Sentry route instrumentation was permanently inert.** `SentryRoutes =
-     withSentryReactRouterV7Routing(Routes)` evaluated at import time, *before* `Sentry.init()`
+withSentryReactRouterV7Routing(Routes)` evaluated at import time, _before_ `Sentry.init()`
      ran — so the SDK froze it to a plain `Routes` and never named transactions/replays by route
      (e.g. `/partners/:id`), even in prod. **Fix:** `initSentry()` is now idempotent and called
      at `sentry.ts` module load, before the wrap. (This was the highest-value catch — it silently
      defeated a core Sentry feature.)
-  2. **[major] `payment_recorded.has_settlement`** counted *any* allocation (incl. AdvanceCredit /
+  2. **[major] `payment_recorded.has_settlement`** counted _any_ allocation (incl. AdvanceCredit /
      ChangeReturn), so Deposits + advance-only payments falsely read as settlements. **Fix:** keys
      off `allocationType === "TransactionSettlement"` (now consistent with the POS event).
   3. **[major] Payroll from the employee-detail «Выплатить»** (the primary payroll flow, via
