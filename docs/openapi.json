@@ -317,6 +317,216 @@
         }
       }
     },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation errors",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                },
+                "examples": {
+                  "SampleValidationError": {
+                    "summary": "Missing or invalid fields",
+                    "value": {
+                      "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                      "title": "One or more validation errors occurred.",
+                      "status": 400,
+                      "errors": {
+                        "Name": ["Name is required."],
+                        "Description": ["Description must not exceed 500 characters."]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify-reset-code": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyResetCodeRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyResetCodeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyResetCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyResetCodeResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyResetCodeResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyResetCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation errors",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                },
+                "examples": {
+                  "SampleValidationError": {
+                    "summary": "Missing or invalid fields",
+                    "value": {
+                      "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                      "title": "One or more validation errors occurred.",
+                      "status": 400,
+                      "errors": {
+                        "Name": ["Name is required."],
+                        "Description": ["Description must not exceed 500 characters."]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation errors",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                },
+                "examples": {
+                  "SampleValidationError": {
+                    "summary": "Missing or invalid fields",
+                    "value": {
+                      "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                      "title": "One or more validation errors occurred.",
+                      "status": 400,
+                      "errors": {
+                        "Name": ["Name is required."],
+                        "Description": ["Description must not exceed 500 characters."]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/categories": {
       "get": {
         "tags": ["Categories"],
@@ -2620,10 +2830,6 @@
                     "type": "number",
                     "format": "double"
                   },
-                  "RetailPrice": {
-                    "type": "number",
-                    "format": "double"
-                  },
                   "LowStockThreshold": {
                     "type": "integer",
                     "format": "int32"
@@ -2673,9 +2879,6 @@
                   "style": "form"
                 },
                 "SupplyPrice": {
-                  "style": "form"
-                },
-                "RetailPrice": {
                   "style": "form"
                 },
                 "LowStockThreshold": {
@@ -2995,10 +3198,6 @@
                     "type": "number",
                     "format": "double"
                   },
-                  "RetailPrice": {
-                    "type": "number",
-                    "format": "double"
-                  },
                   "LowStockThreshold": {
                     "type": "integer",
                     "format": "int32"
@@ -3058,9 +3257,6 @@
                   "style": "form"
                 },
                 "SupplyPrice": {
-                  "style": "form"
-                },
-                "RetailPrice": {
                   "style": "form"
                 },
                 "LowStockThreshold": {
@@ -5457,6 +5653,66 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": ["Warehouses"],
+        "summary": "Hard-deletes an unreferenced warehouse; a referenced warehouse is rejected with 409 (archive instead).",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/warehouses/{id}/stock": {
@@ -5836,6 +6092,10 @@
               "$ref": "#/components/schemas/OpeningStockLine"
             },
             "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5992,8 +6252,8 @@
             "format": "int32"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitPrice": {
             "type": "number",
@@ -6247,10 +6507,6 @@
             "type": "number",
             "format": "double"
           },
-          "retailPrice": {
-            "type": "number",
-            "format": "double"
-          },
           "lowStockThreshold": {
             "type": "integer",
             "format": "int32"
@@ -6284,8 +6540,8 @@
             "nullable": true
           },
           "totalStock": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "averageCost": {
             "type": "number",
@@ -6313,8 +6569,8 @@
             "$ref": "#/components/schemas/StockAdjustmentDirection"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "reason": {
             "type": "string",
@@ -6335,8 +6591,8 @@
             "format": "int32"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitPrice": {
             "type": "number",
@@ -6345,6 +6601,9 @@
           "discount": {
             "type": "number",
             "format": "double"
+          },
+          "discountType": {
+            "$ref": "#/components/schemas/DiscountType"
           }
         },
         "additionalProperties": false
@@ -6425,8 +6684,8 @@
             "$ref": "#/components/schemas/DiscountType"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -6439,8 +6698,8 @@
             "format": "int32"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -6894,6 +7153,30 @@
         "enum": ["Active", "Terminated", "OnVacation"],
         "type": "string"
       },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ForgotPasswordResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresInMinutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "Int32NullableOptional": {
         "type": "object",
         "properties": {
@@ -6950,6 +7233,18 @@
         },
         "additionalProperties": false
       },
+      "MovementKind": {
+        "enum": [
+          "Opening",
+          "Supply",
+          "Sale",
+          "SaleRefund",
+          "SupplyRefund",
+          "Adjustment",
+          "Transfer"
+        ],
+        "type": "string"
+      },
       "OpeningStockLine": {
         "type": "object",
         "properties": {
@@ -6958,8 +7253,8 @@
             "format": "int32"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitCost": {
             "type": "number",
@@ -7084,8 +7379,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitPrice": {
             "type": "number",
@@ -7653,10 +7948,6 @@
             "type": "number",
             "format": "double"
           },
-          "retailPrice": {
-            "type": "number",
-            "format": "double"
-          },
           "lowStockThreshold": {
             "type": "integer",
             "format": "int32"
@@ -7690,8 +7981,8 @@
             "nullable": true
           },
           "totalStock": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "averageCost": {
             "type": "number",
@@ -7742,8 +8033,7 @@
             "format": "date-time"
           },
           "kind": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/MovementKind"
           },
           "warehouseId": {
             "type": "integer",
@@ -7754,12 +8044,12 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "balanceAfter": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -7844,8 +8134,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "averageCost": {
             "type": "number",
@@ -7926,6 +8216,41 @@
           "expiresInMinutes": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResetPasswordResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -8016,8 +8341,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "reason": {
             "type": "string",
@@ -8032,8 +8357,8 @@
             "nullable": true
           },
           "balanceAfter": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -8086,6 +8411,14 @@
             "type": "string",
             "nullable": true
           },
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "measurement": {
+            "type": "string",
+            "nullable": true
+          },
           "templateId": {
             "type": "integer",
             "format": "int32"
@@ -8095,8 +8428,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitPrice": {
             "type": "number",
@@ -8105,6 +8438,10 @@
           "discount": {
             "type": "number",
             "format": "double"
+          },
+          "discountType": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -8144,6 +8481,28 @@
           "lastActiveAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransactionAttachmentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -8232,9 +8591,28 @@
             },
             "nullable": true
           },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionAttachmentDto"
+            },
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
           "originalTransactionId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "originalTransactionNumber": {
+            "type": "string",
             "nullable": true
           },
           "refundReason": {
@@ -8250,6 +8628,10 @@
           "id": {
             "type": "integer",
             "format": "int32"
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
           },
           "partnerId": {
             "type": "integer",
@@ -8289,6 +8671,10 @@
           "originalTransactionId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "originalTransactionNumber": {
+            "type": "string",
             "nullable": true
           },
           "refundReason": {
@@ -8379,7 +8765,7 @@
         "additionalProperties": false
       },
       "TransactionStatus": {
-        "enum": ["Open", "Closed", "PartiallyPaid"],
+        "enum": ["Open", "Closed", "PartiallyPaid", "Overdue"],
         "type": "string"
       },
       "TransactionType": {
@@ -8455,8 +8841,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -8734,10 +9120,6 @@
             "type": "number",
             "format": "double"
           },
-          "retailPrice": {
-            "type": "number",
-            "format": "double"
-          },
           "lowStockThreshold": {
             "type": "integer",
             "format": "int32"
@@ -8774,8 +9156,8 @@
             "format": "int32"
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "unitPrice": {
             "type": "number",
@@ -8784,6 +9166,9 @@
           "discount": {
             "type": "number",
             "format": "double"
+          },
+          "discountType": {
+            "$ref": "#/components/schemas/DiscountType"
           }
         },
         "additionalProperties": false
@@ -8936,6 +9321,33 @@
         },
         "additionalProperties": false
       },
+      "VerifyResetCodeRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerifyResetCodeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "WalletDto": {
         "type": "object",
         "properties": {
@@ -9006,6 +9418,11 @@
           },
           "party": {
             "type": "string",
+            "nullable": true
+          },
+          "partnerId": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "amount": {
@@ -9103,14 +9520,17 @@
             "format": "int32"
           },
           "totalUnits": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "stockValue": {
             "type": "number",
             "format": "double"
           },
           "isArchived": {
+            "type": "boolean"
+          },
+          "isDeletable": {
             "type": "boolean"
           }
         },
@@ -9128,8 +9548,7 @@
             "format": "date-time"
           },
           "kind": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/MovementKind"
           },
           "productId": {
             "type": "integer",
@@ -9147,17 +9566,27 @@
             "type": "string",
             "nullable": true
           },
+          "counterpartyWarehouseId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "counterpartyPartnerId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "note": {
             "type": "string",
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "balanceAfter": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -9186,8 +9615,8 @@
             "nullable": true
           },
           "quantity": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           },
           "averageCost": {
             "type": "number",
