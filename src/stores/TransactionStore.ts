@@ -163,10 +163,18 @@ export class TransactionStore implements ITransactionStore {
 		// A refund is created through the same typed POST /api/transactions; the type
 		// discriminates a refund of a sale vs a supply (the original is never a refund).
 		const refundType = transaction.type === "Supply" ? "SupplyRefund" : "SaleRefund";
+		// The backend requires the warehouse (stock returns to the original's warehouse).
+		// The detail record carries warehouseId; bail out clearly if it is somehow absent.
+		const warehouseId = transaction.warehouseId;
+		if (warehouseId == null) {
+			this.notificationStore.error(i18next.t("transaction.refund.error"));
+			return null;
+		}
 		const result = await withSaving(this, () =>
 			TransactionApi.create({
 				type: refundType,
 				partnerId: transaction.partnerId,
+				warehouseId,
 				originalTransactionId: transaction.id,
 				refundReason: request.reason,
 				lines: request.lines,

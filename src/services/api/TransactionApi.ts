@@ -38,6 +38,7 @@ type RawTransaction = {
 	originalTransactionId?: number | null;
 	refundReason?: string | null;
 	// detail-only
+	warehouseId?: number | null;
 	warehouseName?: string | null;
 	remaining?: number;
 	payments?: TransactionPaymentLine[] | null;
@@ -64,6 +65,7 @@ const toRecord = (raw: RawTransaction): TransactionRecord => ({
 	status: raw.status,
 	lines: raw.lines ?? [],
 	time: timeOf(raw.date),
+	warehouseId: raw.warehouseId ?? undefined,
 	warehouseName: raw.warehouseName ?? undefined,
 	createdBy: raw.createdBy ?? undefined,
 	remaining: raw.remaining ?? Math.max(0, raw.totalDue - raw.totalPaid),
@@ -122,6 +124,7 @@ class TransactionApi extends BaseApi {
 
 		if (isRefundRequest(request)) {
 			form.append("PartnerId", String(request.partnerId));
+			form.append("WarehouseId", String(request.warehouseId));
 			form.append("OriginalTransactionId", String(request.originalTransactionId));
 			form.append("RefundReason", request.refundReason);
 			request.lines.forEach((line, i) => {

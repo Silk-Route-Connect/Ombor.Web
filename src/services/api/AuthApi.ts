@@ -27,6 +27,19 @@ const AUTH_BASE = "/api/auth" as const;
  */
 const activeLanguage = (): string => i18n.resolvedLanguage ?? i18n.language ?? "ru";
 
+/**
+ * Axios request config carrying the active UI language via the `X-Ombor-Language`
+ * header. The backend REQUIRES this on the OTP flows (registration `verification`)
+ * to localize the SMS and validates it against {ru, uz-Latn, uz-Cyrl}. Sent on
+ * every auth call that can trigger a localized SMS so none regress the
+ * missing-header 400.
+ */
+const withLanguage = () => ({
+	headers: {
+		"X-Ombor-Language": activeLanguage(),
+	},
+});
+
 export const AuthEndpoints = {
 	base: AUTH_BASE,
 	login: `${AUTH_BASE}/login`,
@@ -47,17 +60,21 @@ class AuthApi {
 	}
 
 	async register(request: RegisterRequest): Promise<RegisterResponse> {
-		const { data } = await http.post<RegisterResponse>(AuthEndpoints.register, request, {
-			headers: {
-				"X-Ombor-Language": activeLanguage(),
-			},
-		});
+		const { data } = await http.post<RegisterResponse>(
+			AuthEndpoints.register,
+			request,
+			withLanguage(),
+		);
 
 		return data;
 	}
 
 	async verifyPhone(request: VerifyPhoneRequest): Promise<VerifyOtpResponse> {
-		const { data } = await http.post<VerifyOtpResponse>(AuthEndpoints.verification, request);
+		const { data } = await http.post<VerifyOtpResponse>(
+			AuthEndpoints.verification,
+			request,
+			withLanguage(),
+		);
 
 		return data;
 	}
@@ -81,7 +98,11 @@ class AuthApi {
 	/* ── Password reset (mocked target v1 contract — see models/auth.ts) ── */
 
 	async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
-		const { data } = await http.post<ForgotPasswordResponse>(AuthEndpoints.forgotPassword, request);
+		const { data } = await http.post<ForgotPasswordResponse>(
+			AuthEndpoints.forgotPassword,
+			request,
+			withLanguage(),
+		);
 
 		return data;
 	}
@@ -90,13 +111,18 @@ class AuthApi {
 		const { data } = await http.post<VerifyResetCodeResponse>(
 			AuthEndpoints.verifyResetCode,
 			request,
+			withLanguage(),
 		);
 
 		return data;
 	}
 
 	async resetPassword(request: ResetPasswordRequest): Promise<ResetPasswordResponse> {
-		const { data } = await http.post<ResetPasswordResponse>(AuthEndpoints.resetPassword, request);
+		const { data } = await http.post<ResetPasswordResponse>(
+			AuthEndpoints.resetPassword,
+			request,
+			withLanguage(),
+		);
 
 		return data;
 	}

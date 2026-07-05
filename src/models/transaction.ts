@@ -60,6 +60,9 @@ export type TransactionRecord = {
 	   create flow keeps compiling against the same type). ── */
 	/** Time-of-day "HH:mm" for the detail header. */
 	time?: string;
+	/** Detail-only: the warehouse the transaction moved stock through. Carried so a
+	 * refund can return stock to the same warehouse (the backend requires WarehouseId). */
+	warehouseId?: number;
 	warehouseName?: string;
 	createdBy?: string;
 	/** Outstanding amount (totalDue − totalPaid). */
@@ -163,6 +166,8 @@ export type CreateTransactionEntryRequest = {
 export type CreateTransactionRefundRequest = {
 	type: "SaleRefund" | "SupplyRefund";
 	partnerId: number;
+	/** The original transaction's warehouse — the refund returns stock here (backend-required). */
+	warehouseId: number;
 	originalTransactionId: number;
 	refundReason: string;
 	lines: CreateRefundLine[];
