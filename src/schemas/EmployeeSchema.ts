@@ -77,7 +77,13 @@ export const EmployeeSchema = z.object({
 		.min(1, i18next.t("employee.validation.dateRequired"))
 		.refine(
 			(date) => {
-				const employmentDate = new Date(date);
+				// `date` is a YYYY-MM-DD value from a native date input. `new Date("YYYY-MM-DD")`
+				// parses as UTC midnight, so in any timezone ahead of UTC (e.g. UTC+5, Uzbekistan)
+				// today's date reads as *later today* and wrongly fails the "not in the future"
+				// check — blocking the default hire date. Parse the parts as a local date so both
+				// sides compare at local midnight.
+				const [y, m, d] = date.split("-").map(Number);
+				const employmentDate = y && m && d ? new Date(y, m - 1, d) : new Date(date);
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
 				return employmentDate <= today;
