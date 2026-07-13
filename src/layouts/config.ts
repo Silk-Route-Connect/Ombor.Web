@@ -30,24 +30,6 @@ export interface NavItem {
 export const navItems: NavItem[] = [
 	{ labelKey: "sidebar.dashboard", icon: SpaceDashboardOutlinedIcon, to: PATHS.dashboard },
 	{
-		// «Каталог» — intentional divergence from the bundle's «Продукция» (product decision).
-		labelKey: "sidebar.production",
-		icon: Inventory2OutlinedIcon,
-		children: [
-			{ labelKey: "sidebar.products", to: PATHS.products },
-			{ labelKey: "sidebar.categories", to: PATHS.categories },
-		],
-	},
-	{
-		labelKey: "sidebar.warehouse",
-		icon: WarehouseOutlinedIcon,
-		children: [
-			{ labelKey: "sidebar.warehouses", to: PATHS.warehouses },
-			{ labelKey: "sidebar.adjustments", to: PATHS.adjustments },
-			{ labelKey: "sidebar.transfers", to: PATHS.transfers },
-		],
-	},
-	{
 		labelKey: "sidebar.transactions",
 		icon: SwapHorizOutlinedIcon,
 		children: [
@@ -71,5 +53,23 @@ export const navItems: NavItem[] = [
 		labelKey: "sidebar.personnel",
 		icon: PeopleOutlinedIcon,
 		children: [{ labelKey: "sidebar.employees", to: PATHS.employees }],
+	},
+	{
+		// «Каталог» — intentional divergence from the bundle's «Продукция» (product decision).
+		labelKey: "sidebar.production",
+		icon: Inventory2OutlinedIcon,
+		children: [
+			{ labelKey: "sidebar.products", to: PATHS.products },
+			{ labelKey: "sidebar.categories", to: PATHS.categories },
+		],
+	},
+	{
+		labelKey: "sidebar.warehouse",
+		icon: WarehouseOutlinedIcon,
+		children: [
+			{ labelKey: "sidebar.warehouses", to: PATHS.warehouses },
+			{ labelKey: "sidebar.adjustments", to: PATHS.adjustments },
+			{ labelKey: "sidebar.transfers", to: PATHS.transfers },
+		],
 	},
 ];
