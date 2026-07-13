@@ -30,6 +30,15 @@ export interface NavItem {
 export const navItems: NavItem[] = [
 	{ labelKey: "sidebar.dashboard", icon: SpaceDashboardOutlinedIcon, to: PATHS.dashboard },
 	{
+		labelKey: "sidebar.finance",
+		icon: MonetizationOnOutlinedIcon,
+		children: [
+			{ labelKey: "sidebar.payments", to: PATHS.payments },
+			{ labelKey: "sidebar.debts", to: PATHS.debts },
+			{ labelKey: "sidebar.wallets", to: PATHS.wallets },
+		],
+	},
+	{
 		labelKey: "sidebar.transactions",
 		icon: SwapHorizOutlinedIcon,
 		children: [
@@ -38,15 +47,6 @@ export const navItems: NavItem[] = [
 			{ labelKey: "sidebar.sales", to: PATHS.sales },
 			{ labelKey: "sidebar.supplies", to: PATHS.supplies },
 			{ labelKey: "sidebar.templates", to: PATHS.templates },
-		],
-	},
-	{
-		labelKey: "sidebar.finance",
-		icon: MonetizationOnOutlinedIcon,
-		children: [
-			{ labelKey: "sidebar.payments", to: PATHS.payments },
-			{ labelKey: "sidebar.debts", to: PATHS.debts },
-			{ labelKey: "sidebar.wallets", to: PATHS.wallets },
 		],
 	},
 	{
