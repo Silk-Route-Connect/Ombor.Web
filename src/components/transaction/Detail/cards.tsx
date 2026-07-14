@@ -6,7 +6,7 @@ import { TransactionStatusChip } from "components/transaction/TransactionBadges"
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import {
 	directionOf,
@@ -518,7 +518,7 @@ export const PaymentsCard: React.FC<{
 								}}
 							>
 								<Box component="span" sx={numericSx}>
-									{formatDate(p.date)}
+									{formatDateTime(p.date)}
 								</Box>
 								<MetaDot />
 								{p.walletName}
@@ -580,7 +580,7 @@ export const RefundHistoryCard: React.FC<{
 							sx={{ cursor: "pointer", "&:hover td": { bgcolor: designTokens.gray25 } }}
 						>
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left", pl: "18px" }}>
-								{formatDate(r.date)}
+								{formatDateTime(r.date)}
 							</Box>
 							<Box
 								component="td"
@@ -718,8 +718,7 @@ export const AuditCard: React.FC<{ tx: TransactionRecord; isRefund: boolean }> =
 			v: (
 				<>
 					<Box component="span" sx={numericSx}>
-						{formatDate(tx.date)}
-						{tx.time ? ` · ${tx.time}` : ""}
+						{formatDateTime(tx.date)}
 					</Box>
 					{tx.createdBy ? (
 						<>

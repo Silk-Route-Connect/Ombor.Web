@@ -10,7 +10,7 @@ import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Loadable } from "helpers/Loading";
 import { StockAdjustment } from "models/stockAdjustment";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
@@ -26,13 +26,6 @@ interface StockAdjustmentsTableProps {
 	/** Whether any adjustment exists at all (drives the empty-state copy). */
 	hasAny: boolean;
 	onCreate: () => void;
-}
-
-/** Local time-of-day (HH:mm) for the audited timestamp shown in the expand row. */
-function timeOf(iso: string): string {
-	const d = new Date(iso);
-	const pad = (n: number) => n.toString().padStart(2, "0");
-	return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 const ExpandField: React.FC<{ label: string; children: React.ReactNode; mono?: boolean }> = ({
@@ -126,7 +119,7 @@ const AdjustmentDetail: React.FC<{ adjustment: StockAdjustment }> = ({ adjustmen
 						{adjustment.categoryName ?? "—"}
 					</ExpandField>
 					<ExpandField label={t("adjustment.detail.dateTime")} mono>
-						{formatDate(adjustment.date)}, {timeOf(adjustment.date)}
+						{formatDateTime(adjustment.date)}
 					</ExpandField>
 					<ExpandField label={t("adjustment.detail.balanceAfter")} mono>
 						{formatQuantity(adjustment.balanceAfter)} {unit}
@@ -207,7 +200,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 						component="span"
 						sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
 					>
-						{formatDate(a.date)}
+						{formatDateTime(a.date)}
 					</Box>
 				),
 			},

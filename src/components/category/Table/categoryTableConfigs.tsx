@@ -75,6 +75,7 @@ export function buildCategoryColumns({
 		},
 		{
 			key: "productCount",
+			field: "productCount",
 			headerName: t("category.table.productCount"),
 			width: "12%",
 			align: "right",

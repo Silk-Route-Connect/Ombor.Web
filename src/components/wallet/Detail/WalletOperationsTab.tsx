@@ -8,7 +8,7 @@ import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
 import { paymentDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { matchesSearch } from "utils/stringUtils";
 
@@ -100,7 +100,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 						component="span"
 						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 					>
-						{formatDate(o.date)}
+						{formatDateTime(o.date)}
 					</Box>
 				),
 			},

@@ -9,7 +9,7 @@ import {
 import { TFunction } from "i18next";
 import { TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
@@ -71,7 +71,7 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 					component="span"
 					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
 				>
-					{formatDate(tx.date)}
+					{formatDateTime(tx.date)}
 				</Box>
 			),
 		},

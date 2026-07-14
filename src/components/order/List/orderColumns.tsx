@@ -8,7 +8,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box } from "@mui/material";
@@ -36,7 +36,7 @@ export function buildOrderColumns(t: TFunction): Column<Order>[] {
 			sortValue: (o) => Date.parse(o.date),
 			renderCell: (o) => (
 				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
-					{formatDate(o.date)}
+					{formatDateTime(o.date)}
 				</Box>
 			),
 		},

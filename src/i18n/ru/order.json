@@ -11,7 +11,7 @@
   "order.list.overdueTooltip": "Доставка просрочена",
   "order.col.customer": "Клиент",
   "order.col.positions": "Позиций",
-  "order.col.total": "Сумма, UZS",
+  "order.col.total": "Сумма",
   "order.col.delivery": "Доставка",
   "order.col.status": "Статус",
   "order.col.source": "Источник",

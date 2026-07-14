@@ -17,7 +17,7 @@ import { PaymentRecord } from "models/payment";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
-import { formatDate, PresetOption } from "utils/dateUtils";
+import { formatDate, formatDateTime, PresetOption } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -127,7 +127,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 						component="span"
 						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 					>
-						{formatDate(p.date)}
+						{formatDateTime(p.date)}
 					</Box>
 				),
 			},

@@ -99,7 +99,7 @@
   "transaction.col.type": "Тип",
   "transaction.col.partner": "Партнёр",
   "transaction.col.positions": "Позиций",
-  "transaction.col.amount": "Сумма, UZS",
+  "transaction.col.amount": "Сумма",
   "transaction.col.status": "Статус оплаты",
 
   "transaction.badge.base.Sale": "Продажа",

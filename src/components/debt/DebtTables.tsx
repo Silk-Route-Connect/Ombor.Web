@@ -7,7 +7,7 @@ import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { Debt } from "models/debt";
 import { DebtPartnerGroup } from "stores/DebtStore";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDate, formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
@@ -323,7 +323,7 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 									{formatEntityId(d.number ?? d.transactionId)}
 								</Box>
 								<Box component="div" sx={{ ...numericSx, fontSize: 12, color: "text.secondary" }}>
-									{formatDate(d.date)}
+									{formatDateTime(d.date)}
 								</Box>
 							</Box>
 						</Box>

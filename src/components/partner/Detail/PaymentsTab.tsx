@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { PartnerLedgerEntry } from "models/partner";
 import { numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatCurrency } from "utils/formatCurrency";
 import { balanceColor } from "utils/partnerUtils";
@@ -18,6 +20,7 @@ import { DETAIL_ROWS_PER_PAGE_OPTIONS, useDetailTablePage } from "./ledgerHelper
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type TypeFilter = "all" | "payment" | "deposit" | "withdraw";
+type SortCol = "date" | "type" | "amount" | "wallet";
 
 interface PaymentsTabProps {
 	payments: PartnerLedgerEntry[];
@@ -29,6 +32,8 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 	const { t } = useTranslation();
 	const [type, setType] = useState<TypeFilter>("all");
 	const [search, setSearch] = useState("");
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const filtered = useMemo(() => {
 		const ql = search.trim().toLowerCase();
@@ -52,10 +57,38 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [payments, type, search, t]);
 
+	const sorted = useMemo(() => {
+		const accessor = (p: PartnerLedgerEntry): string | number => {
+			switch (sortCol) {
+				case "date":
+					return p.date;
+				case "type":
+					return t(eventLabelKey(p.type));
+				case "amount":
+					return Math.abs(p.delta);
+				case "wallet":
+					return p.walletName ?? "";
+				default:
+					return "";
+			}
+		};
+		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? s.reverse() : s;
+	}, [filtered, sortCol, sortDir, t]);
+
 	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${type}|${search}`,
+		`${type}|${search}|${sortCol}|${sortDir}`,
 	);
-	const rows = paginate(filtered);
+	const rows = paginate(sorted);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	const handleExport = () => {
 		exportToCsv<PartnerLedgerEntry>(
@@ -108,18 +141,39 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 					<thead>
 						<tr>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.pays.col.date")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.pays.col.type")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.pays.col.amount")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.pays.col.wallet")}
-							</Box>
+							<DetailSortHeader
+								col="date"
+								label={t("partner.pays.col.date")}
+								active={sortCol === "date"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="type"
+								label={t("partner.pays.col.type")}
+								active={sortCol === "type"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="amount"
+								label={t("partner.pays.col.amount")}
+								active={sortCol === "amount"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
+							<DetailSortHeader
+								col="wallet"
+								label={t("partner.pays.col.wallet")}
+								active={sortCol === "wallet"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -131,7 +185,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
 								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
-									{formatDate(p.date)}
+									{formatDateTime(p.date)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
 									<EventCell type={p.type} label={t(eventLabelKey(p.type))} />

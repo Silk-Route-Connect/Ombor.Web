@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { PartnerLedgerEntry, PartnerLedgerStatus } from "models/partner";
 import { numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -19,6 +21,7 @@ import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type TypeFilter = "all" | "sale" | "supply" | "refund";
 type StatusFilter = "all" | "open" | "paid" | "partial" | "unpaid";
+type SortCol = "date" | "type" | "number" | "positions" | "amount" | "status";
 
 const STATUS_TONE: Record<"paid" | "partial" | "unpaid", "success" | "warning" | "error"> = {
 	paid: "success",
@@ -45,6 +48,8 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 	const [type, setType] = useState<TypeFilter>("all");
 	const [status, setStatus] = useState<StatusFilter>(initialStatus ?? "all");
 	const [search, setSearch] = useState("");
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const filtered = useMemo(() => {
 		const ql = search.trim().toLowerCase();
@@ -73,10 +78,42 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [transactions, type, status, search, t]);
 
+	const sorted = useMemo(() => {
+		const accessor = (tx: PartnerLedgerEntry): string | number => {
+			switch (sortCol) {
+				case "date":
+					return tx.date;
+				case "type":
+					return t(eventLabelKey(tx.type));
+				case "number":
+					return tx.reference ?? "";
+				case "positions":
+					return tx.itemCount ?? 0;
+				case "amount":
+					return Math.abs(tx.delta);
+				case "status":
+					return tx.status ?? "";
+				default:
+					return "";
+			}
+		};
+		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? s.reverse() : s;
+	}, [filtered, sortCol, sortDir, t]);
+
 	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${type}|${status}|${search}`,
+		`${type}|${status}|${search}|${sortCol}|${sortDir}`,
 	);
-	const rows = paginate(filtered);
+	const rows = paginate(sorted);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	const statusChip = (s?: PartnerLedgerStatus) => {
 		if (!s || s === "done") {
@@ -163,24 +200,56 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 					<thead>
 						<tr>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.txns.col.date")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.txns.col.type")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.txns.col.number")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.txns.col.positions")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.txns.col.amount")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.txns.col.status")}
-							</Box>
+							<DetailSortHeader
+								col="date"
+								label={t("partner.txns.col.date")}
+								active={sortCol === "date"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="type"
+								label={t("partner.txns.col.type")}
+								active={sortCol === "type"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="number"
+								label={t("partner.txns.col.number")}
+								active={sortCol === "number"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="positions"
+								label={t("partner.txns.col.positions")}
+								active={sortCol === "positions"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
+							<DetailSortHeader
+								col="amount"
+								label={t("partner.txns.col.amount")}
+								active={sortCol === "amount"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
+							<DetailSortHeader
+								col="status"
+								label={t("partner.txns.col.status")}
+								active={sortCol === "status"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -192,7 +261,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
 								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
-									{formatDate(tx.date)}
+									{formatDateTime(tx.date)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
 									<EventCell type={tx.type} label={t(eventLabelKey(tx.type))} />

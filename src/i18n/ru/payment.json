@@ -79,7 +79,7 @@
   "payment.table.direction": "Направление",
   "payment.table.party": "Партнёр / Сотрудник",
   "payment.table.wallet": "Касса",
-  "payment.table.amount": "Сумма, UZS",
+  "payment.table.amount": "Сумма",
 
   "payment.empty.title": "Пока нет платежей",
   "payment.empty.body": "Проведите первый платёж — оплату, депозит, вывод, зарплату или общий расход.",

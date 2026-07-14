@@ -2,17 +2,11 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Order, OrderStatus } from "models/order";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 
 import CloseIcon from "@mui/icons-material/Close";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box, Typography } from "@mui/material";
-
-const timeOf = (iso: string): string => {
-	const d = new Date(iso);
-	const pad = (n: number) => n.toString().padStart(2, "0");
-	return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
 
 type TerminalStatus = "Cancelled" | "Rejected" | "Returned";
 const isTerminal = (s: OrderStatus): s is TerminalStatus =>
@@ -96,7 +90,7 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 					}}
 				>
 					<Box component="span" sx={numericSx}>
-						{formatDate(last.at)}, {timeOf(last.at)}
+						{formatDateTime(last.at)}
 					</Box>
 					{last.by && <> · {last.by}</>}
 				</Box>

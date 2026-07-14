@@ -2,7 +2,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -46,7 +46,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 					component="span"
 					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
 				>
-					{formatDate(transfer.date)}
+					{formatDateTime(transfer.date)}
 				</Typography>
 			),
 		},
@@ -54,12 +54,14 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			key: "from",
 			headerName: t("transfer.table.from"),
 			width: "22%",
+			sortValue: (transfer) => transfer.fromWarehouseName,
 			renderCell: (transfer) => <WarehouseCell name={transfer.fromWarehouseName} />,
 		},
 		{
 			key: "to",
 			headerName: t("transfer.table.to"),
 			width: "22%",
+			sortValue: (transfer) => transfer.toWarehouseName,
 			renderCell: (transfer) => <WarehouseCell name={transfer.toWarehouseName} accent />,
 		},
 		{
@@ -67,6 +69,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			headerName: t("transfer.table.positions"),
 			width: "10%",
 			align: "right",
+			sortValue: (transfer) => transfer.lines.length,
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ ...numericSx, color: designTokens.gray700 }}>
 					{transfer.lines.length}
@@ -78,6 +81,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			headerName: t("transfer.table.units"),
 			width: "11%",
 			align: "right",
+			sortValue: (transfer) => transferUnits(transfer),
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 					{formatQuantity(transferUnits(transfer))}
@@ -88,6 +92,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			key: "createdBy",
 			headerName: t("transfer.table.createdBy"),
 			width: "15%",
+			sortValue: (transfer) => transfer.createdBy,
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
 					{transfer.createdBy}
