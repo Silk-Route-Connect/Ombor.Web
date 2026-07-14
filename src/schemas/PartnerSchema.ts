@@ -1,6 +1,7 @@
 import i18next from "i18n/config";
 import { PartnerType } from "models/partner";
 import { PARTNER_TYPES } from "utils/partnerUtils";
+import { uzPhoneToStored } from "utils/phoneUtils";
 import { z } from "zod";
 
 export const MAX_PHONES_COUNT = 5;
@@ -13,7 +14,9 @@ export const PartnerTypeSchema = z.custom<PartnerType>(
 const phoneRegex = /^\+?\d{7,15}$/;
 const PhoneNumberSchema = z
 	.string()
-	.transform((v) => v.replace(/\s+/g, ""))
+	// Canonicalise every row to +998XXXXXXXXX (idempotent) so untouched
+	// edit-prefilled rows are normalised too, not just keystroke-driven ones.
+	.transform((v) => uzPhoneToStored(v))
 	.refine((v) => v === "" || phoneRegex.test(v), {
 		message: i18next.t("partner.validation.phoneNumbersInvalid"),
 	});
