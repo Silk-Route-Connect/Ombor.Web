@@ -294,7 +294,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 									}}
 								>
 									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
-										{formatDateTime(e.date)}
+										{e.type === "opening" ? formatDate(e.date) : formatDateTime(e.date)}
 									</Box>
 									<Box component="td" sx={bodyCellSx}>
 										<EventCell type={e.type} label={t(eventLabelKey(e.type))} />
