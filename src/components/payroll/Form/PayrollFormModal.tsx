@@ -6,6 +6,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -45,6 +46,8 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 			onClose,
 		});
 
+		const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+
 		const title = t("payroll.createTitle");
 
 		return (
@@ -56,6 +59,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 					fullWidth
 					disableEscapeKeyDown={isSaving}
 					disableRestoreFocus
+					onKeyDown={onKeyDown}
 				>
 					<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 

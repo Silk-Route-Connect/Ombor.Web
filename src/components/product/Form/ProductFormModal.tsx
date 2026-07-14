@@ -5,6 +5,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { useProductForm } from "hooks/product/useProductForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
@@ -38,6 +39,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	const { categoryStore } = useStore();
 
 	const form = useProductForm({ isOpen, isSaving, product, onSave });
+	const onKeyDown = useFormKeyboardSubmit(form.submit, isSaving);
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		form.formState.isDirty,
@@ -74,6 +76,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{
 					// Bundle .fcard/.prod-dialog: 720px wide, r-lg corners.
 					paper: { sx: { width: 720, maxWidth: "94%", borderRadius: "12px" } },

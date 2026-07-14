@@ -9,6 +9,7 @@ import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWalletTransferForm } from "hooks/wallet/useWalletTransferForm";
 import { observer } from "mobx-react-lite";
 import { Wallet } from "models/wallet";
@@ -146,6 +147,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const fromId = watch("fromWalletId");
 	const toId = watch("toWalletId");
@@ -179,6 +181,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

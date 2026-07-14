@@ -6,6 +6,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWarehouseForm } from "hooks/warehouse/useWarehouseForm";
 import { observer } from "mobx-react-lite";
 import { Warehouse } from "models/warehouse";
@@ -31,6 +32,7 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { form, canSave, submit } = useWarehouseForm({ isOpen, isSaving, warehouse, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { control, formState } = form;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -56,6 +58,7 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

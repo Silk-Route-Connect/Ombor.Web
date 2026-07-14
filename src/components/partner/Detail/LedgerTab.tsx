@@ -10,7 +10,6 @@ import { balanceColor } from "utils/partnerUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import { Box } from "@mui/material";
 
@@ -166,20 +165,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					−
 				</Box>
 				{t("partner.ledger.legendNeg")}
-			</Box>
-			<Box sx={{ flexGrow: 1 }} />
-			<Box
-				component="span"
-				sx={{
-					display: "inline-flex",
-					alignItems: "center",
-					gap: "6px",
-					fontWeight: 600,
-					color: "text.secondary",
-				}}
-			>
-				<InfoOutlinedIcon sx={{ fontSize: 14, color: "info.main" }} />
-				{t("partner.ledger.legendBalance")}
 			</Box>
 		</Box>
 	);

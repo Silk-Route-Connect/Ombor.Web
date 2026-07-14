@@ -8,6 +8,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
@@ -140,6 +141,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 	const { t } = useTranslation();
 	const editing = Boolean(wallet);
 	const { form, canSave, submit } = useWalletForm({ isOpen, isSaving, wallet, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { control, formState } = form;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -155,6 +157,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

@@ -5,6 +5,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Category } from "models/category";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -28,6 +29,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { form, canSave, submit } = useCategoryForm({ isOpen, isSaving, category, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		form.formState.isDirty,
@@ -51,6 +53,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 				maxWidth="sm"
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 			>
 				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 
@@ -83,7 +86,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 						maxRows={6}
 						disabled={isSaving}
 						error={!!errors.description}
-						helperText={errors.description?.message ?? t("category.form.descriptionHint")}
+						helperText={errors.description?.message}
 						{...register("description")}
 					/>
 				</DialogContent>
