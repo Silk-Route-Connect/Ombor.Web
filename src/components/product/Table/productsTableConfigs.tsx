@@ -47,7 +47,7 @@ const Money = ({ value, archived }: { value: number | null; archived?: boolean }
  * primary-soft with the primary box icon. Archived rows fade it to 50%.
  */
 const ProductThumb = ({ product }: { product: Product }) => {
-	const image = product.images[0];
+	const image = product.images?.[0];
 	const src = image ? (getImageFullUrl(image.thumbnailUrl ?? image.originalUrl) ?? "") : null;
 
 	return (
