@@ -21,11 +21,15 @@ const BOM = String.fromCharCode(0xfeff);
 
 function escapeCell(raw: string | number | null | undefined): string {
 	const value = raw == null ? "" : String(raw);
+	// Neutralise CSV formula injection: a leading =, +, -, @ (or tab/CR) makes
+	// Excel/Sheets evaluate the cell as a formula. Prefix an apostrophe so the
+	// spreadsheet treats it as literal text (OWASP CSV Injection).
+	const guarded = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
 	// Quote when the value contains the delimiter, a quote, or a newline.
-	if (/[";\r\n]/.test(value)) {
-		return `"${value.replace(/"/g, '""')}"`;
+	if (/[";\r\n]/.test(guarded)) {
+		return `"${guarded.replace(/"/g, '""')}"`;
 	}
-	return value;
+	return guarded;
 }
 
 /**
