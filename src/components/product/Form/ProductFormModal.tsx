@@ -54,17 +54,25 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	}, [isOpen, categoryStore]);
 
 	const categories = categoryStore.allCategories === "loading" ? [] : categoryStore.allCategories;
-	const singleCategoryId = categories.length === 1 ? categories[0].id : null;
+	const firstCategoryId =
+		categories.length > 0
+			? [...categories].sort((a, b) => a.name.localeCompare(b.name, "ru"))[0].id
+			: null;
 
-	// Pre-select the category only when the tenant has exactly one (no
-	// default-category concept — canon rule 42). Create flow only; not marked
-	// dirty so closing an untouched form doesn't prompt.
+	// Pre-select the first category (A–Z) on create — there is no default-category
+	// concept (canon rule 42), so the alphabetically-first is the sensible default.
+	// Create flow only; not marked dirty so closing an untouched form doesn't prompt.
 	useEffect(() => {
-		if (isOpen && !product && singleCategoryId != null) {
-			form.form.setValue("categoryId", singleCategoryId, { shouldDirty: false });
+		if (
+			isOpen &&
+			!product &&
+			firstCategoryId != null &&
+			form.form.getValues("categoryId") == null
+		) {
+			form.form.setValue("categoryId", firstCategoryId, { shouldDirty: false });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isOpen, product, singleCategoryId]);
+	}, [isOpen, product, firstCategoryId]);
 
 	const handleGenerateSku = () =>
 		form.form.setValue("sku", generateSku(), { shouldDirty: true, shouldValidate: true });
