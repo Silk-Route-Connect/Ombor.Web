@@ -1,4 +1,5 @@
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
@@ -9,7 +10,13 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Typography } from "@mui/material";
 
-const WarehouseCell: React.FC<{ name: string; accent?: boolean }> = ({ name, accent }) => (
+const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+const WarehouseCell: React.FC<{ id: number; name: string; accent?: boolean }> = ({
+	id,
+	name,
+	accent,
+}) => (
 	<Box
 		component="span"
 		sx={{
@@ -17,14 +24,14 @@ const WarehouseCell: React.FC<{ name: string; accent?: boolean }> = ({ name, acc
 			alignItems: "center",
 			gap: "7px",
 			whiteSpace: "nowrap",
-			color: accent ? "primary.main" : "text.secondary",
 			fontWeight: accent ? 600 : 400,
 		}}
+		onClick={stop}
 	>
 		<WarehouseOutlinedIcon
 			sx={{ fontSize: 15, color: accent ? "primary.main" : "text.disabled" }}
 		/>
-		{name}
+		<WarehouseLink id={id} name={name} />
 	</Box>
 );
 
@@ -55,14 +62,18 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			headerName: t("transfer.table.from"),
 			width: "22%",
 			sortValue: (transfer) => transfer.fromWarehouseName,
-			renderCell: (transfer) => <WarehouseCell name={transfer.fromWarehouseName} />,
+			renderCell: (transfer) => (
+				<WarehouseCell id={transfer.fromWarehouseId} name={transfer.fromWarehouseName} />
+			),
 		},
 		{
 			key: "to",
 			headerName: t("transfer.table.to"),
 			width: "22%",
 			sortValue: (transfer) => transfer.toWarehouseName,
-			renderCell: (transfer) => <WarehouseCell name={transfer.toWarehouseName} accent />,
+			renderCell: (transfer) => (
+				<WarehouseCell id={transfer.toWarehouseId} name={transfer.toWarehouseName} accent />
+			),
 		},
 		{
 			key: "positions",

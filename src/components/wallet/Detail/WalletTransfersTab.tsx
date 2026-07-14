@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
 import { numericSx } from "theme";
@@ -19,13 +20,20 @@ interface WalletTransfersTabProps {
 	onOpenTransfer: (transferId: number) => void;
 }
 
-const WalletCell: React.FC<{ name: string; type: WalletTransfer["fromWalletType"] }> = ({
-	name,
-	type,
-}) => (
-	<Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}>
+const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+const WalletCell: React.FC<{
+	id: number;
+	name: string;
+	type: WalletTransfer["fromWalletType"];
+}> = ({ id, name, type }) => (
+	<Box
+		component="span"
+		sx={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}
+		onClick={stop}
+	>
 		<WalletTypeAvatar type={type} size={24} iconSize={14} />
-		{name}
+		<WalletLink id={id} name={name} />
 	</Box>
 );
 
@@ -61,13 +69,17 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				key: "from",
 				headerName: t("wallet.transfers.from"),
 				sortValue: (tr) => tr.fromWalletName,
-				renderCell: (tr) => <WalletCell name={tr.fromWalletName} type={tr.fromWalletType} />,
+				renderCell: (tr) => (
+					<WalletCell id={tr.fromWalletId} name={tr.fromWalletName} type={tr.fromWalletType} />
+				),
 			},
 			{
 				key: "to",
 				headerName: t("wallet.transfers.to"),
 				sortValue: (tr) => tr.toWalletName,
-				renderCell: (tr) => <WalletCell name={tr.toWalletName} type={tr.toWalletType} />,
+				renderCell: (tr) => (
+					<WalletCell id={tr.toWalletId} name={tr.toWalletName} type={tr.toWalletType} />
+				),
 			},
 			{
 				key: "amount",

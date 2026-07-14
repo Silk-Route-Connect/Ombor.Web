@@ -10,6 +10,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { observer } from "mobx-react-lite";
@@ -178,11 +179,14 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				key: "wallet",
 				headerName: t("employee.payroll.wallet"),
 				sortValue: (p) => p.walletName ?? "",
-				renderCell: (p) => (
-					<Box component="span" sx={{ color: designTokens.gray700 }}>
-						{p.walletName || "—"}
-					</Box>
-				),
+				renderCell: (p) =>
+					p.walletName ? (
+						<WalletLink id={p.walletId} name={p.walletName} />
+					) : (
+						<Box component="span" sx={{ color: designTokens.gray700 }}>
+							—
+						</Box>
+					),
 			},
 		],
 		[t],
