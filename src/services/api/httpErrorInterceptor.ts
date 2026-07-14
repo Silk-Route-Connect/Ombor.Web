@@ -39,17 +39,12 @@ export function attachHttpErrorInterceptors(instance: AxiosInstance): void {
 					extra: { url },
 				});
 			} else {
-				// A 4xx means the server answered — it's up.
+				// A 4xx means the server answered — it's up. Client-caused 4xx
+				// (validation, not-found, conflict, auth) are user errors surfaced
+				// inline in the UI, not defects — they must not create Sentry events
+				// (the FE analog of the backend's BeforeSend filter). 5xx/network
+				// still report above; a beforeSend hook drops any 4xx as a backstop.
 				ConnectivityBridge.reportUp();
-				// Capture handled 4xx for visibility, but skip 401s: those are auth
-				// flow (incl. the expected bootstrap refresh 401) and just noise.
-				if (status !== 401) {
-					Sentry.captureException(err, {
-						level: "warning",
-						tags: { httpStatus: status, httpMethod: method },
-						extra: { url },
-					});
-				}
 			}
 
 			return Promise.reject(err);

@@ -7,6 +7,7 @@ import {
 	useNavigationType,
 } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { isAxiosError } from "axios";
 
 let initialized = false;
 
@@ -31,6 +32,22 @@ export function initSentry(): void {
 		dsn,
 		environment: import.meta.env.VITE_OMBOR_ENVIRONMENT ?? import.meta.env.MODE,
 		release: __APP_RELEASE__,
+		// Drop client-caused 4xx (validation / not-found / conflict / auth):
+		// these are user errors surfaced inline in the UI, not defects — the FE
+		// analog of the backend's exception filter. 5xx and network errors still
+		// report. Global backstop for the interceptor's own 4xx suppression.
+		beforeSend(event, hint) {
+			const error = hint?.originalException;
+			if (
+				isAxiosError(error) &&
+				error.response &&
+				error.response.status >= 400 &&
+				error.response.status < 500
+			) {
+				return null;
+			}
+			return event;
+		},
 		// Beta max-capture (plan decision #2); revisit before GA.
 		sendDefaultPii: true,
 		integrations: [
