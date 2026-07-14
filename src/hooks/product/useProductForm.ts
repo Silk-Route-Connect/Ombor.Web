@@ -9,7 +9,7 @@ export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues) => void;
+	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
 }
 
 export interface UseProductFormResult {
@@ -224,7 +224,10 @@ export const useProductForm = ({
 		}
 	}, [watchedType, setValue, clearErrors]);
 
-	const submit = handleSubmit(onSave);
+	// Thread the tracked image removals through to the save callback — RHF's
+	// handleSubmit only forwards validated form values, so the deletions
+	// (tracked outside the form) must be passed explicitly.
+	const submit = handleSubmit((values) => onSave(values, imagesToRemove));
 	// Save stays enabled (hard rule 5): validation runs on submit and reports
 	// inline; the button is only inert while a save is in flight.
 	const canSave = !isSaving;

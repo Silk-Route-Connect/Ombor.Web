@@ -21,7 +21,7 @@ export interface ProductFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues) => void;
+	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
 	onClose: () => void;
 }
 

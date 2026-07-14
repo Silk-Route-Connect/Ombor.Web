@@ -30,7 +30,7 @@ const ProductPage: React.FC = observer(() => {
 	const dialogMode = productStore.dialogMode;
 	const editingProduct = dialogMode.kind === "form" ? (dialogMode.product ?? null) : null;
 
-	const handleFormSave = (payload: ProductFormValues): void => {
+	const handleFormSave = (payload: ProductFormValues, imagesToRemove: number[]): void => {
 		const request: CreateProductRequest = {
 			categoryId: payload.categoryId,
 			name: payload.name,
@@ -47,7 +47,7 @@ const ProductPage: React.FC = observer(() => {
 		};
 
 		if (editingProduct) {
-			productStore.update({ ...request, id: editingProduct.id, imagesToDelete: [] });
+			productStore.update({ ...request, id: editingProduct.id, imagesToDelete: imagesToRemove });
 		} else {
 			productStore.create(request);
 		}
