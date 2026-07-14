@@ -478,7 +478,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 								quantity={quantity}
 								afterBalance={afterBalance}
 								overStock={overStock}
-								hasInput={selected != null && quantity > 0}
+								hasInput={selected != null}
 							/>
 							{overStock && (
 								<Typography

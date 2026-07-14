@@ -102,6 +102,8 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 										value={field.value ?? ""}
 										size="small"
 										fullWidth
+										multiline
+										minRows={2}
 										placeholder={t("warehouse.form.addressPlaceholder")}
 										disabled={isSaving}
 										error={!!fieldState.error}
