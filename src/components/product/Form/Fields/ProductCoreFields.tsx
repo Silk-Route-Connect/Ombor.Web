@@ -101,7 +101,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					</Field>
 
 					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-						<Field label={t("product.category")}>
+						<Field label={t("product.category")} required>
 							<Controller
 								name="categoryId"
 								control={control}

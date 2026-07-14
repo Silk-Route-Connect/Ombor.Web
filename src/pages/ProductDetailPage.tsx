@@ -145,7 +145,11 @@ const ProductDetailPage: React.FC = observer(() => {
 			label: t("product.detail.tabs.transactions"),
 			count: transactions === "loading" ? undefined : transactions.length,
 		},
-		{ key: "movements", label: t("product.detail.tabs.movements") },
+		{
+			key: "movements",
+			label: t("product.detail.tabs.movements"),
+			count: movements === "loading" ? undefined : movements.length,
+		},
 	];
 
 	return (

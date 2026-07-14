@@ -47,7 +47,6 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
-				subtitle={t("template.subtitle")}
 				actions={
 					<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 						{t("template.create")}

@@ -6,7 +6,6 @@ import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Typography } from "@mui/material";
 
@@ -108,15 +107,6 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 				<Typography component="span" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
 					{transfer.createdBy}
 				</Typography>
-			),
-		},
-		{
-			key: "chevron",
-			headerName: "",
-			width: 48,
-			align: "right",
-			renderCell: () => (
-				<ChevronRightIcon sx={{ fontSize: 17, color: "text.disabled", display: "block" }} />
 			),
 		},
 	];
