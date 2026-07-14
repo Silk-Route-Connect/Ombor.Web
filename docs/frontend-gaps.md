@@ -231,4 +231,6 @@ One line per module — what it does today + notable absences. No judgments.
 
 ---
 
-*End of regenerated list. Items A1–A26, F1–F17, U1–U3 above are the verified state as of 2026-07-09 against `openapi.json` (2026-07-05) and the current `redesign/bug-fixes` working tree.*
+**F18 — Payment detail omits notes + attachments (Important; found 2026-07-15).** `CreatePaymentRequest` accepts `notes?: string` and `attachments?: File[]` (`models/payment.ts:60,69`; openapi payment-create carries `Notes`/`Attachments`), but the served detail `PaymentRecord` (`models/payment.ts:138-174`) returns **neither** — only a General-only `description`. So a note or attachment entered at creation is silently dropped from the detail view. The §6 "add notes + attachments sections to Payments detail" item is **FE-blocked** until the payment GET serves `notes` + attachment metadata (`{id, name, url}`); FE keeps no stub.
+
+*End of regenerated list. Items A1–A26, F1–F18, U1–U3 above are the verified state as of 2026-07-09 against `openapi.json` (2026-07-05) and the current `redesign/bug-fixes` working tree.*
