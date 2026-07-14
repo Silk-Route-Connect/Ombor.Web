@@ -9,7 +9,15 @@ import { ProductType } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { Box, IconButton, InputAdornment, MenuItem, Stack, TextField } from "@mui/material";
+import {
+	Box,
+	IconButton,
+	InputAdornment,
+	MenuItem,
+	Stack,
+	TextField,
+	Typography,
+} from "@mui/material";
 
 export interface ProductFormCoreFieldsProps {
 	control: Control<ProductFormInputs>;
@@ -217,6 +225,11 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							/>
 						)}
 					/>
+					{/* Explain the chosen type — new users don't know that "Закупка" hides
+					    a product from the sales POS. Teach it inline. */}
+					<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
+						{t(`product.form.typeHint.${type}`)}
+					</Typography>
 				</Stack>
 			</Box>
 

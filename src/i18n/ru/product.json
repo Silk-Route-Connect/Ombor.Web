@@ -139,6 +139,9 @@
   "product.type.All": "Оба",
   "product.type.Sale": "Продажа",
   "product.type.Supply": "Закупка",
+  "product.form.typeHint.Sale": "Этот товар будет доступен только для продаж.",
+  "product.form.typeHint.Supply": "Этот товар будет доступен только для закупок.",
+  "product.form.typeHint.All": "Этот товар будет доступен и для продаж, и для закупок.",
 
   "product.packaging": "Фасовка",
   "product.packaging.size": "Размер упаковки",

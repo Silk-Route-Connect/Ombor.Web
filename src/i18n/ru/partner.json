@@ -219,6 +219,7 @@
   "partner.validation.companyNameTooLong": "Название компании не должно превышать 100 символов",
   "partner.validation.addressTooLong": "Адрес не должен превышать 200 символов",
   "partner.validation.telegramTooLong": "Telegram не должен превышать 100 символов",
+  "partner.validation.telegramInvalid": "Введите корректный логин, например @shop_name",
   "partner.validation.invalidEmail": "Некорректный формат почты",
   "partner.validation.phoneRequired": "Укажите хотя бы один номер телефона",
   "partner.validation.phoneNumbersInvalid": "Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов",

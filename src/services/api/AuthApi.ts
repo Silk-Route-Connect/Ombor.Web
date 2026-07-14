@@ -25,7 +25,12 @@ const AUTH_BASE = "/api/auth" as const;
  * follows the user's selection as more languages land. `resolvedLanguage`
  * accounts for the fallback; defaults to `ru`.
  */
-const activeLanguage = (): string => i18n.resolvedLanguage ?? i18n.language ?? "ru";
+const activeLanguage = (): string => {
+	const lng = i18n.resolvedLanguage ?? i18n.language ?? "ru";
+	// The backend validates against {ru, uz-Latn, uz-Cyrl}; the app's `uz` locale
+	// must be sent as `uz-Latn` (ru / uz-Cyrl already match).
+	return lng === "uz" ? "uz-Latn" : lng;
+};
 
 /**
  * Axios request config carrying the active UI language via the `X-Ombor-Language`

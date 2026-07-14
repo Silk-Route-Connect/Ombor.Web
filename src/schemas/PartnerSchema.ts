@@ -28,6 +28,10 @@ const optionalTrimmed = (max: number, key: string) =>
 
 const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,63}$/;
 
+// Telegram handle: optional leading @, must start with a letter, then
+// letters/digits/underscore, 5–32 chars total (Telegram's own rule).
+const telegramRegex = /^@?[A-Za-z][A-Za-z0-9_]{4,31}$/;
+
 export const PartnerSchema = z.object({
 	type: PartnerTypeSchema,
 
@@ -41,7 +45,15 @@ export const PartnerSchema = z.object({
 
 	address: optionalTrimmed(200, "partner.validation.addressTooLong"),
 
-	telegram: optionalTrimmed(100, "partner.validation.telegramTooLong"),
+	telegram: z
+		.string()
+		.trim()
+		.max(100, i18next.t("partner.validation.telegramTooLong"))
+		.refine((v) => v === "" || telegramRegex.test(v), {
+			message: i18next.t("partner.validation.telegramInvalid"),
+		})
+		.transform((v) => (v === "" ? undefined : v))
+		.optional(),
 
 	email: z
 		.string()
