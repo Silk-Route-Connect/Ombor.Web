@@ -40,7 +40,9 @@ export const detailBodyCellSx = {
 	height: 48,
 	p: "12px 18px",
 	borderBottom: "1px solid",
-	borderColor: designTokens.gray25,
+	// gray100 (was near-white gray25) so row separators are actually visible while
+	// staying subtler than the divider-coloured header underline (XC-17).
+	borderColor: designTokens.gray100,
 	fontSize: 13.5,
 	verticalAlign: "middle",
 } as const;
