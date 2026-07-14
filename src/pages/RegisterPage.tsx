@@ -69,6 +69,7 @@ const RegisterPage: React.FC = observer(() => {
 	const [e164, setE164] = useState("");
 	const [code, setCode] = useState("");
 	const [codeTried, setCodeTried] = useState(false);
+	const [codeInvalid, setCodeInvalid] = useState(false);
 	const [verifying, setVerifying] = useState(false);
 	const [resending, setResending] = useState(false);
 	const { seconds, start } = useCountdown(RESEND_SECONDS);
@@ -123,6 +124,7 @@ const RegisterPage: React.FC = observer(() => {
 			setE164(phoneE164);
 			setCode("");
 			setCodeTried(false);
+			setCodeInvalid(false);
 			setStep("otp");
 			start(RESEND_SECONDS);
 			notificationStore.success(t("auth.otp.sent", { phone: maskedPhone(phone) }));
@@ -136,6 +138,7 @@ const RegisterPage: React.FC = observer(() => {
 
 	const submitOtp = async () => {
 		setCodeTried(true);
+		setCodeInvalid(false);
 		if (code.length < OTP_LENGTH) {
 			return;
 		}
@@ -145,8 +148,9 @@ const RegisterPage: React.FC = observer(() => {
 			setAccessToken(token);
 			setStep("welcome");
 		} catch {
-			setCode("");
-			setCodeTried(true);
+			// Keep the entered code and flag it invalid so the user sees
+			// «Неверный код», not the length-based «code incomplete» message.
+			setCodeInvalid(true);
 		} finally {
 			setVerifying(false);
 		}
@@ -157,6 +161,7 @@ const RegisterPage: React.FC = observer(() => {
 			return;
 		}
 		setResending(true);
+		setCodeInvalid(false);
 		try {
 			await authStore.register(registration);
 			start(RESEND_SECONDS);
@@ -168,7 +173,11 @@ const RegisterPage: React.FC = observer(() => {
 		}
 	};
 
-	const codeErr = codeTried && code.length < OTP_LENGTH ? "auth.errors.codeIncomplete" : null;
+	const codeErr = codeInvalid
+		? "auth.errors.codeInvalid"
+		: codeTried && code.length < OTP_LENGTH
+			? "auth.errors.codeIncomplete"
+			: null;
 
 	if (step === "otp") {
 		return (
@@ -179,7 +188,10 @@ const RegisterPage: React.FC = observer(() => {
 				/>
 				<AuthCodeInput
 					value={code}
-					onChange={setCode}
+					onChange={(v) => {
+						setCode(v);
+						setCodeInvalid(false);
+					}}
 					length={OTP_LENGTH}
 					autoFocus
 					error={codeErr ? t(codeErr) : undefined}
@@ -297,6 +309,12 @@ const RegisterPage: React.FC = observer(() => {
 	return (
 		<AuthLayout>
 			<AuthHead title={t("auth.register.title")} subtitle={t("auth.register.subtitle")} />
+
+			{banner && (
+				<Box sx={{ mb: "18px" }}>
+					<AuthBanner>{banner}</AuthBanner>
+				</Box>
+			)}
 
 			{tried && hasError && (
 				<Box sx={{ mb: "18px" }}>

@@ -34,6 +34,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 	const [password, setPassword] = useState("");
 	const [confirm, setConfirm] = useState("");
 	const [tried, setTried] = useState(false);
+	const [codeInvalid, setCodeInvalid] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const { seconds, start } = useCountdown(RESEND_SECONDS);
 
@@ -65,6 +66,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 	/* ── step: code ── */
 	const verifyCode = async () => {
 		setTried(true);
+		setCodeInvalid(false);
 		if (code.length < CODE_LENGTH) {
 			return;
 		}
@@ -74,8 +76,9 @@ const ResetPasswordPage: React.FC = observer(() => {
 			resetTried();
 			setStep("newpass");
 		} catch {
-			setCode("");
-			setTried(true);
+			// Keep the entered code and flag it as invalid so the user sees
+			// «Неверный код», not the length-based «code incomplete» message.
+			setCodeInvalid(true);
 		} finally {
 			setBusy(false);
 		}
@@ -86,6 +89,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 			return;
 		}
 		setBusy(true);
+		setCodeInvalid(false);
 		try {
 			await authStore.requestPasswordReset({ phoneNumber: e164 });
 			start(RESEND_SECONDS);
@@ -120,8 +124,11 @@ const ResetPasswordPage: React.FC = observer(() => {
 	};
 
 	if (step === "code") {
-		const codeErr =
-			tried && code.length < CODE_LENGTH ? t("auth.errors.codeIncomplete") : undefined;
+		const codeErr = codeInvalid
+			? t("auth.errors.codeInvalid")
+			: tried && code.length < CODE_LENGTH
+				? t("auth.errors.codeIncomplete")
+				: undefined;
 		return (
 			<AuthLayout>
 				<AuthHead
@@ -130,7 +137,10 @@ const ResetPasswordPage: React.FC = observer(() => {
 				/>
 				<AuthCodeInput
 					value={code}
-					onChange={setCode}
+					onChange={(v) => {
+						setCode(v);
+						setCodeInvalid(false);
+					}}
 					length={CODE_LENGTH}
 					autoFocus
 					error={codeErr}
@@ -158,6 +168,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 					<AuthBackLink
 						onClick={() => {
 							setCode("");
+							setCodeInvalid(false);
 							resetTried();
 							setStep("phone");
 						}}
