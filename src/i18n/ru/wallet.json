@@ -108,6 +108,7 @@
   "wallet.transfers.to": "В кассу",
   "wallet.transfers.amount": "Сумма",
   "wallet.transfers.createdBy": "Создал",
+  "wallet.transfers.searchPlaceholder": "Поиск по кассе или автору…",
   "wallet.transfers.emptyTitle": "Нет переводов",
   "wallet.transfers.emptyBody": "Между этой и другими кассами ещё не было переводов.",
 
