@@ -86,7 +86,6 @@ const RegisterPage: React.FC = observer(() => {
 		confirm: tried ? confirmError(password, confirm) : null,
 		terms: tried && !terms,
 	};
-	const hasError = Object.values(E).some(Boolean);
 
 	const submitForm = async () => {
 		setTried(true);
@@ -313,12 +312,6 @@ const RegisterPage: React.FC = observer(() => {
 			{banner && (
 				<Box sx={{ mb: "18px" }}>
 					<AuthBanner>{banner}</AuthBanner>
-				</Box>
-			)}
-
-			{tried && hasError && (
-				<Box sx={{ mb: "18px" }}>
-					<AuthBanner>{t("auth.register.bannerErrors")}</AuthBanner>
 				</Box>
 			)}
 
