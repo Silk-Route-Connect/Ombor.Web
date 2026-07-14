@@ -9,7 +9,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { Box, ButtonBase, InputBase, Typography } from "@mui/material";
+import { Box, ButtonBase, Checkbox, InputBase, Typography } from "@mui/material";
 
 /* ── shared input shell styling (mirrors .ainput) ── */
 const shellSx = (error?: boolean) =>
@@ -394,6 +394,28 @@ interface TermsCheckboxProps {
 	children: React.ReactNode;
 }
 
+/** The 18×18 visual box, reused for the checked and unchecked states so the
+ *  real <Checkbox> that backs it keeps the bundle's exact look. */
+const termsBox = (filled: boolean, error?: boolean) => (
+	<Box
+		sx={{
+			flex: "0 0 auto",
+			width: 18,
+			height: 18,
+			borderRadius: "4px",
+			border: "1.5px solid",
+			borderColor: error ? "error.main" : filled ? "primary.main" : designTokens.gray300,
+			bgcolor: filled ? "primary.main" : "background.paper",
+			color: "#fff",
+			display: "grid",
+			placeItems: "center",
+			transition: "background .12s, border-color .12s",
+		}}
+	>
+		{filled && <CheckIcon sx={{ fontSize: 13 }} />}
+	</Box>
+);
+
 export const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
 	checked,
 	error,
@@ -402,27 +424,29 @@ export const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
 }) => (
 	<Box
 		component="label"
-		onClick={onChange}
 		sx={{ display: "flex", alignItems: "flex-start", gap: "10px", cursor: "pointer" }}
 	>
-		<Box
+		{/* A real checkbox input — keyboard-focusable, Space-toggleable, and
+		    exposed to screen readers with role/aria-checked. The label above
+		    associates the text, so clicking it toggles too. */}
+		<Checkbox
+			checked={checked}
+			onChange={onChange}
+			aria-invalid={Boolean(error)}
+			disableRipple
+			icon={termsBox(false, error)}
+			checkedIcon={termsBox(true, error)}
 			sx={{
-				flex: "0 0 auto",
-				width: 18,
-				height: 18,
+				p: 0,
 				mt: "1px",
-				borderRadius: "4px",
-				border: "1.5px solid",
-				borderColor: error ? "error.main" : checked ? "primary.main" : designTokens.gray300,
-				bgcolor: checked ? "primary.main" : "background.paper",
-				color: "#fff",
-				display: "grid",
-				placeItems: "center",
-				transition: "background .12s, border-color .12s",
+				"&.Mui-focusVisible": {
+					outline: "2px solid",
+					outlineColor: "primary.main",
+					outlineOffset: "2px",
+					borderRadius: "4px",
+				},
 			}}
-		>
-			{checked && <CheckIcon sx={{ fontSize: 13 }} />}
-		</Box>
+		/>
 		<Box sx={{ fontSize: 12.5, lineHeight: 1.5, color: "text.secondary" }}>{children}</Box>
 	</Box>
 );
