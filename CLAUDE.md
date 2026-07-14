@@ -17,7 +17,7 @@ Shared canon lives in the **sibling checkout `../Ombor.Docs`** (distribution mod
 | `../Ombor.Docs/mvp-plan.md`       | Start of any feature task                                                                            | Only the slice covering the current task                                                                                      |
 | `../Ombor.Docs/product-brief.md`  | When a design/UX decision needs reasoning, or scope is ambiguous                                     | **"Core design decisions and reasoning"** only                                                                                |
 | `../Ombor.Docs/decision-log.md`   | Before questioning or reopening any settled choice                                                   | The row + its revisit trigger                                                                                                 |
-| `../Ombor.Docs/operating-code.md` | Once per session, before writing any code                                                            | Cross-repo Code rules: file structure & size, comments, quality bar, reuse, git, session discipline, diagnostics              |
+| `../Ombor.Docs/operating-code.md` | Never needs a manual read — **auto-imported** into every session (see below)                         | Cross-repo Code rules: file structure & size, comments, quality bar, reuse, git, session discipline, diagnostics              |
 | `docs/openapi.json`               | Before integrating or mocking any endpoint                                                           | The exact live backend contract — routes, DTOs, params, error shapes. The authority on what exists today                      |
 | `docs/frontend-gaps.md`           | Start of any fix or v2 planning; checking whether a known gap exists; discovering a new backend gap  | The verified recon (2026-07-09): live FE↔DTO divergences (F1–F17), unbuilt v1 modules, decisions needed, capability snapshot. Also the recording home for **new** FE→backend gaps — append as F-items with contract evidence; backend sessions read them |
 | `docs/conventions.md`             | Writing or modifying any code                                                                        | Whole doc once per session, then as reference                                                                                 |
@@ -81,9 +81,13 @@ New code follows the existing module anatomy (see `docs/conventions.md`); do not
 9. **No parallel components.** Before creating any component, check `docs/shared-components.md`. If a shared component (or a config of one) fits, use it; if a genuinely new shared component is needed, add it to the index in the same commit. Re-implementing near-identical UI per module instead of extracting is a defect, not a style choice.
 10. **Files stay small and single-purpose.** A file crossing ~300 lines is split in the same change; an inline sub-component past ~40 lines gets its own file. Full thresholds in `../Ombor.Docs/operating-code.md` → File structure & size.
 
-## Git, session discipline, diagnostics
+## Cross-repo code rules (auto-loaded)
 
-The cross-repo rules live in **`../Ombor.Docs/operating-code.md`** — git rules, stop-and-ask session discipline, no unilateral deviations, blocker surfacing, and Sentry/PostHog/SQL diagnostics routing. Read once per session. Frontend-specific additions:
+The shared Code rules — file structure & size, comments, quality bar, reuse, git rules, session discipline, diagnostics — are edited only in Ombor.Docs and imported into every session's context here:
+
+@../Ombor.Docs/operating-code.md
+
+Frontend-specific additions:
 
 - **Preview verification needs real auth on the right origin.** The dev preview must run on **`http://localhost:3000`** so the backend's CORS allowlist accepts it and login works; on any other port login fails at the browser (`net::ERR_FAILED`, not a 401). If `:3000` is taken by the user's own dev server, ask them to stop it (don't kill it yourself), then start the preview on `:3000` and log in with real credentials. Do not bypass the auth guard to verify.
 - Omitting or altering any **designed element** (prototype) is never a unilateral call — if the prototype shows something the backend/canon can't support, or canon and prototype conflict, pause and ask mid-session (see also `docs/design-handoff.md`).
