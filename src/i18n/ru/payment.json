@@ -142,6 +142,7 @@
   "payment.form.walletPlaceholder": "Выберите кассу",
   "payment.form.amount": "Сумма",
   "payment.form.overWithdraw": "Аванс партнёра: {{advance}} UZS. Нельзя вывести больше.",
+  "payment.form.overWallet": "Доступно только {{available}} UZS — нельзя списать больше остатка кассы.",
   "payment.form.debtsBanner": "У партнёра есть открытые долги. При проведении откроется распределение.",
   "payment.form.immutableWarn": "Платёж нельзя изменить или удалить после проведения.",
   "payment.form.submit": "Провести платёж",
