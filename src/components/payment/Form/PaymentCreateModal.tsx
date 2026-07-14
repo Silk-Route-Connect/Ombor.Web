@@ -131,6 +131,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 
 	const overWithdraw = type === "Withdrawal" && partner != null && amount > partner.advance;
 
+	// Block a wallet outflow (Expense direction) that exceeds the source wallet's
+	// balance — mirrors the transfer over-balance guard. Enforced here, not in the
+	// schema (the balance is contextual). Server-side enforcement is a backend item.
+	const selectedWallet = data.wallets.find((w) => w.id === (watch("walletId") as number)) ?? null;
+	const overWallet =
+		effectiveDir === "Expense" && selectedWallet != null && amount > selectedWallet.balance;
+
 	// Load the partner's outstanding when settling, so the debts banner + the
 	// settlement modal have data ready.
 	useEffect(() => {
@@ -164,7 +171,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	});
 
 	const onValid = (_values: PaymentFormValues): void => {
-		if (overWithdraw) {
+		if (overWithdraw || overWallet) {
 			// inline error shown; block submit
 			analytics.capture("form_validation_failed", {
 				form: "payment_create",
@@ -547,7 +554,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										inputRef={field.ref}
 										size="small"
 										placeholder="0"
-										error={!!fieldError("amount") || overWithdraw}
+										error={!!fieldError("amount") || overWithdraw || overWallet}
 										slotProps={{
 											input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
 										}}
@@ -558,6 +565,12 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								<Typography sx={{ fontSize: 12, color: "error.main" }}>
 									{t("payment.form.overWithdraw", {
 										advance: formatCurrency(partner?.advance ?? 0),
+									})}
+								</Typography>
+							) : overWallet ? (
+								<Typography sx={{ fontSize: 12, color: "error.main" }}>
+									{t("payment.form.overWallet", {
+										available: formatCurrency(selectedWallet?.balance ?? 0),
 									})}
 								</Typography>
 							) : (

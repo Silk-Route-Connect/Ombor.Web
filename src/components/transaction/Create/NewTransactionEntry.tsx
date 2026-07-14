@@ -96,6 +96,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 	const wallets = loaded(walletStore.filteredWallets);
 	const allTemplates = loaded(templateStore.allTemplates);
 
+	// Hard-block a Supply tender that exceeds the paying wallet's balance. A Sale
+	// is money-in and its change is self-covered, so only Supply outflows are guarded.
+	const tenderWallet = wallets.find((w) => w.id === entry.pay.walletId);
+	const overWallet = !isSale && tenderWallet != null && entry.paid > tenderWallet.balance;
+
 	// Seed the warehouse + wallet defaults once their lists arrive.
 	useEffect(() => {
 		if (entry.warehouseId == null && warehouses.length > 0) {
@@ -178,11 +183,12 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 
 	const submit = () => {
 		entry.setTried(true);
-		if (!entry.valid) {
+		if (!entry.valid || overWallet) {
 			const failed = [
 				!entry.partner ? "partner" : null,
 				entry.items.length === 0 ? "items" : null,
 				entry.hasStockError ? "stock" : null,
+				overWallet ? "wallet" : null,
 			].filter((f): f is string => f !== null);
 			analytics.capture("form_validation_failed", {
 				form: isSale ? "new_sale" : "new_supply",
@@ -660,6 +666,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				<TransactionSummaryCard
 					entry={entry}
 					wallets={wallets}
+					overWallet={overWallet}
 					onOpenSettle={() => setDialog("settle")}
 					onSubmit={submit}
 				/>
