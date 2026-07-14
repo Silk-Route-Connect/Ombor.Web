@@ -20,12 +20,10 @@ import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phon
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -95,8 +93,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 	const phoneErrors = errors.phoneNumbers as
 		| (Partial<{ message: string }> & Array<{ message?: string } | undefined>)
 		| undefined;
-	const showBanner =
-		isSubmitted && (Boolean(errors.name) || Boolean(phoneErrors) || Boolean(errors.openingAmount));
 
 	return (
 		<>
@@ -117,17 +113,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "18px" }}
-						>
-							{t("partner.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Box sx={{ display: "flex", flexDirection: "column", gap: "14px" }}>
 						{/* Name + Company on one row (PRT-7) */}
 						<Box
