@@ -29,7 +29,6 @@ import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -196,9 +195,6 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		});
 	});
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && (errorCount > 0 || overWithdraw);
-
 	const fieldError = (name: keyof PaymentFormValues): string | undefined =>
 		(formState.errors[name]?.message as string | undefined) ?? undefined;
 
@@ -244,12 +240,6 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 						/>
 					</Stack>
 					<Box sx={{ height: "1px", bgcolor: "divider", mb: "20px" }} />
-
-					{showErrorBanner && (
-						<Alert severity="error" variant="outlined" sx={{ mb: "16px" }}>
-							{t("payment.form.errorBanner")}
-						</Alert>
-					)}
 
 					{/* STEP 2 — per-type fields */}
 					{needsPartner && (

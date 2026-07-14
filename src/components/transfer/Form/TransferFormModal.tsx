@@ -23,11 +23,9 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Button,
 	Dialog,
@@ -158,15 +156,6 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 	).length;
 	const noCompleteLines = completeLines === 0;
 
-	const showBanner = anyOver || (formState.isSubmitted && Object.keys(formState.errors).length > 0);
-	const bannerMessage = sameWarehouse
-		? t("transfer.form.sameWarehouseBanner")
-		: anyOver
-			? t("transfer.form.overStockBanner")
-			: noCompleteLines
-				? t("transfer.form.noLinesBanner")
-				: t("transfer.form.errorBanner");
-
 	return (
 		<>
 			<Dialog
@@ -186,17 +175,6 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{bannerMessage}
-						</Alert>
-					)}
-
 					{/* route: from → to */}
 					<Box
 						sx={{
@@ -364,6 +342,17 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 							);
 						})}
 					</Stack>
+
+					{anyOver && (
+						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
+							{t("transfer.form.overStockBanner")}
+						</Typography>
+					)}
+					{formState.isSubmitted && noCompleteLines && (
+						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
+							{t("transfer.form.noLinesBanner")}
+						</Typography>
+					)}
 
 					<Button
 						onClick={() => lines.append(emptyLine())}

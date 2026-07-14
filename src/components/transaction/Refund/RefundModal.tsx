@@ -20,7 +20,6 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -206,17 +205,6 @@ const RefundModal: React.FC<RefundModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{(noLines || anyOver) && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{noLines ? t("transaction.refund.noLinesBanner") : t("transaction.refund.overBanner")}
-						</Alert>
-					)}
-
 					<Typography
 						sx={{
 							fontSize: 11,
@@ -448,6 +436,17 @@ const RefundModal: React.FC<RefundModalProps> = ({
 							</tbody>
 						</Box>
 					</Box>
+
+					{noLines && (
+						<Typography sx={{ mt: "10px", color: "error.main", fontSize: 12.5 }}>
+							{t("transaction.refund.noLinesBanner")}
+						</Typography>
+					)}
+					{anyOver && (
+						<Typography sx={{ mt: "10px", color: "error.main", fontSize: 12.5 }}>
+							{t("transaction.refund.overBanner")}
+						</Typography>
+					)}
 
 					<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "7px" }}>
 						<Typography
