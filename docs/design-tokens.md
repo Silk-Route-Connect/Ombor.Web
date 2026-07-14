@@ -1,3 +1,8 @@
+# Design tokens — Ombor
+
+**Status:** token sheet — theme.ts mirrors this in code; DSN-1 foundational sheet + Design-project tokens.css are the design-side authority (ui-patterns.md "Styling authority").
+**Last updated:** 2026-07-14
+
 primary (Bukhara Teal): #12676B
 primary hover / dark variant: #0F575B (hover) · #0C474A (press)
 accent (saffron): #B8860B
@@ -13,7 +18,7 @@ text secondary: #565F5E
 border radius scale (every value used, smallest to largest, with what it's used on): 6px (sm) · 8px (md — inputs, buttons, menus, nav items) · 12px (lg) · 16px (xl — cards, tables) · 999px (pill — chips, outlined auth buttons)
 spacing scale (if defined): 8px base grid — 4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px (--sp-1…--sp-8)
 font, UI text: Onest (variable, weights 400/500/600/700; 800 reserved for display numbers + wordmark), fallback -apple-system / Segoe UI / system-ui
-font, numeric / tabular: Onest with tabular lining figures ("tnum" 1, "lnum" 1 / font-variant-numeric: tabular-nums lining-nums) for tables, money, KPIs; display numbers use proportional lining ("pnum" 1, "lnum" 1); codes (SKU, barcode, IDs) use JetBrains Mono
+font, numeric / tabular: Onest with tabular lining figures ("tnum" 1, "lnum" 1 / font-variant-numeric: tabular-nums lining-nums) for tables, money, KPIs; display numbers use proportional lining ("pnum" 1, "lnum" 1)
 
 other color tokens:
 primary light (tinted fills, selected nav): #CBE2E2 (--teal-100)
@@ -40,7 +45,6 @@ shadow-xs: 0 1px 2px rgba(28,38,37,0.05)
 shadow-sm: 0 1px 3px rgba(28,38,37,0.08), 0 1px 2px rgba(28,38,37,0.05)
 shadow-md: 0 4px 12px rgba(28,38,37,0.09), 0 2px 4px rgba(28,38,37,0.05)
 shadow-lg: 0 12px 28px rgba(28,38,37,0.13), 0 4px 8px rgba(28,38,37,0.06)
-shadow-pane (right-anchored drawers): -8px 0 28px rgba(28,38,37,0.12)
 type scale: display 40/44 −0.02em · h1 32/38 −0.018em · h2 26/32 −0.014em · h3 21/28 −0.01em · h4 18/26 −0.006em · body-lg 16/24 · body 14/20 · sm 13/18 · caption 12/16 · overline 11/14 +0.08em uppercase
 motion: ease-standard cubic-bezier(0.4, 0, 0.2, 1) · ease-out cubic-bezier(0.0, 0, 0.2, 1) · dur-fast 150ms · dur-standard 300ms
-layout: sidebar 240px expanded / 64px collapsed · topbar 64px
+layout: sidebar 248px expanded / 72px collapsed · topbar 64px

@@ -71,9 +71,85 @@
     "prefer-const": "error",
     "no-var": "error",
 
+    /* Conventions enforcement (warn: existing violations pending cleanup) */
+    "max-lines": [
+      "warn",
+      { "max": 300, "skipBlankLines": true, "skipComments": true }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Hardcoded hex color — use tokens from theme.ts instead (docs/conventions.md → Styling)."
+      },
+      {
+        "selector": "CallExpression[callee.property.name='toLocaleString']",
+        "message": "Do not call toLocaleString directly — use the shared formatCurrency/formatDate formatters."
+      },
+      {
+        "selector": "CallExpression[callee.name='navigate'] > Literal.arguments:first-child",
+        "message": "Do not pass path string literals to navigate() — use paths from routing/paths.ts."
+      },
+      {
+        "selector": "CallExpression[callee.name='navigate'] > TemplateLiteral.arguments:first-child",
+        "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "paths": [
+          {
+            "name": "@mui/material",
+            "importNames": ["Table"],
+            "message": "Module code uses the shared DataTable (docs/shared-components.md); raw MUI Table only inside components/shared/Table."
+          }
+        ]
+      }
+    ],
+
     /* Prettier Integration */
     "prettier/prettier": ["error", {}, { "usePrettierrc": true }]
   },
+  "overrides": [
+    {
+      /* Theme files are the one legitimate home of hex color literals */
+      "files": ["src/theme.ts", "src/theme/**"],
+      "rules": {
+        "no-restricted-syntax": [
+          "warn",
+          {
+            "selector": "CallExpression[callee.property.name='toLocaleString']",
+            "message": "Do not call toLocaleString directly — use the shared formatCurrency/formatDate formatters."
+          },
+          {
+            "selector": "CallExpression[callee.name='navigate'] > Literal.arguments:first-child",
+            "message": "Do not pass path string literals to navigate() — use paths from routing/paths.ts."
+          },
+          {
+            "selector": "CallExpression[callee.name='navigate'] > TemplateLiteral.arguments:first-child",
+            "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
+          }
+        ]
+      }
+    },
+    {
+      /* The shared DataTable wrapper is the one place allowed to import MUI Table */
+      "files": ["src/components/shared/Table/**"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      /* Dead code pending deletion — do not spend warnings on it */
+      "files": ["src/mocks/**"],
+      "rules": {
+        "max-lines": "off",
+        "no-restricted-syntax": "off",
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
   "ignorePatterns": [
     "node_modules",
     "build",

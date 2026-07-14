@@ -1,5 +1,8 @@
 # Frontend conventions — Ombor
 
+**Status:** frontend craft doc — the patterns new code must follow; read once per session. Pairs with ../Ombor.Docs/operating-code.md (cross-repo rules: file size, comments, quality bar, git, session discipline) and ../Ombor.Docs/ui-patterns.md (locked UI patterns).
+**Last updated:** 2026-07-14
+
 Read once per session before writing code. Codifies the patterns the codebase already follows; new code must follow them. Where existing legacy code and this doc disagree, follow this doc for new code and don't refactor legacy outside the task scope. When changing a pattern here seems justified, propose it — don't fork silently.
 
 ---
@@ -22,12 +25,12 @@ services/api/   <Module>Api.ts
 models/         <module>.ts — TS types mirroring the API contract
 schemas/        <Module>Schema.ts — zod schema for forms
 hooks/<module>/ use<Module>Form.ts and other module logic
-i18n/ru/        <module>.json — the module's namespace
+i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 ```
 
 `SidePane/` folders are legacy (CLAUDE.md hard rule 3): never extend, replace with `Detail/` + a routed detail page when the module is rewritten, then delete.
 
-`Links/<Module>Link.tsx` is a thin typed wrapper over the shared `components/shared/Link/EntityLink.tsx` base (the single place link styling lives — theme-primary, underline-on-hover, SPA nav). A wrapper supplies only the entity's route (resolved from `routing/paths.ts`, never a string literal) and display text; never restyle a link or hand-write a path per-module.
+`Links/<Module>Link.tsx` is a thin typed wrapper over the shared `components/shared/Link/DetailLink.tsx` base (the single place link styling lives — theme-primary, underline-on-hover, SPA nav). A wrapper supplies only the entity's route (resolved from `routing/paths.ts`, never a string literal) and display text; never restyle a link or hand-write a path per-module.
 
 ## MobX
 
@@ -48,19 +51,19 @@ i18n/ru/        <module>.json — the module's namespace
 ## Tables
 
 - All data tables go through shared `DataTable` (or `ExpandableDataTable`) with a per-module `*TableConfigs` file defining columns — no bespoke `<table>` markup, no raw MUI `Table` in module code. The canonical look (DSN-1: header/footer bands, zebra rows, 52px height, tabular numerics) lives in `components/shared/Table/DataTable/tableConfigs.ts` — never restyle a table per-module.
-- **Labels resolve at render time, never at module import.** Config files (table columns, menus, label maps) store i18n keys or accept `t` as a parameter; they must not call `t()` in module scope, or a live language switch won't update them.
+- **Labels resolve at render time, never at module import.** Config files (table columns, menus, label maps) store i18n keys or accept `t` as a parameter; they must not call `t()` in module scope, or a live language switch won't update them. The one deliberate exception is zod schemas, which resolve validation messages via module-scope `i18next.t()` — see i18n.
 - **Every column is sortable by default.** Give a column a `field` (or a `sortValue` accessor for `renderCell`-only columns); set `sortable: false` to opt out. The `actions` column and long free-text/notes columns are never sortable. With no `onSort` the table sorts client-side; pass `onSort` to control ordering from the store. Set the initial order with `defaultSort` — **date-desc** on event/feed tables, **name-asc** on master-data tables.
 - **Column order (left → right):** №/ID → date → primary entity → type/status chip → descriptive → money (right-aligned, tabular) → ⋮ actions. New and edited configs follow this; existing tables adopt it in their module passes.
 - **Pagination** is 10 / 25 / 50 rows (the `DataTable` default); override per table only with a documented reason.
 - Row actions live in a three-dot `ActionMenu` cell via the shared `components/shared/ActionMenuCell/MenuActionCell` — give each row a `tone` (`normal` / `warn` / `danger`) for the DSN-1 menu treatment rather than colouring icons by hand.
-- Numeric columns use tabular figures (theme handles this — see design-handoff) and right alignment.
+- Numeric columns use tabular figures (theme handles this — see ../Ombor.Docs/ui-patterns.md, Display conventions) and right alignment.
 
 ## Detail pages
 
 - Detail pages are assembled from shared scaffold components — never a hand-rolled per-module header, tab bar, or card: `DetailPageHeader` (back + **name-only title** + `⋮` `ActionMenu` + optional `primaryAction` slot), `DetailTabs` (underline tabs + count pills), `DetailCard` (summary/rail card primitive), and `detailTableChrome` (warm chrome for detail-embedded tables).
 - **Title is the entity name only.** Type chips, company, and all reference fields render in the summary region (a `DetailCard` or the hero card), never in the header title.
 - **No breadcrumbs** — orientation is the H1 title, return is the back button, section-jump is the persistent sidebar.
-- **Geometry:** stacked (full-width summary above full-width tabbed content) by default; right-rail (`1fr {rail}`) only for entities with a compact, pin-worthy summary worth keeping visible beside wide tab tables (currently Product / Order / Transaction / Payment). Decision + rationale in design-handoff #20.
+- **Geometry:** stacked (full-width summary above full-width tabbed content) by default; right-rail (`1fr {rail}`) only for entities with a compact, pin-worthy summary worth keeping visible beside wide tab tables (currently Product / Order / Transaction / Payment). Decision + rationale in ../Ombor.Docs/ui-patterns.md #20g (DR-01).
 - **Detail-embedded tables** use `detailTableChrome` (warm header band + a total band or a pager footer as config), not the list `DataTable`. Domain logic (e.g. the partner ledger's signed coloring + running balance) stays in the feature, wrapped by the chrome — the chrome styles, it doesn't compute.
 - `Selected<Module>Store` holds the open entity + child collections for the detail page (as above).
 
@@ -72,11 +75,12 @@ i18n/ru/        <module>.json — the module's namespace
 
 ## i18n
 
-- Namespace = module: `useTranslation('partner')`. Cross-module strings go in `common`.
-- Keys are camelCase, nested by screen area: `form.nameLabel`, `table.balanceColumn`, `detail.actions.archive`.
+- **One merged `translation` namespace per language.** All module JSON files in `i18n/ru/` spread into a single per-locale map in `i18n/config.ts`; `keySeparator` and `nsSeparator` are disabled. Components call bare `useTranslation()` — never a namespace argument.
+- **Keys are flat dotted strings prefixed with the module name:** `t("partner.table.name")`, `t("partner.detail.actions.archive")`. Cross-module strings go in `common.json` (`common.*` keys).
+- **Validation messages are `<module>.validation.*` keys** resolved via module-scope `i18next.t()` in the zod schemas. `config.ts` initializes synchronously (`initAsync: false`) so those calls resolve at import. Known limitation: schema validation messages do not live-switch on language change.
 - Adding a string = adding the key with its **ru** value in the same commit. Uzbek locales are a later backfill — never hardcode to avoid creating a key.
-- Validation messages come from `validation` namespace, wired through zod schemas.
-- As modules are rewritten, fold legacy namespaces (`supplier`, `supply`) into the canonical module namespaces and delete them.
+- As modules are rewritten, fold legacy namespaces (`supplier`, `supply`) into the canonical module keys and delete them.
+- Per-module namespaces (`useTranslation('partner')`) remain a target — not how the code works today; migrate only as a deliberate pass, never piecemeal.
 
 ## API layer
 
@@ -93,13 +97,20 @@ Each formatter is a small shared unit — locate and reuse it; never re-implemen
 - Dates: `formatDate` / `formatDateTime` (`dateUtils`, `date-fns`) — the DSN-1 canonical `DD.MM.YYYY` via the `DATE_FORMAT` constant; one display format per context, reuse the constant.
 - Phones: `PhoneListField` + `phoneUtils` — `formatUzNational` groups the body live as «XX XXX XX XX» behind the fixed «+998»; `formatUzPhone` for read-only display.
 - Dropdowns: order options with `byLabel` (`sortUtils`, alphabetical, ru-locale, numeric-aware) unless a picker is intentionally relevance/recency ranked.
-- Balances: colored, natural-language labeled (see design-handoff) — never raw +/− signs.
+- Balances: colored, natural-language labeled (ui-patterns #4) — never raw +/− signs.
 
 ## Naming & TypeScript
 
 - Components PascalCase, one exported component per file, named after the file. Utils/hooks camelCase. Config files `<module>TableConfigs.tsx`.
 - No `any`. Explicit types on exported functions, store fields, and API boundaries; inference is fine inside function bodies.
 - Import order is enforced by `simple-import-sort` — run `npm run lint:fix` rather than ordering by hand.
+
+## File structure & code quality
+
+- **The file-size tripwire (~300 lines → split in the same change), comment discipline, and the quality bar live in `../Ombor.Docs/operating-code.md`** — read it once per session; not restated here.
+- **Inline sub-component over ~40 lines, or with its own props interface → its own file.** More than 2–3 inline sub-components → a component folder (`Sidebar/` with `Brand.tsx`, …).
+- **Shared types / constants / `sx` builders → sibling `types.ts` / `constants.ts` / `styles.ts`** next to the components that use them.
+- **Logic lives in stores/hooks, not JSX** — a component should be testable in isolation.
 
 ## Routing
 
