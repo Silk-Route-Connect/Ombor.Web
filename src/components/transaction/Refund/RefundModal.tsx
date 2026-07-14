@@ -77,7 +77,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 					(sum, r) =>
 						sum +
 						r.lines
-							.filter((rl) => rl.productName === l.productName)
+							.filter((rl) => rl.productId === l.productId)
 							.reduce((s, rl) => s + rl.quantity, 0),
 					0,
 				);

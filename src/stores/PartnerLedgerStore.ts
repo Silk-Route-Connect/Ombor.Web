@@ -29,12 +29,16 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 	partner: Loadable<Partner | null> = "loading";
 	ledger: Loadable<PartnerLedgerEntry[]> = "loading";
 
+	/** Monotonic load counter — guards against partner A's response landing on partner B's page. */
+	private loadSeq = 0;
+
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	async load(partnerId: number): Promise<void> {
+		const seq = ++this.loadSeq;
 		runInAction(() => {
 			this.partner = "loading";
 			this.ledger = "loading";
@@ -44,6 +48,12 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 			tryRun(() => PartnerApi.getById(partnerId)),
 			tryRun(() => PartnerApi.getLedger(partnerId)),
 		]);
+
+		// Superseded by a newer load (navigated to another partner) — drop this
+		// response so partner A's ledger can't render on partner B's page.
+		if (seq !== this.loadSeq) {
+			return;
+		}
 
 		if (partner.status === "fail") {
 			this.notificationStore.error(i18next.t("partner.error.getById"));
@@ -62,6 +72,8 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 	}
 
 	clear(): void {
+		// Invalidate any in-flight load so a late response can't repopulate after unmount.
+		this.loadSeq++;
 		this.partner = "loading";
 		this.ledger = "loading";
 	}
