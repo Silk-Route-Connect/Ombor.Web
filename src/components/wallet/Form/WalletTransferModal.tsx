@@ -18,12 +18,10 @@ import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -174,8 +172,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 		onClose,
 	);
 
-	const showBanner = over || (formState.isSubmitted && Object.keys(formState.errors).length > 0);
-
 	return (
 		<>
 			<Dialog
@@ -229,17 +225,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 							</Box>
 						</Typography>
 					</Box>
-
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("wallet.transfer.errorBanner")}
-						</Alert>
-					)}
 
 					<Stack sx={{ gap: "16px" }}>
 						{/* Source → destination on one row (WAL-17). */}
@@ -341,6 +326,13 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 												placeholder="0"
 												disabled={isSaving}
 												error={!!fieldState.error || over}
+												helperText={
+													over
+														? t("wallet.transfer.overBalance", {
+																available: formatCurrency(available),
+															})
+														: fieldState.error?.message
+												}
 												slotProps={{
 													input: {
 														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
@@ -361,17 +353,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 									</GhostButton>
 								)}
 							</Box>
-							{over ? (
-								<Typography sx={{ fontSize: 12, color: "error.main" }}>
-									{t("wallet.transfer.overBalance", { available: formatCurrency(available) })}
-								</Typography>
-							) : (
-								formState.errors.amount && (
-									<Typography sx={{ fontSize: 12, color: "error.main" }}>
-										{formState.errors.amount.message}
-									</Typography>
-								)
-							)}
 						</Stack>
 
 						<Stack sx={{ gap: "7px" }}>

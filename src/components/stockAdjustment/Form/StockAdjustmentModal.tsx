@@ -26,7 +26,6 @@ import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogContent,
@@ -307,10 +306,6 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 	const afterBalance = avail + signedDelta;
 
 	const reasons = reasonsFor(direction);
-	const errorCount = Object.keys(formState.errors).length;
-	// Over-stock is surfaced inline (the strip's floor state + the floor note),
-	// per the design — the top banner is only for missing required fields.
-	const showBanner = formState.isSubmitted && errorCount > 0;
 
 	const handleProductChange = (product: Product | null) => {
 		setSelected(product);
@@ -342,17 +337,6 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("adjustment.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Stack sx={{ gap: "16px" }}>
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("adjustment.field.warehouse")} required />

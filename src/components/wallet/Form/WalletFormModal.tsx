@@ -15,11 +15,9 @@ import { WalletFormValues } from "schemas/WalletSchema";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	ButtonBase,
 	Dialog,
@@ -150,9 +148,6 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 		onClose,
 	);
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && errorCount > 0;
-
 	return (
 		<>
 			<Dialog
@@ -172,17 +167,6 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showErrorBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("wallet.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Stack sx={{ gap: "16px" }}>
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("wallet.field.name")} required />

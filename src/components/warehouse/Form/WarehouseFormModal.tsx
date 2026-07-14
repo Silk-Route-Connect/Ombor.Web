@@ -11,9 +11,8 @@ import { observer } from "mobx-react-lite";
 import { Warehouse } from "models/warehouse";
 import { WarehouseFormValues } from "schemas/WarehouseSchema";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import { Alert, Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
+import { Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
 
 export interface WarehouseFormModalProps {
 	isOpen: boolean;
@@ -50,9 +49,6 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 		void submit();
 	};
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && errorCount > 0;
-
 	return (
 		<>
 			<Dialog
@@ -72,17 +68,6 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showErrorBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("warehouse.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Stack sx={{ gap: "16px" }}>
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("warehouse.field.name")} required />
