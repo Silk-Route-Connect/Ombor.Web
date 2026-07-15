@@ -160,6 +160,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				<>
 					<FilterDropdown<EventFilter>
 						label={t("partner.ledger.eventFilter")}
+						compact
 						icon={<FilterListIcon sx={{ fontSize: 15 }} />}
 						value={eventFilter}
 						onChange={setEventFilter}
@@ -174,6 +175,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					/>
 					<FilterDropdown<LedgerPeriod>
 						label={t("partner.ledger.periodFilter")}
+						compact
 						icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
 						value={period}
 						onChange={setPeriod}

@@ -13,6 +13,9 @@ interface FilterDropdownProps<T extends string> {
 	value: T;
 	options: FilterOption<T>[];
 	onChange: (value: T) => void;
+	/** Drop the leading icon + «Label:» prefix, showing just the value + chevron —
+	 *  space-saving for tight toolbars (e.g. the narrower two-column detail column). */
+	compact?: boolean;
 }
 
 /**
@@ -26,6 +29,7 @@ export function FilterDropdown<T extends string>({
 	value,
 	options,
 	onChange,
+	compact = false,
 }: Readonly<FilterDropdownProps<T>>) {
 	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 	const current = options.find((o) => o.value === value);
@@ -51,10 +55,12 @@ export function FilterDropdown<T extends string>({
 					whiteSpace: "nowrap",
 				}}
 			>
-				{icon}
-				<Box component="span" sx={{ color: "text.secondary" }}>
-					{label}:
-				</Box>
+				{!compact && icon}
+				{!compact && (
+					<Box component="span" sx={{ color: "text.secondary" }}>
+						{label}:
+					</Box>
+				)}
 				<Box component="span" sx={{ fontWeight: 600 }}>
 					{current?.label ?? "—"}
 				</Box>
