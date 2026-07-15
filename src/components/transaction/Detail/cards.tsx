@@ -486,7 +486,7 @@ const WALLET_ICON = (type: WalletType): React.ReactNode => {
 
 export const PaymentsCard: React.FC<{
 	tx: TransactionRecord;
-	onOpenPayment: (id: string) => void;
+	onOpenPayment: (paymentId: number) => void;
 }> = ({ tx, onOpenPayment }) => {
 	const { t } = useTranslation();
 	const direction = directionOf(tx.type);
@@ -505,7 +505,7 @@ export const PaymentsCard: React.FC<{
 				payments.map((p) => (
 					<Box
 						key={p.id}
-						onClick={() => onOpenPayment(p.paymentNumber)}
+						onClick={() => onOpenPayment(p.paymentId)}
 						sx={{
 							display: "flex",
 							alignItems: "center",

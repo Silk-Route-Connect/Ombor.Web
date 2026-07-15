@@ -24,7 +24,10 @@ export type GetTransactionsRequest = {
  * wallet the payment moved through (name + type); `paymentNumber` is the display number.
  */
 export type TransactionPaymentLine = {
+	/** Settlement-allocation id (unique per row). */
 	id: number;
+	/** Id of the source payment record — the row links to its detail page. */
+	paymentId: number;
 	transactionId: number;
 	/** Human payment number, e.g. «P-512» (shown as the row label). */
 	paymentNumber: string;
