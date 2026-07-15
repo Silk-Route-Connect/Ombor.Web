@@ -18,7 +18,7 @@ Shared canon lives in the **sibling checkout `../Ombor.Docs`** (distribution mod
 | `../Ombor.Docs/product-brief.md`  | When a design/UX decision needs reasoning, or scope is ambiguous                                     | **"Core design decisions and reasoning"** only                                                                                |
 | `../Ombor.Docs/decision-log.md`   | Before questioning or reopening any settled choice                                                   | The row + its revisit trigger                                                                                                 |
 | `../Ombor.Docs/operating-code.md` | Never needs a manual read — **auto-imported** into every session (see below)                         | Cross-repo Code rules: file structure & size, comments, quality bar, reuse, git, session discipline, diagnostics              |
-| `docs/openapi.json`               | Before integrating or mocking any endpoint                                                           | The exact live backend contract — routes, DTOs, params, error shapes. The authority on what exists today                      |
+| `../Ombor.Docs/backend-contracts/` | Before integrating or mocking any endpoint                                                          | The exact live backend contract — per-module routes, DTOs, params, status codes, validation (generated from Ombor.API). The authority on what exists today |
 | `docs/frontend-gaps.md`           | Start of any fix or v2 planning; checking whether a known gap exists; discovering a new backend gap  | The verified recon (2026-07-09): live FE↔DTO divergences (F1–F17), unbuilt v1 modules, decisions needed, capability snapshot. Also the recording home for **new** FE→backend gaps — append as F-items with contract evidence; backend sessions read them |
 | `docs/conventions.md`             | Writing or modifying any code                                                                        | Whole doc once per session, then as reference                                                                                 |
 | `docs/shared-components.md`       | **Before creating any component**                                                                    | The index — reuse or extend before authoring new (hard rule 9)                                                                |
@@ -101,7 +101,7 @@ Frontend-specific additions:
 
 ## Contract sources
 
-When verifying whether a field or endpoint exists, check the contract, not memory: `docs/openapi.json` (regenerate after backend releases) plus the live API response; `models/<module>.ts` mirrors the contract. A field absent in both is genuinely unserved — then decide gap vs intentional scope per the discipline above, and record real gaps as new F-items in `docs/frontend-gaps.md` with contract evidence.
+When verifying whether a field or endpoint exists, check the contract, not memory: the per-module files in `../Ombor.Docs/backend-contracts/` (generated from Ombor.API, regenerated after backend releases) plus the live API response; `models/<module>.ts` mirrors the contract. A field absent in both is genuinely unserved — then decide gap vs intentional scope per the discipline above, and record real gaps as new F-items in `docs/frontend-gaps.md` with contract evidence.
 
 ---
 
