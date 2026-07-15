@@ -36,6 +36,7 @@ type RawTransaction = {
 	totalPaid: number;
 	lines: TransactionLine[] | null;
 	originalTransactionId?: number | null;
+	originalTransactionNumber?: string | null;
 	refundReason?: string | null;
 	// detail-only
 	warehouseId?: number | null;
@@ -70,6 +71,7 @@ const toRecord = (raw: RawTransaction): TransactionRecord => ({
 	createdBy: raw.createdBy ?? undefined,
 	remaining: raw.remaining ?? Math.max(0, raw.totalDue - raw.totalPaid),
 	originalTransactionId: raw.originalTransactionId ?? undefined,
+	originalTransactionNumber: raw.originalTransactionNumber ?? undefined,
 	refundReason: raw.refundReason ?? undefined,
 	payments: raw.payments ?? undefined,
 	attachments: raw.attachments ?? undefined,

@@ -5,6 +5,7 @@ import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -312,7 +313,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 												<Row
 													key={a.transactionId}
 													sub
-													label={`#${a.transactionId}`}
+													label={formatEntityId(a.transactionId)}
 													value={`−${formatCurrency(a.amount)}`}
 													valueColor="text.disabled"
 												/>

@@ -8,6 +8,7 @@ import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 import {
 	directionOf,
 	discountLabel,
@@ -441,7 +442,7 @@ export const RefundFinancialCard: React.FC<{
 								"&:hover": { textDecoration: "underline" },
 							}}
 						>
-							#{originalNumber}
+							{originalNumber ? formatEntityId(originalNumber) : ""}
 						</Box>
 					</Box>
 					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -533,7 +534,9 @@ export const PaymentsCard: React.FC<{
 						</Box>
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "primary.main" }}>
-								{t("transaction.detail.paymentLabel", { id: p.paymentNumber })}
+								{t("transaction.detail.paymentLabel", {
+									id: formatEntityId(p.paymentNumber ?? p.id),
+								})}
 							</Typography>
 							<Box
 								sx={{
@@ -619,7 +622,7 @@ export const RefundHistoryCard: React.FC<{
 									color: designTokens.gray700,
 								}}
 							>
-								#{r.transactionNumber}
+								{formatEntityId(r.transactionNumber ?? r.id)}
 							</Box>
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left" }}>
 								{r.lines.length}
@@ -875,7 +878,7 @@ export const RefundReferenceBanner: React.FC<{
 			<Box component="span">
 				{t(`transaction.detail.refundOfBanner.${direction}`)}{" "}
 				<Box component="b" sx={{ ...numericSx, color: "primary.main" }}>
-					#{number}
+					{number ? formatEntityId(number) : ""}
 				</Box>
 			</Box>
 			<Box sx={{ flexGrow: 1 }} />
