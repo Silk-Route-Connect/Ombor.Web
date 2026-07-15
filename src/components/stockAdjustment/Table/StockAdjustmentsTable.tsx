@@ -1,11 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
-import { CopyableCell } from "components/shared/Table/CopyableCell";
-import {
-	Column,
-	ExpandableDataTable,
-} from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
+import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import StockAdjustmentDetailModal from "components/stockAdjustment/Detail/StockAdjustmentDetailModal";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Loadable } from "helpers/Loading";
@@ -16,10 +13,9 @@ import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Avatar, Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
 
 interface StockAdjustmentsTableProps {
 	rows: Loadable<StockAdjustment[]>;
@@ -28,22 +24,6 @@ interface StockAdjustmentsTableProps {
 	hasAny: boolean;
 	onCreate: () => void;
 }
-
-const ExpandField: React.FC<{ label: string; children: React.ReactNode; mono?: boolean }> = ({
-	label,
-	children,
-	mono,
-}) => (
-	<Box>
-		<Typography sx={{ fontSize: 11.5, color: "text.secondary", mb: "5px" }}>{label}</Typography>
-		<Typography
-			component="div"
-			sx={{ fontSize: 13.5, color: "text.primary", fontWeight: 500, ...(mono ? numericSx : null) }}
-		>
-			{children}
-		</Typography>
-	</Box>
-);
 
 const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: () => void }> = ({
 	isFiltering,
@@ -90,96 +70,10 @@ const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: ()
 	);
 };
 
-/** The expand-row detail panel: the audited fields the row doesn't surface (rule 23). */
-const AdjustmentDetail: React.FC<{ adjustment: StockAdjustment }> = ({ adjustment }) => {
-	const { t } = useTranslation();
-	const unit = MEASUREMENT_SHORT[adjustment.measurement];
-
-	return (
-		<Box sx={{ p: "4px 6px 10px" }}>
-			<Box
-				sx={{
-					p: "16px 18px",
-					borderLeft: "2px solid",
-					borderLeftColor: "primary.main",
-					bgcolor: "background.default",
-					borderRadius: "0 8px 8px 0",
-				}}
-			>
-				<Box
-					sx={{
-						display: "grid",
-						gridTemplateColumns: { xs: "1fr", sm: "repeat(3, minmax(0, 1fr))" },
-						gap: "18px 28px",
-					}}
-				>
-					<ExpandField label={t("adjustment.table.sku")} mono>
-						<CopyableCell value={adjustment.sku}>{adjustment.sku}</CopyableCell>
-					</ExpandField>
-					<ExpandField label={t("adjustment.table.category")}>
-						{adjustment.categoryName ?? "—"}
-					</ExpandField>
-					<ExpandField label={t("adjustment.detail.dateTime")} mono>
-						{formatDateTime(adjustment.date)}
-					</ExpandField>
-					<ExpandField label={t("adjustment.detail.balanceAfter")} mono>
-						{formatQuantity(adjustment.balanceAfter)} {unit}
-					</ExpandField>
-					<ExpandField label={t("adjustment.table.reason")}>
-						{t(`adjustment.reason.${adjustment.reason}`)}
-					</ExpandField>
-					<ExpandField label={t("adjustment.detail.createdBy")}>
-						<Box sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
-							<Avatar
-								sx={{
-									width: 22,
-									height: 22,
-									fontSize: 11,
-									fontWeight: 700,
-									bgcolor: "primary.light",
-									color: "primary.main",
-								}}
-							>
-								{adjustment.createdBy.trim().charAt(0)}
-							</Avatar>
-							<Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
-								{adjustment.createdBy}
-							</Box>
-						</Box>
-					</ExpandField>
-					<Box
-						sx={{
-							gridColumn: "1 / -1",
-							display: "flex",
-							alignItems: "flex-start",
-							gap: "8px",
-							p: "11px 14px",
-							bgcolor: "background.paper",
-							border: "1px solid",
-							borderColor: "divider",
-							borderRadius: "8px",
-							fontSize: 13,
-							color: designTokens.gray700,
-							lineHeight: 1.55,
-						}}
-					>
-						<ReceiptLongOutlinedIcon sx={{ fontSize: 15, color: "text.disabled", mt: "1px" }} />
-						{adjustment.note ?? (
-							<Box component="span" sx={{ color: "text.disabled" }}>
-								{t("adjustment.detail.noNote")}
-							</Box>
-						)}
-					</Box>
-				</Box>
-			</Box>
-		</Box>
-	);
-};
-
 /**
  * Immutable stock-adjustment history (rule 23 — no edit / delete): the shared
- * ExpandableDataTable (warm bands, sort, 10/25/50 pagination) with a per-row
- * expand panel carrying the audited detail. Product + warehouse cells deep-link
+ * DataTable (warm bands, sort, 10/25/50 pagination); a row click opens the
+ * read-only audited detail in a modal. Product + warehouse cells deep-link
  * (ADJ-2); direction is a chip, the signed quantity keeps its ledger +/− colour.
  */
 export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
@@ -189,6 +83,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	onCreate,
 }) => {
 	const { t } = useTranslation();
+	const [selected, setSelected] = useState<StockAdjustment | null>(null);
 
 	const columns = useMemo<Column<StockAdjustment>[]>(
 		() => [
@@ -210,7 +105,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 				headerName: t("adjustment.table.warehouse"),
 				sortValue: (a) => a.warehouseName,
 				renderCell: (a) => (
-					// stopPropagation so the link navigates without toggling the row's expander.
+					// stopPropagation so the link navigates without opening the detail modal.
 					<Box
 						onClick={(e) => e.stopPropagation()}
 						sx={{ display: "inline-flex", alignItems: "center", gap: "7px", minWidth: 0 }}
@@ -253,7 +148,10 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 							}}
 						>
 							{isDown ? "−" : "+"}
-							{formatQuantity(a.quantity)} {MEASUREMENT_SHORT[a.measurement]}
+							{formatQuantity(a.quantity)}{" "}
+							<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
+								{MEASUREMENT_SHORT[a.measurement]}
+							</Box>
 						</Box>
 					);
 				},
@@ -302,15 +200,17 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	}
 
 	return (
-		<ExpandableDataTable<StockAdjustment>
-			rows={rows}
-			columns={columns}
-			pagination
-			rowsPerPageOptions={[10, 25, 50]}
-			defaultSort={{ key: "date", order: "desc" }}
-			renderExpanded={(adjustment) => <AdjustmentDetail adjustment={adjustment} />}
-			expandOnRowClick
-		/>
+		<>
+			<DataTable<StockAdjustment>
+				rows={rows}
+				columns={columns}
+				pagination
+				rowsPerPageOptions={[10, 25, 50]}
+				defaultSort={{ key: "date", order: "desc" }}
+				onRowClick={setSelected}
+			/>
+			<StockAdjustmentDetailModal adjustment={selected} onClose={() => setSelected(null)} />
+		</>
 	);
 };
 
