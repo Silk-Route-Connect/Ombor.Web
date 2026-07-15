@@ -93,7 +93,7 @@
   "partner.ledger.period.30": "30 дней",
   "partner.ledger.legendPos": "партнёр должен нам",
   "partner.ledger.legendNeg": "мы должны партнёру",
-  "partner.ledger.legendBalance": "Баланс после каждой операции",
+  "partner.ledger.col.number": "Номер",
   "partner.ledger.col.date": "Дата",
   "partner.ledger.col.event": "Событие",
   "partner.ledger.col.description": "Описание",

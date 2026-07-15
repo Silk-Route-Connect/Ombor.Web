@@ -8,6 +8,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useStockAdjustmentForm } from "hooks/stockAdjustment/useStockAdjustmentForm";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -261,6 +262,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const warehouseId = watch("warehouseId");
 	const direction = watch("direction") as AdjustmentDirection;
@@ -325,6 +327,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 600, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -475,7 +478,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 								quantity={quantity}
 								afterBalance={afterBalance}
 								overStock={overStock}
-								hasInput={selected != null && quantity > 0}
+								hasInput={selected != null}
 							/>
 							{overStock && (
 								<Typography

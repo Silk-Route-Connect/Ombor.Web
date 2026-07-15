@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import PartnerLink from "components/partner/Links/PartnerLink";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
@@ -144,7 +145,9 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 									<td>
 										<TransactionKindChip kind={txn.transactionType} />
 									</td>
-									<td>{txn.partnerName}</td>
+									<td>
+										<PartnerLink id={txn.partnerId} name={txn.partnerName} />
+									</td>
 									<td className="r">
 										<Box component="span" sx={txn.quantity > 0 ? quantityInSx : quantityOutSx}>
 											{formatQuantity(Math.abs(txn.quantity))}

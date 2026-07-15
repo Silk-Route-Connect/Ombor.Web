@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
@@ -11,12 +11,14 @@ import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { matchesSearch } from "utils/stringUtils";
 
 import { Box } from "@mui/material";
 
 const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const { transferStore, warehouseStore, productStore } = useStore();
+	const [search, setSearch] = useState("");
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -58,8 +60,16 @@ const TransferPage: React.FC = observer(() => {
 	const all = transferStore.allTransfers === "loading" ? null : transferStore.allTransfers;
 	const totalCount = all?.length ?? null;
 	const hasAny = (all?.length ?? 0) > 0;
-	const isFiltering = transferStore.warehouseFilter != null;
+	const isFiltering = transferStore.warehouseFilter != null || search.trim() !== "";
 	const dialogMode = transferStore.dialogMode;
+
+	const base = transferStore.filteredTransfers;
+	const rows =
+		base === "loading" || search.trim() === ""
+			? base
+			: base.filter((tr) =>
+					matchesSearch([tr.fromWarehouseName, tr.toWarehouseName, tr.createdBy].join(" "), search),
+				);
 
 	return (
 		<Box>
@@ -68,12 +78,14 @@ const TransferPage: React.FC = observer(() => {
 				warehouses={activeWarehouses}
 				warehouseFilter={transferStore.warehouseFilter}
 				onWarehouseChange={transferStore.setWarehouseFilter}
+				search={search}
+				onSearchChange={setSearch}
 				onCreate={transferStore.openCreate}
 				onExport={handleExport}
 			/>
 
 			<TransfersTable
-				rows={transferStore.filteredTransfers}
+				rows={rows}
 				isFiltering={isFiltering}
 				hasAny={hasAny}
 				onOpen={transferStore.openDetail}

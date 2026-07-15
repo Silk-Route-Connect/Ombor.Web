@@ -20,6 +20,7 @@ import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSc
 import { useStore } from "stores/StoreContext";
 
 import AddIcon from "@mui/icons-material/Add";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
 type WarehouseDetailTab = "stock" | "movements";
@@ -133,6 +134,14 @@ const WarehouseDetailPage: React.FC = observer(() => {
 			<DetailPageHeader
 				backTo={PATHS.warehouses}
 				title={warehouse.name}
+				meta={
+					warehouse.location ? (
+						<>
+							<PlaceOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />
+							{warehouse.location}
+						</>
+					) : undefined
+				}
 				actions={actions}
 				primaryAction={primaryAction}
 				isArchived={warehouse.isArchived}

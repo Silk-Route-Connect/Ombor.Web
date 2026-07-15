@@ -10,8 +10,10 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
+import { TFunction } from "i18next";
 import { observer } from "mobx-react-lite";
 import { PaymentRecord } from "models/payment";
 import { PATHS } from "routing/paths";
@@ -26,23 +28,13 @@ import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 
-const MONTHS_RU = [
-	"Январь",
-	"Февраль",
-	"Март",
-	"Апрель",
-	"Май",
-	"Июнь",
-	"Июль",
-	"Август",
-	"Сентябрь",
-	"Октябрь",
-	"Ноябрь",
-	"Декабрь",
-];
-const periodLabel = (iso: string): string => {
-	const d = new Date(iso);
-	return `${MONTHS_RU[d.getMonth()]} ${d.getFullYear()}`;
+/** «Июль 2026» from a payroll period ("YYYY-MM") or an ISO date, via i18n month names. */
+const monthYearLabel = (t: TFunction, value: string): string => {
+	const match = /^(\d{4})-(\d{2})/.exec(value);
+	if (!match) {
+		return value;
+	}
+	return `${t(`common.month.${Number(match[2])}`)} ${match[1]}`;
 };
 
 const Stat: React.FC<{ label: string; value: React.ReactNode; accent?: boolean }> = ({
@@ -156,10 +148,10 @@ const EmployeeDetailPage: React.FC = observer(() => {
 			{
 				key: "period",
 				headerName: t("employee.payroll.period"),
-				sortValue: (p) => p.period ?? periodLabel(p.date),
+				sortValue: (p) => p.period ?? p.date,
 				renderCell: (p) => (
 					<Box component="span" sx={{ color: "text.secondary" }}>
-						{p.period ?? periodLabel(p.date)}
+						{monthYearLabel(t, p.period ?? p.date)}
 					</Box>
 				),
 			},
@@ -178,11 +170,14 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				key: "wallet",
 				headerName: t("employee.payroll.wallet"),
 				sortValue: (p) => p.walletName ?? "",
-				renderCell: (p) => (
-					<Box component="span" sx={{ color: designTokens.gray700 }}>
-						{p.walletName || "—"}
-					</Box>
-				),
+				renderCell: (p) =>
+					p.walletName ? (
+						<WalletLink id={p.walletId} name={p.walletName} />
+					) : (
+						<Box component="span" sx={{ color: designTokens.gray700 }}>
+							—
+						</Box>
+					),
 			},
 		],
 		[t],
@@ -330,7 +325,9 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				/>
 				<Stat
 					accent
-					label={t("employee.stat.paidThisMonth", { month: MONTHS_RU[now.getMonth()] })}
+					label={t("employee.stat.paidThisMonth", {
+						month: t(`common.month.${now.getMonth() + 1}`),
+					})}
 					value={
 						<>
 							{formatCurrency(paidThisMonth)}{" "}

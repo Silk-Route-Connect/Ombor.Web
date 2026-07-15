@@ -11,6 +11,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
 import {
 	CreatePaymentRecordRequest,
@@ -195,6 +196,8 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		});
 	});
 
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+
 	const fieldError = (name: keyof PaymentFormValues): string | undefined =>
 		(formState.errors[name]?.message as string | undefined) ?? undefined;
 
@@ -205,6 +208,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 720, maxWidth: "96%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

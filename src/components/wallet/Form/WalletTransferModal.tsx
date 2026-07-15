@@ -9,6 +9,7 @@ import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWalletTransferForm } from "hooks/wallet/useWalletTransferForm";
 import { observer } from "mobx-react-lite";
 import { Wallet } from "models/wallet";
@@ -99,35 +100,6 @@ const WalletPicker: React.FC<{
 	</Select>
 );
 
-/** Compact route node for the live preview (from / to). */
-const RouteNode: React.FC<{ label: string; wallet: Wallet | null }> = ({ label, wallet }) => (
-	<Box sx={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
-		{wallet ? (
-			<WalletTypeAvatar type={wallet.type} size={30} iconSize={16} />
-		) : (
-			<Box
-				sx={{
-					width: 30,
-					height: 30,
-					borderRadius: "8px",
-					display: "grid",
-					placeItems: "center",
-					bgcolor: designTokens.gray100,
-					color: designTokens.gray400,
-				}}
-			>
-				<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />
-			</Box>
-		)}
-		<Box sx={{ minWidth: 0 }}>
-			<Typography sx={{ fontSize: 11, color: "text.disabled" }}>{label}</Typography>
-			<Typography sx={{ fontSize: 13.5, fontWeight: 600, whiteSpace: "nowrap" }}>
-				{wallet?.name ?? "—"}
-			</Typography>
-		</Box>
-	</Box>
-);
-
 const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 	isOpen,
 	isSaving,
@@ -146,13 +118,13 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const fromId = watch("fromWalletId");
 	const toId = watch("toWalletId");
 	const amount = watch("amount");
 
 	const fromWallet = wallets.find((w) => w.id === fromId) ?? null;
-	const toWallet = wallets.find((w) => w.id === toId) ?? null;
 	const available = fromWallet?.balance ?? 0;
 	const over = !!fromWallet && amount > available;
 
@@ -179,6 +151,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -191,41 +164,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{/* live route preview */}
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "12px",
-							p: "14px 16px",
-							mb: "18px",
-							bgcolor: designTokens.gray25,
-							border: "1px solid",
-							borderColor: "divider",
-							borderRadius: "12px",
-						}}
-					>
-						<RouteNode label={t("wallet.transfer.from")} wallet={fromWallet} />
-						<ChevronRightIcon sx={{ fontSize: 18, color: "primary.main", flex: "0 0 auto" }} />
-						<RouteNode label={t("wallet.transfer.to")} wallet={toWallet} />
-						<Typography
-							sx={{
-								ml: "auto",
-								...numericSx,
-								fontWeight: 800,
-								fontSize: 19,
-								letterSpacing: "-0.02em",
-								color: amount > 0 && !over ? "text.primary" : "text.disabled",
-								flex: "0 0 auto",
-							}}
-						>
-							{formatCurrency(amount > 0 ? amount : 0)}{" "}
-							<Box component="span" sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled" }}>
-								UZS
-							</Box>
-						</Typography>
-					</Box>
-
 					<Stack sx={{ gap: "16px" }}>
 						{/* Source → destination on one row (WAL-17). */}
 						<Box

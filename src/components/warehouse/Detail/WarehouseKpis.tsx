@@ -7,7 +7,6 @@ import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { Box, Paper, Typography } from "@mui/material";
 
 interface WarehouseKpisProps {
@@ -68,63 +67,39 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 	const { t } = useTranslation();
 
 	return (
-		<>
-			{warehouse.location && (
-				<Box
-					sx={{
-						display: "inline-flex",
-						alignItems: "center",
-						gap: "7px",
-						fontSize: 13.5,
-						color: "text.secondary",
-						...numericSx,
-						mb: "16px",
-					}}
-				>
-					<PlaceOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />
-					{warehouse.location}
-				</Box>
-			)}
-
-			<Box
-				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-					gap: "16px",
-					mb: "20px",
-				}}
-			>
-				<Kpi
-					icon={<Inventory2OutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
-					caption={t("warehouse.kpi.products")}
-					value={formatQuantity(warehouse.productCount)}
-					sub={t("warehouse.kpi.productsSub")}
-				/>
-				<Kpi
-					icon={<LayersOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
-					caption={t("warehouse.kpi.units")}
-					value={
-						<>
-							{formatQuantity(warehouse.totalUnits)}
-							<Unit>{t("warehouse.kpi.unitsSuffix")}</Unit>
-						</>
-					}
-					sub={t("warehouse.kpi.unitsSub")}
-				/>
-				<Kpi
-					accent
-					icon={<PaymentsOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
-					caption={t("warehouse.kpi.value")}
-					value={
-						<>
-							{formatCurrency(warehouse.stockValue)}
-							<Unit>UZS</Unit>
-						</>
-					}
-					sub={t("warehouse.kpi.valueSub")}
-				/>
-			</Box>
-		</>
+		<Box
+			sx={{
+				display: "grid",
+				gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+				gap: "16px",
+				mb: "20px",
+			}}
+		>
+			<Kpi
+				icon={<Inventory2OutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
+				caption={t("warehouse.kpi.products")}
+				value={formatQuantity(warehouse.productCount)}
+				sub={t("warehouse.kpi.productsSub")}
+			/>
+			<Kpi
+				icon={<LayersOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
+				caption={t("warehouse.kpi.units")}
+				value={formatQuantity(warehouse.totalUnits)}
+				sub={t("warehouse.kpi.unitsSub")}
+			/>
+			<Kpi
+				accent
+				icon={<PaymentsOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
+				caption={t("warehouse.kpi.value")}
+				value={
+					<>
+						{formatCurrency(warehouse.stockValue)}
+						<Unit>UZS</Unit>
+					</>
+				}
+				sub={t("warehouse.kpi.valueSub")}
+			/>
+		</Box>
 	);
 };
 

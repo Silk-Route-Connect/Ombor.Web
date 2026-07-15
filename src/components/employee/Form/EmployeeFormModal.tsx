@@ -5,6 +5,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { EmployeeFormPayload, useEmployeeForm } from "hooks/employee/useEmployeeForm";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Employee } from "models/employee";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -35,6 +36,8 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 			onClose,
 		});
 
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+
 	const title = employee ? t("employee.editTitle") : t("employee.createTitle");
 
 	return (
@@ -46,6 +49,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 				fullWidth
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 			>
 				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 

@@ -9,6 +9,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { usePartnerForm } from "hooks/partner/usePartnerForm";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Partner, PartnerType } from "models/partner";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { designTokens, numericSx } from "theme";
@@ -81,6 +82,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 		},
 	);
 	const { control, formState, watch } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { errors, isSubmitted } = formState;
 
 	const openingType = watch("openingType");
@@ -101,6 +103,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 620, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

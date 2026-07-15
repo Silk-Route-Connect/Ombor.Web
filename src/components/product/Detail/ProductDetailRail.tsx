@@ -15,60 +15,62 @@ interface ProductDetailRailProps {
 	product: Product;
 }
 
-const PriceRow: React.FC<{
-	label: string;
+/** Shared label/value row for the «Цены» and «Информация» cards — one idiom:
+ *  13px secondary label left, value right, hairline `gray25` separators. */
+const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+	<Box
+		sx={{
+			display: "flex",
+			alignItems: "baseline",
+			justifyContent: "space-between",
+			gap: "16px",
+			py: "9px",
+			borderBottom: "1px solid",
+			borderColor: designTokens.gray25,
+			"&:last-child": { borderBottom: "none" },
+		}}
+	>
+		<Typography component="span" sx={{ fontSize: 13, color: "text.secondary", flex: "0 0 auto" }}>
+			{label}
+		</Typography>
+		{children}
+	</Box>
+);
+
+/** Right-aligned coloured money value; a missing/zero amount is a neutral «—»
+ *  (never tinted, no UZS suffix — a dash is "not set", not an amount). */
+const PriceValue: React.FC<{
 	value: number | null;
-	valueColor: string;
+	color: string;
 	emphasized?: boolean;
-	/** Bundle: the margin row carries the % note instead of the UZS suffix. */
 	showCurrency?: boolean;
 	extra?: React.ReactNode;
-}> = ({ label, value, valueColor, emphasized, showCurrency = true, extra }) => {
-	// An empty/absent money value is a neutral «—» — never tinted with the value
-	// colour, and with no UZS suffix (a dash is "not set", not an amount).
+}> = ({ value, color, emphasized, showCurrency = true, extra }) => {
 	const hasValue = value != null && value > 0;
 	return (
-		<Box
+		<Typography
+			component="span"
 			sx={{
-				display: "flex",
-				alignItems: "baseline",
-				justifyContent: "space-between",
-				py: "9px",
+				...numericSx,
+				fontWeight: emphasized ? 700 : 600,
+				fontSize: 14.5,
+				letterSpacing: "-0.01em",
+				textAlign: "right",
+				color: hasValue ? color : "text.disabled",
 			}}
 		>
-			<Typography
-				component="span"
-				sx={{
-					fontSize: 13.5,
-					color: emphasized ? designTokens.gray700 : "text.secondary",
-					fontWeight: emphasized ? 600 : 400,
-				}}
-			>
-				{label}
-			</Typography>
-			<Typography
-				component="span"
-				sx={{
-					...numericSx,
-					fontWeight: emphasized ? 800 : 700,
-					fontSize: emphasized ? 19 : 16,
-					letterSpacing: "-0.01em",
-					color: hasValue ? valueColor : "text.disabled",
-				}}
-			>
-				{hasValue ? formatCurrency(value) : "—"}
-				{hasValue && extra}
-				{hasValue && showCurrency && <UzsUnit />}
-			</Typography>
-		</Box>
+			{hasValue ? formatCurrency(value) : "—"}
+			{hasValue && extra}
+			{hasValue && showCurrency && <UzsUnit />}
+		</Typography>
 	);
 };
 
 /**
  * Persistent right rail: «Цены» (sale / supply / avg-cost / margin) and
- * «Информация». Stock-on-hand lives solely in the Overview tab's per-warehouse
- * table — the redundant «Всего на складах» hero (with its cryptic id breakdown)
- * was removed.
+ * «Информация» — both use the shared {@link Row} idiom with a `DetailCard`
+ * title/icon header. Stock-on-hand lives solely in the Overview tab's
+ * per-warehouse table.
  */
 export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product }) => {
 	const { t } = useTranslation();
@@ -86,100 +88,59 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 		? (product.packaging.label ?? `${product.packaging.size}${unit ? ` ${unit}` : ""}`)
 		: "—";
 
+	const infoRows = [
+		{ id: "sku", label: t("product.sku"), value: product.sku, mono: true },
+		{ id: "barcode", label: t("product.barcode"), value: product.barcode || "—", mono: true },
+		{ id: "category", label: t("product.category"), value: product.categoryName ?? "—" },
+		{ id: "type", label: t("product.type"), value: t(`product.typeLong.${product.type}`) },
+		{
+			id: "measurement",
+			label: t("product.measurement"),
+			value: measurementLabel(t, product.measurement),
+		},
+		{ id: "packaging", label: t("product.packaging"), value: packagingLabel },
+	];
+
 	return (
 		<Stack sx={{ gap: "16px" }}>
-			{/* Цены */}
-			<DetailCard>
-				<Box sx={{ p: "18px" }}>
-					<Typography
-						component="span"
-						sx={{
-							fontSize: 15,
-							fontWeight: 600,
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "9px",
-							mb: "6px",
-						}}
-					>
-						<PaymentsOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
-						{t("product.detail.prices.title")}
-					</Typography>
-					<PriceRow
-						label={t("product.salePrice")}
-						value={product.salePrice}
-						valueColor="primary.main"
-					/>
-					<PriceRow
-						label={t("product.supplyPrice")}
-						value={product.supplyPrice}
-						valueColor="info.main"
-					/>
-					<Box sx={{ height: "1px", bgcolor: "divider", my: "8px" }} />
-					<PriceRow
-						label={t("product.detail.prices.wac")}
-						value={product.averageCost}
-						valueColor={designTokens.saffron700}
-						emphasized
-					/>
+			<DetailCard
+				title={t("product.detail.prices.title")}
+				icon={<PaymentsOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />}
+			>
+				<Box sx={{ p: "6px 18px 14px" }}>
+					<Row label={t("product.salePrice")}>
+						<PriceValue value={product.salePrice} color="primary.main" />
+					</Row>
+					<Row label={t("product.supplyPrice")}>
+						<PriceValue value={product.supplyPrice} color="info.main" />
+					</Row>
+					<Row label={t("product.detail.prices.wac")}>
+						<PriceValue value={product.averageCost} color={designTokens.saffron700} emphasized />
+					</Row>
 					{margin != null && (
-						<PriceRow
-							label={t("product.detail.prices.margin")}
-							value={margin}
-							valueColor="success.main"
-							showCurrency={false}
-							extra={
-								<Box component="small" sx={{ fontSize: 13, fontWeight: 700, ml: "6px" }}>
-									{marginPct}%
-								</Box>
-							}
-						/>
+						<Row label={t("product.detail.prices.margin")}>
+							<PriceValue
+								value={margin}
+								color="success.main"
+								showCurrency={false}
+								extra={
+									<Box component="small" sx={{ fontSize: 13, fontWeight: 700, ml: "6px" }}>
+										{marginPct}%
+									</Box>
+								}
+							/>
+						</Row>
 					)}
 				</Box>
 			</DetailCard>
 
-			{/* Информация */}
 			<DetailCard
 				title={t("product.detail.info.title")}
 				icon={<InfoOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />}
 			>
 				<Box sx={{ p: "6px 18px 14px" }}>
-					{[
-						{ id: "sku", label: t("product.sku"), value: product.sku, mono: true },
-						{
-							id: "barcode",
-							label: t("product.barcode"),
-							value: product.barcode || "—",
-							mono: true,
-						},
-						{ id: "category", label: t("product.category"), value: product.categoryName ?? "—" },
-						{ id: "type", label: t("product.type"), value: t(`product.typeLong.${product.type}`) },
-						{
-							id: "measurement",
-							label: t("product.measurement"),
-							value: measurementLabel(t, product.measurement),
-						},
-						{ id: "packaging", label: t("product.packaging"), value: packagingLabel },
-					].map((row) => (
-						<Box
-							key={row.id}
-							sx={{
-								display: "flex",
-								alignItems: "baseline",
-								justifyContent: "space-between",
-								gap: "16px",
-								py: "9px",
-								borderBottom: "1px solid",
-								borderColor: designTokens.gray25,
-								"&:last-child": { borderBottom: "none" },
-							}}
-						>
-							<Typography
-								component="span"
-								sx={{ fontSize: 13, color: "text.secondary", flex: "0 0 auto" }}
-							>
-								{row.label}
-							</Typography>
+					{infoRows.map((row) => (
+						<Row key={row.id} label={row.label}>
 							<Typography
 								component="span"
 								sx={{
@@ -191,7 +152,7 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 							>
 								{row.value}
 							</Typography>
-						</Box>
+						</Row>
 					))}
 				</Box>
 			</DetailCard>

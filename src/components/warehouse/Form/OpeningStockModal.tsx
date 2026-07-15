@@ -10,6 +10,7 @@ import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useOpeningStockForm } from "hooks/warehouse/useOpeningStockForm";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -82,6 +83,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const watchedItems = watch("items");
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -132,6 +134,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -430,12 +433,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						flexWrap: "wrap",
 					}}
 				>
-					<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-						{t("warehouse.opening.footerSummary", {
-							count: completeLines.length,
-							value: formatCurrency(batchValue),
-						})}
-					</Typography>
 					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}

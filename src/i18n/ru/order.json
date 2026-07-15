@@ -80,6 +80,8 @@
   "order.detail.created": "создан",
   "order.detail.customerBalance": "Баланс клиента",
   "order.detail.orderAmount": "Сумма заказа",
+  "order.detail.customer": "Клиент",
+  "order.detail.discount": "Скидка",
   "order.detail.positionsCount": "Позиций",
   "order.detail.untouchedHint": "Деньги и склад не затронуты, пока заказ не доставлен",
   "order.detail.promoteHint": "Подтверждение доставки спишет товар со склада и создаст окончательную продажу.",

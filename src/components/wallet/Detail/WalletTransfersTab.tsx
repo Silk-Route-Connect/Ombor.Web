@@ -1,12 +1,15 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
 import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { matchesSearch } from "utils/stringUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -19,13 +22,20 @@ interface WalletTransfersTabProps {
 	onOpenTransfer: (transferId: number) => void;
 }
 
-const WalletCell: React.FC<{ name: string; type: WalletTransfer["fromWalletType"] }> = ({
-	name,
-	type,
-}) => (
-	<Box sx={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}>
+const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+const WalletCell: React.FC<{
+	id: number;
+	name: string;
+	type: WalletTransfer["fromWalletType"];
+}> = ({ id, name, type }) => (
+	<Box
+		component="span"
+		sx={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}
+		onClick={stop}
+	>
 		<WalletTypeAvatar type={type} size={24} iconSize={14} />
-		{name}
+		<WalletLink id={id} name={name} />
 	</Box>
 );
 
@@ -41,6 +51,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 	onOpenTransfer,
 }) => {
 	const { t } = useTranslation();
+	const [query, setQuery] = useState("");
 
 	const columns = useMemo<Column<WalletTransfer>[]>(
 		() => [
@@ -61,13 +72,17 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				key: "from",
 				headerName: t("wallet.transfers.from"),
 				sortValue: (tr) => tr.fromWalletName,
-				renderCell: (tr) => <WalletCell name={tr.fromWalletName} type={tr.fromWalletType} />,
+				renderCell: (tr) => (
+					<WalletCell id={tr.fromWalletId} name={tr.fromWalletName} type={tr.fromWalletType} />
+				),
 			},
 			{
 				key: "to",
 				headerName: t("wallet.transfers.to"),
 				sortValue: (tr) => tr.toWalletName,
-				renderCell: (tr) => <WalletCell name={tr.toWalletName} type={tr.toWalletType} />,
+				renderCell: (tr) => (
+					<WalletCell id={tr.toWalletId} name={tr.toWalletName} type={tr.toWalletType} />
+				),
 			},
 			{
 				key: "amount",
@@ -92,6 +107,16 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 			},
 		],
 		[t],
+	);
+
+	const filtered = useMemo(
+		() =>
+			query.trim()
+				? transfers.filter((tr) =>
+						matchesSearch([tr.fromWalletName, tr.toWalletName, tr.createdBy].join(" "), query),
+					)
+				: transfers,
+		[transfers, query],
 	);
 
 	if (transfers.length === 0) {
@@ -123,13 +148,23 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 	}
 
 	return (
-		<DataTable<WalletTransfer>
-			rows={transfers}
-			columns={columns}
-			pagination
-			defaultSort={{ key: "date", order: "desc" }}
-			onRowClick={(tr) => onOpenTransfer(tr.id)}
-		/>
+		<Box>
+			<Box sx={{ mb: "12px" }}>
+				<SearchInput
+					value={query}
+					onChange={setQuery}
+					placeholder={t("wallet.transfers.searchPlaceholder")}
+					sx={{ width: { xs: "100%", sm: 300 } }}
+				/>
+			</Box>
+			<DataTable<WalletTransfer>
+				rows={filtered}
+				columns={columns}
+				pagination
+				defaultSort={{ key: "date", order: "desc" }}
+				onRowClick={(tr) => onOpenTransfer(tr.id)}
+			/>
+		</Box>
 	);
 };
 

@@ -10,6 +10,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
@@ -209,6 +210,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 		submit,
 	} = useTemplateForm({ isOpen, isSaving, template, onSave, onClose });
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const partnerId = watch("partnerId");
 	const watchedItems = watch("items");
@@ -254,6 +256,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 760, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

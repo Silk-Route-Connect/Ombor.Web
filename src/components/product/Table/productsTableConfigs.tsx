@@ -104,6 +104,7 @@ export function buildProductColumns({
 					sx={{
 						...numericSx,
 						fontSize: 12.5,
+						fontWeight: 500,
 						color: "text.secondary",
 						...archivedCellSx(product),
 					}}

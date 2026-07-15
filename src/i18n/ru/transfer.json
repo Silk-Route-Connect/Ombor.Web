@@ -5,6 +5,7 @@
   "transfer.success.create": "Перемещение проведено: {{from}} → {{to}}, {{positions}} поз.",
 
   "transfer.title": "Перемещения",
+  "transfer.searchPlaceholder": "Поиск по складу или автору…",
   "transfer.create": "Новое перемещение",
   "transfer.unitFallback": "ед.",
 

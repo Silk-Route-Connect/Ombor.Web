@@ -9,6 +9,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useTransferForm } from "hooks/transfer/useTransferForm";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -92,6 +93,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const fromWarehouseId = watch("fromWarehouseId");
 	const toWarehouseId = watch("toWarehouseId");
@@ -163,6 +165,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 680, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader

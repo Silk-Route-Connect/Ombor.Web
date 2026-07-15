@@ -376,7 +376,6 @@ export const PaymentInfoCard: React.FC<{
 							>
 								{payment.partnerName}
 							</Box>
-							{payment.partnerType && ` · ${t(`payment.partnerType.${payment.partnerType}`)}`}
 						</>,
 					)}
 				{payment.employeeName &&

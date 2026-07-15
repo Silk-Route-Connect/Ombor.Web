@@ -16,7 +16,6 @@
   "category.form.namePlaceholder": "Введите название категории",
   "category.form.descriptionLabel": "Описание",
   "category.form.descriptionPlaceholder": "Краткое описание категории…",
-  "category.form.descriptionHint": "Помогает сотрудникам быстрее находить нужную категорию.",
 
   "category.validation.name.required": "Укажите название категории",
   "category.validation.name.tooLong": "Название не должно превышать 100 символов",
