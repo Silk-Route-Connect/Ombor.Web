@@ -234,7 +234,9 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 								const unit = MEASUREMENT_SHORT[movement.measurement];
 								const isIn = movement.quantity > 0;
 								return (
-									<tr key={movement.id}>
+									<tr
+										key={`${movement.kind}-${movement.id}-${movement.productId}-${movement.date}`}
+									>
 										<td>
 											<Box
 												component="span"

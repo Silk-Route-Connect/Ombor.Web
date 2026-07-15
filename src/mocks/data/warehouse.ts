@@ -111,8 +111,8 @@ let nextMovementId = 9_000_000;
 const TXN_TO_MOVEMENT: Record<ProductMovementKind, WarehouseMovementKind> = {
 	Sale: "Sale",
 	Supply: "Supply",
-	SaleRefund: "Refund",
-	SupplyRefund: "Refund",
+	SaleRefund: "SaleRefund",
+	SupplyRefund: "SupplyRefund",
 	Opening: "Opening",
 	Transfer: "Transfer",
 	Adjustment: "Adjustment",
