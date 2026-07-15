@@ -120,7 +120,7 @@
 
   "product.form.namePlaceholder": "Например: Шоколад Молочный 100г",
   "product.form.categoryPlaceholder": "Выберите категорию",
-  "product.form.skuPlaceholder": "SKU-00000",
+  "product.form.skuPlaceholder": "SKU-0000",
   "product.form.optionalPlaceholder": "Необязательно",
   "product.form.descriptionPlaceholder": "Описание товара…",
   "product.form.packLabelPlaceholder": "Например: Коробка 24 шт",
