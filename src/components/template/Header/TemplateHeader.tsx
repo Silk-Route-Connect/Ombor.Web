@@ -59,7 +59,6 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("template.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 340 } }}
 				/>
 				<SegmentedControl<TemplateTypeFilter>
 					options={typeOptions}

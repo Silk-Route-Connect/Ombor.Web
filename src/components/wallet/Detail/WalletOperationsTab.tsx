@@ -206,7 +206,6 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 					value={query}
 					onChange={setQuery}
 					placeholder={t("wallet.operations.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 				<SegmentedControl options={dirOptions} value={dir} onChange={setDir} />
 			</Box>

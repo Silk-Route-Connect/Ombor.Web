@@ -62,6 +62,12 @@ export function buildOrderColumns(t: TFunction): Column<Order>[] {
 			),
 		},
 		{
+			key: "delivery",
+			headerName: t("order.col.delivery"),
+			sortValue: (o) => o.deliveryDate ?? null,
+			renderCell: (o) => <OrderDeliveryCell order={o} />,
+		},
+		{
 			key: "total",
 			headerName: t("order.col.total"),
 			align: "right",
@@ -71,12 +77,6 @@ export function buildOrderColumns(t: TFunction): Column<Order>[] {
 					{formatCurrency(o.total)}
 				</Box>
 			),
-		},
-		{
-			key: "delivery",
-			headerName: t("order.col.delivery"),
-			sortValue: (o) => o.deliveryDate ?? null,
-			renderCell: (o) => <OrderDeliveryCell order={o} />,
 		},
 		{
 			key: "status",

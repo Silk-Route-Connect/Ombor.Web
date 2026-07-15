@@ -285,7 +285,15 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 											</Box>
 										)}
 									</Box>
-									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+									<Box
+										component="td"
+										sx={{
+											...bodyCellSx,
+											...numericSx,
+											color: "text.secondary",
+											whiteSpace: "nowrap",
+										}}
+									>
 										{e.type === "opening" ? formatDate(e.date) : formatDateTime(e.date)}
 									</Box>
 									<Box component="td" sx={bodyCellSx}>

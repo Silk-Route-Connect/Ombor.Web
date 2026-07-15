@@ -68,7 +68,6 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("order.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 				<OrderStatusTabs value={statusFilter} counts={statusCounts} onChange={onStatusChange} />
 				<Box sx={{ flexGrow: 1 }} />

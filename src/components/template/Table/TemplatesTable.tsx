@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
 import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import {
 	Column,
 	ExpandableDataTable,
@@ -155,9 +156,12 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 								</Box>
 							</Box>
 							<Box component="td" sx={innerBodySx}>
-								<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
+								<CopyableCell
+									value={item.sku}
+									sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}
+								>
 									{item.sku}
-								</Box>
+								</CopyableCell>
 							</Box>
 							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>
 								<Box component="span" sx={numericSx}>

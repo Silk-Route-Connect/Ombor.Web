@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -80,11 +81,12 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 									<Typography component="span" sx={{ fontSize: 13.5, fontWeight: 600 }}>
 										{l.productName}
 									</Typography>
-									<Typography
+									<CopyableCell
 										sx={{ ...numericSx, fontSize: 12, color: "text.secondary", mt: "2px" }}
+										value={l.sku}
 									>
 										{l.sku}
-									</Typography>
+									</CopyableCell>
 								</td>
 								<td className="r">
 									<Box component="span" sx={numericSx}>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { detailTableSx } from "components/product/Detail/detailTableSx";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
@@ -108,64 +109,68 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 
 				{/* lines */}
 				<Box
-					component="table"
 					sx={{
-						...detailTableSx,
 						border: "1px solid",
 						borderColor: "divider",
 						borderRadius: "8px",
+						overflow: "hidden",
 					}}
 				>
-					<thead>
-						<tr>
-							<Box component="th">{t("transfer.table.product")}</Box>
-							<Box component="th">{t("transfer.table.sku")}</Box>
-							<Box component="th" className="r">
-								{t("transfer.table.quantity")}
-							</Box>
-							<Box component="th">{t("transfer.table.unit")}</Box>
-						</tr>
-					</thead>
-					<tbody>
-						{transfer.lines.map((line) => (
-							<tr key={line.productId}>
-								<td>
-									<Box component="span" sx={{ fontWeight: 600 }}>
-										{line.productName}
-									</Box>
-								</td>
-								<td>
-									<Box component="span" sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}>
-										{line.sku}
-									</Box>
-								</td>
+					<Box component="table" sx={detailTableSx}>
+						<thead>
+							<tr>
+								<Box component="th">{t("transfer.table.product")}</Box>
+								<Box component="th">{t("transfer.table.sku")}</Box>
+								<Box component="th" className="r">
+									{t("transfer.table.quantity")}
+								</Box>
+								<Box component="th">{t("transfer.table.unit")}</Box>
+							</tr>
+						</thead>
+						<tbody>
+							{transfer.lines.map((line) => (
+								<tr key={line.productId}>
+									<td>
+										<Box component="span" sx={{ fontWeight: 600 }}>
+											{line.productName}
+										</Box>
+									</td>
+									<td>
+										<CopyableCell
+											value={line.sku}
+											sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
+										>
+											{line.sku}
+										</CopyableCell>
+									</td>
+									<td className="r">
+										<Box component="span" sx={{ ...numericSx }}>
+											{formatQuantity(line.quantity)}
+										</Box>
+									</td>
+									<td>
+										<Box component="span" sx={{ color: "text.secondary" }}>
+											{MEASUREMENT_SHORT[line.measurement]}
+										</Box>
+									</td>
+								</tr>
+							))}
+							<tr className="total">
+								<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
+								<td />
 								<td className="r">
 									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-										{formatQuantity(line.quantity)}
+										{formatQuantity(transferUnits(transfer))}
 									</Box>
 								</td>
 								<td>
 									<Box component="span" sx={{ color: "text.secondary" }}>
-										{MEASUREMENT_SHORT[line.measurement]}
+										{t("transfer.unitFallback")}
 									</Box>
 								</td>
 							</tr>
-						))}
-						<tr className="total">
-							<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
-							<td />
-							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
-									{formatQuantity(transferUnits(transfer))}
-								</Box>
-							</td>
-							<td>
-								<Box component="span" sx={{ color: "text.secondary" }}>
-									{t("transfer.unitFallback")}
-								</Box>
-							</td>
-						</tr>
-					</tbody>
+						</tbody>
+					</Box>
 				</Box>
 
 				{transfer.note && (

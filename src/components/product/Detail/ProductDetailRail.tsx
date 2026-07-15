@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard from "components/shared/Detail/DetailCard";
 import UzsUnit from "components/shared/Money/UzsUnit";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -89,8 +90,14 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 		: "—";
 
 	const infoRows = [
-		{ id: "sku", label: t("product.sku"), value: product.sku, mono: true },
-		{ id: "barcode", label: t("product.barcode"), value: product.barcode || "—", mono: true },
+		{ id: "sku", label: t("product.sku"), value: product.sku, mono: true, copyable: true },
+		{
+			id: "barcode",
+			label: t("product.barcode"),
+			value: product.barcode || "—",
+			mono: true,
+			copyable: !!product.barcode,
+		},
 		{ id: "category", label: t("product.category"), value: product.categoryName ?? "—" },
 		{ id: "type", label: t("product.type"), value: t(`product.typeLong.${product.type}`) },
 		{
@@ -139,21 +146,27 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 				icon={<InfoOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />}
 			>
 				<Box sx={{ p: "6px 18px 14px" }}>
-					{infoRows.map((row) => (
-						<Row key={row.id} label={row.label}>
-							<Typography
-								component="span"
-								sx={{
-									fontSize: 13.5,
-									fontWeight: 500,
-									textAlign: "right",
-									...(row.mono ? numericSx : null),
-								}}
-							>
-								{row.value}
-							</Typography>
-						</Row>
-					))}
+					{infoRows.map((row) => {
+						const valueSx = {
+							fontSize: 13.5,
+							fontWeight: 500,
+							textAlign: "right" as const,
+							...(row.mono ? numericSx : null),
+						};
+						return (
+							<Row key={row.id} label={row.label}>
+								{"copyable" in row && row.copyable ? (
+									<CopyableCell value={row.value} sx={valueSx}>
+										{row.value}
+									</CopyableCell>
+								) : (
+									<Typography component="span" sx={valueSx}>
+										{row.value}
+									</Typography>
+								)}
+							</Row>
+						);
+					})}
 				</Box>
 			</DetailCard>
 		</Stack>

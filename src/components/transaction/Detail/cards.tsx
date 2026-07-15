@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import MetaDot from "components/shared/Detail/MetaDot";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
@@ -613,16 +614,8 @@ export const RefundHistoryCard: React.FC<{
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left", pl: "18px" }}>
 								{formatDateTime(r.date)}
 							</Box>
-							<Box
-								component="td"
-								sx={{
-									...bodyCellSx,
-									textAlign: "left",
-									fontWeight: 700,
-									color: designTokens.gray700,
-								}}
-							>
-								{formatEntityId(r.transactionNumber ?? r.id)}
+							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left" }}>
+								<CopyableNumberCell value={r.transactionNumber ?? r.id} muted />
 							</Box>
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left" }}>
 								{r.lines.length}

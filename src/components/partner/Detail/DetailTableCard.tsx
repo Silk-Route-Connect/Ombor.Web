@@ -68,7 +68,7 @@ export const DetailTableCard: React.FC<DetailTableCardProps> = ({
 					value={search.value}
 					onChange={search.onChange}
 					placeholder={search.placeholder}
-					sx={{ width: { xs: "100%", sm: 240 } }}
+					dense
 				/>
 				{filters}
 				<Box sx={{ flexGrow: 1 }} />

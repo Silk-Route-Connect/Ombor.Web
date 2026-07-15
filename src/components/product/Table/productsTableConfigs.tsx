@@ -1,6 +1,7 @@
 import ProductTypeChip from "components/product/ProductTypeChip";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import TruncatedText from "components/shared/Table/TruncatedText";
@@ -99,8 +100,8 @@ export function buildProductColumns({
 			headerName: t("product.table.sku"),
 			width: "12%",
 			renderCell: (product) => (
-				<Typography
-					component="span"
+				<CopyableCell
+					value={product.sku}
 					sx={{
 						...numericSx,
 						fontSize: 12.5,
@@ -110,7 +111,7 @@ export function buildProductColumns({
 					}}
 				>
 					{product.sku}
-				</Typography>
+				</CopyableCell>
 			),
 		},
 		{

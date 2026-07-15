@@ -63,7 +63,6 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("wallet.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 320 } }}
 				/>
 
 				<Box sx={{ flexGrow: 1 }} />

@@ -126,7 +126,6 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 				value={searchTerm}
 				onChange={onSearch}
 				placeholder={t("debt.searchPlaceholder")}
-				sx={{ width: { xs: "100%", sm: 300 } }}
 			/>
 
 			{tab === "transactions" && (

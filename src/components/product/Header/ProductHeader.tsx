@@ -82,7 +82,6 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("product.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 
 				{/* Entity filters are typeahead (convention); small fixed sets stay tabs. */}

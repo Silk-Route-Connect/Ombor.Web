@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Column, DataTable, DefaultSort } from "components/shared/Table/DataTable/DataTable";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { Debt } from "models/debt";
@@ -320,7 +321,9 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 							</Box>
 							<Box>
 								<Box component="div" sx={{ ...numericSx, fontWeight: 600, fontSize: 14 }}>
-									{formatEntityId(d.number ?? d.transactionId)}
+									<CopyableCell value={d.number ?? d.transactionId}>
+										{formatEntityId(d.number ?? d.transactionId)}
+									</CopyableCell>
 								</Box>
 								<Box component="div" sx={{ ...numericSx, fontSize: 12, color: "text.secondary" }}>
 									{formatDateTime(d.date)}

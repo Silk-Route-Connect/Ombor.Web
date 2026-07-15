@@ -94,17 +94,6 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 				),
 			},
 			{
-				key: "salary",
-				headerName: t("employee.table.salary"),
-				align: "right",
-				sortValue: (e) => e.salary,
-				renderCell: (e) => (
-					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
-						{formatCurrency(e.salary)}
-					</Box>
-				),
-			},
-			{
 				key: "status",
 				headerName: t("employee.status"),
 				sortValue: (e) => t(`employee.status.${e.status}`),
@@ -120,6 +109,17 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 					>
 						{formatDate(e.dateOfEmployment)}
+					</Box>
+				),
+			},
+			{
+				key: "salary",
+				headerName: t("employee.table.salary"),
+				align: "right",
+				sortValue: (e) => e.salary,
+				renderCell: (e) => (
+					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
+						{formatCurrency(e.salary)}
 					</Box>
 				),
 			},

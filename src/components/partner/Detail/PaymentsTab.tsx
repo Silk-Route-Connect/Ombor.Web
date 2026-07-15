@@ -96,8 +96,8 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 			[
 				{ header: t("partner.pays.col.date"), value: (p) => formatDate(p.date) },
 				{ header: t("partner.pays.col.type"), value: (p) => t(eventLabelKey(p.type)) },
-				{ header: t("partner.pays.col.amount"), value: (p) => Math.abs(p.delta) },
 				{ header: t("partner.pays.col.wallet"), value: (p) => p.walletName ?? "" },
+				{ header: t("partner.pays.col.amount"), value: (p) => Math.abs(p.delta) },
 			],
 			filtered,
 		);
@@ -158,6 +158,14 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 								sx={headCellSx}
 							/>
 							<DetailSortHeader
+								col="wallet"
+								label={t("partner.pays.col.wallet")}
+								active={sortCol === "wallet"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
 								col="amount"
 								label={t("partner.pays.col.amount")}
 								active={sortCol === "amount"}
@@ -165,14 +173,6 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 								onSort={onSort}
 								align="right"
 								sx={{ ...headCellSx, textAlign: "right" }}
-							/>
-							<DetailSortHeader
-								col="wallet"
-								label={t("partner.pays.col.wallet")}
-								active={sortCol === "wallet"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
 							/>
 						</tr>
 					</thead>
@@ -184,11 +184,26 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 								onClick={() => onOpen(p)}
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
-								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+								<Box
+									component="td"
+									sx={{
+										...bodyCellSx,
+										...numericSx,
+										color: "text.secondary",
+										whiteSpace: "nowrap",
+									}}
+								>
 									{formatDateTime(p.date)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
 									<EventCell type={p.type} label={t(eventLabelKey(p.type))} />
+								</Box>
+								<Box component="td" sx={{ ...bodyCellSx, fontSize: 13, color: "text.primary" }}>
+									{p.walletName ?? (
+										<Box component="span" sx={{ color: "text.secondary" }}>
+											{t("common.dash")}
+										</Box>
+									)}
 								</Box>
 								<Box
 									component="td"
@@ -201,13 +216,6 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 									}}
 								>
 									{formatCurrency(Math.abs(p.delta))}
-								</Box>
-								<Box component="td" sx={{ ...bodyCellSx, fontSize: 13, color: "text.primary" }}>
-									{p.walletName ?? (
-										<Box component="span" sx={{ color: "text.secondary" }}>
-											{t("common.dash")}
-										</Box>
-									)}
 								</Box>
 							</Box>
 						))}

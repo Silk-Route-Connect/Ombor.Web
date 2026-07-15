@@ -69,7 +69,6 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("warehouse.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 320 } }}
 				/>
 
 				<Box sx={{ flexGrow: 1 }} />

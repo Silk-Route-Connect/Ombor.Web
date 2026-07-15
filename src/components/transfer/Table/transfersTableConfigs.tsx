@@ -50,7 +50,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			renderCell: (transfer) => (
 				<Typography
 					component="span"
-					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
+					sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 				>
 					{formatDateTime(transfer.date)}
 				</Typography>
