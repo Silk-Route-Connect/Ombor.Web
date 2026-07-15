@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { detailTableSx } from "components/product/Detail/detailTableSx";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
@@ -135,9 +136,12 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 									</Box>
 								</td>
 								<td>
-									<Box component="span" sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}>
+									<CopyableCell
+										value={line.sku}
+										sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
+									>
 										{line.sku}
-									</Box>
+									</CopyableCell>
 								</td>
 								<td className="r">
 									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>

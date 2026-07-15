@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import {
 	Column,
 	ExpandableDataTable,
@@ -113,7 +114,7 @@ const AdjustmentDetail: React.FC<{ adjustment: StockAdjustment }> = ({ adjustmen
 					}}
 				>
 					<ExpandField label={t("adjustment.table.sku")} mono>
-						{adjustment.sku}
+						<CopyableCell value={adjustment.sku}>{adjustment.sku}</CopyableCell>
 					</ExpandField>
 					<ExpandField label={t("adjustment.table.category")}>
 						{adjustment.categoryName ?? "—"}

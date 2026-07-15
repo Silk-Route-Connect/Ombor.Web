@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { Loadable } from "helpers/Loading";
@@ -10,7 +11,6 @@ import { PaymentRecord } from "models/payment";
 import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -46,11 +46,7 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 			// The backend's legacy DTO omits the human «P-…» number — fall back to «№id»
 			// so the column is never blank (matches the detail-page title).
 			sortValue: (p) => p.number ?? p.id,
-			renderCell: (p) => (
-				<Box component="span" sx={{ ...numericSx, fontWeight: 700, color: "primary.main" }}>
-					{formatEntityId(p.number ?? p.id)}
-				</Box>
-			),
+			renderCell: (p) => <CopyableNumberCell value={p.number ?? p.id} />,
 		},
 		{
 			key: "date",

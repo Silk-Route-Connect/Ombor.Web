@@ -5,6 +5,7 @@ import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
@@ -232,12 +233,12 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 										<ProductLink id={item.productId} name={item.productName} />
 									</td>
 									<td>
-										<Box
-											component="span"
+										<CopyableCell
+											value={item.sku}
 											sx={{ ...numericSx, fontSize: 12, color: "text.secondary" }}
 										>
 											{item.sku}
-										</Box>
+										</CopyableCell>
 									</td>
 									<td>
 										<Box component="span" sx={{ color: "text.secondary" }}>
