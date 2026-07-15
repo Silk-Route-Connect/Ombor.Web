@@ -5,7 +5,7 @@ import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable"
 import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
 import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
-import PartnerBalanceCard from "components/partner/Detail/PartnerBalanceCard";
+import PartnerDetailRail from "components/partner/Detail/PartnerDetailRail";
 import PaymentsTab from "components/partner/Detail/PaymentsTab";
 import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
@@ -21,7 +21,7 @@ import { useStore } from "stores/StoreContext";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 type PartnerDetailTab = "ledger" | "transactions" | "payments";
 
@@ -203,12 +203,23 @@ const PartnerDetailPage: React.FC = observer(() => {
 
 			{partner.isArchived && <PartnerArchivedBanner />}
 
-			<PartnerBalanceCard partner={partner} ledger={ledger} />
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gap: "20px",
+					alignItems: "start",
+				}}
+			>
+				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
+					<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
+					{renderTab()}
+				</Box>
 
-			<Stack sx={{ gap: "16px", mt: "20px" }}>
-				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
-				{renderTab()}
-			</Stack>
+				<Box sx={{ position: "sticky", top: 0 }}>
+					<PartnerDetailRail partner={partner} ledger={ledger} />
+				</Box>
+			</Box>
 
 			<PartnerFormModal
 				isOpen={dialogMode.kind === "form"}

@@ -57,6 +57,7 @@
   "partner.detail.archived.title": "Партнёр в архиве.",
   "partner.detail.archived.body": "Он скрыт из списков и форм подбора, но его книга расчётов сохранена полностью и учитывается в итогах. Новые транзакции недоступны — восстановите партнёра, чтобы продолжить работу.",
   "partner.detail.contacts": "Контакты",
+  "partner.detail.activity": "Обороты",
   "partner.detail.contactPrimary": "основной",
   "partner.detail.opening": "Начальный баланс:",
   "partner.detail.stat.sales": "Продажи",
