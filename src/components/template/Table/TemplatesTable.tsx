@@ -36,22 +36,20 @@ const stop = (e: React.MouseEvent) => e.stopPropagation();
 
 const innerHeadSx = {
 	textAlign: "left",
-	fontSize: 11.5,
+	fontSize: 12,
 	fontWeight: 600,
-	letterSpacing: ".03em",
-	textTransform: "uppercase",
-	color: "text.disabled",
-	p: "11px 16px",
+	color: "text.secondary",
+	p: "10px 16px",
 	borderBottom: "1px solid",
 	borderColor: "divider",
 	bgcolor: designTokens.gray25,
 } as const;
 
 const innerBodySx = {
-	p: "11px 16px",
+	p: "10px 16px",
 	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 14,
+	borderColor: designTokens.gray25,
+	fontSize: 13.5,
 	verticalAlign: "middle",
 } as const;
 
