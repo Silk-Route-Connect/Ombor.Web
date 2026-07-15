@@ -16,6 +16,7 @@ import {
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
 import RefundModal from "components/transaction/Refund/RefundModal";
 import { observer } from "mobx-react-lite";
+import { paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import {
 	isRefundType,
@@ -140,9 +141,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					{!refund && (
 						<PaymentsCard
 							tx={tx}
-							onOpenPayment={(pid) =>
-								devToast(`${t("transaction.detail.paymentLabel", { id: pid })}`)
-							}
+							onOpenPayment={(paymentId) => navigate(paymentDetailPath(paymentId))}
 						/>
 					)}
 				</Box>
