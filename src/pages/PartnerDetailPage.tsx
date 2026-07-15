@@ -200,15 +200,27 @@ const PartnerDetailPage: React.FC = observer(() => {
 				title={partner.name}
 				titleExtra={
 					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-						<Box component="span" sx={{ color: "text.disabled", fontSize: 17, lineHeight: 1 }}>
-							·
-						</Box>
+						<Box
+							sx={{
+								width: 5,
+								height: 5,
+								borderRadius: "50%",
+								bgcolor: "text.secondary",
+								flex: "0 0 auto",
+							}}
+						/>
 						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} size="md" />
 						{partner.companyName && (
 							<>
-								<Box component="span" sx={{ color: "text.disabled", fontSize: 17, lineHeight: 1 }}>
-									·
-								</Box>
+								<Box
+									sx={{
+										width: 5,
+										height: 5,
+										borderRadius: "50%",
+										bgcolor: "text.secondary",
+										flex: "0 0 auto",
+									}}
+								/>
 								<Box
 									component="span"
 									sx={{
