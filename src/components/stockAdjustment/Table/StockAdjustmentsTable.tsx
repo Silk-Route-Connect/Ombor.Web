@@ -199,7 +199,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 				renderCell: (a) => (
 					<Box
 						component="span"
-						sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
+						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 					>
 						{formatDateTime(a.date)}
 					</Box>

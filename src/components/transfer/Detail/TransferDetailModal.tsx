@@ -144,7 +144,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 									</CopyableCell>
 								</td>
 								<td className="r">
-									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
+									<Box component="span" sx={{ ...numericSx }}>
 										{formatQuantity(line.quantity)}
 									</Box>
 								</td>
@@ -159,7 +159,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 							<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
 							<td />
 							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 									{formatQuantity(transferUnits(transfer))}
 								</Box>
 							</td>

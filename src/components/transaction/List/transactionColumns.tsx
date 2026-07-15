@@ -70,10 +70,7 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 			// feed order). 0.5 is exact in float64 and never overtakes another timestamp.
 			sortValue: (tx) => tx.date.getTime() + (isRefundType(tx.type) ? 0.5 : 0),
 			renderCell: (tx) => (
-				<Box
-					component="span"
-					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
-				>
+				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
 					{formatDateTime(tx.date)}
 				</Box>
 			),

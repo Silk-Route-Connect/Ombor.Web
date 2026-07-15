@@ -86,7 +86,8 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 									sx={{
 										...numericSx,
 										fontSize: 11.5,
-										color: "text.disabled",
+										fontWeight: 600,
+										color: "text.secondary",
 										mt: "6px",
 										textAlign: "center",
 										overflow: "hidden",

@@ -260,7 +260,15 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								onClick={() => onOpen(tx)}
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
-								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+								<Box
+									component="td"
+									sx={{
+										...bodyCellSx,
+										...numericSx,
+										color: "text.secondary",
+										whiteSpace: "nowrap",
+									}}
+								>
 									{formatDateTime(tx.date)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>

@@ -184,7 +184,15 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 								onClick={() => onOpen(p)}
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
-								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+								<Box
+									component="td"
+									sx={{
+										...bodyCellSx,
+										...numericSx,
+										color: "text.secondary",
+										whiteSpace: "nowrap",
+									}}
+								>
 									{formatDateTime(p.date)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
