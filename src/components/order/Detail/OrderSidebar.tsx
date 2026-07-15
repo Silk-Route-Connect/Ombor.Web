@@ -2,19 +2,18 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
-import PartnerAvatar from "components/partner/PartnerAvatar";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { isOrderEditable, ORDER_NEXT_STEP, orderTotal } from "utils/orderUtils";
+import { isOrderEditable, ORDER_NEXT_STEP, orderSubtotal, orderTotal } from "utils/orderUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box, Typography } from "@mui/material";
 
 const FinRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-	<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+	<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
 		<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
 			{label}
 		</Box>
@@ -22,12 +21,18 @@ const FinRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label,
 	</Box>
 );
 
+/**
+ * Order summary rail — a single card (merged from the former partner + financial
+ * cards): the order amount hero, then Партнёр / Скидка / Статус / Источник rows,
+ * and the customer balance. The line count is intentionally dropped.
+ */
 export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }> = ({
 	order,
 	onOpenCustomer,
 }) => {
 	const { t } = useTranslation();
 	const total = orderTotal(order.lines);
+	const discount = orderSubtotal(order.lines) - total;
 	const step = ORDER_NEXT_STEP[order.status];
 
 	const balance = order.customerBalance;
@@ -41,66 +46,6 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 
 	return (
 		<>
-			{/* partner mini */}
-			<DetailCard>
-				<Box sx={{ p: "16px 18px" }}>
-					<Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
-						<PartnerAvatar name={order.customerName} size={44} />
-						<Box sx={{ minWidth: 0 }}>
-							<Typography
-								onClick={onOpenCustomer}
-								sx={{
-									fontSize: 15,
-									fontWeight: 700,
-									color: "primary.main",
-									cursor: "pointer",
-									"&:hover": { textDecoration: "underline" },
-								}}
-							>
-								{order.customerName}
-							</Typography>
-							<Box
-								component="span"
-								sx={{
-									display: "inline-flex",
-									mt: "4px",
-									px: "8px",
-									py: "1px",
-									borderRadius: "999px",
-									fontSize: 11,
-									fontWeight: 600,
-									color: "info.main",
-									bgcolor: designTokens.infoBg,
-									border: "1px solid",
-									borderColor: designTokens.infoBorder,
-								}}
-							>
-								{t(`order.partnerType.${order.customerType}`)}
-							</Box>
-						</Box>
-					</Box>
-					<Box
-						sx={{
-							mt: "14px",
-							pt: "13px",
-							borderTop: "1px solid",
-							borderColor: "divider",
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-						}}
-					>
-						<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-							{t("order.detail.customerBalance")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontSize: 13.5, fontWeight: 700, color: balanceColor }}>
-							{balanceLabel}
-						</Typography>
-					</Box>
-				</Box>
-			</DetailCard>
-
-			{/* financial */}
 			<DetailCard>
 				<Box sx={{ p: "18px" }}>
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
@@ -125,6 +70,7 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 							UZS
 						</Box>
 					</Typography>
+
 					<Box
 						sx={{
 							mt: "18px",
@@ -136,18 +82,54 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 							gap: "13px",
 						}}
 					>
-						<FinRow label={t("order.detail.positionsCount")}>
-							<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
-								{order.lines.length}
+						<FinRow label={t("order.detail.customer")}>
+							<Box
+								component="span"
+								onClick={onOpenCustomer}
+								sx={{
+									fontWeight: 700,
+									color: "primary.main",
+									cursor: "pointer",
+									textAlign: "right",
+									"&:hover": { textDecoration: "underline" },
+								}}
+							>
+								{order.customerName}
 							</Box>
 						</FinRow>
-						<FinRow label={t("order.col.source")}>
-							<OrderSourceChip source={order.source} />
+						<FinRow label={t("order.detail.discount")}>
+							<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
+								{formatCurrency(discount)}
+							</Box>
 						</FinRow>
 						<FinRow label={t("order.col.status")}>
 							<OrderStatusChip status={order.status} />
 						</FinRow>
+						<FinRow label={t("order.col.source")}>
+							<OrderSourceChip source={order.source} />
+						</FinRow>
 					</Box>
+
+					<Box
+						sx={{
+							mt: "16px",
+							pt: "14px",
+							borderTop: "1px solid",
+							borderColor: "divider",
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+							gap: "12px",
+						}}
+					>
+						<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+							{t("order.detail.customerBalance")}
+						</Typography>
+						<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 700, color: balanceColor }}>
+							{balanceLabel}
+						</Typography>
+					</Box>
+
 					{isOrderEditable(order.status) && (
 						<Box
 							sx={{
