@@ -260,6 +260,7 @@ export class EmployeeStore implements IEmployeeStore {
 	}
 
 	openCreate(): void {
+		this.selectedEmployee = null;
 		this.setDialog({ kind: "form" });
 	}
 
@@ -292,10 +293,15 @@ export class EmployeeStore implements IEmployeeStore {
 	}
 
 	private setDialog(mode: DialogMode) {
-		const employee = "employee" in mode ? (mode.employee ?? null) : null;
-
 		this.dialogMode = mode;
-		this.selectedEmployee = employee;
+
+		// A dialog that targets an employee focuses it; closing a dialog (or an
+		// employee-less «create» mode) must NOT clear the focused employee — on the
+		// detail page that employee is the page subject, and wiping it drops the page
+		// into a permanent loader. openCreate clears it explicitly for a blank form.
+		if ("employee" in mode && mode.employee) {
+			this.selectedEmployee = mode.employee;
+		}
 	}
 
 	private applySort(data: Loadable<Employee[]>): Loadable<Employee[]> {
