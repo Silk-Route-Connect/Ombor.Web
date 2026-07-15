@@ -10,6 +10,7 @@ import { CreateRefundRequest, TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, discountLabel, effectiveUnitPrice } from "utils/transactionUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -165,7 +166,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 			>
 				<FormDialogHeader
 					title={t(`transaction.refund.title.${direction}`, {
-						number: transaction.transactionNumber,
+						number: formatEntityId(transaction.transactionNumber ?? transaction.id),
 					})}
 					disabled={isSaving}
 					onClose={requestClose}

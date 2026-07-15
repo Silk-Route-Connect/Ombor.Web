@@ -85,7 +85,7 @@
   "transaction.list.exportCsv": "Экспорт CSV",
   "transaction.list.search.Sale": "Поиск по номеру или партнёру…",
   "transaction.list.search.Supply": "Поиск по номеру или поставщику…",
-  "transaction.list.refundOf": "Возврат к №{{number}}",
+  "transaction.list.refundOf": "Возврат к {{number}}",
 
   "transaction.statusFilter.all": "Все",
 
@@ -166,8 +166,8 @@
   "transaction.detail.refundImmutable": "Возврат проведён и не подлежит изменению",
   "transaction.detail.devToast": "{{name}} — раздел в разработке",
 
-  "transaction.refund.title.Sale": "Возврат к продаже #{{number}}",
-  "transaction.refund.title.Supply": "Возврат к поставке #{{number}}",
+  "transaction.refund.title.Sale": "Возврат к продаже {{number}}",
+  "transaction.refund.title.Supply": "Возврат к поставке {{number}}",
   "transaction.refund.sectionLabel": "Позиции к возврату",
   "transaction.refund.col.product": "Товар",
   "transaction.refund.col.sold": "Продано",
@@ -188,7 +188,7 @@
   "transaction.refund.totalAmount": "Сумма возврата:",
   "transaction.refund.submit": "Провести возврат",
   "transaction.refund.error": "Не удалось провести возврат",
-  "transaction.refund.success": "Возврат к #{{number}} проведён",
+  "transaction.refund.success": "Возврат к {{number}} проведён",
 
   "transaction.new.title.Sale": "Новая продажа",
   "transaction.new.title.Supply": "Новая поставка",

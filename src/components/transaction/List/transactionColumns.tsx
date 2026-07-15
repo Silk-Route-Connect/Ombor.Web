@@ -11,6 +11,7 @@ import { TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
@@ -50,7 +51,9 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 								}}
 							>
 								<UndoOutlinedIcon sx={{ fontSize: 12 }} />
-								{t("transaction.list.refundOf", { number: tx.originalTransactionNumber })}
+								{t("transaction.list.refundOf", {
+									number: formatEntityId(tx.originalTransactionNumber),
+								})}
 							</Box>
 						)}
 					</Box>
