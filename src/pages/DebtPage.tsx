@@ -7,6 +7,7 @@ import { PartnerDebtTable, TransactionDebtTable } from "components/debt/DebtTabl
 import DebtTabs from "components/debt/DebtTabs";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import TableToolbar from "components/shared/Table/TableToolbar";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
 import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -67,17 +68,7 @@ const DebtPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PageHeader
-				title={t("debt.title")}
-				actions={
-					<GhostButton
-						icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-						onClick={handleExport}
-					>
-						{t("debt.exportCsv")}
-					</GhostButton>
-				}
-			/>
+			<PageHeader title={t("debt.title")} />
 
 			{loading ? (
 				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
@@ -94,16 +85,31 @@ const DebtPage: React.FC = observer(() => {
 						onChange={debtStore.setTab}
 					/>
 
-					<DebtFilters
-						tab={debtStore.tab}
-						searchTerm={debtStore.searchTerm}
-						ageBucket={debtStore.ageBucket}
-						directionFilter={debtStore.directionFilter}
-						onlyOverdue={debtStore.onlyOverdue}
-						onSearch={debtStore.setSearch}
-						onAgeChange={debtStore.setAgeBucket}
-						onDirectionChange={debtStore.setDirectionFilter}
-						onClearOverdue={() => debtStore.setOnlyOverdue(false)}
+					<TableToolbar
+						search={{
+							value: debtStore.searchTerm,
+							onChange: debtStore.setSearch,
+							placeholder: t("debt.searchPlaceholder"),
+						}}
+						filters={
+							<DebtFilters
+								tab={debtStore.tab}
+								ageBucket={debtStore.ageBucket}
+								directionFilter={debtStore.directionFilter}
+								onlyOverdue={debtStore.onlyOverdue}
+								onAgeChange={debtStore.setAgeBucket}
+								onDirectionChange={debtStore.setDirectionFilter}
+								onClearOverdue={() => debtStore.setOnlyOverdue(false)}
+							/>
+						}
+						actions={
+							<GhostButton
+								icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+								onClick={handleExport}
+							>
+								{t("debt.exportCsv")}
+							</GhostButton>
+						}
 					/>
 
 					{debtStore.tab === "partners" ? (
