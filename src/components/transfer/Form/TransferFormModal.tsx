@@ -40,6 +40,8 @@ import {
 	Typography,
 } from "@mui/material";
 
+import TransferProductOption from "./TransferProductOption";
+
 export interface TransferFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
@@ -273,6 +275,20 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 													error={!!fieldState.error}
 													additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
 													onChange={(p) => field.onChange(p?.id ?? 0)}
+													renderOption={(optionProps, option) => {
+														const { key, ...liProps } =
+															optionProps as React.HTMLAttributes<HTMLLIElement> & {
+																key?: React.Key;
+															};
+														return (
+															<Box component="li" key={option.id} {...liProps} sx={{ gap: "12px" }}>
+																<TransferProductOption
+																	product={option}
+																	stock={availFor(option.id)}
+																/>
+															</Box>
+														);
+													}}
 												/>
 											)}
 										/>
