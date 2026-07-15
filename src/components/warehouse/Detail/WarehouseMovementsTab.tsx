@@ -120,7 +120,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					value={query}
 					onChange={setQuery}
 					placeholder={t("warehouse.movements.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 240 } }}
+					dense
 				/>
 				<TextField
 					select

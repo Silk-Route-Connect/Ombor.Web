@@ -76,7 +76,6 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("adjustment.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 280 } }}
 				/>
 
 				<TextField

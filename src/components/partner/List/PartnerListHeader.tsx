@@ -64,7 +64,6 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("partner.list.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 320 } }}
 				/>
 				<SegmentedControl<PartnerTypeFilter>
 					value={typeFilter}

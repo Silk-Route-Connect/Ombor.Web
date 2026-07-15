@@ -68,7 +68,6 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 					value={search}
 					onChange={onSearchChange}
 					placeholder={t("transfer.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 				<TextField
 					select

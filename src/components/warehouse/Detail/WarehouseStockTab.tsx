@@ -111,7 +111,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 					value={query}
 					onChange={setQuery}
 					placeholder={t("warehouse.stock.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 280 } }}
+					dense
 				/>
 				<TextField
 					select

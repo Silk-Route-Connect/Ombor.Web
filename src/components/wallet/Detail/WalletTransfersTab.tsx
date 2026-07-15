@@ -154,7 +154,6 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 					value={query}
 					onChange={setQuery}
 					placeholder={t("wallet.transfers.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 			</Box>
 			<DataTable<WalletTransfer>
