@@ -99,7 +99,7 @@ export const SdCard: React.FC<{
 
 export const PositionsCard: React.FC<{
 	lines: TransactionLine[];
-	footer: React.ReactNode;
+	footer?: React.ReactNode;
 	count: number;
 }> = ({ lines, footer, count }) => {
 	const { t } = useTranslation();
@@ -269,10 +269,12 @@ export const RefundFooter: React.FC<{ lines: TransactionLine[] }> = ({ lines }) 
 export const SaleFinancialCard: React.FC<{
 	direction: TransactionDirection;
 	total: number;
+	subtotal: number;
+	discount: number;
 	paid: number;
 	remaining: number;
 	status: TransactionStatus;
-}> = ({ direction, total, paid, remaining, status }) => {
+}> = ({ direction, total, subtotal, discount, paid, remaining, status }) => {
 	const { t } = useTranslation();
 	return (
 		<SdCard>
@@ -310,6 +312,32 @@ export const SaleFinancialCard: React.FC<{
 						gap: "13px",
 					}}
 				>
+					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
+							{t("transaction.detail.subtotal")}
+						</Box>
+						<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
+							{formatCurrency(subtotal)} UZS
+						</Box>
+					</Box>
+					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
+							{t("transaction.detail.discountByLines")}
+						</Box>
+						{discount ? (
+							<Box
+								component="span"
+								sx={{ ...numericSx, fontWeight: 600, color: designTokens.saffron700 }}
+							>
+								−{formatCurrency(discount)} UZS
+							</Box>
+						) : (
+							<Box component="span" sx={{ color: "text.disabled" }}>
+								—
+							</Box>
+						)}
+					</Box>
+					<Box sx={{ height: "1px", bgcolor: "divider" }} />
 					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
 							{t("transaction.detail.fin.paid")}
