@@ -49,9 +49,13 @@ class PartnerApi extends BaseApi {
 	}
 
 	async update(request: UpdatePartnerRequest): Promise<Partner> {
-		const response = await http.put<Partner>(this.getUrlWithId(request.id), request);
+		// The PUT response is the same lean shape as create — it has no
+		// server-computed `balance` / `activityCount`. Re-read the full partner by
+		// id so the detail page keeps its computed balance instead of «не число»
+		// after an edit (F-011, same fix as create).
+		await http.put(this.getUrlWithId(request.id), request);
 
-		return response.data;
+		return this.getById(request.id);
 	}
 
 	/** Archive — the backend returns 204 No Content (no body). */

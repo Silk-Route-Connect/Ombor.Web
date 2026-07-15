@@ -59,7 +59,7 @@ The `redesign/backend-alignment` pass (2026-07-05) regenerated `openapi.json` fr
 | # | Item | Status | Severity | Evidence |
 |---|------|--------|----------|----------|
 | F1 | **Product edit crashes/blanks the list & detail** — PUT returns lean `UpdateProductResponse` (no images/warehouseItems/totalStock/averageCost); store keeps it with no refetch | **Missing** (broken) | **Blocker** | `ProductApi.ts:56`, `ProductStore.ts:185`, `ProductDetailPage.tsx:84` |
-| F2 | **Partner edit drops served balance** → «—»/NaN + delete-gating breaks until reload (PUT returns lean `UpdatePartnerResponse`; `update()` doesn't re-read like `create()` does) | **Missing** (broken) | Important | `PartnerApi.ts:51`, `PartnerStore.ts:188` |
+| F2 | **Partner edit drops served balance** → «—»/NaN + delete-gating breaks until reload (PUT returns lean `UpdatePartnerResponse`; `update()` doesn't re-read like `create()` does) | **Fixed** (E1 — `update()` now re-reads by id, like `create`) | Important | `PartnerApi.ts:51`, `PartnerStore.ts:188` |
 | F3 | **Category create/edit** stores lean response → `productCount` undefined → count shows 0, delete-guard misroutes (backend 409 still protects data) | **Missing** (broken) | Important | `CategoryStore.ts:92` |
 | F4 | **Templates: Fixed line-discount unsupported → negative totals on real data** (contract now serves `discountType`, FE model omits it; math treats `discount` as percent) — delta §6 FE half never landed | **Missing** (broken) | Important | `models/template.ts`, `productUtils.ts:50`, `TemplatesTable.tsx:67` |
 | F5 | **Dashboard recent-tx table crash-risk** — `status` narrowed to `paid/partial/unpaid`, indexed unguarded; real backend serves `string?` | **Partial** (risk) | Important | `models/dashboard.ts:78`, `RecentTransactionsTable.tsx:31` |
@@ -75,6 +75,7 @@ The `redesign/backend-alignment` pass (2026-07-05) regenerated `openapi.json` fr
 | F15 | **Archive leak: `PartnerAutocomplete type="Both"` includes archived** → Template partner picker can pick an archived partner (B4) | **Missing** (broken) | Important | `PartnerAutocomplete.tsx:25`, `TemplateFormModal.tsx:336` |
 | F16 | **i18n: shared empty-state `«Нет записей»` hardcoded** (app-wide, no key) + month arrays/plural forms in Employee/Payment/Debt/Template (B5) | **Missing** | Important | `DataTable.tsx:280` + list |
 | F17 | **uz-Latn / uz-Cyrl backfill absent** — 11 substantive namespaces missing, `common` ~8%, `template.json` empty `{}`; **launch blocker** per mvp-plan cross-cutting #14 (gated to ru-only, so not live) | **Missing** | **Blocker** (launch) | `i18n/config.ts`, `languages.ts:16` |
+| F20 | **Partner ledger omits `reference` on sale/supply rows** — only payment rows carry the display number (`"2268"`); sale/supply rows serve `sourceId` (= the tx id) but no `reference`, so the «Номер» column shows «—». FE cannot derive it: `sourceId` (1927) ≠ the tx display number (№797). Backend must serve `reference` (the tx display number) on sale/supply ledger rows, like it already does for payments (found during E1 review) | **Missing** (backend) | Important | `GET /api/partners/{id}/ledger`, `LedgerTab.tsx:271` |
 
 ### C. Unbuilt v1-scope modules
 

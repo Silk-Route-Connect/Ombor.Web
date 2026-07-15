@@ -123,36 +123,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 		);
 	};
 
-	const legend = (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "22px",
-				p: "11px 18px",
-				bgcolor: designTokens.gray25,
-				borderBottom: "1px solid",
-				borderColor: "divider",
-				fontSize: 12.5,
-				color: "text.secondary",
-				flexWrap: "wrap",
-			}}
-		>
-			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
-				<Box component="b" sx={{ color: "success.main", fontWeight: 700 }}>
-					+
-				</Box>
-				{t("partner.ledger.legendPos")}
-			</Box>
-			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
-				<Box component="b" sx={{ color: "error.main", fontWeight: 700 }}>
-					−
-				</Box>
-				{t("partner.ledger.legendNeg")}
-			</Box>
-		</Box>
-	);
-
 	return (
 		<DetailTableCard
 			search={{ value: search, onChange: setSearch, placeholder: t("partner.ledger.search") }}
@@ -160,6 +130,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				<>
 					<FilterDropdown<EventFilter>
 						label={t("partner.ledger.eventFilter")}
+						compact
 						icon={<FilterListIcon sx={{ fontSize: 15 }} />}
 						value={eventFilter}
 						onChange={setEventFilter}
@@ -174,6 +145,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					/>
 					<FilterDropdown<LedgerPeriod>
 						label={t("partner.ledger.periodFilter")}
+						compact
 						icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
 						value={period}
 						onChange={setPeriod}
@@ -187,7 +159,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 			}
 			onExport={handleExport}
 			exportDisabled={filtered.length === 0}
-			legend={legend}
 			pagination={{
 				count: filtered.length,
 				page,
