@@ -7,7 +7,7 @@ The backend redesign (M0–M7) plus the 2026-07-05 contract-alignment pass close
 
 **The contract-first rule:** every handler's request/response shape is written as if it were the real backend contract. Mocks are not throwaway fakes — they are the API spec the backend round will implement. Sloppy mock shapes become sloppy backend endpoints.
 
-**The shape-of-truth rule:** `docs/openapi.json` is the current backend's actual contract — **regenerate it after every backend release; a stale copy inverts this whole rule.** Post-redesign, the more common staleness runs the other way: a mock written against the pre-redesign backend may lag the real contract (e.g. the transactions mock's `POST /{id}/refund`, which the real backend never had — refunds are `POST /api/transactions` with a refund type + `originalTransactionId`). Before integrating any endpoint, check it against both `openapi.json` and the canon docs:
+**The shape-of-truth rule:** `../Ombor.Docs/backend-contracts/` is the current backend's actual contract (generated from Ombor.API, kept in sync on every backend release; a stale copy inverts this whole rule). Post-redesign, the more common staleness runs the other way: a mock written against the pre-redesign backend may lag the real contract (e.g. the transactions mock's `POST /{id}/refund`, which the real backend never had — refunds are `POST /api/transactions` with a refund type + `originalTransactionId`). Before integrating any endpoint, check it against both the `backend-contracts` files and the canon docs:
 
 - "Satisfies v1 expectations" is judged at the page level, not the endpoint level: the endpoint must serve every field the designed page displays and every behavior canon requires. Missing any one of them makes it stale — a working endpoint that can't feed the designed page does not qualify.
 - Endpoint satisfies that test → use the real API directly; never mock it.
@@ -56,10 +56,10 @@ src/mocks/
 // errors: 401
 ```
 
-3. **Routes and conventions mirror `docs/openapi.json`** — `/api/<plural>` resource routes; command actions as POST sub-routes (`archive`/`restore` and similar). **No query-parameter filters on list endpoints** (client-side-operations rule). Where no precedent exists, propose the route in the CONTRACT block — it becomes the spec.
+3. **Routes and conventions mirror `../Ombor.Docs/backend-contracts/`** — `/api/<plural>` resource routes; command actions as POST sub-routes (`archive`/`restore` and similar). **No query-parameter filters on list endpoints** (client-side-operations rule). Where no precedent exists, propose the route in the CONTRACT block — it becomes the spec.
 4. **List endpoints return the complete collection as a plain array** — no paging envelope, no search/filter/sort params. Pagination, sorting, searching, and filtering are client-side in stores and the shared DataTable, identical to the modules running on the real API.
 5. **Realistic latency:** wrap responses in a small `delay(150–400ms)` so loading states are actually exercised.
-6. **Error paths match the backend's shapes** (see openapi.json): 404 with `ProblemDetails`, 400 with `ValidationProblemDetails` (field-keyed `errors` map) for invalid writes, so error UI is real, not theoretical.
+6. **Error paths match the backend's shapes** (see `../Ombor.Docs/backend-contracts/conventions.md`): 404 with `ProblemDetails`, 400 with `ValidationProblemDetails` (field-keyed `errors` map) for invalid writes, so error UI is real, not theoretical.
 
 ## Seed data rules
 
