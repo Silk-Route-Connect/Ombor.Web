@@ -199,24 +199,33 @@ const PartnerDetailPage: React.FC = observer(() => {
 				backTo={PATHS.partners}
 				title={partner.name}
 				titleExtra={
-					<>
-						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} />
+					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+						<Box component="span" sx={{ color: "text.disabled", fontSize: 17, lineHeight: 1 }}>
+							·
+						</Box>
+						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} size="md" />
 						{partner.companyName && (
-							<Box
-								component="span"
-								sx={{
-									display: "inline-flex",
-									alignItems: "center",
-									gap: "6px",
-									fontSize: 13.5,
-									color: "text.secondary",
-								}}
-							>
-								<Inventory2OutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
-								{partner.companyName}
-							</Box>
+							<>
+								<Box component="span" sx={{ color: "text.disabled", fontSize: 17, lineHeight: 1 }}>
+									·
+								</Box>
+								<Box
+									component="span"
+									sx={{
+										display: "inline-flex",
+										alignItems: "center",
+										gap: "7px",
+										fontSize: 15,
+										color: "text.secondary",
+										minWidth: 0,
+									}}
+								>
+									<Inventory2OutlinedIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+									{partner.companyName}
+								</Box>
+							</>
 						)}
-					</>
+					</Box>
 				}
 				actions={actions}
 				isArchived={partner.isArchived}
