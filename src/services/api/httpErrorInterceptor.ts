@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/react";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 import { ConnectivityBridge } from "./connectivityBridge";
+import { isOfflineError } from "./httpOfflineInterceptor";
 
 /**
  * Cross-cutting error reporting for every API call (attached after the auth
@@ -22,6 +23,13 @@ export function attachHttpErrorInterceptors(instance: AxiosInstance): void {
 		},
 
 		(err: AxiosError) => {
+			// A request short-circuited because the device is offline is not a
+			// backend outage — the header indicator already shows it, and it is
+			// not a Sentry-worthy defect. Pass it through untouched.
+			if (isOfflineError(err)) {
+				return Promise.reject(err);
+			}
+
 			const status = err.response?.status;
 			const method = err.config?.method?.toUpperCase();
 			const url = err.config?.url;

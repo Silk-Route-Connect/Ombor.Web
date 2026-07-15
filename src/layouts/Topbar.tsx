@@ -23,6 +23,8 @@ import {
 	Typography,
 } from "@mui/material";
 
+import OfflineIndicator from "./OfflineIndicator";
+
 export const TOPBAR_HEIGHT = 60;
 
 const CREATE_ACTIONS: Array<{ labelKey: string; to: string }> = [
@@ -146,6 +148,8 @@ const Topbar: React.FC = observer(() => {
 					</MenuItem>
 				))}
 			</Menu>
+
+			<OfflineIndicator />
 
 			<Tooltip title={t("topbar.notifications")} arrow enterDelay={200}>
 				<IconButton
