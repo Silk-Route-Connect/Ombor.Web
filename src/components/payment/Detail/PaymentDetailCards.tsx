@@ -102,8 +102,6 @@ const ALLOC_META: Record<PaymentAllocationKind, { labelKey: string; color: strin
 export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const settling = payment.allocations.filter((a) => a.allocationType !== "ChangeReturn");
-	const total = settling.reduce((s, a) => s + a.amount, 0);
 
 	return (
 		<DetailCard
@@ -213,25 +211,6 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 						);
 					})}
 				</tbody>
-			</Box>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "flex-end",
-					gap: "8px",
-					p: "13px 18px",
-					borderTop: "1px solid",
-					borderColor: "divider",
-					bgcolor: designTokens.gray25,
-				}}
-			>
-				<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-					{t("payment.detail.distributed")}
-				</Typography>
-				<Box component="span" sx={{ ...numericSx, fontWeight: 800, fontSize: 15 }}>
-					{formatCurrency(total)} UZS
-				</Box>
 			</Box>
 		</DetailCard>
 	);

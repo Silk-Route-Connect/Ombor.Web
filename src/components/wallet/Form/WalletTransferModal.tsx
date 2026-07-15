@@ -315,6 +315,19 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 							/>
 						</Stack>
 					</Stack>
+					<Box
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							gap: "7px",
+							mt: "18px",
+							fontSize: 12.5,
+							color: designTokens.saffron700,
+						}}
+					>
+						<InfoOutlinedIcon sx={{ fontSize: 15, color: "warning.main" }} />
+						{t("wallet.transfer.immutableHint")}
+					</Box>
 				</DialogContent>
 
 				<DialogActions
@@ -327,19 +340,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 						bgcolor: designTokens.gray25,
 					}}
 				>
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "7px",
-							fontSize: 12.5,
-							color: designTokens.saffron700,
-						}}
-					>
-						<InfoOutlinedIcon sx={{ fontSize: 15, color: "warning.main" }} />
-						{t("wallet.transfer.immutableHint")}
-					</Box>
-					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}
 					</GhostButton>

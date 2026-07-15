@@ -20,8 +20,12 @@ interface TransferDetailModalProps {
 	onClose: () => void;
 }
 
-const RouteNode: React.FC<{ label: string; name: string }> = ({ label, name }) => (
-	<Box sx={{ flex: 1, minWidth: 0 }}>
+const RouteNode: React.FC<{ label: string; name: string; align?: "left" | "right" }> = ({
+	label,
+	name,
+	align = "left",
+}) => (
+	<Box sx={{ flex: 1, minWidth: 0, textAlign: align }}>
 		<Typography sx={{ fontSize: 11.5, color: "text.secondary", mb: "4px" }}>{label}</Typography>
 		<Typography
 			component="div"
@@ -80,7 +84,11 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 						borderRadius: "8px",
 					}}
 				>
-					<RouteNode label={t("transfer.detail.from")} name={transfer.fromWarehouseName} />
+					<RouteNode
+						label={t("transfer.detail.from")}
+						name={transfer.fromWarehouseName}
+						align="right"
+					/>
 					<Box
 						sx={{
 							width: 38,
