@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import PartnerAvatar from "components/partner/PartnerAvatar";
-import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
@@ -13,7 +11,6 @@ import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalance
 import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -171,32 +168,9 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
-			{/* identity + balance hero */}
+			{/* balance hero */}
 			<DetailCard>
 				<Box sx={{ p: "20px 22px" }}>
-					<Box sx={{ display: "flex", alignItems: "center", gap: "12px", mb: "18px", minWidth: 0 }}>
-						<PartnerAvatar name={partner.name} size={40} dimmed={partner.isArchived} />
-						<Box sx={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: 0 }}>
-							<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} />
-							{partner.companyName && (
-								<Box
-									component="span"
-									sx={{
-										display: "inline-flex",
-										alignItems: "center",
-										gap: "6px",
-										fontSize: 13,
-										color: "text.secondary",
-										minWidth: 0,
-									}}
-								>
-									<Inventory2OutlinedIcon sx={{ fontSize: 14, color: "text.disabled" }} />
-									{partner.companyName}
-								</Box>
-							)}
-						</Box>
-					</Box>
-
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mb: "4px" }}>
 						{t(balanceLabelKey(partner.balance))}
 					</Typography>

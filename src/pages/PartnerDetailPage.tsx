@@ -11,6 +11,7 @@ import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import { observer } from "mobx-react-lite";
@@ -20,6 +21,7 @@ import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box, CircularProgress, Typography } from "@mui/material";
 
@@ -196,6 +198,26 @@ const PartnerDetailPage: React.FC = observer(() => {
 			<DetailPageHeader
 				backTo={PATHS.partners}
 				title={partner.name}
+				titleExtra={
+					<>
+						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} />
+						{partner.companyName && (
+							<Box
+								component="span"
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: "6px",
+									fontSize: 13.5,
+									color: "text.secondary",
+								}}
+							>
+								<Inventory2OutlinedIcon sx={{ fontSize: 15, color: "text.disabled" }} />
+								{partner.companyName}
+							</Box>
+						)}
+					</>
+				}
 				actions={actions}
 				isArchived={partner.isArchived}
 				archivedLabel={t("partner.badge.archived")}
