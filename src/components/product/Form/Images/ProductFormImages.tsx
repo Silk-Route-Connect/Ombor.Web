@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { designTokens } from "theme";
 
-import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { Box, ButtonBase, Typography } from "@mui/material";
@@ -21,9 +20,6 @@ export interface ProductFormImagesProps {
 	onAddMainAndMakeActive: (file: File) => void;
 	resolveUrl: (src: string) => string;
 }
-
-/** Minimum visible mini-slots under the upload square (bundle shows three). */
-const MIN_THUMB_SLOTS = 3;
 
 /** 40px image tile with a hover «remove» badge. */
 const ImageThumb: React.FC<{
@@ -70,10 +66,10 @@ const ImageThumb: React.FC<{
 );
 
 /**
- * Image block per the bundle's `.prod-upload` / `.prod-thumbs`: a dashed
- * upload square (150px, surface-sub, primary tint on hover) with a row of
- * 40px mini-tiles below — uploaded images first, then dashed «+» slots that
- * also open the picker.
+ * Image block per the bundle's `.prod-upload` / `.prod-thumbs`: a dashed upload
+ * square (150px, surface-sub, primary tint on hover) with a row of 40px
+ * mini-tiles below for the uploaded images. The single square is the only
+ * additive upload control — no placeholder «+» slots (DEC-13).
  */
 const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 	disabled,
@@ -91,7 +87,6 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 	const openUpload = () => uploadInputRef.current?.click();
 
 	const imageCount = existingImages.length + attachments.length;
-	const plusSlots = Math.max(1, MIN_THUMB_SLOTS - imageCount);
 
 	return (
 		<Box>
@@ -156,47 +151,31 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 				</Typography>
 			</ButtonBase>
 
-			{/* .prod-thumbs */}
-			<Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px", mt: "10px" }}>
-				{existingImages.map((img) => (
-					<ImageThumb
-						key={`existing-${img.id}`}
-						src={resolveUrl(img.thumbnailUrl ?? img.originalUrl)}
-						alt={img.name}
-						disabled={disabled}
-						onRemove={() => onRemoveExisting(img.id)}
-						removeTitle={t("product.images.remove")}
-					/>
-				))}
-				{attachments.map((file, index) => (
-					<ImageThumb
-						key={`new-${file.name}-${index}`}
-						src={attachmentPreviews[index]}
-						alt={file.name}
-						disabled={disabled}
-						onRemove={() => onRemoveAttachment(index)}
-						removeTitle={t("product.images.remove")}
-					/>
-				))}
-				{Array.from({ length: plusSlots }, (_, i) => (
-					<ButtonBase
-						key={`slot-${i}`}
-						onClick={openUpload}
-						disabled={disabled}
-						sx={{
-							width: 40,
-							height: 40,
-							borderRadius: "6px",
-							border: "1px dashed",
-							borderColor: designTokens.gray300,
-							bgcolor: designTokens.gray25,
-							color: "text.disabled",
-						}}
-					>
-						<AddIcon sx={{ fontSize: 16 }} />
-					</ButtonBase>
-				))}
-			</Box>
+			{/* .prod-thumbs — uploaded images only; no placeholder «+» slots (DEC-13) */}
+			{imageCount > 0 && (
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px", mt: "10px" }}>
+					{existingImages.map((img) => (
+						<ImageThumb
+							key={`existing-${img.id}`}
+							src={resolveUrl(img.thumbnailUrl ?? img.originalUrl)}
+							alt={img.name}
+							disabled={disabled}
+							onRemove={() => onRemoveExisting(img.id)}
+							removeTitle={t("product.images.remove")}
+						/>
+					))}
+					{attachments.map((file, index) => (
+						<ImageThumb
+							key={`new-${file.name}-${index}`}
+							src={attachmentPreviews[index]}
+							alt={file.name}
+							disabled={disabled}
+							onRemove={() => onRemoveAttachment(index)}
+							removeTitle={t("product.images.remove")}
+						/>
+					))}
+				</Box>
+			)}
 		</Box>
 	);
 };
