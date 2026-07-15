@@ -26,7 +26,7 @@ import {
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type EventFilter = "all" | "sale" | "supply" | "payment" | "refund" | "opening";
-type SortCol = "date" | "event" | "amount" | "balance";
+type SortCol = "number" | "date" | "event" | "amount" | "balance";
 
 interface LedgerTabProps {
 	ledger: PartnerLedgerEntry[];
@@ -77,6 +77,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 	const sorted = useMemo(() => {
 		const accessor = (e: PartnerLedgerEntry): string | number => {
 			switch (sortCol) {
+				case "number":
+					return e.reference ?? "";
 				case "date":
 					return e.date;
 				case "event":
@@ -107,31 +109,13 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 		}
 	};
 
-	const description = (e: PartnerLedgerEntry): React.ReactNode => {
-		if (e.type === "opening") {
-			return (
-				<Box component="span" sx={{ color: "text.secondary" }}>
-					{t("partner.ledger.openingDesc")}
-				</Box>
-			);
-		}
-		return (
-			<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
-				<Box component="span" sx={{ color: "primary.main", fontWeight: 500 }}>
-					{e.reference}
-				</Box>
-				{e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}
-			</Box>
-		);
-	};
-
 	const handleExport = () => {
 		exportToCsv<PartnerLedgerEntry>(
 			`partner_${partnerName}_ledger_${csvDateStamp()}`,
 			[
 				{ header: t("partner.ledger.col.date"), value: (e) => formatDate(e.date) },
 				{ header: t("partner.ledger.col.event"), value: (e) => t(eventLabelKey(e.type)) },
-				{ header: t("partner.ledger.col.description"), value: descriptionText },
+				{ header: t("partner.ledger.col.number"), value: (e) => e.reference ?? "" },
 				{ header: t("partner.ledger.col.amount"), value: (e) => e.delta },
 				{ header: t("partner.ledger.col.balanceAfter"), value: (e) => e.balance },
 			],
@@ -224,6 +208,14 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					<thead>
 						<tr>
 							<DetailSortHeader
+								col="number"
+								label={t("partner.ledger.col.number")}
+								active={sortCol === "number"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
 								col="date"
 								label={t("partner.ledger.col.date")}
 								active={sortCol === "date"}
@@ -239,9 +231,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 								onSort={onSort}
 								sx={headCellSx}
 							/>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.description")}
-							</Box>
 							<DetailSortHeader
 								col="amount"
 								label={t("partner.ledger.col.amount")}
@@ -279,13 +268,28 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 									}}
 								>
 									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
+										{e.reference ? (
+											<Box
+												component="span"
+												sx={{
+													color: "primary.main",
+													fontWeight: 600,
+													"&:hover": { textDecoration: "underline" },
+												}}
+											>
+												{e.reference}
+											</Box>
+										) : (
+											<Box component="span" sx={{ color: "text.disabled" }}>
+												—
+											</Box>
+										)}
+									</Box>
+									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
 										{e.type === "opening" ? formatDate(e.date) : formatDateTime(e.date)}
 									</Box>
 									<Box component="td" sx={bodyCellSx}>
 										<EventCell type={e.type} label={t(eventLabelKey(e.type))} />
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										{description(e)}
 									</Box>
 									<Box
 										component="td"

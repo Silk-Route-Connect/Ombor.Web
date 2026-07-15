@@ -433,12 +433,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						flexWrap: "wrap",
 					}}
 				>
-					<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-						{t("warehouse.opening.footerSummary", {
-							count: completeLines.length,
-							value: formatCurrency(batchValue),
-						})}
-					</Typography>
 					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}
