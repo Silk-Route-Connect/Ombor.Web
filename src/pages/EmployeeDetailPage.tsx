@@ -75,6 +75,9 @@ const EmployeeDetailPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		if (Number.isFinite(employeeId)) {
+			// Clear any lingering subject so the page shows its loader (not stale data)
+			// until getById resolves for this id.
+			employeeStore.setSelectedEmployee(null);
 			employeeStore.getById(employeeId);
 		}
 		return () => employeeStore.setSelectedEmployee(null);
