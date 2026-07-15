@@ -133,8 +133,8 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 					<thead>
 						<tr>
 							<th>{t("product.detail.table.warehouse")}</th>
-							<th className="r">{t("product.detail.table.quantity")}</th>
 							<th>{t("product.detail.table.unit")}</th>
+							<th className="r">{t("product.detail.table.quantity")}</th>
 							<th className="r">{t("product.detail.table.wac")}</th>
 							<th className="r">{t("product.detail.table.value")}</th>
 						</tr>
@@ -145,6 +145,11 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								<td>
 									<WarehouseLink id={item.warehouseId} name={item.warehouseName} />
 								</td>
+								<td>
+									<Box component="span" sx={{ color: "text.secondary" }}>
+										{unit}
+									</Box>
+								</td>
 								<td className="r">
 									<Box
 										component="span"
@@ -154,11 +159,6 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 										}}
 									>
 										{formatQuantity(item.quantity)}
-									</Box>
-								</td>
-								<td>
-									<Box component="span" sx={{ color: "text.secondary" }}>
-										{unit}
 									</Box>
 								</td>
 								<td className="r">
@@ -175,6 +175,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 						))}
 						<tr className="total">
 							<td>{t("product.detail.table.total")}</td>
+							<td></td>
 							<td className="r">
 								<Box
 									component="span"
@@ -187,7 +188,6 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 									{formatQuantity(product.totalStock)}
 								</Box>
 							</td>
-							<td></td>
 							<td className="r">
 								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
 									{product.averageCost != null ? formatCurrency(product.averageCost) : "—"}

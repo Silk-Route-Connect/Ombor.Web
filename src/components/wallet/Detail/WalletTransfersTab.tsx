@@ -85,6 +85,16 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				),
 			},
 			{
+				key: "createdBy",
+				headerName: t("wallet.transfers.createdBy"),
+				sortValue: (tr) => tr.createdBy,
+				renderCell: (tr) => (
+					<Box component="span" sx={{ color: "text.secondary" }}>
+						{tr.createdBy}
+					</Box>
+				),
+			},
+			{
 				key: "amount",
 				headerName: t("wallet.transfers.amount"),
 				align: "right",
@@ -92,16 +102,6 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				renderCell: (tr) => (
 					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
 						{formatCurrency(tr.amount)}
-					</Box>
-				),
-			},
-			{
-				key: "createdBy",
-				headerName: t("wallet.transfers.createdBy"),
-				sortValue: (tr) => tr.createdBy,
-				renderCell: (tr) => (
-					<Box component="span" sx={{ color: "text.secondary" }}>
-						{tr.createdBy}
 					</Box>
 				),
 			},

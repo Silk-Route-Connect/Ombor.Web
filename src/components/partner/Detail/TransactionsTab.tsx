@@ -130,9 +130,9 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 		exportToCsv<PartnerLedgerEntry>(
 			`partner_${partnerName}_transactions_${csvDateStamp()}`,
 			[
+				{ header: t("partner.txns.col.number"), value: (tx) => tx.reference ?? "" },
 				{ header: t("partner.txns.col.date"), value: (tx) => formatDate(tx.date) },
 				{ header: t("partner.txns.col.type"), value: (tx) => t(eventLabelKey(tx.type)) },
-				{ header: t("partner.txns.col.number"), value: (tx) => tx.reference ?? "" },
 				{ header: t("partner.txns.col.positions"), value: (tx) => tx.itemCount ?? "" },
 				{ header: t("partner.txns.col.amount"), value: (tx) => Math.abs(tx.delta) },
 				{
@@ -201,6 +201,14 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 					<thead>
 						<tr>
 							<DetailSortHeader
+								col="number"
+								label={t("partner.txns.col.number")}
+								active={sortCol === "number"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
 								col="date"
 								label={t("partner.txns.col.date")}
 								active={sortCol === "date"}
@@ -212,14 +220,6 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								col="type"
 								label={t("partner.txns.col.type")}
 								active={sortCol === "type"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="number"
-								label={t("partner.txns.col.number")}
-								active={sortCol === "number"}
 								dir={sortDir}
 								onSort={onSort}
 								sx={headCellSx}
@@ -260,6 +260,9 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								onClick={() => onOpen(tx)}
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
+								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, fontWeight: 600 }}>
+									{tx.reference ?? "—"}
+								</Box>
 								<Box
 									component="td"
 									sx={{
@@ -273,9 +276,6 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
 									<EventCell type={tx.type} label={t(eventLabelKey(tx.type))} />
-								</Box>
-								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, fontWeight: 600 }}>
-									{tx.reference ?? "—"}
 								</Box>
 								<Box
 									component="td"

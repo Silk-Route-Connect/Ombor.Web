@@ -159,17 +159,6 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				),
 			},
 			{
-				key: "amount",
-				headerName: t("employee.payroll.amount"),
-				align: "right",
-				sortValue: (p) => p.amount,
-				renderCell: (p) => (
-					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
-						{formatCurrency(p.amount)}
-					</Box>
-				),
-			},
-			{
 				key: "wallet",
 				headerName: t("employee.payroll.wallet"),
 				sortValue: (p) => p.walletName ?? "",
@@ -181,6 +170,17 @@ const EmployeeDetailPage: React.FC = observer(() => {
 							—
 						</Box>
 					),
+			},
+			{
+				key: "amount",
+				headerName: t("employee.payroll.amount"),
+				align: "right",
+				sortValue: (p) => p.amount,
+				renderCell: (p) => (
+					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
+						{formatCurrency(p.amount)}
+					</Box>
+				),
 			},
 		],
 		[t],
