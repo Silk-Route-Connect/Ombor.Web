@@ -13,6 +13,7 @@ import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { formatEntityId } from "utils/formatEntityId";
 
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
@@ -54,7 +55,10 @@ const PaymentDetailPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<DetailPageHeader backTo={PATHS.payments} title={payment.number || `№${payment.id}`} />
+			<DetailPageHeader
+				backTo={PATHS.payments}
+				title={formatEntityId(payment.number ?? payment.id)}
+			/>
 
 			<Box
 				sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 340px" }, gap: "20px" }}

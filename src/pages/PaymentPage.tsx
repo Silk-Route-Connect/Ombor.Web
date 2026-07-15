@@ -11,6 +11,7 @@ import { CreatePaymentRecordRequest, PaymentRecord } from "models/payment";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 
 import { Box } from "@mui/material";
 
@@ -38,7 +39,7 @@ const PaymentPage: React.FC = observer(() => {
 	const handleExport = (): void => {
 		const rows = paymentStore.filteredPayments === "loading" ? [] : paymentStore.filteredPayments;
 		const columns: CsvColumn<PaymentRecord>[] = [
-			{ header: t("payment.table.number"), value: (p) => p.number || `№${p.id}` },
+			{ header: t("payment.table.number"), value: (p) => formatEntityId(p.number ?? p.id) },
 			{ header: t("payment.table.date"), value: (p) => formatDate(p.date) },
 			{ header: t("payment.table.type"), value: (p) => t(PAYMENT_TYPE_META[p.type].labelKey) },
 			{

@@ -10,6 +10,7 @@ import { saleDetailPath, supplyDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -149,7 +150,7 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 								: a.allocationType === "ChangeReturn"
 									? t("payment.alloc.change")
 									: a.transactionId
-										? `${txWord} №${a.transactionId}`
+										? `${txWord} ${formatEntityId(a.transactionId)}`
 										: t("payment.alloc.settlement");
 						// Settlement rows link to the settled transaction (split sale/supply route).
 						const canOpenTx = isSettlement && a.transactionId != null && a.transactionType != null;
