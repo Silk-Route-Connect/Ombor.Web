@@ -4,18 +4,12 @@ import OrderStatusChip from "components/order/OrderStatusChip";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { ORDER_STATUS_META } from "utils/orderUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import { Box, Typography } from "@mui/material";
-
-const timeOf = (iso: string): string => {
-	const d = new Date(iso);
-	const pad = (n: number) => n.toString().padStart(2, "0");
-	return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
 
 export const StatusHistoryCard: React.FC<{ order: Order }> = ({ order }) => {
 	const { t } = useTranslation();
@@ -56,7 +50,7 @@ export const StatusHistoryCard: React.FC<{ order: Order }> = ({ order }) => {
 							</Box>
 							<Box sx={{ pb: last ? 0 : "18px" }}>
 								<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-									{formatDate(h.at)}, {timeOf(h.at)}
+									{formatDateTime(h.at)}
 								</Typography>
 								<Box sx={{ display: "flex", alignItems: "center", gap: "9px", mt: "5px" }}>
 									{h.from ? (

@@ -8,7 +8,7 @@ import { Loadable } from "helpers/Loading";
 import { TFunction } from "i18next";
 import { PaymentRecord } from "models/payment";
 import { numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -57,7 +57,7 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 			sortValue: (p) => new Date(p.date),
 			renderCell: (p) => (
 				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
-					{formatDate(p.date)}
+					{formatDateTime(p.date)}
 				</Box>
 			),
 		},

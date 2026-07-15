@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DetailCard from "components/shared/Detail/DetailCard";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { Measurement, ProductTransaction } from "models/product";
 import { PATHS } from "routing/paths";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { unitInline } from "utils/productUtils";
 
@@ -22,7 +24,10 @@ interface ProductTransactionsTabProps {
 	measurement: Measurement;
 }
 
-/** «Транзакции» per the bundle: dated history with signed quantities. */
+type SortCol = "date" | "type" | "partner" | "quantity" | "price" | "total";
+
+/** «Транзакции» per the bundle: dated history with signed quantities, sortable
+ *  on every column (defaults to date, newest first). */
 export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 	transactions,
 	measurement,
@@ -30,6 +35,40 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const unit = unitInline(t, measurement);
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+	const rows = useMemo(() => {
+		const accessor = (txn: ProductTransaction): string | number => {
+			switch (sortCol) {
+				case "date":
+					return txn.date;
+				case "type":
+					return txn.transactionType;
+				case "partner":
+					return txn.partnerName;
+				case "quantity":
+					return Math.abs(txn.quantity);
+				case "price":
+					return txn.unitPrice;
+				case "total":
+					return Math.abs(txn.quantity) * txn.unitPrice;
+				default:
+					return "";
+			}
+		};
+		const sorted = [...transactions].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? sorted.reverse() : sorted;
+	}, [transactions, sortCol, sortDir]);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	return (
 		<DetailCard
@@ -47,20 +86,59 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 					<Box component="table" sx={detailTableSx}>
 						<thead>
 							<tr>
-								<th>{t("product.detail.txns.date")}</th>
-								<th>{t("product.detail.txns.type")}</th>
-								<th>{t("product.detail.txns.partner")}</th>
-								<th className="r">{t("product.detail.table.quantity")}</th>
-								<th className="r">{t("product.detail.txns.price")}</th>
-								<th className="r">{t("product.detail.txns.total")}</th>
+								<DetailSortHeader
+									col="date"
+									label={t("product.detail.txns.date")}
+									active={sortCol === "date"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="type"
+									label={t("product.detail.txns.type")}
+									active={sortCol === "type"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="partner"
+									label={t("product.detail.txns.partner")}
+									active={sortCol === "partner"}
+									dir={sortDir}
+									onSort={onSort}
+								/>
+								<DetailSortHeader
+									col="quantity"
+									label={t("product.detail.table.quantity")}
+									active={sortCol === "quantity"}
+									dir={sortDir}
+									onSort={onSort}
+									align="right"
+								/>
+								<DetailSortHeader
+									col="price"
+									label={t("product.detail.txns.price")}
+									active={sortCol === "price"}
+									dir={sortDir}
+									onSort={onSort}
+									align="right"
+								/>
+								<DetailSortHeader
+									col="total"
+									label={t("product.detail.txns.total")}
+									active={sortCol === "total"}
+									dir={sortDir}
+									onSort={onSort}
+									align="right"
+								/>
 							</tr>
 						</thead>
 						<tbody>
-							{transactions.map((txn) => (
+							{rows.map((txn) => (
 								<tr key={txn.id}>
 									<td>
 										<Box component="span" sx={{ ...numericSx, color: "text.secondary" }}>
-											{formatDate(txn.date)}
+											{formatDateTime(txn.date)}
 										</Box>
 									</td>
 									<td>

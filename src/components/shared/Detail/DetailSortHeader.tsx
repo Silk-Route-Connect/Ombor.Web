@@ -3,7 +3,7 @@ import React from "react";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, Tooltip } from "@mui/material";
+import { Box, SxProps, Theme, Tooltip } from "@mui/material";
 
 export type SortDir = "asc" | "desc";
 
@@ -16,6 +16,9 @@ interface DetailSortHeaderProps<K extends string> {
 	align?: "left" | "right";
 	/** Optional plain-language tooltip (e.g. the WAC explanation, D8) — no formula. */
 	tooltip?: string;
+	/** Extra cell styling — e.g. the per-cell `headCellSx` used by tables that
+	 *  don't get their `th` styling from a parent `detailTableSx`. */
+	sx?: SxProps<Theme>;
 }
 
 /**
@@ -33,13 +36,17 @@ export function DetailSortHeader<K extends string>({
 	onSort,
 	align = "left",
 	tooltip,
+	sx,
 }: DetailSortHeaderProps<K>) {
 	return (
 		<Box
 			component="th"
 			className={align === "right" ? "r" : undefined}
 			onClick={() => onSort(col)}
-			sx={{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
+			sx={[
+				{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" },
+				...(Array.isArray(sx) ? sx : [sx]),
+			]}
 		>
 			<Box
 				component="span"

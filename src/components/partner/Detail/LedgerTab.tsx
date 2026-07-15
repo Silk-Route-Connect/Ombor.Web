@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { balanceColor } from "utils/partnerUtils";
 
@@ -25,6 +27,7 @@ import {
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type EventFilter = "all" | "sale" | "supply" | "payment" | "refund" | "opening";
+type SortCol = "date" | "event" | "amount" | "balance";
 
 interface LedgerTabProps {
 	ledger: PartnerLedgerEntry[];
@@ -47,6 +50,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 	const [eventFilter, setEventFilter] = useState<EventFilter>("all");
 	const [period, setPeriod] = useState<LedgerPeriod>("all");
 	const [search, setSearch] = useState("");
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const descriptionText = (e: PartnerLedgerEntry): string =>
 		e.type === "opening"
@@ -70,10 +75,38 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ledger, period, eventFilter, search, t]);
 
+	const sorted = useMemo(() => {
+		const accessor = (e: PartnerLedgerEntry): string | number => {
+			switch (sortCol) {
+				case "date":
+					return e.date;
+				case "event":
+					return t(eventLabelKey(e.type));
+				case "amount":
+					return e.delta;
+				case "balance":
+					return e.balance;
+				default:
+					return "";
+			}
+		};
+		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? s.reverse() : s;
+	}, [filtered, sortCol, sortDir, t]);
+
 	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${eventFilter}|${period}|${search}`,
+		`${eventFilter}|${period}|${search}|${sortCol}|${sortDir}`,
 	);
-	const rows = paginate(filtered);
+	const rows = paginate(sorted);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
+		}
+	};
 
 	const description = (e: PartnerLedgerEntry): React.ReactNode => {
 		if (e.type === "opening") {
@@ -205,21 +238,43 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 					<thead>
 						<tr>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.date")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.event")}
-							</Box>
+							<DetailSortHeader
+								col="date"
+								label={t("partner.ledger.col.date")}
+								active={sortCol === "date"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="event"
+								label={t("partner.ledger.col.event")}
+								active={sortCol === "event"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
 							<Box component="th" sx={headCellSx}>
 								{t("partner.ledger.col.description")}
 							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.ledger.col.amount")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.ledger.col.balanceAfter")}
-							</Box>
+							<DetailSortHeader
+								col="amount"
+								label={t("partner.ledger.col.amount")}
+								active={sortCol === "amount"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
+							<DetailSortHeader
+								col="balance"
+								label={t("partner.ledger.col.balanceAfter")}
+								active={sortCol === "balance"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -239,7 +294,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 									}}
 								>
 									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
-										{formatDate(e.date)}
+										{e.type === "opening" ? formatDate(e.date) : formatDateTime(e.date)}
 									</Box>
 									<Box component="td" sx={bodyCellSx}>
 										<EventCell type={e.type} label={t(eventLabelKey(e.type))} />

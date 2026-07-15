@@ -16,7 +16,7 @@ import {
 	WarehouseMovementKind,
 } from "models/warehouse";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
@@ -240,7 +240,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 												component="span"
 												sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 											>
-												{formatDate(movement.date)}
+												{formatDateTime(movement.date)}
 											</Box>
 										</td>
 										<td>

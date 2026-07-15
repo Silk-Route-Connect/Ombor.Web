@@ -5,7 +5,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -76,7 +76,7 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 		>
 			<FormDialogHeader
 				title={t("wallet.transfer.detailTitle")}
-				subtitle={formatDate(transfer.date)}
+				subtitle={formatDateTime(transfer.date)}
 				disabled={false}
 				onClose={onClose}
 			/>
@@ -118,7 +118,7 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 				</KvRow>
 				<KvRow label={t("wallet.transfer.date")}>
 					<Box component="span" sx={numericSx}>
-						{formatDate(transfer.date)}
+						{formatDateTime(transfer.date)}
 					</Box>
 				</KvRow>
 				<KvRow label={t("wallet.transfer.createdBy")}>{transfer.createdBy}</KvRow>

@@ -8,7 +8,7 @@ import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { PaymentAllocationKind, PaymentRecord } from "models/payment";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -413,7 +413,7 @@ export const PaymentInfoCard: React.FC<{
 					<ScheduleOutlinedIcon sx={{ fontSize: 16 }} />,
 					t("payment.detail.date"),
 					<Box component="span" sx={numericSx}>
-						{formatDate(payment.date)}
+						{formatDateTime(payment.date)}
 					</Box>,
 				)}
 			</Box>

@@ -92,7 +92,7 @@
   "employee.action.restore": "Восстановить",
 
   "employee.table.employee": "Сотрудник",
-  "employee.table.salary": "Зарплата, UZS",
+  "employee.table.salary": "Зарплата",
 
   "employee.empty.title": "Пока нет сотрудников",
   "employee.empty.body": "Добавьте сотрудника, чтобы вести учёт персонала и выплат зарплаты.",
@@ -113,7 +113,7 @@
   "employee.payroll.date": "Дата",
   "employee.payroll.type": "Тип",
   "employee.payroll.period": "Период",
-  "employee.payroll.amount": "Сумма, UZS",
+  "employee.payroll.amount": "Сумма",
   "employee.payroll.wallet": "Касса",
   "employee.payroll.salary": "Зарплата",
 

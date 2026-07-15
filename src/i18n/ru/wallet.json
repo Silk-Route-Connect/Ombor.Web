@@ -31,7 +31,7 @@
 
   "wallet.table.name": "Касса",
   "wallet.table.type": "Тип",
-  "wallet.table.balance": "Баланс, UZS",
+  "wallet.table.balance": "Баланс",
   "wallet.table.advances": "Авансы партнёров",
   "wallet.table.ourMoney": "Наши средства",
   "wallet.table.status": "Статус",

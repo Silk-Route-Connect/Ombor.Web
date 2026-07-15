@@ -5,7 +5,7 @@ import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
 import { numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -53,7 +53,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 						component="span"
 						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 					>
-						{formatDate(tr.date)}
+						{formatDateTime(tr.date)}
 					</Box>
 				),
 			},

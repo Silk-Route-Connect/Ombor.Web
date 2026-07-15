@@ -23,7 +23,7 @@
 
   "partner.table.name": "Имя партнёра",
   "partner.table.type": "Тип",
-  "partner.table.balance": "Баланс, UZS",
+  "partner.table.balance": "Баланс",
   "partner.table.company": "Компания",
   "partner.table.phone": "Телефон",
 
@@ -120,7 +120,7 @@
   "partner.txns.col.type": "Тип",
   "partner.txns.col.number": "Номер",
   "partner.txns.col.positions": "Позиций",
-  "partner.txns.col.amount": "Сумма, UZS",
+  "partner.txns.col.amount": "Сумма",
   "partner.txns.col.status": "Статус оплаты",
   "partner.txns.empty.title": "Нет записей",
   "partner.txns.empty.body": "С этим партнёром ещё не было продаж, поставок или возвратов.",
@@ -135,7 +135,7 @@
   "partner.pays.col.date": "Дата",
   "partner.pays.col.type": "Тип",
   "partner.pays.col.method": "Способ",
-  "partner.pays.col.amount": "Сумма, UZS",
+  "partner.pays.col.amount": "Сумма",
   "partner.pays.col.allocation": "Распределение",
   "partner.pays.col.wallet": "Касса",
   "partner.pays.advance": "Аванс",
