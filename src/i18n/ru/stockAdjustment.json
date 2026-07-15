@@ -38,10 +38,12 @@
   "adjustment.table.category": "Категория",
   "adjustment.table.note": "Примечание",
 
+  "adjustment.detail.title": "Корректировка запаса",
   "adjustment.detail.dateTime": "Дата и время",
   "adjustment.detail.balanceAfter": "Остаток после операции",
   "adjustment.detail.createdBy": "Провёл",
   "adjustment.detail.noNote": "Без примечания",
+  "adjustment.detail.immutableHint": "Корректировки нельзя редактировать или удалять — они часть аудируемой истории склада.",
 
   "adjustment.empty.title": "Пока нет корректировок",
   "adjustment.empty.body": "Корректировки фиксируют изменения остатка без продаж и поставок — порча, недостача, пересчёт, находка. Создайте первую запись.",
