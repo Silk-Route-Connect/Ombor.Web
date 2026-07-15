@@ -109,67 +109,68 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 
 				{/* lines */}
 				<Box
-					component="table"
 					sx={{
-						...detailTableSx,
 						border: "1px solid",
 						borderColor: "divider",
 						borderRadius: "8px",
+						overflow: "hidden",
 					}}
 				>
-					<thead>
-						<tr>
-							<Box component="th">{t("transfer.table.product")}</Box>
-							<Box component="th">{t("transfer.table.sku")}</Box>
-							<Box component="th" className="r">
-								{t("transfer.table.quantity")}
-							</Box>
-							<Box component="th">{t("transfer.table.unit")}</Box>
-						</tr>
-					</thead>
-					<tbody>
-						{transfer.lines.map((line) => (
-							<tr key={line.productId}>
-								<td>
-									<Box component="span" sx={{ fontWeight: 600 }}>
-										{line.productName}
-									</Box>
-								</td>
-								<td>
-									<CopyableCell
-										value={line.sku}
-										sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
-									>
-										{line.sku}
-									</CopyableCell>
-								</td>
+					<Box component="table" sx={detailTableSx}>
+						<thead>
+							<tr>
+								<Box component="th">{t("transfer.table.product")}</Box>
+								<Box component="th">{t("transfer.table.sku")}</Box>
+								<Box component="th" className="r">
+									{t("transfer.table.quantity")}
+								</Box>
+								<Box component="th">{t("transfer.table.unit")}</Box>
+							</tr>
+						</thead>
+						<tbody>
+							{transfer.lines.map((line) => (
+								<tr key={line.productId}>
+									<td>
+										<Box component="span" sx={{ fontWeight: 600 }}>
+											{line.productName}
+										</Box>
+									</td>
+									<td>
+										<CopyableCell
+											value={line.sku}
+											sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
+										>
+											{line.sku}
+										</CopyableCell>
+									</td>
+									<td className="r">
+										<Box component="span" sx={{ ...numericSx }}>
+											{formatQuantity(line.quantity)}
+										</Box>
+									</td>
+									<td>
+										<Box component="span" sx={{ color: "text.secondary" }}>
+											{MEASUREMENT_SHORT[line.measurement]}
+										</Box>
+									</td>
+								</tr>
+							))}
+							<tr className="total">
+								<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
+								<td />
 								<td className="r">
-									<Box component="span" sx={{ ...numericSx }}>
-										{formatQuantity(line.quantity)}
+									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
+										{formatQuantity(transferUnits(transfer))}
 									</Box>
 								</td>
 								<td>
 									<Box component="span" sx={{ color: "text.secondary" }}>
-										{MEASUREMENT_SHORT[line.measurement]}
+										{t("transfer.unitFallback")}
 									</Box>
 								</td>
 							</tr>
-						))}
-						<tr className="total">
-							<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
-							<td />
-							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-									{formatQuantity(transferUnits(transfer))}
-								</Box>
-							</td>
-							<td>
-								<Box component="span" sx={{ color: "text.secondary" }}>
-									{t("transfer.unitFallback")}
-								</Box>
-							</td>
-						</tr>
-					</tbody>
+						</tbody>
+					</Box>
 				</Box>
 
 				{transfer.note && (

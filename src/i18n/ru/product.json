@@ -71,7 +71,6 @@
   "product.detail.txns.partner": "Партнёр",
   "product.detail.txns.price": "Цена",
   "product.detail.txns.total": "Сумма",
-  "product.detail.txns.all": "Все транзакции",
   "product.detail.txns.emptyTitle": "Нет записей",
   "product.detail.txns.emptyBody": "По этому товару ещё не было продаж, поставок или возвратов.",
   "product.detail.moves.title": "Движения по складу",
