@@ -9,8 +9,9 @@ import {
 import { TFunction } from "i18next";
 import { TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
@@ -50,7 +51,9 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 								}}
 							>
 								<UndoOutlinedIcon sx={{ fontSize: 12 }} />
-								{t("transaction.list.refundOf", { number: tx.originalTransactionNumber })}
+								{t("transaction.list.refundOf", {
+									number: formatEntityId(tx.originalTransactionNumber),
+								})}
 							</Box>
 						)}
 					</Box>
@@ -67,11 +70,8 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 			// feed order). 0.5 is exact in float64 and never overtakes another timestamp.
 			sortValue: (tx) => tx.date.getTime() + (isRefundType(tx.type) ? 0.5 : 0),
 			renderCell: (tx) => (
-				<Box
-					component="span"
-					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
-				>
-					{formatDate(tx.date)}
+				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
+					{formatDateTime(tx.date)}
 				</Box>
 			),
 		},

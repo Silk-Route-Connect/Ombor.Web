@@ -1,47 +1,31 @@
 import { Partner, PartnerType } from "models/partner";
 import { PartnerFormInputs } from "schemas/PartnerSchema";
+import { formatSigned } from "utils/formatCurrency";
 
 export const PARTNER_TYPES = ["Customer", "Supplier", "Both"] as const;
 
 /**
- * MUI palette path for a balance figure, by the app-wide sign convention:
- * + (partner owes us) → success, − (we owe) → error, 0 → muted. Returns an `sx`
- * `color` token so it composes into any styled value.
+ * MUI palette token for a partner-account balance, shown from the PARTNER's
+ * perspective: a debt they owe us reads negative → error (red); money we owe
+ * them reads positive → success (green); settled → muted. The served value stays
+ * company-POV (+ = partner owes us) — this only flips the presentation.
  */
-export const balanceColor = (balance: number): string => {
-	if (balance < 0) {
+export const partnerBalanceColor = (balance: number): string => {
+	if (balance > 0) {
 		return "error.main";
 	}
-	if (balance > 0) {
+	if (balance < 0) {
 		return "success.main";
 	}
 	return "text.secondary";
 };
 
-/** Legacy alias kept for components that still import it. */
-export const getBalanceColor = (balance: number): string => {
-	if (balance < 0) {
-		return "error.main";
-	}
-	if (balance > 0) {
-		return "success.main";
-	}
-	return "text.primary";
-};
-
 /**
- * i18n key for the natural-language balance label (locked pattern 4 — no signs):
- * «Нам должны» / «Мы должны» / «Расчёты закрыты».
+ * Signed partner-account presentation of a company-POV balance: negates so a
+ * debt the partner owes us shows as «−…» (red) and money we owe them as «+…»
+ * (green). Stored/served value is unchanged.
  */
-export const balanceLabelKey = (balance: number): string => {
-	if (balance > 0) {
-		return "partner.balance.receivableLabel";
-	}
-	if (balance < 0) {
-		return "partner.balance.payableLabel";
-	}
-	return "partner.balance.zeroLabel";
-};
+export const formatPartnerBalance = (balance: number): string => formatSigned(-balance);
 
 export const emptyPartnerFormDefaults: PartnerFormInputs = {
 	type: "Customer",

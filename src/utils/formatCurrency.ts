@@ -49,3 +49,11 @@ export function formatCurrency(value: number): string {
 export function formatQuantity(value: number): string {
 	return currencyFormatter.format(value);
 }
+
+/** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */
+export function formatSigned(value: number): string {
+	if (value === 0) {
+		return "0";
+	}
+	return `${value > 0 ? "+" : "−"}${formatCurrency(Math.abs(value))}`;
+}

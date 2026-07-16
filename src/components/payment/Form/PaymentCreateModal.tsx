@@ -11,6 +11,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
 import {
 	CreatePaymentRecordRequest,
@@ -29,7 +30,6 @@ import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -131,6 +131,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 
 	const overWithdraw = type === "Withdrawal" && partner != null && amount > partner.advance;
 
+	// Block a wallet outflow (Expense direction) that exceeds the source wallet's
+	// balance — mirrors the transfer over-balance guard. Enforced here, not in the
+	// schema (the balance is contextual). Server-side enforcement is a backend item.
+	const selectedWallet = data.wallets.find((w) => w.id === (watch("walletId") as number)) ?? null;
+	const overWallet =
+		effectiveDir === "Expense" && selectedWallet != null && amount > selectedWallet.balance;
+
 	// Load the partner's outstanding when settling, so the debts banner + the
 	// settlement modal have data ready.
 	useEffect(() => {
@@ -164,7 +171,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	});
 
 	const onValid = (_values: PaymentFormValues): void => {
-		if (overWithdraw) {
+		if (overWithdraw || overWallet) {
 			// inline error shown; block submit
 			analytics.capture("form_validation_failed", {
 				form: "payment_create",
@@ -189,8 +196,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		});
 	});
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && (errorCount > 0 || overWithdraw);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const fieldError = (name: keyof PaymentFormValues): string | undefined =>
 		(formState.errors[name]?.message as string | undefined) ?? undefined;
@@ -202,6 +208,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 720, maxWidth: "96%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -237,12 +244,6 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 						/>
 					</Stack>
 					<Box sx={{ height: "1px", bgcolor: "divider", mb: "20px" }} />
-
-					{showErrorBanner && (
-						<Alert severity="error" variant="outlined" sx={{ mb: "16px" }}>
-							{t("payment.form.errorBanner")}
-						</Alert>
-					)}
 
 					{/* STEP 2 — per-type fields */}
 					{needsPartner && (
@@ -547,7 +548,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										inputRef={field.ref}
 										size="small"
 										placeholder="0"
-										error={!!fieldError("amount") || overWithdraw}
+										error={!!fieldError("amount") || overWithdraw || overWallet}
 										slotProps={{
 											input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
 										}}
@@ -558,6 +559,12 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								<Typography sx={{ fontSize: 12, color: "error.main" }}>
 									{t("payment.form.overWithdraw", {
 										advance: formatCurrency(partner?.advance ?? 0),
+									})}
+								</Typography>
+							) : overWallet ? (
+								<Typography sx={{ fontSize: 12, color: "error.main" }}>
+									{t("payment.form.overWallet", {
+										available: formatCurrency(selectedWallet?.balance ?? 0),
 									})}
 								</Typography>
 							) : (

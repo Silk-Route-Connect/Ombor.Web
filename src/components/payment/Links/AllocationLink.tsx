@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import DetailLink from "components/shared/Link/DetailLink";
 import { PaymentAllocation } from "models/payment";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { formatEntityId } from "utils/formatEntityId";
 
 /** i18n label key per linkable allocation type (resolved at render, not import). */
 const LABEL_KEY: Record<"Sale" | "Supply" | "SaleRefund" | "SupplyRefund", string> = {
@@ -37,7 +38,9 @@ const AllocationLink: React.FC<AllocationLinkProps> = ({ allocation }) => {
 			? supplyDetailPath(transactionId)
 			: saleDetailPath(transactionId);
 
-	return <DetailLink to={to}>{`${t(LABEL_KEY[type])} №${transactionId}`}</DetailLink>;
+	return (
+		<DetailLink to={to}>{`${t(LABEL_KEY[type])} ${formatEntityId(transactionId)}`}</DetailLink>
+	);
 };
 
 export default AllocationLink;

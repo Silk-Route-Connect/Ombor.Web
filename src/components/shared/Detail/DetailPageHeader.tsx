@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import { designTokens } from "theme";
@@ -9,7 +9,8 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { Box, ButtonBase, Typography } from "@mui/material";
 
 interface DetailPageHeaderProps {
-	/** Parent list route the back button returns to. */
+	/** Fallback list route for the back button — used only on a direct load / deep
+	 *  link (no in-app history); otherwise back returns to the previous page. */
 	backTo: string;
 	/** The entity name — the title shows the name only (other fields live in the summary). */
 	title: string;
@@ -50,6 +51,10 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
+	// Back returns to the previous page; on a direct load / deep link (no in-app
+	// history, so `key` is the router default) it falls back to the list route.
+	const goBack = () => (location.key === "default" ? navigate(backTo) : navigate(-1));
 
 	return (
 		<Box
@@ -63,7 +68,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 		>
 			<Box sx={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
 				<ButtonBase
-					onClick={() => navigate(backTo)}
+					onClick={goBack}
 					aria-label={t("common.back")}
 					sx={{
 						width: 40,

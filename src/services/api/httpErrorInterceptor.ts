@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/react";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 import { ConnectivityBridge } from "./connectivityBridge";
+import { isOfflineError } from "./httpOfflineInterceptor";
 
 /**
  * Cross-cutting error reporting for every API call (attached after the auth
@@ -22,6 +23,13 @@ export function attachHttpErrorInterceptors(instance: AxiosInstance): void {
 		},
 
 		(err: AxiosError) => {
+			// A request short-circuited because the device is offline is not a
+			// backend outage — the header indicator already shows it, and it is
+			// not a Sentry-worthy defect. Pass it through untouched.
+			if (isOfflineError(err)) {
+				return Promise.reject(err);
+			}
+
 			const status = err.response?.status;
 			const method = err.config?.method?.toUpperCase();
 			const url = err.config?.url;
@@ -39,17 +47,12 @@ export function attachHttpErrorInterceptors(instance: AxiosInstance): void {
 					extra: { url },
 				});
 			} else {
-				// A 4xx means the server answered — it's up.
+				// A 4xx means the server answered — it's up. Client-caused 4xx
+				// (validation, not-found, conflict, auth) are user errors surfaced
+				// inline in the UI, not defects — they must not create Sentry events
+				// (the FE analog of the backend's BeforeSend filter). 5xx/network
+				// still report above; a beforeSend hook drops any 4xx as a backstop.
 				ConnectivityBridge.reportUp();
-				// Capture handled 4xx for visibility, but skip 401s: those are auth
-				// flow (incl. the expected bootstrap refresh 401) and just noise.
-				if (status !== 401) {
-					Sentry.captureException(err, {
-						level: "warning",
-						tags: { httpStatus: status, httpMethod: method },
-						extra: { url },
-					});
-				}
 			}
 
 			return Promise.reject(err);

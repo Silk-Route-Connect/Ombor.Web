@@ -6,14 +6,14 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWarehouseForm } from "hooks/warehouse/useWarehouseForm";
 import { observer } from "mobx-react-lite";
 import { Warehouse } from "models/warehouse";
 import { WarehouseFormValues } from "schemas/WarehouseSchema";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import { Alert, Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
+import { Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
 
 export interface WarehouseFormModalProps {
 	isOpen: boolean;
@@ -32,6 +32,7 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { form, canSave, submit } = useWarehouseForm({ isOpen, isSaving, warehouse, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { control, formState } = form;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -50,9 +51,6 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 		void submit();
 	};
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && errorCount > 0;
-
 	return (
 		<>
 			<Dialog
@@ -60,6 +58,7 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -72,17 +71,6 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showErrorBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("warehouse.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Stack sx={{ gap: "16px" }}>
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("warehouse.field.name")} required />
@@ -114,6 +102,8 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 										value={field.value ?? ""}
 										size="small"
 										fullWidth
+										multiline
+										minRows={2}
 										placeholder={t("warehouse.form.addressPlaceholder")}
 										disabled={isSaving}
 										error={!!fieldState.error}

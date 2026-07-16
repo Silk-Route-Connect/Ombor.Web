@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
@@ -24,6 +24,7 @@ import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const walletId = Number(id);
 	const { walletStore, selectedWalletStore, notificationStore } = useStore();
@@ -40,7 +41,7 @@ const WalletDetailPage: React.FC = observer(() => {
 		return () => selectedWalletStore.clear();
 	}, [walletId, selectedWalletStore, walletStore]);
 
-	const goBack = () => navigate(PATHS.wallets);
+	const goBack = () => (location.key === "default" ? navigate(PATHS.wallets) : navigate(-1));
 
 	const wallet = selectedWalletStore.wallet;
 	const dialogMode = walletStore.dialogMode;

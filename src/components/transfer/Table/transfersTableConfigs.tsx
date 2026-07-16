@@ -1,15 +1,21 @@
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Typography } from "@mui/material";
 
-const WarehouseCell: React.FC<{ name: string; accent?: boolean }> = ({ name, accent }) => (
+const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+const WarehouseCell: React.FC<{ id: number; name: string; accent?: boolean }> = ({
+	id,
+	name,
+	accent,
+}) => (
 	<Box
 		component="span"
 		sx={{
@@ -17,14 +23,14 @@ const WarehouseCell: React.FC<{ name: string; accent?: boolean }> = ({ name, acc
 			alignItems: "center",
 			gap: "7px",
 			whiteSpace: "nowrap",
-			color: accent ? "primary.main" : "text.secondary",
 			fontWeight: accent ? 600 : 400,
 		}}
+		onClick={stop}
 	>
 		<WarehouseOutlinedIcon
 			sx={{ fontSize: 15, color: accent ? "primary.main" : "text.disabled" }}
 		/>
-		{name}
+		<WarehouseLink id={id} name={name} />
 	</Box>
 );
 
@@ -44,9 +50,9 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			renderCell: (transfer) => (
 				<Typography
 					component="span"
-					sx={{ ...numericSx, color: designTokens.gray700, whiteSpace: "nowrap" }}
+					sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 				>
-					{formatDate(transfer.date)}
+					{formatDateTime(transfer.date)}
 				</Typography>
 			),
 		},
@@ -54,19 +60,26 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			key: "from",
 			headerName: t("transfer.table.from"),
 			width: "22%",
-			renderCell: (transfer) => <WarehouseCell name={transfer.fromWarehouseName} />,
+			sortValue: (transfer) => transfer.fromWarehouseName,
+			renderCell: (transfer) => (
+				<WarehouseCell id={transfer.fromWarehouseId} name={transfer.fromWarehouseName} />
+			),
 		},
 		{
 			key: "to",
 			headerName: t("transfer.table.to"),
 			width: "22%",
-			renderCell: (transfer) => <WarehouseCell name={transfer.toWarehouseName} accent />,
+			sortValue: (transfer) => transfer.toWarehouseName,
+			renderCell: (transfer) => (
+				<WarehouseCell id={transfer.toWarehouseId} name={transfer.toWarehouseName} accent />
+			),
 		},
 		{
 			key: "positions",
 			headerName: t("transfer.table.positions"),
 			width: "10%",
 			align: "right",
+			sortValue: (transfer) => transfer.lines.length,
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ ...numericSx, color: designTokens.gray700 }}>
 					{transfer.lines.length}
@@ -78,6 +91,7 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			headerName: t("transfer.table.units"),
 			width: "11%",
 			align: "right",
+			sortValue: (transfer) => transferUnits(transfer),
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 					{formatQuantity(transferUnits(transfer))}
@@ -88,19 +102,11 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			key: "createdBy",
 			headerName: t("transfer.table.createdBy"),
 			width: "15%",
+			sortValue: (transfer) => transfer.createdBy,
 			renderCell: (transfer) => (
 				<Typography component="span" sx={{ color: "text.secondary", whiteSpace: "nowrap" }}>
 					{transfer.createdBy}
 				</Typography>
-			),
-		},
-		{
-			key: "chevron",
-			headerName: "",
-			width: 48,
-			align: "right",
-			renderCell: () => (
-				<ChevronRightIcon sx={{ fontSize: 17, color: "text.disabled", display: "block" }} />
 			),
 		},
 	];

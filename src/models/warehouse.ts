@@ -59,7 +59,8 @@ export const WAREHOUSE_MOVEMENT_KINDS = [
 	"Opening",
 	"Supply",
 	"Sale",
-	"Refund",
+	"SaleRefund",
+	"SupplyRefund",
 	"Adjustment",
 	"Transfer",
 ] as const;

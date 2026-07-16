@@ -9,6 +9,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useTransferForm } from "hooks/transfer/useTransferForm";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -23,11 +24,9 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Button,
 	Dialog,
@@ -40,6 +39,8 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
+
+import TransferProductOption from "./TransferProductOption";
 
 export interface TransferFormModalProps {
 	isOpen: boolean;
@@ -94,6 +95,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const fromWarehouseId = watch("fromWarehouseId");
 	const toWarehouseId = watch("toWarehouseId");
@@ -158,15 +160,6 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 	).length;
 	const noCompleteLines = completeLines === 0;
 
-	const showBanner = anyOver || (formState.isSubmitted && Object.keys(formState.errors).length > 0);
-	const bannerMessage = sameWarehouse
-		? t("transfer.form.sameWarehouseBanner")
-		: anyOver
-			? t("transfer.form.overStockBanner")
-			: noCompleteLines
-				? t("transfer.form.noLinesBanner")
-				: t("transfer.form.errorBanner");
-
 	return (
 		<>
 			<Dialog
@@ -174,6 +167,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 680, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -186,17 +180,6 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{bannerMessage}
-						</Alert>
-					)}
-
 					{/* route: from → to */}
 					<Box
 						sx={{
@@ -292,6 +275,20 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 													error={!!fieldState.error}
 													additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
 													onChange={(p) => field.onChange(p?.id ?? 0)}
+													renderOption={(optionProps, option) => {
+														const { key, ...liProps } =
+															optionProps as React.HTMLAttributes<HTMLLIElement> & {
+																key?: React.Key;
+															};
+														return (
+															<Box component="li" key={option.id} {...liProps} sx={{ gap: "12px" }}>
+																<TransferProductOption
+																	product={option}
+																	stock={availFor(option.id)}
+																/>
+															</Box>
+														);
+													}}
 												/>
 											)}
 										/>
@@ -364,6 +361,17 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 							);
 						})}
 					</Stack>
+
+					{anyOver && (
+						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
+							{t("transfer.form.overStockBanner")}
+						</Typography>
+					)}
+					{formState.isSubmitted && noCompleteLines && (
+						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
+							{t("transfer.form.noLinesBanner")}
+						</Typography>
+					)}
 
 					<Button
 						onClick={() => lines.append(emptyLine())}

@@ -51,7 +51,6 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("category.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 320 } }}
 				/>
 			</Box>
 		</>

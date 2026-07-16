@@ -11,6 +11,7 @@ import {
 } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
 import { analytics } from "services/telemetry";
+import { formatEntityId } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/transactionUtils";
 
@@ -194,7 +195,9 @@ export class TransactionStore implements ITransactionStore {
 		});
 		this.closeDialog();
 		this.notificationStore.success(
-			i18next.t("transaction.refund.success", { number: transaction.transactionNumber }),
+			i18next.t("transaction.refund.success", {
+				number: formatEntityId(transaction.transactionNumber ?? transaction.id),
+			}),
 		);
 		analytics.capture("transaction_refunded", {
 			direction: transaction.type === "Supply" ? "Supply" : "Sale",

@@ -10,6 +10,7 @@ import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useOpeningStockForm } from "hooks/warehouse/useOpeningStockForm";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -23,11 +24,9 @@ import { MEASUREMENT_SHORT } from "utils/productUtils";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Button,
 	Dialog,
@@ -84,6 +83,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const watchedItems = watch("items");
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -118,11 +118,10 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	const totalUnits = completeLines.reduce((sum, l) => sum + l.quantity, 0);
 	const batchValue = completeLines.reduce((sum, l) => sum + l.quantity * l.unitCost, 0);
 
-	const errorCount = Object.keys(formState.errors).length;
+	// Semantic "add at least one line" message shown inline near the table after a
+	// submit attempt; field-level errors surface per-row (no top-of-form banner).
 	const noCompleteLines = completeLines.length === 0;
-	const showBanner = formState.isSubmitted && (errorCount > 0 || noCompleteLines);
-	const bannerMessage =
-		errorCount > 0 ? t("warehouse.opening.errorBanner") : t("warehouse.opening.noLinesBanner");
+	const showNoLinesError = formState.isSubmitted && noCompleteLines;
 
 	// A new row is only useful while un-stocked, un-picked products remain.
 	const pickedIds = new Set((watchedItems ?? []).map((l) => l.productId).filter(Boolean));
@@ -135,6 +134,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -147,17 +147,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{bannerMessage}
-						</Alert>
-					)}
-
 					{/* column labels */}
 					<Box
 						sx={{
@@ -318,6 +307,12 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						})}
 					</Stack>
 
+					{showNoLinesError && (
+						<Typography sx={{ mt: "8px", color: "error.main", fontSize: 12.5 }}>
+							{t("warehouse.opening.noLinesBanner")}
+						</Typography>
+					)}
+
 					<Button
 						onClick={() => lines.append(emptyLine())}
 						disabled={!canAddRow}
@@ -438,12 +433,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						flexWrap: "wrap",
 					}}
 				>
-					<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-						{t("warehouse.opening.footerSummary", {
-							count: completeLines.length,
-							value: formatCurrency(batchValue),
-						})}
-					</Typography>
 					<Box sx={{ flexGrow: 1 }} />
 					<GhostButton onClick={requestClose} disabled={isSaving}>
 						{t("common.cancel")}

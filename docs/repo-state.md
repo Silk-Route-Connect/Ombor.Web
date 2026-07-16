@@ -89,6 +89,7 @@
 - **Open:** F2 edit drops served balance; F12 Telegram silently dropped by contract; F15 «Both» autocomplete leaks archived
 - **Decisions:** no system «Розничный покупатель» — partners are uniform (owner, rule 39).
 - Opening balance editable at create, locked on edit.
+- Balance shown from the **partner's** perspective and **signed**: a debt they owe us reads `−…` red, money we owe them `+…` green (helpers `partnerBalanceColor`/`formatPartnerBalance`). Served value stays company-POV (`+ = partner owes us`, hard rule 8) — display-only flip. Also applies to the detail ledger/payments, the order customer balance, and the create/edit form's read-only previews (form **input** stays company-POV). List summary strip recolours to match (receivable red / payable green / net neutral, no signs). Debt module + Dashboard KPIs intentionally stay owner-POV (labeled buckets). Reopens locked UI Pattern 4 — canon amendment proposed separately.
 
 ## Sales / Supplies (Transactions)
 - **State:** rebuilt as one `direction`-parameterized module — unified immutable feed (search, served-`TransactionStatus` filter incl. Overdue, date range, CSV; refund rows negative + «Возврат к №N»); routed full-page detail (`/sales/:id`, `/supplies/:id`) with positions, payments, refund history, audit card; refund-create modal (per-line cumulative cap, mandatory reason).

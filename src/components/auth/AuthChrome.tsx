@@ -17,23 +17,30 @@ export const AuthHead: React.FC<{ title: string; subtitle: string }> = ({ title,
 	</Box>
 );
 
-/** Inline teal text link. */
+/** Inline teal text link — a real button so it is keyboard-focusable and
+ *  Enter/Space-activatable. `stopPropagation` keeps clicks from bubbling to an
+ *  enclosing label (e.g. the terms checkbox) and toggling it. */
 export const AuthLink: React.FC<{ onClick: () => void; children: React.ReactNode }> = ({
 	onClick,
 	children,
 }) => (
-	<Box
-		component="span"
-		onClick={onClick}
+	<ButtonBase
+		onClick={(e) => {
+			e.stopPropagation();
+			onClick();
+		}}
 		sx={{
 			color: "primary.main",
 			fontWeight: 600,
-			cursor: "pointer",
+			font: "inherit",
+			verticalAlign: "baseline",
+			p: 0,
+			borderRadius: "2px",
 			"&:hover": { textDecoration: "underline" },
 		}}
 	>
 		{children}
-	</Box>
+	</ButtonBase>
 );
 
 /** Centered «prompt <link>» line under the actions. */

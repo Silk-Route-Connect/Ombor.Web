@@ -60,14 +60,16 @@ export class OrderStore {
 			list = list.filter((o) => (Date.now() - Date.parse(o.date)) / MS_PER_DAY <= days);
 		}
 
-		// Numbers display as «№…» but people also type «#…» or the bare number —
-		// strip any leading prefix from the term and match against the raw number.
+		// Numbers display as «№…» but people also type «#…» or the bare number — strip
+		// any leading prefix, then match the order number EXACTLY: DR-21 numbers are
+		// short integers, so a substring «3» would wrongly match 13/30/… Customer name
+		// stays a substring match.
 		const term = this.searchTerm.trim().toLowerCase();
 		const numberTerm = term.replace(/^[№#]/, "");
 		if (term) {
 			list = list.filter(
 				(o) =>
-					(numberTerm !== "" && o.orderNumber.toLowerCase().includes(numberTerm)) ||
+					(numberTerm !== "" && o.orderNumber === numberTerm) ||
 					o.customerName.toLowerCase().includes(term),
 			);
 		}

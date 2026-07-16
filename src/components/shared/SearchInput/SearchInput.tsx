@@ -11,6 +11,12 @@ export interface SearchInputProps {
 	onChange: (value: string) => void;
 	placeholder: string;
 	className?: string;
+	/**
+	 * Compact width (sm:280) for in-card table toolbars that share a bordered band
+	 * with filters/export, where the standard sm:350 would wrap. Page-level toolbars
+	 * omit it and get the standard width. Ignored when an explicit `sx` is passed.
+	 */
+	dense?: boolean;
 	sx?: SxProps;
 }
 
@@ -19,8 +25,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 	onChange,
 	placeholder,
 	className = "",
-	sx = { width: { xs: "100%", sm: 350 } },
+	dense = false,
+	sx,
 }) => {
+	const widthSx = sx ?? { width: { xs: "100%", sm: dense ? 280 : 350 } };
 	return (
 		<TextField
 			className={className}
@@ -30,7 +38,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 				// Bundle .search-box: surface bg with the strong border.
 				"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
 				"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
-				...sx,
+				...widthSx,
 			}}
 			placeholder={placeholder}
 			value={value}

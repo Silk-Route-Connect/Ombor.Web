@@ -68,7 +68,6 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("searchEmployeesPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 320 } }}
 				/>
 				<SegmentedControl<StatusFilter>
 					value={selectedStatus ?? "all"}

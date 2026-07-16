@@ -63,7 +63,6 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t(`transaction.list.search.${direction}`)}
-					sx={{ width: { xs: "100%", sm: 300 } }}
 				/>
 				<SegmentedControl<StatusFilter>
 					value={statusFilter}

@@ -20,6 +20,8 @@ const TYPE_TOKEN: Record<PartnerType, keyof typeof chipTokens> = {
 interface PartnerTypeChipProps {
 	type: PartnerType;
 	dimmed?: boolean;
+	/** `md` enlarges the pill for header/identity use; `sm` (default) for tables. */
+	size?: "sm" | "md";
 }
 
 /**
@@ -27,9 +29,13 @@ interface PartnerTypeChipProps {
  * (composed from the localized type labels), never the raw enum; Customer /
  * Supplier render their single label.
  */
-export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type, dimmed }) => {
+export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type, dimmed, size = "sm" }) => {
 	const { t } = useTranslation();
 	const tk = chipTokens[TYPE_TOKEN[type]];
+	const dims =
+		size === "md"
+			? { px: "11px", py: "3px", fontSize: 12.5 }
+			: { px: "9px", py: "2px", fontSize: 11 };
 	const label =
 		type === "Both"
 			? `${t("partner.typeShort.Customer")} + ${t("partner.typeShort.Supplier")}`
@@ -41,10 +47,8 @@ export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type, dimmed }
 			sx={{
 				display: "inline-flex",
 				alignItems: "center",
-				px: "9px",
-				py: "2px",
+				...dims,
 				borderRadius: "999px",
-				fontSize: 11,
 				fontWeight: 600,
 				lineHeight: 1.4,
 				whiteSpace: "nowrap",

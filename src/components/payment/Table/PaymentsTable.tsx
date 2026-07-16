@@ -2,13 +2,14 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { Loadable } from "helpers/Loading";
 import { TFunction } from "i18next";
 import { PaymentRecord } from "models/payment";
 import { numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -44,12 +45,8 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 			headerName: t("payment.table.number"),
 			// The backend's legacy DTO omits the human «P-…» number — fall back to «№id»
 			// so the column is never blank (matches the detail-page title).
-			sortValue: (p) => p.number || `№${p.id}`,
-			renderCell: (p) => (
-				<Box component="span" sx={{ ...numericSx, fontWeight: 700, color: "primary.main" }}>
-					{p.number || `№${p.id}`}
-				</Box>
-			),
+			sortValue: (p) => p.number ?? p.id,
+			renderCell: (p) => <CopyableNumberCell value={p.number ?? p.id} />,
 		},
 		{
 			key: "date",
@@ -57,7 +54,7 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 			sortValue: (p) => new Date(p.date),
 			renderCell: (p) => (
 				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
-					{formatDate(p.date)}
+					{formatDateTime(p.date)}
 				</Box>
 			),
 		},

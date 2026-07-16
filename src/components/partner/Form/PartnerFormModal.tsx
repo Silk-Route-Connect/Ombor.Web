@@ -1,7 +1,6 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { formatSigned } from "components/partner/Detail/ledgerHelpers";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -9,23 +8,21 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { usePartnerForm } from "hooks/partner/usePartnerForm";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Partner, PartnerType } from "models/partner";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { designTokens, numericSx } from "theme";
 import { formatDate as formatLocaleDate } from "utils/dateUtils";
-import { formatCurrency } from "utils/formatCurrency";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Dialog,
 	DialogActions,
@@ -83,14 +80,19 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 		},
 	);
 	const { control, formState, watch } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { errors, isSubmitted } = formState;
 
 	const openingType = watch("openingType");
 	const openingAmount = watch("openingAmount") ?? 0;
 	const signedOpening = openingType === "payable" ? -openingAmount : openingAmount;
 
-	const phoneErrors = errors.phoneNumbers as { message?: string } | undefined;
-	const showBanner = isSubmitted && (Boolean(errors.name) || Boolean(phoneErrors));
+	// RHF stores a per-row error at phoneErrors[i] and the array-level "at least
+	// one phone" refine at phoneErrors.message — the two shapes are mutually
+	// exclusive here, so reading both lets each render in its own place.
+	const phoneErrors = errors.phoneNumbers as
+		| (Partial<{ message: string }> & Array<{ message?: string } | undefined>)
+		| undefined;
 
 	return (
 		<>
@@ -99,6 +101,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 620, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -111,17 +114,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "18px" }}
-						>
-							{t("partner.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Box sx={{ display: "flex", flexDirection: "column", gap: "14px" }}>
 						{/* Name + Company on one row (PRT-7) */}
 						<Box
@@ -213,54 +205,72 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 									};
 									return (
 										<Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-											{phones.map((phone, i) => (
-												<Box key={i} sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
-													<TextField
-														value={formatUzNational(phone)}
-														onChange={(e) => setAt(i, uzPhoneToStored(e.target.value))}
-														size="small"
-														fullWidth
-														inputMode="numeric"
-														placeholder="90 123 45 67"
-														disabled={isSaving}
-														error={isSubmitted && Boolean(phoneErrors) && i === 0}
-														sx={numericSx}
-														slotProps={{
-															input: {
-																startAdornment: (
-																	<InputAdornment position="start">
-																		<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
-																			{UZ_COUNTRY_PREFIX}
-																		</Typography>
-																	</InputAdornment>
-																),
-															},
-														}}
-													/>
-													{phones.length > 1 && (
-														<IconButton
-															onClick={() => removeAt(i)}
-															aria-label={t("common.delete")}
-															sx={{
-																width: 38,
-																height: 40,
-																flex: "0 0 auto",
-																borderRadius: "8px",
-																border: "1px solid",
-																borderColor: designTokens.gray300,
-																color: "text.disabled",
-																"&:hover": {
-																	color: "error.main",
-																	borderColor: designTokens.errorBorder,
-																	bgcolor: designTokens.errorBg,
-																},
-															}}
-														>
-															<CloseIcon sx={{ fontSize: 16 }} />
-														</IconButton>
-													)}
-												</Box>
-											))}
+											{phones.map((phone, i) => {
+												const rowError = isSubmitted ? phoneErrors?.[i]?.message : undefined;
+												return (
+													<Box
+														key={i}
+														sx={{ display: "flex", flexDirection: "column", gap: "4px" }}
+													>
+														<Box sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
+															<TextField
+																value={formatUzNational(phone)}
+																onChange={(e) => setAt(i, uzPhoneToStored(e.target.value))}
+																size="small"
+																fullWidth
+																inputMode="numeric"
+																placeholder="90 123 45 67"
+																disabled={isSaving}
+																error={
+																	Boolean(rowError) ||
+																	(i === 0 && isSubmitted && Boolean(phoneErrors?.message))
+																}
+																sx={numericSx}
+																slotProps={{
+																	input: {
+																		startAdornment: (
+																			<InputAdornment position="start">
+																				<Typography
+																					sx={{ color: "text.secondary", fontWeight: 600 }}
+																				>
+																					{UZ_COUNTRY_PREFIX}
+																				</Typography>
+																			</InputAdornment>
+																		),
+																	},
+																}}
+															/>
+															{phones.length > 1 && (
+																<IconButton
+																	onClick={() => removeAt(i)}
+																	aria-label={t("common.delete")}
+																	sx={{
+																		width: 38,
+																		height: 40,
+																		flex: "0 0 auto",
+																		borderRadius: "8px",
+																		border: "1px solid",
+																		borderColor: designTokens.gray300,
+																		color: "text.disabled",
+																		"&:hover": {
+																			color: "error.main",
+																			borderColor: designTokens.errorBorder,
+																			bgcolor: designTokens.errorBg,
+																		},
+																	}}
+																>
+																	<CloseIcon sx={{ fontSize: 16 }} />
+																</IconButton>
+															)}
+														</Box>
+														{rowError && (
+															<Typography sx={{ fontSize: 12, color: "error.main" }}>
+																{rowError}
+															</Typography>
+														)}
+													</Box>
+												);
+											})}
 											{isSubmitted && phoneErrors?.message && (
 												<Typography sx={{ fontSize: 12, color: "error.main" }}>
 													{phoneErrors.message}
@@ -440,10 +450,10 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 														...numericSx,
 														fontWeight: 700,
 														fontSize: 20,
-														color: balanceColor(signedOpening),
+														color: partnerBalanceColor(signedOpening),
 													}}
 												>
-													{openingType === "payable" ? "−" : "+"}
+													{openingType === "receivable" ? "−" : "+"}
 												</Box>
 												<Box
 													component="input"
@@ -487,6 +497,11 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 									>
 										{t("partner.form.openingHint")}
 									</Typography>
+									{isSubmitted && errors.openingAmount?.message && (
+										<Typography sx={{ fontSize: 12, color: "error.main" }}>
+											{errors.openingAmount.message}
+										</Typography>
+									)}
 								</Box>
 
 								{openingAmount > 0 && (
@@ -503,10 +518,13 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 										{t("partner.form.openingPreview")}{" "}
 										<Box
 											component="b"
-											sx={{ ...numericSx, fontWeight: 700, color: balanceColor(signedOpening) }}
+											sx={{
+												...numericSx,
+												fontWeight: 700,
+												color: partnerBalanceColor(signedOpening),
+											}}
 										>
-											{signedOpening >= 0 ? "+" : "−"}
-											{formatCurrency(Math.abs(signedOpening))} UZS
+											{formatPartnerBalance(signedOpening)} UZS
 										</Box>
 									</Box>
 								)}
@@ -593,10 +611,10 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 						...numericSx,
 						fontWeight: 700,
 						fontSize: 20,
-						color: balanceColor(partner.openingBalance),
+						color: partnerBalanceColor(partner.openingBalance),
 					}}
 				>
-					{formatSigned(partner.openingBalance)}
+					{formatPartnerBalance(partner.openingBalance)}
 					<Box
 						component="span"
 						sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "6px" }}
@@ -621,7 +639,7 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 				<InfoOutlinedIcon sx={{ fontSize: 15, color: "info.main", mt: "1px", flex: "0 0 auto" }} />
 				<Typography sx={{ fontSize: 12.5, color: "info.main", lineHeight: 1.55 }}>
 					{t("partner.form.openingLockedHelper", {
-						balance: formatSigned(partner.balance),
+						balance: formatPartnerBalance(partner.balance),
 					})}
 				</Typography>
 			</Box>

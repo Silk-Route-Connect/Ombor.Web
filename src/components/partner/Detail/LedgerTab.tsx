@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
+import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import { Box } from "@mui/material";
 
@@ -17,7 +18,6 @@ import DetailTableCard from "./DetailTableCard";
 import FilterDropdown from "./FilterDropdown";
 import {
 	DETAIL_ROWS_PER_PAGE_OPTIONS,
-	formatSigned,
 	LedgerPeriod,
 	useDetailTablePage,
 	withinPeriod,
@@ -25,6 +25,7 @@ import {
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type EventFilter = "all" | "sale" | "supply" | "payment" | "refund" | "opening";
+type SortCol = "number" | "date" | "event" | "amount" | "balance";
 
 interface LedgerTabProps {
 	ledger: PartnerLedgerEntry[];
@@ -47,6 +48,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 	const [eventFilter, setEventFilter] = useState<EventFilter>("all");
 	const [period, setPeriod] = useState<LedgerPeriod>("all");
 	const [search, setSearch] = useState("");
+	const [sortCol, setSortCol] = useState<SortCol>("date");
+	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const descriptionText = (e: PartnerLedgerEntry): string =>
 		e.type === "opening"
@@ -70,27 +73,39 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ledger, period, eventFilter, search, t]);
 
-	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${eventFilter}|${period}|${search}`,
-	);
-	const rows = paginate(filtered);
+	const sorted = useMemo(() => {
+		const accessor = (e: PartnerLedgerEntry): string | number => {
+			switch (sortCol) {
+				case "number":
+					return e.reference ?? "";
+				case "date":
+					return e.date;
+				case "event":
+					return t(eventLabelKey(e.type));
+				case "amount":
+					return e.delta;
+				case "balance":
+					return e.balance;
+				default:
+					return "";
+			}
+		};
+		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
+		return sortDir === "desc" ? s.reverse() : s;
+	}, [filtered, sortCol, sortDir, t]);
 
-	const description = (e: PartnerLedgerEntry): React.ReactNode => {
-		if (e.type === "opening") {
-			return (
-				<Box component="span" sx={{ color: "text.secondary" }}>
-					{t("partner.ledger.openingDesc")}
-				</Box>
-			);
+	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
+		`${eventFilter}|${period}|${search}|${sortCol}|${sortDir}`,
+	);
+	const rows = paginate(sorted);
+
+	const onSort = (col: SortCol) => {
+		if (col === sortCol) {
+			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+		} else {
+			setSortCol(col);
+			setSortDir("desc");
 		}
-		return (
-			<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
-				<Box component="span" sx={{ color: "primary.main", fontWeight: 500 }}>
-					{e.reference}
-				</Box>
-				{e.itemCount ? ` · ${t("partner.ledger.items", { count: e.itemCount })}` : ""}
-			</Box>
-		);
 	};
 
 	const handleExport = () => {
@@ -99,57 +114,13 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 			[
 				{ header: t("partner.ledger.col.date"), value: (e) => formatDate(e.date) },
 				{ header: t("partner.ledger.col.event"), value: (e) => t(eventLabelKey(e.type)) },
-				{ header: t("partner.ledger.col.description"), value: descriptionText },
+				{ header: t("partner.ledger.col.number"), value: (e) => e.reference ?? "" },
 				{ header: t("partner.ledger.col.amount"), value: (e) => e.delta },
 				{ header: t("partner.ledger.col.balanceAfter"), value: (e) => e.balance },
 			],
 			filtered,
 		);
 	};
-
-	const legend = (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "22px",
-				p: "11px 18px",
-				bgcolor: designTokens.gray25,
-				borderBottom: "1px solid",
-				borderColor: "divider",
-				fontSize: 12.5,
-				color: "text.secondary",
-				flexWrap: "wrap",
-			}}
-		>
-			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
-				<Box component="b" sx={{ color: "success.main", fontWeight: 700 }}>
-					+
-				</Box>
-				{t("partner.ledger.legendPos")}
-			</Box>
-			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
-				<Box component="b" sx={{ color: "error.main", fontWeight: 700 }}>
-					−
-				</Box>
-				{t("partner.ledger.legendNeg")}
-			</Box>
-			<Box sx={{ flexGrow: 1 }} />
-			<Box
-				component="span"
-				sx={{
-					display: "inline-flex",
-					alignItems: "center",
-					gap: "6px",
-					fontWeight: 600,
-					color: "text.secondary",
-				}}
-			>
-				<InfoOutlinedIcon sx={{ fontSize: 14, color: "info.main" }} />
-				{t("partner.ledger.legendBalance")}
-			</Box>
-		</Box>
-	);
 
 	return (
 		<DetailTableCard
@@ -158,6 +129,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				<>
 					<FilterDropdown<EventFilter>
 						label={t("partner.ledger.eventFilter")}
+						compact
 						icon={<FilterListIcon sx={{ fontSize: 15 }} />}
 						value={eventFilter}
 						onChange={setEventFilter}
@@ -172,6 +144,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 					/>
 					<FilterDropdown<LedgerPeriod>
 						label={t("partner.ledger.periodFilter")}
+						compact
 						icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
 						value={period}
 						onChange={setPeriod}
@@ -185,7 +158,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 			}
 			onExport={handleExport}
 			exportDisabled={filtered.length === 0}
-			legend={legend}
 			pagination={{
 				count: filtered.length,
 				page,
@@ -205,21 +177,48 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
 					<thead>
 						<tr>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.date")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.event")}
-							</Box>
-							<Box component="th" sx={headCellSx}>
-								{t("partner.ledger.col.description")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.ledger.col.amount")}
-							</Box>
-							<Box component="th" sx={{ ...headCellSx, textAlign: "right" }}>
-								{t("partner.ledger.col.balanceAfter")}
-							</Box>
+							<DetailSortHeader
+								col="number"
+								label={t("partner.ledger.col.number")}
+								active={sortCol === "number"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="date"
+								label={t("partner.ledger.col.date")}
+								active={sortCol === "date"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="event"
+								label={t("partner.ledger.col.event")}
+								active={sortCol === "event"}
+								dir={sortDir}
+								onSort={onSort}
+								sx={headCellSx}
+							/>
+							<DetailSortHeader
+								col="amount"
+								label={t("partner.ledger.col.amount")}
+								active={sortCol === "amount"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
+							<DetailSortHeader
+								col="balance"
+								label={t("partner.ledger.col.balanceAfter")}
+								active={sortCol === "balance"}
+								dir={sortDir}
+								onSort={onSort}
+								align="right"
+								sx={{ ...headCellSx, textAlign: "right" }}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -239,13 +238,36 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 									}}
 								>
 									<Box component="td" sx={{ ...bodyCellSx, ...numericSx, whiteSpace: "nowrap" }}>
-										{formatDate(e.date)}
+										{e.reference ? (
+											<Box
+												component="span"
+												sx={{
+													color: "primary.main",
+													fontWeight: 600,
+													"&:hover": { textDecoration: "underline" },
+												}}
+											>
+												{e.reference}
+											</Box>
+										) : (
+											<Box component="span" sx={{ color: "text.disabled" }}>
+												—
+											</Box>
+										)}
+									</Box>
+									<Box
+										component="td"
+										sx={{
+											...bodyCellSx,
+											...numericSx,
+											color: "text.secondary",
+											whiteSpace: "nowrap",
+										}}
+									>
+										{e.type === "opening" ? formatDate(e.date) : formatDateTime(e.date)}
 									</Box>
 									<Box component="td" sx={bodyCellSx}>
 										<EventCell type={e.type} label={t(eventLabelKey(e.type))} />
-									</Box>
-									<Box component="td" sx={bodyCellSx}>
-										{description(e)}
 									</Box>
 									<Box
 										component="td"
@@ -254,10 +276,10 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 											textAlign: "right",
 											...numericSx,
 											fontWeight: 600,
-											color: balanceColor(e.delta),
+											color: partnerBalanceColor(e.delta),
 										}}
 									>
-										{formatSigned(e.delta)}
+										{formatPartnerBalance(e.delta)}
 									</Box>
 									<Box
 										component="td"
@@ -266,10 +288,10 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 											textAlign: "right",
 											...numericSx,
 											fontWeight: 700,
-											color: balanceColor(e.balance),
+											color: partnerBalanceColor(e.balance),
 										}}
 									>
-										{formatSigned(e.balance)}
+										{formatPartnerBalance(e.balance)}
 									</Box>
 								</Box>
 							);

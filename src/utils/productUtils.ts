@@ -42,7 +42,10 @@ export function isAvialableForSale(product: Product) {
  * operands are served (hard rule 8); the backend may serve this directly later.
  */
 export function stockValue(product: Product): number {
-	return product.warehouseItems.reduce((sum, item) => sum + item.quantity * item.averageCost, 0);
+	return (product.warehouseItems ?? []).reduce(
+		(sum, item) => sum + item.quantity * item.averageCost,
+		0,
+	);
 }
 
 export function calculateLineTotals(unitPrice: number, quantity: number, discount: number) {

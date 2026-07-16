@@ -10,6 +10,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
@@ -22,14 +23,12 @@ import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import {
-	Alert,
 	alpha,
 	Box,
 	Button,
@@ -211,6 +210,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 		submit,
 	} = useTemplateForm({ isOpen, isSaving, template, onSave, onClose });
 	const { control, formState, watch, setValue } = form;
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const partnerId = watch("partnerId");
 	const watchedItems = watch("items");
@@ -244,17 +244,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 		onClose,
 	);
 
-	const nameErr = Boolean(formState.errors.name);
-	const partnerErr = Boolean(formState.errors.partnerId);
 	const linesErr = Boolean(formState.errors.items);
-	const showBanner = formState.isSubmitted && (nameErr || partnerErr || linesErr);
-	const missing = [
-		nameErr && t("template.field.nameLower"),
-		partnerErr && t("template.field.partnerLower"),
-		linesErr && t("template.field.linesLower"),
-	]
-		.filter(Boolean)
-		.join(", ");
 
 	const priceLabel =
 		templateType === "Sale" ? t("template.form.salePrices") : t("template.form.supplyPrices");
@@ -266,6 +256,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 760, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -278,17 +269,6 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("template.form.errorBanner", { fields: missing })}
-						</Alert>
-					)}
-
 					<Box
 						sx={{
 							display: "grid",
@@ -424,6 +404,11 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 								<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "3px" }}>
 									{t("template.form.emptyBody")}
 								</Typography>
+								{linesErr && (
+									<Typography sx={{ fontSize: 12.5, color: "error.main", mt: "8px" }}>
+										{t("template.validation.itemsRequired")}
+									</Typography>
+								)}
 							</Box>
 						) : (
 							items.map((field, index) => {

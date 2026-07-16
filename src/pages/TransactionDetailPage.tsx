@@ -12,13 +12,18 @@ import {
 	RefundHistoryCard,
 	RefundReferenceBanner,
 	SaleFinancialCard,
-	SaleFooter,
 } from "components/transaction/Detail/cards";
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
 import RefundModal from "components/transaction/Refund/RefundModal";
 import { observer } from "mobx-react-lite";
+import { paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { isRefundType, TransactionDirection } from "utils/transactionUtils";
+import {
+	isRefundType,
+	TransactionDirection,
+	txDiscountTotal,
+	txSubtotal,
+} from "utils/transactionUtils";
 
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
@@ -98,7 +103,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					<PositionsCard
 						lines={tx.lines}
 						count={tx.lines.length}
-						footer={refund ? <RefundFooter lines={tx.lines} /> : <SaleFooter lines={tx.lines} />}
+						footer={refund ? <RefundFooter lines={tx.lines} /> : undefined}
 					/>
 
 					{!refund && refundsOf.length > 0 && (
@@ -125,6 +130,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 						<SaleFinancialCard
 							direction={direction}
 							total={tx.totalDue}
+							subtotal={txSubtotal(tx.lines)}
+							discount={txDiscountTotal(tx.lines)}
 							paid={tx.totalPaid}
 							remaining={tx.remaining ?? Math.max(tx.totalDue - tx.totalPaid, 0)}
 							status={tx.status}
@@ -134,9 +141,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					{!refund && (
 						<PaymentsCard
 							tx={tx}
-							onOpenPayment={(pid) =>
-								devToast(`${t("transaction.detail.paymentLabel", { id: pid })}`)
-							}
+							onOpenPayment={(paymentId) => navigate(paymentDetailPath(paymentId))}
 						/>
 					)}
 				</Box>

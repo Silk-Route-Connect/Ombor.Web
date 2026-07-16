@@ -65,7 +65,10 @@ const ProductDetailPage: React.FC = observer(() => {
 
 	// Edit/archive/restore only change product fields, never stock history —
 	// reflect the fresh product in place rather than refetching the ledgers.
-	const handleFormSave = async (payload: ProductFormValues): Promise<void> => {
+	const handleFormSave = async (
+		payload: ProductFormValues,
+		imagesToRemove: number[],
+	): Promise<void> => {
 		const request: CreateProductRequest = {
 			categoryId: payload.categoryId,
 			name: payload.name,
@@ -81,7 +84,11 @@ const ProductDetailPage: React.FC = observer(() => {
 			attachments: payload.attachments,
 		};
 
-		const updated = await productStore.update({ ...request, id: product.id, imagesToDelete: [] });
+		const updated = await productStore.update({
+			...request,
+			id: product.id,
+			imagesToDelete: imagesToRemove,
+		});
 		if (updated) {
 			selectedProductStore.applyProduct(updated);
 		}
@@ -138,7 +145,11 @@ const ProductDetailPage: React.FC = observer(() => {
 			label: t("product.detail.tabs.transactions"),
 			count: transactions === "loading" ? undefined : transactions.length,
 		},
-		{ key: "movements", label: t("product.detail.tabs.movements") },
+		{
+			key: "movements",
+			label: t("product.detail.tabs.movements"),
+			count: movements === "loading" ? undefined : movements.length,
+		},
 	];
 
 	return (

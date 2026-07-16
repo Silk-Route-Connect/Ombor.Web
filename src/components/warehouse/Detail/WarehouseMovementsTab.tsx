@@ -16,7 +16,7 @@ import {
 	WarehouseMovementKind,
 } from "models/warehouse";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
@@ -120,7 +120,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					value={query}
 					onChange={setQuery}
 					placeholder={t("warehouse.movements.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 240 } }}
+					dense
 				/>
 				<TextField
 					select
@@ -234,13 +234,15 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 								const unit = MEASUREMENT_SHORT[movement.measurement];
 								const isIn = movement.quantity > 0;
 								return (
-									<tr key={movement.id}>
+									<tr
+										key={`${movement.kind}-${movement.id}-${movement.productId}-${movement.date}`}
+									>
 										<td>
 											<Box
 												component="span"
 												sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
 											>
-												{formatDate(movement.date)}
+												{formatDateTime(movement.date)}
 											</Box>
 										</td>
 										<td>

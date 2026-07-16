@@ -5,6 +5,7 @@ import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -20,6 +21,8 @@ import WalletPicker from "./WalletPicker";
 interface TransactionSummaryCardProps {
 	entry: UseTransactionEntry;
 	wallets: Wallet[];
+	/** True when a Supply tender exceeds the paying wallet's balance (hard-block). */
+	overWallet: boolean;
 	onOpenSettle: () => void;
 	onSubmit: () => void;
 }
@@ -75,6 +78,7 @@ const Row: React.FC<{
 export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 	entry,
 	wallets,
+	overWallet,
 	onOpenSettle,
 	onSubmit,
 }) => {
@@ -309,7 +313,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 												<Row
 													key={a.transactionId}
 													sub
-													label={`#${a.transactionId}`}
+													label={formatEntityId(a.transactionId)}
 													value={`−${formatCurrency(a.amount)}`}
 													valueColor="text.disabled"
 												/>
@@ -485,6 +489,27 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 					>
 						<ErrorOutlineIcon sx={{ fontSize: 13 }} />
 						{t("transaction.new.submit.fixQty")}
+					</Box>
+				)}
+				{tried && overWallet && (
+					<Box
+						sx={{
+							p: "10px 12px",
+							borderRadius: "6px",
+							bgcolor: designTokens.errorBg,
+							border: "1px solid",
+							borderColor: designTokens.errorBorder,
+							display: "flex",
+							alignItems: "center",
+							gap: "7px",
+							fontSize: 12.5,
+							color: "error.main",
+						}}
+					>
+						<ErrorOutlineIcon sx={{ fontSize: 13 }} />
+						{t("transaction.new.pay.overBalance", {
+							available: formatCurrency(wallets.find((w) => w.id === pay.walletId)?.balance ?? 0),
+						})}
 					</Box>
 				)}
 				<Box

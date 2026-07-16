@@ -31,7 +31,7 @@
 
   "wallet.table.name": "Касса",
   "wallet.table.type": "Тип",
-  "wallet.table.balance": "Баланс, UZS",
+  "wallet.table.balance": "Баланс",
   "wallet.table.advances": "Авансы партнёров",
   "wallet.table.ourMoney": "Наши средства",
   "wallet.table.status": "Статус",
@@ -108,6 +108,7 @@
   "wallet.transfers.to": "В кассу",
   "wallet.transfers.amount": "Сумма",
   "wallet.transfers.createdBy": "Создал",
+  "wallet.transfers.searchPlaceholder": "Поиск по кассе или автору…",
   "wallet.transfers.emptyTitle": "Нет переводов",
   "wallet.transfers.emptyBody": "Между этой и другими кассами ещё не было переводов.",
 

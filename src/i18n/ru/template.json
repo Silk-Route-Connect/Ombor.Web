@@ -12,7 +12,7 @@
   "template.table.type": "Тип",
   "template.table.partner": "Партнёр",
   "template.table.positions": "Позиций",
-  "template.table.total": "Сумма, UZS",
+  "template.table.total": "Сумма",
   "template.table.lastUsed": "Использован",
 
   "template.itemsTable.product": "Товар",
@@ -20,7 +20,7 @@
   "template.itemsTable.quantity": "Кол-во",
   "template.itemsTable.unit": "Ед.",
   "template.itemsTable.unitPrice": "Цена за ед.",
-  "template.itemsTable.lineTotal": "Итого, UZS",
+  "template.itemsTable.lineTotal": "Итого",
   "template.itemsTable.footer": "Итого · {{count}} {{word}}",
 
   "template.empty.title": "Шаблоны пока не созданы",

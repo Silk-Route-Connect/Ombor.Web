@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { Warehouse } from "models/warehouse";
 import { designTokens } from "theme";
 
@@ -16,6 +17,8 @@ interface TransferHeaderProps {
 	warehouses: Warehouse[];
 	warehouseFilter: number | null;
 	onWarehouseChange: (warehouseId: number | null) => void;
+	search: string;
+	onSearchChange: (value: string) => void;
 	onCreate: () => void;
 	onExport: () => void;
 }
@@ -32,6 +35,8 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 	warehouses,
 	warehouseFilter,
 	onWarehouseChange,
+	search,
+	onSearchChange,
 	onCreate,
 	onExport,
 }) => {
@@ -59,6 +64,11 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 			/>
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
+				<SearchInput
+					value={search}
+					onChange={onSearchChange}
+					placeholder={t("transfer.searchPlaceholder")}
+				/>
 				<TextField
 					select
 					size="small"

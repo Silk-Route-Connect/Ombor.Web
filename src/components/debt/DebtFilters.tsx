@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { DebtAgeBucket, DebtDirectionFilter, DebtTab } from "stores/DebtStore";
 import { designTokens } from "theme";
@@ -14,11 +13,9 @@ import { Box, ButtonBase, ListItemText, Menu, MenuItem } from "@mui/material";
 
 interface DebtFiltersProps {
 	tab: DebtTab;
-	searchTerm: string;
 	ageBucket: DebtAgeBucket;
 	directionFilter: DebtDirectionFilter;
 	onlyOverdue: boolean;
-	onSearch: (v: string) => void;
 	onAgeChange: (v: DebtAgeBucket) => void;
 	onDirectionChange: (v: DebtDirectionFilter) => void;
 	onClearOverdue: () => void;
@@ -101,11 +98,9 @@ function Dropdown<T extends string>({
  */
 export const DebtFilters: React.FC<DebtFiltersProps> = ({
 	tab,
-	searchTerm,
 	ageBucket,
 	directionFilter,
 	onlyOverdue,
-	onSearch,
 	onAgeChange,
 	onDirectionChange,
 	onClearOverdue,
@@ -121,14 +116,7 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 	];
 
 	return (
-		<Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "14px", flexWrap: "wrap" }}>
-			<SearchInput
-				value={searchTerm}
-				onChange={onSearch}
-				placeholder={t("debt.searchPlaceholder")}
-				sx={{ width: { xs: "100%", sm: 300 } }}
-			/>
-
+		<>
 			{tab === "transactions" && (
 				<SegmentedControl
 					value={directionFilter}
@@ -172,7 +160,7 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 					<CloseIcon sx={{ fontSize: 14 }} />
 				</ButtonBase>
 			)}
-		</Box>
+		</>
 	);
 };
 

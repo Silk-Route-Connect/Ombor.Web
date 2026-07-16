@@ -33,15 +33,25 @@ export class DashboardStore implements IDashboardStore {
 	isLoading = false;
 	period: DashboardPeriod = "month";
 
+	/** Monotonic load counter — guards against a slow response overwriting a newer one. */
+	private loadSeq = 0;
+
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
 	async load(): Promise<void> {
+		const seq = ++this.loadSeq;
 		runInAction(() => (this.isLoading = true));
 
 		const result = await tryRun(() => DashboardApi.get(this.period));
+
+		// A newer load started while this was in flight — discard this response so a
+		// slow earlier-period fetch can't clobber the current period's KPIs.
+		if (seq !== this.loadSeq) {
+			return;
+		}
 
 		if (result.status === "fail") {
 			this.notificationStore.error(i18next.t("dashboard.error.load"));

@@ -5,12 +5,13 @@ import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable"
 import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
 import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
-import PartnerBalanceCard from "components/partner/Detail/PartnerBalanceCard";
+import PartnerDetailRail from "components/partner/Detail/PartnerDetailRail";
 import PaymentsTab from "components/partner/Detail/PaymentsTab";
 import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import { observer } from "mobx-react-lite";
@@ -20,8 +21,9 @@ import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 type PartnerDetailTab = "ledger" | "transactions" | "payments";
 
@@ -196,6 +198,47 @@ const PartnerDetailPage: React.FC = observer(() => {
 			<DetailPageHeader
 				backTo={PATHS.partners}
 				title={partner.name}
+				titleExtra={
+					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+						<Box
+							sx={{
+								width: 5,
+								height: 5,
+								borderRadius: "50%",
+								bgcolor: "text.secondary",
+								flex: "0 0 auto",
+							}}
+						/>
+						<PartnerTypeChip type={partner.type} dimmed={partner.isArchived} size="md" />
+						{partner.companyName && (
+							<>
+								<Box
+									sx={{
+										width: 5,
+										height: 5,
+										borderRadius: "50%",
+										bgcolor: "text.secondary",
+										flex: "0 0 auto",
+									}}
+								/>
+								<Box
+									component="span"
+									sx={{
+										display: "inline-flex",
+										alignItems: "center",
+										gap: "7px",
+										fontSize: 15,
+										color: "text.secondary",
+										minWidth: 0,
+									}}
+								>
+									<Inventory2OutlinedIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+									{partner.companyName}
+								</Box>
+							</>
+						)}
+					</Box>
+				}
 				actions={actions}
 				isArchived={partner.isArchived}
 				archivedLabel={t("partner.badge.archived")}
@@ -203,12 +246,23 @@ const PartnerDetailPage: React.FC = observer(() => {
 
 			{partner.isArchived && <PartnerArchivedBanner />}
 
-			<PartnerBalanceCard partner={partner} ledger={ledger} />
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gap: "20px",
+					alignItems: "start",
+				}}
+			>
+				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
+					<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
+					{renderTab()}
+				</Box>
 
-			<Stack sx={{ gap: "16px", mt: "20px" }}>
-				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
-				{renderTab()}
-			</Stack>
+				<Box sx={{ position: "sticky", top: 0 }}>
+					<PartnerDetailRail partner={partner} ledger={ledger} />
+				</Box>
+			</Box>
 
 			<PartnerFormModal
 				isOpen={dialogMode.kind === "form"}

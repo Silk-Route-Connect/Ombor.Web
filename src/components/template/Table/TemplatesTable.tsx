@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
 import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import {
 	Column,
 	ExpandableDataTable,
@@ -36,22 +37,20 @@ const stop = (e: React.MouseEvent) => e.stopPropagation();
 
 const innerHeadSx = {
 	textAlign: "left",
-	fontSize: 11.5,
+	fontSize: 12,
 	fontWeight: 600,
-	letterSpacing: ".03em",
-	textTransform: "uppercase",
-	color: "text.disabled",
-	p: "11px 16px",
+	color: "text.secondary",
+	p: "10px 16px",
 	borderBottom: "1px solid",
 	borderColor: "divider",
 	bgcolor: designTokens.gray25,
 } as const;
 
 const innerBodySx = {
-	p: "11px 16px",
+	p: "10px 16px",
 	borderBottom: "1px solid",
-	borderColor: "divider",
-	fontSize: 14,
+	borderColor: designTokens.gray25,
+	fontSize: 13.5,
 	verticalAlign: "middle",
 } as const;
 
@@ -157,9 +156,12 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 								</Box>
 							</Box>
 							<Box component="td" sx={innerBodySx}>
-								<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
+								<CopyableCell
+									value={item.sku}
+									sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}
+								>
 									{item.sku}
-								</Box>
+								</CopyableCell>
 							</Box>
 							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>
 								<Box component="span" sx={numericSx}>

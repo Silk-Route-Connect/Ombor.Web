@@ -8,6 +8,7 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
@@ -15,11 +16,9 @@ import { WalletFormValues } from "schemas/WalletSchema";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	ButtonBase,
 	Dialog,
@@ -142,6 +141,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 	const { t } = useTranslation();
 	const editing = Boolean(wallet);
 	const { form, canSave, submit } = useWalletForm({ isOpen, isSaving, wallet, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { control, formState } = form;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -150,9 +150,6 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 		onClose,
 	);
 
-	const errorCount = Object.keys(formState.errors).length;
-	const showErrorBanner = formState.isSubmitted && errorCount > 0;
-
 	return (
 		<>
 			<Dialog
@@ -160,6 +157,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
 			>
 				<FormDialogHeader
@@ -172,17 +170,6 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showErrorBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("wallet.form.errorBanner")}
-						</Alert>
-					)}
-
 					<Stack sx={{ gap: "16px" }}>
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("wallet.field.name")} required />

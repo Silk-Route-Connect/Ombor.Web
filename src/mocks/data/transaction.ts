@@ -376,6 +376,7 @@ const toPayments = (txId: number, seed: SeedPayment[] | undefined): TransactionP
 		const wallet = methodToWallet(p.method);
 		return {
 			id: nextPaymentId++,
+			paymentId: nextPaymentId,
 			transactionId: txId,
 			paymentNumber: p.id,
 			amount: p.amount,

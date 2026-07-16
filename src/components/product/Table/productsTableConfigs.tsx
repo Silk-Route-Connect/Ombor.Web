@@ -1,6 +1,7 @@
 import ProductTypeChip from "components/product/ProductTypeChip";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
+import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import TruncatedText from "components/shared/Table/TruncatedText";
@@ -47,7 +48,7 @@ const Money = ({ value, archived }: { value: number | null; archived?: boolean }
  * primary-soft with the primary box icon. Archived rows fade it to 50%.
  */
 const ProductThumb = ({ product }: { product: Product }) => {
-	const image = product.images[0];
+	const image = product.images?.[0];
 	const src = image ? (getImageFullUrl(image.thumbnailUrl ?? image.originalUrl) ?? "") : null;
 
 	return (
@@ -99,17 +100,18 @@ export function buildProductColumns({
 			headerName: t("product.table.sku"),
 			width: "12%",
 			renderCell: (product) => (
-				<Typography
-					component="span"
+				<CopyableCell
+					value={product.sku}
 					sx={{
 						...numericSx,
 						fontSize: 12.5,
+						fontWeight: 500,
 						color: "text.secondary",
 						...archivedCellSx(product),
 					}}
 				>
 					{product.sku}
-				</Typography>
+				</CopyableCell>
 			),
 		},
 		{

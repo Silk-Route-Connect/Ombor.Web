@@ -8,8 +8,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { Partner } from "models/partner";
 import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import { Box, Typography } from "@mui/material";
 
@@ -118,11 +117,11 @@ export function buildPartnerColumns(
 							fontWeight: 700,
 							fontSize: 15,
 							letterSpacing: "-0.01em",
-							color: balanceColor(p.balance),
+							color: partnerBalanceColor(p.balance),
 							opacity: p.isArchived ? 0.6 : 1,
 						}}
 					>
-						{formatCurrency(Math.abs(p.balance))}
+						{formatPartnerBalance(p.balance)}
 					</Typography>
 				),
 		},

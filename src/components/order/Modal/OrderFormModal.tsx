@@ -21,12 +21,10 @@ import { lineNet } from "utils/orderUtils";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
-	Alert,
 	Box,
 	Button,
 	Dialog,
@@ -224,14 +222,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	const clientErr = submitted && !client;
 	const deliverErr = submitted && !deliveryDate;
 	const linesErr = submitted && lines.length === 0;
-	const showBanner = clientErr || deliverErr || linesErr;
-	const missing = [
-		clientErr && t("order.field.clientLower"),
-		deliverErr && t("order.field.deliveryDateLower"),
-		linesErr && t("order.field.linesLower"),
-	]
-		.filter(Boolean)
-		.join(", ");
 
 	const submit = () => {
 		setSubmitted(true);
@@ -284,17 +274,6 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
-					{showBanner && (
-						<Alert
-							severity="error"
-							icon={<ErrorOutlineIcon />}
-							variant="outlined"
-							sx={{ mb: "16px" }}
-						>
-							{t("order.edit.errFields", { fields: missing })}
-						</Alert>
-					)}
-
 					<Box
 						sx={{
 							display: "grid",
@@ -481,6 +460,11 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 								<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "3px" }}>
 									{t("order.edit.emptyBody")}
 								</Typography>
+								{linesErr && (
+									<Typography sx={{ fontSize: 12.5, color: "error.main", mt: "8px" }}>
+										{t("order.new.cart.emptyErrorTitle")}
+									</Typography>
+								)}
 							</Box>
 						) : (
 							lines.map((line, index) => (

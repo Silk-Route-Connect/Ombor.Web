@@ -52,6 +52,7 @@
 | `PartnerPicker`                                                        | Partner selection with balance as color + label | Lives in `components/transaction/Create/`; reused by New Order                     |
 | `ProductSearchBar`                                                     | Product-search cart feeder (POS flows)          | Lives in `components/transaction/Create/`; reused by New Order                     |
 | `useDirtyClose` (hook)                                                 | Unsaved-changes guard on modals                 | Lives in `hooks/shared/`                                                            |
+| `useFormKeyboardSubmit` (hook)                                         | Enter / Ctrl+Enter submit on form modals (XC-11) | Lives in `hooks/shared/`; returns an `onKeyDown` for the modal `<Dialog>`           |
 
 ## Buttons
 

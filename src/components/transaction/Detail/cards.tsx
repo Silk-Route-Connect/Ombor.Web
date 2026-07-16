@@ -2,12 +2,14 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import MetaDot from "components/shared/Detail/MetaDot";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
-import { formatDate } from "utils/dateUtils";
+import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 import {
 	directionOf,
 	discountLabel,
@@ -99,7 +101,7 @@ export const SdCard: React.FC<{
 
 export const PositionsCard: React.FC<{
 	lines: TransactionLine[];
-	footer: React.ReactNode;
+	footer?: React.ReactNode;
 	count: number;
 }> = ({ lines, footer, count }) => {
 	const { t } = useTranslation();
@@ -269,10 +271,12 @@ export const RefundFooter: React.FC<{ lines: TransactionLine[] }> = ({ lines }) 
 export const SaleFinancialCard: React.FC<{
 	direction: TransactionDirection;
 	total: number;
+	subtotal: number;
+	discount: number;
 	paid: number;
 	remaining: number;
 	status: TransactionStatus;
-}> = ({ direction, total, paid, remaining, status }) => {
+}> = ({ direction, total, subtotal, discount, paid, remaining, status }) => {
 	const { t } = useTranslation();
 	return (
 		<SdCard>
@@ -310,6 +314,32 @@ export const SaleFinancialCard: React.FC<{
 						gap: "13px",
 					}}
 				>
+					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
+							{t("transaction.detail.subtotal")}
+						</Box>
+						<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
+							{formatCurrency(subtotal)} UZS
+						</Box>
+					</Box>
+					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
+							{t("transaction.detail.discountByLines")}
+						</Box>
+						{discount ? (
+							<Box
+								component="span"
+								sx={{ ...numericSx, fontWeight: 600, color: designTokens.saffron700 }}
+							>
+								−{formatCurrency(discount)} UZS
+							</Box>
+						) : (
+							<Box component="span" sx={{ color: "text.disabled" }}>
+								—
+							</Box>
+						)}
+					</Box>
+					<Box sx={{ height: "1px", bgcolor: "divider" }} />
 					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
 							{t("transaction.detail.fin.paid")}
@@ -413,7 +443,7 @@ export const RefundFinancialCard: React.FC<{
 								"&:hover": { textDecoration: "underline" },
 							}}
 						>
-							#{originalNumber}
+							{originalNumber ? formatEntityId(originalNumber) : ""}
 						</Box>
 					</Box>
 					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -458,7 +488,7 @@ const WALLET_ICON = (type: WalletType): React.ReactNode => {
 
 export const PaymentsCard: React.FC<{
 	tx: TransactionRecord;
-	onOpenPayment: (id: string) => void;
+	onOpenPayment: (paymentId: number) => void;
 }> = ({ tx, onOpenPayment }) => {
 	const { t } = useTranslation();
 	const direction = directionOf(tx.type);
@@ -477,7 +507,7 @@ export const PaymentsCard: React.FC<{
 				payments.map((p) => (
 					<Box
 						key={p.id}
-						onClick={() => onOpenPayment(p.paymentNumber)}
+						onClick={() => onOpenPayment(p.paymentId)}
 						sx={{
 							display: "flex",
 							alignItems: "center",
@@ -505,7 +535,9 @@ export const PaymentsCard: React.FC<{
 						</Box>
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "primary.main" }}>
-								{t("transaction.detail.paymentLabel", { id: p.paymentNumber })}
+								{t("transaction.detail.paymentLabel", {
+									id: formatEntityId(p.paymentNumber ?? p.id),
+								})}
 							</Typography>
 							<Box
 								sx={{
@@ -518,7 +550,7 @@ export const PaymentsCard: React.FC<{
 								}}
 							>
 								<Box component="span" sx={numericSx}>
-									{formatDate(p.date)}
+									{formatDateTime(p.date)}
 								</Box>
 								<MetaDot />
 								{p.walletName}
@@ -580,18 +612,10 @@ export const RefundHistoryCard: React.FC<{
 							sx={{ cursor: "pointer", "&:hover td": { bgcolor: designTokens.gray25 } }}
 						>
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left", pl: "18px" }}>
-								{formatDate(r.date)}
+								{formatDateTime(r.date)}
 							</Box>
-							<Box
-								component="td"
-								sx={{
-									...bodyCellSx,
-									textAlign: "left",
-									fontWeight: 700,
-									color: designTokens.gray700,
-								}}
-							>
-								#{r.transactionNumber}
+							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left" }}>
+								<CopyableNumberCell value={r.transactionNumber ?? r.id} muted />
 							</Box>
 							<Box component="td" sx={{ ...bodyCellSx, textAlign: "left" }}>
 								{r.lines.length}
@@ -718,8 +742,7 @@ export const AuditCard: React.FC<{ tx: TransactionRecord; isRefund: boolean }> =
 			v: (
 				<>
 					<Box component="span" sx={numericSx}>
-						{formatDate(tx.date)}
-						{tx.time ? ` · ${tx.time}` : ""}
+						{formatDateTime(tx.date)}
 					</Box>
 					{tx.createdBy ? (
 						<>
@@ -848,7 +871,7 @@ export const RefundReferenceBanner: React.FC<{
 			<Box component="span">
 				{t(`transaction.detail.refundOfBanner.${direction}`)}{" "}
 				<Box component="b" sx={{ ...numericSx, color: "primary.main" }}>
-					#{number}
+					{number ? formatEntityId(number) : ""}
 				</Box>
 			</Box>
 			<Box sx={{ flexGrow: 1 }} />
