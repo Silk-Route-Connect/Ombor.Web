@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
@@ -91,6 +91,15 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 	const invalid = over;
 
 	const qtyRef = useRef<HTMLInputElement>(null);
+
+	// Free-form editing buffer for the quantity: lets the field go empty while
+	// retyping (clear «32» → type «55») instead of snapping back to the min on
+	// every keystroke. Only a valid value (≥ 1) commits; blur and the stepper
+	// revert the buffer to the controlled value. Focus selects all so a
+	// click-then-type replaces too.
+	const [qtyDraft, setQtyDraft] = useState<string | null>(null);
+	const qtyValue = qtyDraft ?? String(item.quantity);
+
 	useEffect(() => {
 		if (autoFocusQty && qtyRef.current) {
 			qtyRef.current.focus();
@@ -99,7 +108,17 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 		}
 	}, [autoFocusQty, onAutoFocused]);
 
-	const setQty = (next: number) => onChange({ quantity: Math.max(1, next) });
+	const setQty = (next: number) => {
+		setQtyDraft(null);
+		onChange({ quantity: Math.max(1, next) });
+	};
+	const onQtyChange = (raw: string) => {
+		setQtyDraft(raw);
+		const n = parseInt(raw.replace(/[^\d]/g, ""), 10);
+		if (!Number.isNaN(n) && n >= 1) {
+			onChange({ quantity: n });
+		}
+	};
 	const onQtyKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "ArrowUp") {
 			e.preventDefault();
@@ -198,8 +217,10 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						</IconButton>
 						<InputBase
 							inputRef={qtyRef}
-							value={item.quantity}
-							onChange={(e) => setQty(parseNum(e.target.value))}
+							value={qtyValue}
+							onFocus={(e) => e.currentTarget.select()}
+							onChange={(e) => onQtyChange(e.target.value)}
+							onBlur={() => setQtyDraft(null)}
 							onKeyDown={onQtyKeyDown}
 							sx={{
 								width: 44,
