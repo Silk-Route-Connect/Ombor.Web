@@ -295,8 +295,6 @@
   "transaction.new.pay.overBalance": "Доступно только {{available}} UZS — нельзя списать больше остатка кассы.",
 
   "transaction.new.submit.fixQty": "Исправьте количество в выделенных позициях",
-  "transaction.new.submit.immutable.Sale": "Продажа записывается окончательно — изменить нельзя, только оформить возврат.",
-  "transaction.new.submit.immutable.Supply": "Поставка записывается окончательно — изменить нельзя, только оформить возврат.",
   "transaction.new.submit.button.Sale": "Провести продажу",
   "transaction.new.submit.button.Supply": "Провести поставку",
 
