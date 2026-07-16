@@ -9,6 +9,8 @@ export const MEASUREMENT_SHORT: Record<Measurement, string> = {
 	Ton: "т",
 	Piece: "шт",
 	Box: "кор",
+	// Legacy alias of Piece — kept so products the backend still serves as `Unit`
+	// render a short code (issues-tracker §12); not offered in the product picker.
 	Unit: "ед",
 	None: "—",
 };
@@ -69,7 +71,10 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 	return {
 		name: product.name,
 		categoryId: product.categoryId,
-		measurement: product.measurement,
+		// `Unit` is a deprecated alias of `Piece` (removed from the picker); a product
+		// served with legacy `Unit` prefills as `Piece` so the select isn't blank and it
+		// migrates to `Piece` on save (issues-tracker §12).
+		measurement: product.measurement === "Unit" ? "Piece" : product.measurement,
 		type: product.type,
 		sku: product.sku,
 		description: product.description ?? "",
