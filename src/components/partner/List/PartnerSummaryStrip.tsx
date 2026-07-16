@@ -72,10 +72,11 @@ const Sub: React.FC<{ text: string }> = ({ text }) => (
 );
 
 /**
- * List summary strip: receivables / payables / net position. Colors follow the
- * partner-perspective convention — money partners owe us (receivables) reads red,
- * money we owe them (payables) green; net is neutral with a direction word.
- * Aggregate buckets carry no +/− sign (only a single balance does).
+ * List summary strip: receivables / payables / net position. These are the
+ * company's own aggregate positions, so colour is owner-POV (DR-27): money
+ * coming to us (receivables) reads green, money we owe (payables) red; net is
+ * neutral with a direction word. Aggregate buckets carry no +/− sign — only a
+ * single partner's balance is signed + partner-POV.
  */
 export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summary }) => {
 	const { t } = useTranslation();
@@ -90,15 +91,15 @@ export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summar
 				mb: "18px",
 			}}
 		>
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "error.main" } }}>
-				<Cap color="error.main" label={t("partner.summary.receivable")} />
-				<Value color="error.main" text={formatCurrency(summary.receivable)} />
+			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
+				<Cap color="success.main" label={t("partner.summary.receivable")} />
+				<Value color="success.main" text={formatCurrency(summary.receivable)} />
 				<Sub text={t("partner.summary.receivableSub", { count: summary.receivableCount })} />
 			</Box>
 
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
-				<Cap color="success.main" label={t("partner.summary.payable")} />
-				<Value color="success.main" text={formatCurrency(summary.payable)} />
+			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "error.main" } }}>
+				<Cap color="error.main" label={t("partner.summary.payable")} />
+				<Value color="error.main" text={formatCurrency(summary.payable)} />
 				<Sub text={t("partner.summary.payableSub", { count: summary.payableCount })} />
 			</Box>
 

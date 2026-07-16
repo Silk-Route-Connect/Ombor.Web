@@ -8,7 +8,7 @@ This file is the operating contract for every session in this repo. It points to
 
 ## Source-of-truth documents
 
-Shared canon lives in the **sibling checkout `../Ombor.Docs`** (distribution model DR-17) — read-only from here: propose canon edits, never apply them. Access is granted by `.claude/settings.json` → `permissions.additionalDirectories`.
+Shared canon lives in the **sibling checkout `../Ombor.Docs`** (distribution model DR-17). It is **writable from here** — apply owner-approved canon edits directly, and keep canon current as decisions land (update it by session end at the latest; owner directive 2026-07-16). Access is granted by `.claude/settings.json` → `permissions.additionalDirectories`.
 
 | Document                          | When to read                                                                                         | What to read                                                                                                                  |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -25,6 +25,7 @@ Shared canon lives in the **sibling checkout `../Ombor.Docs`** (distribution mod
 | `docs/repo-state.md`              | Before working in a module                                                                           | That module's entry: State / Data / Open items (F-numbers) / Key decisions                                                    |
 | `docs/mocking.md`                 | Any task hitting an endpoint the backend lacks                                                       | Whole doc                                                                                                                     |
 | `docs/design-handoff.md`          | Implementing any screen from a Claude Design prototype                                               | Whole doc                                                                                                                     |
+| `docs/testing/`                   | Running a QA session; changing any module's user-facing behavior                                     | `README.md` (runbook, loading set, case format); the module's test doc — updated in the same change that alters its behavior |
 
 Task-type quick map: **payments / debts / settlement UI** → business-rules §B + Domain model (Payment, Advance, worked examples). **Inventory / adjustments / transfers** → §D, §E. **Refunds** → §A. **Archive behavior in lists/pickers** → §G. **Any new page or screen change** → ui-patterns.md + the mvp-plan slice (+ design-handoff.md when a prototype exists).
 
@@ -98,6 +99,7 @@ Frontend-specific additions:
 - **If you can't live-verify, stop and raise it — don't ship blind or code-only.** Always run the change on `:3000` and watch it behave. If the app or an authenticated session isn't up, ask the user and wait — never report a change verified when it wasn't, and never quietly ship it build-only. Claude cannot type passwords into the login form (safety rule), so behind-login verification needs the user's already-logged-in session. Test account: `+998900000001` (password held by Miraziz — not stored in the repo).
 - **Migrating onto shared infra: flag behavior changes, get approval — don't absorb them.** When adopting a shared component/util changes any user-facing behavior (a lost interaction, a changed default, a dropped affordance), STOP and surface it as a decision. Do not rationalize it as "shared-component behavior" and move on.
 - **A missing field may be intentional, not a gap.** Before treating "the API doesn't return X" as work to do, check it against the rules and the decision log (it may be deliberately out of scope — e.g. no persisted entity numbering, DR-14) and against the contract sources below. Confirm the field is genuinely absent _by design_ before proposing a backend change, a stub, or a fallback.
+- **Test docs track behavior.** When a change alters a module's user-facing behavior and `docs/testing/modules/<module>.md` exists, update it in the same change — same discipline as `repo-state.md`.
 
 ## Contract sources
 

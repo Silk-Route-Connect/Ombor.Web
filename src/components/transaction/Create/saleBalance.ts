@@ -1,7 +1,11 @@
+import { partnerBalanceColor } from "utils/partnerUtils";
+
 /**
- * Balance presentation for the New Sale partner card + picker: colour + a
- * natural-language label, never +/− signs (design-handoff locked pattern 4).
- * Sign convention: + = partner owes us (green) · − = we owe them (red).
+ * Balance presentation for the New Sale/Supply partner card + picker: colour + a
+ * natural-language label, never +/− signs. Colour is partner-POV via the shared
+ * `partnerBalanceColor` — a partner who owes us reads red (they are the debtor),
+ * money we owe them green (DR-27). The raw value's sign stays company-POV
+ * (+ = partner owes us).
  */
 export type BalancePresentation = {
 	/** Full label key, e.g. «Нам должны». */
@@ -13,24 +17,25 @@ export type BalancePresentation = {
 };
 
 export const balancePresentation = (balance: number): BalancePresentation => {
+	const color = partnerBalanceColor(balance);
 	if (balance > 0) {
 		return {
 			labelKey: "transaction.new.balance.receivable",
 			shortKey: "transaction.new.balance.receivableShort",
-			color: "success.main",
+			color,
 		};
 	}
 	if (balance < 0) {
 		return {
 			labelKey: "transaction.new.balance.payable",
 			shortKey: "transaction.new.balance.payableShort",
-			color: "error.main",
+			color,
 		};
 	}
 	return {
 		labelKey: "transaction.new.balance.none",
 		shortKey: "transaction.new.balance.noneShort",
-		color: "text.disabled",
+		color,
 	};
 };
 
