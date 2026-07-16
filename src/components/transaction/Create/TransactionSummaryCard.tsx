@@ -10,7 +10,6 @@ import { formatEntityId } from "utils/formatEntityId";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Avatar, Box, ButtonBase, InputBase, Typography } from "@mui/material";
@@ -512,22 +511,6 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 						})}
 					</Box>
 				)}
-				<Box
-					sx={{
-						display: "flex",
-						alignItems: "center",
-						gap: "8px",
-						p: "7px 10px",
-						borderRadius: "6px",
-						bgcolor: designTokens.infoBg,
-						fontSize: 11.5,
-						color: "text.secondary",
-						lineHeight: 1.35,
-					}}
-				>
-					<InfoOutlinedIcon sx={{ fontSize: 14, color: "info.main", flex: "0 0 auto" }} />
-					{t(`transaction.new.submit.immutable.${direction}`)}
-				</Box>
 				<PrimaryButton
 					icon={<CheckIcon />}
 					onClick={onSubmit}

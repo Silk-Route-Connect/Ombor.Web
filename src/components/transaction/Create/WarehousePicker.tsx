@@ -23,9 +23,9 @@ export const WarehousePicker: React.FC<WarehousePickerProps> = ({
 		displayEmpty
 		fullWidth
 		sx={{
-			// Match the partner Autocomplete's height (the Select's default medium
-			// padding makes it taller than the field beside it).
-			"&.MuiOutlinedInput-root": { height: 45 },
+			// Match the partner Autocomplete's height (38px) — the Select's default
+			// padding otherwise makes it taller than the field beside it.
+			"&.MuiOutlinedInput-root": { height: 38 },
 			"& .MuiSelect-select": { display: "flex", alignItems: "center" },
 		}}
 		renderValue={(v) => {
