@@ -233,8 +233,7 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 							...numericSx,
 							fontWeight: 700,
 							fontSize: 15,
-							// Partner-POV: a receivable (they owe us, sum > 0) is red (DR-27).
-							color: g.sum > 0 ? "error.main" : "success.main",
+							color: g.sum > 0 ? "success.main" : "error.main",
 						}}
 					>
 						{formatCurrency(Math.abs(g.sum))}
@@ -415,8 +414,7 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 							...numericSx,
 							fontWeight: 700,
 							fontSize: 15,
-							// Partner-POV: a receivable (they owe us) is red (DR-27).
-							color: d.direction === "Receivable" ? "error.main" : "success.main",
+							color: d.direction === "Receivable" ? "success.main" : "error.main",
 						}}
 					>
 						{formatCurrency(d.remaining)}

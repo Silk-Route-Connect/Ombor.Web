@@ -184,7 +184,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 				</Typography>
 				<Box
 					component="span"
-					sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: "error.main" }}
+					sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: "success.main" }}
 				>
 					{formatCurrency(receivableTotal)}
 				</Box>
