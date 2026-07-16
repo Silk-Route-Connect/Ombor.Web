@@ -131,15 +131,17 @@ const Card: React.FC<{ spec: CardSpec; onClick?: () => void }> = ({ spec, onClic
 export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onCard }) => {
 	const { t } = useTranslation();
 
+	// Colour is partner-POV (receivable red, payable green) — consistent with the
+	// partner pages, list summary and dashboard (DR-27). Direction-fixed → hard-coded.
 	const cards: CardSpec[] = [
 		{
 			key: "receivable",
 			icon: <NorthEastIcon sx={{ fontSize: 15 }} />,
 			caption: t("debt.summary.receivable"),
 			value: formatCurrency(summary.receivable),
-			valueColor: "success.main",
+			valueColor: "error.main",
 			count: summary.receivableCount,
-			pill: { bg: designTokens.successBg, color: "#17835A" },
+			pill: { bg: designTokens.errorBg, color: "#C53D31" },
 			clickable: true,
 		},
 		{
@@ -147,9 +149,9 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 			icon: <SouthEastIcon sx={{ fontSize: 15 }} />,
 			caption: t("debt.summary.payable"),
 			value: formatCurrency(summary.payable),
-			valueColor: "error.main",
+			valueColor: "success.main",
 			count: summary.payableCount,
-			pill: { bg: designTokens.errorBg, color: "#C53D31" },
+			pill: { bg: designTokens.successBg, color: "#17835A" },
 			clickable: true,
 		},
 		{
@@ -171,7 +173,9 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 			icon: <BalanceOutlinedIcon sx={{ fontSize: 15 }} />,
 			caption: t("debt.summary.net"),
 			value: formatCurrency(Math.abs(summary.net)),
-			valueColor: summary.net < 0 ? "error.main" : "success.main",
+			// Net position is signless and directionless in colour (matches the partner
+			// list summary strip); receivable / payable cards carry the direction.
+			valueColor: "text.primary",
 			count: summary.totalCount,
 			pill: { bg: designTokens.primarySoft, color: "#12676B" },
 			clickable: false,

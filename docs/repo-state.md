@@ -51,6 +51,7 @@
 - **Decisions:** preview-only by design — no pagination; the full lists are the dedicated pages.
 - Custom date-range and PNG/PDF export omitted (locked pattern 12; export deferred to Reports v2).
 - «Просрочено» KPI = 31+-day aging — deliberately distinct from /debts' due-date overdue (faithful prototype divergence).
+- Receivable/payable colour is partner-POV (Нам должны red / Мы должны green; aging total red) — DR-27, matching the partner pages + Debts. «Просрочено» amber and the cash-flow chart's inflow/outflow green/red are a separate axis, unchanged.
 
 ## Products
 - **State:** legacy side-pane module, not yet rebuilt.
@@ -89,7 +90,7 @@
 - **Open:** F2 edit drops served balance; F12 Telegram silently dropped by contract; F15 «Both» autocomplete leaks archived
 - **Decisions:** no system «Розничный покупатель» — partners are uniform (owner, rule 39).
 - Opening balance editable at create, locked on edit.
-- Balance shown from the **partner's** perspective and **signed**: a debt they owe us reads `−…` red, money we owe them `+…` green (helpers `partnerBalanceColor`/`formatPartnerBalance`). Served value stays company-POV (`+ = partner owes us`, hard rule 8) — display-only flip. Also applies to the detail ledger/payments, the order customer balance, and the create/edit form's read-only previews (form **input** stays company-POV). List summary strip recolours to match (receivable red / payable green / net neutral, no signs). Debt module + Dashboard KPIs intentionally stay owner-POV (labeled buckets). Reopens locked UI Pattern 4 — canon amendment proposed separately.
+- Balance shown from the **partner's** perspective and **signed** (DR-27): a debt they owe us reads `−…` red, money we owe them `+…` green (helpers `partnerBalanceColor`/`formatPartnerBalance`). Served value stays company-POV (`+ = partner owes us`, hard rule 8) — display-only flip. Applied **app-wide** so no screen contradicts another: partner list/detail/ledger/payments; the create/edit form read-only previews (form **input** stays company-POV); the list summary strip (receivable red / payable green / net neutral, no signs); the Dashboard KPIs + aging total; the Debts page cards + rows; and the POS/New-Order partner card + picker (POS `balancePresentation` delegates to `partnerBalanceColor`). The order-detail partner balance was **removed** (it showed the current, not order-time, position). Cash-flow charts, the aging-severity heatmap, overdue amber, and wallet «our money» stay as-is. Canon: UI Pattern 4 amended + DR-27.
 
 ## Sales / Supplies (Transactions)
 - **State:** rebuilt as one `direction`-parameterized module — unified immutable feed (search, served-`TransactionStatus` filter incl. Overdue, date range, CSV; refund rows negative + «Возврат к №N»); routed full-page detail (`/sales/:id`, `/supplies/:id`) with positions, payments, refund history, audit card; refund-create modal (per-line cumulative cap, mandatory reason).

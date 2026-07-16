@@ -188,8 +188,9 @@ interface Props {
 /**
  * Four KPI summary cards — Выручка, Нам должны, Мы должны, Просрочено. Hero
  * tabular number, period-over-period delta badge, sparkline; each is a clickable
- * navigation target. Per locked pattern 4, receivable / payable show colour only
- * (no +/− signs) — the caption carries the meaning, matching the «Долги» cards.
+ * navigation target. Receivable / payable show colour only (no +/− signs) — the
+ * caption carries the meaning. Colour is partner-POV (receivable red, payable
+ * green) to stay consistent with the partner pages and list summary (DR-27).
  */
 const DashboardKpiCards: React.FC<Props> = ({
 	data,
@@ -228,12 +229,12 @@ const DashboardKpiCards: React.FC<Props> = ({
 			icon: <NorthEastIcon sx={{ fontSize: 15 }} />,
 			caption: t("dashboard.kpi.receivable"),
 			value: data.receivable.value,
-			valueColor: "success.main",
-			sparkColor: "#17835A",
+			valueColor: "error.main",
+			sparkColor: "#C53D31",
 			trend: data.receivable.trend,
 			delta: {
 				pct: data.receivable.deltaPct,
-				tone: "up",
+				tone: "down",
 				text: data.receivable.deltaPct === null ? "—" : pct(data.receivable.deltaPct),
 			},
 			footnote: openWord(data.receivable.count),
@@ -244,12 +245,12 @@ const DashboardKpiCards: React.FC<Props> = ({
 			icon: <SouthEastIcon sx={{ fontSize: 15 }} />,
 			caption: t("dashboard.kpi.payable"),
 			value: data.payable.value,
-			valueColor: "error.main",
-			sparkColor: "#C53D31",
+			valueColor: "success.main",
+			sparkColor: "#17835A",
 			trend: data.payable.trend,
 			delta: {
 				pct: data.payable.deltaPct,
-				tone: "down",
+				tone: "up",
 				text: data.payable.deltaPct === null ? "—" : pct(data.payable.deltaPct),
 			},
 			footnote: openWord(data.payable.count),
