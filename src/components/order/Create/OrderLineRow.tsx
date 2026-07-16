@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
@@ -75,7 +75,22 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 	const stock = stockAt(item.product, warehouseId);
 	const over = warehouseId != null && item.quantity > stock;
 
-	const setQty = (next: number) => onChange({ quantity: Math.max(1, next) });
+	// Free-form editing buffer for the quantity (mirrors CartLineRow): the field can
+	// go empty while retyping (clear «32» → type «55») instead of snapping to the min
+	// on each keystroke; only a valid value (≥ 1) commits, blur/stepper revert.
+	const [qtyDraft, setQtyDraft] = useState<string | null>(null);
+	const qtyValue = qtyDraft ?? String(item.quantity);
+	const setQty = (next: number) => {
+		setQtyDraft(null);
+		onChange({ quantity: Math.max(1, next) });
+	};
+	const onQtyChange = (raw: string) => {
+		setQtyDraft(raw);
+		const n = parseInt(raw.replace(/[^\d]/g, ""), 10);
+		if (!Number.isNaN(n) && n >= 1) {
+			onChange({ quantity: n });
+		}
+	};
 
 	return (
 		<Box
@@ -152,8 +167,10 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 							<RemoveIcon sx={{ fontSize: 16 }} />
 						</IconButton>
 						<InputBase
-							value={item.quantity}
-							onChange={(e) => setQty(parseNum(e.target.value))}
+							value={qtyValue}
+							onFocus={(e) => e.currentTarget.select()}
+							onChange={(e) => onQtyChange(e.target.value)}
+							onBlur={() => setQtyDraft(null)}
 							sx={{
 								width: 44,
 								height: 36,
