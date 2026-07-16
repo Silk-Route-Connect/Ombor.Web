@@ -6,7 +6,7 @@ import { PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -18,7 +18,6 @@ import DetailTableCard from "./DetailTableCard";
 import FilterDropdown from "./FilterDropdown";
 import {
 	DETAIL_ROWS_PER_PAGE_OPTIONS,
-	formatSigned,
 	LedgerPeriod,
 	useDetailTablePage,
 	withinPeriod,
@@ -277,10 +276,10 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 											textAlign: "right",
 											...numericSx,
 											fontWeight: 600,
-											color: balanceColor(e.delta),
+											color: partnerBalanceColor(e.delta),
 										}}
 									>
-										{formatSigned(e.delta)}
+										{formatPartnerBalance(e.delta)}
 									</Box>
 									<Box
 										component="td"
@@ -289,10 +288,10 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 											textAlign: "right",
 											...numericSx,
 											fontWeight: 700,
-											color: balanceColor(e.balance),
+											color: partnerBalanceColor(e.balance),
 										}}
 									>
-										{formatSigned(e.balance)}
+										{formatPartnerBalance(e.balance)}
 									</Box>
 								</Box>
 							);

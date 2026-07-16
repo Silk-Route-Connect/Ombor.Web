@@ -1,7 +1,6 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { formatSigned } from "components/partner/Detail/ledgerHelpers";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -14,8 +13,7 @@ import { Partner, PartnerType } from "models/partner";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { designTokens, numericSx } from "theme";
 import { formatDate as formatLocaleDate } from "utils/dateUtils";
-import { formatCurrency } from "utils/formatCurrency";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -452,10 +450,10 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 														...numericSx,
 														fontWeight: 700,
 														fontSize: 20,
-														color: balanceColor(signedOpening),
+														color: partnerBalanceColor(signedOpening),
 													}}
 												>
-													{openingType === "payable" ? "−" : "+"}
+													{openingType === "receivable" ? "−" : "+"}
 												</Box>
 												<Box
 													component="input"
@@ -520,10 +518,13 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 										{t("partner.form.openingPreview")}{" "}
 										<Box
 											component="b"
-											sx={{ ...numericSx, fontWeight: 700, color: balanceColor(signedOpening) }}
+											sx={{
+												...numericSx,
+												fontWeight: 700,
+												color: partnerBalanceColor(signedOpening),
+											}}
 										>
-											{signedOpening >= 0 ? "+" : "−"}
-											{formatCurrency(Math.abs(signedOpening))} UZS
+											{formatPartnerBalance(signedOpening)} UZS
 										</Box>
 									</Box>
 								)}
@@ -610,10 +611,10 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 						...numericSx,
 						fontWeight: 700,
 						fontSize: 20,
-						color: balanceColor(partner.openingBalance),
+						color: partnerBalanceColor(partner.openingBalance),
 					}}
 				>
-					{formatSigned(partner.openingBalance)}
+					{formatPartnerBalance(partner.openingBalance)}
 					<Box
 						component="span"
 						sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "6px" }}
@@ -638,7 +639,7 @@ const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }) => {
 				<InfoOutlinedIcon sx={{ fontSize: 15, color: "info.main", mt: "1px", flex: "0 0 auto" }} />
 				<Typography sx={{ fontSize: 12.5, color: "info.main", lineHeight: 1.55 }}>
 					{t("partner.form.openingLockedHelper", {
-						balance: formatSigned(partner.balance),
+						balance: formatPartnerBalance(partner.balance),
 					})}
 				</Typography>
 			</Box>

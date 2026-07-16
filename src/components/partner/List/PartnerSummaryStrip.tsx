@@ -71,15 +71,15 @@ const Sub: React.FC<{ text: string }> = ({ text }) => (
 	<Typography sx={{ fontSize: 12, color: "text.disabled", mt: "8px" }}>{text}</Typography>
 );
 
-/** List summary strip: receivables / payables / net position (locked pattern 4 colors). */
+/**
+ * List summary strip: receivables / payables / net position. Colors follow the
+ * partner-perspective convention — money partners owe us (receivables) reads red,
+ * money we owe them (payables) green; net is neutral with a direction word.
+ * Aggregate buckets carry no +/− sign (only a single balance does).
+ */
 export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summary }) => {
 	const { t } = useTranslation();
-	const netColor =
-		summary.net > 0 ? "success.main" : summary.net < 0 ? "error.main" : "text.secondary";
-	const netText =
-		summary.net === 0
-			? formatCurrency(0)
-			: `${summary.net > 0 ? "+" : "−"}${formatCurrency(Math.abs(summary.net))}`;
+	const netText = formatCurrency(Math.abs(summary.net));
 
 	return (
 		<Box
@@ -90,21 +90,21 @@ export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summar
 				mb: "18px",
 			}}
 		>
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
-				<Cap color="success.main" label={t("partner.summary.receivable")} />
-				<Value color="success.main" text={`+${formatCurrency(summary.receivable)}`} />
+			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "error.main" } }}>
+				<Cap color="error.main" label={t("partner.summary.receivable")} />
+				<Value color="error.main" text={formatCurrency(summary.receivable)} />
 				<Sub text={t("partner.summary.receivableSub", { count: summary.receivableCount })} />
 			</Box>
 
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "error.main" } }}>
-				<Cap color="error.main" label={t("partner.summary.payable")} />
-				<Value color="error.main" text={`−${formatCurrency(summary.payable)}`} />
+			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
+				<Cap color="success.main" label={t("partner.summary.payable")} />
+				<Value color="success.main" text={formatCurrency(summary.payable)} />
 				<Sub text={t("partner.summary.payableSub", { count: summary.payableCount })} />
 			</Box>
 
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "primary.main" } }}>
 				<Cap color="primary.main" label={t("partner.summary.net")} />
-				<Value color={netColor} text={netText} />
+				<Value color="text.primary" text={netText} />
 				<Sub
 					text={t("partner.summary.netSub", {
 						direction: t(

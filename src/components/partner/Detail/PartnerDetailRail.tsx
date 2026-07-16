@@ -5,7 +5,7 @@ import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { balanceColor, balanceLabelKey } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -20,8 +20,6 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-
-import { formatSigned } from "./ledgerHelpers";
 
 interface PartnerDetailRailProps {
 	partner: Partner;
@@ -172,7 +170,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 			<DetailCard>
 				<Box sx={{ p: "20px 22px" }}>
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mb: "4px" }}>
-						{t(balanceLabelKey(partner.balance))}
+						{t("partner.table.balance")}
 					</Typography>
 					<Typography
 						sx={{
@@ -181,10 +179,10 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 							fontWeight: 700,
 							letterSpacing: "-0.025em",
 							lineHeight: 1,
-							color: balanceColor(partner.balance),
+							color: partnerBalanceColor(partner.balance),
 						}}
 					>
-						{partner.balance === 0 ? "0" : formatCurrency(Math.abs(partner.balance))}
+						{formatPartnerBalance(partner.balance)}
 						<Box
 							component="span"
 							sx={{ fontSize: 15, fontWeight: 600, color: "text.disabled", ml: "8px" }}
@@ -220,9 +218,13 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						—{" "}
 						<Box
 							component="b"
-							sx={{ ...numericSx, fontWeight: 600, color: balanceColor(partner.openingBalance) }}
+							sx={{
+								...numericSx,
+								fontWeight: 600,
+								color: partnerBalanceColor(partner.openingBalance),
+							}}
 						>
-							{formatSigned(partner.openingBalance)} UZS
+							{formatPartnerBalance(partner.openingBalance)} UZS
 						</Box>
 					</Box>
 				</Box>

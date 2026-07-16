@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { PartnerLedgerEntry } from "models/partner";
-import { formatCurrency } from "utils/formatCurrency";
 
 export type LedgerPeriod = "all" | "90" | "30";
 
@@ -32,14 +31,6 @@ export function useDetailTablePage(resetKey: unknown) {
 }
 
 const MS_PER_DAY = 86_400_000;
-
-/** Signed money for ledger amount/balance columns: "+1 250 000" / "−800 000" / "0". */
-export function formatSigned(value: number): string {
-	if (value === 0) {
-		return "0";
-	}
-	return `${value > 0 ? "+" : "−"}${formatCurrency(Math.abs(value))}`;
-}
 
 /** Whether an event falls within the selected look-back window (relative to today). */
 export function withinPeriod(isoDate: string, period: LedgerPeriod): boolean {

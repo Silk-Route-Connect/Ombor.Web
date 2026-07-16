@@ -6,8 +6,7 @@ import { PartnerLedgerEntry } from "models/partner";
 import { numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatCurrency } from "utils/formatCurrency";
-import { balanceColor } from "utils/partnerUtils";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -212,10 +211,10 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 										textAlign: "right",
 										...numericSx,
 										fontWeight: 600,
-										color: balanceColor(p.delta),
+										color: partnerBalanceColor(p.delta),
 									}}
 								>
-									{formatCurrency(Math.abs(p.delta))}
+									{formatPartnerBalance(p.delta)}
 								</Box>
 							</Box>
 						))}

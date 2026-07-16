@@ -23,8 +23,10 @@ const FinRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label,
 
 /**
  * Order summary rail — a single card (merged from the former partner + financial
- * cards): the order amount hero, then Партнёр / Скидка / Статус / Источник rows,
- * and the customer balance. The line count is intentionally dropped.
+ * cards): the order amount hero, then Партнёр / Скидка / Статус / Источник rows.
+ * The line count and the partner's balance are intentionally dropped — the served
+ * balance is the partner's *current* position, not their balance at order time, so
+ * showing it against a past order misleads.
  */
 export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }> = ({
 	order,
@@ -34,15 +36,6 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 	const total = orderTotal(order.lines);
 	const discount = orderSubtotal(order.lines) - total;
 	const step = ORDER_NEXT_STEP[order.status];
-
-	const balance = order.customerBalance;
-	const balanceLabel =
-		balance > 0
-			? t("order.balance.owesYou", { amount: formatCurrency(Math.abs(balance)) })
-			: balance < 0
-				? t("order.balance.youOwe", { amount: formatCurrency(Math.abs(balance)) })
-				: t("order.balance.settled");
-	const balanceColor = balance > 0 ? "success.main" : balance < 0 ? "error.main" : "text.secondary";
 
 	return (
 		<>
@@ -108,26 +101,6 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 						<FinRow label={t("order.col.source")}>
 							<OrderSourceChip source={order.source} />
 						</FinRow>
-					</Box>
-
-					<Box
-						sx={{
-							mt: "16px",
-							pt: "14px",
-							borderTop: "1px solid",
-							borderColor: "divider",
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-							gap: "12px",
-						}}
-					>
-						<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-							{t("order.detail.customerBalance")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 700, color: balanceColor }}>
-							{balanceLabel}
-						</Typography>
 					</Box>
 
 					{isOrderEditable(order.status) && (
