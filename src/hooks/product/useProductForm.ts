@@ -51,7 +51,7 @@ export interface UseProductFormResult {
 const DEFAULT_VALUES: ProductFormInputs = {
 	name: "",
 	categoryId: null,
-	measurement: "Unit",
+	measurement: "Piece",
 	type: "All",
 	sku: "",
 	description: undefined,

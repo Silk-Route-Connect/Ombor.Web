@@ -1,7 +1,7 @@
 import i18next from "i18n/config";
 import { z } from "zod";
 
-export const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"] as const;
+export const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as const;
 export type Measurement = (typeof MEASUREMENTS)[number];
 
 export const PRODUCT_TYPES = ["All", "Sale", "Supply"] as const;

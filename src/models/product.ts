@@ -1,5 +1,9 @@
 import { TransactionType } from "./transaction";
 
+// `Unit` duplicates `Piece`; removed from the product picker + default (2026-07-16).
+// Kept in the type because the backend still serves it for legacy products — the
+// migration to `Piece` is tracked in issues-tracker §12, and the edit form normalizes
+// a served `Unit` to `Piece` (see `mapProductToFormPayload`).
 export const PRODUCT_MEASUREMENTS = [
 	"Gram",
 	"Kilogram",

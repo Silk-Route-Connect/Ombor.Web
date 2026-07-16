@@ -28,7 +28,7 @@ export interface ProductFormCoreFieldsProps {
 	onGenerateSku?: () => void;
 }
 
-const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "Unit", "None"] as const;
+const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as const;
 const TYPES: ProductType[] = ["Sale", "Supply", "All"];
 
 const uzsSuffix = {
