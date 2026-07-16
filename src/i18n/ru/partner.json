@@ -167,7 +167,6 @@
   "partner.form.openingReceivable": "Партнёр должен нам",
   "partner.form.openingPayable": "Мы должны партнёру",
   "partner.form.openingAmount": "Сумма",
-  "partner.form.openingHint": "«−» — партнёр должен нам, «+» — мы должны партнёру.",
   "partner.form.openingPreview": "Стартовая запись в книге:",
   "partner.form.openingLockedTitle": "Начальный баланс",
   "partner.form.openingLockedSub": "Записан {{date}} — изменить нельзя",

@@ -487,16 +487,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 											</Box>
 										)}
 									/>
-									<Typography
-										sx={{
-											fontSize: 12,
-											fontWeight: 600,
-											color: "text.secondary",
-											lineHeight: 1.45,
-										}}
-									>
-										{t("partner.form.openingHint")}
-									</Typography>
 									{isSubmitted && errors.openingAmount?.message && (
 										<Typography sx={{ fontSize: 12, color: "error.main" }}>
 											{errors.openingAmount.message}
