@@ -507,7 +507,11 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 					>
 						<ErrorOutlineIcon sx={{ fontSize: 13 }} />
 						{t("transaction.new.pay.overBalance", {
-							available: formatCurrency(wallets.find((w) => w.id === pay.walletId)?.balance ?? 0),
+							// Clamped like the guard itself — an overdrawn wallet has 0 available,
+							// never a negative amount in user-facing copy.
+							available: formatCurrency(
+								Math.max(0, wallets.find((w) => w.id === pay.walletId)?.balance ?? 0),
+							),
 						})}
 					</Box>
 				)}

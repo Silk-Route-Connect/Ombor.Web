@@ -116,8 +116,8 @@ Expect: both lines now carry exactly 5% («−5% на все позиции» ch
 ### T-POS-34 · Supply tender exceeding wallet balance blocked [negative]
 
 Pre: read «QA Касса» balance from the wallet option label («Наличные · баланс N UZS»).
-Steps: 1. `/supplies/new`: supplier partner, П1 × 1 @ 100. 2. «Оплата» from «QA Касса», amount = balance + 1 000. 3. Submit.
-Expect: inline «Доступно только N UZS — нельзя списать больше остатка кассы.» (DR-25); no POST. This is the first live verification of the POS-Supply overdraft guard (shipped code-only in PR #72) — state the outcome explicitly in the report. Sales (income direction) never show this guard.
+Steps: 1. `/supplies/new`: supplier partner, П1 × 1 @ 100. 2. «Оплата» from «QA Касса», amount = max(balance, 0) + 1 000. 3. Submit. 4. Set the amount to 0 and submit again (back out of the dialog without confirming).
+Expect: 3 → inline «Доступно только N UZS — нельзя списать больше остатка кассы.» (DR-25) with N = max(balance, 0) — **never a negative amount** (an overdrawn wallet shows «0 UZS»); no POST. 4 → a zero tender is not an outflow: the guard passes and the «Провести без оплаты?» dialog opens even from an overdrawn wallet. Both clamp behaviors live-verified 2026-07-17 (guard itself first live-verified same day; shipped code-only in PR #72). Sales (income direction) never show this guard.
 
 ### T-POS-35 · Credit sale to a partner holding an advance [edge] ✍
 

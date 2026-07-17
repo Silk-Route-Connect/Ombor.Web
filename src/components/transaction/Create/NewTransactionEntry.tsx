@@ -98,8 +98,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 
 	// Hard-block a Supply tender that exceeds the paying wallet's balance. A Sale
 	// is money-in and its change is self-covered, so only Supply outflows are guarded.
+	// Available clamps at zero: an overdrawn wallet blocks any positive tender, but a
+	// zero tender (credit supply) is not an outflow and must pass (DR-25).
 	const tenderWallet = wallets.find((w) => w.id === entry.pay.walletId);
-	const overWallet = !isSale && tenderWallet != null && entry.paid > tenderWallet.balance;
+	const overWallet =
+		!isSale && tenderWallet != null && entry.paid > Math.max(0, tenderWallet.balance);
 
 	// Seed the warehouse + wallet defaults once their lists arrive.
 	useEffect(() => {

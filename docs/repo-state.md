@@ -108,6 +108,7 @@
 - Fixed line discount is a per-line currency amount, not the prototype's per-unit (flagged deviation); qty clamped ≥1.
 - Sale hard-blocks over-stock (rule 20), Supply doesn't (a supply adds stock); advance only at zero remaining debt (rule 40).
 - Package toggle converts UP (ceil) to whole packages on switch and back losslessly; all money/stock/payload math stays base-unit; unit price stays per base unit.
+- Supply tender guard (DR-25) clamps available at ≥0: zero-pay (credit) supplies always pass, even from an overdrawn wallet, and the «Доступно только…» copy never renders a negative amount.
 
 ## Templates
 - **State:** rebuilt — shared `ExpandableDataTable` list (search + type filter, expand-row line items with totals), create/edit modal (type toggle re-prices lines, partner autocomplete, product cart), delete confirm.
