@@ -18,6 +18,12 @@ export type CartItem = {
 	/** Percent (0–100) when discountType is "Percentage"; a per-line currency amount when "Fixed". */
 	discountValue: number;
 	discountType: TransactionLineDiscountType;
+	/**
+	 * Entry-only unit mode: the qty field edits package counts (packaging.size base
+	 * units each) while quantity stays base units (rule 21). Never sent — the create
+	 * contract has no pack field, so the entered pack count is not persisted (F21).
+	 */
+	inPackages?: boolean;
 };
 
 /** Tendered payment — a single wallet + amount (business-rules §B source side). */
@@ -163,8 +169,11 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		setItems((cur) => {
 			const existing = cur.find((x) => x.product.id === product.id);
 			if (existing) {
+				// Re-adding steps one display unit — a whole package when the line counts in packages.
+				const step =
+					existing.inPackages && existing.product.packaging ? existing.product.packaging.size : 1;
 				return cur.map((x) =>
-					x.product.id === product.id ? { ...x, quantity: x.quantity + 1 } : x,
+					x.product.id === product.id ? { ...x, quantity: x.quantity + step } : x,
 				);
 			}
 			return [

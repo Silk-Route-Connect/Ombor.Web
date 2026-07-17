@@ -255,6 +255,9 @@
   "transaction.new.line.remove": "Удалить позицию",
   "transaction.new.line.errOver": "Недостаточно товара: доступно {{count}} {{unit}}",
   "transaction.new.line.fixedHint": "Фиксированная сумма за единицу",
+  "transaction.new.line.packShort": "упак",
+  "transaction.new.line.packTotal": "= {{count}} {{unit}}",
+  "transaction.new.line.packTooltip": "Упаковка · {{size}} {{unit}}",
 
   "transaction.new.bulk.label": "Применить скидку ко всем",
   "transaction.new.bulk.applied": "−{{pct}}% на все позиции",

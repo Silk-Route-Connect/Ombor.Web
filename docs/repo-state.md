@@ -101,12 +101,13 @@
 - Refund amounts stay negative in the list (D12).
 
 ## New Sale / New Supply (POS)
-- **State:** rebuilt at `/sales/new` + `/supplies/new` as one `direction`-parameterized `NewTransactionEntry` — full-page POS: required partner picker (balance as colour + label), warehouse picker, product-search cart with per-line % / fixed discounts + bulk apply-to-all, payment breakdown with debt settlement (`PaymentSettlementModal`) and Сдача/Аванс toggle, templates load/save, keyboard loop (`KeyboardHints`).
+- **State:** rebuilt at `/sales/new` + `/supplies/new` as one `direction`-parameterized `NewTransactionEntry` — full-page POS: required partner picker (balance as colour + label), warehouse picker, product-search cart with per-line % / fixed discounts + bulk apply-to-all, per-line unit toggle «шт | упак» on packaged products (`CartLineQty` — entry in packages, quantity stored in whole base units, R21), payment breakdown with debt settlement (`PaymentSettlementModal`) and Сдача/Аванс toggle, templates load/save, keyboard loop (`KeyboardHints`).
 - **Data:** real (multipart `POST /api/transactions`; `GET /api/payments/outstanding` for settlement)
-- **Open:** —
+- **Open:** F21 — entered pack count not persisted (entry-only `CartItem.inPackages`; the line contract has no pack field, so R21's audit clause is unserved).
 - **Decisions:** partner required — no system walk-in partner (owner; canon rules 39–40 superseded, see design-handoff pattern 9).
 - Fixed line discount is a per-line currency amount, not the prototype's per-unit (flagged deviation); qty clamped ≥1.
 - Sale hard-blocks over-stock (rule 20), Supply doesn't (a supply adds stock); advance only at zero remaining debt (rule 40).
+- Package toggle converts UP (ceil) to whole packages on switch and back losslessly; all money/stock/payload math stays base-unit; unit price stays per base unit.
 
 ## Templates
 - **State:** rebuilt — shared `ExpandableDataTable` list (search + type filter, expand-row line items with totals), create/edit modal (type toggle re-prices lines, partner autocomplete, product cart), delete confirm.
