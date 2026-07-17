@@ -134,9 +134,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	// Block a wallet outflow (Expense direction) that exceeds the source wallet's
 	// balance — mirrors the transfer over-balance guard. Enforced here, not in the
 	// schema (the balance is contextual). Server-side enforcement is a backend item.
+	// Available clamps at zero (an overdrawn wallet has 0 to spend); Income is never
+	// balance-gated — money coming in must be recordable on any wallet (DR-25).
 	const selectedWallet = data.wallets.find((w) => w.id === (watch("walletId") as number)) ?? null;
 	const overWallet =
-		effectiveDir === "Expense" && selectedWallet != null && amount > selectedWallet.balance;
+		effectiveDir === "Expense" &&
+		selectedWallet != null &&
+		amount > Math.max(0, selectedWallet.balance);
 
 	// Load the partner's outstanding when settling, so the debts banner + the
 	// settlement modal have data ready.
@@ -564,7 +568,9 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							) : overWallet ? (
 								<Typography sx={{ fontSize: 12, color: "error.main" }}>
 									{t("payment.form.overWallet", {
-										available: formatCurrency(selectedWallet?.balance ?? 0),
+										// Clamped like the guard — an overdrawn wallet has 0 available,
+										// never a negative amount in user-facing copy.
+										available: formatCurrency(Math.max(0, selectedWallet?.balance ?? 0)),
 									})}
 								</Typography>
 							) : (

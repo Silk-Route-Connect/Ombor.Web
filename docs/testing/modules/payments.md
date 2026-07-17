@@ -94,7 +94,7 @@ Expect: inline error under amount «Аванс партнёра: 150 000 UZS. Н
 ### T-PAY-32 · Expense exceeding wallet balance is blocked [negative]
 Pre: «QA-<MMDD> Касса-П» = 1 900 000 (after T-PAY-08).
 Steps: 1. «Новый платёж»: «Общий», «Расход», any description, wallet «QA-<MMDD> Касса-П», amount 5 000 000. 2. Submit.
-Expect: inline error «Доступно только 1 900 000 UZS — нельзя списать больше остатка кассы.» (DR-25); nothing created. Switching direction to «Приход» clears the block (no guard on inflows — Traps).
+Expect: inline error «Доступно только 1 900 000 UZS — нельзя списать больше остатка кассы.» (DR-25); nothing created. Switching direction to «Приход» clears the block (no guard on inflows — Traps). Available clamps at max(balance, 0): against an overdrawn wallet the error reads «Доступно только 0 UZS…» — never a negative amount — and an income payment to that overdrawn wallet still submits normally (clamp live-verified 2026-07-17).
 
 ### T-PAY-33 · Direction control appears only for «Both» [edge]
 Pre: fixtures «QA Универсал» (Both), «QA Клиент», «QA Поставщик».
