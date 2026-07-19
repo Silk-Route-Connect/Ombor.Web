@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -10,7 +11,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import { Box, ButtonBase, IconButton, InputBase, Typography } from "@mui/material";
+import { Box, ButtonBase, IconButton, Typography } from "@mui/material";
 
 import { CartLineQty } from "./CartLineQty";
 import { fieldLabelSx, segmentedBoxSx, segmentSx } from "./lineSx";
@@ -30,11 +31,6 @@ interface CartLineRowProps {
 	/** Enter in the quantity field → continue adding (refocus the product search). */
 	onContinue: () => void;
 }
-
-const parseNum = (s: string): number => {
-	const n = parseInt(s.replace(/[^\d]/g, ""), 10);
-	return Number.isNaN(n) ? 0 : n;
-};
 
 const boxedInputSx = {
 	height: 36,
@@ -165,11 +161,12 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						<Box component="span" sx={{ color: "text.disabled", fontSize: 13 }}>
 							×
 						</Box>
-						<InputBase
+						<MoneyInputBase
 							value={item.unitPrice}
-							onChange={(e) => onChange({ unitPrice: parseNum(e.target.value) })}
+							onChange={(unitPrice) => onChange({ unitPrice })}
 							onKeyDown={onEnterContinue}
-							sx={{ width: 84, ...numInputSx }}
+							placeholder="0"
+							sx={{ width: 104, ...numInputSx }}
 						/>
 					</Box>
 				</Box>
@@ -179,11 +176,12 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 					<Typography sx={fieldLabelSx}>{t("transaction.new.line.discount")}</Typography>
 					<Box sx={{ display: "flex", gap: "6px" }}>
 						<Box sx={boxedInputSx}>
-							<InputBase
+							<MoneyInputBase
 								value={item.discountValue}
-								onChange={(e) => onChange({ discountValue: parseNum(e.target.value) })}
+								onChange={(discountValue) => onChange({ discountValue })}
 								onKeyDown={onEnterContinue}
-								sx={{ width: 56, ...numInputSx }}
+								placeholder="0"
+								sx={{ width: 72, ...numInputSx }}
 							/>
 						</Box>
 						<Box sx={segmentedBoxSx}>

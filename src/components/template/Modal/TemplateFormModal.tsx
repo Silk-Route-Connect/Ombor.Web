@@ -7,7 +7,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -49,11 +49,6 @@ interface TemplateFormModalProps {
 	onClose: () => void;
 	onSave: (payload: TemplateFormPayload) => void;
 }
-
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
 
 /** Type → chipTokens key + the standard Sale/Supply icons (locked chip semantics). */
 const TYPE_TOKEN: Record<TemplateType, keyof typeof chipTokens> = {
@@ -474,14 +469,12 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 											>
 												{t("template.form.priceLabel")}
 											</Typography>
-											<NumericField
-												value={price || ""}
+											<MoneyField
+												value={price || 0}
+												onChange={(unitPrice) => updateItem(index, { unitPrice })}
 												size="small"
-												min={0}
+												placeholder="0"
 												disabled={isSaving}
-												onChange={(e) =>
-													updateItem(index, { unitPrice: toNumberOrZero(e.target.value) })
-												}
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {

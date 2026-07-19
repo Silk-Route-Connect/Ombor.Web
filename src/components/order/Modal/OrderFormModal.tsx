@@ -6,7 +6,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { observer } from "mobx-react-lite";
@@ -115,11 +115,6 @@ const QtyStepper: React.FC<{
 			</Button>
 		</Box>
 	);
-};
-
-const toNumberOrZero = (raw: string): number => {
-	const v = raw.trim();
-	return v === "" ? 0 : Number(v.replace(/[^\d]/g, ""));
 };
 
 const OrderFormModal: React.FC<OrderFormModalProps> = ({
@@ -511,14 +506,12 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 										</Box>
 										<Box>
 											<Typography sx={labelSx}>{t("order.edit.unitPrice")}</Typography>
-											<NumericField
-												value={line.unitPrice || ""}
+											<MoneyField
+												value={line.unitPrice || 0}
+												onChange={(unitPrice) => updateLine(index, { unitPrice })}
 												size="small"
-												min={0}
+												placeholder="0"
 												disabled={isSaving}
-												onChange={(e) =>
-													updateLine(index, { unitPrice: toNumberOrZero(e.target.value) })
-												}
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {
@@ -531,14 +524,12 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 										<Box>
 											<Typography sx={labelSx}>{t("order.edit.discount")}</Typography>
 											<Box sx={{ display: "flex", gap: "6px" }}>
-												<NumericField
-													value={line.discount || ""}
+												<MoneyField
+													value={line.discount || 0}
+													onChange={(discount) => updateLine(index, { discount })}
 													size="small"
-													min={0}
+													placeholder="0"
 													disabled={isSaving}
-													onChange={(e) =>
-														updateLine(index, { discount: toNumberOrZero(e.target.value) })
-													}
 													sx={{ width: 84 }}
 													slotProps={{ input: { sx: { ...numericSx } } }}
 												/>

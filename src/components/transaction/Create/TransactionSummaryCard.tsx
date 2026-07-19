@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
@@ -12,7 +13,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { Avatar, Box, ButtonBase, InputBase, Typography } from "@mui/material";
+import { Avatar, Box, ButtonBase, Typography } from "@mui/material";
 
 import { balancePresentation, initialsOf } from "./saleBalance";
 import WalletPicker from "./WalletPicker";
@@ -25,11 +26,6 @@ interface TransactionSummaryCardProps {
 	onOpenSettle: () => void;
 	onSubmit: () => void;
 }
-
-const parseNum = (s: string): number => {
-	const n = parseInt(s.replace(/[^\d]/g, ""), 10);
-	return Number.isNaN(n) ? 0 : n;
-};
 
 const Row: React.FC<{
 	label: React.ReactNode;
@@ -428,9 +424,10 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 							"&:focus-within": { borderColor: "primary.main" },
 						}}
 					>
-						<InputBase
+						<MoneyInputBase
 							value={pay.amount}
-							onChange={(e) => setPay({ ...pay, amount: parseNum(e.target.value) })}
+							onChange={(amount) => setPay({ ...pay, amount })}
+							placeholder="0"
 							sx={{
 								flex: 1,
 								...numericSx,

@@ -19,6 +19,7 @@ Module-specific; shared-checklist §6 still applies.
 | «Погасить долги» button inside POS totals on overpayment | R40 settle-other-debts opt-in; the standalone-payments DR-05 deferral does not apply to this guided flow |
 | Sale submit with zero payment interrupts with a dialog «Провести без оплаты?» → «Провести в долг» | deliberate friction before creating debt, not a validation failure |
 | Wallet options render «{тип} · баланс N UZS» exposing balances in the picker | designed tender affordance |
+| Cart-line «Цена за ед», «Скидка» and «Оплата» amount fields space-group digits as you type («1 500 000») and show blank + placeholder «0» at zero | `MoneyInputBase` live thousands grouping; the raw whole-number UZS is stored, not the formatted string |
 | «Скачать» on detail → toast «… — раздел в разработке» | dev stub |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
