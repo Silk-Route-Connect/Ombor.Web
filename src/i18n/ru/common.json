@@ -54,6 +54,7 @@
 
   "common.table.rowsPerPage": "Строк на странице:",
   "common.table.displayedRows": "{{from}}–{{to}} из {{total}}",
+  "common.table.noRecords": "Нет записей",
 
   "page.activityLog.title": "Журнал действий",
   "page.newOrder.title": "Новый заказ",

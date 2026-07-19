@@ -7,7 +7,6 @@ import { formatCurrency } from "utils/formatCurrency";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box, Paper, Typography, useTheme } from "@mui/material";
 
-import { txWord } from "../debt/DebtSummaryCards";
 import { EASE, usePrefersReducedMotion } from "./motion";
 
 interface Props {
@@ -109,7 +108,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 						}}
 					>
 						<ReportProblemOutlinedIcon sx={{ fontSize: 13 }} />
-						{overdueCount} {txWord(overdueCount)}
+						{t("debt.summary.txCount", { count: overdueCount })}
 					</Box>
 				)}
 			</Box>

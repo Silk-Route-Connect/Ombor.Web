@@ -21,7 +21,9 @@
   "template.itemsTable.unit": "Ед.",
   "template.itemsTable.unitPrice": "Цена за ед.",
   "template.itemsTable.lineTotal": "Итого",
-  "template.itemsTable.footer": "Итого · {{count}} {{word}}",
+  "template.itemsTable.footer_one": "Итого · {{count}} позиция",
+  "template.itemsTable.footer_few": "Итого · {{count}} позиции",
+  "template.itemsTable.footer_many": "Итого · {{count}} позиций",
 
   "template.empty.title": "Шаблоны пока не созданы",
   "template.empty.body": "Создайте шаблон вручную или сохраните позиции из продажи или поставки.",

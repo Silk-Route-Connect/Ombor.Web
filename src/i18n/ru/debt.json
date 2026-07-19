@@ -8,6 +8,9 @@
   "debt.summary.payable": "Мы должны",
   "debt.summary.overdue": "Просрочено",
   "debt.summary.net": "Чистая позиция",
+  "debt.summary.txCount_one": "{{count}} транзакция",
+  "debt.summary.txCount_few": "{{count}} транзакции",
+  "debt.summary.txCount_many": "{{count}} транзакций",
 
   "debt.tabs.partners": "По партнёрам",
   "debt.tabs.transactions": "По транзакциям",

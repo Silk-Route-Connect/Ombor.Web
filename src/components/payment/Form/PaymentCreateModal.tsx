@@ -45,20 +45,8 @@ import {
 
 import PaymentSettlementModal from "./PaymentSettlementModal";
 
-const MONTHS = [
-	"Январь",
-	"Февраль",
-	"Март",
-	"Апрель",
-	"Май",
-	"Июнь",
-	"Июль",
-	"Август",
-	"Сентябрь",
-	"Октябрь",
-	"Ноябрь",
-	"Декабрь",
-];
+/** 1-based month numbers; labels come from the shared `common.month.*` keys. */
+const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
 const YEARS = ["2026", "2025"];
 
 /**
@@ -419,11 +407,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												value={field.value}
 												onChange={(e) => field.onChange(e.target.value)}
 											>
-												{MONTHS.map((m) => (
-													<MenuItem key={m} value={m}>
-														{m}
-													</MenuItem>
-												))}
+												{MONTH_NUMBERS.map((n) => {
+													const label = t(`common.month.${n}`);
+													return (
+														<MenuItem key={n} value={label}>
+															{label}
+														</MenuItem>
+													);
+												})}
 											</Select>
 										)}
 									/>
