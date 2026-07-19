@@ -56,6 +56,12 @@ The `redesign/backend-alignment` pass (2026-07-05) regenerated `openapi.json` fr
 
 ### B. Frontend implementation gaps (the new work — mocks off = live against the real backend)
 
+> **⏩ wave-4 update (2026-07-19 · `redesign/issue-fixes` working tree, uncommitted, `npm run validate` green — ⚠ live-verify pending, behind-login).** Ground-truthed every F-item against current code + `backend-contracts/`; several 2026-07-14 statuses were stale.
+> - **Already fixed before this pass (docs were stale):** **F1** — `ProductApi`/`ProductStore` return the full `Product` (no lean PUT); no crash. **F3** — `CategoryStore` preserves `productCount` on edit. **F11** — `EmployeeDto.status` is a strict non-null enum in the FE, action logic is safe. **F9 walletId** + **F10 direction** — already aligned/guarded.
+> - **Fixed this pass (code-complete):** **F4** (Fixed-discount math via shared `lineNet` + `discountType` round-trip), **F5** (recent-tx status fallback), **F7** (attachment shape `{contentType,sizeBytes,url}` + `formatBytes` + download link), **F9** (allocation-render guard), **F10/XC-8-partner** (`WalletOperationDto.partnerId` is served — modeled + party now links), **F13** (transfer over-balance clamp), **F15** (Partner `Both` + Employee `Terminated` autocomplete leaks), **F16** (`«Нет записей»` key + `emptyMessage`, payment months → `common.month.*`, Debt/Template plurals → i18next).
+> - **Confirmed backend-blocked (handed to `issues-tracker.md` §12):** **F12** (no `telegram` on the partner contract — owner ruled keep-FE-block-on-BE; §2.5's "served" was wrong), **F20** (ledger `reference` on sale/supply rows), **XC-8 wallet-half** (no `walletId` on `TransactionPaymentDto`), **F21** (no pack-count line field).
+> - **Scope correction — F18:** per §12, payment **notes DO round-trip** (create persists `Description` → GET serves `PaymentRecordDto.Description`); the "note dropped" symptom is an **FE display gap** (surface the served `description` on payment detail) — FE-fixable, *not* BE-blocked. Only payment **attachments** are genuinely BE-blocked.
+
 | # | Item | Status | Severity | Evidence |
 |---|------|--------|----------|----------|
 | F1 | **Product edit crashes/blanks the list & detail** — PUT returns lean `UpdateProductResponse` (no images/warehouseItems/totalStock/averageCost); store keeps it with no refetch | **Missing** (broken) | **Blocker** | `ProductApi.ts:56`, `ProductStore.ts:185`, `ProductDetailPage.tsx:84` |
