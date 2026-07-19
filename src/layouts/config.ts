@@ -50,12 +50,6 @@ export const navItems: NavItem[] = [
 		],
 	},
 	{
-		labelKey: "sidebar.personnel",
-		icon: PeopleOutlinedIcon,
-		children: [{ labelKey: "sidebar.employees", to: PATHS.employees }],
-	},
-	{
-		// «Каталог» — intentional divergence from the bundle's «Продукция» (product decision).
 		labelKey: "sidebar.production",
 		icon: Inventory2OutlinedIcon,
 		children: [
@@ -71,5 +65,10 @@ export const navItems: NavItem[] = [
 			{ labelKey: "sidebar.adjustments", to: PATHS.adjustments },
 			{ labelKey: "sidebar.transfers", to: PATHS.transfers },
 		],
+	},
+	{
+		labelKey: "sidebar.personnel",
+		icon: PeopleOutlinedIcon,
+		children: [{ labelKey: "sidebar.employees", to: PATHS.employees }],
 	},
 ];
