@@ -154,7 +154,12 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				quantity: item.quantity,
 				unitPrice: item.unitPrice,
 				discountValue: item.discount ?? 0,
-				discountType: "Percentage",
+				// Preserve the template's real discount kind (was hard-coded to
+				// "Percentage", which dropped Fixed discounts on load).
+				discountType: item.discountType ?? "Percentage",
+				// Restore package-entry mode when the item was saved in packages (F21);
+				// CartLineQty only honours it when the product still has packaging.
+				inPackages: Boolean(item.packageSize),
 			};
 			return [cartItem];
 		});
@@ -235,13 +240,21 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 			name,
 			partnerId: entry.partner.id,
 			type: direction,
-			items: entry.items.map((it) => ({
-				productId: it.product.id,
-				quantity: it.quantity,
-				unitPrice: it.unitPrice,
-				discount: it.discountValue,
-				discountType: it.discountType,
-			})),
+			items: entry.items.map((it) => {
+				const packSize = it.product.packaging?.size;
+				const packageQuantity =
+					it.inPackages && packSize && packSize > 0
+						? Math.round(it.quantity / packSize)
+						: undefined;
+				return {
+					productId: it.product.id,
+					quantity: it.quantity,
+					unitPrice: it.unitPrice,
+					discount: it.discountValue,
+					discountType: it.discountType,
+					packageQuantity,
+				};
+			}),
 		});
 		setDialog("none");
 	};

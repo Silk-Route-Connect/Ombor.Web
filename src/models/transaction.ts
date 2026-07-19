@@ -99,6 +99,12 @@ export type TransactionLine = {
 	unit?: string;
 	/** Whether `discount` is a percentage or a fixed amount — redesign. */
 	discountType?: TransactionLineDiscountType;
+	/**
+	 * When the line was entered in packages, the package size snapshotted at entry
+	 * time (F21, rule 21); null/absent for a base-unit line. The entered pack count
+	 * is derived as `quantity ÷ packageSize`.
+	 */
+	packageSize?: number | null;
 };
 
 /** One line of a refund-creation request (references a product of the original transaction). */
@@ -122,10 +128,9 @@ export type CreateRefundRequest = {
 /* ─────────────────── Redesigned POS New Sale / New Supply ───────────────────
  * The redesigned full-page New Sale and New Supply (one component, parameterized
  * by direction) create via `POST /api/transactions` as **multipart/form-data**:
- * a single `payload` part carrying the JSON below (everything except files) plus
- * zero or more `attachments` file parts (the structured body is too nested to
- * flatten into form fields, and JSON alone can't carry binaries — full contract
- * in the POST handler's CONTRACT block). Source/allocation handling follows business-rules
+ * flat model-binder fields (`Lines[i].ProductId`, `Lines[i].Quantity`, …) plus
+ * zero or more `Attachments` file parts — see `TransactionApi.create` for the exact
+ * serialization. Source/allocation handling follows business-rules
  * §B: one Wallet source, this transaction's TransactionSettlement, optional
  * other-open-transaction settlements, and the disposition of any remaining
  * excess (ChangeReturn memo or AdvanceCredit, rule 40). */
@@ -141,6 +146,12 @@ export type CreateTransactionEntryLine = {
 	/** Discount value: percent when discountType is "Percentage", currency amount when "Fixed". */
 	discount: number;
 	discountType: TransactionLineDiscountType;
+	/**
+	 * Pack count when the line was entered in packages (F21, rule 21). When set, the
+	 * server reads the product's package size, computes the base `quantity`
+	 * (`count × size`), and snapshots the size — the client never supplies the size.
+	 */
+	packageQuantity?: number;
 };
 
 export type CreateTransactionEntryRequest = {

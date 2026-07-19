@@ -151,6 +151,9 @@ class TransactionApi extends BaseApi {
 				form.append(`Lines[${i}].UnitPrice`, String(line.unitPrice));
 				form.append(`Lines[${i}].Discount`, String(line.discount));
 				form.append(`Lines[${i}].DiscountType`, line.discountType);
+				if (line.packageQuantity != null) {
+					form.append(`Lines[${i}].PackageQuantity`, String(line.packageQuantity));
+				}
 			});
 			request.settlements.forEach((s, i) => {
 				form.append(`Settlements[${i}].TransactionId`, String(s.transactionId));

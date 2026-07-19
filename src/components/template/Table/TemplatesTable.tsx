@@ -161,6 +161,12 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 								<Box component="span" sx={numericSx}>
 									{formatQuantity(item.quantity)}
 								</Box>
+								{item.packageSize && item.packageSize > 0 && (
+									<Box sx={{ fontSize: 11, color: "text.disabled" }}>
+										{Math.round(item.quantity / item.packageSize)}{" "}
+										{t("transaction.new.line.packShort")}
+									</Box>
+								)}
 							</Box>
 							<Box component="td" sx={innerBodySx}>
 								<Box component="span" sx={{ color: "text.secondary" }}>

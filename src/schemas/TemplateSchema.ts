@@ -24,6 +24,10 @@ const TemplateItemSchema = z
 		// Served on every line; every appended/loaded line carries it, so it is
 		// required here (no `.default()`, which would split z.input from z.output).
 		discountType: z.enum(["Percentage", "Fixed"]),
+
+		// Read-only pack snapshot carried through the form so a pack item survives an
+		// edit round-trip (F21); the modal has no pack control. null = base-unit item.
+		packageSize: z.number().int().positive().nullable().optional(),
 	})
 	// The «≤ 100» cap only applies to percentage discounts; a fixed-amount discount
 	// (e.g. 5 000 UZS) is a currency value and must not be clamped to 100.
