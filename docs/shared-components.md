@@ -48,6 +48,7 @@
 | `PasswordField`                                                        | Password inputs (auth, invites)                 | Show/hide toggle + caps-lock warning                                                |
 | `Autocomplete` (`EntityAutocomplete`)                                  | Pickers over `{ id, name }` entity lists        | Trimmed case-insensitive filter + `additionalFilter` hook                           |
 | `AttachmentPicker`                                                     | File-attachment input on forms                  | Upload button + removable chip list                                                 |
+| `AttachmentChip`                                                       | Downloadable file chip on detail pages          | MIME-typed icon (image/doc) + name + size; used by transaction & payment detail     |
 | `SearchInput`                                                          | Page / table search                             | —                                                                                   |
 | `DateFilterPicker`                                                     | Date filtering                                  | —                                                                                   |
 | `SegmentedControl`                                                     | Segmented toggles                               | Archive «Активные \| Архив» (pattern 13), status filters                            |

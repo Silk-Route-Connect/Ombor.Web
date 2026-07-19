@@ -79,6 +79,12 @@ Pre: T-PAY-09.
 Steps: 1. Search «QA-<MMDD> Плательщик». 2. Clear; type filter «Депозит». 3. Clear; wallet filter «QA-<MMDD> Касса-П». 4. Click the «Расход» summary card; click it again. 5. Combine search with a non-matching type.
 Expect: 1 → only this run's partner's payments. 2 → all visible rows are type «Депозит» and the run's 150 000 deposit is among them (the filter is org-wide and may include deposits from earlier runs). 3 → only the run wallet's payments. 4 → first click filters to Expense rows and highlights the card; second click clears; «Приход»/«Расход» card totals do NOT change when the direction toggle flips (they total the scoped view). 5 → empty state «Платежи не найдены» / «Измените запрос поиска или фильтры по типу и кассе.»
 
+### T-PAY-11 · Attachments upload + display (F18) [happy] ✍
+Pre: wallet «QA-<MMDD> Касса-П» (from T-PAY-01).
+Steps: 1. «Новый платёж»: type «Общий», «Приход», description «QA-<MMDD> вложения», wallet «QA-<MMDD> Касса-П», amount 10 000. 2. «Вложения» → attach two files (one image, one PDF) — a removable chip appears per file. 3. Submit. 4. Open the created payment's detail.
+Expect: the create request is **multipart/form-data** returning 201 (F18 — payment-create is no longer JSON) with `attachments[]` in the response; the detail shows a «Вложения · 2» card with one chip per file (image vs document icon by MIME, name, size via `formatBytes`); each chip is an `<a target="_blank">` whose href resolves to the API base (`VITE_OMBOR_API_BASE_URL`), not the app origin. When the payment settles a transaction that carried a note/attachments, a muted «Из операции» sub-section echoes them read-only.
+Known: the local backend may 404 on the file URL itself (static-serving config — product images 404 too); verify the href resolves to the backend origin, not that the file downloads.
+
 ## Edge & negative
 
 ### T-PAY-30 · Worked example (b): pay from advance + cash — expressibility probe [edge]
@@ -138,7 +144,7 @@ Known: F10 — if direction pills render all-red or a row misses a party link, r
 Pre: all prior cases. Expected end state: debt 0, advance 150 000.
 Steps: 1. Partner detail: balance card + «Платежи» tab. 2. «Новый платёж» modal → pick the partner, read the hint row. 3. `/payments` filtered to the partner (search).
 Expect: balance card «0» neutral + «Баланс закрыт — обязательств нет» (partner-POV signed display, modules/partners.md Traps; #4 amendment pending); modal hint «Баланс: 0 UZS · Аванс: 150 000 UZS»; the partner's «Платежи» tab lists the same payments («№N», amounts, dates) as the filtered `/payments` list — no row present in one and missing in the other; amounts identical to each payment detail's «Касса» sum.
-Known: F20-class — sale/supply rows in the partner ledger may show «—» in the number column (backend gap).
+Note: F20 resolved (2026-07-19) — sale/supply/refund rows in the partner ledger now show «№…» in the number column (was «—»); if any such row still shows «—», that is a regression.
 
 ### T-PAY-63 · Payment ↔ transaction cross-links and numbers [reconcile]
 Pre: T-PAY-03 payment and T-PAY-02 sale.

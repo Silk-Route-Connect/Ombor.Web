@@ -23,7 +23,7 @@ Module-specific; shared-checklist §6 still applies.
 | «Скачать» on detail → toast «… — раздел в разработке» | dev stub |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
-| Line totals, stock hints and the detail stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count is entry-only, not persisted — F21 |
+| Line totals and stock hints stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count now **is** persisted (F21 resolved 2026-07-19 — FE sends `packageQuantity`, server snapshots `packageSize`) and the detail line shows "N упак / <base>" |
 
 ## Happy path
 
@@ -76,7 +76,7 @@ Expect: default disposition is «Сдача» (#5, R40); an «Аванс» toggl
 
 Pre: fixture «QA Товар Упаковка» (packaging size 12) with stock ≥ 24 in «QA Склад А» — if absent, first supply 3 packages/36 units via `/supplies/new` from partner «QA-<MMDD> Поставщик П» (switch the line to «упак», qty 3 — hint «= 36 шт»), paid in full from «QA Касса».
 Steps: 1. Read and note the current «QA Товар Упаковка» stock on «QA Склад А»; then `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка». 2. The line's qty column shows a «шт | упак» toggle (packaged products only), default «шт». 3. Click «упак»: label flips to «Кол-во · упак», the qty converts up to whole packages, hint «= N шт» appears; the «упак» segment's tooltip shows the packaging label (or «Упаковка · 12 шт»). 4. Enter 2 — hint «= 24 шт»; line total = 24 × unit price («Цена за шт» stays per base unit). 5. Stepper +/− and ↑/↓ step whole packages; «−» disabled at 1 упак. 6. Submit paid in full from «QA Касса».
-Expect: stock decremented by exactly 24 base units (R21: package count × size); line total and summary math in base units × unit price. The entered package count is **not** retained after submit — the detail line shows 24 шт (F21: the line contract has no pack field; R21's audit clause is a recorded gap, not a defect here).
+Expect: stock decremented by exactly 24 base units (R21: package count × size); line total and summary math in base units × unit price. The entered package count **is** retained after submit — the detail line shows «2 упак / 24» (F21 resolved 2026-07-19: FE sends `packageQuantity`, server snapshots `packageSize`; the detail derives the count).
 
 ### T-POS-09 · Save as template; load fills current prices [happy] ✍
 
@@ -138,10 +138,10 @@ Pre: read «QA Товар Упаковка» stock N on «QA Склад А» (fi
 Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка», «упак», packs such that packs × 12 > N. 2. Observe the line. 3. Submit. 4. Fix to a valid count; abandon (discard dialog).
 Expect: live hint «Превышает остаток · доступно N шт» and submit error «Недостаточно товара: доступно N шт» — both in **base units** while the field counts packages; no POST (R20/DR-10); stepper and typing never disabled (#7).
 
-### T-POS-38 · Toggle scope + template round-trip drops pack mode [edge]
+### T-POS-38 · Toggle scope + template round-trip restores pack mode [edge]
 
 Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель», add П1 — inspect its qty column. 2. Add «QA Товар Упаковка», «упак», qty 2; «Сохранить как шаблон» → «QA-<MMDD> Шаблон У». 3. Leave (discard); fresh `/sales/new`, same partner → load «QA-<MMDD> Шаблон У». 4. Leave (discard).
-Expect: 1 → no unit toggle on a product without packaging (base behavior unchanged); 3 → the packaged line loads as 24 «шт» with the toggle off — the pack count is entry-only, not persisted in templates (F21 observation, not a defect); П1 line loads as before.
+Expect: 1 → no unit toggle on a product without packaging (base behavior unchanged); 3 → the packaged line loads back in «упак» mode at 2 packs (= 24 шт) — F21 resolved 2026-07-19: `packageQuantity` is saved on the template item and `loadTemplate` restores pack mode from the served `packageSize`; П1 line loads as before.
 
 ### T-POS-39 · Supply entered in packages [edge]
 

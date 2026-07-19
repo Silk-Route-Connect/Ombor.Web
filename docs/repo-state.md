@@ -87,7 +87,7 @@
 ## Partners
 - **State:** rebuilt — list (summary strip, search/type/archive filters, CSV); routed detail `/partners/:id` (balance card, running-balance ledger, Журнал/Транзакции/Платежи tabs); create/edit modal; archive/restore; delete gated by served `isDeletable`.
 - **Data:** real (`/api/partners`, `/{id}/ledger`, archive/restore; balance + opening balance server-computed)
-- **Open:** F2 edit drops served balance; F12 Telegram silently dropped by contract; F15 «Both» autocomplete leaks archived
+- **Open:** — (F2 fixed via E1 re-read; F12 Telegram now persisted+served by BE wave-5, FE renders it in «Контакты» — live-verified 2026-07-19; F15 autocomplete leak fixed wave-4). F20 ledger «Номер» now shows «№…» on sale/supply/refund rows via `formatEntityId`.
 - **Decisions:** no system «Розничный покупатель» — partners are uniform (owner, rule 39).
 - Opening balance editable at create, locked on edit.
 - Balance colour follows the **subject** (DR-27). **A single partner's balance** is partner-POV + **signed**: they owe us → `−…` red (a debtor), we owe them → `+…` green (`partnerBalanceColor`/`formatPartnerBalance`); served value stays company-POV (`+ = partner owes us`, hard rule 8) — display-only. Applies to partner list rows/detail/ledger/payments, the create/edit form read-only previews (form **input** stays company-POV), the Top-debtors list, and the POS/New-Order partner card + picker (POS `balancePresentation` delegates to `partnerBalanceColor`). **The company's own aggregate money stays owner-POV** (receivable green = asset, payable red, no signs): the partners-list summary strip, the Dashboard KPIs + aging, and the Debts page. The order-detail partner balance was **removed** (showed current, not order-time, position). Cash-flow charts, aging heatmap, overdue amber, wallet «our money» unchanged. Canon: UI Pattern 4 amended + DR-27.
@@ -95,7 +95,7 @@
 ## Sales / Supplies (Transactions)
 - **State:** rebuilt as one `direction`-parameterized module — unified immutable feed (search, served-`TransactionStatus` filter incl. Overdue, date range, CSV; refund rows negative + «Возврат к №N»); routed full-page detail (`/sales/:id`, `/supplies/:id`) with positions, payments, refund history, audit card; refund-create modal (per-line cumulative cap, mandatory reason).
 - **Data:** real (`GET /api/transactions`, `GET /{id}`; multipart `POST /api/transactions` creates sale/supply/refund by `Type` — no separate refund route)
-- **Open:** F6 served refund number dropped; F7 attachment model mis-shaped
+- **Open:** — (F6 refund number fixed via F19; F7 attachment model fixed wave-4, now renders via the shared `AttachmentChip` with API-base URL resolution; F21 pack count now shows "N упак" on detail lines — live-verified 2026-07-19).
 - **Decisions:** name-only detail header — «№N» only, all meta lives in body cards (owner).
 - No partner balance anywhere on the detail (owner — a current balance on a historical transaction misleads).
 - Refund amounts stay negative in the list (D12).
@@ -103,7 +103,7 @@
 ## New Sale / New Supply (POS)
 - **State:** rebuilt at `/sales/new` + `/supplies/new` as one `direction`-parameterized `NewTransactionEntry` — full-page POS: required partner picker (balance as colour + label), warehouse picker, product-search cart with per-line % / fixed discounts + bulk apply-to-all, per-line unit toggle «шт | упак» on packaged products (`CartLineQty` — entry in packages, quantity stored in whole base units, R21), payment breakdown with debt settlement (`PaymentSettlementModal`) and Сдача/Аванс toggle, templates load/save, keyboard loop (`KeyboardHints`).
 - **Data:** real (multipart `POST /api/transactions`; `GET /api/payments/outstanding` for settlement)
-- **Open:** F21 — entered pack count not persisted (entry-only `CartItem.inPackages`; the line contract has no pack field, so R21's audit clause is unserved).
+- **Open:** — (F21 resolved 2026-07-19: BE wave-5 is server-authoritative; the FE sends `packageQuantity` (pack count) on lines + template items and reads back `packageSize`; base `quantity` stays the source of truth. Live-verified: pack supply persisted count, detail shows "N упак".)
 - **Decisions:** partner required — no system walk-in partner (owner; canon rules 39–40 superseded, see design-handoff pattern 9).
 - Fixed line discount is a per-line currency amount, not the prototype's per-unit (flagged deviation); qty clamped ≥1.
 - Sale hard-blocks over-stock (rule 20), Supply doesn't (a supply adds stock); advance only at zero remaining debt (rule 40).
@@ -113,7 +113,7 @@
 ## Templates
 - **State:** rebuilt — shared `ExpandableDataTable` list (search + type filter, expand-row line items with totals), create/edit modal (type toggle re-prices lines, partner autocomplete, product cart), delete confirm.
 - **Data:** real (`/api/templates`; `lastUsedAt` still unserved → «Использован» renders «—»)
-- **Open:** F4 fixed discountType unmodeled, negative totals; F15 partner picker can select archived
+- **Open:** — (F4 fixed wave-4; F15 partner picker fixed wave-4). F21: template items now round-trip `packageQuantity`/`packageSize` silently (no modal UI) and show "N упак" in the expand-row; POS save/load restore pack mode.
 - **Decisions:** a template is an editable basket, not an immutable event — edit/delete allowed (mvp-plan §12).
 
 ## Orders
@@ -141,9 +141,9 @@
 - Direction pills are colour-only, no +/− signs (locked pattern 4).
 
 ## Payments
-- **State:** rebuilt — five immutable payment types (Оплата / Депозит / Вывод / Зарплата / Общий): list (stat cards, search, type + wallet filters, CSV); routed detail `/payments/:id` (Касса source line + Распределение allocation table + info card); create modal with per-type fields and the standalone settlement modal (FIFO auto-allocate, manual per-row, excess → advance; Вывод hard-blocks over-advance).
-- **Data:** real (`/api/payments`, `/form-data`, `/outstanding`, POST; the source/allocation read model is served)
-- **Open:** F9 allocation/source rendering unguarded, nullable `walletId`
+- **State:** rebuilt — five immutable payment types (Оплата / Депозит / Вывод / Зарплата / Общий): list (stat cards, search, type + wallet filters, CSV); routed detail `/payments/:id` (Касса source line + Распределение allocation table + attachments card + info card); create modal with per-type fields, an attachment picker (F18), and the standalone settlement modal (FIFO auto-allocate, manual per-row, excess → advance; Вывод hard-blocks over-advance).
+- **Data:** real (`/api/payments`, `/form-data`, `/outstanding`; **POST is multipart/form-data — carries `Attachments` file parts, F18**; the source/allocation read model is served, incl. `attachments[]` + echoed `transactionNotes`/`transactionAttachments`)
+- **Open:** — (F9 guard fixed wave-4). F18 attachments landed + live-verified 2026-07-19 (create + display via the shared `AttachmentChip`); the **note-on-any-payment** input stays a deferred feature (only `General` carries a note today).
 - **Decisions:** payments are immutable (rule 1); reverse-payment is out of MVP.
 - Payroll allows any number of payments per employee+month (canon — the prototype's one-per-month block dropped).
 - The standalone create's simplified settlement (no advance source / overpayment disposition) is the accepted DR-05 deferral.

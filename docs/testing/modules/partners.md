@@ -53,8 +53,7 @@ Expect: toast «Изменения сохранены»; balance still «−50 0
 ### T-PRT-05 · Supply creates a signed ledger row with running balance [happy] ✍
 Pre: partner А; fixtures «QA Склад А», «QA Товар Штучный» (supply 10 000).
 Steps: 1) /supplies/new: partner А, warehouse «QA Склад А», «QA Товар Штучный» ×10 (total 100 000), no payment, submit. 2) Back to А → Журнал.
-Expect: new supply row on top (date-desc default): event «Поставка», Сумма «+100 000» green (we owe more, partner-POV), «Баланс после» «+50 000» = −(50 000 − 100 000) green; balance card now «+50 000» green + hint «Кредиторская задолженность — мы должны партнёру»; «Обороты» Поставки = 100 000; pills «Журнал 2 · Транзакции 1 · Платежи 0» (R12).
-Known: F20 — the supply row's «Номер» shows «—» (backend serves no `reference` on sale/supply rows); payment rows do show it. KNOWN, not new.
+Expect: new supply row on top (date-desc default): event «Поставка», «Номер» = «№…» (the supply's document number via `formatEntityId`, F20 resolved 2026-07-19 — a «—» here on a sale/supply/refund row is now a regression; only the opening event stays «—»), Сумма «+100 000» green (we owe more, partner-POV), «Баланс после» «+50 000» = −(50 000 − 100 000) green; balance card now «+50 000» green + hint «Кредиторская задолженность — мы должны партнёру»; «Обороты» Поставки = 100 000; pills «Журнал 2 · Транзакции 1 · Платежи 0» (R12).
 
 ### T-PRT-06 · Deep link lands on filtered Транзакции tab [happy]
 Pre: partner А with the open supply debt (T-PRT-05).
@@ -64,7 +63,7 @@ Expect: Транзакции tab active, status filter preset «Открытые
 ### T-PRT-07 · Payment settles debt; ledger and balance reconcile [happy] ✍
 Pre: partner А (open supply 100 000).
 Steps: 1) Payments page → create payment: type «Оплата», partner А, wallet «QA Касса», amount 100 000, submit (exact amount — no settlement modal, #5). 2) А → Журнал.
-Expect: payment row: event «Оплата», Сумма «−100 000» red (their claim shrank, partner-POV), «Баланс после» «−50 000» red; «Номер» carries the payment's document number (verify against canon DR-21 — bare `N` vs «№N»); wallet «QA Касса» resolvable on the row/payments tab. Balance card back to «−50 000» red. «Обороты» Платежи = 100 000. Pills «Журнал 3 · Транзакции 1 · Платежи 1». Транзакции tab: supply now «Оплачено» (R8, R12).
+Expect: payment row: event «Оплата», Сумма «−100 000» red (their claim shrank, partner-POV), «Баланс после» «−50 000» red; «Номер» = «№N» (the payment's document number via `formatEntityId`, DR-21/F19); wallet «QA Касса» resolvable on the row/payments tab. Balance card back to «−50 000» red. «Обороты» Платежи = 100 000. Pills «Журнал 3 · Транзакции 1 · Платежи 1». Транзакции tab: supply now «Оплачено» (R8, R12).
 
 ### T-PRT-08 · PartnerType Both chip [happy]
 Pre: partner А.
@@ -88,11 +87,10 @@ Pre: create form; name filled valid.
 Steps: 1) Phone row 1: valid `901234567`. 2) «Добавить телефон», row 2: `12`. 3) Submit.
 Expect: only row 2 errors — «Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов» under that row; row 1 unaffected; submit blocked until fixed.
 
-### T-PRT-32 · Telegram round-trip — verify live [edge]
+### T-PRT-32 · Telegram round-trip — persists and renders (F12) [edge]
 Pre: partner А.
 Steps: 1) Edit А → Telegram «@qa_prt_check» → save. 2) Hard-reload the detail page. 3) Check «Контакты» in the rail.
-Expect: **contested** — F12 says the contract has no telegram field, so the value is silently discarded (blank after reload = KNOWN F12); the tracker claims it is now served. Report which behavior is live; if it persists, report «F12 may be fixed — verify and update frontend-gaps.md».
-Known: F12.
+Expect: the handle persists — after reload «Контакты» shows «@qa_prt_check» with the Telegram icon (F12 resolved 2026-07-19: the backend now persists+serves partner `telegram`; the FE was already sending it). A blank value after reload would be a regression. The handle-format validation still runs client-side on invalid input (`@x` → «Введите корректный логин…»).
 
 ### T-PRT-33 · Opening balance immutable — edit form offers no input [edge]
 Pre: partner А.
