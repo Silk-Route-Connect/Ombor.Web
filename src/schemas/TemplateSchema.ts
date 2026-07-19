@@ -7,22 +7,30 @@ export const TemplateTypeSchema = z.custom<TemplateType>(
 	{ message: i18next.t("template.validation.typeInvalid") },
 );
 
-const TemplateItemSchema = z.object({
-	id: z.number().nonnegative(),
+const TemplateItemSchema = z
+	.object({
+		id: z.number().nonnegative(),
 
-	productName: z.string().min(1),
+		productName: z.string().min(1),
 
-	productId: z.number().int().min(1, i18next.t("template.validation.productIdInvalid")),
+		productId: z.number().int().min(1, i18next.t("template.validation.productIdInvalid")),
 
-	quantity: z.number().int().min(1, i18next.t("template.validation.quantityInvalid")),
+		quantity: z.number().int().min(1, i18next.t("template.validation.quantityInvalid")),
 
-	unitPrice: z.number().gt(0, i18next.t("template.validation.unitPriceInvalid")),
+		unitPrice: z.number().gt(0, i18next.t("template.validation.unitPriceInvalid")),
 
-	discount: z
-		.number()
-		.min(0, i18next.t("template.validation.discountMin"))
-		.max(100, i18next.t("template.validation.discountMax")),
-});
+		discount: z.number().min(0, i18next.t("template.validation.discountMin")),
+
+		// Served on every line; every appended/loaded line carries it, so it is
+		// required here (no `.default()`, which would split z.input from z.output).
+		discountType: z.enum(["Percentage", "Fixed"]),
+	})
+	// The «≤ 100» cap only applies to percentage discounts; a fixed-amount discount
+	// (e.g. 5 000 UZS) is a currency value and must not be clamped to 100.
+	.refine((item) => item.discountType !== "Percentage" || item.discount <= 100, {
+		path: ["discount"],
+		message: i18next.t("template.validation.discountMax"),
+	});
 
 export const TemplateSchema = z.object({
 	name: z

@@ -42,8 +42,12 @@ export type TransactionPaymentLine = {
 
 export type TransactionAttachment = {
 	name: string;
-	kind: "pdf" | "img";
-	size: string;
+	/** MIME type, e.g. "application/pdf" or "image/jpeg" (drives the icon). */
+	contentType: string;
+	/** File size in bytes (served as int64); formatted for display via `formatBytes`. */
+	sizeBytes: number;
+	/** Download URL for the stored file. */
+	url: string;
 };
 
 export type TransactionRecord = {

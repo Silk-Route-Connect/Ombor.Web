@@ -240,6 +240,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				quantity: it.quantity,
 				unitPrice: it.unitPrice,
 				discount: it.discountValue,
+				discountType: it.discountType,
 			})),
 		});
 		setDialog("none");

@@ -1,4 +1,5 @@
 import { Measurement } from "./product";
+import { TransactionLineDiscountType as DiscountType } from "./transaction";
 
 export const TEMPLATE_TYPES = ["Supply", "Sale"] as const;
 export type TemplateType = (typeof TEMPLATE_TYPES)[number];
@@ -30,6 +31,13 @@ export type TemplateItem = {
 	quantity: number;
 	unitPrice: number;
 	discount: number;
+	/**
+	 * Whether `discount` is a percentage or a fixed amount. The backend serves it on
+	 * every `TemplateItemDto` and **defaults it to `Fixed`** when a write omits it
+	 * (orders-templates.md), so the display math must branch on it — a Fixed discount
+	 * treated as a percentage renders an absurd negative total.
+	 */
+	discountType: DiscountType;
 };
 
 export type GetTemplatesRequest = {
@@ -53,6 +61,8 @@ export type CreateTemplateItemRequest = {
 	quantity: number;
 	unitPrice: number;
 	discount?: number;
+	/** Percentage vs fixed amount; the backend defaults it to `Fixed` when omitted. */
+	discountType: DiscountType;
 };
 
 export type UpdateTemplateRequest = {
@@ -69,4 +79,6 @@ export type UpdateTemplateItemRequest = {
 	quantity: number;
 	unitPrice: number;
 	discount?: number;
+	/** Percentage vs fixed amount; the backend defaults it to `Fixed` when omitted. */
+	discountType: DiscountType;
 };

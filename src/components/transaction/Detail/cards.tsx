@@ -8,6 +8,7 @@ import { TransactionLine, TransactionRecord, TransactionStatus } from "models/tr
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
+import { formatBytes } from "utils/formatBytes";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
 import {
@@ -650,8 +651,7 @@ export const RefundHistoryCard: React.FC<{
 
 export const NoteAttachmentsCard: React.FC<{
 	tx: TransactionRecord;
-	onOpenAttachment: (name: string) => void;
-}> = ({ tx, onOpenAttachment }) => {
+}> = ({ tx }) => {
 	const { t } = useTranslation();
 	return (
 		<SdCard
@@ -666,51 +666,59 @@ export const NoteAttachmentsCard: React.FC<{
 				)}
 				{(tx.attachments?.length ?? 0) > 0 && (
 					<Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px", mt: tx.notes ? "14px" : 0 }}>
-						{tx.attachments?.map((a) => (
-							<Box
-								key={a.name}
-								onClick={() => onOpenAttachment(a.name)}
-								sx={{
-									display: "flex",
-									alignItems: "center",
-									gap: "11px",
-									p: "9px 13px 9px 10px",
-									border: "1px solid",
-									borderColor: designTokens.gray300,
-									borderRadius: "8px",
-									cursor: "pointer",
-									"&:hover": { borderColor: designTokens.primaryLine, bgcolor: "primary.light" },
-								}}
-							>
+						{tx.attachments?.map((a) => {
+							const isImage = a.contentType.startsWith("image/");
+							return (
 								<Box
+									key={a.url || a.name}
+									component="a"
+									href={a.url || undefined}
+									target="_blank"
+									rel="noopener noreferrer"
 									sx={{
-										width: 32,
-										height: 32,
-										borderRadius: "7px",
-										display: "grid",
-										placeItems: "center",
-										flex: "0 0 auto",
-										...(a.kind === "pdf"
-											? { bgcolor: designTokens.errorBg, color: "error.main" }
-											: { bgcolor: "rgba(42,111,151,0.12)", color: "info.main" }),
+										display: "flex",
+										alignItems: "center",
+										gap: "11px",
+										p: "9px 13px 9px 10px",
+										border: "1px solid",
+										borderColor: designTokens.gray300,
+										borderRadius: "8px",
+										cursor: "pointer",
+										textDecoration: "none",
+										color: "inherit",
+										"&:hover": { borderColor: designTokens.primaryLine, bgcolor: "primary.light" },
 									}}
 								>
-									{a.kind === "pdf" ? (
-										<DescriptionOutlinedIcon sx={{ fontSize: 17 }} />
-									) : (
-										<ImageOutlinedIcon sx={{ fontSize: 17 }} />
-									)}
-								</Box>
-								<Box>
-									<Typography sx={{ fontSize: 13, fontWeight: 600 }}>{a.name}</Typography>
-									<Typography
-										sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "1px" }}
+									<Box
+										sx={{
+											width: 32,
+											height: 32,
+											borderRadius: "7px",
+											display: "grid",
+											placeItems: "center",
+											flex: "0 0 auto",
+											...(isImage
+												? { bgcolor: "rgba(42,111,151,0.12)", color: "info.main" }
+												: { bgcolor: designTokens.errorBg, color: "error.main" }),
+										}}
 									>
-										{a.size}
-									</Typography>
+										{isImage ? (
+											<ImageOutlinedIcon sx={{ fontSize: 17 }} />
+										) : (
+											<DescriptionOutlinedIcon sx={{ fontSize: 17 }} />
+										)}
+									</Box>
+									<Box>
+										<Typography sx={{ fontSize: 13, fontWeight: 600 }}>{a.name}</Typography>
+										<Typography
+											sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "1px" }}
+										>
+											{formatBytes(a.sizeBytes)}
+										</Typography>
+									</Box>
 								</Box>
-							</Box>
-						))}
+							);
+						})}
 					</Box>
 				)}
 			</Box>

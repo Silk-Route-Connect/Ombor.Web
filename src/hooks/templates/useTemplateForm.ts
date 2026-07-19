@@ -144,6 +144,7 @@ export const useTemplateForm = ({
 			quantity: 1,
 			unitPrice,
 			discount: 0,
+			discountType: "Fixed",
 		});
 
 		setSelectedProduct(null);
@@ -162,6 +163,7 @@ export const useTemplateForm = ({
 				quantity: 1,
 				unitPrice: getPrice(product, watchedType),
 				discount: 0,
+				discountType: "Fixed",
 			});
 		},
 		[watchedType, items, append],

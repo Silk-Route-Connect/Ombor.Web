@@ -99,7 +99,7 @@ const ALLOC_META: Record<PaymentAllocationKind, { labelKey: string; color: strin
 	ChangeReturn: { labelKey: "payment.alloc.change", color: "text.secondary" },
 };
 
-/** Распределение (allocations) table with a «Распределено» footer. */
+/** Распределение (allocations) table. */
 export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -181,8 +181,11 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 										{targetLabel}
 									</Box>
 								</Box>
-								<Box component="td" sx={{ ...detailBodyCellSx, color: meta.color }}>
-									{t(meta.labelKey)}
+								<Box
+									component="td"
+									sx={{ ...detailBodyCellSx, color: meta?.color ?? "text.secondary" }}
+								>
+									{meta ? t(meta.labelKey) : a.allocationType}
 								</Box>
 								<Box component="td" sx={{ ...detailBodyCellSx, textAlign: "right" }}>
 									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>

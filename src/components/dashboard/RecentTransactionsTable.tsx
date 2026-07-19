@@ -36,7 +36,10 @@ const STATUS_TONE: Record<DashboardTxStatus, { bg: string; color: string; key: s
 
 const StatusChip: React.FC<{ status: DashboardTxStatus }> = ({ status }) => {
 	const { t } = useTranslation();
-	const tone = STATUS_TONE[status];
+	// Defensive fallback: `status` is served as a free string, so an unexpected
+	// value (different casing, an added enum member) must not throw on the landing
+	// page — render it as «unpaid» rather than crash the recent-tx table (F5).
+	const tone = STATUS_TONE[status] ?? STATUS_TONE.unpaid;
 	return (
 		<Box
 			component="span"

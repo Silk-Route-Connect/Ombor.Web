@@ -43,6 +43,7 @@ const TemplatePage: React.FC = observer(() => {
 					quantity: it.quantity,
 					unitPrice: it.unitPrice,
 					discount: it.discount,
+					discountType: it.discountType,
 				})),
 			};
 			templateStore.update(request);
@@ -58,6 +59,7 @@ const TemplatePage: React.FC = observer(() => {
 				quantity: it.quantity,
 				unitPrice: it.unitPrice,
 				discount: it.discount,
+				discountType: it.discountType,
 			})),
 		};
 		templateStore.create(request);

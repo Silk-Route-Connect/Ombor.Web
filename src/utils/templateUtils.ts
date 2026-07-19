@@ -1,7 +1,7 @@
 import { Template, TemplateItem } from "models/template";
 import { TemplateFormInputs, TemplateFormItemValues } from "schemas/TemplateSchema";
 
-import { calculateLineTotals } from "./productUtils";
+import { lineGross, lineNet } from "./transactionUtils";
 
 export const TEMPLATE_FORM_DEFAULT_VALUES: TemplateFormInputs = {
 	name: "",
@@ -22,13 +22,9 @@ export const mapTemplateToPayload = (template: Template): TemplateFormInputs => 
 export function calculateTemplateTotals(items: TemplateItem[] | TemplateFormItemValues[]) {
 	return items.reduce(
 		(acc, item) => {
-			const { lineTotal, discountAmount } = calculateLineTotals(
-				item.unitPrice,
-				item.quantity,
-				item.discount,
-			);
-			acc.totalDiscount += discountAmount;
-			acc.totalDue += lineTotal - discountAmount;
+			const net = lineNet(item);
+			acc.totalDiscount += lineGross(item) - net;
+			acc.totalDue += net;
 			return acc;
 		},
 		{ totalDue: 0, totalDiscount: 0 },

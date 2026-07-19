@@ -111,7 +111,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					)}
 
 					{!refund && (tx.notes || (tx.attachments?.length ?? 0) > 0) && (
-						<NoteAttachmentsCard tx={tx} onOpenAttachment={(name) => devToast(name)} />
+						<NoteAttachmentsCard tx={tx} />
 					)}
 				</Stack>
 
