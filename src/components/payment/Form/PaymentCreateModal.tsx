@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
+import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -100,6 +101,18 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	const { form } = usePaymentForm({ isOpen });
 	const { control, watch, setValue, handleSubmit, formState } = form;
 	const [settleOpen, setSettleOpen] = useState(false);
+	const [files, setFiles] = useState<File[]>([]);
+
+	// Attachments live outside the RHF form (File objects aren't form values); cleared
+	// when the modal closes so the next open starts fresh (F18).
+	useEffect(() => {
+		if (!isOpen) {
+			setFiles([]);
+		}
+	}, [isOpen]);
+
+	const addFiles = (list: FileList) => setFiles((cur) => [...cur, ...Array.from(list)]);
+	const removeFile = (index: number) => setFiles((cur) => cur.filter((_, j) => j !== index));
 
 	const data = formData === "loading" ? { partners: [], employees: [], wallets: [] } : formData;
 
@@ -145,7 +158,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		outstanding.length > 0;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
-		formState.isDirty,
+		formState.isDirty || files.length > 0,
 		isSaving,
 		onClose,
 	);
@@ -160,6 +173,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		description: type === "General" ? watch("description") : null,
 		period: type === "Payroll" ? `${watch("month")} ${watch("year")}` : null,
 		settlements,
+		attachments: files,
 	});
 
 	const onValid = (_values: PaymentFormValues): void => {
@@ -572,6 +586,10 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								)
 							)}
 						</Stack>
+					</Box>
+
+					<Box sx={{ mt: "16px" }}>
+						<AttachmentPicker files={files} onAdd={addFiles} onRemove={removeFile} />
 					</Box>
 
 					{hasOpenDebts && (

@@ -108,6 +108,8 @@
   "payment.detail.paid": "Выплачено",
   "payment.detail.description": "Описание",
   "payment.detail.info": "Информация",
+  "payment.detail.attachments": "Вложения",
+  "payment.detail.fromTransaction": "Из операции",
   "payment.detail.partner": "Партнёр",
   "payment.detail.typeLabel": "Тип",
   "payment.detail.directionLabel": "Направление",

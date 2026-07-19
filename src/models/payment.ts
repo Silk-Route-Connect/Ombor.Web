@@ -130,6 +130,18 @@ export type PaymentAllocationEntry = {
 	amount: number;
 };
 
+/** A file uploaded with a payment (F18); served raw values only. */
+export type PaymentAttachmentDto = {
+	id: number;
+	name: string;
+	/** MIME type, e.g. "application/pdf" or "image/jpeg" (drives the icon). */
+	contentType: string;
+	/** File size in bytes (served as int64); formatted for display via `formatBytes`. */
+	sizeBytes: number;
+	/** Public URL to fetch the file. */
+	url: string;
+};
+
 /**
  * A standalone payment — the immutable Платёж record (rule 1). Every derived
  * figure (partner balance, wallet name) is served. Sources balance settling
@@ -171,6 +183,15 @@ export type PaymentRecord = {
 	createdBy: string;
 	sources: PaymentSource[];
 	allocations: PaymentAllocationEntry[];
+	/** Files uploaded with this payment (F18); empty when none. */
+	attachments: PaymentAttachmentDto[];
+	/**
+	 * Echoed read-only from the settled transaction(s): the note captured at
+	 * transaction-with-payment time (first when several settled), null when none.
+	 */
+	transactionNotes: string | null;
+	/** Echoed read-only: the settled transaction(s)' attachments (F18); empty when none. */
+	transactionAttachments: PaymentAttachmentDto[];
 };
 
 /** An outstanding (unpaid / partially-paid) transaction — the settlement modal row. */
@@ -237,4 +258,6 @@ export type CreatePaymentRecordRequest = {
 	period: string | null;
 	/** Transaction-type settlement allocations; excess becomes an advance. */
 	settlements: SettlementInput[];
+	/** Files sent as multipart `attachments` parts; the server stores the binaries (F18). */
+	attachments?: File[];
 };
