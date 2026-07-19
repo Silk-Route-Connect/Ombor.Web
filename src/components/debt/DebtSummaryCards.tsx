@@ -10,15 +10,6 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { Box, Paper, Typography } from "@mui/material";
 
-/** Russian transaction-count pluralization. */
-export function txWord(n: number): string {
-	const m10 = n % 10;
-	const m100 = n % 100;
-	if (m10 === 1 && m100 !== 11) return "транзакция";
-	if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return "транзакции";
-	return "транзакций";
-}
-
 type CardSpec = {
 	key: "receivable" | "payable" | "overdue" | "net";
 	icon: React.ReactNode;
@@ -35,7 +26,11 @@ interface DebtSummaryCardsProps {
 	onCard: (card: "receivable" | "payable" | "overdue") => void;
 }
 
-const Card: React.FC<{ spec: CardSpec; onClick?: () => void }> = ({ spec, onClick }) => (
+const Card: React.FC<{ spec: CardSpec; countLabel: string; onClick?: () => void }> = ({
+	spec,
+	countLabel,
+	onClick,
+}) => (
 	<Paper
 		elevation={1}
 		onClick={onClick}
@@ -121,7 +116,7 @@ const Card: React.FC<{ spec: CardSpec; onClick?: () => void }> = ({ spec, onClic
 				}}
 			>
 				{spec.pill.icon}
-				{spec.count} {txWord(spec.count)}
+				{countLabel}
 			</Box>
 		</Box>
 	</Paper>
@@ -191,6 +186,7 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 				<Card
 					key={spec.key}
 					spec={spec}
+					countLabel={t("debt.summary.txCount", { count: spec.count })}
 					onClick={
 						spec.clickable
 							? () => onCard(spec.key as "receivable" | "payable" | "overdue")

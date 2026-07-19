@@ -147,9 +147,6 @@
   "warehouse.opening.footerSummary": "{{count}} поз. · {{value}} UZS",
   "warehouse.opening.note": "Примечание",
   "warehouse.opening.notePlaceholder": "Например: Начальный остаток при переходе с Excel",
-  "warehouse.opening.auditHintBefore": "Будет записано как",
-  "warehouse.opening.auditHintBold": "событие начального остатка",
-  "warehouse.opening.auditHintAfter": "с автором и временем.",
 
   "warehouse.opening.validation.productRequired": "Выберите товар",
   "warehouse.opening.validation.nonNegative": "Не может быть отрицательным",

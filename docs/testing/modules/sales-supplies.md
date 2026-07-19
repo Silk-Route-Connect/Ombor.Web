@@ -19,9 +19,11 @@ Module-specific; shared-checklist §6 still applies.
 | «Погасить долги» button inside POS totals on overpayment | R40 settle-other-debts opt-in; the standalone-payments DR-05 deferral does not apply to this guided flow |
 | Sale submit with zero payment interrupts with a dialog «Провести без оплаты?» → «Провести в долг» | deliberate friction before creating debt, not a validation failure |
 | Wallet options render «{тип} · баланс N UZS» exposing balances in the picker | designed tender affordance |
+| Cart-line «Цена за ед», «Скидка» and «Оплата» amount fields space-group digits as you type («1 500 000») and show blank + placeholder «0» at zero | `MoneyInputBase` live thousands grouping; the raw whole-number UZS is stored, not the formatted string |
 | «Скачать» on detail → toast «… — раздел в разработке» | dev stub |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
+| Line totals and stock hints stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count now **is** persisted (F21 resolved 2026-07-19 — FE sends `packageQuantity`, server snapshots `packageSize`) and the detail line shows "N упак / <base>" |
 
 ## Happy path
 
@@ -72,9 +74,9 @@ Expect: default disposition is «Сдача» (#5, R40); an «Аванс» toggl
 
 ### T-POS-08 · Package-unit entry [happy] ✍
 
-Pre: fixture «QA Товар Упаковка» (packaging size 12) with stock ≥ 24 in «QA Склад А» — if absent, first supply 3 packages/36 units via `/supplies/new` from partner «QA-<MMDD> Поставщик П», paid in full from «QA Касса».
-Steps: 1. Read and note the current «QA Товар Упаковка» stock on «QA Склад А»; then `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка». 2. Check whether the line offers package-based quantity entry; if yes, enter 2 packages; if only base units, enter 24 and record the observation. 3. Submit paid in full from «QA Касса».
-Expect: stock decremented by exactly 24 base units (R21: package count × size); with package entry, the entered package count stays visible on the line and the detail. If no package entry exists anywhere on the line, report an R21 gap observation (canon expects package-count entry retained on the line) — not a stock-math failure if base units still move correctly.
+Pre: fixture «QA Товар Упаковка» (packaging size 12) with stock ≥ 24 in «QA Склад А» — if absent, first supply 3 packages/36 units via `/supplies/new` from partner «QA-<MMDD> Поставщик П» (switch the line to «упак», qty 3 — hint «= 36 шт»), paid in full from «QA Касса».
+Steps: 1. Read and note the current «QA Товар Упаковка» stock on «QA Склад А»; then `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка». 2. The line's qty column shows a «шт | упак» toggle (packaged products only), default «шт». 3. Click «упак»: label flips to «Кол-во · упак», the qty converts up to whole packages, hint «= N шт» appears; the «упак» segment's tooltip shows the packaging label (or «Упаковка · 12 шт»). 4. Enter 2 — hint «= 24 шт»; line total = 24 × unit price («Цена за шт» stays per base unit). 5. Stepper +/− and ↑/↓ step whole packages; «−» disabled at 1 упак. 6. Submit paid in full from «QA Касса».
+Expect: stock decremented by exactly 24 base units (R21: package count × size); line total and summary math in base units × unit price. The entered package count **is** retained after submit — the detail line shows «2 упак / 24» (F21 resolved 2026-07-19: FE sends `packageQuantity`, server snapshots `packageSize`; the detail derives the count).
 
 ### T-POS-09 · Save as template; load fills current prices [happy] ✍
 
@@ -115,14 +117,36 @@ Expect: both lines now carry exactly 5% («−5% на все позиции» ch
 ### T-POS-34 · Supply tender exceeding wallet balance blocked [negative]
 
 Pre: read «QA Касса» balance from the wallet option label («Наличные · баланс N UZS»).
-Steps: 1. `/supplies/new`: supplier partner, П1 × 1 @ 100. 2. «Оплата» from «QA Касса», amount = balance + 1 000. 3. Submit.
-Expect: inline «Доступно только N UZS — нельзя списать больше остатка кассы.» (DR-25); no POST. This is the first live verification of the POS-Supply overdraft guard (shipped code-only in PR #72) — state the outcome explicitly in the report. Sales (income direction) never show this guard.
+Steps: 1. `/supplies/new`: supplier partner, П1 × 1 @ 100. 2. «Оплата» from «QA Касса», amount = max(balance, 0) + 1 000. 3. Submit. 4. Set the amount to 0 and submit again (back out of the dialog without confirming).
+Expect: 3 → inline «Доступно только N UZS — нельзя списать больше остатка кассы.» (DR-25) with N = max(balance, 0) — **never a negative amount** (an overdrawn wallet shows «0 UZS»); no POST. 4 → a zero tender is not an outflow: the guard passes and the «Провести без оплаты?» dialog opens even from an overdrawn wallet. Both clamp behaviors live-verified 2026-07-17 (guard itself first live-verified same day; shipped code-only in PR #72). Sales (income direction) never show this guard.
 
 ### T-POS-35 · Credit sale to a partner holding an advance [edge] ✍
 
 Pre: create partner «QA-<MMDD> Покупатель Б» (Клиент, opening 0) — zero debt, so the deposit can become an advance (R40; against a partner with open debt it would settle the oldest sale instead, corrupting T-POS-60's oracle). Give «Покупатель Б» an advance: payments modal → «Депозит», 500 from «QA Касса» ([payments.md](payments.md) mechanics).
 Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель Б», П1 × 1 @ 1 000, zero payment. 2. Observe the summary/payment area before submitting. 3. Abandon (do not submit).
 Expect: i18n carries an unused `payment.mustUseBalanceWarning` string («У партнёра есть доступный баланс…») that no component renders — do not assert it; no advance-balance warning currently surfaces in the POS. Record exactly what (if anything) surfaces the partner's advance and whether submit is possible; canon does not specify the enforcement — report behavior as an observation, not a new defect.
+
+### T-POS-36 · Package toggle: ceil conversion up, lossless return [edge]
+
+Pre: «QA Товар Упаковка» (size 12) exists; no submit — display-only.
+Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка»; qty 13 in «шт». 2. Toggle «упак» — read field + hint. 3. Toggle «шт». 4. Leave (discard dialog).
+Expect: 2 → field 2 упак, hint «= 24 шт» — switching converts UP to whole packages (never below the entered amount), and the line total jumps accordingly (visible, not silent); 3 → field 24 шт, totals identical to the pack-mode state (quantity in base units is the source of truth across toggles).
+
+### T-POS-37 · Over-stock sale in package mode [negative]
+
+Pre: read «QA Товар Упаковка» stock N on «QA Склад А» (finite).
+Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель», add «QA Товар Упаковка», «упак», packs such that packs × 12 > N. 2. Observe the line. 3. Submit. 4. Fix to a valid count; abandon (discard dialog).
+Expect: live hint «Превышает остаток · доступно N шт» and submit error «Недостаточно товара: доступно N шт» — both in **base units** while the field counts packages; no POST (R20/DR-10); stepper and typing never disabled (#7).
+
+### T-POS-38 · Toggle scope + template round-trip restores pack mode [edge]
+
+Steps: 1. `/sales/new`: partner «QA-<MMDD> Покупатель», add П1 — inspect its qty column. 2. Add «QA Товар Упаковка», «упак», qty 2; «Сохранить как шаблон» → «QA-<MMDD> Шаблон У». 3. Leave (discard); fresh `/sales/new`, same partner → load «QA-<MMDD> Шаблон У». 4. Leave (discard).
+Expect: 1 → no unit toggle on a product without packaging (base behavior unchanged); 3 → the packaged line loads back in «упак» mode at 2 packs (= 24 шт) — F21 resolved 2026-07-19: `packageQuantity` is saved on the template item and `loadTemplate` restores pack mode from the served `packageSize`; П1 line loads as before.
+
+### T-POS-39 · Supply entered in packages [edge]
+
+Steps: 1. `/supplies/new`: partner «QA-<MMDD> Поставщик П», «Склад приёмки» = «QA Склад А», add «QA Товар Упаковка» → «упак», qty 3. 2. Read the line. 3. Leave without submitting (discard dialog).
+Expect: same toggle/hint mechanics as Sale (hint «= 36 шт»; price label «Цена поставки за шт» stays per base unit); no stock hints or warnings in either unit mode (stock-in, R20). Display-only — T-POS-08's fallback supply already proves pack-mode stock-in math end-to-end.
 
 ## Reconciliation
 

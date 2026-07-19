@@ -4,19 +4,20 @@ import ProductLink from "components/product/Links/ProductLink";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
-import { Box, MenuItem, TextField, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface WarehouseStockTabProps {
 	warehouse: Warehouse;
@@ -114,31 +115,14 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 					placeholder={t("warehouse.stock.searchPlaceholder")}
 					dense
 				/>
-				<TextField
-					select
-					size="small"
+				<EntityFilterSelect
 					value={category}
-					onChange={(e) => setCategory(e.target.value)}
-					sx={{
-						width: 200,
-						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
-					}}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<LocalOfferOutlinedIcon sx={{ fontSize: 16, color: "text.disabled", mr: "6px" }} />
-							),
-						},
-					}}
-				>
-					<MenuItem value={ALL_CATEGORIES}>{t("warehouse.stock.allCategories")}</MenuItem>
-					{categories.map((name) => (
-						<MenuItem key={name} value={name}>
-							{name}
-						</MenuItem>
-					))}
-				</TextField>
+					allValue={ALL_CATEGORIES}
+					allLabel={t("warehouse.stock.allCategories")}
+					options={categories.map((name) => ({ value: name, label: name }))}
+					onChange={setCategory}
+					icon={<LocalOfferOutlinedIcon />}
+				/>
 				<Box sx={{ flexGrow: 1 }} />
 				<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
 					{t("warehouse.stock.count", { value: rows.length })}

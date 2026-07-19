@@ -84,6 +84,8 @@ export interface DataTableProps<T extends { id: string | number }> {
 	defaultSort?: DefaultSort;
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
+	/** Empty-state copy; defaults to the localized «Нет записей». */
+	emptyMessage?: string;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -96,6 +98,7 @@ export function DataTable<T extends { id: string | number }>({
 	defaultSort,
 	onRowClick,
 	onSort,
+	emptyMessage,
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
@@ -277,7 +280,7 @@ export function DataTable<T extends { id: string | number }>({
 
 			{rows !== "loading" && rows.length === 0 && (
 				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
-					Нет записей
+					{emptyMessage ?? t("common.table.noRecords")}
 				</Box>
 			)}
 

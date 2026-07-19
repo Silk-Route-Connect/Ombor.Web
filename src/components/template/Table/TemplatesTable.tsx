@@ -15,6 +15,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { lineNet } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -54,17 +55,10 @@ const innerBodySx = {
 	verticalAlign: "middle",
 } as const;
 
-/** Pluralised «позиция/позиции/позиций» for the expand-row footer. */
-function positionsWord(n: number): string {
-	const m10 = n % 10;
-	const m100 = n % 100;
-	if (m10 === 1 && m100 !== 11) return "позиция";
-	if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return "позиции";
-	return "позиций";
-}
-
-const lineTotal = (item: Template["items"][number]): number =>
-	item.quantity * item.unitPrice * (1 - (item.discount ?? 0) / 100);
+// Net line amount after the discount — branches on `discountType` (percentage vs
+// fixed amount) via the shared `lineNet`, so a served Fixed discount no longer
+// renders as a negative total (F4).
+const lineTotal = (item: Template["items"][number]): number => lineNet(item);
 
 const templateTotal = (template: Template): number =>
 	template.items.reduce((s, it) => s + lineTotal(it), 0);
@@ -167,6 +161,12 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 								<Box component="span" sx={numericSx}>
 									{formatQuantity(item.quantity)}
 								</Box>
+								{item.packageSize && item.packageSize > 0 && (
+									<Box sx={{ fontSize: 11, color: "text.disabled" }}>
+										{Math.round(item.quantity / item.packageSize)}{" "}
+										{t("transaction.new.line.packShort")}
+									</Box>
+								)}
 							</Box>
 							<Box component="td" sx={innerBodySx}>
 								<Box component="span" sx={{ color: "text.secondary" }}>
@@ -202,7 +202,6 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 						>
 							{t("template.itemsTable.footer", {
 								count: template.items.length,
-								word: positionsWord(template.items.length),
 							})}
 						</Box>
 						<Box

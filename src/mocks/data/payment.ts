@@ -151,7 +151,10 @@ function advanceCredit(amount: number): PaymentAllocationEntry {
 	};
 }
 
-let payments: PaymentRecord[] = [
+const seedPayments: Omit<
+	PaymentRecord,
+	"attachments" | "transactionNotes" | "transactionAttachments"
+>[] = [
 	{
 		id: 520,
 		number: "P-520",
@@ -370,6 +373,14 @@ let payments: PaymentRecord[] = [
 	},
 ];
 
+// Mock records carry no attachments; the real backend serves these arrays/note (F18).
+let payments: PaymentRecord[] = seedPayments.map((p) => ({
+	...p,
+	attachments: [],
+	transactionNotes: null,
+	transactionAttachments: [],
+}));
+
 let nextPaymentNumber = 521;
 
 /* ───────────────────────── queries ───────────────────────── */
@@ -484,6 +495,9 @@ export function addPayment(req: CreatePaymentRecordRequest): PaymentRecord {
 		createdBy: AUTHOR,
 		sources: [walletSource(wallet.id, req.amount)],
 		allocations,
+		attachments: [],
+		transactionNotes: null,
+		transactionAttachments: [],
 	};
 
 	payments = [record, ...payments];

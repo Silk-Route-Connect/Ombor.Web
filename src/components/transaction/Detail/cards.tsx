@@ -1,9 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
 import MetaDot from "components/shared/Detail/MetaDot";
 import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
@@ -24,7 +26,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
-import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -145,10 +146,24 @@ export const PositionsCard: React.FC<{
 									</Typography>
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
-									{l.quantity}{" "}
-									<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
-										{l.unit}
-									</Box>
+									{l.packageSize && l.packageSize > 0 ? (
+										<>
+											{Math.round(l.quantity / l.packageSize)}{" "}
+											<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
+												{t("transaction.new.line.packShort")}
+											</Box>
+											<Box sx={{ color: "text.disabled", fontSize: 11 }}>
+												{l.quantity} {l.unit}
+											</Box>
+										</>
+									) : (
+										<>
+											{l.quantity}{" "}
+											<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
+												{l.unit}
+											</Box>
+										</>
+									)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
 									{formatCurrency(l.unitPrice)}
@@ -553,7 +568,7 @@ export const PaymentsCard: React.FC<{
 									{formatDateTime(p.date)}
 								</Box>
 								<MetaDot />
-								{p.walletName}
+								{p.walletId ? <WalletLink id={p.walletId} name={p.walletName} /> : p.walletName}
 							</Box>
 						</Box>
 						<Box
@@ -650,8 +665,7 @@ export const RefundHistoryCard: React.FC<{
 
 export const NoteAttachmentsCard: React.FC<{
 	tx: TransactionRecord;
-	onOpenAttachment: (name: string) => void;
-}> = ({ tx, onOpenAttachment }) => {
+}> = ({ tx }) => {
 	const { t } = useTranslation();
 	return (
 		<SdCard
@@ -667,49 +681,7 @@ export const NoteAttachmentsCard: React.FC<{
 				{(tx.attachments?.length ?? 0) > 0 && (
 					<Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px", mt: tx.notes ? "14px" : 0 }}>
 						{tx.attachments?.map((a) => (
-							<Box
-								key={a.name}
-								onClick={() => onOpenAttachment(a.name)}
-								sx={{
-									display: "flex",
-									alignItems: "center",
-									gap: "11px",
-									p: "9px 13px 9px 10px",
-									border: "1px solid",
-									borderColor: designTokens.gray300,
-									borderRadius: "8px",
-									cursor: "pointer",
-									"&:hover": { borderColor: designTokens.primaryLine, bgcolor: "primary.light" },
-								}}
-							>
-								<Box
-									sx={{
-										width: 32,
-										height: 32,
-										borderRadius: "7px",
-										display: "grid",
-										placeItems: "center",
-										flex: "0 0 auto",
-										...(a.kind === "pdf"
-											? { bgcolor: designTokens.errorBg, color: "error.main" }
-											: { bgcolor: "rgba(42,111,151,0.12)", color: "info.main" }),
-									}}
-								>
-									{a.kind === "pdf" ? (
-										<DescriptionOutlinedIcon sx={{ fontSize: 17 }} />
-									) : (
-										<ImageOutlinedIcon sx={{ fontSize: 17 }} />
-									)}
-								</Box>
-								<Box>
-									<Typography sx={{ fontSize: 13, fontWeight: 600 }}>{a.name}</Typography>
-									<Typography
-										sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "1px" }}
-									>
-										{a.size}
-									</Typography>
-								</Box>
-							</Box>
+							<AttachmentChip key={a.url || a.name} {...a} />
 						))}
 					</Box>
 				)}

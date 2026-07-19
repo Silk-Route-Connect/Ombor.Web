@@ -11,7 +11,6 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import { Box, Paper, Typography } from "@mui/material";
 
-import { txWord } from "../debt/DebtSummaryCards";
 import { staggerChildrenSx, useCountUp, usePrefersReducedMotion } from "./motion";
 
 type Delta = { pct: number | null; tone: "up" | "down" | "flat" | "warn"; text: string };
@@ -267,7 +266,7 @@ const DashboardKpiCards: React.FC<Props> = ({
 			delta: {
 				pct: null,
 				tone: "warn",
-				text: `${data.overdue.count} ${txWord(data.overdue.count)}`,
+				text: t("debt.summary.txCount", { count: data.overdue.count }),
 			},
 			footnote: t("dashboard.kpi.partners", { count: data.overdue.partnerCount }),
 			onClick: onOverdue,

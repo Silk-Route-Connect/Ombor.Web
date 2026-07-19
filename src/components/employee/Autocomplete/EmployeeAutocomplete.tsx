@@ -29,7 +29,8 @@ const EmployeeAutocomplete: React.FC<EmployeeAutocompleteProps> = ({
 		if (employeeStore.allEmployees === "loading") {
 			return [];
 		}
-		return employeeStore.allEmployees;
+		// A payment/payroll flow must not target a terminated employee (F15).
+		return employeeStore.allEmployees.filter((employee) => employee.status !== "Terminated");
 	}, [employeeStore.allEmployees]);
 
 	const loading = employeeStore.allEmployees === "loading";

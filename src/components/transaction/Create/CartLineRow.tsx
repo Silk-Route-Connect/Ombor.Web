@@ -1,18 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
-import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import RemoveIcon from "@mui/icons-material/Remove";
-import { Box, ButtonBase, IconButton, InputBase, Typography } from "@mui/material";
+import { Box, ButtonBase, IconButton, Typography } from "@mui/material";
+
+import { CartLineQty } from "./CartLineQty";
+import { fieldLabelSx, segmentedBoxSx, segmentSx } from "./lineSx";
 
 interface CartLineRowProps {
 	direction: TransactionDirection;
@@ -29,19 +31,6 @@ interface CartLineRowProps {
 	/** Enter in the quantity field → continue adding (refocus the product search). */
 	onContinue: () => void;
 }
-
-const parseNum = (s: string): number => {
-	const n = parseInt(s.replace(/[^\d]/g, ""), 10);
-	return Number.isNaN(n) ? 0 : n;
-};
-
-const fieldLabelSx = {
-	fontSize: 10.5,
-	fontWeight: 600,
-	letterSpacing: "0.04em",
-	textTransform: "uppercase",
-	color: "text.disabled",
-} as const;
 
 const boxedInputSx = {
 	height: 36,
@@ -90,47 +79,6 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 	const near = isSale && !over && stock > 0 && item.quantity / stock >= 0.8;
 	const invalid = over;
 
-	const qtyRef = useRef<HTMLInputElement>(null);
-
-	// Free-form editing buffer for the quantity: lets the field go empty while
-	// retyping (clear «32» → type «55») instead of snapping back to the min on
-	// every keystroke. Only a valid value (≥ 1) commits; blur and the stepper
-	// revert the buffer to the controlled value. Focus selects all so a
-	// click-then-type replaces too.
-	const [qtyDraft, setQtyDraft] = useState<string | null>(null);
-	const qtyValue = qtyDraft ?? String(item.quantity);
-
-	useEffect(() => {
-		if (autoFocusQty && qtyRef.current) {
-			qtyRef.current.focus();
-			qtyRef.current.select();
-			onAutoFocused();
-		}
-	}, [autoFocusQty, onAutoFocused]);
-
-	const setQty = (next: number) => {
-		setQtyDraft(null);
-		onChange({ quantity: Math.max(1, next) });
-	};
-	const onQtyChange = (raw: string) => {
-		setQtyDraft(raw);
-		const n = parseInt(raw.replace(/[^\d]/g, ""), 10);
-		if (!Number.isNaN(n) && n >= 1) {
-			onChange({ quantity: n });
-		}
-	};
-	const onQtyKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "ArrowUp") {
-			e.preventDefault();
-			setQty(item.quantity + 1);
-		} else if (e.key === "ArrowDown") {
-			e.preventDefault();
-			setQty(item.quantity - 1);
-		} else if (e.key === "Enter") {
-			e.preventDefault();
-			onContinue();
-		}
-	};
 	// Enter from the price / discount fields also continues to the next product.
 	const onEnterContinue = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
@@ -193,59 +141,14 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 			<Box
 				sx={{ display: "flex", alignItems: "flex-end", gap: "14px", flexWrap: "wrap", mt: "10px" }}
 			>
-				{/* quantity stepper */}
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>{t("transaction.new.line.qty", { unit })}</Typography>
-					<Box
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							height: 36,
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							borderRadius: "6px",
-							overflow: "hidden",
-						}}
-					>
-						<IconButton
-							size="small"
-							disabled={item.quantity <= 1}
-							onClick={() => setQty(item.quantity - 1)}
-							sx={{ borderRadius: 0, width: 32, height: 36, color: designTokens.gray600 }}
-						>
-							<RemoveIcon sx={{ fontSize: 16 }} />
-						</IconButton>
-						<InputBase
-							inputRef={qtyRef}
-							value={qtyValue}
-							onFocus={(e) => e.currentTarget.select()}
-							onChange={(e) => onQtyChange(e.target.value)}
-							onBlur={() => setQtyDraft(null)}
-							onKeyDown={onQtyKeyDown}
-							sx={{
-								width: 44,
-								height: 36,
-								borderLeft: "1px solid",
-								borderRight: "1px solid",
-								borderColor: "divider",
-								"& input": {
-									textAlign: "center",
-									...numericSx,
-									fontWeight: 600,
-									fontSize: 14,
-									p: 0,
-								},
-							}}
-						/>
-						<IconButton
-							size="small"
-							onClick={() => setQty(item.quantity + 1)}
-							sx={{ borderRadius: 0, width: 32, height: 36, color: designTokens.gray600 }}
-						>
-							<AddIcon sx={{ fontSize: 16 }} />
-						</IconButton>
-					</Box>
-				</Box>
+				{/* quantity stepper + unit toggle (packaged products) */}
+				<CartLineQty
+					item={item}
+					autoFocusQty={autoFocusQty}
+					onChange={onChange}
+					onAutoFocused={onAutoFocused}
+					onContinue={onContinue}
+				/>
 
 				{/* unit price */}
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -258,11 +161,12 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						<Box component="span" sx={{ color: "text.disabled", fontSize: 13 }}>
 							×
 						</Box>
-						<InputBase
+						<MoneyInputBase
 							value={item.unitPrice}
-							onChange={(e) => onChange({ unitPrice: parseNum(e.target.value) })}
+							onChange={(unitPrice) => onChange({ unitPrice })}
 							onKeyDown={onEnterContinue}
-							sx={{ width: 84, ...numInputSx }}
+							placeholder="0"
+							sx={{ width: 104, ...numInputSx }}
 						/>
 					</Box>
 				</Box>
@@ -272,23 +176,15 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 					<Typography sx={fieldLabelSx}>{t("transaction.new.line.discount")}</Typography>
 					<Box sx={{ display: "flex", gap: "6px" }}>
 						<Box sx={boxedInputSx}>
-							<InputBase
+							<MoneyInputBase
 								value={item.discountValue}
-								onChange={(e) => onChange({ discountValue: parseNum(e.target.value) })}
+								onChange={(discountValue) => onChange({ discountValue })}
 								onKeyDown={onEnterContinue}
-								sx={{ width: 56, ...numInputSx }}
+								placeholder="0"
+								sx={{ width: 72, ...numInputSx }}
 							/>
 						</Box>
-						<Box
-							sx={{
-								display: "inline-flex",
-								height: 36,
-								border: "1px solid",
-								borderColor: designTokens.gray300,
-								borderRadius: "6px",
-								overflow: "hidden",
-							}}
-						>
+						<Box sx={segmentedBoxSx}>
 							{(["Percentage", "Fixed"] as const).map((type) => {
 								const selected = item.discountType === type;
 								return (
@@ -296,13 +192,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 										key={type}
 										onClick={() => onChange({ discountType: type })}
 										title={type === "Fixed" ? t("transaction.new.line.fixedHint") : undefined}
-										sx={{
-											px: "9px",
-											fontSize: 12,
-											fontWeight: 600,
-											color: selected ? "primary.main" : "text.secondary",
-											bgcolor: selected ? designTokens.primarySoft : "background.paper",
-										}}
+										sx={segmentSx(selected)}
 									>
 										{type === "Percentage" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
 									</ButtonBase>

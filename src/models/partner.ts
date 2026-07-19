@@ -79,6 +79,7 @@ export type PartnerLedgerEntry = {
 	/** Settlement status (transactions only). */
 	status?: PartnerLedgerStatus;
 	/** Wallet the payment moved through — payment rows only; null on opening/transaction rows. */
+	walletId?: number | null;
 	walletName?: string | null;
 	walletType?: WalletType | null;
 };

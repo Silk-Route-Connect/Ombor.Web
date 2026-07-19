@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
+import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -45,20 +46,8 @@ import {
 
 import PaymentSettlementModal from "./PaymentSettlementModal";
 
-const MONTHS = [
-	"Январь",
-	"Февраль",
-	"Март",
-	"Апрель",
-	"Май",
-	"Июнь",
-	"Июль",
-	"Август",
-	"Сентябрь",
-	"Октябрь",
-	"Ноябрь",
-	"Декабрь",
-];
+/** 1-based month numbers; labels come from the shared `common.month.*` keys. */
+const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
 const YEARS = ["2026", "2025"];
 
 /**
@@ -112,6 +101,18 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	const { form } = usePaymentForm({ isOpen });
 	const { control, watch, setValue, handleSubmit, formState } = form;
 	const [settleOpen, setSettleOpen] = useState(false);
+	const [files, setFiles] = useState<File[]>([]);
+
+	// Attachments live outside the RHF form (File objects aren't form values); cleared
+	// when the modal closes so the next open starts fresh (F18).
+	useEffect(() => {
+		if (!isOpen) {
+			setFiles([]);
+		}
+	}, [isOpen]);
+
+	const addFiles = (list: FileList) => setFiles((cur) => [...cur, ...Array.from(list)]);
+	const removeFile = (index: number) => setFiles((cur) => cur.filter((_, j) => j !== index));
 
 	const data = formData === "loading" ? { partners: [], employees: [], wallets: [] } : formData;
 
@@ -134,9 +135,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	// Block a wallet outflow (Expense direction) that exceeds the source wallet's
 	// balance — mirrors the transfer over-balance guard. Enforced here, not in the
 	// schema (the balance is contextual). Server-side enforcement is a backend item.
+	// Available clamps at zero (an overdrawn wallet has 0 to spend); Income is never
+	// balance-gated — money coming in must be recordable on any wallet (DR-25).
 	const selectedWallet = data.wallets.find((w) => w.id === (watch("walletId") as number)) ?? null;
 	const overWallet =
-		effectiveDir === "Expense" && selectedWallet != null && amount > selectedWallet.balance;
+		effectiveDir === "Expense" &&
+		selectedWallet != null &&
+		amount > Math.max(0, selectedWallet.balance);
 
 	// Load the partner's outstanding when settling, so the debts banner + the
 	// settlement modal have data ready.
@@ -153,7 +158,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		outstanding.length > 0;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
-		formState.isDirty,
+		formState.isDirty || files.length > 0,
 		isSaving,
 		onClose,
 	);
@@ -168,6 +173,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		description: type === "General" ? watch("description") : null,
 		period: type === "Payroll" ? `${watch("month")} ${watch("year")}` : null,
 		settlements,
+		attachments: files,
 	});
 
 	const onValid = (_values: PaymentFormValues): void => {
@@ -415,11 +421,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												value={field.value}
 												onChange={(e) => field.onChange(e.target.value)}
 											>
-												{MONTHS.map((m) => (
-													<MenuItem key={m} value={m}>
-														{m}
-													</MenuItem>
-												))}
+												{MONTH_NUMBERS.map((n) => {
+													const label = t(`common.month.${n}`);
+													return (
+														<MenuItem key={n} value={label}>
+															{label}
+														</MenuItem>
+													);
+												})}
 											</Select>
 										)}
 									/>
@@ -564,7 +573,9 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							) : overWallet ? (
 								<Typography sx={{ fontSize: 12, color: "error.main" }}>
 									{t("payment.form.overWallet", {
-										available: formatCurrency(selectedWallet?.balance ?? 0),
+										// Clamped like the guard — an overdrawn wallet has 0 available,
+										// never a negative amount in user-facing copy.
+										available: formatCurrency(Math.max(0, selectedWallet?.balance ?? 0)),
 									})}
 								</Typography>
 							) : (
@@ -575,6 +586,10 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								)
 							)}
 						</Stack>
+					</Box>
+
+					<Box sx={{ mt: "16px" }}>
+						<AttachmentPicker files={files} onAdd={addFiles} onRemove={removeFile} />
 					</Box>
 
 					{hasOpenDebts && (

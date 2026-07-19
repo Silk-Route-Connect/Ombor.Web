@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { PartnerLedgerEntry } from "models/partner";
 import { numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
@@ -198,10 +199,14 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 									<EventCell type={p.type} label={t(eventLabelKey(p.type))} />
 								</Box>
 								<Box component="td" sx={{ ...bodyCellSx, fontSize: 13, color: "text.primary" }}>
-									{p.walletName ?? (
-										<Box component="span" sx={{ color: "text.secondary" }}>
-											{t("common.dash")}
-										</Box>
+									{p.walletId && p.walletName ? (
+										<WalletLink id={p.walletId} name={p.walletName} />
+									) : (
+										(p.walletName ?? (
+											<Box component="span" sx={{ color: "text.secondary" }}>
+												{t("common.dash")}
+											</Box>
+										))
 									)}
 								</Box>
 								<Box

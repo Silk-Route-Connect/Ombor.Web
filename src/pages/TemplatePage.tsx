@@ -29,6 +29,14 @@ const TemplatePage: React.FC = observer(() => {
 		productStore.getAll();
 	}, [templateStore, partnerStore, productStore]);
 
+	// Preserve a pack item's count through an edit only while its quantity is still an
+	// exact multiple of the snapshotted size (F21); editing to a non-multiple silently
+	// drops the pack nature to base units. The server recomputes quantity from the count.
+	const packQty = (it: { packageSize?: number | null; quantity: number }): number | undefined =>
+		it.packageSize && it.packageSize > 0 && it.quantity % it.packageSize === 0
+			? it.quantity / it.packageSize
+			: undefined;
+
 	const handleSave = (payload: TemplateFormPayload): void => {
 		const selected = templateStore.selectedTemplate;
 		if (selected) {
@@ -43,6 +51,8 @@ const TemplatePage: React.FC = observer(() => {
 					quantity: it.quantity,
 					unitPrice: it.unitPrice,
 					discount: it.discount,
+					discountType: it.discountType,
+					packageQuantity: packQty(it),
 				})),
 			};
 			templateStore.update(request);
@@ -58,6 +68,8 @@ const TemplatePage: React.FC = observer(() => {
 				quantity: it.quantity,
 				unitPrice: it.unitPrice,
 				discount: it.discount,
+				discountType: it.discountType,
+				packageQuantity: packQty(it),
 			})),
 		};
 		templateStore.create(request);

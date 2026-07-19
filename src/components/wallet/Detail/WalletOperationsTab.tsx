@@ -2,11 +2,11 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
 import DetailLink from "components/shared/Link/DetailLink";
-import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import TableToolbar from "components/shared/Table/TableToolbar";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
-import { paymentDetailPath } from "routing/paths";
+import { partnerDetailPath, paymentDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
@@ -148,14 +148,19 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				key: "party",
 				headerName: t("wallet.operations.party"),
 				sortValue: (o) => o.party ?? "",
-				renderCell: (o) => (
-					<Box
-						component="span"
-						sx={{ color: o.transferId != null ? "text.secondary" : "text.primary" }}
-					>
-						{o.party ?? "—"}
-					</Box>
-				),
+				renderCell: (o) =>
+					o.partnerId != null && o.party ? (
+						<Box component="span" onClick={stop} sx={{ whiteSpace: "nowrap" }}>
+							<DetailLink to={partnerDetailPath(o.partnerId)}>{o.party}</DetailLink>
+						</Box>
+					) : (
+						<Box
+							component="span"
+							sx={{ color: o.transferId != null ? "text.secondary" : "text.primary" }}
+						>
+							{o.party ?? "—"}
+						</Box>
+					),
 			},
 			{
 				key: "amount",
@@ -201,14 +206,14 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 
 	return (
 		<>
-			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
-				<SearchInput
-					value={query}
-					onChange={setQuery}
-					placeholder={t("wallet.operations.searchPlaceholder")}
-				/>
-				<SegmentedControl options={dirOptions} value={dir} onChange={setDir} />
-			</Box>
+			<TableToolbar
+				search={{
+					value: query,
+					onChange: setQuery,
+					placeholder: t("wallet.operations.searchPlaceholder"),
+				}}
+				filters={<SegmentedControl options={dirOptions} value={dir} onChange={setDir} />}
+			/>
 
 			{rows.length === 0 ? (
 				<Paper

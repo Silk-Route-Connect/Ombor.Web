@@ -1,6 +1,5 @@
 import { delay, http, HttpResponse } from "msw";
 
-import { TransactionAttachment } from "../../models/transaction";
 import { MEASUREMENT_SHORT } from "../../utils/productUtils";
 import { findPartner } from "../data/partner";
 import { findProduct } from "../data/product";
@@ -28,14 +27,11 @@ function validationProblem(errors: Record<string, string[]>, status = 400) {
 	);
 }
 
-/** Derive the served attachment metadata from an uploaded multipart file part. */
-const fileKind = (name: string): TransactionAttachment["kind"] =>
-	/\.(png|jpe?g|gif|webp|bmp)$/i.test(name) ? "img" : "pdf";
-
-const fileSize = (bytes: number): string =>
-	bytes >= 1_048_576
-		? `${(bytes / 1_048_576).toFixed(1)} МБ`
-		: `${Math.max(1, Math.round(bytes / 1024))} КБ`;
+/** Derive the served MIME type from an uploaded multipart file part's name. */
+const fileContentType = (name: string): string =>
+	/\.(png|jpe?g|gif|webp|bmp)$/i.test(name)
+		? `image/${(/\.(\w+)$/.exec(name)?.[1] ?? "jpeg").toLowerCase()}`
+		: "application/pdf";
 
 export const transactionHandlers = [
 	// CONTRACT: GET /api/transactions
@@ -141,8 +137,9 @@ export const transactionHandlers = [
 			paidAmount: Number(body.paidAmount) || 0,
 			attachments: files.map((f) => ({
 				name: f.name,
-				kind: fileKind(f.name),
-				size: fileSize(f.size),
+				contentType: fileContentType(f.name),
+				sizeBytes: f.size,
+				url: `/mock/attachments/${encodeURIComponent(f.name)}`,
 			})),
 			lines: lines.map((l) => {
 				const product = findProduct(l.productId);

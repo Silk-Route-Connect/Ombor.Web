@@ -24,7 +24,6 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
 	Box,
@@ -402,29 +401,6 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 							)}
 						/>
 					</Stack>
-
-					<Box
-						sx={{
-							display: "flex",
-							gap: "10px",
-							alignItems: "flex-start",
-							mt: "16px",
-							p: "11px 13px",
-							bgcolor: designTokens.warningBg,
-							border: "1px solid",
-							borderColor: designTokens.accentSoft,
-							borderRadius: "8px",
-						}}
-					>
-						<InfoOutlinedIcon
-							sx={{ fontSize: 16, color: "warning.main", mt: "1px", flex: "0 0 auto" }}
-						/>
-						<Typography sx={{ fontSize: 12.5, color: designTokens.saffron700, lineHeight: 1.55 }}>
-							{t("transfer.form.immutableHintBefore")}{" "}
-							<Box component="b">{t("transfer.form.immutableHintBold")}</Box>{" "}
-							{t("transfer.form.immutableHintAfter")}
-						</Typography>
-					</Box>
 				</DialogContent>
 
 				<DialogActions

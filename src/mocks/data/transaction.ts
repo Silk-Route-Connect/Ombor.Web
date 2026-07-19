@@ -42,7 +42,7 @@ const WAREHOUSE = "Центральный склад";
 type SeedDisc = { type: "pct" | "fix"; v: number } | null;
 type SeedLine = { name: string; unit: string; qty: number; price: number; disc?: SeedDisc };
 type SeedPayment = { id: string; date: string; method: string; amount: number };
-type SeedAttachment = { name: string; type: "pdf" | "img"; size: string };
+type SeedAttachment = { name: string; type: "pdf" | "img"; sizeBytes: number };
 
 type SeedTxn = {
 	number: string;
@@ -113,8 +113,8 @@ const SALES: SeedTxn[] = [
 		payments: [{ id: "P-512", date: "05.06.2026", method: "Наличные", amount: 1200000 }],
 		note: "Клиент просил отгрузить до конца недели. Чай зелёный 100г не включён — нет на складе на момент продажи.",
 		attachments: [
-			{ name: "Накладная №1042.pdf", type: "pdf", size: "248 КБ" },
-			{ name: "Фото получения.jpg", type: "img", size: "1,2 МБ" },
+			{ name: "Накладная №1042.pdf", type: "pdf", sizeBytes: 253952 },
+			{ name: "Фото получения.jpg", type: "img", sizeBytes: 1258291 },
 		],
 	},
 	{
@@ -249,8 +249,8 @@ const SUPPLIES: SeedTxn[] = [
 		payments: [{ id: "P-731", date: "02.06.2026", method: "Банк", amount: 1000000 }],
 		note: "Партия по предзаказу. Рис со скидкой −5% по договорённости. Остаток оплаты — после сверки накладной.",
 		attachments: [
-			{ name: "Накладная №2017.pdf", type: "pdf", size: "264 КБ" },
-			{ name: "Счёт-фактура.pdf", type: "pdf", size: "188 КБ" },
+			{ name: "Накладная №2017.pdf", type: "pdf", sizeBytes: 270336 },
+			{ name: "Счёт-фактура.pdf", type: "pdf", sizeBytes: 192512 },
 		],
 	},
 	{
@@ -386,8 +386,18 @@ const toPayments = (txId: number, seed: SeedPayment[] | undefined): TransactionP
 		};
 	});
 
+const SEED_CONTENT_TYPE: Record<SeedAttachment["type"], string> = {
+	pdf: "application/pdf",
+	img: "image/jpeg",
+};
+
 const toAttachments = (seed: SeedAttachment[] | undefined): TransactionAttachment[] =>
-	(seed ?? []).map((a) => ({ name: a.name, kind: a.type, size: a.size }));
+	(seed ?? []).map((a) => ({
+		name: a.name,
+		contentType: SEED_CONTENT_TYPE[a.type],
+		sizeBytes: a.sizeBytes,
+		url: `/mock/attachments/${encodeURIComponent(a.name)}`,
+	}));
 
 function buildTxn(seed: SeedTxn, type: TransactionType): TransactionRecord {
 	const id = nextId++;

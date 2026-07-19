@@ -7,6 +7,7 @@ import { numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -261,7 +262,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
 							>
 								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, fontWeight: 600 }}>
-									{tx.reference ?? "—"}
+									{tx.reference ? formatEntityId(tx.reference) : "—"}
 								</Box>
 								<Box
 									component="td"

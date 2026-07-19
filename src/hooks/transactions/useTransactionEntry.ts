@@ -18,6 +18,13 @@ export type CartItem = {
 	/** Percent (0–100) when discountType is "Percentage"; a per-line currency amount when "Fixed". */
 	discountValue: number;
 	discountType: TransactionLineDiscountType;
+	/**
+	 * Entry-only unit mode: the qty field edits package counts (packaging.size base
+	 * units each) while `quantity` stays base units (rule 21). On submit the pack
+	 * count (`quantity ÷ packaging.size`) is sent as `packageQuantity` so the server
+	 * persists it for audit (F21); `quantity` remains the source of truth for FE math.
+	 */
+	inPackages?: boolean;
 };
 
 /** Tendered payment — a single wallet + amount (business-rules §B source side). */
@@ -163,8 +170,11 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		setItems((cur) => {
 			const existing = cur.find((x) => x.product.id === product.id);
 			if (existing) {
+				// Re-adding steps one display unit — a whole package when the line counts in packages.
+				const step =
+					existing.inPackages && existing.product.packaging ? existing.product.packaging.size : 1;
 				return cur.map((x) =>
-					x.product.id === product.id ? { ...x, quantity: x.quantity + 1 } : x,
+					x.product.id === product.id ? { ...x, quantity: x.quantity + step } : x,
 				);
 			}
 			return [
@@ -234,13 +244,21 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		type: direction,
 		partnerId: partner?.id ?? 0,
 		warehouseId: warehouseId ?? 0,
-		lines: items.map((it) => ({
-			productId: it.product.id,
-			quantity: it.quantity,
-			unitPrice: it.unitPrice,
-			discount: it.discountValue,
-			discountType: it.discountType,
-		})),
+		lines: items.map((it) => {
+			const packSize = it.product.packaging?.size;
+			// Pack-mode lines carry the entered pack count (base qty stays authoritative);
+			// the server recomputes quantity from count × size and snapshots the size.
+			const packageQuantity =
+				it.inPackages && packSize && packSize > 0 ? Math.round(it.quantity / packSize) : undefined;
+			return {
+				productId: it.product.id,
+				quantity: it.quantity,
+				unitPrice: it.unitPrice,
+				discount: it.discountValue,
+				discountType: it.discountType,
+				packageQuantity,
+			};
+		}),
 		notes: notes.trim() || undefined,
 		walletId: pay.walletId ?? 0,
 		paidAmount: paid,

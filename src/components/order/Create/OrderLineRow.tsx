@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -20,11 +21,6 @@ interface OrderLineRowProps {
 	onChange: (patch: Partial<CartItem>) => void;
 	onRemove: () => void;
 }
-
-const parseNum = (s: string): number => {
-	const n = parseInt(s.replace(/[^\d]/g, ""), 10);
-	return Number.isNaN(n) ? 0 : n;
-};
 
 const fieldLabelSx = {
 	fontSize: 10.5,
@@ -203,10 +199,11 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 						<Box component="span" sx={{ color: "text.disabled", fontSize: 13 }}>
 							×
 						</Box>
-						<InputBase
+						<MoneyInputBase
 							value={item.unitPrice}
-							onChange={(e) => onChange({ unitPrice: parseNum(e.target.value) })}
-							sx={{ width: 84, ...numInputSx }}
+							onChange={(unitPrice) => onChange({ unitPrice })}
+							placeholder="0"
+							sx={{ width: 104, ...numInputSx }}
 						/>
 					</Box>
 				</Box>
@@ -216,10 +213,11 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 					<Typography sx={fieldLabelSx}>{t("order.new.line.discount")}</Typography>
 					<Box sx={{ display: "flex", gap: "6px" }}>
 						<Box sx={boxedInputSx}>
-							<InputBase
+							<MoneyInputBase
 								value={item.discountValue}
-								onChange={(e) => onChange({ discountValue: parseNum(e.target.value) })}
-								sx={{ width: 56, ...numInputSx }}
+								onChange={(discountValue) => onChange({ discountValue })}
+								placeholder="0"
+								sx={{ width: 72, ...numInputSx }}
 							/>
 						</Box>
 						<Box

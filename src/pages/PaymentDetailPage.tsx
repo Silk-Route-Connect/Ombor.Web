@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import {
 	PaymentAllocationCard,
+	PaymentAttachmentsCard,
 	PaymentGeneralCard,
 	PaymentInfoCard,
 	PaymentPayrollCard,
@@ -72,6 +73,12 @@ const PaymentDetailPage: React.FC = observer(() => {
 					{isWithdrawal && <PaymentWithdrawalCard payment={payment} />}
 					{!isPayroll && !isGeneral && !isWithdrawal && payment.allocations.length > 0 && (
 						<PaymentAllocationCard payment={payment} />
+					)}
+
+					{(payment.attachments.length > 0 ||
+						payment.transactionNotes ||
+						payment.transactionAttachments.length > 0) && (
+						<PaymentAttachmentsCard payment={payment} />
 					)}
 				</Stack>
 

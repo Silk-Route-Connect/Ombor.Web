@@ -123,6 +123,9 @@ function buildItem(id: number, type: TemplateType, line: LineSpec, price?: numbe
 		quantity: line.quantity,
 		unitPrice,
 		discount: 0,
+		// The real `TemplateItemDto` always serves a discountType; the backend defaults
+		// a write to `Fixed`, so the mock mirrors that (contract: orders-templates.md).
+		discountType: "Fixed",
 	};
 }
 

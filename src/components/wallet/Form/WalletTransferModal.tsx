@@ -19,7 +19,6 @@ import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import {
@@ -125,14 +124,16 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 	const amount = watch("amount");
 
 	const fromWallet = wallets.find((w) => w.id === fromId) ?? null;
-	const available = fromWallet?.balance ?? 0;
+	// Clamp to ≥ 0 so an overdrawn (negative-balance) source doesn't block every
+	// transfer — a negative «available» would make any positive amount over-balance (F13).
+	const available = Math.max(fromWallet?.balance ?? 0, 0);
 	const over = !!fromWallet && amount > available;
 
 	// Over-balance is contextual (depends on the live source balance) — block
 	// here, then defer to the store.
 	function guardedSave(values: TransferFormValues) {
 		const source = wallets.find((w) => w.id === values.fromWalletId);
-		if (source && values.amount > source.balance) {
+		if (source && values.amount > Math.max(source.balance, 0)) {
 			return;
 		}
 		onSave(values);
@@ -315,19 +316,6 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 							/>
 						</Stack>
 					</Stack>
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "7px",
-							mt: "18px",
-							fontSize: 12.5,
-							color: designTokens.saffron700,
-						}}
-					>
-						<InfoOutlinedIcon sx={{ fontSize: 15, color: "warning.main" }} />
-						{t("wallet.transfer.immutableHint")}
-					</Box>
 				</DialogContent>
 
 				<DialogActions

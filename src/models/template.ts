@@ -1,4 +1,5 @@
 import { Measurement } from "./product";
+import { TransactionLineDiscountType as DiscountType } from "./transaction";
 
 export const TEMPLATE_TYPES = ["Supply", "Sale"] as const;
 export type TemplateType = (typeof TEMPLATE_TYPES)[number];
@@ -30,6 +31,19 @@ export type TemplateItem = {
 	quantity: number;
 	unitPrice: number;
 	discount: number;
+	/**
+	 * Whether `discount` is a percentage or a fixed amount. The backend serves it on
+	 * every `TemplateItemDto` and **defaults it to `Fixed`** when a write omits it
+	 * (orders-templates.md), so the display math must branch on it — a Fixed discount
+	 * treated as a percentage renders an absurd negative total.
+	 */
+	discountType: DiscountType;
+	/**
+	 * When the item was entered in packages, the package size snapshotted at entry
+	 * time (F21); null/absent for a base-unit item. The entered pack count is derived
+	 * as `quantity ÷ packageSize`.
+	 */
+	packageSize?: number | null;
 };
 
 export type GetTemplatesRequest = {
@@ -53,6 +67,13 @@ export type CreateTemplateItemRequest = {
 	quantity: number;
 	unitPrice: number;
 	discount?: number;
+	/** Percentage vs fixed amount; the backend defaults it to `Fixed` when omitted. */
+	discountType: DiscountType;
+	/**
+	 * Pack count when the item was entered in packages (F21). When set, the server
+	 * computes the base `quantity` from the product's package size and snapshots it.
+	 */
+	packageQuantity?: number;
 };
 
 export type UpdateTemplateRequest = {
@@ -69,4 +90,11 @@ export type UpdateTemplateItemRequest = {
 	quantity: number;
 	unitPrice: number;
 	discount?: number;
+	/** Percentage vs fixed amount; the backend defaults it to `Fixed` when omitted. */
+	discountType: DiscountType;
+	/**
+	 * Pack count when the item was entered in packages (F21). When set, the server
+	 * computes the base `quantity` from the product's package size and snapshots it.
+	 */
+	packageQuantity?: number;
 };

@@ -127,8 +127,20 @@ function op(
 	amount: number,
 	balanceAfter: number,
 	transferId: number | null = null,
+	partnerId: number | null = null,
 ): OperationSeed {
-	return { id, date, kind, direction, paymentNumber, party, amount, balanceAfter, transferId };
+	return {
+		id,
+		date,
+		kind,
+		direction,
+		paymentNumber,
+		party,
+		amount,
+		balanceAfter,
+		transferId,
+		partnerId,
+	};
 }
 
 let transfers: WalletTransfer[] = [

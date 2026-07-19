@@ -125,7 +125,6 @@
   "wallet.transfer.transferAll": "Перевести всё",
   "wallet.transfer.overBalance": "Доступно только {{available}} UZS — нельзя перевести больше остатка.",
   "wallet.transfer.errorBanner": "Проверьте отмеченные поля перед проведением перевода.",
-  "wallet.transfer.immutableHint": "Перевод будет записан окончательно.",
   "wallet.transfer.submit": "Перевести",
   "wallet.transfer.date": "Дата",
   "wallet.transfer.createdBy": "Создал",

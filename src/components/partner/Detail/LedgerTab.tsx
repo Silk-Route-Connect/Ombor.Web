@@ -6,6 +6,7 @@ import { PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
@@ -247,7 +248,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 													"&:hover": { textDecoration: "underline" },
 												}}
 											>
-												{e.reference}
+												{formatEntityId(e.reference)}
 											</Box>
 										) : (
 											<Box component="span" sx={{ color: "text.disabled" }}>

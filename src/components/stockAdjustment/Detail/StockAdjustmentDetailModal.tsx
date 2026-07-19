@@ -12,7 +12,6 @@ import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Avatar, Box, Dialog, DialogActions, DialogContent, Typography } from "@mui/material";
 
@@ -181,28 +180,6 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 							{t("adjustment.detail.noNote")}
 						</Box>
 					)}
-				</Box>
-
-				{/* immutability hint (rule 23) */}
-				<Box
-					sx={{
-						display: "flex",
-						gap: "10px",
-						alignItems: "flex-start",
-						mt: "16px",
-						p: "11px 13px",
-						bgcolor: "primary.light",
-						border: "1px solid",
-						borderColor: designTokens.primaryLine,
-						borderRadius: "8px",
-					}}
-				>
-					<InfoOutlinedIcon
-						sx={{ fontSize: 16, color: "primary.main", mt: "1px", flex: "0 0 auto" }}
-					/>
-					<Typography sx={{ fontSize: 12.5, color: "primary.dark", lineHeight: 1.55 }}>
-						{t("adjustment.detail.immutableHint")}
-					</Typography>
 				</Box>
 			</DialogContent>
 
