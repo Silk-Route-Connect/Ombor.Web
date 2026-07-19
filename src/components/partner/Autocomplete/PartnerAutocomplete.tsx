@@ -27,10 +27,12 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 			return partnerStore.customers;
 		} else if (type === "Supplier") {
 			return partnerStore.suppliers;
-		} else {
-			return partnerStore.allPartners;
 		}
-	}, [partnerStore.customers, partnerStore.suppliers, type]);
+		// `Both` must not offer archived partners (rule 30) — the Customer/Supplier
+		// getters already exclude them; the raw `allPartners` list does not (F15).
+		const all = partnerStore.allPartners;
+		return all === "loading" ? all : all.filter((p) => !p.isArchived);
+	}, [partnerStore.customers, partnerStore.suppliers, partnerStore.allPartners, type]);
 
 	return (
 		<EntityAutocomplete<Partner>

@@ -70,6 +70,8 @@ export type WalletOperation = {
 	paymentNumber: string | null;
 	/** Partner / recipient name, or the transfer direction («→ Расчётный счёт»); null for non-party ops (e.g. Opening). */
 	party: string | null;
+	/** Partner id for a partner-payment row — links «party» to the partner detail; null for transfers and non-partner ops (WAL-7). */
+	partnerId: number | null;
 	amount: number;
 	/** Served running balance of the wallet after this event (hard rule 8). */
 	balanceAfter: number;
