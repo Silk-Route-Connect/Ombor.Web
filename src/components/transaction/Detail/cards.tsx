@@ -5,6 +5,7 @@ import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
 import MetaDot from "components/shared/Detail/MetaDot";
 import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { TransactionStatusChip } from "components/transaction/TransactionBadges";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
@@ -567,7 +568,7 @@ export const PaymentsCard: React.FC<{
 									{formatDateTime(p.date)}
 								</Box>
 								<MetaDot />
-								{p.walletName}
+								{p.walletId ? <WalletLink id={p.walletId} name={p.walletName} /> : p.walletName}
 							</Box>
 						</Box>
 						<Box

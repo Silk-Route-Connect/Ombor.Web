@@ -33,6 +33,7 @@ export type TransactionPaymentLine = {
 	paymentNumber: string;
 	amount: number;
 	/** Wallet the payment moved through (replaces the legacy method label). */
+	walletId?: number | null;
 	walletName: string;
 	walletType: WalletType;
 	notes?: string;
