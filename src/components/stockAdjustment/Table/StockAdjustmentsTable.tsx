@@ -148,8 +148,20 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 							}}
 						>
 							{isDown ? "−" : "+"}
-							{formatQuantity(a.quantity)}{" "}
-							<Box component="span" sx={{ color: "text.disabled", fontSize: 12 }}>
+							{formatQuantity(a.quantity)}
+							{/* Fixed-width, left-aligned unit so the numbers line up across rows
+							    regardless of the unit label's width («шт» / «кг» / «т»). */}
+							<Box
+								component="span"
+								sx={{
+									color: "text.disabled",
+									fontSize: 12,
+									display: "inline-block",
+									width: 26,
+									ml: "4px",
+									textAlign: "left",
+								}}
+							>
 								{MEASUREMENT_SHORT[a.measurement]}
 							</Box>
 						</Box>

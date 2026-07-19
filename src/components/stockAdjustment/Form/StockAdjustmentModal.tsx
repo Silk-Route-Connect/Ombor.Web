@@ -522,28 +522,6 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 								)}
 							/>
 						</Stack>
-
-						<Box
-							sx={{
-								display: "flex",
-								gap: "10px",
-								alignItems: "flex-start",
-								p: "11px 13px",
-								bgcolor: designTokens.warningBg,
-								border: "1px solid",
-								borderColor: designTokens.accentSoft,
-								borderRadius: "8px",
-							}}
-						>
-							<InfoOutlinedIcon
-								sx={{ fontSize: 16, color: "warning.main", mt: "1px", flex: "0 0 auto" }}
-							/>
-							<Typography sx={{ fontSize: 12.5, color: designTokens.saffron700, lineHeight: 1.55 }}>
-								{t("adjustment.form.immutableHintBefore")}{" "}
-								<Box component="b">{t("adjustment.form.immutableHintBold")}</Box>{" "}
-								{t("adjustment.form.immutableHintAfter")}
-							</Typography>
-						</Box>
 					</Stack>
 				</DialogContent>
 

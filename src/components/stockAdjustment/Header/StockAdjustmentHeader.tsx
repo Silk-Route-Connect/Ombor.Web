@@ -1,18 +1,18 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { Warehouse } from "models/warehouse";
 import { DirectionFilter } from "stores/StockAdjustmentStore";
-import { designTokens } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Box, MenuItem, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface StockAdjustmentHeaderProps {
 	totalCount: number | null;
@@ -78,33 +78,17 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 					placeholder={t("adjustment.searchPlaceholder")}
 				/>
 
-				<TextField
-					select
-					size="small"
+				<EntityFilterSelect
 					value={warehouseFilter == null ? ALL_WAREHOUSES : String(warehouseFilter)}
-					onChange={(e) =>
-						onWarehouseChange(e.target.value === ALL_WAREHOUSES ? null : Number(e.target.value))
-					}
-					sx={{
-						width: 200,
-						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
-					}}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<WarehouseOutlinedIcon sx={{ fontSize: 16, color: "text.disabled", mr: "6px" }} />
-							),
-						},
-					}}
-				>
-					<MenuItem value={ALL_WAREHOUSES}>{t("adjustment.filter.allWarehouses")}</MenuItem>
-					{warehouses.map((warehouse) => (
-						<MenuItem key={warehouse.id} value={String(warehouse.id)}>
-							{warehouse.name}
-						</MenuItem>
-					))}
-				</TextField>
+					allValue={ALL_WAREHOUSES}
+					allLabel={t("adjustment.filter.allWarehouses")}
+					options={warehouses.map((warehouse) => ({
+						value: String(warehouse.id),
+						label: warehouse.name,
+					}))}
+					onChange={(v) => onWarehouseChange(v === ALL_WAREHOUSES ? null : Number(v))}
+					icon={<WarehouseOutlinedIcon />}
+				/>
 
 				<SegmentedControl<DirectionFilter>
 					options={DIRECTION_TABS.map((tab) => ({

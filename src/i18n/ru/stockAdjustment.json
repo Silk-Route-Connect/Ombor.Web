@@ -43,7 +43,6 @@
   "adjustment.detail.balanceAfter": "Остаток после операции",
   "adjustment.detail.createdBy": "Провёл",
   "adjustment.detail.noNote": "Без примечания",
-  "adjustment.detail.immutableHint": "Корректировки нельзя редактировать или удалять — они часть аудируемой истории склада.",
 
   "adjustment.empty.title": "Пока нет корректировок",
   "adjustment.empty.body": "Корректировки фиксируют изменения остатка без продаж и поставок — порча, недостача, пересчёт, находка. Создайте первую запись.",
@@ -71,9 +70,6 @@
   "adjustment.form.floorNote": "Нельзя списать больше, чем есть: доступно {{available}} {{unit}}, запрошено {{requested}} {{unit}}. Остаток не может опуститься ниже нуля.",
   "adjustment.form.reasonPlaceholder": "Выберите причину",
   "adjustment.form.notePlaceholder": "Дополнительные детали корректировки…",
-  "adjustment.form.immutableHintBefore": "Корректировки",
-  "adjustment.form.immutableHintBold": "необратимы",
-  "adjustment.form.immutableHintAfter": "— после сохранения запись нельзя изменить или удалить. Будет зафиксирован автор и время.",
 
   "adjustment.validation.warehouseRequired": "Выберите склад",
   "adjustment.validation.productRequired": "Выберите товар",

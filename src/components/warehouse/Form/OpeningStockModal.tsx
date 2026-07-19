@@ -24,7 +24,6 @@ import { MEASUREMENT_SHORT } from "utils/productUtils";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import {
 	Box,
@@ -397,29 +396,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							)}
 						/>
 					</Stack>
-
-					<Box
-						sx={{
-							display: "flex",
-							gap: "10px",
-							alignItems: "flex-start",
-							mt: "16px",
-							p: "11px 13px",
-							bgcolor: "primary.light",
-							border: "1px solid",
-							borderColor: designTokens.primaryLine,
-							borderRadius: "8px",
-						}}
-					>
-						<InfoOutlinedIcon
-							sx={{ fontSize: 16, color: "primary.main", mt: "1px", flex: "0 0 auto" }}
-						/>
-						<Typography sx={{ fontSize: 12.5, color: "primary.dark", lineHeight: 1.55 }}>
-							{t("warehouse.opening.auditHintBefore")}{" "}
-							<Box component="b">{t("warehouse.opening.auditHintBold")}</Box>{" "}
-							{t("warehouse.opening.auditHintAfter")}
-						</Typography>
-					</Box>
 				</DialogContent>
 
 				<DialogActions

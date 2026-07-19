@@ -11,7 +11,6 @@ import { formatQuantity } from "utils/formatCurrency";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Dialog, DialogActions, DialogContent, Typography } from "@mui/material";
@@ -194,29 +193,6 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 						{transfer.note}
 					</Box>
 				)}
-
-				<Box
-					sx={{
-						display: "flex",
-						gap: "10px",
-						alignItems: "flex-start",
-						mt: "16px",
-						p: "11px 13px",
-						bgcolor: "primary.light",
-						border: "1px solid",
-						borderColor: designTokens.primaryLine,
-						borderRadius: "8px",
-					}}
-				>
-					<InfoOutlinedIcon
-						sx={{ fontSize: 16, color: "primary.main", mt: "1px", flex: "0 0 auto" }}
-					/>
-					<Typography sx={{ fontSize: 12.5, color: "primary.dark", lineHeight: 1.55 }}>
-						{t("transfer.detail.immutableHintBefore")}{" "}
-						<Box component="b">{t("transfer.detail.immutableHintBold")}</Box>
-						{t("transfer.detail.immutableHintAfter")}
-					</Typography>
-				</Box>
 			</DialogContent>
 
 			<DialogActions

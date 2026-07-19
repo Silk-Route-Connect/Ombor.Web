@@ -1,17 +1,26 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { InviteUserRequest } from "models/settings";
 import { designTokens } from "theme";
 import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
 
-import CloseIcon from "@mui/icons-material/Close";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import { Box, Dialog, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import {
+	Box,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	InputAdornment,
+	TextField,
+	Typography,
+} from "@mui/material";
 
 interface Props {
 	isOpen: boolean;
@@ -24,6 +33,8 @@ interface Props {
  * Invite-user modal — phone only in v1 (login is phone-based; the backend rejects
  * email invites). On-submit inline validation; the send button is never disabled
  * (hard rule 5). Role is a locked «Администратор» (roles are not split in MVP).
+ * Uses the shared modal skeleton (FormDialogHeader + dividered DialogContent); the
+ * footer keeps the specialised «Отправить приглашение» action rather than a generic save.
  */
 const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite }) => {
 	const { t } = useTranslation();
@@ -50,35 +61,25 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 			reset();
 		}
 	};
+	const onKeyDown = useFormKeyboardSubmit(submit, saving);
 
 	return (
 		<Dialog
 			open={isOpen}
 			onClose={close}
-			slotProps={{ paper: { sx: { width: 480, maxWidth: "94%", borderRadius: "12px" } } }}
+			fullWidth
+			maxWidth="sm"
+			disableEscapeKeyDown={saving}
+			onKeyDown={onKeyDown}
 		>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "flex-start",
-					justifyContent: "space-between",
-					p: "20px 24px 0",
-				}}
-			>
-				<Box>
-					<Typography sx={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.01em" }}>
-						{t("settings.invite.title")}
-					</Typography>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "2px" }}>
-						{t("settings.invite.subtitle")}
-					</Typography>
-				</Box>
-				<IconButton onClick={close} sx={{ color: "text.secondary", mt: "-4px", mr: "-8px" }}>
-					<CloseIcon sx={{ fontSize: 20 }} />
-				</IconButton>
-			</Box>
+			<FormDialogHeader
+				title={t("settings.invite.title")}
+				subtitle={t("settings.invite.subtitle")}
+				disabled={saving}
+				onClose={close}
+			/>
 
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", p: "20px 24px" }}>
+			<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
 					<Typography sx={{ fontSize: 13, fontWeight: 600, color: designTokens.gray700 }}>
 						{t("settings.invite.phone")}
@@ -164,14 +165,13 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 						</Box>
 					</Box>
 				</Box>
-			</Box>
+			</DialogContent>
 
-			<Box
+			<DialogActions
 				sx={{
-					display: "flex",
-					justifyContent: "flex-end",
+					px: "24px",
+					py: "14px",
 					gap: "10px",
-					p: "14px 24px",
 					borderTop: "1px solid",
 					borderColor: "divider",
 					bgcolor: designTokens.gray25,
@@ -187,7 +187,7 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 				>
 					{t("settings.invite.send")}
 				</PrimaryButton>
-			</Box>
+			</DialogActions>
 		</Dialog>
 	);
 };
