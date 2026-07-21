@@ -2,64 +2,86 @@ import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
+import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import { translate } from "../i18n/i18n";
+import i18next from "../i18n/config";
 import { CreateProductRequest, Product, UpdateProductRequest } from "../models/product";
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
 
+/** Type filter tabs (prototype: Все / Продажа / Закупка / Оба). "both" matches
+ * only products that are both sellable and supplyable (type "All"); "sale" and
+ * "supply" inclusively match "All" too. */
+export type ProductTypeFilter = "all" | "sale" | "supply" | "both";
+
 export type DialogMode =
 	| { kind: "form"; product?: Product }
-	| { kind: "delete"; product: Product }
-	| { kind: "details"; product: Product }
+	| { kind: "archive"; product: Product }
+	| { kind: "restore"; product: Product }
 	| { kind: "none" };
 
 export interface IProductStore {
-	// computed properties
 	allProducts: Loadable<Product[]>;
 	saleProducts: Loadable<Product[]>;
 	supplyProducts: Loadable<Product[]>;
 	filteredProducts: Loadable<Product[]>;
+	archivedCount: number;
 
-	// UI state
-	selectedProduct: Product | null;
 	searchTerm: string;
 	categoryFilter: Category | null;
+	typeFilter: ProductTypeFilter;
+	showArchived: boolean;
 	sortField: keyof Product | null;
 	sortOrder: SortOrder;
 	isSaving: boolean;
 	dialogMode: DialogMode;
 
-	// actions
 	getAll(): Promise<void>;
 	create(request: CreateProductRequest): Promise<void>;
-	update(request: UpdateProductRequest): Promise<void>;
-	delete(productId: number): Promise<void>;
+	/** Resolve with the fresh product on success, or null on failure. */
+	update(request: UpdateProductRequest): Promise<Product | null>;
+	archive(product: Product): Promise<Product | null>;
+	restore(product: Product): Promise<Product | null>;
 
-	// setters for filters & sorting
 	setSearch(term: string): void;
 	setCategoryFilter(category: Category | null): void;
+	setTypeFilter(filter: ProductTypeFilter): void;
+	setShowArchived(show: boolean): void;
 	setSort(field: keyof Product, order: SortOrder): void;
 
-	// UI dialog helper methods
 	openCreate(): void;
 	openEdit(product: Product): void;
-	openDelete(product: Product): void;
-	openDetails(product: Product): void;
+	openArchive(product: Product): void;
+	openRestore(product: Product): void;
 	closeDialog(): void;
+}
+
+function matchesType(type: Product["type"], filter: ProductTypeFilter): boolean {
+	switch (filter) {
+		case "sale":
+			return type === "Sale" || type === "All";
+		case "supply":
+			return type === "Supply" || type === "All";
+		case "both":
+			return type === "All";
+		default:
+			return true;
+	}
 }
 
 export class ProductStore implements IProductStore {
 	private readonly notificationStore: NotificationStore;
 
-	allProducts: Loadable<Product[]> = [];
+	allProducts: Loadable<Product[]> = "loading";
 	searchTerm = "";
 	categoryFilter: Category | null = null;
-	selectedProduct: Product | null = null;
-	isSaving: boolean = false;
+	typeFilter: ProductTypeFilter = "all";
+	showArchived = false;
+	isSaving = false;
 	dialogMode: DialogMode = { kind: "none" };
-	sortField: keyof Product | null = null;
+	// Master-data default: name ascending (matches the table's defaultSort).
+	sortField: keyof Product | null = "name";
 	sortOrder: SortOrder = "asc";
 
 	constructor(notificationStore: NotificationStore) {
@@ -67,67 +89,76 @@ export class ProductStore implements IProductStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
+	/** Total archived products — drives the «Архив» toggle badge (unfiltered). */
+	get archivedCount(): number {
+		if (this.allProducts === "loading") {
+			return 0;
+		}
+		return this.allProducts.filter((p) => p.isArchived).length;
+	}
+
 	get filteredProducts(): Loadable<Product[]> {
 		if (this.allProducts === "loading") {
 			return "loading";
 		}
 
-		let products = this.allProducts;
-
-		if (this.searchTerm) {
-			const q = this.searchTerm.toLowerCase();
-			products = products.filter((p) => {
-				return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-			});
-		}
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only — DSN-2 — not active + archived).
+		let products = this.allProducts.filter((p) =>
+			this.showArchived ? p.isArchived : !p.isArchived,
+		);
 
 		const categoryId = this.categoryFilter?.id;
-		if (categoryId) {
+		if (categoryId != null) {
 			products = products.filter((p) => p.categoryId === categoryId);
 		}
 
-		return products;
+		if (this.typeFilter !== "all") {
+			products = products.filter((p) => matchesType(p.type, this.typeFilter));
+		}
+
+		if (this.searchTerm.trim()) {
+			products = products.filter(
+				(p) => matchesSearch(p.name, this.searchTerm) || matchesSearch(p.sku, this.searchTerm),
+			);
+		}
+
+		return this.applySort(products);
 	}
 
+	/** Sellable products (active only) — for the sales line picker. */
 	get saleProducts(): Loadable<Product[]> {
-		if (this.filteredProducts === "loading") {
+		if (this.allProducts === "loading") {
 			return "loading";
 		}
-
-		return this.filteredProducts.filter((el) => el.type !== "Supply");
+		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Supply");
 	}
 
+	/** Supplyable products (active only) — for the supply line picker. */
 	get supplyProducts(): Loadable<Product[]> {
-		if (this.filteredProducts === "loading") {
+		if (this.allProducts === "loading") {
 			return "loading";
 		}
-
-		return this.filteredProducts.filter((el) => el.type !== "Sale");
+		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Sale");
 	}
 
 	async getAll(): Promise<void> {
-		if (this.allProducts === "loading") {
-			return;
-		}
-
 		runInAction(() => (this.allProducts = "loading"));
 
 		const result = await tryRun(() => ProductApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.getAll"));
+			this.notificationStore.error(i18next.t("product.error.getAll"));
 		}
 
-		const data = result.status === "success" ? result.data : [];
-
-		runInAction(() => (this.allProducts = data));
+		runInAction(() => (this.allProducts = result.status === "success" ? result.data : []));
 	}
 
 	async create(request: CreateProductRequest): Promise<void> {
 		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.create"));
+			this.notificationStore.error(i18next.t("product.error.create"));
 			return;
 		}
 
@@ -138,15 +169,15 @@ export class ProductStore implements IProductStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("product.success.create"));
+		this.notificationStore.success(i18next.t("product.success.create"));
 	}
 
-	async update(request: UpdateProductRequest): Promise<void> {
+	async update(request: UpdateProductRequest): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.update"));
-			return;
+			this.notificationStore.error(i18next.t("product.error.update"));
+			return null;
 		}
 
 		runInAction(() => {
@@ -156,24 +187,37 @@ export class ProductStore implements IProductStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("product.success.update"));
+		this.notificationStore.success(i18next.t("product.success.update"));
+		return result.data;
 	}
 
-	async delete(id: number): Promise<void> {
-		const result = await withSaving(this, () => ProductApi.delete(id));
+	async archive(product: Product): Promise<Product | null> {
+		const result = await withSaving(this, () => ProductApi.archive(product.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("product.error.delete"));
-			return;
+			this.notificationStore.error(i18next.t("product.error.archive"));
+			return null;
 		}
 
-		runInAction(() => {
-			if (this.allProducts !== "loading") {
-				this.allProducts = this.allProducts.filter((p) => p.id !== id);
-			}
-		});
+		// Backend returns 204 — refetch the updated product to refresh the row.
+		const updated = await this.refreshProduct(product.id);
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("product.success.archive", { name: product.name }));
+		return updated;
+	}
 
-		this.notificationStore.success(translate("product.success.delete"));
+	async restore(product: Product): Promise<Product | null> {
+		const result = await withSaving(this, () => ProductApi.restore(product.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("product.error.restore"));
+			return null;
+		}
+
+		const updated = await this.refreshProduct(product.id);
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("product.success.restore", { name: product.name }));
+		return updated;
 	}
 
 	setSearch(term: string): void {
@@ -184,36 +228,75 @@ export class ProductStore implements IProductStore {
 		this.categoryFilter = category;
 	}
 
+	setTypeFilter(filter: ProductTypeFilter): void {
+		this.typeFilter = filter;
+	}
+
+	setShowArchived(show: boolean): void {
+		this.showArchived = show;
+	}
+
 	setSort(field: keyof Product, order: SortOrder): void {
 		this.sortField = field;
 		this.sortOrder = order;
 	}
 
 	openCreate(): void {
-		this.setDialog({ kind: "form" });
+		this.dialogMode = { kind: "form" };
 	}
 
 	openEdit(product: Product): void {
-		this.setDialog({ kind: "form", product: product });
+		this.dialogMode = { kind: "form", product };
 	}
 
-	openDelete(product: Product): void {
-		this.setDialog({ kind: "delete", product: product });
+	openArchive(product: Product): void {
+		this.dialogMode = { kind: "archive", product };
 	}
 
-	openDetails(product: Product): void {
-		this.setDialog({ kind: "details", product: product });
+	openRestore(product: Product): void {
+		this.dialogMode = { kind: "restore", product };
 	}
 
 	closeDialog(): void {
 		this.dialogMode = { kind: "none" };
 	}
 
-	private setDialog(mode: DialogMode) {
-		const product = "product" in mode ? (mode.product ?? null) : null;
+	/** Refetch a single product (after a 204 mutation) and update the row in place. */
+	private async refreshProduct(id: number): Promise<Product | null> {
+		const result = await tryRun(() => ProductApi.getById(id));
+		const updated = result.status === "success" ? result.data : null;
+		if (updated) {
+			this.replaceProduct(updated);
+		}
+		return updated;
+	}
 
-		this.dialogMode = mode;
-		this.selectedProduct = product;
+	private replaceProduct(updated: Product): void {
+		runInAction(() => {
+			if (this.allProducts !== "loading") {
+				this.allProducts = this.allProducts.map((p) => (p.id === updated.id ? updated : p));
+			}
+		});
+	}
+
+	private applySort(data: Product[]): Product[] {
+		if (!this.sortField) {
+			return data;
+		}
+
+		const field = this.sortField;
+		const asc = this.sortOrder === "asc" ? 1 : -1;
+
+		return [...data].sort((a, b) => {
+			const aValue = a[field] ?? "";
+			const bValue = b[field] ?? "";
+
+			if (typeof aValue === "number" && typeof bValue === "number") {
+				return asc * (aValue - bValue);
+			}
+
+			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
+		});
 	}
 }
 

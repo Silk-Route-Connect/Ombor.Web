@@ -1,48 +1,60 @@
-import React, { JSX } from "react";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import GhostButton from "components/shared/Buttons/GhostButton";
+import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { translate } from "i18n/i18n";
 
 import AddIcon from "@mui/icons-material/Add";
-import { Box, FormControl, Typography } from "@mui/material";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { Box } from "@mui/material";
 
 interface CategoryHeaderProps {
-	title?: string;
+	/** Total dataset size shown in the title; null while loading. */
+	totalCount: number | null;
 	searchValue: string;
-
 	onCreate: () => void;
 	onSearch: (value: string) => void;
+	onExport: () => void;
 }
 
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
-	title,
+	totalCount,
 	searchValue,
 	onCreate,
 	onSearch,
-}): JSX.Element => (
-	<Box
-		display="flex"
-		flexWrap="wrap"
-		justifyContent="space-between"
-		alignItems="center"
-		mb={3}
-		sx={{ gap: 2 }}
-	>
-		<Typography variant="h5">{title}</Typography>
-		<Box display="flex" alignItems="center" flexWrap="wrap" sx={{ gap: 2 }}>
-			<FormControl margin="dense">
+	onExport,
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<>
+			<PageHeader
+				title={totalCount == null ? t("category.title") : `${t("category.title")} (${totalCount})`}
+				actions={
+					<>
+						<GhostButton
+							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							onClick={onExport}
+						>
+							{t("common.export")}
+						</GhostButton>
+						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
+							{t("category.create")}
+						</PrimaryButton>
+					</>
+				}
+			/>
+
+			<Box sx={{ mb: 2 }}>
 				<SearchInput
 					value={searchValue}
 					onChange={onSearch}
-					placeholder={translate("category.searchTitle")}
+					placeholder={t("category.searchPlaceholder")}
 				/>
-			</FormControl>
-
-			<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-				{translate("common.create")}
-			</PrimaryButton>
-		</Box>
-	</Box>
-);
+			</Box>
+		</>
+	);
+};
 
 export default CategoryHeader;

@@ -1,13 +1,82 @@
-import { CreateTransactionPaymentRequest, Payment, TransactionPayment } from "models/payment";
+import { TransactionPayment } from "models/payment";
 import {
+	CreateTransactionRefundRequest,
 	CreateTransactionRequest,
 	GetTransactionsRequest,
+	TransactionAttachment,
 	TransactionLine,
+	TransactionPaymentLine,
 	TransactionRecord,
+	TransactionStatus,
+	TransactionType,
 } from "models/transaction";
 
-import BaseApi, { PrimitiveTypes } from "./BaseApi";
+import BaseApi from "./BaseApi";
 import http from "./http";
+
+/** Discriminates a refund create (SaleRefund/SupplyRefund) from a sale/supply entry. */
+const isRefundRequest = (r: CreateTransactionRequest): r is CreateTransactionRefundRequest =>
+	r.type === "SaleRefund" || r.type === "SupplyRefund";
+
+/**
+ * Raw transaction as the backend serves it — the list `TransactionDto` (lean) and
+ * the detail `TransactionDetailDto` (rich) are a structural superset. Mapped to the
+ * frontend `TransactionRecord`: `number`→`transactionNumber`, `date` string→Date,
+ * derived `time`, `remaining` defaulted from the totals.
+ */
+type RawTransaction = {
+	id: number;
+	number?: string | null;
+	partnerId: number;
+	partnerName: string;
+	date: string;
+	type: TransactionType;
+	status: TransactionStatus;
+	totalDue: number;
+	totalPaid: number;
+	lines: TransactionLine[] | null;
+	originalTransactionId?: number | null;
+	originalTransactionNumber?: string | null;
+	refundReason?: string | null;
+	// detail-only
+	warehouseId?: number | null;
+	warehouseName?: string | null;
+	remaining?: number;
+	payments?: TransactionPaymentLine[] | null;
+	createdBy?: string | null;
+	notes?: string | null;
+	attachments?: TransactionAttachment[] | null;
+};
+
+const timeOf = (iso: string): string => {
+	const d = new Date(iso);
+	return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+/** Backend DTO → frontend TransactionRecord (shared by the list + detail). */
+const toRecord = (raw: RawTransaction): TransactionRecord => ({
+	id: raw.id,
+	partnerId: raw.partnerId,
+	partnerName: raw.partnerName,
+	date: new Date(raw.date),
+	transactionNumber: raw.number ?? undefined,
+	totalDue: raw.totalDue,
+	totalPaid: raw.totalPaid,
+	type: raw.type,
+	status: raw.status,
+	lines: raw.lines ?? [],
+	time: timeOf(raw.date),
+	warehouseId: raw.warehouseId ?? undefined,
+	warehouseName: raw.warehouseName ?? undefined,
+	createdBy: raw.createdBy ?? undefined,
+	remaining: raw.remaining ?? Math.max(0, raw.totalDue - raw.totalPaid),
+	originalTransactionId: raw.originalTransactionId ?? undefined,
+	originalTransactionNumber: raw.originalTransactionNumber ?? undefined,
+	refundReason: raw.refundReason ?? undefined,
+	payments: raw.payments ?? undefined,
+	attachments: raw.attachments ?? undefined,
+	notes: raw.notes ?? undefined,
+});
 
 class TransactionApi extends BaseApi {
 	constructor() {
@@ -16,16 +85,16 @@ class TransactionApi extends BaseApi {
 
 	async getAll(request?: GetTransactionsRequest | null): Promise<TransactionRecord[]> {
 		const url = this.getUrl(request);
-		const response = await http.get<TransactionRecord[]>(url);
+		const response = await http.get<RawTransaction[]>(url);
 
-		return response.data;
+		return response.data.map(toRecord);
 	}
 
 	async getById(id: number): Promise<TransactionRecord> {
 		const url = this.getUrlWithId(id);
-		const response = await http.get<TransactionRecord>(url);
+		const response = await http.get<RawTransaction>(url);
 
-		return response.data;
+		return toRecord(response.data);
 	}
 
 	async getPayments(transactionId: number): Promise<TransactionPayment[]> {
@@ -42,100 +111,60 @@ class TransactionApi extends BaseApi {
 		return response.data;
 	}
 
-	async getOpenTransactions(partnerId: number): Promise<TransactionRecord[]> {
-		const query: GetTransactionsRequest = {
-			partnerId,
-			statuses: ["Open", "PartiallyPaid"],
-		};
-		const url = this.getUrl(query);
-		const response = await http.get<TransactionRecord[]>(url);
-
-		return response.data;
-	}
-
+	/**
+	 * Create a transaction through the single immutable create path: a sale/supply
+	 * entry (from the POS) or a refund (type SaleRefund/SupplyRefund) — the server
+	 * branches on `type`. Sent as multipart/form-data with **flat, indexed form
+	 * fields** (the ASP.NET model-binder shape: `Lines[0].ProductId`, …), plus the
+	 * `Attachments` file parts. Returns the created transaction mapped through
+	 * {@link toRecord} — the store prepends it into the live feed, so it must
+	 * carry a real `Date` (the wire `date` is an ISO string) and the derived fields.
+	 */
 	async create(request: CreateTransactionRequest): Promise<TransactionRecord> {
-		const url = this.getUrl();
-		const form = this.getFormData(request);
-
-		const response = await http.post<TransactionRecord>(url, form, this.formHeaders);
-
-		return response.data;
-	}
-
-	async createPayment(request: CreateTransactionPaymentRequest): Promise<Payment> {
-		const url = `${this.getUrlWithId(request.transactionId)}/payments`;
-		const form = this.getPaymentFormData(request);
-
-		const response = await http.post<Payment>(url, form, this.formHeaders);
-
-		return response.data;
-	}
-
-	private getFormData(request: CreateTransactionRequest): FormData {
 		const form = new FormData();
+		form.append("Type", request.type);
 
-		Object.entries(request).forEach(([key, val]) => {
-			if (val == null) return;
-
-			if (typeof val === "object") {
-				return;
-			}
-
-			if (PrimitiveTypes.includes(typeof val)) {
-				form.append(key, String(val));
-			}
-		});
-
-		request.payments.forEach((payment, i) => {
-			form.append(`payments[${i}].amount`, String(payment.amount));
-			form.append(`payments[${i}].exchangeRate`, String(payment.exchangeRate));
-			form.append(`payments[${i}].method`, String(payment.method));
-			form.append(`payments[${i}].currency`, String(payment.currency));
-		});
-
-		request.debtPayments?.forEach((debtPayment, i) => {
-			form.append(`debtPayments[${i}].amount`, String(debtPayment.amount));
-			form.append(`debtPayments[${i}].transactionId`, String(debtPayment.transactionId));
-		});
-
-		request.lines.forEach((line, i) => {
-			form.append(`lines[${i}].productId`, String(line.productId));
-			form.append(`lines[${i}].unitPrice`, String(line.unitPrice));
-			form.append(`lines[${i}].quantity`, String(line.quantity));
-			form.append(`lines[${i}].discount`, String(line.discount));
-		});
-
-		if (request.attachments) {
-			request.attachments.forEach((file) => {
-				form.append("attachments", file, file.name);
+		if (isRefundRequest(request)) {
+			form.append("PartnerId", String(request.partnerId));
+			form.append("WarehouseId", String(request.warehouseId));
+			form.append("OriginalTransactionId", String(request.originalTransactionId));
+			form.append("RefundReason", request.refundReason);
+			request.lines.forEach((line, i) => {
+				form.append(`Lines[${i}].ProductId`, String(line.productId));
+				form.append(`Lines[${i}].Quantity`, String(line.quantity));
+				form.append(`Lines[${i}].UnitPrice`, String(line.unitPrice));
+				form.append(`Lines[${i}].Discount`, "0");
+				form.append(`Lines[${i}].DiscountType`, "Percentage");
 			});
+		} else {
+			form.append("PartnerId", String(request.partnerId));
+			form.append("WarehouseId", String(request.warehouseId));
+			form.append("WalletId", String(request.walletId));
+			form.append("PaidAmount", String(request.paidAmount));
+			form.append("Overpayment", request.overpayment === "advance" ? "Advance" : "Change");
+			if (request.notes) {
+				form.append("Notes", request.notes);
+			}
+			request.lines.forEach((line, i) => {
+				form.append(`Lines[${i}].ProductId`, String(line.productId));
+				form.append(`Lines[${i}].Quantity`, String(line.quantity));
+				form.append(`Lines[${i}].UnitPrice`, String(line.unitPrice));
+				form.append(`Lines[${i}].Discount`, String(line.discount));
+				form.append(`Lines[${i}].DiscountType`, line.discountType);
+				if (line.packageQuantity != null) {
+					form.append(`Lines[${i}].PackageQuantity`, String(line.packageQuantity));
+				}
+			});
+			request.settlements.forEach((s, i) => {
+				form.append(`Settlements[${i}].TransactionId`, String(s.transactionId));
+				form.append(`Settlements[${i}].Amount`, String(s.amount));
+			});
+			request.attachments?.forEach((file) => form.append("Attachments", file, file.name));
 		}
 
-		return form;
-	}
+		const response = await http.post<RawTransaction>(this.getUrl(), form, this.formHeaders);
 
-	private getPaymentFormData(request: CreateTransactionPaymentRequest): FormData {
-		const form = new FormData();
-
-		Object.entries(request).forEach(([key, val]) => {
-			if (val == null) return;
-
-			if (typeof val === "object") {
-				return;
-			}
-
-			if (PrimitiveTypes.includes(typeof val)) {
-				form.append(key, String(val));
-			}
-		});
-
-		if (request.attachments) {
-			request.attachments.forEach((file) => {
-				form.append("attachments", file, file.name);
-			});
-		}
-
-		return form;
+		return toRecord(response.data);
 	}
 }
 

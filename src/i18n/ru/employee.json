@@ -82,5 +82,52 @@
   "employee.payroll.noHistory": "История выплат пуста",
   "employee.payroll.loadError": "Не удалось загрузить историю выплат",
   "employee.payroll.totalPayments": "Всего выплат",
-  "employee.payroll.totalAmount": "Общая сумма"
+  "employee.payroll.totalAmount": "Общая сумма",
+
+  "employee.create": "Новый сотрудник",
+  "employee.filter.all": "Все",
+
+  "employee.action.pay": "Выплатить",
+  "employee.action.terminate": "Уволить",
+  "employee.action.restore": "Восстановить",
+
+  "employee.table.employee": "Сотрудник",
+  "employee.table.salary": "Зарплата",
+
+  "employee.empty.title": "Пока нет сотрудников",
+  "employee.empty.body": "Добавьте сотрудника, чтобы вести учёт персонала и выплат зарплаты.",
+  "employee.empty.searchTitle": "Сотрудники не найдены",
+  "employee.empty.searchBody": "Измените запрос поиска или фильтр по статусу.",
+
+  "employee.since": "с",
+
+  "employee.stat.salary": "Зарплата",
+  "employee.stat.salaryUnit": "UZS / мес",
+  "employee.stat.paidThisMonth": "Выплачено за {{month}}",
+  "employee.stat.totalPayments": "Выплат всего",
+
+  "employee.payrollSection": "Выплаты",
+  "employee.payrollEmptyTitle": "Нет выплат",
+  "employee.payrollEmptyBody": "За выбранный период выплат не было.",
+
+  "employee.payroll.date": "Дата",
+  "employee.payroll.type": "Тип",
+  "employee.payroll.period": "Период",
+  "employee.payroll.amount": "Сумма",
+  "employee.payroll.wallet": "Касса",
+  "employee.payroll.salary": "Зарплата",
+
+  "employee.terminate.title": "Уволить сотрудника «{{name}}»?",
+  "employee.terminate.body": "Сотрудник будет помечен как уволенный и скрыт из активного списка. История его выплат сохранится. Сотрудника можно восстановить позже.",
+  "employee.restore.title": "Восстановить сотрудника «{{name}}»?",
+  "employee.restore.body": "Сотрудник снова станет активным, и по нему можно будет проводить выплаты.",
+
+  "employee.success.terminate": "Сотрудник уволен",
+  "employee.success.restore": "Сотрудник восстановлен",
+
+  "employee.form.namePlaceholder": "Например: Бахром Саидов",
+  "employee.form.positionPlaceholder": "Например: Продавец-кассир",
+  "employee.form.emailPlaceholder": "name@example.com",
+  "employee.form.telegramPlaceholder": "@username",
+  "employee.form.addressPlaceholder": "Город, улица, дом"
 }

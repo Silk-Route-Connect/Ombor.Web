@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { useStore } from "stores/StoreContext";
@@ -12,6 +12,11 @@ interface CategoryAutocompleteCommonProps {
 	required?: boolean;
 	error?: boolean;
 	helperText?: React.ReactNode;
+	/** Override the field label (pass "" for label-less filter inputs). */
+	label?: string;
+	/** Override the input placeholder. */
+	placeholder?: string;
+	sx?: object;
 }
 
 interface CategoryAutocompleteEntityProps extends CategoryAutocompleteCommonProps {
@@ -36,8 +41,12 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 	required,
 	error,
 	helperText,
+	label,
+	placeholder,
+	sx,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { categoryStore } = useStore();
 
 	const options: Category[] = useMemo(
@@ -70,8 +79,8 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Category>
-			label={translate("category.title.autocomplete")}
-			placeholder={translate("category.title.search")}
+			label={label ?? t("category.title.autocomplete")}
+			placeholder={placeholder ?? t("category.title.search")}
 			options={options}
 			value={selectedValue}
 			size={size}
@@ -80,6 +89,7 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 			required={required}
 			error={error}
 			helperText={helperText}
+			sx={sx}
 			onChange={handleChange}
 		/>
 	);

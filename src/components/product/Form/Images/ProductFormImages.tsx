@@ -1,11 +1,10 @@
-import React, { useMemo, useRef } from "react";
-import { translate } from "i18n/i18n";
+import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { designTokens } from "theme";
 
-import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import { Box, Button, Stack } from "@mui/material";
-
-import ProductFormImageTile from "./ProductFormImageTile";
-import ProductFormMainImageCircle from "./ProductFormMainImage";
+import CloseIcon from "@mui/icons-material/Close";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import { Box, ButtonBase, Typography } from "@mui/material";
 
 export interface ProductFormImagesProps {
 	disabled: boolean;
@@ -22,126 +21,162 @@ export interface ProductFormImagesProps {
 	resolveUrl: (src: string) => string;
 }
 
+/** 40px image tile with a hover «remove» badge. */
+const ImageThumb: React.FC<{
+	src: string;
+	alt: string;
+	disabled: boolean;
+	onRemove: () => void;
+	removeTitle: string;
+}> = ({ src, alt, disabled, onRemove, removeTitle }) => (
+	<Box sx={{ position: "relative", width: 40, height: 40, flex: "0 0 auto" }}>
+		<Box
+			component="img"
+			src={src}
+			alt={alt}
+			sx={{
+				width: "100%",
+				height: "100%",
+				objectFit: "cover",
+				display: "block",
+				borderRadius: "6px",
+				border: "1px solid",
+				borderColor: "divider",
+			}}
+		/>
+		{!disabled && (
+			<ButtonBase
+				onClick={onRemove}
+				title={removeTitle}
+				sx={{
+					position: "absolute",
+					top: -5,
+					right: -5,
+					width: 16,
+					height: 16,
+					borderRadius: "50%",
+					bgcolor: "error.main",
+					color: "#fff",
+				}}
+			>
+				<CloseIcon sx={{ fontSize: 11 }} />
+			</ButtonBase>
+		)}
+	</Box>
+);
+
+/**
+ * Image block per the bundle's `.prod-upload` / `.prod-thumbs`: a dashed upload
+ * square (150px, surface-sub, primary tint on hover) with a row of 40px
+ * mini-tiles below for the uploaded images. The single square is the only
+ * additive upload control — no placeholder «+» slots (DEC-13).
+ */
 const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 	disabled,
 	existingImages,
 	attachments,
 	attachmentPreviews,
-	mainSelection,
-	onSetMainExisting,
-	onSetMainNew,
 	onRemoveExisting,
 	onRemoveAttachment,
 	onAddAttachments,
-	onAddMainAndMakeActive,
 	resolveUrl,
 }) => {
-	const mainUploadInputRef = useRef<HTMLInputElement | null>(null);
-	const multiUploadInputRef = useRef<HTMLInputElement | null>(null);
+	const { t } = useTranslation();
+	const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
-	const openMainUpload = () => mainUploadInputRef.current?.click();
-	const openMultiUpload = () => multiUploadInputRef.current?.click();
+	const openUpload = () => uploadInputRef.current?.click();
 
-	const mainSrc = useMemo(() => {
-		if (!mainSelection) return null;
-		if (mainSelection.kind === "existing") {
-			const img = existingImages.find((i) => i.id === mainSelection.imageId);
-			if (!img) return null;
-			return resolveUrl(img.thumbnailUrl ?? img.originalUrl);
-		}
-		return attachmentPreviews[mainSelection.index] ?? null;
-	}, [attachmentPreviews, existingImages, mainSelection, resolveUrl]);
-
-	const isMainExisting = (id: number) =>
-		mainSelection?.kind === "existing" && mainSelection.imageId === id;
-	const isMainNew = (idx: number) => mainSelection?.kind === "new" && mainSelection.index === idx;
+	const imageCount = existingImages.length + attachments.length;
 
 	return (
-		<Stack spacing={2}>
-			{/* Main circle */}
-			<Stack alignItems="center" spacing={1}>
-				<input
-					ref={mainUploadInputRef}
-					type="file"
-					accept="image/*"
-					hidden
-					disabled={disabled}
-					onChange={(e) => {
-						const files = e.currentTarget.files;
-						if (files && files.length > 0) {
-							onAddMainAndMakeActive(files[0]);
-						}
-						e.currentTarget.value = "";
-					}}
-				/>
-				<ProductFormMainImageCircle disabled={disabled} src={mainSrc} onClick={openMainUpload} />
-			</Stack>
+		<Box>
+			<input
+				ref={uploadInputRef}
+				type="file"
+				accept="image/*"
+				multiple
+				hidden
+				disabled={disabled}
+				onChange={(e) => {
+					const files = e.currentTarget.files;
+					if (files && files.length > 0) {
+						onAddAttachments(files);
+					}
+					e.currentTarget.value = "";
+				}}
+			/>
 
-			{/* Upload more — centered */}
-			<Stack direction="row" justifyContent="center" alignItems="center">
-				<input
-					ref={multiUploadInputRef}
-					type="file"
-					accept="image/*"
-					multiple
-					hidden
-					disabled={disabled}
-					onChange={(e) => {
-						const files = e.currentTarget.files;
-						if (files && files.length > 0) {
-							onAddAttachments(files);
-						}
-						e.currentTarget.value = "";
+			{/* .prod-upload */}
+			<ButtonBase
+				onClick={openUpload}
+				disabled={disabled}
+				sx={{
+					width: "100%",
+					height: 150,
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					justifyContent: "center",
+					gap: "8px",
+					p: "20px 12px",
+					border: "1.5px dashed",
+					borderColor: designTokens.gray300,
+					borderRadius: "8px",
+					bgcolor: designTokens.gray25,
+					color: "text.secondary",
+					textAlign: "center",
+					transition: "border-color .14s, color .14s, background .14s",
+					"&:hover": {
+						borderColor: "primary.main",
+						color: "primary.main",
+						bgcolor: designTokens.primarySoft,
+					},
+				}}
+			>
+				<Box
+					sx={{
+						width: 38,
+						height: 38,
+						borderRadius: "10px",
+						bgcolor: designTokens.gray100,
+						color: designTokens.gray600,
+						display: "grid",
+						placeItems: "center",
 					}}
-				/>
-				<Button
-					variant="outlined"
-					size="small"
-					startIcon={<AddPhotoAlternateIcon />}
-					onClick={openMultiUpload}
-					disabled={disabled}
 				>
-					{translate("product.images.uploadMore")}
-				</Button>
-			</Stack>
-
-			{/* Existing images */}
-			{existingImages.length > 0 && (
-				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-					{existingImages.map((img) => {
-						const src = resolveUrl(img.thumbnailUrl ?? img.originalUrl);
-						return (
-							<ProductFormImageTile
-								key={img.id}
-								src={src}
-								alt={img.name}
-								selected={isMainExisting(img.id)}
-								disabled={disabled}
-								onMakeMain={() => onSetMainExisting(img.id)}
-								onRemove={() => onRemoveExisting(img.id)}
-							/>
-						);
-					})}
+					<UploadFileOutlinedIcon sx={{ fontSize: 20 }} />
 				</Box>
-			)}
+				<Typography sx={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.4, color: "inherit" }}>
+					{t("product.images.uploadMore")}
+				</Typography>
+			</ButtonBase>
 
-			{/* New uploads */}
-			{attachments.length > 0 && (
-				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+			{/* .prod-thumbs — uploaded images only; no placeholder «+» slots (DEC-13) */}
+			{imageCount > 0 && (
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px", mt: "10px" }}>
+					{existingImages.map((img) => (
+						<ImageThumb
+							key={`existing-${img.id}`}
+							src={resolveUrl(img.thumbnailUrl ?? img.originalUrl)}
+							alt={img.name}
+							disabled={disabled}
+							onRemove={() => onRemoveExisting(img.id)}
+							removeTitle={t("product.images.remove")}
+						/>
+					))}
 					{attachments.map((file, index) => (
-						<ProductFormImageTile
-							key={`${file.name}-${index}`}
+						<ImageThumb
+							key={`new-${file.name}-${index}`}
 							src={attachmentPreviews[index]}
 							alt={file.name}
-							selected={isMainNew(index)}
 							disabled={disabled}
-							onMakeMain={() => onSetMainNew(index)}
 							onRemove={() => onRemoveAttachment(index)}
+							removeTitle={t("product.images.remove")}
 						/>
 					))}
 				</Box>
 			)}
-		</Stack>
+		</Box>
 	);
 };
 

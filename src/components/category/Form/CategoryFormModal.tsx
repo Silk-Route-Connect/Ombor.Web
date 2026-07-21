@@ -1,13 +1,15 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
-import { translate } from "i18n/i18n";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Category } from "models/category";
 import { dialogTranslation } from "utils/translationUtils";
 
+import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box, Dialog, DialogContent, LinearProgress, TextField } from "@mui/material";
 
 interface CategoryFormModalProps {
@@ -25,13 +27,9 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 	onClose,
 	onSave,
 }) => {
-	const { form, canSave, submit } = useCategoryForm({
-		isOpen,
-		isSaving,
-		category,
-		onSave,
-		onClose,
-	});
+	const { t } = useTranslation();
+	const { form, canSave, submit } = useCategoryForm({ isOpen, isSaving, category, onSave });
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		form.formState.isDirty,
@@ -44,7 +42,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 		formState: { errors },
 	} = form;
 
-	const title = translate(category ? "category.title.edit" : "category.title.create");
+	const title = t(category ? "category.title.edit" : "category.title.create");
 
 	return (
 		<>
@@ -55,6 +53,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 				maxWidth="sm"
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
+				onKeyDown={onKeyDown}
 			>
 				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 
@@ -64,12 +63,14 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 					</Box>
 				)}
 
-				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 4, pt: 2 }}>
+				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
 					<TextField
 						id="category-name"
-						label={translate("category.name")}
+						label={t("category.form.nameLabel")}
+						placeholder={t("category.form.namePlaceholder")}
+						required
 						fullWidth
-						margin="dense"
+						autoFocus
 						disabled={isSaving}
 						error={!!errors.name}
 						helperText={errors.name?.message}
@@ -77,7 +78,8 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 					/>
 
 					<TextField
-						label={translate("category.description")}
+						label={t("category.form.descriptionLabel")}
+						placeholder={t("category.form.descriptionPlaceholder")}
 						fullWidth
 						multiline
 						minRows={3}
@@ -99,10 +101,13 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
 			<ConfirmDialog
 				isOpen={discardOpen}
+				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="warning"
 				title={dialogTranslation("title")}
 				content={dialogTranslation("body")}
 				confirmLabel={dialogTranslation("confirm")}
 				cancelLabel={dialogTranslation("cancel")}
+				confirmVariant="danger"
 				onConfirm={confirmDiscard}
 				onCancel={cancelDiscard}
 			/>

@@ -1,77 +1,132 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
-import TemplateTable from "components/template/Table/TemplatesTable";
+import TemplatesTable from "components/template/Table/TemplatesTable";
 import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
-import { translate } from "i18n/i18n";
 import { observer } from "mobx-react-lite";
+import { CreateTemplateRequest, UpdateTemplateRequest } from "models/template";
 import { useStore } from "stores/StoreContext";
 
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/material";
 
+/**
+ * Templates (Шаблоны) — reusable, partner-tied baskets of priced products that
+ * load into a new Sale/Supply in one click (mvp-plan §12). Immutable-style list
+ * with an expand-row detail, plus create/edit/delete (a template touches no
+ * money or stock, so it is editable — not an immutable event).
+ */
 const TemplatePage: React.FC = observer(() => {
-	const { templateStore, partnerStore } = useStore();
+	const { t } = useTranslation();
+	const { templateStore, partnerStore, productStore } = useStore();
 
 	useEffect(() => {
+		templateStore.resetFilters();
 		templateStore.getAll();
 		partnerStore.getAll();
-	}, [templateStore]);
+		productStore.getAll();
+	}, [templateStore, partnerStore, productStore]);
 
-	const handleFormSave = (payload: TemplateFormPayload) =>
-		templateStore.selectedTemplate
-			? templateStore.update({ id: templateStore.selectedTemplate.id, ...payload })
-			: templateStore.create({ ...payload });
+	// Preserve a pack item's count through an edit only while its quantity is still an
+	// exact multiple of the snapshotted size (F21); editing to a non-multiple silently
+	// drops the pack nature to base units. The server recomputes quantity from the count.
+	const packQty = (it: { packageSize?: number | null; quantity: number }): number | undefined =>
+		it.packageSize && it.packageSize > 0 && it.quantity % it.packageSize === 0
+			? it.quantity / it.packageSize
+			: undefined;
 
-	const handleDeleteConfirmed = () => {
+	const handleSave = (payload: TemplateFormPayload): void => {
+		const selected = templateStore.selectedTemplate;
+		if (selected) {
+			const request: UpdateTemplateRequest = {
+				id: selected.id,
+				name: payload.name,
+				partnerId: payload.partnerId,
+				type: payload.type,
+				items: payload.items.map((it) => ({
+					id: it.id,
+					productId: it.productId,
+					quantity: it.quantity,
+					unitPrice: it.unitPrice,
+					discount: it.discount,
+					discountType: it.discountType,
+					packageQuantity: packQty(it),
+				})),
+			};
+			templateStore.update(request);
+			return;
+		}
+
+		const request: CreateTemplateRequest = {
+			name: payload.name,
+			partnerId: payload.partnerId,
+			type: payload.type,
+			items: payload.items.map((it) => ({
+				productId: it.productId,
+				quantity: it.quantity,
+				unitPrice: it.unitPrice,
+				discount: it.discount,
+				discountType: it.discountType,
+				packageQuantity: packQty(it),
+			})),
+		};
+		templateStore.create(request);
+	};
+
+	const handleDeleteConfirmed = (): void => {
 		if (templateStore.selectedTemplate) {
 			templateStore.delete(templateStore.selectedTemplate.id);
 		}
 	};
 
-	const templatesCount = useMemo(() => {
-		if (templateStore.filteredTemplates === "loading") {
-			return "";
-		}
-
-		return templateStore.filteredTemplates.length.toString();
-	}, [templateStore.filteredTemplates]);
-
+	const all = templateStore.allTemplates === "loading" ? null : templateStore.allTemplates;
+	const totalCount =
+		templateStore.listTemplates === "loading" ? null : templateStore.listTemplates.length;
+	const hasAny = (all?.length ?? 0) > 0;
+	const isFiltering = templateStore.searchTerm.trim() !== "" || templateStore.typeFilter !== "all";
 	const dialogMode = templateStore.dialogMode;
-	const dialogKind = dialogMode.kind;
 
 	return (
 		<Box>
 			<TemplateHeader
+				totalCount={totalCount}
 				searchValue={templateStore.searchTerm}
-				selectedPartner={templateStore.selectedPartner}
-				titleCount={templatesCount}
-				onSearch={(value) => templateStore.setSearch(value)}
-				onPartnerChange={(value) => templateStore.setSelectedPartner(value)}
+				typeFilter={templateStore.typeFilter}
+				onSearch={templateStore.setSearch}
+				onTypeChange={templateStore.setTypeFilter}
 				onCreate={templateStore.openCreate}
 			/>
 
-			<TemplateTable
-				data={templateStore.filteredTemplates}
-				onSort={templateStore.setSort}
+			<TemplatesTable
+				rows={templateStore.listTemplates}
+				isFiltering={isFiltering}
+				hasAny={hasAny}
 				onEdit={templateStore.openEdit}
 				onDelete={templateStore.openDelete}
+				onCreate={templateStore.openCreate}
 			/>
 
 			<TemplateFormModal
-				isOpen={dialogKind === "form"}
+				isOpen={dialogMode.kind === "form"}
 				isSaving={templateStore.isSaving}
-				template={templateStore.selectedTemplate}
+				template={dialogMode.kind === "form" ? (dialogMode.template ?? null) : null}
 				onClose={templateStore.closeDialog}
-				onSave={handleFormSave}
+				onSave={handleSave}
 			/>
 
 			<ConfirmDialog
-				isOpen={dialogKind === "delete"}
-				title={translate("common.deleteTitle")}
-				content={translate("template.deleteConfirmation", {
-					templateName: templateStore.selectedTemplate?.name ?? "",
+				isOpen={dialogMode.kind === "delete"}
+				icon={<DeleteOutlineIcon sx={{ fontSize: 22 }} />}
+				iconTone="warning"
+				title={t("template.delete.title", {
+					name: dialogMode.kind === "delete" ? dialogMode.template.name : "",
 				})}
+				content={t("template.delete.body")}
+				confirmLabel={t("template.delete.confirm")}
+				cancelLabel={t("common.cancel")}
+				confirmVariant="danger"
 				onConfirm={handleDeleteConfirmed}
 				onCancel={templateStore.closeDialog}
 			/>

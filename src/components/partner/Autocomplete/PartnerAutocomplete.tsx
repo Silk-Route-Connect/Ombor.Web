@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import type { Partner, PartnerType } from "models/partner";
 import { useStore } from "stores/StoreContext";
@@ -19,6 +19,7 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	size,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const { partnerStore } = useStore();
 
 	const options = useMemo(() => {
@@ -26,15 +27,17 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 			return partnerStore.customers;
 		} else if (type === "Supplier") {
 			return partnerStore.suppliers;
-		} else {
-			return partnerStore.allPartners;
 		}
-	}, [partnerStore.customers, partnerStore.suppliers, type]);
+		// `Both` must not offer archived partners (rule 30) — the Customer/Supplier
+		// getters already exclude them; the raw `allPartners` list does not (F15).
+		const all = partnerStore.allPartners;
+		return all === "loading" ? all : all.filter((p) => !p.isArchived);
+	}, [partnerStore.customers, partnerStore.suppliers, partnerStore.allPartners, type]);
 
 	return (
 		<EntityAutocomplete<Partner>
-			label={translate("partnerAutocomplete.partner")}
-			placeholder={translate("partnerAutocomplete.search")}
+			label={t("partnerAutocomplete.partner")}
+			placeholder={t("partnerAutocomplete.search")}
 			options={options === "loading" ? [] : options}
 			value={value}
 			size={size}

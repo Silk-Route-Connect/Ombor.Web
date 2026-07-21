@@ -1,9 +1,7 @@
-import { toQueryString } from "utils/toQueryParameters";
-
 import {
 	CreateProductRequest,
-	GetProductsRequest,
 	Product,
+	ProductMovement,
 	ProductTransaction,
 	UpdateProductRequest,
 } from "../../models/product";
@@ -21,16 +19,15 @@ const primitiveTypes = ["string", "number", "boolean"];
 export class ProductApi {
 	private readonly baseUrl: string = "/api/products";
 
-	async getAll(request?: GetProductsRequest): Promise<Product[]> {
-		const url = this.getUrl(request);
-		const response = await http.get<Product[]>(url);
+	/** Full dataset — no query params; search/filter/sort/paging are client-side. */
+	async getAll(): Promise<Product[]> {
+		const response = await http.get<Product[]>(this.baseUrl);
 
 		return response.data;
 	}
 
 	async getById(id: number): Promise<Product> {
-		const url = this.getUrlWithId(id);
-		const response = await http.get<Product>(url);
+		const response = await http.get<Product>(this.getUrlWithId(id));
 
 		return response.data;
 	}
@@ -42,35 +39,35 @@ export class ProductApi {
 		return response.data;
 	}
 
-	async create(request: CreateProductRequest): Promise<Product> {
-		const url = this.getUrl();
-		const form = this.getFormData(request);
+	async getMovements(productId: number): Promise<ProductMovement[]> {
+		const url = `${this.getUrlWithId(productId)}/movements`;
+		const response = await http.get<ProductMovement[]>(url);
 
-		const response = await http.post<Product>(url, form, formHeaders);
+		return response.data;
+	}
+
+	async create(request: CreateProductRequest): Promise<Product> {
+		const form = this.getFormData(request);
+		const response = await http.post<Product>(this.baseUrl, form, formHeaders);
+
 		return response.data;
 	}
 
 	async update(request: UpdateProductRequest): Promise<Product> {
-		const url = this.getUrlWithId(request.id);
 		const form = this.getFormData(request);
-		const response = await http.put<Product>(url, form, formHeaders);
+		const response = await http.put<Product>(this.getUrlWithId(request.id), form, formHeaders);
 
 		return response.data;
 	}
 
-	async delete(id: number): Promise<void> {
-		const url = this.getUrlWithId(id);
-		await http.delete(url);
+	/** Archive — the backend returns 204 No Content (no body). */
+	async archive(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/archive`);
 	}
 
-	private getUrl(request?: GetProductsRequest): string {
-		if (!request) {
-			return this.baseUrl;
-		}
-
-		const query = toQueryString(request);
-
-		return query ? `${this.baseUrl}?${query}` : this.baseUrl;
+	/** Restore — the backend returns 204 No Content (no body). */
+	async restore(id: number): Promise<void> {
+		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
 	private getUrlWithId(id: number): string {

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import { FieldError } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { PhoneRow, PhoneRowField } from "components/shared/Inputs/PhoneListField/PhoneRow";
-import { translate } from "i18n/i18n";
 import { nanoid } from "nanoid";
 
 import { Button, Grid } from "@mui/material";
@@ -29,6 +29,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 	onChange,
 	onBlur,
 }) => {
+	const { t } = useTranslation();
 	const prevRowsRef = useRef<PhoneRowField[]>([]);
 
 	const rows = useMemo(() => {
@@ -72,7 +73,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 
 			<Grid size={{ xs: 12 }}>
 				<Button size="small" onClick={handleAdd} disabled={addDisabled}>
-					{translate("addPhoneNumber")}
+					{t("addPhoneNumber")}
 				</Button>
 			</Grid>
 		</Grid>

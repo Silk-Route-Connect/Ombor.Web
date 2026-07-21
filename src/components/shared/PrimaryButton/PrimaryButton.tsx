@@ -8,12 +8,7 @@ export interface PrimaryButtonProps extends ButtonProps {
 
 export const PrimaryButton: React.FC<PrimaryButtonProps> = ({ icon, children, ...buttonProps }) => {
 	return (
-		<Button
-			variant="contained"
-			startIcon={icon}
-			sx={{ whiteSpace: "nowrap", py: 1, px: 2 }}
-			{...buttonProps}
-		>
+		<Button variant="contained" startIcon={icon} sx={{ whiteSpace: "nowrap" }} {...buttonProps}>
 			{children}
 		</Button>
 	);

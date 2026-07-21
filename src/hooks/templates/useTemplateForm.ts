@@ -45,6 +45,8 @@ export interface UseTemplateFormResult {
 
 	items: TemplateFormInputs["items"];
 	addItem: () => void;
+	/** Append a line for a product directly (price = its live sale/supply price). */
+	addProduct: (product: Product) => void;
 	updateItem: (index: number, patch: Partial<TemplateFormInputs["items"][number]>) => void;
 	removeItem: (index: number) => void;
 
@@ -63,7 +65,7 @@ export const useTemplateForm = ({
 	onSave: (payload: TemplateFormPayload) => void;
 	onClose: () => void;
 }): UseTemplateFormResult => {
-	const { partnerStore } = useStore();
+	const { partnerStore, productStore } = useStore();
 
 	const form = useForm<TemplateFormInputs>({
 		resolver: zodResolver(TemplateSchema),
@@ -102,8 +104,25 @@ export const useTemplateForm = ({
 	);
 
 	const setTemplateType = useCallback(
-		(type: TemplateType) => setValue("type", type, { shouldDirty: true, shouldValidate: true }),
-		[setValue],
+		(type: TemplateType) => {
+			setValue("type", type, { shouldDirty: true, shouldValidate: true });
+
+			// Switching the type re-prices every line to the matching live price
+			// (sale ↔ supply), mirroring the prototype. Lines whose product is no
+			// longer in the catalogue keep their current price.
+			const catalogue = productStore.allProducts === "loading" ? [] : productStore.allProducts;
+			const current = form.getValues("items");
+			current.forEach((item, index) => {
+				const product = catalogue.find((p) => p.id === item.productId);
+				if (product) {
+					setValue(`items.${index}.unitPrice`, getPrice(product, type), {
+						shouldDirty: true,
+						shouldValidate: true,
+					});
+				}
+			});
+		},
+		[setValue, form, productStore.allProducts],
 	);
 
 	const addItem = useCallback(() => {
@@ -125,10 +144,30 @@ export const useTemplateForm = ({
 			quantity: 1,
 			unitPrice,
 			discount: 0,
+			discountType: "Fixed",
 		});
 
 		setSelectedProduct(null);
 	}, [selectedProduct, watchedType, items, append]);
+
+	const addProduct = useCallback(
+		(product: Product) => {
+			if (items.some((item) => item.productId === product.id)) {
+				return;
+			}
+
+			append({
+				id: 0,
+				productId: product.id,
+				productName: product.name,
+				quantity: 1,
+				unitPrice: getPrice(product, watchedType),
+				discount: 0,
+				discountType: "Fixed",
+			});
+		},
+		[watchedType, items, append],
+	);
 
 	const updateItem = useCallback(
 		(index: number, patch: Partial<TemplateFormItemValues>) => {
@@ -154,7 +193,9 @@ export const useTemplateForm = ({
 		return partner ?? null;
 	}, [watchedType, partnerId, partnerStore.customers, partnerStore.suppliers]);
 
-	const canSave = formState.isValid && formState.isDirty && !isSaving;
+	// Save stays enabled (hard rule 5): handleSubmit blocks an invalid form and
+	// surfaces inline errors; the button is only inert while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,
@@ -175,6 +216,7 @@ export const useTemplateForm = ({
 
 		items,
 		addItem,
+		addProduct,
 		updateItem,
 		removeItem,
 

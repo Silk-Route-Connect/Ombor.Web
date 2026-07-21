@@ -1,9 +1,11 @@
 import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { getApiErrorMessage } from "utils/apiError";
+import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import { translate } from "../i18n/i18n";
+import i18next from "../i18n/config";
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from "../models/category";
 import CategoryApi from "../services/api/CategoryApi";
 import { NotificationStore } from "./NotificationStore";
@@ -11,6 +13,7 @@ import { NotificationStore } from "./NotificationStore";
 type DialogMode =
 	| { type: "form"; category?: Category }
 	| { type: "delete"; category: Category }
+	| { type: "deleteBlocked"; category: Category }
 	| { type: "none" };
 
 export interface ICategoryStore {
@@ -23,18 +26,19 @@ export interface ICategoryStore {
 	sortOrder: SortOrder;
 	isSaving: boolean;
 	dialogMode: DialogMode;
+	deleteError: string | null;
 
-	// actions
+	// data
 	getAll(): Promise<void>;
 	create(category: CreateCategoryRequest): Promise<void>;
 	update(category: UpdateCategoryRequest): Promise<void>;
 	delete(id: number): Promise<void>;
 
-	// setters for filters & sorting
+	// list controls (client-side)
 	setSearch(query: string): void;
-	setSort(field: keyof Category, order: "asc" | "desc"): void;
+	setSort(field: keyof Category, order: SortOrder): void;
 
-	// UI dialog helper methods
+	// dialogs
 	openCreate(): void;
 	openEdit(category: Category): void;
 	openDelete(category: Category): void;
@@ -44,13 +48,14 @@ export interface ICategoryStore {
 export class CategoryStore implements ICategoryStore {
 	private readonly notificationStore: NotificationStore;
 
-	allCategories: Loadable<Category[]> = [];
+	allCategories: Loadable<Category[]> = "loading";
 	selectedCategory: Category | null = null;
 	searchTerm = "";
 	sortField: keyof Category | null = null;
 	sortOrder: SortOrder = "asc";
-	isSaving: boolean = false;
+	isSaving = false;
 	dialogMode: DialogMode = { type: "none" };
+	deleteError: string | null = null;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -59,33 +64,26 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
-		const filtered = this.applySearch(this.allCategories);
-
-		return this.applySort(filtered);
+		return this.applySort(this.applySearch(this.allCategories));
 	}
 
-	async getAll() {
-		if (this.allCategories === "loading") {
-			return;
-		}
-
+	async getAll(): Promise<void> {
 		runInAction(() => (this.allCategories = "loading"));
 
-		const result = await tryRun(() => CategoryApi.getAll({ searchTerm: this.searchTerm }));
+		const result = await tryRun(() => CategoryApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.load") + `: ${result.error}`);
+			this.notificationStore.error(i18next.t("category.error.load") + `: ${result.error}`);
 		}
 
-		const data = result.status === "success" ? result.data : [];
-		runInAction(() => (this.allCategories = data));
+		runInAction(() => (this.allCategories = result.status === "success" ? result.data : []));
 	}
 
 	async create(request: CreateCategoryRequest): Promise<void> {
 		const result = await withSaving(this, () => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.create"));
+			this.notificationStore.error(i18next.t("category.error.create"));
 			return;
 		}
 
@@ -96,91 +94,109 @@ export class CategoryStore implements ICategoryStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("category.success.create"));
+		this.notificationStore.success(i18next.t("category.success.create"));
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<void> {
 		const result = await withSaving(this, () => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.update"));
+			this.notificationStore.error(i18next.t("category.error.update"));
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
+			if (this.allCategories !== "loading") {
+				this.allCategories = this.allCategories.map((category) =>
+					category.id === result.data.id ? result.data : category,
+				);
 			}
-
-			this.allCategories = this.allCategories.map((category) =>
-				category.id === result.data.id ? result.data : category,
-			);
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("category.success.update"));
+		this.notificationStore.success(i18next.t("category.success.update"));
 	}
 
 	async delete(id: number): Promise<void> {
-		const result = await withSaving(this, () => CategoryApi.delete(id));
-
-		if (result.status === "fail") {
-			this.notificationStore.error(translate("category.error.delete"));
+		if (this.isSaving) {
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allCategories === "loading") {
-				return;
-			}
-
-			this.allCategories = this.allCategories.filter((category) => category.id !== id);
+			this.isSaving = true;
+			this.deleteError = null;
 		});
 
-		this.closeDialog();
-		this.notificationStore.success(translate("category.success.delete"));
+		try {
+			await CategoryApi.delete(id);
+
+			runInAction(() => {
+				if (this.allCategories !== "loading") {
+					this.allCategories = this.allCategories.filter((category) => category.id !== id);
+				}
+			});
+
+			this.closeDialog();
+			this.notificationStore.success(i18next.t("category.success.delete"));
+		} catch (error) {
+			// Reached only for categories the pre-check deemed deletable; if the API
+			// still rejects (e.g. a 409 because counts changed), surface its actual
+			// ProblemDetails message inline rather than a generic toast.
+			runInAction(
+				() => (this.deleteError = getApiErrorMessage(error) ?? i18next.t("category.error.delete")),
+			);
+		} finally {
+			runInAction(() => (this.isSaving = false));
+		}
 	}
 
-	setSearch(query: string) {
+	setSearch(query: string): void {
 		this.searchTerm = query;
 	}
 
-	setSort(field: keyof Category, order: "asc" | "desc") {
+	setSort(field: keyof Category, order: SortOrder): void {
 		this.sortField = field;
 		this.sortOrder = order;
 	}
 
-	openCreate() {
+	openCreate(): void {
 		this.selectedCategory = null;
 		this.dialogMode = { type: "form" };
 	}
 
-	openEdit(category: Category) {
+	openEdit(category: Category): void {
 		this.selectedCategory = category;
 		this.dialogMode = { type: "form", category };
 	}
 
-	openDelete(category: Category) {
+	openDelete(category: Category): void {
 		this.selectedCategory = category;
-		this.dialogMode = { type: "delete", category };
+		this.deleteError = null;
+		// Delete stays enabled everywhere (never silently disabled); pre-check picks
+		// the inline blocked dialog for a referenced category — the case the mock
+		// rejects with 409 (business-rules rule 32). The confirm path still surfaces
+		// any backend/mock error inline via apiError.
+		this.dialogMode =
+			category.productCount > 0
+				? { type: "deleteBlocked", category }
+				: { type: "delete", category };
 	}
 
-	closeDialog() {
+	closeDialog(): void {
 		this.selectedCategory = null;
+		this.deleteError = null;
 		this.dialogMode = { type: "none" };
 	}
 
 	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (data === "loading" || !this.searchTerm) {
+		if (data === "loading" || !this.searchTerm.trim()) {
 			return data;
 		}
 
-		const query = this.searchTerm.toLowerCase();
-
 		return data.filter(
 			(category) =>
-				category.name.toLowerCase().includes(query) ||
-				(category.description?.toLowerCase().includes(query) ?? false),
+				matchesSearch(category.name, this.searchTerm) ||
+				matchesSearch(category.description, this.searchTerm),
 		);
 	}
 
@@ -195,10 +211,6 @@ export class CategoryStore implements ICategoryStore {
 		return [...data].sort((a, b) => {
 			const aValue = a[field] ?? "";
 			const bValue = b[field] ?? "";
-
-			if (typeof aValue === "number" && typeof bValue === "number") {
-				return asc * (aValue - bValue);
-			}
 
 			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
 		});

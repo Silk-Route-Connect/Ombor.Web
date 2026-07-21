@@ -1,136 +1,75 @@
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
-import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { Product, ProductTransaction } from "models/product";
+import i18next from "i18n/config";
+import { makeAutoObservable, runInAction } from "mobx";
+import { Product, ProductMovement, ProductTransaction } from "models/product";
 import ProductApi from "services/api/ProductApi";
-import { DateFilter, isWithinDateRange, PresetOption } from "utils/dateUtils";
 
 import { NotificationStore } from "./NotificationStore";
-import { IProductStore } from "./ProductStore";
 
 export interface ISelectedProductStore {
-	sales: Loadable<ProductTransaction[]>;
-	saleRefunds: Loadable<ProductTransaction[]>;
-	supplies: Loadable<ProductTransaction[]>;
-	supplyRefunds: Loadable<ProductTransaction[]>;
+	product: Loadable<Product | null>;
+	transactions: Loadable<ProductTransaction[]>;
+	movements: Loadable<ProductMovement[]>;
 
-	readonly dateFilter: DateFilter;
-
-	// setters for filters & sorting
-	setPreset(preset: PresetOption): void;
-	setCustom(from: Date, to: Date): void;
+	load(productId: number): Promise<void>;
+	/** Reflect a successful edit/archive/restore without a full reload. */
+	applyProduct(product: Product): void;
+	clear(): void;
 }
 
+/**
+ * State for the routed product detail page: the open product plus its child
+ * collections (transaction history and the warehouse movements ledger),
+ * loaded explicitly by id when the route mounts.
+ */
 export class SelectedProductStore implements ISelectedProductStore {
-	private selectedProduct: Product | null = null;
-	private readonly productStore: IProductStore;
 	private readonly notificationStore: NotificationStore;
 
-	private allTransactions: Loadable<ProductTransaction[]> = [];
+	product: Loadable<Product | null> = "loading";
+	transactions: Loadable<ProductTransaction[]> = "loading";
+	movements: Loadable<ProductMovement[]> = "loading";
 
-	dateFilter: DateFilter = { type: "preset", preset: "week" };
-
-	constructor(productStore: IProductStore, notificationStore: NotificationStore) {
-		this.productStore = productStore;
+	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-
 		makeAutoObservable(this, {}, { autoBind: true });
-		this.registerReactions();
 	}
 
-	get sales(): Loadable<ProductTransaction[]> {
-		if (this.allTransactions === "loading") {
-			return "loading";
+	async load(productId: number): Promise<void> {
+		runInAction(() => {
+			this.product = "loading";
+			this.transactions = "loading";
+			this.movements = "loading";
+		});
+
+		const [product, transactions, movements] = await Promise.all([
+			tryRun(() => ProductApi.getById(productId)),
+			tryRun(() => ProductApi.getTransactions(productId)),
+			tryRun(() => ProductApi.getMovements(productId)),
+		]);
+
+		if (product.status === "fail") {
+			this.notificationStore.error(i18next.t("product.error.getById"));
+		} else if (transactions.status === "fail" || movements.status === "fail") {
+			this.notificationStore.error(i18next.t("product.error.getTransactions"));
 		}
 
-		const sales = this.allTransactions.filter((el) => el.transactionType === "Sale");
-
-		return this.applyFilter(sales);
+		runInAction(() => {
+			this.product = product.status === "success" ? product.data : null;
+			this.transactions = transactions.status === "success" ? transactions.data : [];
+			this.movements = movements.status === "success" ? movements.data : [];
+		});
 	}
 
-	get supplies(): Loadable<ProductTransaction[]> {
-		if (this.allTransactions === "loading") {
-			return "loading";
-		}
-
-		const supplies = this.allTransactions.filter((el) => el.transactionType === "Supply");
-
-		return this.applyFilter(supplies);
+	applyProduct(product: Product): void {
+		this.product = product;
 	}
 
-	get saleRefunds(): Loadable<ProductTransaction[]> {
-		if (this.allTransactions === "loading") {
-			return "loading";
-		}
-
-		const saleRefunds = this.allTransactions.filter((el) => el.transactionType === "SaleRefund");
-
-		return this.applyFilter(saleRefunds);
-	}
-
-	get supplyRefunds(): Loadable<ProductTransaction[]> {
-		if (this.allTransactions === "loading") {
-			return "loading";
-		}
-
-		const supplyRefunds = this.allTransactions.filter(
-			(el) => el.transactionType === "SupplyRefund",
-		);
-
-		return this.applyFilter(supplyRefunds);
-	}
-
-	setPreset(preset: PresetOption) {
-		this.dateFilter = { type: "preset", preset };
-	}
-
-	setCustom(from: Date, to: Date) {
-		this.dateFilter = { type: "custom", from, to };
-	}
-
-	private applyFilter(data: Loadable<ProductTransaction[]>): ProductTransaction[] {
-		if (data === "loading") {
-			return [];
-		}
-
-		return data.filter((el) => isWithinDateRange(el.date, this.dateFilter));
-	}
-
-	private async getProductTransactions(): Promise<void> {
-		if (this.allTransactions === "loading") {
-			return;
-		}
-
-		const productId = this.selectedProduct?.id;
-		if (!productId) {
-			return;
-		}
-
-		const result = await tryRun(() => ProductApi.getTransactions(productId));
-
-		if (result.status === "fail") {
-			this.notificationStore.error("product.error.getTransactions");
-		}
-
-		const data = result.status === "fail" ? [] : result.data;
-
-		runInAction(() => (this.allTransactions = data));
-	}
-
-	private registerReactions() {
-		reaction(
-			() => this.productStore.selectedProduct,
-			(product) => {
-				runInAction(() => {
-					this.allTransactions = [];
-					this.dateFilter = { type: "preset", preset: "week" };
-				});
-
-				if (product) {
-					this.selectedProduct = product;
-					this.getProductTransactions();
-				}
-			},
-		);
+	clear(): void {
+		this.product = "loading";
+		this.transactions = "loading";
+		this.movements = "loading";
 	}
 }
+
+export default SelectedProductStore;

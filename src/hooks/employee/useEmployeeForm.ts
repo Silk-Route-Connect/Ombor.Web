@@ -54,7 +54,7 @@ export function useEmployeeForm({
 
 	const {
 		handleSubmit,
-		formState: { isDirty, isValid },
+		formState: { isDirty },
 	} = form;
 
 	const { discardOpen, requestClose, confirmDiscard, cancelDiscard } = useDirtyClose(
@@ -68,7 +68,10 @@ export function useEmployeeForm({
 		onSave(cleaned);
 	});
 
-	const canSave = isValid && !isSaving && (employee ? isDirty : true);
+	// Save stays enabled (hard rule 5): validation runs on submit (handleSubmit
+	// blocks an invalid form and surfaces inline errors); the button is only inert
+	// while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,

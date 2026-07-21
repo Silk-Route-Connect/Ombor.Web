@@ -1,141 +1,117 @@
-import React from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
-import { Link as RouterLink } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
-import PasswordField from "components/shared/PasswordField/PasswordField";
-import { translate } from "i18n/i18n";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { AuthAltLine, AuthHead, AuthLink } from "components/auth/AuthChrome";
+import { AuthBanner, AuthPasswordField, AuthPhoneField } from "components/auth/AuthFields";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
-import { LoginFormValues, loginSchema } from "schemas/AuthSchema";
+import { PATHS } from "routing/paths";
+import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
+import { phoneError as phoneErrorOf } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
-import {
-	Alert,
-	Button,
-	Card,
-	CardContent,
-	Link,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const LoginPage: React.FC = observer(() => {
-	const { authStore, notificationStore } = useStore();
-	const [serverError, setServerError] = React.useState<string | null>(null);
+	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const { authStore } = useStore();
 
-	const {
-		control,
-		handleSubmit,
-		formState: { errors, isSubmitting },
-	} = useForm<LoginFormValues>({
-		resolver: zodResolver(loginSchema),
-		defaultValues: { phoneNumber: "", password: "" },
-		mode: "onBlur",
-	});
+	const [phone, setPhone] = useState("");
+	const [password, setPassword] = useState("");
+	const [tried, setTried] = useState(false);
+	const [banner, setBanner] = useState<string | null>(null);
+	const [submitting, setSubmitting] = useState(false);
 
-	const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
-		setServerError(null);
+	const phoneErr = tried ? phoneErrorOf(phone) : null;
+	const passwordErr = tried && !password ? "auth.errors.required" : null;
+
+	const submit = async () => {
+		setTried(true);
+		setBanner(null);
+		if (phoneErrorOf(phone) || !password) {
+			const failed = [phoneErrorOf(phone) ? "phone" : null, !password ? "password" : null].filter(
+				(f): f is string => f !== null,
+			);
+			analytics.capture("form_validation_failed", {
+				form: "login",
+				field_count: failed.length,
+				first_field: failed[0],
+			});
+			return;
+		}
+		setSubmitting(true);
 		try {
 			await authStore.login({
-				phoneNumber: normalizeUzPhoneToE164(values.phoneNumber),
-				password: values.password,
+				phoneNumber: normalizeUzPhoneToE164(phone),
+				password,
 			});
+			// On success the store sets auth + redirects to the app.
 		} catch {
-			notificationStore.error(translate("auth.errors.loginFailed"));
-			setServerError(translate("auth.errors.loginFailed"));
+			setBanner(t("auth.login.failed"));
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
-	// Store the label text in a variable to ensure consistency
-	const phoneLabel = translate("auth.phoneNumber");
-
 	return (
-		<AuthLayout
-			titleKey="auth.login"
-			subtitleKey="auth.loginSubtitle"
-			switchTextKey="auth.goToRegister"
-			switchTo="/register"
-			hideHeaderSwitch
-		>
-			<Card sx={{ borderRadius: 3, boxShadow: 0 }}>
-				<CardContent sx={{ p: 0 }}>
-					<Stack spacing={3} sx={{ p: { xs: 1, md: 1 } }}>
-						{serverError ? (
-							<Alert severity="error" variant="outlined" sx={{ mx: 0, mt: 0 }}>
-								{serverError}
-							</Alert>
-						) : null}
+		<AuthLayout>
+			<AuthHead title={t("auth.login.title")} subtitle={t("auth.login.subtitle")} />
 
-						<form noValidate onSubmit={handleSubmit(onSubmit)}>
-							<Stack spacing={3}>
-								<Controller
-									name="phoneNumber"
-									control={control}
-									render={({ field }) => (
-										<PatternFormat
-											{...field}
-											customInput={TextField}
-											format="+998 ## ### ## ##"
-											mask="_"
-											allowEmptyFormatting
-											label={translate("auth.phoneNumber")}
-											fullWidth
-											slotProps={{
-												input: { inputMode: "tel", autoComplete: "tel" },
-											}}
-											error={Boolean(errors.phoneNumber)}
-											helperText={
-												errors.phoneNumber
-													? translate(errors.phoneNumber.message ?? "auth.errors.invalidPhone")
-													: " "
-											}
-										/>
-									)}
-								/>
+			{banner && (
+				<Box sx={{ mb: "18px" }}>
+					<AuthBanner>{banner}</AuthBanner>
+				</Box>
+			)}
 
-								<Controller
-									name="password"
-									control={control}
-									render={({ field }) => (
-										<PasswordField
-											label={translate("auth.password")}
-											value={field.value}
-											onChange={(v) => field.onChange(v)}
-											error={Boolean(errors.password)}
-											helperText={
-												errors.password
-													? translate(errors.password.message ?? "auth.errors.required")
-													: undefined
-											}
-											autoComplete="current-password"
-										/>
-									)}
-								/>
+			<Box sx={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+				<AuthPhoneField
+					label={t("auth.field.phone")}
+					value={phone}
+					autoFocus
+					error={phoneErr ? t(phoneErr) : undefined}
+					onChange={(v) => {
+						setPhone(v);
+						setBanner(null);
+					}}
+					onEnter={() => void submit()}
+				/>
+				<Box>
+					<AuthPasswordField
+						label={t("auth.field.password")}
+						value={password}
+						autoComplete="current-password"
+						error={passwordErr ? t(passwordErr) : undefined}
+						onChange={(v) => {
+							setPassword(v);
+							setBanner(null);
+						}}
+						onEnter={() => void submit()}
+					/>
+					<Box sx={{ display: "flex", justifyContent: "flex-end", mt: "8px" }}>
+						<AuthLink onClick={() => navigate(PATHS.resetPassword)}>
+							{t("auth.login.forgot")}
+						</AuthLink>
+					</Box>
+				</Box>
+			</Box>
 
-								<Button
-									fullWidth
-									variant="contained"
-									size="large"
-									type="submit"
-									disabled={isSubmitting}
-									sx={{ textTransform: "none", py: 1.25, borderRadius: 2 }}
-								>
-									{isSubmitting ? translate("common.loading") : translate("auth.login")}
-								</Button>
-
-								<Typography variant="body2" color="text.secondary" textAlign="center">
-									<Link component={RouterLink} to="/register" underline="hover">
-										{translate("auth.goToRegister")}
-									</Link>
-								</Typography>
-							</Stack>
-						</form>
-					</Stack>
-				</CardContent>
-			</Card>
+			<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
+				<Button
+					variant="contained"
+					fullWidth
+					disabled={submitting}
+					onClick={() => void submit()}
+					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+				>
+					{t("auth.login.submit")}
+				</Button>
+				<AuthAltLine>
+					{t("auth.login.noAccount")}{" "}
+					<AuthLink onClick={() => navigate(PATHS.register)}>{t("auth.login.create")}</AuthLink>
+				</AuthAltLine>
+			</Box>
 		</AuthLayout>
 	);
 });

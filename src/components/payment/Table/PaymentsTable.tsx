@@ -1,205 +1,187 @@
 import React from "react";
-import EmployeeLink from "components/employee/Link/EmployeeLink";
+import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
-import { Column, DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
+import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import WalletLink from "components/wallet/Links/WalletLink";
 import { Loadable } from "helpers/Loading";
-import { translate } from "i18n/i18n";
-import { Payment, PaymentDirection, PaymentType } from "models/payment";
+import { TFunction } from "i18next";
+import { PaymentRecord } from "models/payment";
+import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
+import { formatCurrency } from "utils/formatCurrency";
 
-import {
-	AccountBalance,
-	Category,
-	CreditCard,
-	LocalAtm,
-	SwapHoriz,
-	Work,
-} from "@mui/icons-material";
-import { Chip, Tooltip, Typography, useTheme } from "@mui/material";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import { Box, Paper, Typography } from "@mui/material";
 
 interface PaymentsTableProps {
-	payments: Loadable<Payment[]>;
-	onPaymentClick?: (payment: Payment) => void;
-	onSort?: (field: keyof Payment, order: SortOrder) => void;
-	pagination?: boolean;
+	rows: Loadable<PaymentRecord[]>;
+	isFiltering: boolean;
+	onOpen: (payment: PaymentRecord) => void;
 }
 
-const MAX_NOTES_LENGTH = 25;
+/** Keep an inner entity link from also triggering the row's open-detail click. */
+const stop = (e: React.MouseEvent) => e.stopPropagation();
 
-export const PaymentsTable: React.FC<PaymentsTableProps> = ({
-	payments,
-	onPaymentClick,
-	onSort,
-	pagination = true,
-}) => {
-	const theme = useTheme();
+const Muted: React.FC = () => (
+	<Box component="span" sx={{ color: "text.disabled" }}>
+		—
+	</Box>
+);
 
-	const renderNotes = (notes?: string): React.ReactNode => {
-		if (!notes) {
-			return translate("common.dash");
-		}
-
-		if (notes.length <= MAX_NOTES_LENGTH) {
-			return notes;
-		}
-
-		const truncatedNotes = notes.substring(0, MAX_NOTES_LENGTH) + "...";
-
-		return (
-			<Tooltip title={notes} placement="top" arrow>
-				<Typography component="span" sx={{ cursor: "help" }}>
-					{truncatedNotes}
-				</Typography>
-			</Tooltip>
-		);
-	};
-
-	const renderEmployee = (payment: Payment): React.ReactNode => {
-		if (!payment.employeeId || !payment.employeeName) {
-			return translate("common.dash");
-		}
-
-		return <EmployeeLink id={payment.employeeId} name={payment.employeeName} />;
-	};
-
-	const renderPartner = (payment: Payment): React.ReactNode => {
-		if (payment.type === "Payroll") {
-			return renderEmployee(payment);
-		}
-
-		if (!payment.partnerId || !payment.partnerName) {
-			return translate("common.dash");
-		}
-
-		return <PartnerLink id={payment.partnerId} name={payment.partnerName} />;
-	};
-
-	const getDirectionColor = (direction: PaymentDirection) => {
-		return direction === "Income" ? theme.palette.success.main : theme.palette.error.main;
-	};
-
-	const renderDirection = (direction: PaymentDirection): React.ReactNode => {
-		return (
-			<Chip
-				label={translate(`payment.direction.${direction}`)}
-				size="small"
-				sx={{
-					backgroundColor: `${getDirectionColor(direction)}15`,
-					color: getDirectionColor(direction),
-					border: `1px solid ${getDirectionColor(direction)}40`,
-					fontWeight: 500,
-				}}
-			/>
-		);
-	};
-
-	const getTypeIcon = (type: PaymentType) => {
-		switch (type) {
-			case "Transaction":
-				return <SwapHoriz />;
-			case "Deposit":
-				return <AccountBalance />;
-			case "Withdrawal":
-				return <LocalAtm />;
-			case "Payroll":
-				return <Work />;
-			case "General":
-				return <Category />;
-			default:
-				return <CreditCard />;
-		}
-	};
-
-	const renderType = (type: PaymentType): React.ReactNode => {
-		return (
-			<Chip
-				icon={getTypeIcon(type)}
-				label={translate(`payment.type.${type}`)}
-				variant="outlined"
-				size="small"
-				sx={{
-					backgroundColor: theme.palette.grey[50],
-					borderColor: theme.palette.grey[300],
-					"& .MuiChip-icon": {
-						color: theme.palette.text.secondary,
-					},
-				}}
-			/>
-		);
-	};
-
-	const columns: Column<Payment>[] = [
+/**
+ * Payments list columns (canonical order: № → date → party → type chip →
+ * direction chip → касса → money right). Every column is sortable; payments are
+ * immutable, so there is no actions column — a row opens the full-page detail.
+ * Partner + Касса are {@link DetailLink} wrappers (the row is also clickable; the
+ * links stop propagation). Amounts are unsigned — colour carries the direction.
+ */
+function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
+	return [
 		{
-			key: "id",
-			field: "id",
-			headerName: translate("payment.number"),
-			width: "10%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => `#${payment.id}`,
+			key: "number",
+			headerName: t("payment.table.number"),
+			// The backend's legacy DTO omits the human «P-…» number — fall back to «№id»
+			// so the column is never blank (matches the detail-page title).
+			sortValue: (p) => p.number ?? p.id,
+			renderCell: (p) => <CopyableNumberCell value={p.number ?? p.id} />,
 		},
 		{
 			key: "date",
-			field: "date",
-			headerName: translate("payment.date"),
-			width: "15%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => formatDateTime(payment.date),
+			headerName: t("payment.table.date"),
+			sortValue: (p) => new Date(p.date),
+			renderCell: (p) => (
+				<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
+					{formatDateTime(p.date)}
+				</Box>
+			),
 		},
 		{
-			key: "partner",
-			headerName: translate("payment.partner"),
-			width: "15%",
-			align: "left",
-			sortable: true,
-			renderCell: renderPartner,
-		},
-		{
-			key: "amount",
-			field: "amount",
-			headerName: translate("payment.amount"),
-			width: "15%",
-			align: "right",
-			sortable: true,
-			renderCell: (payment) => payment.amount.toLocaleString(),
-		},
-		{
-			key: "direction",
-			field: "direction",
-			headerName: translate("payment.direction"),
-			width: "10%",
-			align: "center",
-			sortable: true,
-			renderCell: (payment) => renderDirection(payment.direction),
+			key: "party",
+			headerName: t("payment.table.party"),
+			sortValue: (p) => p.partnerName ?? p.employeeName ?? "",
+			renderCell: (p) =>
+				p.partnerId != null && p.partnerName ? (
+					<Box component="span" sx={{ fontWeight: 600 }} onClick={stop}>
+						<PartnerLink id={p.partnerId} name={p.partnerName} />
+					</Box>
+				) : p.employeeName ? (
+					<Box component="span" sx={{ fontWeight: 600 }}>
+						{p.employeeName}
+					</Box>
+				) : (
+					<Muted />
+				),
 		},
 		{
 			key: "type",
-			field: "type",
-			headerName: translate("payment.type"),
-			width: "10%",
-			align: "center",
-			sortable: true,
-			renderCell: (payment) => renderType(payment.type),
+			headerName: t("payment.table.type"),
+			sortValue: (p) => p.type,
+			renderCell: (p) => <PaymentTypeBadge type={p.type} />,
 		},
 		{
-			key: "notes",
-			field: "notes",
-			headerName: translate("payment.notes"),
-			width: "20%",
-			align: "left",
-			sortable: true,
-			renderCell: (payment) => renderNotes(payment.notes),
+			key: "direction",
+			headerName: t("payment.table.direction"),
+			sortValue: (p) => p.direction,
+			renderCell: (p) => <PaymentDirectionBadge direction={p.direction} />,
+		},
+		{
+			key: "wallet",
+			headerName: t("payment.table.wallet"),
+			sortValue: (p) => p.walletName,
+			renderCell: (p) => (
+				<Box
+					component="span"
+					onClick={stop}
+					sx={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: "7px",
+						whiteSpace: "nowrap",
+					}}
+				>
+					<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 14, color: "text.disabled" }} />
+					<WalletLink id={p.walletId} name={p.walletName} />
+				</Box>
+			),
+		},
+		{
+			key: "amount",
+			headerName: t("payment.table.amount"),
+			align: "right",
+			sortValue: (p) => p.amount,
+			renderCell: (p) => (
+				<Box
+					component="span"
+					sx={{
+						...numericSx,
+						fontWeight: 700,
+						fontSize: 15,
+						color: p.direction === "Income" ? "success.main" : "error.main",
+					}}
+				>
+					{formatCurrency(p.amount)}
+				</Box>
+			),
 		},
 	];
+}
+
+/**
+ * Payments list on the shared {@link DataTable} (warm bands, client-side sort,
+ * pagination). Loading + populated states are the table's; the rich, filter-aware
+ * empty state is rendered here instead of the table's bare placeholder.
+ */
+export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering, onOpen }) => {
+	const { t } = useTranslation();
+
+	if (rows !== "loading" && rows.length === 0) {
+		return (
+			<Paper
+				elevation={1}
+				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+			>
+				<Box sx={{ p: "52px 24px 58px", textAlign: "center" }}>
+					<Box
+						sx={{
+							width: 56,
+							height: 56,
+							borderRadius: 2,
+							mx: "auto",
+							mb: 2,
+							display: "grid",
+							placeItems: "center",
+							bgcolor: "grey.50",
+							border: 1,
+							borderColor: "divider",
+							color: "text.disabled",
+						}}
+					>
+						<ReceiptLongOutlinedIcon sx={{ fontSize: 26 }} />
+					</Box>
+					<Typography variant="h2" sx={{ mb: 0.75 }}>
+						{isFiltering ? t("payment.empty.searchTitle") : t("payment.empty.title")}
+					</Typography>
+					<Typography
+						variant="body2"
+						sx={{ color: "text.secondary", maxWidth: 400, mx: "auto", lineHeight: 1.6 }}
+					>
+						{isFiltering ? t("payment.empty.searchBody") : t("payment.empty.body")}
+					</Typography>
+				</Box>
+			</Paper>
+		);
+	}
 
 	return (
 		<DataTable
-			rows={payments}
-			columns={columns}
-			pagination={pagination}
-			onRowClick={onPaymentClick}
-			onSort={onSort}
+			rows={rows}
+			columns={buildPaymentColumns(t)}
+			pagination
+			defaultSort={{ key: "date", order: "desc" }}
+			onRowClick={onOpen}
 		/>
 	);
 };

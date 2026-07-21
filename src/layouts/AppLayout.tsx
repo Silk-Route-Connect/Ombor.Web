@@ -1,58 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 
-import { Box, CssBaseline, Toolbar, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
-const FULL_WIDTH = 240;
-const COLLAPSED_WIDTH = 64;
-
+/**
+ * App frame per design: fixed sidebar, topbar, scrolling content area on
+ * the canvas background. Pages render their own header via PageHeader.
+ */
 export default function AppLayout() {
-	const theme = useTheme();
-	const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-	const drawerWidth = isDrawerOpen ? FULL_WIDTH : COLLAPSED_WIDTH;
-
-	const toggleDrawer = React.useCallback(() => {
-		setIsDrawerOpen((prev) => !prev);
-	}, []);
-
 	return (
-		<Box sx={{ display: "flex" }}>
-			<CssBaseline />
-			<Topbar open={isDrawerOpen} onToggle={toggleDrawer} />
-
-			<Box
-				component="nav"
-				sx={{
-					width: drawerWidth,
-					flexShrink: 0,
-					transition: theme.transitions.create("width", {
-						duration: theme.transitions.duration.standard,
-						easing: theme.transitions.easing.easeInOut,
-					}),
-				}}
-			>
-				<Sidebar open={isDrawerOpen} onToggle={toggleDrawer} />
-			</Box>
-
-			<Box
-				component="main"
-				sx={{
-					flexGrow: 1,
-					width: `calc(100% - ${drawerWidth}px)`,
-					p: 3,
-					bgcolor: "background.default",
-					minHeight: "100vh",
-					transition: theme.transitions.create("width", {
-						duration: theme.transitions.duration.standard,
-						easing: theme.transitions.easing.easeInOut,
-					}),
-				}}
-			>
-				<Toolbar />
-				<Outlet />
+		<Box sx={{ display: "flex", height: "100vh", bgcolor: "background.default" }}>
+			<Sidebar />
+			<Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+				<Topbar />
+				<Box component="main" sx={{ flex: 1, overflow: "auto", p: 3 }}>
+					<Outlet />
+				</Box>
 			</Box>
 		</Box>
 	);

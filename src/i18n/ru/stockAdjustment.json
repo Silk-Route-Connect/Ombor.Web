@@ -1,0 +1,80 @@
+{
+  "adjustment.error.getAll": "Не удалось загрузить корректировки",
+  "adjustment.error.create": "Не удалось сохранить корректировку",
+
+  "adjustment.success.create": "Корректировка сохранена",
+
+  "adjustment.title": "Корректировки",
+  "adjustment.create": "Новая корректировка",
+  "adjustment.searchPlaceholder": "Поиск по товару…",
+  "adjustment.unitFallback": "ед.",
+
+  "adjustment.title.create": "Новая корректировка",
+
+  "adjustment.filter.allWarehouses": "Все склады",
+  "adjustment.filter.direction.all": "Все",
+  "adjustment.filter.direction.Decrease": "Списание",
+  "adjustment.filter.direction.Increase": "Оприходование",
+
+  "adjustment.direction.Decrease": "Списание",
+  "adjustment.direction.Increase": "Оприходование",
+
+  "adjustment.reason.Damage": "Порча",
+  "adjustment.reason.Expiry": "Истечение срока",
+  "adjustment.reason.Theft": "Кража/утеря",
+  "adjustment.reason.RecountDown": "Пересчёт (коррекция вниз)",
+  "adjustment.reason.RecountUp": "Пересчёт (коррекция вверх)",
+  "adjustment.reason.Found": "Находка",
+  "adjustment.reason.Other": "Другое",
+
+  "adjustment.table.date": "Дата",
+  "adjustment.table.warehouse": "Склад",
+  "adjustment.table.product": "Товар",
+  "adjustment.table.direction": "Направление",
+  "adjustment.table.quantity": "Кол-во",
+  "adjustment.table.reason": "Причина",
+  "adjustment.table.createdBy": "Автор",
+  "adjustment.table.sku": "Артикул",
+  "adjustment.table.category": "Категория",
+  "adjustment.table.note": "Примечание",
+
+  "adjustment.detail.title": "Корректировка запаса",
+  "adjustment.detail.dateTime": "Дата и время",
+  "adjustment.detail.balanceAfter": "Остаток после операции",
+  "adjustment.detail.createdBy": "Провёл",
+  "adjustment.detail.noNote": "Без примечания",
+
+  "adjustment.empty.title": "Пока нет корректировок",
+  "adjustment.empty.body": "Корректировки фиксируют изменения остатка без продаж и поставок — порча, недостача, пересчёт, находка. Создайте первую запись.",
+  "adjustment.empty.searchTitle": "Ничего не найдено",
+  "adjustment.empty.searchBody": "По заданным условиям корректировок нет. Измените склад, направление или поиск.",
+
+  "adjustment.field.warehouse": "Склад",
+  "adjustment.field.direction": "Направление",
+  "adjustment.field.product": "Товар",
+  "adjustment.field.quantity": "Кол-во",
+  "adjustment.field.reason": "Причина",
+  "adjustment.field.note": "Примечание",
+
+  "adjustment.form.subtitle": "Изменение остатка без продажи или поставки",
+  "adjustment.form.errorBanner": "Проверьте отмеченные поля ниже.",
+  "adjustment.form.decreaseHint": "Уменьшить остаток",
+  "adjustment.form.increaseHint": "Увеличить остаток",
+  "adjustment.form.productPlaceholder": "Поиск товаров…",
+  "adjustment.form.previewTitle": "Остаток после операции",
+  "adjustment.form.previewHint": "Укажите товар и количество — покажем остаток на складе после операции.",
+  "adjustment.form.previewCurrent": "Текущий остаток",
+  "adjustment.form.previewChange": "Корректировка",
+  "adjustment.form.previewAfter": "После операции",
+  "adjustment.form.previewNegative": "Ниже нуля",
+  "adjustment.form.floorNote": "Нельзя списать больше, чем есть: доступно {{available}} {{unit}}, запрошено {{requested}} {{unit}}. Остаток не может опуститься ниже нуля.",
+  "adjustment.form.reasonPlaceholder": "Выберите причину",
+  "adjustment.form.notePlaceholder": "Дополнительные детали корректировки…",
+
+  "adjustment.validation.warehouseRequired": "Выберите склад",
+  "adjustment.validation.productRequired": "Выберите товар",
+  "adjustment.validation.quantityPositive": "Укажите количество",
+  "adjustment.validation.nonNegative": "Не может быть отрицательным",
+  "adjustment.validation.reasonRequired": "Выберите причину",
+  "adjustment.validation.noteMax": "Примечание не должно превышать 500 символов."
+}

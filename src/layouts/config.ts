@@ -1,65 +1,74 @@
 import { ElementType } from "react";
-import { translate } from "i18n/i18n";
+import { PATHS } from "routing/paths";
 
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 
-export interface ChildMenuItem {
-	label: string;
+export interface ChildNavItem {
+	/** i18n key — resolved at render time, never at module import. */
+	labelKey: string;
 	to: string;
 }
 
-export interface MenuItem {
-	label: string;
+export interface NavItem {
+	labelKey: string;
 	icon: ElementType;
+	/** Direct link for items without children. */
 	to?: string;
-	children?: ChildMenuItem[];
+	children?: ChildNavItem[];
 }
 
-export const menuItems: MenuItem[] = [
-	{ label: translate("sidebar.dashboard"), to: "/", icon: DashboardOutlinedIcon },
-
+/**
+ * Sidebar navigation per design + locked pattern 10: flat two-tier,
+ * no section-label headings, no «Отчёты» (v2). «Настройки» / «Выход»
+ * are rendered by the Sidebar footer, not listed here.
+ */
+export const navItems: NavItem[] = [
+	{ labelKey: "sidebar.dashboard", icon: SpaceDashboardOutlinedIcon, to: PATHS.dashboard },
 	{
-		label: translate("sidebar.production"),
-		icon: Inventory2OutlinedIcon,
-		children: [
-			{ label: translate("sidebar.products"), to: "/products" },
-			{ label: translate("sidebar.categories"), to: "/categories" },
-		],
-	},
-
-	{
-		label: translate("sidebar.transactions"),
-		icon: SwapHorizOutlinedIcon,
-		children: [
-			{ label: translate("sidebar.partners"), to: "/partners" },
-			{ label: translate("sidebar.sales"), to: "/sales" },
-			{ label: translate("sidebar.supplies"), to: "/supplies" },
-			{ label: translate("sidebar.templates"), to: "/templates" },
-		],
-	},
-
-	{
-		label: translate("sidebar.finance"),
+		labelKey: "sidebar.finance",
 		icon: MonetizationOnOutlinedIcon,
 		children: [
-			{ label: translate("sidebar.payments"), to: "/payments" },
-			{ label: translate("sidebar.debts"), to: "/finances/debts" },
+			{ labelKey: "sidebar.payments", to: PATHS.payments },
+			{ labelKey: "sidebar.debts", to: PATHS.debts },
+			{ labelKey: "sidebar.wallets", to: PATHS.wallets },
 		],
 	},
-
 	{
-		label: translate("sidebar.personnel"),
-		icon: PeopleAltOutlinedIcon,
+		labelKey: "sidebar.transactions",
+		icon: SwapHorizOutlinedIcon,
 		children: [
-			{ label: translate("sidebar.employees"), to: "/employees" },
-			{ label: translate("sidebar.salaries"), to: "/payrolls" },
+			{ labelKey: "sidebar.partners", to: PATHS.partners },
+			{ labelKey: "sidebar.orders", to: PATHS.orders },
+			{ labelKey: "sidebar.sales", to: PATHS.sales },
+			{ labelKey: "sidebar.supplies", to: PATHS.supplies },
+			{ labelKey: "sidebar.templates", to: PATHS.templates },
 		],
 	},
-
-	{ label: "Отчёты", to: translate("sidebar.reports"), icon: BarChartOutlinedIcon },
+	{
+		labelKey: "sidebar.production",
+		icon: Inventory2OutlinedIcon,
+		children: [
+			{ labelKey: "sidebar.products", to: PATHS.products },
+			{ labelKey: "sidebar.categories", to: PATHS.categories },
+		],
+	},
+	{
+		labelKey: "sidebar.warehouse",
+		icon: WarehouseOutlinedIcon,
+		children: [
+			{ labelKey: "sidebar.warehouses", to: PATHS.warehouses },
+			{ labelKey: "sidebar.adjustments", to: PATHS.adjustments },
+			{ labelKey: "sidebar.transfers", to: PATHS.transfers },
+		],
+	},
+	{
+		labelKey: "sidebar.personnel",
+		icon: PeopleOutlinedIcon,
+		children: [{ labelKey: "sidebar.employees", to: PATHS.employees }],
+	},
 ];

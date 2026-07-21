@@ -9,7 +9,7 @@ export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues) => void;
+	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
 }
 
 export interface UseProductFormResult {
@@ -50,8 +50,8 @@ export interface UseProductFormResult {
 
 const DEFAULT_VALUES: ProductFormInputs = {
 	name: "",
-	categoryId: 0,
-	measurement: "Unit",
+	categoryId: null,
+	measurement: "Piece",
 	type: "All",
 	sku: "",
 	description: undefined,
@@ -59,12 +59,12 @@ const DEFAULT_VALUES: ProductFormInputs = {
 
 	supplyPrice: 0,
 	salePrice: 0,
-	retailPrice: 0,
+
+	lowStockThreshold: null,
 
 	packaging: undefined,
 
 	attachments: undefined,
-	notes: undefined,
 };
 
 export type ProductFormPayload = ProductFormInputs;
@@ -83,7 +83,7 @@ export const useProductForm = ({
 		defaultValues: DEFAULT_VALUES,
 	});
 
-	const { control, formState, setValue, handleSubmit, reset, clearErrors, trigger } = form;
+	const { control, formState, setValue, handleSubmit, reset, clearErrors } = form;
 
 	const [initialImages, setInitialImages] = useState<ProductImage[]>([]);
 	const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
@@ -208,26 +208,29 @@ export const useProductForm = ({
 		setMainSelection({ kind: "new", index });
 	}, []);
 
+	// The type segmented control decides which price is shown; zero the hidden
+	// one so it never carries a stale value.
 	useEffect(() => {
 		if (!watchedType) {
 			return;
 		}
 
 		if (watchedType === "Supply") {
-			setValue("salePrice", 0, { shouldDirty: true, shouldValidate: true });
-			setValue("retailPrice", 0, { shouldDirty: true, shouldValidate: true });
-			clearErrors(["salePrice", "retailPrice"]);
+			setValue("salePrice", 0, { shouldValidate: false });
+			clearErrors(["salePrice"]);
 		} else if (watchedType === "Sale") {
+			setValue("supplyPrice", 0, { shouldValidate: false });
 			clearErrors(["supplyPrice"]);
-		} else {
-			clearErrors(["supplyPrice", "salePrice", "retailPrice"]);
 		}
+	}, [watchedType, setValue, clearErrors]);
 
-		void trigger(["supplyPrice", "salePrice", "retailPrice"]);
-	}, [watchedType, setValue, clearErrors, trigger]);
-
-	const submit = handleSubmit(onSave);
-	const canSave = formState.isValid && formState.isDirty && !isSaving;
+	// Thread the tracked image removals through to the save callback — RHF's
+	// handleSubmit only forwards validated form values, so the deletions
+	// (tracked outside the form) must be passed explicitly.
+	const submit = handleSubmit((values) => onSave(values, imagesToRemove));
+	// Save stays enabled (hard rule 5): validation runs on submit and reports
+	// inline; the button is only inert while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,

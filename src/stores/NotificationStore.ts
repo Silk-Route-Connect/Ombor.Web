@@ -31,6 +31,10 @@ export class NotificationStore {
 		this.enqueue(message, { variant: "success", ...opts });
 	}
 
+	info(message: string, opts?: OptionsObject) {
+		this.enqueue(message, { variant: "info", ...opts });
+	}
+
 	inject(realEnqueue: ProviderContext["enqueueSnackbar"]) {
 		this.enqueue = realEnqueue;
 

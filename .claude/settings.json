@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "additionalDirectories": ["../Ombor.Docs"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/format-on-edit.js" }
+        ]
+      }
+    ]
+  }
+}

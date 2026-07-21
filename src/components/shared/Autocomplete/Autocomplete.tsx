@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useCallback } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import { Autocomplete, AutocompleteProps, FilterOptionsState, TextField } from "@mui/material";
 
@@ -51,6 +51,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 	onKeyDown,
 	...rest
 }: EntityAutocompleteProps<T> & Partial<RestMuiProps<T>>) {
+	const { t } = useTranslation();
 	const filter = useCallback(
 		(opts: T[], { inputValue }: FilterOptionsState<T>) => {
 			const txt = inputValue.trim().toLowerCase();
@@ -89,7 +90,7 @@ function EntityAutocomplete<T extends EntityWithIdName>({
 					</li>
 				);
 			}}
-			noOptionsText={translate("noOptionsTitle")}
+			noOptionsText={t("noOptionsTitle")}
 			renderInput={(params) => (
 				<TextField
 					{...params}

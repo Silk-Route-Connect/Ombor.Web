@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
 
 import DownloadIcon from "@mui/icons-material/Download";
 import { Button, Menu, MenuItem } from "@mui/material";
@@ -17,6 +17,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 	options = DEFAULT_DOWNLOAD_OPTIONS,
 	onDownload,
 }) => {
+	const { t } = useTranslation();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const menuOpen = Boolean(anchorEl);
 	const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
@@ -25,7 +26,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 	return (
 		<>
 			<Button endIcon={<DownloadIcon />} onClick={handleMenuOpen} sx={{ textTransform: "none" }}>
-				{translate("download")}
+				{t("download")}
 			</Button>
 			<Menu
 				anchorEl={anchorEl}
@@ -36,7 +37,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 			>
 				{options.map((option) => (
 					<MenuItem key={`download-menu-${option}`} onClick={() => onDownload(option)}>
-						{translate(`common.download.${option}`)}
+						{t(`common.download.${option}`)}
 					</MenuItem>
 				))}
 			</Menu>

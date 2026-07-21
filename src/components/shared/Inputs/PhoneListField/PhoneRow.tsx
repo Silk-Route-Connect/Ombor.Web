@@ -1,8 +1,9 @@
 import React from "react";
-import { translate } from "i18n/i18n";
+import { useTranslation } from "react-i18next";
+import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Box, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 
 export type PhoneRowField = {
 	id: string;
@@ -27,39 +28,52 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 	onChange,
 	onRemove,
 	onBlur,
-}) => (
-	<Grid size={{ xs: 12 }}>
-		<Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
-			<TextField
-				id={`phone-${row.id}`}
-				label={translate("phoneNumber")}
-				type="tel"
-				fullWidth
-				value={row.value}
-				disabled={disabled}
-				error={!!error}
-				helperText={error}
-				onChange={(e) => onChange(row.id, e.target.value)}
-				onBlur={onBlur}
-				slotProps={{
-					input: {
-						endAdornment: canDelete ? (
-							<InputAdornment position="end">
-								<IconButton
-									aria-label={translate("remove")}
-									size="small"
-									color="error"
-									onClick={() => onRemove(row.id)}
-									disabled={disabled}
-									edge="end"
-								>
-									<DeleteIcon />
-								</IconButton>
-							</InputAdornment>
-						) : undefined,
-					},
-				}}
-			/>
-		</Box>
-	</Grid>
-);
+}) => {
+	const { t } = useTranslation();
+
+	return (
+		<Grid size={{ xs: 12 }}>
+			<Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+				<TextField
+					id={`phone-${row.id}`}
+					type="tel"
+					size="small"
+					fullWidth
+					value={formatUzNational(row.value)}
+					disabled={disabled}
+					error={!!error}
+					helperText={error}
+					placeholder="90 123 45 67"
+					onChange={(e) => onChange(row.id, uzPhoneToStored(e.target.value))}
+					onBlur={onBlur}
+					slotProps={{
+						input: {
+							inputMode: "numeric",
+							startAdornment: (
+								<InputAdornment position="start">
+									<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
+										{UZ_COUNTRY_PREFIX}
+									</Typography>
+								</InputAdornment>
+							),
+							endAdornment: canDelete ? (
+								<InputAdornment position="end">
+									<IconButton
+										aria-label={t("remove")}
+										size="small"
+										color="error"
+										onClick={() => onRemove(row.id)}
+										disabled={disabled}
+										edge="end"
+									>
+										<DeleteIcon />
+									</IconButton>
+								</InputAdornment>
+							) : undefined,
+						},
+					}}
+				/>
+			</Box>
+		</Grid>
+	);
+};

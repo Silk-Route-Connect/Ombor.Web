@@ -2,7 +2,7 @@ import { SortOrder } from "components/shared/Table/ExpandableDataTable/Expandabl
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import {
 	CreateEmployeeRequest,
@@ -21,6 +21,8 @@ export type DialogMode =
 	| { kind: "delete"; employee: Employee }
 	| { kind: "details"; employee: Employee }
 	| { kind: "payment"; employee: Employee }
+	| { kind: "terminate"; employee: Employee }
+	| { kind: "restore"; employee: Employee }
 	| { kind: "none" };
 
 export interface IEmployeeStore {
@@ -43,6 +45,10 @@ export interface IEmployeeStore {
 	create(request: CreateEmployeeRequest): Promise<void>;
 	update(request: UpdateEmployeeRequest): Promise<void>;
 	delete(employeeId: number): Promise<void>;
+	/** Set status to Terminated («Уволить») — a status change, not a hard delete. */
+	terminate(employee: Employee): Promise<void>;
+	/** Set status back to Active («Восстановить»). */
+	restore(employee: Employee): Promise<void>;
 
 	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
@@ -56,6 +62,8 @@ export interface IEmployeeStore {
 	openDelete(employee: Employee): void;
 	openDetails(employee: Employee): void;
 	openPayment(employee: Employee): void;
+	openTerminate(employee: Employee): void;
+	openRestore(employee: Employee): void;
 	closeDialog(): void;
 }
 
@@ -115,7 +123,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await tryRun(() => EmployeeApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.getAll"));
+			this.notificationStore.error(i18next.t("employees.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -127,7 +135,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await tryRun(() => EmployeeApi.getById(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.getById"));
+			this.notificationStore.error(i18next.t("employees.error.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -138,7 +146,7 @@ export class EmployeeStore implements IEmployeeStore {
 		const result = await withSaving(this, () => EmployeeApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.create"));
+			this.notificationStore.error(i18next.t("employees.error.create"));
 			return;
 		}
 
@@ -147,14 +155,14 @@ export class EmployeeStore implements IEmployeeStore {
 		}
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.create"));
+		this.notificationStore.success(i18next.t("employees.success.create"));
 	}
 
 	async update(request: UpdateEmployeeRequest): Promise<void> {
 		const result = await withSaving(this, () => EmployeeApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.update"));
+			this.notificationStore.error(i18next.t("employees.error.update"));
 			return;
 		}
 
@@ -167,14 +175,14 @@ export class EmployeeStore implements IEmployeeStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.update"));
+		this.notificationStore.success(i18next.t("employees.success.update"));
 	}
 
 	async delete(employeeId: number): Promise<void> {
 		const result = await withSaving(this, () => EmployeeApi.delete(employeeId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("employees.error.delete"));
+			this.notificationStore.error(i18next.t("employees.error.delete"));
 			return;
 		}
 
@@ -185,7 +193,51 @@ export class EmployeeStore implements IEmployeeStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("employees.success.delete"));
+		this.notificationStore.success(i18next.t("employees.success.delete"));
+	}
+
+	async terminate(employee: Employee): Promise<void> {
+		await this.setStatus(employee, "Terminated", i18next.t("employee.success.terminate"));
+	}
+
+	async restore(employee: Employee): Promise<void> {
+		await this.setStatus(employee, "Active", i18next.t("employee.success.restore"));
+	}
+
+	private async setStatus(
+		employee: Employee,
+		status: EmployeeStatus,
+		successMessage: string,
+	): Promise<void> {
+		const request: UpdateEmployeeRequest = {
+			id: employee.id,
+			name: employee.name,
+			position: employee.position,
+			salary: employee.salary,
+			status,
+			dateOfEmployment: employee.dateOfEmployment,
+			contactInfo: employee.contactInfo,
+		};
+		const result = await withSaving(this, () => EmployeeApi.update(request));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("employees.error.update"));
+			return;
+		}
+
+		runInAction(() => {
+			if (this.allEmployees !== "loading") {
+				this.allEmployees = this.allEmployees.map((el) =>
+					el.id === result.data.id ? result.data : el,
+				);
+			}
+			if (this.selectedEmployee?.id === result.data.id) {
+				this.selectedEmployee = result.data;
+			}
+		});
+
+		this.closeDialog();
+		this.notificationStore.success(successMessage);
 	}
 
 	setSearch(term: string): void {
@@ -208,6 +260,7 @@ export class EmployeeStore implements IEmployeeStore {
 	}
 
 	openCreate(): void {
+		this.selectedEmployee = null;
 		this.setDialog({ kind: "form" });
 	}
 
@@ -227,15 +280,28 @@ export class EmployeeStore implements IEmployeeStore {
 		this.setDialog({ kind: "payment", employee: employee });
 	}
 
+	openTerminate(employee: Employee): void {
+		this.setDialog({ kind: "terminate", employee: employee });
+	}
+
+	openRestore(employee: Employee): void {
+		this.setDialog({ kind: "restore", employee: employee });
+	}
+
 	closeDialog(): void {
 		this.setDialog({ kind: "none" });
 	}
 
 	private setDialog(mode: DialogMode) {
-		const employee = "employee" in mode ? (mode.employee ?? null) : null;
-
 		this.dialogMode = mode;
-		this.selectedEmployee = employee;
+
+		// A dialog that targets an employee focuses it; closing a dialog (or an
+		// employee-less «create» mode) must NOT clear the focused employee — on the
+		// detail page that employee is the page subject, and wiping it drops the page
+		// into a permanent loader. openCreate clears it explicitly for a blank form.
+		if ("employee" in mode && mode.employee) {
+			this.selectedEmployee = mode.employee;
+		}
 	}
 
 	private applySort(data: Loadable<Employee[]>): Loadable<Employee[]> {

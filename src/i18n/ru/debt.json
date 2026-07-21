@@ -1,0 +1,61 @@
+{
+  "debt.error.getAll": "Не удалось загрузить задолженности",
+
+  "debt.title": "Долги",
+  "debt.exportCsv": "Скачать CSV",
+
+  "debt.summary.receivable": "Нам должны",
+  "debt.summary.payable": "Мы должны",
+  "debt.summary.overdue": "Просрочено",
+  "debt.summary.net": "Чистая позиция",
+  "debt.summary.txCount_one": "{{count}} транзакция",
+  "debt.summary.txCount_few": "{{count}} транзакции",
+  "debt.summary.txCount_many": "{{count}} транзакций",
+
+  "debt.tabs.partners": "По партнёрам",
+  "debt.tabs.transactions": "По транзакциям",
+
+  "debt.legend.receivable": "нам должны",
+  "debt.legend.payable": "мы должны",
+
+  "debt.searchPlaceholder": "Поиск по партнёру или номеру…",
+
+  "debt.direction.all": "Все",
+  "debt.direction.receivable": "Нам должны",
+  "debt.direction.payable": "Мы должны",
+
+  "debt.age.prefix": "Срок",
+  "debt.age.all": "Все сроки",
+  "debt.age.0-7": "0–7 дней",
+  "debt.age.8-30": "8–30 дней",
+  "debt.age.31-60": "31–60 дней",
+  "debt.age.60+": "60+ дней",
+
+  "debt.onlyOverdue": "Только просроченные",
+  "debt.inTerm": "в сроке",
+
+  "debt.partnerTable.partner": "Партнёр",
+  "debt.partnerTable.type": "Тип",
+  "debt.partnerTable.count": "Транзакций",
+  "debt.partnerTable.oldest": "Старейший долг",
+  "debt.partnerTable.amount": "Сумма долга",
+  "debt.partnerTable.overdueCount": "{{count}} просрочено",
+
+  "debt.txTable.document": "Документ",
+  "debt.txTable.date": "Дата",
+  "debt.txTable.type": "Тип",
+  "debt.txTable.partner": "Партнёр",
+  "debt.txTable.total": "Сумма",
+  "debt.txTable.paid": "Оплачено",
+  "debt.txTable.remaining": "Остаток",
+  "debt.txTable.age": "Возраст",
+  "debt.txTable.ageCsv": "Возраст (дней)",
+
+  "debt.ageDays": "{{days}} дн",
+  "debt.overdueChip": "просрочка {{days}} дн",
+
+  "debt.empty.title": "Нет открытых задолженностей",
+  "debt.empty.body": "Все расчёты закрыты — дебиторской и кредиторской задолженности нет.",
+  "debt.empty.filteredTitle": "Ничего не найдено",
+  "debt.empty.filteredBody": "Под выбранные фильтры не попала ни одна транзакция. Измените условия поиска."
+}

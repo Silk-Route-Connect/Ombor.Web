@@ -19,6 +19,11 @@
   "payroll.error.delete": "Не удалось удалить выплату",
 
   "payroll.validation.employeeRequired": "Выберите сотрудника",
+  "payroll.validation.walletRequired": "Выберите кассу",
+  "payroll.validation.periodRequired": "Укажите период (ГГГГ-ММ)",
+
+  "payroll.wallet": "Касса",
+  "payroll.period": "Период",
 
   "employeeAutocomplete.employee": "Сотрудник",
   "employeeAutocomplete.search": "Поиск сотрудника...",

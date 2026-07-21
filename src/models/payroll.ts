@@ -1,36 +1,18 @@
-import { ALL_PAYMENT_METHODS, PaymentCurrency, PaymentMethod } from "./payment";
-
-export const PAYROLL_PAYMENT_METHODS = ALL_PAYMENT_METHODS.filter(
-	(method) => method !== "AccountBalance",
-);
-
+/**
+ * Payroll create request (POST /api/employees/{id}/payrolls) — the redesigned
+ * backend contract. A payroll payment is UZS-only, drawn from a wallet (rule 9):
+ * no currency / exchange-rate / method. It carries the period it pays for and is
+ * **immutable** (rule 1) — there is no update/delete. The create + history
+ * responses are the redesigned `PaymentRecord` (models/payment.ts).
+ */
 export type CreatePayrollRequest = {
 	employeeId: number;
+	/** Wallet the salary is paid from (rule 9). */
+	walletId: number;
 	amount: number;
-	currency: PaymentCurrency;
-	method: PaymentMethod;
-	exchangeRate?: number;
+	/** Period the payroll pays for, as the backend token «YYYY-MM» (e.g. "2026-06"). */
+	period: string;
 	notes?: string;
-};
-
-export type UpdatePayrollRequest = {
-	employeeId: number;
-	paymentId: number;
-	amount: number;
-	currency: PaymentCurrency;
-	method: PaymentMethod;
-	exchangeRate?: number;
-	notes?: string;
-};
-
-export type DeletePayrollRequest = {
-	paymentId: number;
-	employeeId: number;
-};
-
-export type GetPayrollByIdRequest = {
-	paymentId: number;
-	employeeId: number;
 };
 
 export type GetPayrollHistoryRequest = {

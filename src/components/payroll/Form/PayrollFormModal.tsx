@@ -1,11 +1,13 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import EmployeeAutocomplete from "components/employee/Autocomplete/EmployeeAutocomplete";
 import PayrollFormFields from "components/payroll/Form/PayrollFormFields";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
-import { translate } from "i18n/i18n";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
+import { observer } from "mobx-react-lite";
 import { dialogTranslation } from "utils/translationUtils";
 
 import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
@@ -18,94 +20,97 @@ interface PayrollFormModalProps {
 	onSave: (payload: PayrollFormPayload) => Promise<void>;
 }
 
-const PayrollFormModal: React.FC<PayrollFormModalProps> = ({
-	isOpen,
-	isSaving,
-	mode,
-	onClose,
-	onSave,
-}) => {
-	const {
-		form,
-		canSave,
-		submit,
-		requestClose,
-		discardOpen,
-		confirmDiscard,
-		cancelDiscard,
-		selectedEmployee,
-		setEmployeeId,
-		isEditMode,
-		isEmployeeLocked,
-	} = usePayrollForm({
-		isOpen,
-		isSaving,
-		mode,
-		onSave,
-		onClose,
-	});
+// observer: the wallet «Касса» picker sources `walletStore.allWallets`, which loads
+// when the modal opens — without observer the modal wouldn't re-render once the
+// wallets arrive, leaving the picker disabled (F-020).
+const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
+	({ isOpen, isSaving, mode, onClose, onSave }) => {
+		const { t } = useTranslation();
+		const {
+			form,
+			canSave,
+			submit,
+			requestClose,
+			discardOpen,
+			confirmDiscard,
+			cancelDiscard,
+			wallets,
+			selectedEmployee,
+			setEmployeeId,
+			isEmployeeLocked,
+		} = usePayrollForm({
+			isOpen,
+			isSaving,
+			mode,
+			onSave,
+			onClose,
+		});
 
-	const title = isEditMode ? translate("payroll.editTitle") : translate("payroll.createTitle");
+		const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
-	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				maxWidth="sm"
-				fullWidth
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-			>
-				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
+		const title = t("payroll.createTitle");
 
-				{isSaving && (
-					<Box sx={{ position: "relative", height: 4 }}>
-						<LinearProgress sx={{ position: "absolute", inset: 0 }} />
-					</Box>
-				)}
+		return (
+			<>
+				<Dialog
+					open={isOpen}
+					onClose={requestClose}
+					maxWidth="sm"
+					fullWidth
+					disableEscapeKeyDown={isSaving}
+					disableRestoreFocus
+					onKeyDown={onKeyDown}
+				>
+					<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
 
-				<DialogContent dividers sx={{ pt: 2 }}>
-					{isEmployeeLocked ? (
-						<Box mb={2}>
-							<Typography variant="body1" fontWeight={600}>
-								{selectedEmployee?.name}
-								{selectedEmployee?.position && ` • ${selectedEmployee.position}`}
-							</Typography>
-						</Box>
-					) : (
-						<Box mb={2}>
-							<EmployeeAutocomplete
-								value={selectedEmployee}
-								onChange={(e) => setEmployeeId(e?.id ?? 0)}
-								required
-								error={!!form.formState.errors.employeeId}
-								helperText={form.formState.errors.employeeId?.message}
-							/>
+					{isSaving && (
+						<Box sx={{ position: "relative", height: 4 }}>
+							<LinearProgress sx={{ position: "absolute", inset: 0 }} />
 						</Box>
 					)}
-					<PayrollFormFields form={form} disabled={isSaving} />
-				</DialogContent>
 
-				<FormDialogFooter
-					onCancel={requestClose}
-					onSave={submit}
-					canSave={canSave}
-					loading={isSaving}
+					<DialogContent dividers sx={{ pt: 2 }}>
+						{isEmployeeLocked ? (
+							<Box mb={2}>
+								<Typography variant="body1" fontWeight={600}>
+									{selectedEmployee?.name}
+									{selectedEmployee?.position && ` • ${selectedEmployee.position}`}
+								</Typography>
+							</Box>
+						) : (
+							<Box mb={2}>
+								<EmployeeAutocomplete
+									value={selectedEmployee}
+									onChange={(e) => setEmployeeId(e?.id ?? 0)}
+									required
+									error={!!form.formState.errors.employeeId}
+									helperText={form.formState.errors.employeeId?.message}
+								/>
+							</Box>
+						)}
+						<PayrollFormFields form={form} wallets={wallets} disabled={isSaving} />
+					</DialogContent>
+
+					<FormDialogFooter
+						onCancel={requestClose}
+						onSave={submit}
+						canSave={canSave}
+						loading={isSaving}
+					/>
+				</Dialog>
+
+				<ConfirmDialog
+					isOpen={discardOpen}
+					title={dialogTranslation("title")}
+					content={dialogTranslation("body")}
+					confirmLabel={dialogTranslation("confirm")}
+					cancelLabel={dialogTranslation("cancel")}
+					onConfirm={confirmDiscard}
+					onCancel={cancelDiscard}
 				/>
-			</Dialog>
-
-			<ConfirmDialog
-				isOpen={discardOpen}
-				title={dialogTranslation("title")}
-				content={dialogTranslation("body")}
-				confirmLabel={dialogTranslation("confirm")}
-				cancelLabel={dialogTranslation("cancel")}
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
-	);
-};
+			</>
+		);
+	},
+);
 
 export default PayrollFormModal;

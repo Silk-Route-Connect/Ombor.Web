@@ -1,7 +1,16 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { LoginRequest, RegisterRequest, VerifyPhoneRequest } from "models/auth";
+import {
+	ForgotPasswordRequest,
+	ForgotPasswordResponse,
+	LoginRequest,
+	RegisterRequest,
+	ResetPasswordRequest,
+	VerifyPhoneRequest,
+	VerifyResetCodeRequest,
+} from "models/auth";
 import { authApi } from "services/api/AuthApi";
 import { AuthTokenBridge } from "services/auth/tokenBridge";
+import { analytics } from "services/telemetry";
 
 /** Auth lifecycle status for routing/guards */
 export type AuthStatus = "idle" | "checking" | "authenticated" | "unauthenticated";
@@ -13,6 +22,46 @@ export interface AuthUser {
 	lastName?: string;
 	phoneNumber?: string;
 	email?: string | null;
+	organizationName?: string;
+}
+
+const CLAIM_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+const CLAIM_PHONE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone";
+const CLAIM_ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+/**
+ * Decode a JWT payload segment as UTF-8. `atob` yields a Latin-1 (binary)
+ * string, so multi-byte UTF-8 claims (e.g. Cyrillic display names) must be
+ * re-decoded from the raw bytes before `JSON.parse`, otherwise the name
+ * arrives as mojibake.
+ */
+function decodeJwtPayload(token: string): Record<string, unknown> {
+	const segment = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+	const bytes = Uint8Array.from(atob(segment), (c) => c.charCodeAt(0));
+	return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+/**
+ * The backend exposes no /me endpoint yet — the access token's claims are
+ * the only source of user identity (display name, phone, id). The tenant
+ * name is not in the token; `organizationName` stays unset until the
+ * backend provides it.
+ */
+function userFromAccessToken(token: string): AuthUser | null {
+	try {
+		const payload = decodeJwtPayload(token);
+		const fullName = (payload[CLAIM_NAME] as string | undefined) ?? "";
+		const [firstName, ...rest] = fullName.split(" ").filter(Boolean);
+
+		return {
+			id: payload[CLAIM_ID] ? Number(payload[CLAIM_ID]) : undefined,
+			firstName,
+			lastName: rest.length > 0 ? rest.join(" ") : undefined,
+			phoneNumber: payload[CLAIM_PHONE] as string | undefined,
+		};
+	} catch {
+		return null;
+	}
 }
 
 /** Navigation/side-effect hooks provided by the app shell */
@@ -78,8 +127,12 @@ export class AuthStore {
 			const tokens = await authApi.refresh(); // cookie-based
 			runInAction(() => {
 				this.accessToken = tokens.accessToken;
+				this.user = userFromAccessToken(tokens.accessToken);
 				this.status = "authenticated";
 			});
+			if (this.user) {
+				analytics.identify(this.user);
+			}
 		} catch {
 			runInAction(() => {
 				this.accessToken = null;
@@ -91,17 +144,33 @@ export class AuthStore {
 
 	/* -------------------- Auth flows -------------------- */
 
-	public async login(request: LoginRequest): Promise<void> {
-		const result = await authApi.login(request);
-
+	/**
+	 * Commit a fresh access token and enter the app. Shared by login and the
+	 * post-registration welcome step ("Начать работу"), which obtains the token
+	 * via `verifyOtp` first but only enters once the user dismisses the welcome.
+	 */
+	public enterWithTokens(accessToken: string): void {
 		runInAction(() => {
-			this.accessToken = result.accessToken;
+			this.accessToken = accessToken;
+			this.user = userFromAccessToken(accessToken);
 			this.status = "authenticated";
 		});
+
+		if (this.user) {
+			analytics.identify(this.user);
+		}
 
 		if (this.sideEffects.onRedirectToApp) {
 			this.sideEffects.onRedirectToApp();
 		}
+	}
+
+	public async login(request: LoginRequest): Promise<void> {
+		const result = await authApi.login(request);
+		this.enterWithTokens(result.accessToken);
+		// Here, not in enterWithTokens — the register-welcome commit shares that
+		// method and must not count as a login.
+		analytics.capture("user_logged_in");
 	}
 
 	/**
@@ -113,24 +182,54 @@ export class AuthStore {
 	}
 
 	/**
-	 * Verify phone: on success backend returns tokens and sets refresh cookie.
-	 * We store access token and enter the app.
+	 * Verify the registration OTP. On success the backend returns tokens and sets
+	 * the refresh cookie; we return the access token WITHOUT entering the app yet,
+	 * so the caller can show the welcome screen before `enterWithTokens` commits.
 	 */
-	public async verifyPhone(request: VerifyPhoneRequest): Promise<void> {
+	public async verifyOtp(request: VerifyPhoneRequest): Promise<string> {
 		const response = await authApi.verifyPhone(request);
 
-		if (response.success !== true) {
+		if (response.success !== true || !response.accessToken) {
 			throw new Error(response.message ?? "OTP verification failed");
 		}
 
-		runInAction(() => {
-			this.accessToken = response.accessToken;
-			this.status = "authenticated";
-		});
+		// The backend confirms registration here — the welcome screen that follows
+		// is UX only. Firing here (not at enterWithTokens) avoids counting the
+		// welcome commit as a second event. Still anonymous; merged on identify.
+		analytics.capture("user_signed_up");
 
-		if (this.sideEffects.onRedirectToApp) {
-			this.sideEffects.onRedirectToApp();
+		return response.accessToken;
+	}
+
+	/* ── Password reset (mocked target v1 contract). None of these enter the app —
+	 * the user logs in afterwards with the new password. ── */
+
+	public async requestPasswordReset(
+		request: ForgotPasswordRequest,
+	): Promise<ForgotPasswordResponse> {
+		const response = await authApi.forgotPassword(request);
+		// A well-formed response carries the code TTL. Anything else — including a
+		// proxy 200 with no/HTML body when the endpoint is missing — is treated as a
+		// failure so the page surfaces an error instead of silently advancing (F-023).
+		if (typeof response?.expiresInMinutes !== "number") {
+			throw new Error("Invalid forgot-password response");
 		}
+		return response;
+	}
+
+	public async verifyResetCode(request: VerifyResetCodeRequest): Promise<void> {
+		const response = await authApi.verifyResetCode(request);
+		if (response.success !== true) {
+			throw new Error(response.message ?? "Reset code verification failed");
+		}
+	}
+
+	public async resetPassword(request: ResetPasswordRequest): Promise<void> {
+		const response = await authApi.resetPassword(request);
+		if (response.success !== true) {
+			throw new Error(response.message ?? "Password reset failed");
+		}
+		analytics.capture("password_reset_completed");
 	}
 
 	/**
@@ -142,10 +241,15 @@ export class AuthStore {
 
 		runInAction(() => {
 			this.accessToken = accessToken;
+			this.user = userFromAccessToken(accessToken);
 			if (this.status !== "authenticated") {
 				this.status = "authenticated";
 			}
 		});
+
+		if (this.user) {
+			analytics.identify(this.user);
+		}
 
 		return accessToken;
 	}
@@ -155,6 +259,14 @@ export class AuthStore {
 	 * Calls API, clears state, resets other stores, then redirects to /login.
 	 */
 	public async logout(): Promise<void> {
+		// Capture while identity is still attached, then clear it — events after
+		// reset() would be anonymous. Only for real sessions: the forced-logout
+		// path can fire on an already-unauthenticated store.
+		if (this.status === "authenticated") {
+			analytics.capture("user_logged_out");
+		}
+		analytics.reset();
+
 		try {
 			await authApi.logout();
 		} catch {

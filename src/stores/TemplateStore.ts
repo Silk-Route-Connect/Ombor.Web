@@ -1,36 +1,39 @@
-import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
-import { Partner } from "models/partner";
 import {
 	CreateTemplateRequest,
 	GetTemplateByIdRequest,
 	Template,
+	TemplateType,
 	UpdateTemplateRequest,
 } from "models/template";
 import TemplateApi from "services/api/TemplateApi";
 
 import { NotificationStore } from "./NotificationStore";
 
+/** The redesigned list uses one modal for create + edit (`form`) plus a delete confirm. */
 export type DialogMode =
 	| { kind: "form"; template?: Template }
 	| { kind: "delete"; template: Template }
-	| { kind: "details"; template: Template }
 	| { kind: "none" };
 
+/** Segmented type filter on the list toolbar. */
+export type TemplateTypeFilter = "all" | TemplateType;
+
 export interface ITemplateStore {
-	// computed properties
+	// data
 	allTemplates: Loadable<Template[]>;
-	filteredTemplates: Loadable<Template[]>;
-	supplyTemplates: Loadable<Template[]>;
-	saleTemplates: Loadable<Template[]>;
+
+	// redesigned list view
+	listTemplates: Loadable<Template[]>;
+	searchTerm: string;
+	typeFilter: TemplateTypeFilter;
 
 	// UI state
-	selectedPartner: Partner | null;
-	selectedTemplate: Loadable<Template> | null;
+	selectedTemplate: Template | null;
 	dialogMode: DialogMode;
 	isSaving: boolean;
 
@@ -41,17 +44,15 @@ export interface ITemplateStore {
 	update(request: UpdateTemplateRequest): Promise<void>;
 	delete(templateId: number): Promise<void>;
 
-	// setters for filters & sorting
+	// list filters
 	setSearch(searchTerm: string): void;
-	setSort(field: keyof Template, order: SortOrder): void;
-	setSelectedPartner(partnerId?: Partner | null): void;
-	setSelectedTemplate(template: Template | null): void;
+	setTypeFilter(type: TemplateTypeFilter): void;
+	resetFilters(): void;
 
-	// UI dialog helper methods
+	// dialogs
 	openCreate(): void;
 	openEdit(template: Template): void;
 	openDelete(template: Template): void;
-	openDetails(template: Template): void;
 	closeDialog(): void;
 }
 
@@ -61,9 +62,8 @@ export class TemplateStore implements ITemplateStore {
 	allTemplates: Loadable<Template[]> = [];
 
 	searchTerm: string = "";
-	sortField: keyof Template | null = null;
-	sortOrder: SortOrder = "asc";
-	selectedPartner: Partner | null = null;
+	typeFilter: TemplateTypeFilter = "all";
+
 	selectedTemplate: Template | null = null;
 	dialogMode: DialogMode = { kind: "none" };
 	isSaving: boolean = false;
@@ -74,39 +74,26 @@ export class TemplateStore implements ITemplateStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	get filteredTemplates(): Loadable<Template[]> {
+	/** The redesigned list: search (name or partner) + the type segment. */
+	get listTemplates(): Loadable<Template[]> {
 		if (this.allTemplates === "loading") {
 			return "loading";
 		}
 
 		let templates = this.allTemplates;
 
-		if (this.searchTerm?.trim()) {
-			templates = templates.filter((el) => el.name.includes(this.searchTerm));
+		if (this.typeFilter !== "all") {
+			templates = templates.filter((el) => el.type === this.typeFilter);
 		}
 
-		const partnerId = this.selectedPartner?.id;
-		if (partnerId) {
-			templates = templates.filter((el) => el.partnerId === partnerId);
+		const term = this.searchTerm.trim().toLowerCase();
+		if (term) {
+			templates = templates.filter(
+				(el) => el.name.toLowerCase().includes(term) || el.partnerName.toLowerCase().includes(term),
+			);
 		}
 
 		return [...templates];
-	}
-
-	get supplyTemplates(): Loadable<Template[]> {
-		if (this.filteredTemplates === "loading") {
-			return "loading";
-		}
-
-		return this.filteredTemplates.filter((el) => el.type === "Supply");
-	}
-
-	get saleTemplates(): Loadable<Template[]> {
-		if (this.filteredTemplates === "loading") {
-			return "loading";
-		}
-
-		return this.filteredTemplates.filter((el) => el.type === "Sale");
 	}
 
 	async getAll() {
@@ -119,7 +106,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await tryRun(() => TemplateApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.getAll"));
+			this.notificationStore.error(i18next.t("template.error.getAll"));
 		}
 
 		const data = result.status === "fail" ? [] : result.data;
@@ -131,7 +118,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await tryRun(() => TemplateApi.getById(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.getById"));
+			this.notificationStore.error(i18next.t("template.error.getById"));
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -142,23 +129,27 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.create"));
+			this.notificationStore.error(i18next.t("template.error.create"));
 			return;
 		}
 
-		if (this.allTemplates !== "loading") {
-			this.allTemplates = [result.data, ...this.allTemplates];
-		}
+		runInAction(() => {
+			if (this.allTemplates !== "loading") {
+				this.allTemplates = [result.data, ...this.allTemplates];
+			}
+		});
 
 		this.closeDialog();
-		this.notificationStore.success("templates.success.create");
+		this.notificationStore.success(
+			i18next.t("template.success.create", { name: result.data.name }),
+		);
 	}
 
 	async update(request: UpdateTemplateRequest): Promise<void> {
 		const result = await withSaving(this, () => TemplateApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.update"));
+			this.notificationStore.error(i18next.t("template.error.update"));
 			return;
 		}
 
@@ -171,14 +162,17 @@ export class TemplateStore implements ITemplateStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("templates.success.update"));
+		this.notificationStore.success(
+			i18next.t("template.success.update", { name: result.data.name }),
+		);
 	}
 
 	async delete(templateId: number): Promise<void> {
+		const name = this.selectedTemplate?.name ?? "";
 		const result = await withSaving(this, () => TemplateApi.delete(templateId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("templates.error.delete"));
+			this.notificationStore.error(i18next.t("template.error.delete"));
 			return;
 		}
 
@@ -189,31 +183,20 @@ export class TemplateStore implements ITemplateStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("templates.success.delete"));
+		this.notificationStore.success(i18next.t("template.success.delete", { name }));
 	}
 
 	setSearch(term: string): void {
 		this.searchTerm = term;
 	}
 
-	setSelectedPartner(partner?: Partner | null): void {
-		if (!partner) {
-			this.selectedPartner = null;
-			return;
-		}
-
-		this.selectedPartner = partner;
+	setTypeFilter(type: TemplateTypeFilter): void {
+		this.typeFilter = type;
 	}
 
-	setSelectedTemplate(template: Template | null): void {
-		this.selectedTemplate = template;
-	}
-
-	setSort(field: keyof Template, order: SortOrder): void {
-		runInAction(() => {
-			this.sortField = field;
-			this.sortOrder = order;
-		});
+	resetFilters(): void {
+		this.searchTerm = "";
+		this.typeFilter = "all";
 	}
 
 	openCreate(): void {
@@ -221,15 +204,11 @@ export class TemplateStore implements ITemplateStore {
 	}
 
 	openEdit(template: Template): void {
-		this.setDialog({ kind: "form", template: template });
+		this.setDialog({ kind: "form", template });
 	}
 
 	openDelete(template: Template): void {
-		this.setDialog({ kind: "delete", template: template });
-	}
-
-	openDetails(template: Template): void {
-		this.setDialog({ kind: "details", template: template });
+		this.setDialog({ kind: "delete", template });
 	}
 
 	closeDialog(): void {

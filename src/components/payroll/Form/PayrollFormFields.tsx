@@ -1,49 +1,47 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { translate } from "i18n/i18n";
-import { ALL_PAYMENT_CURRENCIES, ALL_PAYMENT_METHODS } from "models/payment";
+import { useTranslation } from "react-i18next";
+import MoneyField from "components/shared/Inputs/MoneyField";
+import { Wallet } from "models/wallet";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
-import { getCurrencyLabel } from "utils/payrollUtils";
 
 import { Grid, MenuItem, TextField } from "@mui/material";
 
 interface PayrollFormFieldsProps {
 	form: UseFormReturn<PayrollFormInputs>;
+	wallets: Wallet[];
 	disabled: boolean;
 }
 
-const METHODS = ALL_PAYMENT_METHODS.filter((method) => method !== "AccountBalance");
-
-const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled }) => {
+const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, wallets, disabled }) => {
+	const { t } = useTranslation();
 	const {
 		register,
 		control,
-		watch,
 		formState: { errors },
 	} = form;
-
-	const selectedCurrency = watch("currency");
-	const showExchangeRate = selectedCurrency !== "UZS";
 
 	return (
 		<Grid container spacing={2}>
 			<Grid size={{ xs: 12, sm: 6 }}>
 				<Controller
-					name="currency"
+					name="walletId"
 					control={control}
 					render={({ field }) => (
 						<TextField
 							{...field}
 							select
-							label={`${translate("payment.currency")}*`}
-							error={!!errors.currency}
-							helperText={errors.currency?.message}
+							value={field.value ?? 0}
+							onChange={(e) => field.onChange(Number(e.target.value))}
+							label={`${t("payroll.wallet")}*`}
+							error={!!errors.walletId}
+							helperText={errors.walletId?.message}
 							fullWidth
-							disabled={disabled}
+							disabled={disabled || wallets.length === 0}
 						>
-							{ALL_PAYMENT_CURRENCIES.map((currency) => (
-								<MenuItem key={currency} value={currency}>
-									{getCurrencyLabel(currency)}
+							{wallets.map((wallet) => (
+								<MenuItem key={wallet.id} value={wallet.id}>
+									{wallet.name}
 								</MenuItem>
 							))}
 						</TextField>
@@ -52,59 +50,42 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({ form, disabled })
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 6 }}>
-				<Controller
-					name="method"
-					control={control}
-					render={({ field }) => (
-						<TextField
-							{...field}
-							select
-							label={`${translate("payment.method")}*`}
-							error={!!errors.method}
-							helperText={errors.method?.message}
-							fullWidth
-							disabled={disabled}
-						>
-							{METHODS.map((method) => (
-								<MenuItem key={method} value={method}>
-									{translate(`payment.method.${method}`)}
-								</MenuItem>
-							))}
-						</TextField>
-					)}
+				<TextField
+					{...register("period")}
+					label={`${t("payroll.period")}*`}
+					type="month"
+					error={!!errors.period}
+					helperText={errors.period?.message}
+					fullWidth
+					disabled={disabled}
+					slotProps={{ inputLabel: { shrink: true } }}
 				/>
 			</Grid>
 
-			{showExchangeRate && (
-				<Grid size={{ xs: 12, sm: 6 }}>
-					<TextField
-						{...register("exchangeRate", { valueAsNumber: true })}
-						label={translate("payment.exchangeRate")}
-						type="number"
-						error={!!errors.exchangeRate}
-						helperText={errors.exchangeRate?.message}
-						fullWidth
-						disabled={disabled}
-					/>
-				</Grid>
-			)}
-
 			<Grid size={{ xs: 12 }}>
-				<TextField
-					{...register("amount", { valueAsNumber: true })}
-					label={`${translate("payment.amount")}*`}
-					type="number"
-					error={!!errors.amount}
-					helperText={errors.amount?.message}
-					fullWidth
-					disabled={disabled}
+				<Controller
+					name="amount"
+					control={control}
+					render={({ field }) => (
+						<MoneyField
+							value={field.value}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							name={field.name}
+							inputRef={field.ref}
+							label={`${t("payment.amount")}*`}
+							error={!!errors.amount}
+							helperText={errors.amount?.message}
+							disabled={disabled}
+						/>
+					)}
 				/>
 			</Grid>
 
 			<Grid size={{ xs: 12 }}>
 				<TextField
 					{...register("notes")}
-					label={translate("payment.notes")}
+					label={t("payment.notes")}
 					error={!!errors.notes}
 					helperText={errors.notes?.message}
 					fullWidth

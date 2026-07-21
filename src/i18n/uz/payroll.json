@@ -19,6 +19,11 @@
   "payroll.error.delete": "To'lovni o'chirishda xatolik",
 
   "payroll.validation.employeeRequired": "Xodimni tanlang",
+  "payroll.validation.walletRequired": "Kassani tanlang",
+  "payroll.validation.periodRequired": "Davrni kiriting (YYYY-MM)",
+
+  "payroll.wallet": "Kassa",
+  "payroll.period": "Davr",
 
   "employeeAutocomplete.employee": "Xodim",
   "employeeAutocomplete.search": "Xodimni qidirish...",

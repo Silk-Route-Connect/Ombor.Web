@@ -1,192 +1,227 @@
-import React, { MouseEvent } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { translate } from "i18n/i18n";
+import React, { MouseEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { UI_LANGUAGES } from "i18n/languages";
+import { observer } from "mobx-react-lite";
+import { PATHS } from "routing/paths";
+import { useStore } from "stores/StoreContext";
 
 import AddIcon from "@mui/icons-material/Add";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LanguageIcon from "@mui/icons-material/Language";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import {
-	AppBar,
 	Avatar,
-	Badge,
 	Box,
+	Button,
 	IconButton,
+	ListItemText,
 	Menu,
 	MenuItem,
-	SxProps,
-	Theme,
-	Toolbar,
+	Popover,
 	Tooltip,
 	Typography,
 } from "@mui/material";
 
-interface TopbarProps {
-	open: boolean;
-	onToggle: () => void; // toggles the sidebar
-}
+import OfflineIndicator from "./OfflineIndicator";
 
-const iconStyle: SxProps<Theme> = { color: "text.primary", ml: 1 };
+export const TOPBAR_HEIGHT = 60;
 
-const Topbar: React.FC<TopbarProps> = ({ open, onToggle }) => {
-	const navigate = useNavigate();
+const CREATE_ACTIONS: Array<{ labelKey: string; to: string }> = [
+	{ labelKey: "topbar.quickActions.sale", to: PATHS.newSale },
+	{ labelKey: "topbar.quickActions.supply", to: PATHS.newSupply },
+	{ labelKey: "topbar.quickActions.order", to: PATHS.newOrder },
+	{ labelKey: "topbar.quickActions.payment", to: PATHS.newPayment },
+];
 
-	const [quickAnchor, setQuickAnchor] = React.useState<HTMLElement | null>(null);
-	const [langAnchor, setLangAnchor] = React.useState<HTMLElement | null>(null);
-	const [userAnchor, setUserAnchor] = React.useState<HTMLElement | null>(null);
-	const [darkMode, setDarkMode] = React.useState(false);
-
-	const handleQuickOpen = (e: MouseEvent<HTMLElement>) => setQuickAnchor(e.currentTarget);
-	const handleQuickClose = () => setQuickAnchor(null);
-
-	const handleLangOpen = (e: MouseEvent<HTMLElement>) => setLangAnchor(e.currentTarget);
-	const handleLangClose = () => setLangAnchor(null);
-
-	const handleUserOpen = (e: MouseEvent<HTMLElement>) => setUserAnchor(e.currentTarget);
-	const handleUserClose = () => setUserAnchor(null);
-
-	const handleDarkToggle = () => setDarkMode((m) => !m);
-
-	const handleQuickNavigate = (path: string) => {
-		handleQuickClose();
-		navigate(path);
-		if (open) {
-			onToggle(); // collapse the sidebar
-		}
-	};
+/** Visual-only global search per design — the feature is a later task. */
+function SearchField() {
+	const { t } = useTranslation();
 
 	return (
-		<AppBar
-			position="fixed"
-			elevation={1}
-			sx={{ bgcolor: "background.paper", zIndex: (t) => t.zIndex.drawer + 1 }}
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				gap: 1.125,
+				width: 300,
+				height: 38, // align with the 38px header controls (buttons / icon buttons)
+				px: 1.625,
+				bgcolor: "background.default",
+				border: 1,
+				borderColor: "divider",
+				borderRadius: 1,
+				color: "text.disabled",
+			}}
 		>
-			<Toolbar sx={{ justifyContent: "space-between" }}>
-				<Box display="flex" alignItems="center">
-					<IconButton edge="start" onClick={onToggle} sx={{ mr: 2 }}>
-						<MenuIcon
-							sx={{
-								transition: "transform .3s",
-								transform: open ? "rotate(0deg)" : "rotate(-90deg)",
-							}}
-						/>
-					</IconButton>
-
-					<NavLink
-						to="/"
-						style={{
-							display: "flex",
-							alignItems: "center",
-							textDecoration: "none",
-							color: "inherit",
-						}}
-					>
-						<WarehouseIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
-						<Typography variant="h6">{translate("topbar.title")}</Typography>
-					</NavLink>
-				</Box>
-
-				<Box display="flex" alignItems="center">
-					<Tooltip title={translate("topbar.quickActions")} arrow enterDelay={200}>
-						<IconButton
-							onClick={handleQuickOpen}
-							sx={{
-								bgcolor: "primary.main",
-								color: "primary.contrastText",
-								transition: "transform .15s, background .15s",
-								"&:hover": { bgcolor: "primary.dark", transform: "scale(1.05)" },
-							}}
-						>
-							<AddIcon />
-						</IconButton>
-					</Tooltip>
-					<Menu
-						anchorEl={quickAnchor}
-						open={Boolean(quickAnchor)}
-						onClose={handleQuickClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={() => handleQuickNavigate("/new/sales")}>
-							{translate("topbar.quickActions.sale")}
-						</MenuItem>
-						<MenuItem onClick={() => handleQuickNavigate("/new/supplies")}>
-							{translate("topbar.quickActions.supply")}
-						</MenuItem>
-						<MenuItem onClick={handleQuickClose}>{translate("topbar.quickActions.order")}</MenuItem>
-						<MenuItem onClick={handleQuickClose}>
-							{translate("topbar.quickActions.payment")}
-						</MenuItem>
-					</Menu>
-
-					<Tooltip title={translate("topbar.notifications")} arrow enterDelay={200}>
-						<IconButton sx={iconStyle}>
-							<Badge variant="dot" color="error">
-								<NotificationsIcon />
-							</Badge>
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip
-						title={darkMode ? translate("topbar.lightMode") : translate("topbar.darkMode")}
-						arrow
-						enterDelay={200}
-					>
-						<IconButton onClick={handleDarkToggle} sx={iconStyle}>
-							{darkMode ? <LightModeIcon /> : <DarkModeIcon />}
-						</IconButton>
-					</Tooltip>
-
-					<Tooltip title={translate("topbar.language")} arrow enterDelay={200}>
-						<IconButton onClick={handleLangOpen} sx={iconStyle}>
-							<LanguageIcon />
-						</IconButton>
-					</Tooltip>
-
-					<Menu
-						anchorEl={langAnchor}
-						open={Boolean(langAnchor)}
-						onClose={handleLangClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={handleLangClose}>RU</MenuItem>
-						<MenuItem onClick={handleLangClose}>UZ</MenuItem>
-					</Menu>
-
-					<Tooltip title={translate("topbar.userMenu")} arrow enterDelay={200}>
-						<IconButton onClick={handleUserOpen} sx={iconStyle}>
-							<Avatar
-								sx={{
-									width: 30,
-									height: 30,
-									bgcolor: "secondary.main",
-									color: "secondary.contrastText",
-								}}
-							>
-								BS
-							</Avatar>
-						</IconButton>
-					</Tooltip>
-
-					<Menu
-						anchorEl={userAnchor}
-						open={Boolean(userAnchor)}
-						onClose={handleUserClose}
-						anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-						transformOrigin={{ vertical: "top", horizontal: "center" }}
-					>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.account")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.settings")}</MenuItem>
-						<MenuItem onClick={handleUserClose}>{translate("topbar.logout")}</MenuItem>
-					</Menu>
-				</Box>
-			</Toolbar>
-		</AppBar>
+			<SearchIcon sx={{ fontSize: 17 }} />
+			<Typography sx={{ fontSize: 13.5, color: "inherit", flex: 1 }} noWrap>
+				{t("topbar.search.placeholder")}
+			</Typography>
+			<Box
+				component="kbd"
+				sx={{
+					fontFamily: "inherit",
+					fontSize: 11,
+					px: 0.75,
+					py: 0.125,
+					bgcolor: "background.paper",
+					border: 1,
+					borderColor: "divider",
+					borderRadius: "5px",
+					color: "text.secondary",
+				}}
+			>
+				⌘K
+			</Box>
+		</Box>
 	);
-};
+}
+
+const Topbar: React.FC = observer(() => {
+	const { t, i18n } = useTranslation();
+	const navigate = useNavigate();
+	const { authStore } = useStore();
+
+	const [createAnchor, setCreateAnchor] = useState<HTMLElement | null>(null);
+	const [bellAnchor, setBellAnchor] = useState<HTMLElement | null>(null);
+	const [langAnchor, setLangAnchor] = useState<HTMLElement | null>(null);
+	const [userAnchor, setUserAnchor] = useState<HTMLElement | null>(null);
+
+	const user = authStore.getUser();
+	const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+	const initials = [user?.firstName, user?.lastName]
+		.filter(Boolean)
+		.map((part) => part?.[0]?.toUpperCase())
+		.join("");
+
+	const handleCreateNavigate = (to: string) => {
+		setCreateAnchor(null);
+		navigate(to);
+	};
+
+	const handleLanguageSelect = (code: string) => {
+		void i18n.changeLanguage(code);
+		setLangAnchor(null);
+	};
+
+	const handleLogout = () => {
+		setUserAnchor(null);
+		void authStore.logout();
+	};
+
+	const openMenu = (setter: (el: HTMLElement) => void) => (e: MouseEvent<HTMLElement>) =>
+		setter(e.currentTarget);
+
+	return (
+		<Box
+			component="header"
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				gap: 2,
+				height: TOPBAR_HEIGHT,
+				px: 3.25,
+				bgcolor: "background.paper",
+				borderBottom: 1,
+				borderColor: "divider",
+				flexShrink: 0,
+			}}
+		>
+			<Box sx={{ flex: 1 }} />
+
+			<SearchField />
+
+			<Button variant="contained" startIcon={<AddIcon />} onClick={openMenu(setCreateAnchor)}>
+				{t("topbar.create")}
+			</Button>
+			<Menu
+				anchorEl={createAnchor}
+				open={Boolean(createAnchor)}
+				onClose={() => setCreateAnchor(null)}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+				transformOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				{CREATE_ACTIONS.map((action) => (
+					<MenuItem key={action.labelKey} onClick={() => handleCreateNavigate(action.to)}>
+						{t(action.labelKey)}
+					</MenuItem>
+				))}
+			</Menu>
+
+			<OfflineIndicator />
+
+			<Tooltip title={t("topbar.notifications")} arrow enterDelay={200}>
+				<IconButton
+					onClick={openMenu(setBellAnchor)}
+					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
+				>
+					<NotificationsNoneOutlinedIcon sx={{ fontSize: 19 }} />
+				</IconButton>
+			</Tooltip>
+			<Popover
+				anchorEl={bellAnchor}
+				open={Boolean(bellAnchor)}
+				onClose={() => setBellAnchor(null)}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+				transformOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				<Typography sx={{ px: 2.5, py: 2, fontSize: 13.5, color: "text.secondary" }}>
+					{t("topbar.notifications.empty")}
+				</Typography>
+			</Popover>
+
+			<Tooltip title={t("topbar.language")} arrow enterDelay={200}>
+				<IconButton
+					onClick={openMenu(setLangAnchor)}
+					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
+				>
+					<LanguageIcon sx={{ fontSize: 19 }} />
+				</IconButton>
+			</Tooltip>
+			<Menu
+				anchorEl={langAnchor}
+				open={Boolean(langAnchor)}
+				onClose={() => setLangAnchor(null)}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+				transformOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				{UI_LANGUAGES.map((lang) => (
+					<MenuItem
+						key={lang.code}
+						selected={i18n.language === lang.code}
+						onClick={() => handleLanguageSelect(lang.code)}
+					>
+						{lang.label}
+					</MenuItem>
+				))}
+			</Menu>
+
+			<Tooltip title={t("topbar.userMenu")} arrow enterDelay={200}>
+				<IconButton onClick={openMenu(setUserAnchor)} sx={{ p: 0.25 }}>
+					<Avatar
+						sx={{ width: 34, height: 34, bgcolor: "primary.main", fontSize: 14, fontWeight: 600 }}
+					>
+						{initials}
+					</Avatar>
+				</IconButton>
+			</Tooltip>
+			<Menu
+				anchorEl={userAnchor}
+				open={Boolean(userAnchor)}
+				onClose={() => setUserAnchor(null)}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+				transformOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				{fullName && (
+					<MenuItem disabled sx={{ "&.Mui-disabled": { opacity: 1 } }}>
+						<ListItemText primary={fullName} slotProps={{ primary: { sx: { fontWeight: 600 } } }} />
+					</MenuItem>
+				)}
+				<MenuItem onClick={handleLogout}>{t("topbar.logout")}</MenuItem>
+			</Menu>
+		</Box>
+	);
+});
 
 export default Topbar;

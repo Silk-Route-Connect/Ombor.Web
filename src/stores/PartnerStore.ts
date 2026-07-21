@@ -1,80 +1,90 @@
-import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { Loadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
-import { translate } from "i18n/i18n";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
-import {
-	CreatePartnerRequest,
-	GetPartnersRequest,
-	Partner,
-	PartnerType,
-	UpdatePartnerRequest,
-} from "models/partner";
+import { CreatePartnerRequest, Partner, UpdatePartnerRequest } from "models/partner";
 import PartnerApi from "services/api/PartnerApi";
+import { matchesSearch } from "utils/stringUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
-export type PartnerTypeFilters = PartnerType | "All";
+export type PartnerTypeFilter = "All" | "Customer" | "Supplier";
 
-export type DialogMode =
+export type PartnerDialogMode =
 	| { kind: "form"; partner?: Partner }
+	| { kind: "archive"; partner: Partner }
+	| { kind: "restore"; partner: Partner }
 	| { kind: "delete"; partner: Partner }
-	| { kind: "details"; partner: Partner }
+	| { kind: "cannotDelete"; partner: Partner }
 	| { kind: "none" };
 
+/** List summary strip totals (receivables / payables / net). */
+export type PartnerSummary = {
+	receivable: number;
+	payable: number;
+	net: number;
+	receivableCount: number;
+	payableCount: number;
+	activeCount: number;
+};
+
 export interface IPartnerStore {
-	// computed properties
 	allPartners: Loadable<Partner[]>;
 	filteredPartners: Loadable<Partner[]>;
-	suppliers: Loadable<Partner[]>;
+	/** Active (non-archived) partners selectable in pickers — Customer or Both. */
 	customers: Loadable<Partner[]>;
+	/** Active (non-archived) partners selectable in pickers — Supplier or Both. */
+	suppliers: Loadable<Partner[]>;
+	summary: PartnerSummary;
+	archivedCount: number;
 
-	// UI state
-	selectedPartner: Partner | null;
 	searchTerm: string;
-	type: PartnerTypeFilters;
-	sortField: keyof Partner | null;
-	sortOrder: SortOrder;
+	typeFilter: PartnerTypeFilter;
+	showArchived: boolean;
 	isSaving: boolean;
-	dialogMode: DialogMode;
+	dialogMode: PartnerDialogMode;
 
-	// actions
-	getAll(request?: GetPartnersRequest): Promise<void>;
+	getAll(): Promise<void>;
 	create(request: CreatePartnerRequest): Promise<void>;
-	update(request: UpdatePartnerRequest): Promise<void>;
-	delete(partnerId: number): Promise<void>;
+	update(request: UpdatePartnerRequest): Promise<Partner | null>;
+	archive(partner: Partner): Promise<Partner | null>;
+	restore(partner: Partner): Promise<Partner | null>;
+	remove(partner: Partner): Promise<boolean>;
 
-	// setters for filters & sorting
 	setSearch(term: string): void;
-	setTypeFilter(type: PartnerTypeFilters): void;
-	setSelectedPartner(partnerId?: number | null): void;
-	setSort(field: keyof Partner, order: SortOrder): void;
+	setTypeFilter(type: PartnerTypeFilter): void;
+	setShowArchived(show: boolean): void;
 
-	// UI dialog helper methods
 	openCreate(): void;
 	openEdit(partner: Partner): void;
+	openArchive(partner: Partner): void;
+	openRestore(partner: Partner): void;
 	openDelete(partner: Partner): void;
-	openDetails(partner: Partner): void;
+	openCannotDelete(partner: Partner): void;
 	closeDialog(): void;
 }
 
 export class PartnerStore implements IPartnerStore {
-	allPartners: Loadable<Partner[]> = [];
-	selectedPartner: Partner | null = null;
-	searchTerm = "";
-	type: PartnerTypeFilters = "All";
-	dialogMode: DialogMode = { kind: "none" };
-	isSaving: boolean = false;
-	sortField: keyof Partner | null = null;
-	sortOrder: SortOrder = "asc";
-
 	private readonly notificationStore: NotificationStore;
+
+	allPartners: Loadable<Partner[]> = "loading";
+	searchTerm = "";
+	typeFilter: PartnerTypeFilter = "All";
+	showArchived = false;
+	isSaving = false;
+	dialogMode: PartnerDialogMode = { kind: "none" };
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-
 		makeAutoObservable(this, {}, { autoBind: true });
+	}
+
+	get archivedCount(): number {
+		if (this.allPartners === "loading") {
+			return 0;
+		}
+		return this.allPartners.filter((p) => p.isArchived).length;
 	}
 
 	get filteredPartners(): Loadable<Partner[]> {
@@ -82,64 +92,86 @@ export class PartnerStore implements IPartnerStore {
 			return "loading";
 		}
 
-		let filteredPartners = this.allPartners;
-		const searchTerm = this.searchTerm?.toLowerCase();
+		// «Активные | Архив» segmented view: each side shows only its set (the
+		// «Архив» view swaps to archived-only — DSN-2 — not active + archived).
+		let partners = this.allPartners.filter((p) =>
+			this.showArchived ? p.isArchived : !p.isArchived,
+		);
 
-		if (searchTerm) {
-			filteredPartners = filteredPartners.filter(
-				(el) =>
-					el.name.toLowerCase().includes(searchTerm) ||
-					el.address?.toLowerCase().includes(searchTerm) ||
-					el.companyName?.toLowerCase().includes(searchTerm),
+		if (this.searchTerm.trim()) {
+			partners = partners.filter(
+				(p) =>
+					matchesSearch(p.name, this.searchTerm) ||
+					matchesSearch(p.companyName, this.searchTerm) ||
+					p.phoneNumbers.some((phone) => matchesSearch(phone, this.searchTerm)),
 			);
 		}
 
-		if (this.type === "All") {
-			return filteredPartners;
+		if (this.typeFilter === "Customer") {
+			partners = partners.filter((p) => p.type === "Customer" || p.type === "Both");
+		} else if (this.typeFilter === "Supplier") {
+			partners = partners.filter((p) => p.type === "Supplier" || p.type === "Both");
 		}
 
-		return filteredPartners.filter((el) => el.type === this.type);
-	}
-
-	get suppliers(): Loadable<Partner[]> {
-		if (this.allPartners === "loading") {
-			return "loading";
-		}
-
-		return this.allPartners.filter((el) => el.type !== "Customer");
+		return partners;
 	}
 
 	get customers(): Loadable<Partner[]> {
 		if (this.allPartners === "loading") {
 			return "loading";
 		}
-
-		return this.allPartners.filter((el) => el.type !== "Supplier");
+		return this.allPartners.filter((p) => !p.isArchived && p.type !== "Supplier");
 	}
 
-	async getAll(request?: GetPartnersRequest | null): Promise<void> {
+	get suppliers(): Loadable<Partner[]> {
 		if (this.allPartners === "loading") {
-			return;
+			return "loading";
 		}
+		return this.allPartners.filter((p) => !p.isArchived && p.type !== "Customer");
+	}
 
+	/** Strip totals over active (non-archived) partners (display aggregates, rule 8). */
+	get summary(): PartnerSummary {
+		if (this.allPartners === "loading") {
+			return {
+				receivable: 0,
+				payable: 0,
+				net: 0,
+				receivableCount: 0,
+				payableCount: 0,
+				activeCount: 0,
+			};
+		}
+		const active = this.allPartners.filter((p) => !p.isArchived);
+		const receivable = active.filter((p) => p.balance > 0).reduce((s, p) => s + p.balance, 0);
+		const payable = active.filter((p) => p.balance < 0).reduce((s, p) => s - p.balance, 0);
+		return {
+			receivable,
+			payable,
+			net: receivable - payable,
+			receivableCount: active.filter((p) => p.balance > 0).length,
+			payableCount: active.filter((p) => p.balance < 0).length,
+			activeCount: active.length,
+		};
+	}
+
+	async getAll(): Promise<void> {
 		runInAction(() => (this.allPartners = "loading"));
 
-		const result = await tryRun(() => PartnerApi.getAll(request));
+		const result = await tryRun(() => PartnerApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.getAll"));
+			this.notificationStore.error(i18next.t("partner.error.getAll"));
 		}
 
-		const data = result.status === "success" ? result.data : [];
-
-		runInAction(() => (this.allPartners = data));
+		runInAction(() => (this.allPartners = result.status === "success" ? result.data : []));
 	}
 
 	async create(request: CreatePartnerRequest): Promise<void> {
 		const result = await withSaving(this, () => PartnerApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.create"));
+			this.notificationStore.error(i18next.t("partner.error.create"));
 			return;
 		}
 
@@ -150,101 +182,126 @@ export class PartnerStore implements IPartnerStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.create"));
+		this.notificationStore.success(i18next.t("partner.success.create", { name: result.data.name }));
 	}
 
-	async update(request: UpdatePartnerRequest): Promise<void> {
+	async update(request: UpdatePartnerRequest): Promise<Partner | null> {
 		const result = await withSaving(this, () => PartnerApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.update"));
-			return;
+			this.notificationStore.error(i18next.t("partner.error.update"));
+			return null;
 		}
 
-		runInAction(() => {
-			if (this.allPartners !== "loading") {
-				this.allPartners = this.allPartners.map((el) =>
-					el.id === result.data.id ? result.data : el,
-				);
-			}
-		});
-
+		this.replacePartner(result.data);
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.update"));
+		this.notificationStore.success(i18next.t("partner.success.update"));
+		return result.data;
 	}
 
-	async delete(id: number): Promise<void> {
-		const result = await withSaving(this, () => PartnerApi.delete(id));
+	async archive(partner: Partner): Promise<Partner | null> {
+		const result = await withSaving(this, () => PartnerApi.archive(partner.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(translate("partners.errors.delete"));
-			return;
+			this.notificationStore.error(i18next.t("partner.error.archive"));
+			return null;
+		}
+
+		// Backend returns 204 — refetch the updated partner to refresh the row.
+		const updated = await this.refreshPartner(partner.id);
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("partner.success.archive", { name: partner.name }));
+		return updated;
+	}
+
+	async restore(partner: Partner): Promise<Partner | null> {
+		const result = await withSaving(this, () => PartnerApi.restore(partner.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("partner.error.restore"));
+			return null;
+		}
+
+		const updated = await this.refreshPartner(partner.id);
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("partner.success.restore", { name: partner.name }));
+		return updated;
+	}
+
+	async remove(partner: Partner): Promise<boolean> {
+		const result = await withSaving(this, () => PartnerApi.delete(partner.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.error(i18next.t("partner.error.delete"));
+			return false;
 		}
 
 		runInAction(() => {
 			if (this.allPartners !== "loading") {
-				this.allPartners = this.allPartners.filter((s) => s.id !== id);
+				this.allPartners = this.allPartners.filter((p) => p.id !== partner.id);
 			}
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(translate("partners.success.delete"));
+		this.notificationStore.success(i18next.t("partner.success.delete", { name: partner.name }));
+		return true;
 	}
 
 	setSearch(term: string): void {
 		this.searchTerm = term;
 	}
 
-	setTypeFilter(type: PartnerTypeFilters): void {
-		this.type = type;
+	setTypeFilter(type: PartnerTypeFilter): void {
+		this.typeFilter = type;
 	}
 
-	setSelectedPartner(partnerId?: number | null): void {
-		if (this.allPartners === "loading") {
-			return;
-		}
-
-		if (!partnerId) {
-			runInAction(() => (this.selectedPartner = null));
-			return;
-		}
-
-		const partner = this.allPartners.find((p) => p.id === partnerId);
-
-		if (partner) {
-			runInAction(() => (this.selectedPartner = partner));
-		}
-	}
-
-	setSort(field: keyof Partner, order: SortOrder): void {
-		this.sortField = field;
-		this.sortOrder = order;
+	setShowArchived(show: boolean): void {
+		this.showArchived = show;
 	}
 
 	openCreate(): void {
-		this.setDialog({ kind: "form" });
+		this.dialogMode = { kind: "form" };
 	}
 
 	openEdit(partner: Partner): void {
-		this.setDialog({ kind: "form", partner: partner });
+		this.dialogMode = { kind: "form", partner };
+	}
+
+	openArchive(partner: Partner): void {
+		this.dialogMode = { kind: "archive", partner };
+	}
+
+	openRestore(partner: Partner): void {
+		this.dialogMode = { kind: "restore", partner };
 	}
 
 	openDelete(partner: Partner): void {
-		this.setDialog({ kind: "delete", partner: partner });
+		this.dialogMode = { kind: "delete", partner };
 	}
 
-	openDetails(partner: Partner): void {
-		this.setDialog({ kind: "details", partner: partner });
+	openCannotDelete(partner: Partner): void {
+		this.dialogMode = { kind: "cannotDelete", partner };
 	}
 
 	closeDialog(): void {
-		this.setDialog({ kind: "none" });
+		this.dialogMode = { kind: "none" };
 	}
 
-	private setDialog(mode: DialogMode) {
-		const partner = "partner" in mode ? (mode.partner ?? null) : null;
+	/** Refetch a single partner (after a 204 mutation) and update the row in place. */
+	private async refreshPartner(id: number): Promise<Partner | null> {
+		const result = await tryRun(() => PartnerApi.getById(id));
+		const updated = result.status === "success" ? result.data : null;
+		if (updated) {
+			this.replacePartner(updated);
+		}
+		return updated;
+	}
 
-		this.dialogMode = mode;
-		this.selectedPartner = partner;
+	private replacePartner(updated: Partner): void {
+		runInAction(() => {
+			if (this.allPartners !== "loading") {
+				this.allPartners = this.allPartners.map((p) => (p.id === updated.id ? updated : p));
+			}
+		});
 	}
 }

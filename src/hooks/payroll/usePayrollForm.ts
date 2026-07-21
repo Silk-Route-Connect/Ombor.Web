@@ -3,14 +3,15 @@ import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { Employee } from "models/employee";
-import { Payment } from "models/payment";
+import { Wallet } from "models/wallet";
 import { PayrollFormInputs, PayrollFormValues, PayrollSchema } from "schemas/PayrollSchema";
 import { useStore } from "stores/StoreContext";
-import { mapPaymentToFormValues, PAYROLL_FORM_DEFAULT_VALUES } from "utils/payrollUtils";
+import { payrollDefaultValues } from "utils/payrollUtils";
 
 export type PayrollFormPayload = PayrollFormValues;
 
-export type PayrollFormMode = Payment | Employee | null;
+/** The modal is always opened to create a payroll for a specific employee. */
+export type PayrollFormMode = Employee | null;
 
 interface UsePayrollFormParams {
 	isOpen: boolean;
@@ -24,9 +25,9 @@ interface UsePayrollFormResult {
 	form: UseFormReturn<PayrollFormInputs>;
 	canSave: boolean;
 	discardOpen: boolean;
-	isEditMode: boolean;
 	isEmployeeLocked: boolean;
 
+	wallets: Wallet[];
 	selectedEmployee: Employee | null;
 	setEmployeeId: (employeeId: number) => void;
 
@@ -35,10 +36,6 @@ interface UsePayrollFormResult {
 	confirmDiscard: () => void;
 	cancelDiscard: () => void;
 }
-
-const isPayment = (mode: PayrollFormMode): mode is Payment => {
-	return mode !== null && "direction" in mode && "type" in mode;
-};
 
 const isEmployee = (mode: PayrollFormMode): mode is Employee => {
 	return mode !== null && "status" in mode && "salary" in mode;
@@ -51,35 +48,50 @@ export function usePayrollForm({
 	onSave,
 	onClose,
 }: UsePayrollFormParams): UsePayrollFormResult {
-	const { employeeStore } = useStore();
+	const { employeeStore, walletStore } = useStore();
 
 	const form = useForm<PayrollFormInputs>({
 		resolver: zodResolver(PayrollSchema),
 		mode: "onBlur",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
-		defaultValues: PAYROLL_FORM_DEFAULT_VALUES,
+		defaultValues: payrollDefaultValues(),
 	});
 
 	const { control, setValue, reset } = form;
 	const employeeId = useWatch({ control, name: "employeeId" });
+	const walletId = useWatch({ control, name: "walletId" });
 
-	const isEditMode = isPayment(mode);
-	const isEmployeeLocked = isPayment(mode) || isEmployee(mode);
+	const isEmployeeLocked = isEmployee(mode);
 
+	const wallets = useMemo(
+		() =>
+			walletStore.allWallets === "loading"
+				? []
+				: walletStore.allWallets.filter((w) => !w.isArchived),
+		[walletStore.allWallets],
+	);
+
+	// Load wallets for the source picker when the modal opens; reset the form.
 	useEffect(() => {
-		let formValues: PayrollFormValues;
-
-		if (isPayment(mode)) {
-			formValues = mapPaymentToFormValues(mode);
-		} else if (isEmployee(mode)) {
-			formValues = { ...PAYROLL_FORM_DEFAULT_VALUES, employeeId: mode.id };
-		} else {
-			formValues = PAYROLL_FORM_DEFAULT_VALUES;
+		if (!isOpen) {
+			return;
 		}
 
-		reset(formValues);
-	}, [isOpen, mode, reset]);
+		void walletStore.getAll();
+
+		reset({
+			...payrollDefaultValues(),
+			employeeId: isEmployee(mode) ? mode.id : 0,
+		});
+	}, [isOpen, mode, reset, walletStore]);
+
+	// Default the wallet to the first available once wallets have loaded.
+	useEffect(() => {
+		if (isOpen && !walletId && wallets.length > 0) {
+			setValue("walletId", wallets[0].id, { shouldValidate: true });
+		}
+	}, [isOpen, walletId, wallets, setValue]);
 
 	const selectedEmployee = useMemo(() => {
 		if (employeeStore.allEmployees === "loading") {
@@ -95,7 +107,7 @@ export function usePayrollForm({
 
 	const {
 		handleSubmit,
-		formState: { isDirty, isValid },
+		formState: { isDirty },
 	} = form;
 
 	const { discardOpen, requestClose, confirmDiscard, cancelDiscard } = useDirtyClose(
@@ -106,15 +118,17 @@ export function usePayrollForm({
 
 	const submit = handleSubmit(onSave);
 
-	const canSave = isValid && !isSaving && (isEditMode ? isDirty : true);
+	// Save stays enabled (hard rule 5): handleSubmit blocks an invalid form and
+	// surfaces inline errors; the button is only inert while a save is in flight.
+	const canSave = !isSaving;
 
 	return {
 		form,
 		canSave,
 		discardOpen,
-		isEditMode,
 		isEmployeeLocked,
 
+		wallets,
 		selectedEmployee,
 		setEmployeeId,
 
