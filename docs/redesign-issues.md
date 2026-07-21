@@ -32,6 +32,7 @@
 | 8 | Validation UX | ~10 | Important | #5 | Errors collapsed / not reported inline |
 | 9 | CSV export polish | 3 | Nice-to-have | — | Guard-while-loading; injection guard already landed |
 | 10 | Non-English code comments | 3 | Nice-to-have | — | Russian comments in source |
+| 11 | Repo-wide lint debt | 85 | Important | **#10** | 24 files over the 300-line limit; 56 restricted-syntax |
 | — | Mock-layer comments | 33 | **Moot** | #6 | `src/mocks/` is dead code (`VITE_ENABLE_MOCKS=false`), pending deletion |
 | — | Doc / test-case consistency | 40 | Nice-to-have | — | Internal contradictions in canon + `docs/testing/test-cases/` |
 
@@ -145,6 +146,19 @@ Hard rule #2 forbids hardcoded UI strings. Mostly hardcoded `UZS`/currency suffi
 ## 10. Non-English code comments — Nice-to-have (3)
 
 - `components/stockAdjustment/Header/StockAdjustmentHeader.tsx:36`, `components/warehouse/Header/WarehouseHeader.tsx:93`, `components/order/Detail/DeliveryInfoCard.tsx:128` — Russian comments in source (English-only rule).
+
+## 11. Repo-wide lint debt — Important (hard rule #10)
+
+Not from CodeRabbit — measured on the merged `master` at capture time. `npm run validate` is **green (0 errors)**, but carries **85 warnings**. These corroborate several themes above, so fixing a theme usually clears its warnings too.
+
+| Count | Rule | What it is |
+| --- | --- | --- |
+| 56 | `no-restricted-syntax` | Path string/template literals passed to `navigate()` instead of `routing/paths.ts`; hardcoded hex colors instead of `theme.ts` tokens; direct `toLocaleString` instead of the shared formatters |
+| 24 | `max-lines` | Files over the 300-line limit — **a hard rule #10 breach**. Worst: `layouts/Sidebar.tsx` (503), `pages/EmployeeDetailPage.tsx` (427), `pages/RegisterPage.tsx` (376) |
+| 3 | `react-hooks/exhaustive-deps` | Conditional values in `useMemo`/`useEffect` dependency arrays |
+| 2 | `no-console` | `services/api/CurrencyApi.ts:19` (frozen module, hard rule #4), `stores/SaleStore.ts:25` |
+
+The `navigate()` and hex-color warnings are the same defects CodeRabbit raised at `routing/paths.ts:29` (§5) and across the dashboard theme-token items (§7) — they are one cleanup, not two.
 
 ---
 
