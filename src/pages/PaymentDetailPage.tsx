@@ -75,9 +75,9 @@ const PaymentDetailPage: React.FC = observer(() => {
 						<PaymentAllocationCard payment={payment} />
 					)}
 
-					{(payment.attachments.length > 0 ||
+					{(payment.attachments?.length > 0 ||
 						payment.transactionNotes ||
-						payment.transactionAttachments.length > 0) && (
+						payment.transactionAttachments?.length > 0) && (
 						<PaymentAttachmentsCard payment={payment} />
 					)}
 				</Stack>
