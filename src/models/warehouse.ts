@@ -2,11 +2,8 @@ import { Measurement } from "./product";
 
 /**
  * Warehouse (the backend's "Inventory") — the redesigned «Склады» resource.
- * The stale `/api/inventories` contract carries only name/location/isActive and
- * hard-deletes; the redesigned pages need served aggregates, archive/restore and
- * a movements ledger, so the whole resource is mocked at this target v1 contract
- * under `/api/warehouses` (docs/mocking.md). The legacy `/api/inventories`
- * consumers (sale/supply stock pickers) are left untouched.
+ * Served by `/api/warehouses` (backend-contracts/inventory.md) with aggregates,
+ * archive/restore and a movements ledger.
  */
 export type Warehouse = {
 	id: number;

@@ -1,8 +1,7 @@
 /**
  * «Настройки» (Settings) — mvp-plan §18. Two server-backed concerns: the
- * organization profile and the tenant's users. There is no backend endpoint for
- * either yet (only /api/auth/*), so both are mocked at the target v1 contract
- * (docs/mocking.md). Interface language is a per-user client preference handled
+ * organization profile and the tenant's users, served by `/api/settings`
+ * (backend-contracts/settings.md). Interface language is a per-user client preference handled
  * by i18n (not part of this contract); currency is a static read-only UZS section.
  */
 

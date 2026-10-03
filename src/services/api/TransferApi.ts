@@ -2,9 +2,8 @@ import { CreateTransferRequest, Transfer } from "../../models/transfer";
 import http from "./http";
 
 /**
- * Transfers API over the target v1 contract (`/api/transfers`). The resource is
- * mocked (docs/mocking.md) — the backend DTO lacks the author and per-line unit
- * the redesign shows. Transfers are immutable (rule 16): only list + create.
+ * Transfers API (`/api/transfers`). Transfers are immutable (rule 16): only
+ * list + create.
  */
 class TransferApi {
 	private readonly baseUrl: string = "/api/transfers";

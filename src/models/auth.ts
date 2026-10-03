@@ -49,9 +49,9 @@ export interface RefreshTokenResponse {
 }
 
 /* ───────────────────────── Password reset ─────────────────────────
- * The backend has no reset endpoints yet (only login/register/verify/
- * refresh/logout), so these are mocked at the target v1 contract
- * (docs/mocking.md). Flow: request a code → verify it → set a new password.
+ * Served by `/api/auth/forgot-password`, `/verify-reset-code` and
+ * `/reset-password` (backend-contracts/auth.md). Flow: request a code →
+ * verify it → set a new password.
  */
 
 export interface ForgotPasswordRequest {

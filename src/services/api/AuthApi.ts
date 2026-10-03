@@ -100,7 +100,7 @@ class AuthApi {
 		await http.post<void>(AuthEndpoints.logout);
 	}
 
-	/* ── Password reset (mocked target v1 contract — see models/auth.ts) ── */
+	/* ── Password reset (see models/auth.ts) ── */
 
 	async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
 		const { data } = await http.post<ForgotPasswordResponse>(

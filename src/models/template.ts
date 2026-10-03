@@ -14,8 +14,7 @@ export type Template = {
 	/**
 	 * When the template was last loaded into a transaction (ISO date) or null if
 	 * never used. The redesigned list shows it as the «Использован» column; the
-	 * live backend `TemplateDto` does not carry it yet, so the resource is mocked
-	 * at the target v1 contract (docs/mocking.md).
+	 * backend `TemplateDto` does not serve it yet, so it arrives absent.
 	 */
 	lastUsedAt: string | null;
 	items: TemplateItem[];

@@ -3,12 +3,11 @@ import { WalletType } from "./wallet";
 /* ───────────────────────── Главное (dashboard) ───────────────────────── */
 
 /**
- * The dashboard is a read-only morning briefing (mvp-plan §2). It has no backend
- * endpoint — it is a served, aggregated read model, mocked at the target v1
- * contract (docs/mocking.md). The debt-derived figures (receivables, payables,
- * aging, top debtors) are computed from the same seed as the «Долги» mock so the
- * two screens reconcile; the time series + revenue are illustrative. Every
- * amount is server-computed and served (hard rule 8 / rule 12).
+ * The dashboard is a read-only morning briefing (mvp-plan §2), served by
+ * `/api/dashboard` as an aggregated read model. The debt-derived figures
+ * (receivables, payables, aging, top debtors) come from the same data as
+ * «Долги», so the two screens reconcile. Every amount is server-computed and
+ * served (hard rule 8 / rule 12).
  */
 export type DashboardPeriod = "today" | "week" | "month";
 

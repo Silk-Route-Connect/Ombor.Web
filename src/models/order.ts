@@ -7,9 +7,7 @@ import { Measurement } from "./product";
  * Delivered it promotes to an immutable Sale. Pre-delivery it can be edited and
  * cancelled. Totals are computed from line items so every screen reconciles.
  *
- * The live `OrderDto` is stale relative to the redesign — it carries no status
- * history, no warehouse / promoted-sale link, and its lines no SKU/unit — so the
- * whole resource is mocked at the target v1 contract (docs/mocking.md).
+ * Served by `/api/orders` (backend-contracts/orders-templates.md).
  */
 
 export const ORDER_STATUSES = [

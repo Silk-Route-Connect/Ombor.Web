@@ -9,11 +9,9 @@ import {
 import http from "./http";
 
 /**
- * Wallets API over the target v1 contract (`/api/wallets`). The resource is
- * fully mocked (docs/mocking.md) — the backend has no wallet/money-location
- * entity yet (tech-change-list: "Wallet entity — not started"). All derived
- * figures (balance, advances held, "our money", running balances) are served by
- * the mock per hard rule 8 / rule 12. JSON throughout, mirroring WarehouseApi.
+ * Wallets API (`/api/wallets`). All derived figures (balance, advances held,
+ * "our money", running balances) are served by the backend per hard rule 8 /
+ * rule 12. JSON throughout, mirroring WarehouseApi.
  */
 class WalletApi {
 	private readonly baseUrl: string = "/api/wallets";

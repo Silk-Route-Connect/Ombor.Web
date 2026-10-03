@@ -3,9 +3,7 @@ import { PaymentType } from "./payment";
 /**
  * Wallet (the «Касса» money-location resource) — answers "how much cash do I
  * have, and where?". A wallet is a Cash register, Card terminal or Bank account
- * (business-rules §C). The backend has no wallet entity yet (tech-change-list:
- * "Wallet entity — not started"), so the whole resource is mocked at the target
- * v1 contract under `/api/wallets` (docs/mocking.md).
+ * (business-rules §C). Served by `/api/wallets` (backend-contracts/wallets.md).
  *
  * Every derived figure — balance, advances held, "our money" — is server-computed
  * and served (hard rule 8 / rule 12); clients never recompute a balance from

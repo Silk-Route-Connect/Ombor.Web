@@ -109,7 +109,7 @@ When verifying whether a field or endpoint exists, check the contract, not memor
 
 ## Repo state
 
-Per-module state lives in **`docs/repo-state.md`** (the single home — read the module's entry before touching a module). The authoritative gap list is **`docs/frontend-gaps.md`**: F-items are live bugs, not latent debt. **Since the 2026-07-05 contract alignment the app runs on the REAL backend (`VITE_ENABLE_MOCKS=false`); `src/mocks/` handlers are dead code pending deletion.**
+Per-module state lives in **`docs/repo-state.md`** (the single home — read the module's entry before touching a module). The authoritative gap list is **`docs/frontend-gaps.md`**: F-items are live bugs, not latent debt. **Since the 2026-07-05 contract alignment the app runs on the REAL backend (`VITE_ENABLE_MOCKS=false`); the `src/mocks/` handlers were deleted on 2026-10-04 — only the empty MSW mechanism remains (docs/mocking.md).**
 
 Exceptions worth knowing before routing any task:
 

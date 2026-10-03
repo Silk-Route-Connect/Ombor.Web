@@ -13,7 +13,7 @@ interface ImportMetaEnv {
 	readonly VITE_OMBOR_POSTHOG_HOST?: string;
 	/** Telemetry environment tag; defaults to the Vite mode. */
 	readonly VITE_OMBOR_ENVIRONMENT?: string;
-	/** "true" enables the MSW mock layer (src/mocks) — see docs/mocking.md. */
+	/** "true" starts the MSW layer (src/mocks) — for genuine backend gaps only; see docs/mocking.md. */
 	readonly VITE_ENABLE_MOCKS?: string;
 }
 

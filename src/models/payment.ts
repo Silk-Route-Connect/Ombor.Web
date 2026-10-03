@@ -88,7 +88,7 @@ export type GetPaymentsRequest = {
 /* ───────────────────────── Redesigned «Платежи» module ─────────────────────────
  * The legacy DTO above (PaymentMethod / currency / exchangeRate) is the removed-enum
  * model, kept only for the still-legacy New Sale debt-payment flow. The redesigned
- * standalone Payments page is mocked at the target v1 contract (business-rules §B):
+ * standalone Payments page uses the served contract (business-rules §B):
  * Wallet/Advance sources, canon allocation types, server-computed figures. PaymentType
  * and PaymentDirection above already match canon, so they are reused.
  */

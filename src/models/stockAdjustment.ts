@@ -5,9 +5,8 @@ import { Measurement } from "./product";
  * payment-less stock event with a direction and a mandatory reason
  * (business-rules §E, rules 23–25). It is NOT a transaction type. A Decrease
  * records loss (damage / theft / expiry / loss) at WAC; an Increase restores
- * units (found stock / recount correction) at current WAC. No backend endpoint
- * exists yet, so the resource is mocked at this target v1 contract under
- * `/api/stock-adjustments` (docs/mocking.md).
+ * units (found stock / recount correction) at current WAC. Served by
+ * `/api/stock-adjustments` (backend-contracts/inventory.md).
  */
 export const ADJUSTMENT_DIRECTIONS = ["Decrease", "Increase"] as const;
 export type AdjustmentDirection = (typeof ADJUSTMENT_DIRECTIONS)[number];

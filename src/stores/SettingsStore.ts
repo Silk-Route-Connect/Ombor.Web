@@ -22,7 +22,7 @@ export interface ISettingsStore {
 
 /**
  * «Настройки» store — the organization profile and tenant users (mvp-plan §18).
- * Both are mocked at the target v1 contract (no backend yet). Interface language
+ * Both are served by `/api/settings`. Interface language
  * is a client-side i18n preference and is handled in the page, not here. Users
  * are never deleted (rule 41) — they are deactivated / reactivated.
  */
