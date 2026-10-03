@@ -98,9 +98,9 @@
 
   "wallet.operation.Opening": "Начальный остаток",
   "wallet.operation.Payment": "Оплата",
-  "wallet.operation.Deposit": "Депозит",
-  "wallet.operation.Expense": "Общий",
-  "wallet.operation.Withdrawal": "Вывод",
+  "wallet.operation.Deposit": "Аванс",
+  "wallet.operation.Expense": "Прочее",
+  "wallet.operation.Withdrawal": "Возврат аванса",
   "wallet.operation.Transfer": "Перевод",
 
   "wallet.transfers.date": "Дата",

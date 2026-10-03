@@ -88,10 +88,10 @@
   "common.dialog.discardChanges.cancel": "Продолжить",
 
 
-  "paymentTypeDeposit": "Депозит",
-  "paymentTypeWithdrawal": "Снятие",
+  "paymentTypeDeposit": "Аванс",
+  "paymentTypeWithdrawal": "Возврат аванса",
   "paymentTypePayroll": "Зарплата",
-  "paymentTypeGeneral": "Общий",
+  "paymentTypeGeneral": "Прочее",
   "paymentTypeMixed": "Множественные платежи",
 
   "paymentAllocationSale": "Продажа",

@@ -74,8 +74,8 @@
   "transaction.partner": "Партнёр",
   "transaction.unpaid": "Неоплачено",
 
-  "transactions.errors.getAll": "Не удалось загрузить транзакции",
-  "transactions.errors.getById": "Не удалось загрузить транзакцию",
+  "transactions.errors.getAll": "Не удалось загрузить продажи и поставки",
+  "transactions.errors.getById": "Не удалось загрузить документ",
 
   "transaction.list.title.Sale": "Продажи",
   "transaction.list.title.Supply": "Поставки",
@@ -114,7 +114,7 @@
   "transaction.empty.searchBody.Sale": "По заданным условиям продаж и возвратов нет. Измените поиск, статус оплаты или период.",
   "transaction.empty.searchBody.Supply": "По заданным условиям поставок и возвратов нет. Измените поиск, статус оплаты или период.",
 
-  "transaction.detail.notFound": "Транзакция не найдена",
+  "transaction.detail.notFound": "Документ не найден",
   "transaction.detail.title.Sale": "Продажа {{number}}",
   "transaction.detail.title.Supply": "Поставка {{number}}",
   "transaction.detail.title.SaleRefund": "Возврат продажи {{number}}",
@@ -295,7 +295,7 @@
   "transaction.new.totals.change": "Сдача",
   "transaction.new.totals.settleDebtsBtn": "Погасить долги",
   "transaction.new.totals.debtsLoadFailed": "Не удалось загрузить долги партнёра — излишек пока уйдёт сдачей.",
-  "transaction.new.settled": "Распределено по долгам · {{amount}} UZS",
+  "transaction.new.settled": "Закрыто долгов · {{amount}} UZS",
 
   "transaction.new.pay.label.Sale": "Оплата",
   "transaction.new.pay.label.Supply": "Оплата поставщику",

@@ -112,7 +112,7 @@
   "warehouse.movements.date": "Дата",
   "warehouse.movements.event": "Событие",
   "warehouse.movements.product": "Товар",
-  "warehouse.movements.counterparty": "Контрагент / направление",
+  "warehouse.movements.counterparty": "Партнёр / склад",
   "warehouse.movements.quantity": "Кол-во",
   "warehouse.movements.balance": "Остаток",
   "warehouse.movements.emptyTitle": "Нет движений",
