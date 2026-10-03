@@ -26,7 +26,6 @@ import {
 import { Column, DefaultSort, SortOrder } from "../DataTable/DataTable";
 import {
 	BODY_CELL_SX,
-	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
 	HEADER_CELL_SX,
 	HEADER_CONTAINER_SX,
@@ -34,6 +33,8 @@ import {
 	TABLE_CONTAINER_SX,
 	TABLE_SCROLL_SX,
 } from "../DataTable/tableConfigs";
+import { TableOrder } from "../tableOrder";
+import { isSortableColumn, useTableSort } from "../useTableSort";
 
 export type { Column, DefaultSort, SortOrder };
 
@@ -45,6 +46,8 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
 	defaultSort?: DefaultSort;
+	/** The page's `useTableOrder()` — its CSV export then writes rows in this table's order. */
+	exportOrder?: TableOrder<T>;
 	renderExpanded: (row: T) => React.ReactNode;
 	canExpand?: (row: T) => boolean;
 	className?: string;
@@ -67,6 +70,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	pagination = true,
 	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
 	defaultSort,
+	exportOrder,
 	renderExpanded,
 	canExpand,
 	className,
@@ -78,25 +82,13 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE);
-	const [sortKey, setSortKey] = useState<string | null>(defaultSort?.key ?? null);
-	const [order, setOrder] = useState<SortOrder>(defaultSort?.order ?? "asc");
+	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
 
-	const isSortable = (col: Column<T>) =>
-		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
-
-	const sortedRows = useMemo<Loadable<T[]>>(() => {
-		if (!isReady(rows) || !sortKey) {
-			return rows;
-		}
-		const col = columns.find((c) => c.key === sortKey);
-		const accessor = col?.sortValue ?? (col?.field != null ? (r: T) => r[col.field!] : null);
-		if (!accessor) {
-			return rows;
-		}
-		const sorted = [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return order === "desc" ? sorted.reverse() : sorted;
-	}, [rows, sortKey, order, columns]);
+	const sortedRows = useMemo<Loadable<T[]>>(
+		() => (isReady(rows) ? sortRows(rows) : rows),
+		[rows, sortRows],
+	);
 
 	useEffect(() => {
 		if (!isReady(sortedRows)) return;
@@ -113,12 +105,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		const start = page * rowsPerPage;
 		return sortedRows.slice(start, start + rowsPerPage);
 	}, [sortedRows, page, rowsPerPage, pagination]);
-
-	const handleSortRequest = (col: Column<T>) => {
-		const isAsc = sortKey === col.key && order === "asc";
-		setOrder(isAsc ? "desc" : "asc");
-		setSortKey(col.key);
-	};
 
 	const toggleExpandRow = (id: string | number) => {
 		setExpandedRows((prev) => {
@@ -165,15 +151,15 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 							{columns.map((col) => (
 								<TableCell
 									key={col.key}
-									sortDirection={isSortable(col) && sortKey === col.key ? order : false}
+									sortDirection={isSortableColumn(col) && sortKey === col.key ? order : false}
 									sx={{ ...HEADER_CELL_SX, width: col.width }}
 									align={col.align ?? "left"}
 								>
-									{isSortable(col) ? (
+									{isSortableColumn(col) ? (
 										<TableSortLabel
 											active={sortKey === col.key}
 											direction={sortKey === col.key ? order : "asc"}
-											onClick={() => handleSortRequest(col)}
+											onClick={() => requestSort(col.key)}
 										>
 											{col.headerName}
 										</TableSortLabel>

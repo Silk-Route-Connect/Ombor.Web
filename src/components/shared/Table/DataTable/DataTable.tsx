@@ -8,11 +8,12 @@ import { numericSx } from "theme";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 
+import { TableOrder } from "../tableOrder";
 import TablePager from "../TablePager";
+import { isSortableColumn, useTableSort } from "../useTableSort";
 import DataTableHead from "./DataTableHead";
 import {
 	BODY_CELL_SX,
-	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
 	FIXED_TABLE_SX,
 	FOOTER_SX,
@@ -32,8 +33,8 @@ export type SortOrder = "asc" | "desc";
  * explicit accessor for `renderCell`-only columns) — and has not opted out with
  * `sortable: false`. The `actions` column and long free-text / notes columns are
  * never sortable (drop their `field` / `sortValue` or set `sortable: false`).
- * When the table is given `onSort`, sorting is controlled (delegated to the
- * parent / store); otherwise the table sorts itself client-side.
+ * The table sorts client-side (`useTableSort`); a page's CSV export follows the
+ * same order through `exportOrder`.
  *
  * **Column-order convention** (left → right — new and edited configs follow it):
  * №/ID → date → primary entity → type/status chip → descriptive → money (right,
@@ -75,7 +76,8 @@ export interface DataTableProps<T extends { id: string | number }> {
 	/** Initial sort column + direction (see {@link DefaultSort}). */
 	defaultSort?: DefaultSort;
 	onRowClick?: (row: T) => void;
-	onSort?: (field: keyof T, order: SortOrder) => void;
+	/** The page's `useTableOrder()` — its CSV export then writes rows in this table's order. */
+	exportOrder?: TableOrder<T>;
 	/** The table's `TableEmptyState` (first-run vs filtered copy); defaults to «Нет записей». */
 	empty?: React.ReactNode;
 	/** Re-runs the failed load behind `rows` (the error state's «Повторить»). */
@@ -100,7 +102,7 @@ export function DataTable<T extends { id: string | number }>({
 	defaultRowsPerPage,
 	defaultSort,
 	onRowClick,
-	onSort,
+	exportOrder,
 	empty,
 	onRetry,
 	errorTitle,
@@ -112,30 +114,12 @@ export function DataTable<T extends { id: string | number }>({
 	const [rowsPerPage, setRowsPerPage] = useState(
 		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
 	);
-	const [sortKey, setSortKey] = useState<string | null>(defaultSort?.key ?? null);
-	const [order, setOrder] = useState<SortOrder>(defaultSort?.order ?? "asc");
+	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 
-	// A column is sortable unless it opts out, is the actions column, or has no
-	// sort source (neither `sortValue` nor `field`).
-	const isSortable = (col: Column<T>) =>
-		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
-
-	const sortedRows = useMemo<Loadable<T[]>>(() => {
-		if (!isReady(rows)) {
-			return rows;
-		}
-		// Controlled sort (onSort) or no active sort → leave ordering to the caller.
-		if (onSort || !sortKey) {
-			return rows;
-		}
-		const col = columns.find((c) => c.key === sortKey);
-		const accessor = col?.sortValue ?? (col?.field != null ? (r: T) => r[col.field!] : null);
-		if (!accessor) {
-			return rows;
-		}
-		const sorted = [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return order === "desc" ? sorted.reverse() : sorted;
-	}, [rows, onSort, sortKey, order, columns]);
+	const sortedRows = useMemo<Loadable<T[]>>(
+		() => (isReady(rows) ? sortRows(rows) : rows),
+		[rows, sortRows],
+	);
 
 	useEffect(() => {
 		if (!isReady(sortedRows)) {
@@ -161,17 +145,8 @@ export function DataTable<T extends { id: string | number }>({
 	const isSelectable = Boolean(onRowClick);
 
 	const handleRequestSort = (col: Column<T>) => {
-		if (!isSortable(col)) {
-			return;
-		}
-
-		const isAsc = sortKey === col.key && order === "asc";
-		const newOrder: SortOrder = isAsc ? "desc" : "asc";
-		setOrder(newOrder);
-		setSortKey(col.key);
-
-		if (onSort && col.field) {
-			onSort(col.field, newOrder); // controlled — parent / store sorts
+		if (isSortableColumn(col)) {
+			requestSort(col.key);
 		}
 	};
 
@@ -235,7 +210,7 @@ export function DataTable<T extends { id: string | number }>({
 						columns={columns}
 						sortKey={sortKey}
 						order={order}
-						isSortable={isSortable}
+						isSortable={isSortableColumn}
 						onSort={handleRequestSort}
 					/>
 

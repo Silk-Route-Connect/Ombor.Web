@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Column, DefaultSort, SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { Column, DefaultSort } from "components/shared/Table/DataTable/DataTable";
 import {
-	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
 	FOOTER_SX,
 	ROWS_PER_PAGE_OPTIONS,
 } from "components/shared/Table/DataTable/tableConfigs";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import TablePager from "components/shared/Table/TablePager";
+import { isSortableColumn, useTableSort } from "components/shared/Table/useTableSort";
 import { numericSx } from "theme";
 
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
@@ -25,6 +26,8 @@ interface DetailTableProps<T extends { id: string | number }> {
 	/** Same column API as the list `DataTable` (sorting, alignment, shared cells). */
 	columns: Column<T>[];
 	defaultSort?: DefaultSort;
+	/** The tab's `useTableOrder()` — its CSV export then writes rows in this table's order. */
+	exportOrder?: TableOrder<T>;
 	onRowClick?: (row: T) => void;
 	/** Rows that do not open anything (e.g. the ledger's opening balance). */
 	isRowClickable?: (row: T) => boolean;
@@ -50,6 +53,7 @@ export function DetailTable<T extends { id: string | number }>({
 	rows,
 	columns,
 	defaultSort,
+	exportOrder,
 	onRowClick,
 	isRowClickable,
 	rowSx,
@@ -59,23 +63,11 @@ export function DetailTable<T extends { id: string | number }>({
 	summary,
 }: Readonly<DetailTableProps<T>>) {
 	const { t } = useTranslation();
-	const [sortKey, setSortKey] = useState<string | null>(defaultSort?.key ?? null);
-	const [order, setOrder] = useState<SortOrder>(defaultSort?.order ?? "asc");
+	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0] ?? DEFAULT_ROWS_PER_PAGE);
 
-	const isSortable = (col: Column<T>) =>
-		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
-
-	const sorted = useMemo(() => {
-		const col = columns.find((c) => c.key === sortKey);
-		const accessor = col?.sortValue ?? (col?.field != null ? (r: T) => r[col.field!] : null);
-		if (!accessor) {
-			return rows;
-		}
-		const asc = [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return order === "desc" ? asc.reverse() : asc;
-	}, [rows, columns, sortKey, order]);
+	const sorted = useMemo(() => sortRows(rows), [rows, sortRows]);
 
 	// A narrowed result set (search, filters) starts again on the first page.
 	useEffect(() => {
@@ -85,11 +77,6 @@ export function DetailTable<T extends { id: string | number }>({
 	const visible = pagination
 		? sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 		: sorted;
-
-	const handleSort = (key: string) => {
-		setOrder(sortKey === key && order === "asc" ? "desc" : "asc");
-		setSortKey(key);
-	};
 
 	if (rows.length === 0) {
 		return (
@@ -108,7 +95,7 @@ export function DetailTable<T extends { id: string | number }>({
 					<thead>
 						<tr>
 							{columns.map((col) =>
-								isSortable(col) ? (
+								isSortableColumn(col) ? (
 									<DetailSortHeader
 										key={col.key}
 										col={col.key}
@@ -116,7 +103,7 @@ export function DetailTable<T extends { id: string | number }>({
 										tooltip={col.headerTooltip}
 										active={sortKey === col.key}
 										dir={order}
-										onSort={handleSort}
+										onSort={requestSort}
 										align={col.align === "right" ? "right" : "left"}
 										sx={{ width: col.width }}
 									/>
