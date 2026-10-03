@@ -67,8 +67,8 @@ interface Props {
 
 /**
  * «Последние транзакции» — a read-only preview of the latest sales/supplies (no
- * pagination, by design — it's a briefing, not a browser). A row click toasts
- * (self-contained mock, like the Долги rows). The full lists live on the dedicated
+ * pagination, by design — it's a briefing, not a browser). A row (click, or
+ * Enter/Space when focused) opens the sale/supply detail. The full lists live on the dedicated
  * pages; the prototype's «Все продажи / поставки / заказы» header links were
  * removed (owner decision) — this is a preview, not a navigation hub.
  */
@@ -123,7 +123,23 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 								component="tr"
 								key={r.id}
 								onClick={() => onOpen(r)}
-								sx={{ cursor: "pointer", "&:hover": { bgcolor: designTokens.gray25 } }}
+								onKeyDown={(e: React.KeyboardEvent) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										onOpen(r);
+									}
+								}}
+								tabIndex={0}
+								role="link"
+								sx={{
+									cursor: "pointer",
+									"&:hover": { bgcolor: designTokens.gray25 },
+									"&:focus-visible": {
+										outline: "2px solid",
+										outlineColor: "primary.main",
+										outlineOffset: "-2px",
+									},
+								}}
 							>
 								<Box
 									component="td"

@@ -21,7 +21,7 @@ import TopDebtorsPanel from "components/dashboard/TopDebtorsPanel";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
-import { partnerDetailPath, PATHS } from "routing/paths";
+import { partnerDetailPath, PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import { Box, CircularProgress, useTheme } from "@mui/material";
@@ -32,7 +32,7 @@ const DashboardPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const { dashboardStore, debtStore, notificationStore } = useStore();
+	const { dashboardStore, debtStore } = useStore();
 
 	const [salesType, setSalesType] = useState<ChartKind>("line");
 	const [paymentsType, setPaymentsType] = useState<ChartKind>("bar");
@@ -55,12 +55,7 @@ const DashboardPage: React.FC = observer(() => {
 	};
 
 	const onRecentRow = (tx: DashboardRecentTransaction): void => {
-		notificationStore.info(
-			t("dashboard.recent.open", {
-				type: t(tx.type === "Sale" ? "dashboard.recent.sale" : "dashboard.recent.supply"),
-				number: tx.id,
-			}),
-		);
+		navigate(tx.type === "Sale" ? saleDetailPath(tx.id) : supplyDetailPath(tx.id));
 	};
 
 	const onWelcomeStep = (step: WelcomeStep): void => {

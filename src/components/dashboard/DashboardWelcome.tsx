@@ -92,17 +92,28 @@ const DashboardWelcome: React.FC<Props> = ({ onStep }) => {
 				{steps.map((s, i) => (
 					<Box
 						key={s.key}
+						component="button"
+						type="button"
 						onClick={() => onStep(s.key)}
 						sx={{
 							display: "flex",
 							alignItems: "flex-start",
 							gap: "13px",
 							p: "16px",
+							width: "100%",
+							font: "inherit",
+							color: "inherit",
+							textAlign: "left",
 							border: "1px solid",
 							borderColor: "divider",
 							borderRadius: "8px",
 							bgcolor: "background.paper",
 							cursor: "pointer",
+							"&:focus-visible": {
+								outline: "2px solid",
+								outlineColor: "primary.main",
+								outlineOffset: "2px",
+							},
 							transition: "border-color .14s, box-shadow .14s, transform .14s",
 							"&:hover": {
 								borderColor: designTokens.primaryLine,
