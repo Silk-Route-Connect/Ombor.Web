@@ -14,7 +14,9 @@ import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import { buildPartnerDocumentRows } from "components/partner/PartnerDocumentActions";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
@@ -25,7 +27,7 @@ import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
-import { PATHS } from "routing/paths";
+import { partnerStatementPath, PATHS } from "routing/paths";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 
@@ -41,7 +43,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const partnerId = useRouteEntityId();
 	const [searchParams] = useSearchParams();
-	const { partnerStore, partnerLedgerStore } = useStore();
+	const { partnerStore, partnerLedgerStore, debtReminderStore } = useStore();
 
 	// Deep-link: a partner opened from Debts arrives with ?tab=transactions&status=open
 	// so it lands on the Транзакции tab pre-filtered to outstanding debt (B13/DBT-1).
@@ -124,13 +126,20 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const noHistory = partner.activityCount === 0;
 	const dialogMode = partnerStore.dialogMode;
 
-	const actions = buildPartnerActionRows(t, {
-		partner,
-		onEdit: () => partnerStore.openEdit(partner),
-		onArchive: () => partnerStore.openArchive(partner),
-		onRestore: () => partnerStore.openRestore(partner),
-		onDelete: handleDelete,
-	});
+	const actions = [
+		...buildPartnerDocumentRows(t, {
+			owesUs: partner.balance > 0,
+			onRemind: () => debtReminderStore.open(partner.id),
+			onStatement: () => navigate(partnerStatementPath(partner.id)),
+		}),
+		...buildPartnerActionRows(t, {
+			partner,
+			onEdit: () => partnerStore.openEdit(partner),
+			onArchive: () => partnerStore.openArchive(partner),
+			onRestore: () => partnerStore.openRestore(partner),
+			onDelete: handleDelete,
+		}).map((row, index) => (index === 0 ? { ...row, dividerBefore: true } : row)),
+	];
 
 	const tabs: DetailTabSpec<PartnerDetailTab>[] = [
 		{ key: "ledger", label: t("partner.tab.ledger"), count: ledger.length },
@@ -256,6 +265,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 			/>
 
 			<PartnerDialogs onArchived={reflect} onRestored={reflect} onDeleted={goBack} />
+			<DebtReminderDialog />
 		</Box>
 	);
 });

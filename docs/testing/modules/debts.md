@@ -5,7 +5,7 @@ Read with: [../README.md](../README.md) · [../shared-checklist.md](../shared-ch
 
 ## Surfaces
 
-- `/debts` (sidebar «Долги»). Read-only: no create button, no `⋮` menus, no row actions — correct, not a gap.
+- `/debts` (sidebar «Долги»). Read-only: no create button. The only row actions are the «По партнёрам» ⋮ — «Напомнить о долге» (rows where they owe us) and «Акт сверки»; «По транзакциям» rows have none.
 - `DebtSummaryCards` — 4 cards: «Нам должны» (green), «Мы должны» (red), «Просрочено» (orange, due-date overdue), «Итог расчётов» (color by sign). First three clickable (hover arrow), net card is not. Each carries a «N документов» pill (1 документ / 2–4 документа / 5+ документов) and a small «UZS» suffix.
 - `DebtTabs` — underline tabs «По партнёрам» / «По документам» with count pills; right-aligned legend swatches «нам должны» (green) / «мы должны» (red).
 - Toolbar — search «Поиск по партнёру или номеру…» (matches partner name, company, document-number substring); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней»); direction segmented «Все | Нам должны | Мы должны» (**transactions tab only** — absent on partners tab by design); clearable «Только просроченные» chip (appears only via the «Просрочено» card). «Экспорт» sits on the title row (pattern 11).
@@ -70,6 +70,11 @@ Expect: 1→ URL `/partners/<id>?tab=transactions&status=open`; partner detail o
 Pre: T-DBT-01+.
 Steps: 1. Transactions tab; direction «Нам должны»; search «QA-<MMDD>». 2. «Экспорт» (title row). 3. Switch to «По партнёрам», export again.
 Expect: file `debts_<datestamp>.csv`; headers №/Дата/Партнёр/Тип/Возраст (дней)/Сумма/Оплачено/Остаток — the table's column order; rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
+
+### T-DBT-09 · By-partner row ⋮: reminder and Акт сверки [happy]
+Pre: T-DBT-01+ («QA-<MMDD> Дебитор» owes us; a partner we owe exists).
+Steps: 1. Tab «По партнёрам» → ⋮ on the Дебитор row. 2. «Напомнить о долге». 3. Close; ⋮ on a red (we-owe) row. 4. «Акт сверки».
+Expect: 1→ the menu opens without opening the partner (row click suppressed); rows «Напомнить о долге» and «Акт сверки». 2→ the reminder modal of partners.md T-PRT-11 with the partner's served balance and its oldest unpaid date. 3→ only «Акт сверки» (no debt to remind about). 4→ `/partners/<id>/statement` for that partner; back returns to /debts.
 
 ## Edge & negative
 

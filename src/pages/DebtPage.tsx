@@ -9,6 +9,7 @@ import {
 	debtDocumentNumber,
 	debtDocumentPath,
 } from "components/debt/Table/transactionDebtTableConfigs";
+import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
 import ExportButton from "components/shared/Buttons/ExportButton";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
@@ -16,7 +17,7 @@ import TableToolbar from "components/shared/Table/TableToolbar";
 import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
-import { partnerDebtPath } from "routing/paths";
+import { partnerDebtPath, partnerStatementPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -28,7 +29,7 @@ import { Box } from "@mui/material";
 const DebtPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { debtStore } = useStore();
+	const { debtStore, debtReminderStore } = useStore();
 
 	useEffect(() => {
 		debtStore.getAll();
@@ -119,6 +120,8 @@ const DebtPage: React.FC = observer(() => {
 							groups={debtStore.partnerGroups}
 							anyFilter={anyFilter}
 							onOpen={(g) => navigate(partnerDebtPath(g.partnerId))}
+							onRemind={(g) => debtReminderStore.open(g.partnerId)}
+							onStatement={(g) => navigate(partnerStatementPath(g.partnerId))}
 						/>
 					) : (
 						// Keyed by the preset nonce so any summary-card click re-seeds the
@@ -135,6 +138,8 @@ const DebtPage: React.FC = observer(() => {
 					)}
 				</>
 			)}
+
+			<DebtReminderDialog />
 		</Box>
 	);
 });

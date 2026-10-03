@@ -19,6 +19,8 @@ export interface ISettingsStore {
 	saving: boolean;
 
 	load(): Promise<void>;
+	/** The business profile for documents (print header, debt reminder) — loaded once, kept current by saves. */
+	ensureOrganization(): Promise<Loadable<Organization | null>>;
 	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
 	updateLanguage(code: string): Promise<void>;
 	inviting: boolean;
@@ -77,6 +79,21 @@ export class SettingsStore implements ISettingsStore {
 			this.organization = toLoadable(org);
 			this.users = toLoadable(users);
 		});
+	}
+
+	async ensureOrganization(): Promise<Loadable<Organization | null>> {
+		if (isReady(this.organization)) {
+			return this.organization;
+		}
+		runInAction(() => (this.organization = "loading"));
+
+		const result = await tryRun(() => SettingsApi.getOrganization());
+		if (result.status === "fail") {
+			this.notificationStore.notifyLoadError(result, "settings.error.loadOrganization");
+		}
+
+		runInAction(() => (this.organization = toLoadable(result)));
+		return this.organization;
 	}
 
 	async saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean> {

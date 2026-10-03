@@ -6,7 +6,9 @@ import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEm
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
+import { DebtReminderStore, IDebtReminderStore } from "./DebtReminderStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
+import { IInvoicePrintStore, InvoicePrintStore } from "./InvoicePrintStore";
 import { NotificationStore } from "./NotificationStore";
 import { IOnboardingStore, OnboardingStore } from "./OnboardingStore";
 import { OrderStore } from "./OrderStore";
@@ -60,6 +62,8 @@ export class RootStore {
 	dashboardStore!: IDashboardStore;
 	onboardingStore!: IOnboardingStore;
 	settingsStore!: ISettingsStore;
+	invoicePrintStore!: IInvoicePrintStore;
+	debtReminderStore!: IDebtReminderStore;
 	connectivityStore: IConnectivityStore;
 
 	constructor() {
@@ -104,6 +108,8 @@ export class RootStore {
 		this.dashboardStore = new DashboardStore(this.notificationStore);
 		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
+		this.invoicePrintStore = new InvoicePrintStore(this.notificationStore);
+		this.debtReminderStore = new DebtReminderStore(this.settingsStore, this.notificationStore);
 	}
 }
 

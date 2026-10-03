@@ -234,5 +234,30 @@
   "partner.statistics.sales": "Продажи",
   "partner.statistics.saleRefunds": "Возврат продаж",
   "partner.statistics.supplies": "Поставки",
-  "partner.statistics.supplyRefunds": "Возврат поставок"
+  "partner.statistics.supplyRefunds": "Возврат поставок",
+
+  "partner.statement.action": "Акт сверки",
+
+  "partner.reminder.action": "Напомнить о долге",
+  "partner.reminder.title": "Напомнить о долге",
+  "partner.reminder.summary": "Долг: {{amount}}",
+  "partner.reminder.since": "с {{date}}",
+  "partner.reminder.to": "Кому: {{recipients}}",
+  "partner.reminder.noContacts": "У партнёра нет телефона и Telegram — выберите получателя в приложении",
+  "partner.reminder.textLabel": "Текст сообщения",
+  "partner.reminder.hint": "Ombor ничего не отправляет сам: сообщение уйдёт из вашего Telegram или с вашего телефона",
+  "partner.reminder.emptyText": "Текст сообщения пустой",
+  "partner.reminder.sms": "SMS",
+  "partner.reminder.telegram": "Отправить в Telegram",
+  "partner.reminder.copied": "Текст скопирован",
+  "partner.reminder.copyFailed": "Не удалось скопировать — выделите текст и скопируйте вручную",
+  "partner.reminder.pasteHint": "Текст также скопирован — если он не подставился, вставьте его в сообщение",
+  "partner.reminder.nothingOwed": "{{name}} сейчас ничего не должен — напоминать не о чем.",
+  "partner.reminder.error.load": "Не удалось подготовить напоминание",
+  "partner.reminder.text.greeting": "Здравствуйте, {{name}}!",
+  "partner.reminder.text.debt": "Напоминаем: ваш долг перед {{org}} — {{amount}}.",
+  "partner.reminder.text.since": "Долг числится с {{date}}.",
+  "partner.reminder.text.request": "Пожалуйста, оплатите его, когда вам будет удобно. Если вы уже оплатили — спасибо, просто не обращайте внимания на это сообщение.",
+  "partner.reminder.text.phone": "Вопросы — по телефону {{phone}}.",
+  "partner.reminder.text.signature": "С уважением, {{org}}"
 }

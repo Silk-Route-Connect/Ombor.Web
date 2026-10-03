@@ -10,12 +10,16 @@ export const PATHS = {
 	transfers: "/transfers",
 	partners: "/partners",
 	partnerDetail: "/partners/:id",
+	partnerStatement: "/partners/:id/statement",
 	orders: "/orders",
 	orderDetail: "/orders/:id",
+	orderInvoice: "/orders/:id/print",
 	sales: "/sales",
 	salesDetail: "/sales/:id",
+	salesInvoice: "/sales/:id/print",
 	supplies: "/supplies",
 	suppliesDetail: "/supplies/:id",
+	suppliesInvoice: "/supplies/:id/print",
 	templates: "/templates",
 	payments: "/payments",
 	debts: "/debts",
@@ -67,3 +71,21 @@ export const saleDetailPath = (id: number): string => `/sales/${id}`;
 
 /** Concrete detail route for a supply/supply-refund transaction. */
 export const supplyDetailPath = (id: number): string => `/supplies/${id}`;
+
+/** Printable invoice («Накладная») of a sale or sale refund. */
+export const saleInvoicePath = (id: number): string => `${saleDetailPath(id)}/print`;
+
+/** Printable invoice («Накладная») of a supply or supply refund. */
+export const supplyInvoicePath = (id: number): string => `${supplyDetailPath(id)}/print`;
+
+/** Printable invoice («Накладная») of an order. */
+export const orderInvoicePath = (id: number): string => `${orderDetailPath(id)}/print`;
+
+/**
+ * Printable reconciliation statement («Акт сверки») of a partner. Without a
+ * period the page opens on its default (start of the year → today).
+ */
+export const partnerStatementPath = (id: number, period?: { from: string; to: string }): string =>
+	period
+		? `${partnerDetailPath(id)}/statement?from=${period.from}&to=${period.to}`
+		: `${partnerDetailPath(id)}/statement`;

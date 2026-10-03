@@ -2,6 +2,7 @@
   "settings.title": "Настройки",
 
   "settings.error.load": "Не удалось загрузить настройки",
+  "settings.error.loadOrganization": "Не удалось загрузить данные организации",
   "settings.error.save": "Не удалось сохранить настройки",
   "settings.saved": "Настройки сохранены",
 

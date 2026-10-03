@@ -125,6 +125,20 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 | `LoadStateView`                       | Everything that is not data: loading, failed load, not found | `components/shared/LoadState/`. Takes the not-ready `Loadable` state: spinner · error (reason from the `LoadError` kind) with «Повторить» · not-found with «К списку». `size` `page` (own card) or `section` (table body / tab / modal). `DataTable` / `ExpandableDataTable` render it for non-ready `rows` (`onRetry`, `errorTitle`) |
 | `StateMessage`                        | Icon tile + title + line + action body of `LoadStateView` | Same folder; use through `LoadStateView` or `TableEmptyState`, not directly    |
 
+## Printable documents (`components/shared/Print/` — rules in conventions.md → Printable documents)
+
+| Component | Use for | Notes |
+| --- | --- | --- |
+| `PrintLayout` | The page of every printable document | Screen toolbar (back · title · optional `toolbar` controls · «Печать» · «Сохранить как PDF» hint) above an A4 sheet preview; sets `@page` A4 + margins. On paper only the sheet prints (AppLayout hides its chrome under `@media print`) |
+| `PrintOrganizationGate` | Waiting for the business profile | Render-prop: `ensureOrganization()` on mount, `LoadStateView` until the profile is loaded, then `children(organization)` — no document prints without its issuer |
+| `PrintDocHeader` | Top of a document | Business block (logo · name · address · phone · email) over a rule, centered title + subtitle lines (date, period, references) |
+| `PrintParties` | Parties of a document | Side-by-side caption · name · contact lines (empty lines skipped) — «Отправитель / Получатель», «Организация / Партнёр» |
+| `PrintTable` | Every table on paper | A bordered real `<table>`: header row repeats on each page, rows never split; `leadRows` / `summaryRows` (opening balance, turnover, totals) with the label spanning the leading columns. Never on screens — screens use `DataTable` / `DetailTable` |
+| `PrintTotals` | Totals under a document's table | Right-hand label · amount rows (`strong` = the headline total, ruled above) + an optional left note |
+| `PrintSignatures` | Signature area | One block per side: caption («Отпустил», «От организации»), name, signature + name lines, «М.П.» |
+| `InvoiceSheet` (+ `InvoiceLinesTable`) | The «Накладная» of a sale, supply, refund or order | Renders an `InvoiceDocument` (`utils/invoiceDocument` — `invoiceFromTransaction` / `invoiceFromOrder` / `invoiceTitle`): sender / receiver by goods direction, lines, discount and payment totals (no payment block on refunds and orders), «Отпустил / Получил» |
+| `printStyles` | Shared paper styling | `PRINT_PAGE_MARGIN`, `PRINT_RULE_COLOR`, `printSheetSx`, `printCaptionSx`, `printNumberSx` |
+
 
 ## Shared non-component units (rules live in `conventions.md`)
 

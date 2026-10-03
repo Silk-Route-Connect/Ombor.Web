@@ -96,6 +96,15 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 - **Detail-embedded tables** use `DetailTable` (the `detailTableChrome` look: warm header band + a total band or a pager), not the list `DataTable`, with the same shared cells as lists (Tables above). Domain logic (e.g. the partner ledger's running balance) stays in the feature — the chrome styles, it doesn't compute.
 - `Selected<Module>Store` holds the open entity + child collections for the detail page (as above).
 
+## Printable documents
+
+- **A document is a routed print view**, not a file generator: `/<module>/:id/print` (invoices) or `/partners/:id/statement?from&to` (Акт сверки), declared in `routing/paths.ts`. Output is the browser's own print dialog — «Печать», or «Сохранить как PDF» there. No PDF / image libraries, no «Скачать» stubs, no «Готовится PDF…» promises.
+- **Built from the shared print kit** (`components/shared/Print/`, indexed in shared-components.md): `PrintLayout` (screen toolbar + A4 sheet, `@page` A4 margins) → `PrintOrganizationGate` (the business header must load first) → `PrintDocHeader` · `PrintParties` · `PrintTable` · `PrintTotals` · `PrintSignatures`. A new document composes these; it never restyles them or hand-rolls a `<table>`.
+- **On paper only the sheet prints.** `AppLayout` hides the sidebar and top bar under `@media print` and stops clipping the scroll area; anything screen-only on a print view (period pickers, hints) sits in the `PrintLayout` toolbar, which never prints.
+- **Data, then paper.** A store or pure util maps the served records into a document model (`InvoiceDocument`, `PartnerStatement`); the sheet only renders. Every figure is served — balances, totals and running balances are read, never recomputed (hard rule 8); only period turnover may be summed for a totals row.
+- **Plain words, paper conventions.** Titles name the document and its № («Накладная на продажу №12», «Акт сверки взаиморасчётов»), parties are «Отправитель / Получатель» with «Отпустил / Получил» signatures and «М.П.»; an Акт сверки keeps the accounting Дебет / Кредит columns (the partner's accountant reads it too) but states the result in a plain sentence («На 04.10.2026 Партнёр должен Ombor 50 000 UZS»).
+- The entry point is a ⋮ row («Печать накладной», «Акт сверки») — a visible header button only where pattern 2 already leaves the slot free (a refund detail).
+
 ## Styling
 
 - `src/theme/` is the **only** styling source: colours, typography, spacing, radii, chip colours (values mirrored in `docs/design-tokens.md`). Import tokens `from "theme"`. No colour literals outside it — no hex, `rgb()/rgba()`, or `"#fff"` (use `"common.white"`, palette paths like `"success.main"`, or `designTokens.*`); lint flags them. No magic pixel values where a token exists (`radius.*`, `controlSize`, `dialogPaperSx`).

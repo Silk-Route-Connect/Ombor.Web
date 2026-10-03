@@ -16,7 +16,7 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
+import { orderInvoicePath, partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -28,7 +28,7 @@ const OrderDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const orderId = useRouteEntityId();
-	const { orderStore, notificationStore } = useStore();
+	const { orderStore } = useStore();
 
 	// The page reads the orders cache; a cache that is still empty or failed is (re)fetched.
 	useEffect(() => {
@@ -70,7 +70,7 @@ const OrderDetailPage: React.FC = observer(() => {
 				onCancel={orderStore.openCancel}
 				onReject={orderStore.openReject}
 				onReturn={orderStore.openReturn}
-				onDownload={() => notificationStore.info(t("order.detail.downloadInfo"))}
+				onPrint={() => navigate(orderInvoicePath(order.id))}
 			/>
 
 			<OrderStepper order={order} />

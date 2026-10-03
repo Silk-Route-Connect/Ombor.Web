@@ -12,6 +12,7 @@ import orderRu from "./ru/order.json";
 import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
 import payrollRu from "./ru/payroll.json";
+import printRu from "./ru/print.json";
 import productRu from "./ru/product.json";
 import settingsRu from "./ru/settings.json";
 import stockAdjustmentRu from "./ru/stockAdjustment.json";
@@ -75,6 +76,7 @@ const resources = {
 			...dashboardRu,
 			...onboardingRu,
 			...settingsRu,
+			...printRu,
 		},
 	},
 	uz: {

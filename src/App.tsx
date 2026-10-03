@@ -7,6 +7,7 @@ import DashboardPage from "pages/DashboardPage";
 import DebtPage from "pages/DebtPage";
 import EmployeeDetailPage from "pages/EmployeeDetailPage";
 import EmployeePage from "pages/EmployeePage";
+import InvoicePrintPage from "pages/InvoicePrintPage";
 import LoginPage from "pages/LoginPage";
 import NewOrderPage from "pages/NewOrderPage";
 import NewSalePage from "pages/NewSalePage";
@@ -16,6 +17,7 @@ import OrderDetailPage from "pages/OrderDetailPage";
 import OrderPage from "pages/OrderPage";
 import PartnerDetailPage from "pages/PartnerDetailPage";
 import PartnerPage from "pages/PartnerPage";
+import PartnerStatementPage from "pages/PartnerStatementPage";
 import PaymentDetailPage from "pages/PaymentDetailPage";
 import PaymentPage from "pages/PaymentPage";
 import PlaceholderPage from "pages/PlaceholderPage";
@@ -84,18 +86,25 @@ function App() {
 								<Route path={PATHS.transfers} element={<TransferPage />} />
 								<Route path={PATHS.partners} element={<PartnerPage />} />
 								<Route path={PATHS.partnerDetail} element={<PartnerDetailPage />} />
+								<Route path={PATHS.partnerStatement} element={<PartnerStatementPage />} />
 								<Route path={PATHS.orders} element={<OrderPage />} />
 								<Route path={PATHS.orderDetail} element={<OrderDetailPage />} />
+								<Route path={PATHS.orderInvoice} element={<InvoicePrintPage source="Order" />} />
 								<Route path={PATHS.supplies} element={<TransactionPage mode="Supply" />} />
 								<Route
 									path={PATHS.suppliesDetail}
 									element={<TransactionDetailPage direction="Supply" />}
+								/>
+								<Route
+									path={PATHS.suppliesInvoice}
+									element={<InvoicePrintPage source="Supply" />}
 								/>
 								<Route path={PATHS.sales} element={<TransactionPage mode="Sale" />} />
 								<Route
 									path={PATHS.salesDetail}
 									element={<TransactionDetailPage direction="Sale" />}
 								/>
+								<Route path={PATHS.salesInvoice} element={<InvoicePrintPage source="Sale" />} />
 								<Route path={PATHS.templates} element={<TemplatePage />} />
 								<Route path={PATHS.payments} element={<PaymentPage />} />
 								<Route path={`${PATHS.payments}/:id`} element={<PaymentDetailPage />} />

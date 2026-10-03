@@ -7,7 +7,7 @@ import { DebtPartnerGroup } from "stores/DebtStore";
 
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 
-import { buildPartnerDebtColumns } from "./partnerDebtTableConfigs";
+import { buildPartnerDebtColumns, PartnerDebtRowHandlers } from "./partnerDebtTableConfigs";
 import { buildTransactionDebtColumns, DebtRow } from "./transactionDebtTableConfigs";
 
 const DebtEmptyState: React.FC<{ anyFilter: boolean }> = ({ anyFilter }) => {
@@ -21,7 +21,7 @@ const DebtEmptyState: React.FC<{ anyFilter: boolean }> = ({ anyFilter }) => {
 	);
 };
 
-interface PartnerDebtTableProps {
+interface PartnerDebtTableProps extends PartnerDebtRowHandlers {
 	groups: DebtPartnerGroup[];
 	anyFilter: boolean;
 	onOpen: (group: DebtPartnerGroup) => void;
@@ -32,9 +32,14 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 	groups,
 	anyFilter,
 	onOpen,
+	onRemind,
+	onStatement,
 }) => {
 	const { t } = useTranslation();
-	const columns = useMemo(() => buildPartnerDebtColumns(t), [t]);
+	const columns = useMemo(
+		() => buildPartnerDebtColumns(t, { onRemind, onStatement }),
+		[t, onRemind, onStatement],
+	);
 
 	return (
 		<DataTable<DebtPartnerGroup>

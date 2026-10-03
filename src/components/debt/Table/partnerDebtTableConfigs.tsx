@@ -1,6 +1,8 @@
 import React from "react";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import { buildPartnerDocumentRows } from "components/partner/PartnerDocumentActions";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
 import StatusPill from "components/shared/Chip/StatusPill";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import DateCell from "components/shared/Table/cells/DateCell";
@@ -8,18 +10,28 @@ import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import { TFunction } from "i18next";
 import { DebtPartnerGroup } from "stores/DebtStore";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box } from "@mui/material";
 
+export interface PartnerDebtRowHandlers {
+	onRemind: (group: DebtPartnerGroup) => void;
+	onStatement: (group: DebtPartnerGroup) => void;
+}
+
 /**
  * By-partner debt columns (conventions.md → Tables): Партнёр · Тип · Документов
- * · Самый старый · Сумма. The sum is a direction amount: green when they owe us,
- * red when we owe them, unsigned (pattern 4).
+ * · Самый старый · Сумма · ⋮. The sum is a direction amount: green when they owe
+ * us, red when we owe them, unsigned (pattern 4). The ⋮ offers the reminder
+ * (only when they owe us) and the Акт сверки.
  */
-export function buildPartnerDebtColumns(t: TFunction): Column<DebtPartnerGroup>[] {
+export function buildPartnerDebtColumns(
+	t: TFunction,
+	handlers: PartnerDebtRowHandlers,
+): Column<DebtPartnerGroup>[] {
 	return [
 		{
 			key: "partner",
@@ -74,6 +86,21 @@ export function buildPartnerDebtColumns(t: TFunction): Column<DebtPartnerGroup>[
 			sortValue: (g) => Math.abs(g.sum),
 			renderCell: (g) => (
 				<MoneyCell value={Math.abs(g.sum)} main tone={g.sum > 0 ? "income" : "expense"} />
+			),
+		},
+		{
+			key: "actions",
+			headerName: "",
+			align: "right",
+			width: ACTIONS_COLUMN_WIDTH,
+			renderCell: (g) => (
+				<ActionMenu
+					actions={buildPartnerDocumentRows(t, {
+						owesUs: g.sum > 0,
+						onRemind: () => handlers.onRemind(g),
+						onStatement: () => handlers.onStatement(g),
+					})}
+				/>
 			),
 		},
 	];
