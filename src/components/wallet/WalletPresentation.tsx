@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import { WalletType } from "models/wallet";
-import { designTokens } from "theme";
+import { ChipTokenKey, chipTokens, designTokens, radius } from "theme";
 
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
@@ -9,36 +10,20 @@ import LocalAtmOutlinedIcon from "@mui/icons-material/LocalAtmOutlined";
 import { Box, SvgIconProps } from "@mui/material";
 
 /**
- * Per-type presentation for wallets, mirroring the bundle's `.wtype` / `.wname-ic`
- * tints: Cash → success (green), Card → primary (teal), Bank → info (blue). The
- * label key resolves to «Наличные / Карта / Банк». Shared by the list, detail,
- * type segmented control and the transfer wallet picker.
+ * Per-type presentation for wallets: Cash green, Card teal, Bank blue. The label
+ * key resolves to «Наличные / Карта / Банк». Shared by the list, detail, type
+ * segmented control and the transfer wallet picker.
  */
 export const WALLET_TYPE_META: Record<
 	WalletType,
-	{ labelKey: string; color: string; bg: string; Icon: React.FC<SvgIconProps> }
+	{ labelKey: string; token: ChipTokenKey; Icon: React.FC<SvgIconProps> }
 > = {
-	Cash: {
-		labelKey: "wallet.type.cash",
-		color: "#17835A",
-		bg: designTokens.successBg,
-		Icon: LocalAtmOutlinedIcon,
-	},
-	Card: {
-		labelKey: "wallet.type.card",
-		color: "#12676B",
-		bg: designTokens.primarySoft,
-		Icon: CreditCardOutlinedIcon,
-	},
-	Bank: {
-		labelKey: "wallet.type.bank",
-		color: "#2A6F97",
-		bg: designTokens.infoBg,
-		Icon: AccountBalanceOutlinedIcon,
-	},
+	Cash: { labelKey: "wallet.type.cash", token: "success", Icon: LocalAtmOutlinedIcon },
+	Card: { labelKey: "wallet.type.card", token: "teal", Icon: CreditCardOutlinedIcon },
+	Bank: { labelKey: "wallet.type.bank", token: "info", Icon: AccountBalanceOutlinedIcon },
 };
 
-/** Tinted, rounded icon tile for a wallet (the `.wname-ic` square). */
+/** Tinted, rounded icon tile for a wallet (archived wallets render neutral). */
 export const WalletTypeAvatar: React.FC<{
 	type: WalletType;
 	size?: number;
@@ -46,6 +31,7 @@ export const WalletTypeAvatar: React.FC<{
 	archived?: boolean;
 }> = ({ type, size = 36, iconSize = 18, archived = false }) => {
 	const meta = WALLET_TYPE_META[type];
+	const tk = chipTokens[archived ? "neutral" : meta.token];
 	const Icon = meta.Icon;
 	return (
 		<Box
@@ -53,11 +39,11 @@ export const WalletTypeAvatar: React.FC<{
 				width: size,
 				height: size,
 				flex: "0 0 auto",
-				borderRadius: "9px",
+				borderRadius: `${radius.md}px`,
 				display: "inline-grid",
 				placeItems: "center",
-				bgcolor: archived ? designTokens.gray100 : meta.bg,
-				color: archived ? designTokens.gray500 : meta.color,
+				bgcolor: tk.bg,
+				color: archived ? designTokens.fg3 : tk.color,
 			}}
 		>
 			<Icon sx={{ fontSize: iconSize }} />
@@ -65,32 +51,9 @@ export const WalletTypeAvatar: React.FC<{
 	);
 };
 
-/** Pill badge with the wallet type icon + label (the `.wtype` chip). */
+/** Wallet type pill with its icon. */
 export const WalletTypeBadge: React.FC<{ type: WalletType }> = ({ type }) => {
 	const { t } = useTranslation();
 	const meta = WALLET_TYPE_META[type];
-	const Icon = meta.Icon;
-	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "6px",
-				pl: "8px",
-				pr: "10px",
-				py: "3px",
-				borderRadius: "999px",
-				fontSize: 12.5,
-				fontWeight: 600,
-				lineHeight: 1,
-				whiteSpace: "nowrap",
-				bgcolor: meta.bg,
-				color: meta.color,
-			}}
-		>
-			<Icon sx={{ fontSize: 14 }} />
-			{t(meta.labelKey)}
-		</Box>
-	);
+	return <StatusPill token={meta.token} icon={meta.Icon} label={t(meta.labelKey)} />;
 };

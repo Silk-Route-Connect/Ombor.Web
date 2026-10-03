@@ -2,13 +2,14 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
-import { designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 
 interface PaymentSummaryStripProps {
 	summary: PaymentSummary;
@@ -44,8 +45,14 @@ const Card: React.FC<{
 }) => (
 	<Paper
 		elevation={1}
+		component={clickable ? ButtonBase : "div"}
 		onClick={onClick}
+		aria-pressed={clickable ? Boolean(active) : undefined}
 		sx={{
+			width: "100%",
+			justifyContent: "flex-start",
+			textAlign: "left",
+			fontFamily: "inherit",
 			position: "relative",
 			display: "flex",
 			alignItems: "center",
@@ -102,7 +109,7 @@ const Card: React.FC<{
 				sx={{
 					...numericSx,
 					fontSize: 24,
-					fontWeight: 800,
+					fontWeight: 700,
 					letterSpacing: "-0.02em",
 					mt: "3px",
 					lineHeight: 1.1,
@@ -144,9 +151,9 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 			}}
 		>
 			<Card
-				icon={<SouthEastIcon sx={{ fontSize: 21 }} />}
-				iconBg={designTokens.successBg}
-				iconColor="#17835A"
+				icon={<ArrowDownwardIcon sx={{ fontSize: 21 }} />}
+				iconBg={chipTokens.income.bg}
+				iconColor={chipTokens.income.color}
 				caption={t("payment.summary.income")}
 				value={
 					<>
@@ -161,9 +168,9 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				onClick={() => onToggle("Income")}
 			/>
 			<Card
-				icon={<NorthEastIcon sx={{ fontSize: 21 }} />}
-				iconBg={designTokens.errorBg}
-				iconColor="#C53D31"
+				icon={<ArrowUpwardIcon sx={{ fontSize: 21 }} />}
+				iconBg={chipTokens.expense.bg}
+				iconColor={chipTokens.expense.color}
 				caption={t("payment.summary.expense")}
 				value={
 					<>
@@ -179,8 +186,8 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 			/>
 			<Card
 				icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 20 }} />}
-				iconBg={designTokens.primarySoft}
-				iconColor="#12676B"
+				iconBg={chipTokens.teal.bg}
+				iconColor={chipTokens.teal.color}
 				caption={t("payment.summary.count")}
 				value={summary.count}
 			/>

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import { PartnerLedgerEntry, PartnerLedgerStatus } from "models/partner";
@@ -14,7 +15,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box } from "@mui/material";
 
-import { bodyCellSx, EmptyRecords, headCellSx, SoftChip } from "./detailTable";
+import { bodyCellSx, EmptyRecords, headCellSx } from "./detailTable";
 import DetailTableCard from "./DetailTableCard";
 import FilterDropdown from "./FilterDropdown";
 import { DETAIL_ROWS_PER_PAGE_OPTIONS, useDetailTablePage } from "./ledgerHelpers";
@@ -23,12 +24,6 @@ import { EventCell, eventLabelKey } from "./ledgerMeta";
 type TypeFilter = "all" | "sale" | "supply" | "refund";
 type StatusFilter = "all" | "open" | "paid" | "partial" | "unpaid";
 type SortCol = "date" | "type" | "number" | "positions" | "amount" | "status";
-
-const STATUS_TONE: Record<"paid" | "partial" | "unpaid", "success" | "warning" | "error"> = {
-	paid: "success",
-	partial: "warning",
-	unpaid: "error",
-};
 
 interface TransactionsTabProps {
 	transactions: PartnerLedgerEntry[];
@@ -124,7 +119,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				</Box>
 			);
 		}
-		return <SoftChip tone={STATUS_TONE[s]} label={t(`partner.txns.status.${s}`)} />;
+		return <PaymentStatusChip status={s} />;
 	};
 
 	const handleExport = () => {

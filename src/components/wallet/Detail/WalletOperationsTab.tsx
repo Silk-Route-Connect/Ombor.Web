@@ -2,13 +2,14 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { PAYMENT_TYPE_META, PaymentTypeBadge } from "components/payment/PaymentPresentation";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableToolbar from "components/shared/Table/TableToolbar";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { entityNumberSortValue } from "utils/formatEntityId";
@@ -30,26 +31,6 @@ interface WalletOperationsTabProps {
 
 /** Keep the partner link from also firing the row's open-detail click. */
 const stop = (e: React.MouseEvent) => e.stopPropagation();
-
-const TypeChip: React.FC<{ label: string }> = ({ label }) => (
-	<Box
-		component="span"
-		sx={{
-			display: "inline-flex",
-			alignItems: "center",
-			px: "9px",
-			py: "2px",
-			borderRadius: "999px",
-			fontSize: 12,
-			fontWeight: 600,
-			bgcolor: "grey.100",
-			color: designTokens.gray700,
-			whiteSpace: "nowrap",
-		}}
-	>
-		{label}
-	</Box>
-);
 
 /**
  * The «Операции» tab on the shared DataTable (warm band, sortable columns,
@@ -137,7 +118,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 					o.paymentType && PAYMENT_TYPE_META[o.paymentType] ? (
 						<PaymentTypeBadge type={o.paymentType} />
 					) : (
-						<TypeChip label={typeLabel(o)} />
+						<StatusPill token="neutral" label={typeLabel(o)} />
 					),
 			},
 			{

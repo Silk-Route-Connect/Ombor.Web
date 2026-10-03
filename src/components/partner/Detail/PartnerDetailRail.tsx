@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
@@ -271,22 +272,8 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 							>
 								{phone}
 								{i === 0 && phones.length > 1 && (
-									<Box
-										component="span"
-										sx={{
-											ml: "8px",
-											fontSize: 10.5,
-											fontWeight: 600,
-											color: "primary.main",
-											bgcolor: "primary.light",
-											border: "1px solid",
-											borderColor: designTokens.primaryLine,
-											px: "7px",
-											py: "1px",
-											borderRadius: "999px",
-										}}
-									>
-										{t("partner.detail.contactPrimary")}
+									<Box component="span" sx={{ ml: 1 }}>
+										<StatusPill token="teal" label={t("partner.detail.contactPrimary")} />
 									</Box>
 								)}
 							</ContactRow>

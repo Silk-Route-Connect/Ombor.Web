@@ -5,11 +5,13 @@ import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import LocalAtmOutlinedIcon from "@mui/icons-material/LocalAtmOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, ButtonBase, Paper, Typography, useTheme } from "@mui/material";
 
 import { staggerChildrenSx, useCountUp, usePrefersReducedMotion } from "./motion";
 
@@ -24,7 +26,8 @@ type CardSpec = {
 	/** UZS unit suffix, when the value is a plain money amount. */
 	unit?: boolean;
 	valueColor: string;
-	sparkColor: string;
+	/** Palette family of the sparkline stroke. */
+	spark: "primary" | "success" | "error";
 	trend: number[];
 	delta: Delta;
 	footnote: string;
@@ -38,7 +41,7 @@ const DeltaBadge: React.FC<{ delta: Delta }> = ({ delta }) => {
 			: delta.tone === "down"
 				? "error.main"
 				: delta.tone === "warn"
-					? "warning.main"
+					? "error.main"
 					: "text.secondary";
 	const icon =
 		delta.tone === "warn" ? (
@@ -62,12 +65,18 @@ const DeltaBadge: React.FC<{ delta: Delta }> = ({ delta }) => {
 const KpiCard: React.FC<{ spec: CardSpec }> = ({ spec }) => {
 	const animated = useCountUp(spec.value);
 	const reduced = usePrefersReducedMotion();
+	const theme = useTheme();
 
 	return (
 		<Paper
 			elevation={1}
+			component={ButtonBase}
 			onClick={spec.onClick}
 			sx={{
+				display: "block",
+				width: "100%",
+				textAlign: "left",
+				fontFamily: "inherit",
 				position: "relative",
 				minWidth: 0,
 				border: "1px solid",
@@ -104,7 +113,7 @@ const KpiCard: React.FC<{ spec: CardSpec }> = ({ spec }) => {
 					display: "flex",
 					alignItems: "center",
 					gap: "7px",
-					fontSize: 12.5,
+					fontSize: 13,
 					color: "text.secondary",
 				}}
 			>
@@ -162,7 +171,7 @@ const KpiCard: React.FC<{ spec: CardSpec }> = ({ spec }) => {
 						<Line
 							type="monotone"
 							dataKey="value"
-							stroke={spec.sparkColor}
+							stroke={theme.palette[spec.spark].main}
 							strokeWidth={2}
 							dot={false}
 							isAnimationActive={!reduced}
@@ -212,7 +221,7 @@ const DashboardKpiCards: React.FC<Props> = ({
 			value: data.revenue.value,
 			unit: true,
 			valueColor: "text.primary",
-			sparkColor: "#12676B",
+			spark: "primary",
 			trend: data.revenue.trend,
 			delta: {
 				pct: data.revenue.deltaPct,
@@ -224,11 +233,11 @@ const DashboardKpiCards: React.FC<Props> = ({
 		},
 		{
 			key: "receivable",
-			icon: <NorthEastIcon sx={{ fontSize: 15 }} />,
+			icon: <ArrowDownwardIcon sx={{ fontSize: 15 }} />,
 			caption: t("dashboard.kpi.receivable"),
 			value: data.receivable.value,
 			valueColor: "success.main",
-			sparkColor: "#17835A",
+			spark: "success",
 			trend: data.receivable.trend,
 			delta: {
 				pct: data.receivable.deltaPct,
@@ -240,11 +249,11 @@ const DashboardKpiCards: React.FC<Props> = ({
 		},
 		{
 			key: "payable",
-			icon: <SouthEastIcon sx={{ fontSize: 15 }} />,
+			icon: <ArrowUpwardIcon sx={{ fontSize: 15 }} />,
 			caption: t("dashboard.kpi.payable"),
 			value: data.payable.value,
 			valueColor: "error.main",
-			sparkColor: "#C53D31",
+			spark: "error",
 			trend: data.payable.trend,
 			delta: {
 				pct: data.payable.deltaPct,
@@ -260,8 +269,8 @@ const DashboardKpiCards: React.FC<Props> = ({
 			caption: t("dashboard.kpi.overdue"),
 			value: data.overdue.value,
 			unit: true,
-			valueColor: "warning.main",
-			sparkColor: "#C57E14",
+			valueColor: "error.main",
+			spark: "error",
 			trend: data.overdue.trend,
 			delta: {
 				pct: null,

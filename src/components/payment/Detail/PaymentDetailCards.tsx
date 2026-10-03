@@ -8,7 +8,7 @@ import WalletLink from "components/wallet/Links/WalletLink";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { PaymentAllocationKind, PaymentRecord } from "models/payment";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
-import { designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
@@ -59,8 +59,8 @@ export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ paymen
 										borderRadius: "10px",
 										display: "grid",
 										placeItems: "center",
-										bgcolor: meta?.bg ?? designTokens.accentSoft,
-										color: meta?.color ?? designTokens.saffron700,
+										bgcolor: chipTokens[meta?.token ?? "saffron"].bg,
+										color: chipTokens[meta?.token ?? "saffron"].color,
 									}}
 								>
 									<Icon sx={{ fontSize: 18 }} />
@@ -280,7 +280,7 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 					t("payment.detail.salary"),
 					<Box component="span" sx={numericSx}>
 						{formatCurrency(payment.salary ?? 0)}{" "}
-						<small style={{ fontSize: 11, color: designTokens.gray400 }}>UZS</small>
+						<small style={{ fontSize: 11, color: designTokens.fg3 }}>UZS</small>
 					</Box>,
 				)}
 				<Box sx={{ p: "15px 18px", gridColumn: "1 / -1", borderRight: "none !important" }}>

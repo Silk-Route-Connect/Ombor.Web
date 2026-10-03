@@ -1,6 +1,6 @@
 import React from "react";
 
-import { alpha, Box, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 export {
 	detailBodyCellSx as bodyCellSx,
@@ -39,57 +39,5 @@ export const EmptyRecords: React.FC<{ icon: React.ReactNode; title: string; body
 		<Typography sx={{ fontSize: 13, color: "text.secondary", maxWidth: 360, lineHeight: 1.55 }}>
 			{body}
 		</Typography>
-	</Box>
-);
-
-type StatusTone = "success" | "warning" | "error";
-
-/** Soft status pill (bundle `.chip-soft`) for transaction payment status. */
-export const SoftChip: React.FC<{ tone: StatusTone; label: string }> = ({ tone, label }) => {
-	const theme = useTheme();
-	const color = theme.palette[tone].main;
-	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				px: "8px",
-				py: "2px",
-				borderRadius: "999px",
-				fontSize: 11,
-				fontWeight: 600,
-				whiteSpace: "nowrap",
-				color,
-				bgcolor: alpha(color, 0.12),
-				border: "1px solid",
-				borderColor: alpha(color, 0.24),
-			}}
-		>
-			{label}
-		</Box>
-	);
-};
-
-/** Neutral soft pill (bundle `.chip-soft.chip-neutral`) for payment method. */
-export const NeutralChip: React.FC<{ label: string }> = ({ label }) => (
-	<Box
-		component="span"
-		sx={{
-			display: "inline-flex",
-			alignItems: "center",
-			px: "8px",
-			py: "2px",
-			borderRadius: "999px",
-			fontSize: 11,
-			fontWeight: 600,
-			whiteSpace: "nowrap",
-			color: "text.secondary",
-			bgcolor: "grey.100",
-			border: "1px solid",
-			borderColor: "divider",
-		}}
-	>
-		{label}
 	</Box>
 );

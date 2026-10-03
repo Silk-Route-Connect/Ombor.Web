@@ -11,12 +11,12 @@ interface WalletDetailStatsProps {
 }
 
 const Stat: React.FC<{
+	/** Palette path of the left accent bar and caption dot. */
 	accent: string;
-	dot: string;
 	caption: string;
 	value: string;
 	valueColor: string;
-}> = ({ accent, dot, caption, value, valueColor }) => (
+}> = ({ accent, caption, value, valueColor }) => (
 	<Paper
 		elevation={1}
 		sx={{
@@ -42,19 +42,19 @@ const Stat: React.FC<{
 				display: "flex",
 				alignItems: "center",
 				gap: "8px",
-				fontSize: 12.5,
+				fontSize: 13,
 				fontWeight: 600,
 				color: "text.secondary",
 			}}
 		>
-			<Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: dot }} />
+			<Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: accent }} />
 			{caption}
 		</Box>
 		<Typography
 			sx={{
 				...numericSx,
 				fontSize: 26,
-				fontWeight: 800,
+				fontWeight: 700,
 				letterSpacing: "-0.025em",
 				lineHeight: 1,
 				mt: "10px",
@@ -64,7 +64,7 @@ const Stat: React.FC<{
 			{value}
 			<Box
 				component="span"
-				sx={{ fontSize: 12.5, fontWeight: 600, color: "text.disabled", ml: "6px" }}
+				sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "6px" }}
 			>
 				UZS
 			</Box>
@@ -86,22 +86,19 @@ export const WalletDetailStats: React.FC<WalletDetailStatsProps> = ({ wallet }) 
 			}}
 		>
 			<Stat
-				accent="#12676B"
-				dot="#12676B"
+				accent="primary.main"
 				caption={t("wallet.detail.stats.balance")}
 				value={formatCurrency(wallet.balance)}
 				valueColor="primary.main"
 			/>
 			<Stat
-				accent="#17835A"
-				dot="#17835A"
+				accent="success.main"
 				caption={t("wallet.detail.stats.ourMoney")}
 				value={formatCurrency(wallet.ourMoney)}
 				valueColor="success.main"
 			/>
 			<Stat
-				accent="#D88A1E"
-				dot="#D88A1E"
+				accent="secondary.main"
 				caption={t("wallet.detail.stats.advances")}
 				value={formatCurrency(wallet.advancesHeld)}
 				valueColor={designTokens.saffron700}

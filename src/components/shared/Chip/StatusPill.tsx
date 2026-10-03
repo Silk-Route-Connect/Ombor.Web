@@ -1,8 +1,7 @@
 import React from "react";
 import { ChipTokenKey, chipTokens, radius } from "theme";
 
-import { SvgIconComponent } from "@mui/icons-material";
-import { Box } from "@mui/material";
+import { Box, SvgIconProps } from "@mui/material";
 
 export type StatusPillSize = "sm" | "md";
 
@@ -10,7 +9,7 @@ interface StatusPillProps {
 	/** Colour semantics — a `chipTokens` key; never an inline colour. */
 	token: ChipTokenKey;
 	label: React.ReactNode;
-	icon?: SvgIconComponent;
+	icon?: React.ComponentType<SvgIconProps>;
 	/** `sm` (default) for table cells and cards; `md` for detail headers / hero cards. */
 	size?: StatusPillSize;
 	/** Struck-through label (e.g. a cancelled order). */

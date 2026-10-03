@@ -52,11 +52,6 @@
   "dashboard.recent.total": "Сумма",
   "dashboard.recent.paid": "Оплачено",
   "dashboard.recent.statusCol": "Статус",
-  "dashboard.recent.sale": "Продажа",
-  "dashboard.recent.supply": "Поставка",
-  "dashboard.recent.status.paid": "Оплачено",
-  "dashboard.recent.status.partial": "Частично",
-  "dashboard.recent.status.unpaid": "Не оплачено",
 
   "dashboard.welcome.heading": "Добро пожаловать в Ombor!",
   "dashboard.welcome.body": "Несколько шагов — и складской учёт переедет из тетради в систему. Начните с трёх простых действий, остальное появится здесь само.",

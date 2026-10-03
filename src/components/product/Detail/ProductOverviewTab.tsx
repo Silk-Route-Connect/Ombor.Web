@@ -24,7 +24,9 @@ interface ProductOverviewTabProps {
 /** Bundle `.zero-tag`: red pill flag on the warehouse card. */
 const ZeroStockTag: React.FC = () => {
 	const { t } = useTranslation();
-	return <StatusPill token="danger" icon={ErrorOutlineIcon} label={t("product.detail.outOfStock")} />;
+	return (
+		<StatusPill token="danger" icon={ErrorOutlineIcon} label={t("product.detail.outOfStock")} />
+	);
 };
 
 /**

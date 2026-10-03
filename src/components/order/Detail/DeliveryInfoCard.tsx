@@ -1,8 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { isOrderOverdue, shortDeliveryTime } from "utils/orderUtils";
 
@@ -88,32 +89,17 @@ export const DeliveryInfoCard: React.FC<{ order: Order }> = ({ order }) => {
 						<Box component="span" sx={numericSx}>
 							{formatDate(order.deliveryDate)}
 						</Box>
-						<Box component="span" sx={{ fontSize: 12.5, color: "text.secondary" }}>
+						<Box component="span" sx={{ fontSize: 13, color: "text.secondary" }}>
 							{order.deliveryTime
 								? t("order.detail.deliveryAtTime", { time: shortDeliveryTime(order.deliveryTime) })
 								: t("order.detail.deliveryNoTime")}
 						</Box>
 						{isOrderOverdue(order) && (
-							<Box
-								component="span"
-								sx={{
-									display: "inline-flex",
-									alignItems: "center",
-									gap: "4px",
-									px: "7px",
-									py: "1px",
-									borderRadius: "999px",
-									fontSize: 11,
-									fontWeight: 700,
-									color: "error.main",
-									bgcolor: designTokens.errorBg,
-									border: "1px solid",
-									borderColor: designTokens.errorBorder,
-								}}
-							>
-								<ErrorOutlineIcon sx={{ fontSize: 12 }} />
-								{t("order.detail.overdue")}
-							</Box>
+							<StatusPill
+								token="overdue"
+								icon={ErrorOutlineIcon}
+								label={t("order.detail.overdue")}
+							/>
 						)}
 					</Box>
 				) : (

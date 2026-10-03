@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { DashboardRecentTransaction, DashboardTxStatus } from "models/dashboard";
+import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
+import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
+import { DashboardRecentTransaction } from "models/dashboard";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, Paper, Typography } from "@mui/material";
 
 const headCellSx = {
@@ -24,41 +24,9 @@ const bodyCellSx = {
 	p: "12px 16px",
 	borderBottom: "1px solid",
 	borderColor: "divider",
-	fontSize: 13.5,
+	fontSize: 13,
 	verticalAlign: "middle",
 } as const;
-
-const STATUS_TONE: Record<DashboardTxStatus, { bg: string; color: string; key: string }> = {
-	paid: { bg: designTokens.successBg, color: "#17835A", key: "dashboard.recent.status.paid" },
-	partial: { bg: designTokens.warningBg, color: "#C57E14", key: "dashboard.recent.status.partial" },
-	unpaid: { bg: designTokens.errorBg, color: "#C53D31", key: "dashboard.recent.status.unpaid" },
-};
-
-const StatusChip: React.FC<{ status: DashboardTxStatus }> = ({ status }) => {
-	const { t } = useTranslation();
-	// Defensive fallback: `status` is served as a free string, so an unexpected
-	// value (different casing, an added enum member) must not throw on the landing
-	// page — render it as «unpaid» rather than crash the recent-tx table (F5).
-	const tone = STATUS_TONE[status] ?? STATUS_TONE.unpaid;
-	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				fontSize: 11.5,
-				fontWeight: 600,
-				px: "9px",
-				py: "2px",
-				borderRadius: "999px",
-				whiteSpace: "nowrap",
-				bgcolor: tone.bg,
-				color: tone.color,
-			}}
-		>
-			{t(tone.key)}
-		</Box>
-	);
-};
 
 interface Props {
 	rows: DashboardRecentTransaction[];
@@ -117,7 +85,6 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 				</thead>
 				<tbody>
 					{rows.map((r) => {
-						const isSale = r.type === "Sale";
 						return (
 							<Box
 								component="tr"
@@ -157,28 +124,7 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 									{r.partnerName}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
-									<Box sx={{ display: "inline-flex", alignItems: "center", gap: "9px" }}>
-										<Box
-											sx={{
-												width: 26,
-												height: 26,
-												borderRadius: "8px",
-												display: "grid",
-												placeItems: "center",
-												bgcolor: isSale ? designTokens.successBg : designTokens.errorBg,
-												color: isSale ? "#17835A" : "#C53D31",
-											}}
-										>
-											{isSale ? (
-												<NorthEastIcon sx={{ fontSize: 15 }} />
-											) : (
-												<LocalShippingOutlinedIcon sx={{ fontSize: 15 }} />
-											)}
-										</Box>
-										<Box component="span" sx={{ fontSize: 13.5 }}>
-											{t(isSale ? "dashboard.recent.sale" : "dashboard.recent.supply")}
-										</Box>
-									</Box>
+									<TransactionTypeBadge type={r.type} />
 								</Box>
 								<Box
 									component="td"
@@ -193,7 +139,7 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 									{formatCurrency(r.paid)}
 								</Box>
 								<Box component="td" sx={bodyCellSx}>
-									<StatusChip status={r.status} />
+									<PaymentStatusChip status={r.status} />
 								</Box>
 							</Box>
 						);

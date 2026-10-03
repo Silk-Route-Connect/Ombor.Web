@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { TenantUser } from "models/settings";
 import { designTokens } from "theme";
@@ -39,36 +40,6 @@ const Avatar: React.FC<{ name: string; muted: boolean }> = ({ name, muted }) => 
 		{name.trim().charAt(0).toUpperCase()}
 	</Box>
 );
-
-const Chip: React.FC<{ tone: "primary" | "neutral"; label: string; muted?: boolean }> = ({
-	tone,
-	label,
-	muted,
-}) => {
-	const tones = {
-		primary: { bg: designTokens.primarySoft, color: "#12676B" },
-		neutral: { bg: designTokens.gray100, color: designTokens.gray600 },
-	}[tone];
-	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				fontSize: 11.5,
-				fontWeight: 600,
-				px: "9px",
-				py: "2px",
-				borderRadius: "999px",
-				whiteSpace: "nowrap",
-				bgcolor: tones.bg,
-				color: tones.color,
-				...(muted && { opacity: 0.55, filter: "grayscale(0.6)" }),
-			}}
-		>
-			{label}
-		</Box>
-	);
-};
 
 /** Пользователи — invite + deactivate/reactivate (never delete, rule 41). */
 const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReactivate }) => {
@@ -145,24 +116,7 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 									>
 										{u.name}
 									</Typography>
-									{u.self && (
-										<Box
-											component="span"
-											sx={{
-												fontSize: 10,
-												fontWeight: 700,
-												letterSpacing: "0.03em",
-												textTransform: "uppercase",
-												color: "primary.main",
-												bgcolor: designTokens.primarySoft,
-												borderRadius: "999px",
-												px: "7px",
-												py: "1px",
-											}}
-										>
-											{t("settings.users.you")}
-										</Box>
-									)}
+									{u.self && <StatusPill token="teal" uppercase label={t("settings.users.you")} />}
 								</Box>
 								<Typography
 									sx={{
@@ -175,8 +129,8 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 								</Typography>
 							</Box>
 
-							<Chip tone="primary" label={t("settings.users.admin")} muted={!u.active} />
-							{!u.active && <Chip tone="neutral" label={t("settings.users.deactivated")} />}
+							<StatusPill token={u.active ? "teal" : "neutral"} label={t("settings.users.admin")} />
+							{!u.active && <StatusPill token="neutral" label={t("settings.users.deactivated")} />}
 
 							<Typography
 								sx={{

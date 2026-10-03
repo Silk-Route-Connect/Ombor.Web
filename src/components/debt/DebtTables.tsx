@@ -2,19 +2,20 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import StatusPill from "components/shared/Chip/StatusPill";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Column, DataTable, DefaultSort } from "components/shared/Table/DataTable/DataTable";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { Debt } from "models/debt";
 import { DebtPartnerGroup } from "stores/DebtStore";
-import { designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, numericSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import NorthEastIcon from "@mui/icons-material/NorthEast";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Box, Paper, Typography } from "@mui/material";
@@ -25,25 +26,11 @@ const stop = (e: React.MouseEvent) => e.stopPropagation();
 const OverdueChip: React.FC<{ days: number }> = ({ days }) => {
 	const { t } = useTranslation();
 	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "4px",
-				fontSize: 11,
-				fontWeight: 600,
-				px: "7px",
-				py: "1px",
-				borderRadius: "999px",
-				bgcolor: designTokens.errorBg,
-				color: "error.main",
-				whiteSpace: "nowrap",
-			}}
-		>
-			<ReportProblemOutlinedIcon sx={{ fontSize: 11 }} />
-			{t("debt.overdueChip", { days })}
-		</Box>
+		<StatusPill
+			token="overdue"
+			icon={ReportProblemOutlinedIcon}
+			label={t("debt.overdueChip", { days })}
+		/>
 	);
 };
 
@@ -170,7 +157,7 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 						sx={{
 							...numericSx,
 							fontWeight: 700,
-							fontSize: 12.5,
+							fontSize: 12,
 							color: designTokens.gray600,
 							bgcolor: "grey.100",
 							px: "9px",
@@ -194,24 +181,11 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 							{formatDate(g.oldestDate)}
 						</Box>
 						{g.overdueCount > 0 ? (
-							<Box
-								component="span"
-								sx={{
-									display: "inline-flex",
-									alignItems: "center",
-									gap: "4px",
-									fontSize: 11,
-									fontWeight: 600,
-									px: "7px",
-									py: "1px",
-									borderRadius: "999px",
-									bgcolor: designTokens.errorBg,
-									color: "error.main",
-								}}
-							>
-								<ReportProblemOutlinedIcon sx={{ fontSize: 11 }} />
-								{t("debt.partnerTable.overdueCount", { count: g.overdueCount })}
-							</Box>
+							<StatusPill
+								token="overdue"
+								icon={ReportProblemOutlinedIcon}
+								label={t("debt.partnerTable.overdueCount", { count: g.overdueCount })}
+							/>
 						) : (
 							<Box component="span" sx={{ fontSize: 11, fontWeight: 600, color: "success.main" }}>
 								{t("debt.inTerm")}
@@ -309,14 +283,14 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 									display: "grid",
 									placeItems: "center",
 									flex: "0 0 auto",
-									bgcolor: receivable ? designTokens.successBg : designTokens.warningBg,
-									color: receivable ? "success.main" : "warning.main",
+									bgcolor: chipTokens[receivable ? "success" : "danger"].bg,
+									color: chipTokens[receivable ? "success" : "danger"].color,
 								}}
 							>
 								{receivable ? (
-									<NorthEastIcon sx={{ fontSize: 15 }} />
+									<ArrowDownwardIcon sx={{ fontSize: 15 }} />
 								) : (
-									<LocalShippingOutlinedIcon sx={{ fontSize: 15 }} />
+									<ArrowUpwardIcon sx={{ fontSize: 15 }} />
 								)}
 							</Box>
 							<Box>

@@ -18,7 +18,7 @@ const LegendSwatch: React.FC<{ color: string; label: string }> = ({ color, label
 			display: "inline-flex",
 			alignItems: "center",
 			gap: "7px",
-			fontSize: 12.5,
+			fontSize: 13,
 			color: "text.secondary",
 		}}
 	>
@@ -96,8 +96,8 @@ export const DebtTabs: React.FC<DebtTabsProps> = ({
 			<Box
 				sx={{ ml: "auto", display: { xs: "none", sm: "flex" }, alignItems: "center", gap: "20px" }}
 			>
-				<LegendSwatch color="#17835A" label={t("debt.legend.receivable")} />
-				<LegendSwatch color="#C53D31" label={t("debt.legend.payable")} />
+				<LegendSwatch color="success.main" label={t("debt.legend.receivable")} />
+				<LegendSwatch color="error.main" label={t("debt.legend.payable")} />
 			</Box>
 		</Box>
 	);
