@@ -1,6 +1,7 @@
 import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
@@ -27,6 +28,8 @@ export interface IStockAdjustmentStore {
 	searchTerm: string;
 	warehouseFilter: number | null;
 	directionFilter: DirectionFilter;
+	dateRange: DateRangeValue;
+	isFiltering: boolean;
 	isSaving: boolean;
 	dialogMode: AdjustmentDialogMode;
 
@@ -37,6 +40,7 @@ export interface IStockAdjustmentStore {
 	setSearch(term: string): void;
 	setWarehouseFilter(warehouseId: number | null): void;
 	setDirectionFilter(filter: DirectionFilter): void;
+	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
 	closeDialog(): void;
@@ -49,6 +53,7 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 	searchTerm = "";
 	warehouseFilter: number | null = null;
 	directionFilter: DirectionFilter = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	dialogMode: AdjustmentDialogMode = { kind: "none" };
 
@@ -57,12 +62,22 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
+	/** Whether search, a filter or the period narrows the list (drives the empty-state copy). */
+	get isFiltering(): boolean {
+		return (
+			this.searchTerm.trim().length > 0 ||
+			this.warehouseFilter != null ||
+			this.directionFilter !== "all" ||
+			isDateRangeActive(this.dateRange)
+		);
+	}
+
 	get filteredAdjustments(): Loadable<StockAdjustment[]> {
 		if (!isReady(this.allAdjustments)) {
 			return this.allAdjustments;
 		}
 
-		let rows = this.allAdjustments;
+		let rows = filterByDateRange(this.allAdjustments, this.dateRange, (a) => a.date);
 
 		if (this.warehouseFilter != null) {
 			rows = rows.filter((a) => a.warehouseId === this.warehouseFilter);
@@ -133,6 +148,10 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 
 	setDirectionFilter(filter: DirectionFilter): void {
 		this.directionFilter = filter;
+	}
+
+	setDateRange(range: DateRangeValue): void {
+		this.dateRange = range;
 	}
 
 	openCreate(): void {

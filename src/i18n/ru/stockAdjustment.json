@@ -12,6 +12,10 @@
   "adjustment.title.create": "Новая корректировка",
 
   "adjustment.filter.allWarehouses": "Все склады",
+  "adjustment.totals.count_one": "{{formatted}} корректировка",
+  "adjustment.totals.count_few": "{{formatted}} корректировки",
+  "adjustment.totals.count_many": "{{formatted}} корректировок",
+  "adjustment.totals.count_other": "{{formatted}} корректировки",
   "adjustment.filter.direction.all": "Все",
   "adjustment.filter.direction.Decrease": "Списание",
   "adjustment.filter.direction.Increase": "Приход товара",

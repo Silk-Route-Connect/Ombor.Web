@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { PAYMENT_TYPE_META, PaymentTypeBadge } from "components/payment/PaymentPresentation";
 import StatusPill from "components/shared/Chip/StatusPill";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
@@ -14,14 +15,19 @@ import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import TableTotals from "components/shared/Table/TableTotals";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
 import { paymentDetailPath } from "routing/paths";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatQuantity } from "utils/formatCurrency";
 import { entityNumberSortValue, formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
+import { directionTotals } from "utils/listTotals";
 import { matchesSearch } from "utils/stringUtils";
 
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import { Stack } from "@mui/material";
 
 type DirFilter = "all" | WalletOperationDirection;
 
@@ -62,16 +68,22 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [dir, setDir] = useState<DirFilter>("all");
-	const filtering = query.trim().length > 0 || dir !== "all";
+	const [dateRange, setDateRange] = useState<DateRangeValue>(ALL_DATES);
+	const filtering = query.trim().length > 0 || dir !== "all" || isDateRangeActive(dateRange);
 
 	const rows = useMemo(
 		() =>
-			operations.filter(
+			filterByDateRange(operations, dateRange, (o) => o.date).filter(
 				(o) =>
 					(dir === "all" || o.direction === dir) &&
 					(!query.trim() || matchesSearch(o.party, query) || matchesSearch(o.paymentNumber, query)),
 			),
-		[operations, query, dir],
+		[operations, query, dir, dateRange],
+	);
+	const totals = directionTotals(
+		rows,
+		(o) => o.amount,
+		(o) => o.direction === "In",
 	);
 
 	// Legacy API builds serve only the coarse `kind`; prefer the payment type when present.
@@ -192,15 +204,18 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				placeholder: t("wallet.operations.searchPlaceholder"),
 			}}
 			filters={
-				<SegmentedControl<DirFilter>
-					options={[
-						{ value: "all", label: t("wallet.operations.filterAll") },
-						{ value: "In", label: t("wallet.operations.in") },
-						{ value: "Out", label: t("wallet.operations.out") },
-					]}
-					value={dir}
-					onChange={setDir}
-				/>
+				<Stack direction="row" sx={{ gap: "10px", flexWrap: "wrap" }}>
+					<SegmentedControl<DirFilter>
+						options={[
+							{ value: "all", label: t("wallet.operations.filterAll") },
+							{ value: "In", label: t("wallet.operations.in") },
+							{ value: "Out", label: t("wallet.operations.out") },
+						]}
+						value={dir}
+						onChange={setDir}
+					/>
+					<DateRangeFilter value={dateRange} onChange={setDateRange} />
+				</Stack>
 			}
 			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
 		>
@@ -210,6 +225,18 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
 				onRowClick={handleRowClick}
+				summary={
+					<TableTotals
+						count={t("wallet.operations.totalsCount", {
+							count: totals.count,
+							formatted: formatQuantity(totals.count),
+						})}
+						items={[
+							{ label: t("common.totals.income"), value: totals.income, tone: "income" },
+							{ label: t("common.totals.expense"), value: totals.expense, tone: "expense" },
+						]}
+					/>
+				}
 				empty={
 					<TableEmptyState
 						icon={<SwapHorizIcon />}

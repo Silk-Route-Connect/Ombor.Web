@@ -19,6 +19,8 @@ interface TransfersTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить перемещения». */
 	errorTitle: string;
+	/** Totals of the filtered rows in the footer band. */
+	summary?: React.ReactNode;
 }
 
 export const TransfersTable: React.FC<TransfersTableProps> = ({
@@ -29,6 +31,7 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 	hasAny,
 	onOpen,
 	onCreate,
+	summary,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(() => buildTransferColumns(t, onOpen), [t, onOpen]);
@@ -42,6 +45,8 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 			columns={columns}
 			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
+			fixedLayout
+			summary={summary}
 			empty={
 				<TableEmptyState
 					icon={<SwapHorizOutlinedIcon />}

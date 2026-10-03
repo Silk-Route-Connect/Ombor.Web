@@ -24,6 +24,10 @@ export interface EntityFilterSelectProps<T extends string = string> {
 	label?: string;
 	/** Leading glyph (e.g. a warehouse/category icon); styled by the component. */
 	icon?: React.ReactNode;
+	/** Shown in the closed control instead of the option label (a picked custom period). */
+	valueLabel?: string;
+	/** Picking the already-selected option again (a select fires no change for it). */
+	onReselect?: (value: T) => void;
 	width?: number;
 	sx?: SxProps<Theme>;
 }
@@ -42,6 +46,8 @@ export function EntityFilterSelect<T extends string = string>({
 	allLabel,
 	label,
 	icon,
+	valueLabel,
+	onReselect,
 	width,
 	sx,
 }: Readonly<EntityFilterSelectProps<T>>) {
@@ -50,7 +56,7 @@ export function EntityFilterSelect<T extends string = string>({
 	const isActive = value !== choices[0]?.value;
 
 	const renderValue = (selected: unknown) => {
-		const current = choices.find((o) => o.value === selected)?.label ?? "";
+		const current = valueLabel ?? choices.find((o) => o.value === selected)?.label ?? "";
 		return label ? `${label}: ${current}` : current;
 	};
 
@@ -92,7 +98,11 @@ export function EntityFilterSelect<T extends string = string>({
 			}}
 		>
 			{choices.map((option) => (
-				<MenuItem key={option.value} value={option.value}>
+				<MenuItem
+					key={option.value}
+					value={option.value}
+					onClick={onReselect && option.value === value ? () => onReselect(value) : undefined}
+				>
 					{option.label}
 				</MenuItem>
 			))}

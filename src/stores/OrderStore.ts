@@ -6,11 +6,10 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
 import { analytics } from "services/telemetry";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
 import { countByStatus, ORDER_NEXT_STEP, OrderStatusFilter } from "utils/orderUtils";
 
 import { NotificationStore } from "./NotificationStore";
-
-export type OrderDateRange = "all" | "7" | "30" | "90";
 
 export type OrderDialogMode =
 	| { kind: "edit"; order: Order }
@@ -20,15 +19,13 @@ export type OrderDialogMode =
 	| { kind: "return"; order: Order }
 	| { kind: "none" };
 
-const MS_PER_DAY = 86_400_000;
-
 export class OrderStore {
 	private readonly notificationStore: NotificationStore;
 
 	allOrders: Loadable<Order[]> = "loading";
 	searchTerm = "";
 	statusFilter: OrderStatusFilter = "all";
-	dateRange: OrderDateRange = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	dialogMode: OrderDialogMode = { kind: "none" };
 	isSaving = false;
 
@@ -37,10 +34,10 @@ export class OrderStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	/** Status counts for the toolbar tabs (from the unfiltered set). */
+	/** Status counts for the toolbar tabs: the picked period, before the status tab and search. */
 	get statusCounts(): Record<OrderStatusFilter, number> {
 		const all = readyOr(this.allOrders, []);
-		return countByStatus(all);
+		return countByStatus(filterByDateRange(all, this.dateRange, (o) => o.date));
 	}
 
 	/** The list view: status tab + date range + search (number or customer), newest first. */
@@ -49,15 +46,10 @@ export class OrderStore {
 			return this.allOrders;
 		}
 
-		let list = [...this.allOrders];
+		let list = filterByDateRange(this.allOrders, this.dateRange, (o) => o.date);
 
 		if (this.statusFilter !== "all") {
 			list = list.filter((o) => o.status === this.statusFilter);
-		}
-
-		if (this.dateRange !== "all") {
-			const days = Number(this.dateRange);
-			list = list.filter((o) => (Date.now() - Date.parse(o.date)) / MS_PER_DAY <= days);
 		}
 
 		// Numbers display as «№…» but people also type «#…» or the bare number — strip
@@ -74,12 +66,16 @@ export class OrderStore {
 			);
 		}
 
-		return list.sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
+		return list.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
 	}
 
 	/** Whether any list filter is narrowing the view (drives empty-state copy). */
 	get isFiltering(): boolean {
-		return this.searchTerm.trim() !== "" || this.statusFilter !== "all" || this.dateRange !== "all";
+		return (
+			this.searchTerm.trim() !== "" ||
+			this.statusFilter !== "all" ||
+			isDateRangeActive(this.dateRange)
+		);
 	}
 
 	orderById(id: number): Order | null {
@@ -257,14 +253,14 @@ export class OrderStore {
 		this.statusFilter = status;
 	}
 
-	setDateRange(range: OrderDateRange): void {
+	setDateRange(range: DateRangeValue): void {
 		this.dateRange = range;
 	}
 
 	resetFilters(): void {
 		this.searchTerm = "";
 		this.statusFilter = "all";
-		this.dateRange = "all";
+		this.dateRange = ALL_DATES;
 	}
 
 	openEdit(order: Order): void {

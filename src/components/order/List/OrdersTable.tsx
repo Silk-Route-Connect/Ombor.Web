@@ -17,6 +17,8 @@ interface OrdersTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить заказы». */
 	errorTitle: string;
+	/** Totals of the filtered rows in the footer band. */
+	summary?: React.ReactNode;
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
@@ -27,6 +29,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 	isFiltering,
 	onOpen,
 	onCreate,
+	summary,
 }) => {
 	const { t } = useTranslation();
 
@@ -38,6 +41,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 			errorTitle={errorTitle}
 			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
+			summary={summary}
 			empty={
 				<TableEmptyState
 					icon={<SwapHorizOutlinedIcon />}

@@ -17,6 +17,8 @@ interface PaymentsTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить платежи». */
 	errorTitle: string;
+	/** Totals of the filtered rows in the footer band. */
+	summary?: React.ReactNode;
 }
 
 /** Payments list on the shared {@link DataTable}; a row opens the full-page detail. */
@@ -26,6 +28,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 	onOpen,
 	onRetry,
 	errorTitle,
+	summary,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(() => buildPaymentColumns(t), [t]);
@@ -38,6 +41,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 			columns={columns}
 			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
+			fixedLayout
+			summary={summary}
 			empty={
 				<TableEmptyState
 					icon={<ReceiptLongOutlinedIcon />}

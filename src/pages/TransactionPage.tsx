@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import TransactionListHeader from "components/transaction/List/TransactionListHeader";
+import TransactionListTotals from "components/transaction/List/TransactionListTotals";
 import TransactionsTable from "components/transaction/List/TransactionsTable";
 import {
 	buildTransactionColumns,
@@ -50,11 +51,6 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 	const detailPath = mode === "Sale" ? saleDetailPath : supplyDetailPath;
 	const newPath = mode === "Sale" ? PATHS.newSale : PATHS.newSupply;
 
-	const isFiltering =
-		transactionStore.searchTerm.trim() !== "" ||
-		transactionStore.statusFilter !== "all" ||
-		transactionStore.dateRange !== "all";
-
 	const handleExport = () => {
 		if (!isReady(rows)) {
 			return;
@@ -101,9 +97,10 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 				rows={rows}
 				columns={columns}
 				direction={mode}
-				isFiltering={isFiltering}
+				isFiltering={transactionStore.isFiltering}
 				onOpen={(tx) => navigate(detailPath(tx.id))}
 				onCreate={() => navigate(newPath)}
+				summary={isReady(rows) && <TransactionListTotals rows={rows} />}
 			/>
 		</Box>
 	);

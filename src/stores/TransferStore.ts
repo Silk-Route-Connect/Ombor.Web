@@ -1,6 +1,8 @@
 import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
+import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
@@ -20,6 +22,9 @@ export interface ITransferStore {
 
 	/** Filter by a warehouse appearing as source OR destination. */
 	warehouseFilter: number | null;
+	searchTerm: string;
+	dateRange: DateRangeValue;
+	isFiltering: boolean;
 	isSaving: boolean;
 	dialogMode: TransferDialogMode;
 
@@ -27,6 +32,8 @@ export interface ITransferStore {
 	create(request: CreateTransferRequest): Promise<Transfer | null>;
 
 	setWarehouseFilter(warehouseId: number | null): void;
+	setSearch(term: string): void;
+	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
 	openDetail(transfer: Transfer): void;
@@ -38,6 +45,8 @@ export class TransferStore implements ITransferStore {
 
 	allTransfers: Loadable<Transfer[]> = "loading";
 	warehouseFilter: number | null = null;
+	searchTerm = "";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	dialogMode: TransferDialogMode = { kind: "none" };
 
@@ -46,18 +55,38 @@ export class TransferStore implements ITransferStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
+	/** Whether search, the warehouse filter or the period narrows the list. */
+	get isFiltering(): boolean {
+		return (
+			this.warehouseFilter != null ||
+			this.searchTerm.trim() !== "" ||
+			isDateRangeActive(this.dateRange)
+		);
+	}
+
+	/** Period + warehouse (source OR destination) + search over both warehouses and the author. */
 	get filteredTransfers(): Loadable<Transfer[]> {
 		if (!isReady(this.allTransfers)) {
 			return this.allTransfers;
 		}
 
-		if (this.warehouseFilter == null) {
-			return this.allTransfers;
+		let rows = filterByDateRange(this.allTransfers, this.dateRange, (tr) => tr.date);
+
+		if (this.warehouseFilter != null) {
+			rows = rows.filter(
+				(tr) =>
+					tr.fromWarehouseId === this.warehouseFilter || tr.toWarehouseId === this.warehouseFilter,
+			);
 		}
 
-		return this.allTransfers.filter(
-			(t) => t.fromWarehouseId === this.warehouseFilter || t.toWarehouseId === this.warehouseFilter,
-		);
+		const term = this.searchTerm.trim();
+		if (term) {
+			rows = rows.filter((tr) =>
+				matchesSearch([tr.fromWarehouseName, tr.toWarehouseName, tr.createdBy].join(" "), term),
+			);
+		}
+
+		return rows;
 	}
 
 	async getAll(): Promise<void> {
@@ -100,6 +129,14 @@ export class TransferStore implements ITransferStore {
 
 	setWarehouseFilter(warehouseId: number | null): void {
 		this.warehouseFilter = warehouseId;
+	}
+
+	setSearch(term: string): void {
+		this.searchTerm = term;
+	}
+
+	setDateRange(range: DateRangeValue): void {
+		this.dateRange = range;
 	}
 
 	openCreate(): void {

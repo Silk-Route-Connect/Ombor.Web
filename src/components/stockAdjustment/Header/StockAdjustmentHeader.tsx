@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import ExportButton from "components/shared/Buttons/ExportButton";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
@@ -8,6 +9,7 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { Warehouse } from "models/warehouse";
 import { DirectionFilter } from "stores/StockAdjustmentStore";
+import { DateRangeValue } from "utils/dateRange";
 
 import AddIcon from "@mui/icons-material/Add";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -18,9 +20,11 @@ interface StockAdjustmentHeaderProps {
 	warehouses: Warehouse[];
 	warehouseFilter: number | null;
 	directionFilter: DirectionFilter;
+	dateRange: DateRangeValue;
 	onSearch: (value: string) => void;
 	onWarehouseChange: (warehouseId: number | null) => void;
 	onDirectionChange: (filter: DirectionFilter) => void;
+	onDateRangeChange: (range: DateRangeValue) => void;
 	onCreate: () => void;
 	onExport: () => void;
 	/** Rows the export would write (the filtered list). */
@@ -40,9 +44,11 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 	warehouses,
 	warehouseFilter,
 	directionFilter,
+	dateRange,
 	onSearch,
 	onWarehouseChange,
 	onDirectionChange,
+	onDateRangeChange,
 	onCreate,
 	onExport,
 	exportCount,
@@ -94,6 +100,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 				/>
 
 				<Box sx={{ flexGrow: 1 }} />
+				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />
 			</Box>
 		</>
 	);

@@ -8,7 +8,7 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
-import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
+import { ACTIONS_COLUMN_WIDTH, COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { TFunction } from "i18next";
 import { TransactionRecord } from "models/transaction";
@@ -54,6 +54,8 @@ export function buildTransactionColumns(
 		{
 			key: "number",
 			headerName: t("transaction.col.number"),
+			// Wider than a plain № — a refund carries «Возврат к №…» under its number.
+			width: 140,
 			sortValue: (tx) => entityNumberSortValue(transactionDisplayNumber(tx)),
 			renderCell: (tx) => (
 				<Box>
@@ -76,6 +78,7 @@ export function buildTransactionColumns(
 		{
 			key: "date",
 			headerName: t("transaction.col.date"),
+			width: COLUMN_WIDTH.dateTime,
 			// DataTable's desc sort is a stable asc sort + reverse(), which flips
 			// equal-key ties — a refund would drop BELOW its same-timestamp original.
 			// The +0.5 ms refund offset keeps the pair's keys distinct: asc puts the
@@ -94,12 +97,14 @@ export function buildTransactionColumns(
 		{
 			key: "type",
 			headerName: t("transaction.col.type"),
+			width: COLUMN_WIDTH.chip,
 			sortValue: (tx) => transactionTypeLabel(t, tx),
 			renderCell: (tx) => <TransactionTypeBadge type={tx.type} />,
 		},
 		{
 			key: "status",
 			headerName: t("transaction.col.status"),
+			width: COLUMN_WIDTH.chip,
 			// Refunds carry no payment status — null groups them at one end.
 			sortValue: (tx) => (isRefundType(tx.type) ? null : t(`transaction.statusShort.${tx.status}`)),
 			renderCell: (tx) =>
@@ -108,6 +113,7 @@ export function buildTransactionColumns(
 		{
 			key: "positions",
 			headerName: t("transaction.col.positions"),
+			width: COLUMN_WIDTH.count,
 			align: "right",
 			sortValue: (tx) => tx.lines.length,
 			renderCell: (tx) => <QuantityCell value={tx.lines.length} />,
@@ -115,6 +121,7 @@ export function buildTransactionColumns(
 		{
 			key: "amount",
 			headerName: t("transaction.col.amount"),
+			width: COLUMN_WIDTH.money,
 			align: "right",
 			sortValue: (tx) => tx.totalDue,
 			renderCell: (tx) => <MoneyCell value={tx.totalDue} main />,

@@ -20,6 +20,8 @@ interface StockAdjustmentsTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить корректировки». */
 	errorTitle: string;
+	/** Totals of the filtered rows in the footer band. */
+	summary?: React.ReactNode;
 }
 
 /**
@@ -33,6 +35,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	isFiltering,
 	hasAny,
 	onCreate,
+	summary,
 }) => {
 	const { t } = useTranslation();
 	const [selected, setSelected] = useState<StockAdjustment | null>(null);
@@ -48,6 +51,8 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 				errorTitle={errorTitle}
 				defaultSort={{ key: "date", order: "desc" }}
 				onRowClick={setSelected}
+				fixedLayout
+				summary={summary}
 				empty={
 					<TableEmptyState
 						icon={<ScaleOutlinedIcon />}

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import TableTotals from "components/shared/Table/TableTotals";
 import StockAdjustmentModal from "components/stockAdjustment/Form/StockAdjustmentModal";
 import StockAdjustmentHeader from "components/stockAdjustment/Header/StockAdjustmentHeader";
 import StockAdjustmentsTable from "components/stockAdjustment/Table/StockAdjustmentsTable";
@@ -14,6 +15,7 @@ import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatQuantity } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
 import { measurementShort } from "utils/productUtils";
 
@@ -75,10 +77,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 		? null
 		: stockAdjustmentStore.allAdjustments;
 	const hasAny = (all?.length ?? 0) > 0;
-	const isFiltering =
-		stockAdjustmentStore.searchTerm.trim().length > 0 ||
-		stockAdjustmentStore.warehouseFilter != null ||
-		stockAdjustmentStore.directionFilter !== "all";
+	const rows = stockAdjustmentStore.filteredAdjustments;
 
 	return (
 		<Box>
@@ -87,9 +86,11 @@ const StockAdjustmentPage: React.FC = observer(() => {
 				warehouses={activeWarehouses}
 				warehouseFilter={stockAdjustmentStore.warehouseFilter}
 				directionFilter={stockAdjustmentStore.directionFilter}
+				dateRange={stockAdjustmentStore.dateRange}
 				onSearch={stockAdjustmentStore.setSearch}
 				onWarehouseChange={stockAdjustmentStore.setWarehouseFilter}
 				onDirectionChange={stockAdjustmentStore.setDirectionFilter}
+				onDateRangeChange={stockAdjustmentStore.setDateRange}
 				onCreate={stockAdjustmentStore.openCreate}
 				onExport={handleExport}
 				exportCount={readyOr(stockAdjustmentStore.filteredAdjustments, []).length}
@@ -98,10 +99,20 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			<StockAdjustmentsTable
 				onRetry={() => void stockAdjustmentStore.getAll()}
 				errorTitle={t("adjustment.error.getAll")}
-				rows={stockAdjustmentStore.filteredAdjustments}
-				isFiltering={isFiltering}
+				rows={rows}
+				isFiltering={stockAdjustmentStore.isFiltering}
 				hasAny={hasAny}
 				onCreate={stockAdjustmentStore.openCreate}
+				summary={
+					isReady(rows) && (
+						<TableTotals
+							count={t("adjustment.totals.count", {
+								count: rows.length,
+								formatted: formatQuantity(rows.length),
+							})}
+						/>
+					)
+				}
 			/>
 
 			<StockAdjustmentModal

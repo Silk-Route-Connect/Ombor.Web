@@ -4,6 +4,7 @@ import { Column, DefaultSort, SortOrder } from "components/shared/Table/DataTabl
 import {
 	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
+	FOOTER_SX,
 	ROWS_PER_PAGE_OPTIONS,
 } from "components/shared/Table/DataTable/tableConfigs";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
@@ -35,6 +36,8 @@ interface DetailTableProps<T extends { id: string | number }> {
 	footer?: React.ReactNode;
 	/** The tab's `TableEmptyState`; defaults to «Нет записей». */
 	empty?: React.ReactNode;
+	/** Totals of the shown rows (`TableTotals`) in the footer band, left of the pager. */
+	summary?: React.ReactNode;
 }
 
 /**
@@ -53,6 +56,7 @@ export function DetailTable<T extends { id: string | number }>({
 	pagination = false,
 	footer,
 	empty,
+	summary,
 }: Readonly<DetailTableProps<T>>) {
 	const { t } = useTranslation();
 	const [sortKey, setSortKey] = useState<string | null>(defaultSort?.key ?? null);
@@ -176,7 +180,7 @@ export function DetailTable<T extends { id: string | number }>({
 					</tbody>
 				</Box>
 			</Box>
-			{pagination && (
+			{pagination ? (
 				<TablePager
 					count={rows.length}
 					page={page}
@@ -186,7 +190,10 @@ export function DetailTable<T extends { id: string | number }>({
 						setRowsPerPage(next);
 						setPage(0);
 					}}
+					summary={summary}
 				/>
+			) : (
+				summary && <Box sx={FOOTER_SX}>{summary}</Box>
 			)}
 		</>
 	);

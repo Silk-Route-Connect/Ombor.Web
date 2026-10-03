@@ -37,6 +37,29 @@ export const ROW_HEIGHT = 52;
 /** Width of the trailing ⋮ actions column (fits a single icon button). */
 export const ACTIONS_COLUMN_WIDTH = 56;
 
+/**
+ * Column widths per column type (padding included) for fixed-layout tables
+ * (`DataTable` `fixedLayout`): these columns keep their width and the columns
+ * without one (entity names) share the rest, so a search that narrows the rows
+ * never re-flows the columns (live-ui-23).
+ */
+export const COLUMN_WIDTH = {
+	number: 120,
+	dateTime: 160,
+	chip: 152,
+	direction: 136,
+	money: 152,
+	quantity: 124,
+	count: 108,
+	author: 168,
+} as const;
+
+/** Fixed layout; below `minWidth` the table scrolls inside its card instead of crushing. */
+export const FIXED_TABLE_SX: SxProps<Theme> = {
+	tableLayout: "fixed",
+	minWidth: 880,
+};
+
 export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 	border: 1,
 	borderColor: "divider", // DSN --border

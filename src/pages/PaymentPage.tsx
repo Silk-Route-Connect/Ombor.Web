@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaymentCreateModal from "components/payment/Form/PaymentCreateModal";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
+import PaymentListTotals from "components/payment/List/PaymentListTotals";
 import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
@@ -12,6 +13,7 @@ import { CreatePaymentRecordRequest, PaymentRecord } from "models/payment";
 import { isOpenCreateState } from "routing/navigationState";
 import { PATHS, paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { isDateRangeActive } from "utils/dateRange";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatOptionalNumber } from "utils/formatEntityId";
@@ -74,7 +76,8 @@ const PaymentPage: React.FC = observer(() => {
 		paymentStore.searchTerm.trim().length > 0 ||
 		paymentStore.typeFilter !== "all" ||
 		paymentStore.walletFilter !== "all" ||
-		paymentStore.directionFilter !== "all";
+		paymentStore.directionFilter !== "all" ||
+		isDateRangeActive(paymentStore.dateRange);
 
 	return (
 		<Box>
@@ -83,9 +86,11 @@ const PaymentPage: React.FC = observer(() => {
 				typeFilter={paymentStore.typeFilter}
 				walletFilter={paymentStore.walletFilter}
 				walletOptions={paymentStore.walletOptions}
+				dateRange={paymentStore.dateRange}
 				onSearch={paymentStore.setSearch}
 				onTypeChange={paymentStore.setTypeFilter}
 				onWalletChange={paymentStore.setWalletFilter}
+				onDateRangeChange={paymentStore.setDateRange}
 				onCreate={paymentStore.openCreate}
 				onExport={handleExport}
 				exportCount={readyOr(paymentStore.filteredPayments, []).length}
@@ -103,6 +108,11 @@ const PaymentPage: React.FC = observer(() => {
 				errorTitle={t("payment.error.getAll")}
 				isFiltering={isFiltering}
 				onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
+				summary={
+					isReady(paymentStore.filteredPayments) && (
+						<PaymentListTotals rows={paymentStore.filteredPayments} />
+					)
+				}
 			/>
 
 			<PaymentCreateModal

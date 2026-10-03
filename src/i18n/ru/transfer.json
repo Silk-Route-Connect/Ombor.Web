@@ -12,6 +12,10 @@
   "transfer.title.create": "Новое перемещение",
 
   "transfer.filter.allWarehouses": "Все склады",
+  "transfer.totals.count_one": "{{formatted}} перемещение",
+  "transfer.totals.count_few": "{{formatted}} перемещения",
+  "transfer.totals.count_many": "{{formatted}} перемещений",
+  "transfer.totals.count_other": "{{formatted}} перемещения",
 
   "transfer.table.number": "№",
   "transfer.table.date": "Дата",

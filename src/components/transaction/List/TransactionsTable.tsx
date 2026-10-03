@@ -19,6 +19,8 @@ interface TransactionsTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить продажи». */
 	errorTitle: string;
+	/** Totals of the filtered rows in the footer band. */
+	summary?: React.ReactNode;
 }
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -30,6 +32,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 	isFiltering,
 	onOpen,
 	onCreate,
+	summary,
 }) => {
 	const { t } = useTranslation();
 
@@ -41,6 +44,8 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 			errorTitle={errorTitle}
 			defaultSort={{ key: "date", order: "desc" }}
 			onRowClick={onOpen}
+			fixedLayout
+			summary={summary}
 			empty={
 				<TableEmptyState
 					icon={<ReceiptLongOutlinedIcon />}

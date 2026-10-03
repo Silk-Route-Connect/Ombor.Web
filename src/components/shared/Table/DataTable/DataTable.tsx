@@ -6,27 +6,16 @@ import { isReady, Loadable } from "helpers/Loading";
 import { numericSx } from "theme";
 
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
-import {
-	Box,
-	Paper,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TablePagination,
-	TableRow,
-	TableSortLabel,
-	Tooltip,
-} from "@mui/material";
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 
+import TablePager from "../TablePager";
+import DataTableHead from "./DataTableHead";
 import {
 	BODY_CELL_SX,
 	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
+	FIXED_TABLE_SX,
 	FOOTER_SX,
-	HEADER_CELL_SX,
-	HEADER_CONTAINER_SX,
 	ROW_SX,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
@@ -93,6 +82,13 @@ export interface DataTableProps<T extends { id: string | number }> {
 	onRetry?: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
 	errorTitle?: string;
+	/** Totals of the filtered rows (`TableTotals`) in the footer band, left of the pager. */
+	summary?: React.ReactNode;
+	/**
+	 * Fixed column widths (`COLUMN_WIDTH` on the narrow columns, names share the
+	 * rest): a search or filter that narrows the rows never re-flows the columns.
+	 */
+	fixedLayout?: boolean;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -108,6 +104,8 @@ export function DataTable<T extends { id: string | number }>({
 	empty,
 	onRetry,
 	errorTitle,
+	summary,
+	fixedLayout = false,
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
@@ -177,10 +175,8 @@ export function DataTable<T extends { id: string | number }>({
 		}
 	};
 
-	const handlePageChange = (_: unknown, newPage: number) => setPage(newPage);
-
-	const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setRowsPerPage(parseInt(e.target.value, 10));
+	const handleRowsPerPageChange = (next: number) => {
+		setRowsPerPage(next);
 		setPage(0);
 	};
 
@@ -206,32 +202,6 @@ export function DataTable<T extends { id: string | number }>({
 		}
 
 		return null;
-	};
-
-	const renderColumn = (col: Column<T>) => {
-		const label = !isSortable(col) ? (
-			col.headerName
-		) : (
-			<TableSortLabel
-				active={sortKey === col.key}
-				direction={sortKey === col.key ? order : "asc"}
-				onClick={() => handleRequestSort(col)}
-			>
-				{col.headerName}
-			</TableSortLabel>
-		);
-
-		if (!col.headerTooltip) {
-			return label;
-		}
-
-		return (
-			<Tooltip title={col.headerTooltip} placement="top">
-				<Box component="span" sx={{ display: "inline-flex" }}>
-					{label}
-				</Box>
-			</Tooltip>
-		);
 	};
 
 	if (isReady(rows) && rows.length === 0) {
@@ -260,21 +230,14 @@ export function DataTable<T extends { id: string | number }>({
 	return (
 		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<TableContainer sx={TABLE_SCROLL_SX}>
-				<Table stickyHeader size="small">
-					<TableHead sx={HEADER_CONTAINER_SX}>
-						<TableRow>
-							{columns.map((col) => (
-								<TableCell
-									key={col.key}
-									sortDirection={isSortable(col) && sortKey === col.key ? order : false}
-									sx={{ ...HEADER_CELL_SX, width: col.width }}
-									align={col.align ?? "left"}
-								>
-									{renderColumn(col)}
-								</TableCell>
-							))}
-						</TableRow>
-					</TableHead>
+				<Table stickyHeader size="small" sx={fixedLayout ? FIXED_TABLE_SX : undefined}>
+					<DataTableHead
+						columns={columns}
+						sortKey={sortKey}
+						order={order}
+						isSortable={isSortable}
+						onSort={handleRequestSort}
+					/>
 
 					<TableBody>
 						{displayedRows.map((row) => (
@@ -303,22 +266,18 @@ export function DataTable<T extends { id: string | number }>({
 				</Table>
 			</TableContainer>
 
-			{pagination && isReady(rows) && (
-				<Box sx={FOOTER_SX}>
-					<TablePagination
-						component="div"
-						count={rows.length}
-						page={page}
-						onPageChange={handlePageChange}
-						rowsPerPage={rowsPerPage}
-						onRowsPerPageChange={handleRowsPerPageChange}
-						rowsPerPageOptions={rowsPerPageOptions}
-						labelRowsPerPage={t("common.table.rowsPerPage")}
-						labelDisplayedRows={({ from, to, count }) =>
-							t("common.table.displayedRows", { from, to, total: count })
-						}
-					/>
-				</Box>
+			{pagination && isReady(rows) ? (
+				<TablePager
+					count={rows.length}
+					page={page}
+					rowsPerPage={rowsPerPage}
+					onPageChange={setPage}
+					onRowsPerPageChange={handleRowsPerPageChange}
+					rowsPerPageOptions={rowsPerPageOptions}
+					summary={summary}
+				/>
+			) : (
+				summary && <Box sx={FOOTER_SX}>{summary}</Box>
 			)}
 		</Paper>
 	);

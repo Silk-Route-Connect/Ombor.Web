@@ -11,6 +11,7 @@ import {
 } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
 import { analytics } from "services/telemetry";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
 import { formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
 import { isFullyRefunded, refundsByOriginal } from "utils/refundUtils";
 import { matchesSearch } from "utils/stringUtils";
@@ -19,13 +20,10 @@ import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/trans
 import { NotificationStore } from "./NotificationStore";
 
 export type StatusFilter = "all" | TransactionStatus;
-export type DateRangeFilter = "all" | "7" | "30" | "90";
 
 export type TransactionDialogMode =
 	| { kind: "refund"; transaction: TransactionRecord }
 	| { kind: "none" };
-
-const MS_PER_DAY = 86_400_000;
 
 export interface ITransactionStore {
 	allTransactions: Loadable<TransactionRecord[]>;
@@ -35,7 +33,8 @@ export interface ITransactionStore {
 
 	searchTerm: string;
 	statusFilter: StatusFilter;
-	dateRange: DateRangeFilter;
+	dateRange: DateRangeValue;
+	isFiltering: boolean;
 	dialogMode: TransactionDialogMode;
 
 	getAll(): Promise<void>;
@@ -47,7 +46,7 @@ export interface ITransactionStore {
 
 	setSearchTerm(term: string): void;
 	setStatusFilter(status: StatusFilter): void;
-	setDateRange(range: DateRangeFilter): void;
+	setDateRange(range: DateRangeValue): void;
 	resetFilters(): void;
 
 	/** Sales / supplies with nothing left to refund. */
@@ -62,7 +61,7 @@ export class TransactionStore implements ITransactionStore {
 	allTransactions: Loadable<TransactionRecord[]> = "loading";
 	searchTerm = "";
 	statusFilter: StatusFilter = "all";
-	dateRange: DateRangeFilter = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	dialogMode: TransactionDialogMode = { kind: "none" };
 
@@ -79,21 +78,26 @@ export class TransactionStore implements ITransactionStore {
 		return this.feedFor("Supply");
 	}
 
+	/** Whether search, status or period narrows the feed (drives the empty-state copy). */
+	get isFiltering(): boolean {
+		return (
+			this.searchTerm.trim() !== "" ||
+			this.statusFilter !== "all" ||
+			isDateRangeActive(this.dateRange)
+		);
+	}
+
 	private feedFor(direction: TransactionDirection): Loadable<TransactionRecord[]> {
 		if (!isReady(this.allTransactions)) {
 			return this.allTransactions;
 		}
 
 		const types = DIRECTION_TYPES[direction];
-		let list = this.allTransactions.filter((tx) => types.includes(tx.type));
-
-		if (this.dateRange !== "all") {
-			const days = Number(this.dateRange);
-			list = list.filter((tx) => {
-				const diff = (Date.now() - new Date(tx.date).getTime()) / MS_PER_DAY;
-				return diff <= days;
-			});
-		}
+		let list = filterByDateRange(
+			this.allTransactions.filter((tx) => types.includes(tx.type)),
+			this.dateRange,
+			(tx) => tx.date,
+		);
 
 		// Refunds carry no payment status — a status filter hides them (design parity).
 		if (this.statusFilter !== "all") {
@@ -217,14 +221,14 @@ export class TransactionStore implements ITransactionStore {
 		this.statusFilter = status;
 	}
 
-	setDateRange(range: DateRangeFilter): void {
+	setDateRange(range: DateRangeValue): void {
 		this.dateRange = range;
 	}
 
 	resetFilters(): void {
 		this.searchTerm = "";
 		this.statusFilter = "all";
-		this.dateRange = "all";
+		this.dateRange = ALL_DATES;
 	}
 
 	/**

@@ -71,6 +71,10 @@
   "payment.summary.income": "Приход",
   "payment.summary.expense": "Расход",
   "payment.summary.count": "Платежей",
+  "payment.totals.count_one": "{{formatted}} платёж",
+  "payment.totals.count_few": "{{formatted}} платежа",
+  "payment.totals.count_many": "{{formatted}} платежей",
+  "payment.totals.count_other": "{{formatted}} платежа",
 
   "payment.table.number": "№",
   "payment.table.date": "Дата",

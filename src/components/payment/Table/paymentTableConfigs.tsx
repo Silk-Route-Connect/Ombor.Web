@@ -11,6 +11,7 @@ import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { TFunction } from "i18next";
 import { PaymentRecord } from "models/payment";
@@ -39,12 +40,14 @@ export function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 		{
 			key: "number",
 			headerName: t("payment.table.number"),
+			width: COLUMN_WIDTH.number,
 			sortValue: (p) => entityNumberSortValue(p.number),
 			renderCell: (p) => <DocNumberCell number={p.number} to={paymentDetailPath(p.id)} />,
 		},
 		{
 			key: "date",
 			headerName: t("payment.table.date"),
+			width: COLUMN_WIDTH.dateTime,
 			sortValue: (p) => new Date(p.date),
 			renderCell: (p) => <DateCell value={p.date} />,
 		},
@@ -57,12 +60,14 @@ export function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 		{
 			key: "type",
 			headerName: t("payment.table.type"),
+			width: COLUMN_WIDTH.chip,
 			sortValue: (p) => t(PAYMENT_TYPE_META[p.type].labelKey),
 			renderCell: (p) => <PaymentTypeBadge type={p.type} />,
 		},
 		{
 			key: "direction",
 			headerName: t("payment.table.direction"),
+			width: COLUMN_WIDTH.direction,
 			sortValue: (p) => t(`payment.direction.${p.direction}`),
 			renderCell: (p) => <PaymentDirectionBadge direction={p.direction} />,
 		},
@@ -75,6 +80,7 @@ export function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 		{
 			key: "amount",
 			headerName: t("payment.table.amount"),
+			width: COLUMN_WIDTH.money,
 			align: "right",
 			sortValue: (p) => p.amount,
 			renderCell: (p) => <MoneyCell value={p.amount} main tone={paymentMoneyTone(p.direction)} />,

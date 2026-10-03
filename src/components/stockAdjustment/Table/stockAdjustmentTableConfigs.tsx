@@ -5,6 +5,7 @@ import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
@@ -23,12 +24,14 @@ export function buildStockAdjustmentColumns(
 		{
 			key: "number",
 			headerName: t("adjustment.table.number"),
+			width: COLUMN_WIDTH.number,
 			sortValue: (a) => a.id,
 			renderCell: (a) => <DocNumberCell number={a.id} onOpen={() => onOpen(a)} />,
 		},
 		{
 			key: "date",
 			headerName: t("adjustment.table.date"),
+			width: COLUMN_WIDTH.dateTime,
 			sortValue: (a) => Date.parse(a.date),
 			renderCell: (a) => <DateCell value={a.date} />,
 		},
@@ -47,6 +50,7 @@ export function buildStockAdjustmentColumns(
 		{
 			key: "direction",
 			headerName: t("adjustment.table.direction"),
+			width: COLUMN_WIDTH.chip,
 			sortValue: (a) => t(`adjustment.direction.${a.direction}`),
 			renderCell: (a) => <DirectionChip direction={a.direction} />,
 		},
@@ -59,12 +63,14 @@ export function buildStockAdjustmentColumns(
 		{
 			key: "createdBy",
 			headerName: t("adjustment.table.createdBy"),
+			width: COLUMN_WIDTH.author,
 			sortValue: (a) => a.createdBy,
 			renderCell: (a) => <MutedTextCell text={a.createdBy} />,
 		},
 		{
 			key: "quantity",
 			headerName: t("adjustment.table.quantity"),
+			width: COLUMN_WIDTH.quantity,
 			align: "right",
 			sortValue: (a) => (a.direction === "Decrease" ? -a.quantity : a.quantity),
 			renderCell: (a) => (

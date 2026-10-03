@@ -2,6 +2,7 @@ import { isReady, toLoadable } from "helpers/Loading";
 import { LoadSequence } from "helpers/LoadSequence";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { ALL_DATES, DateRangeValue, filterByDateRange } from "utils/dateRange";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatOptionalNumber } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
@@ -39,6 +40,7 @@ export interface IPaymentStore {
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
 	directionFilter: PaymentDirection | "all";
+	dateRange: DateRangeValue;
 	isSaving: boolean;
 	isCreateOpen: boolean;
 
@@ -55,6 +57,7 @@ export interface IPaymentStore {
 	setTypeFilter(type: PaymentTypeFilter): void;
 	setWalletFilter(walletId: number | "all"): void;
 	setDirectionFilter(direction: PaymentDirection): void;
+	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
 	closeCreate(): void;
@@ -74,6 +77,7 @@ export class PaymentStore implements IPaymentStore {
 	typeFilter: PaymentTypeFilter = "all";
 	walletFilter: number | "all" = "all";
 	directionFilter: PaymentDirection | "all" = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	isCreateOpen = false;
 	/**
@@ -89,16 +93,17 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	/**
-	 * Type + wallet + search filtered, but NOT the direction toggle — the scope the
-	 * summary cards total over, so the Приход / Расход cards stay stable references
-	 * you can toggle the table by (PAY-3).
+	 * Period + type + wallet + search filtered, but NOT the direction toggle — the
+	 * scope the summary cards total over, so the Приход / Расход cards follow the
+	 * picked period and stay stable references you can toggle the table by (PAY-3).
+	 * The period filters client-side like every list: the full list is loaded anyway.
 	 */
 	private get scopedPayments(): Loadable<PaymentRecord[]> {
 		if (!isReady(this.allPayments)) {
 			return this.allPayments;
 		}
 
-		let rows = this.allPayments;
+		let rows = filterByDateRange(this.allPayments, this.dateRange, (p) => p.date);
 
 		if (this.typeFilter !== "all") {
 			rows = rows.filter((p) => p.type === this.typeFilter);
@@ -257,6 +262,10 @@ export class PaymentStore implements IPaymentStore {
 	/** Toggle the direction filter — clicking the active direction clears it (PAY-3). */
 	setDirectionFilter(direction: PaymentDirection): void {
 		this.directionFilter = this.directionFilter === direction ? "all" : direction;
+	}
+
+	setDateRange(range: DateRangeValue): void {
+		this.dateRange = range;
 	}
 
 	openCreate(): void {

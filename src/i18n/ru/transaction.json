@@ -87,10 +87,10 @@
 
   "transaction.statusFilter.all": "Все",
 
-  "transaction.range.all": "Весь период",
-  "transaction.range.7": "Последние 7 дней",
-  "transaction.range.30": "Последние 30 дней",
-  "transaction.range.90": "Последние 90 дней",
+  "transaction.totals.count_one": "{{formatted}} документ",
+  "transaction.totals.count_few": "{{formatted}} документа",
+  "transaction.totals.count_many": "{{formatted}} документов",
+  "transaction.totals.count_other": "{{formatted}} документа",
 
   "transaction.col.date": "Дата",
   "transaction.col.number": "№",

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import TableTotals from "components/shared/Table/TableTotals";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
 import TransferHeader from "components/transfer/Header/TransferHeader";
@@ -14,8 +15,8 @@ import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatQuantity } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
-import { matchesSearch } from "utils/stringUtils";
 
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
@@ -24,7 +25,6 @@ const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { transferStore, warehouseStore, productStore } = useStore();
-	const [search, setSearch] = useState("");
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -72,16 +72,8 @@ const TransferPage: React.FC = observer(() => {
 
 	const all = !isReady(transferStore.allTransfers) ? null : transferStore.allTransfers;
 	const hasAny = (all?.length ?? 0) > 0;
-	const isFiltering = transferStore.warehouseFilter != null || search.trim() !== "";
 	const dialogMode = transferStore.dialogMode;
-
-	const base = transferStore.filteredTransfers;
-	const rows =
-		!isReady(base) || search.trim() === ""
-			? base
-			: base.filter((tr) =>
-					matchesSearch([tr.fromWarehouseName, tr.toWarehouseName, tr.createdBy].join(" "), search),
-				);
+	const rows = transferStore.filteredTransfers;
 
 	return (
 		<Box>
@@ -89,21 +81,33 @@ const TransferPage: React.FC = observer(() => {
 				warehouses={activeWarehouses}
 				warehouseFilter={transferStore.warehouseFilter}
 				onWarehouseChange={transferStore.setWarehouseFilter}
-				search={search}
-				onSearchChange={setSearch}
+				search={transferStore.searchTerm}
+				onSearchChange={transferStore.setSearch}
+				dateRange={transferStore.dateRange}
+				onDateRangeChange={transferStore.setDateRange}
 				onCreate={transferStore.openCreate}
 				onExport={handleExport}
-				exportCount={readyOr(transferStore.filteredTransfers, []).length}
+				exportCount={readyOr(rows, []).length}
 			/>
 
 			<TransfersTable
 				onRetry={() => void transferStore.getAll()}
 				errorTitle={t("transfer.error.getAll")}
 				rows={rows}
-				isFiltering={isFiltering}
+				isFiltering={transferStore.isFiltering}
 				hasAny={hasAny}
 				onOpen={transferStore.openDetail}
 				onCreate={transferStore.openCreate}
+				summary={
+					isReady(rows) && (
+						<TableTotals
+							count={t("transfer.totals.count", {
+								count: rows.length,
+								formatted: formatQuantity(rows.length),
+							})}
+						/>
+					)
+				}
 			/>
 
 			<TransferFormModal

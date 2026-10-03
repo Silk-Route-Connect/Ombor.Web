@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { TablePagination } from "@mui/material";
+import { Box, TablePagination } from "@mui/material";
 
 import { FOOTER_SX } from "./DataTable/tableConfigs";
 
@@ -12,13 +12,15 @@ interface TablePagerProps {
 	onPageChange: (page: number) => void;
 	onRowsPerPageChange: (rowsPerPage: number) => void;
 	rowsPerPageOptions?: number[];
+	/** Left of the pager in the same band — the list's `TableTotals`. */
+	summary?: React.ReactNode;
 }
 
 const DEFAULT_OPTIONS = [10, 25, 50];
 
 /**
- * Pagination footer for the bespoke tables that can't use the shared DataTable
- * (those carrying totals rows or expandable rows). ru-localized via common keys.
+ * The footer band of every table: the 10/25/50 pager (ru-localized via common
+ * keys), with an optional totals summary on its left.
  */
 export const TablePager: React.FC<TablePagerProps> = ({
 	count,
@@ -27,10 +29,11 @@ export const TablePager: React.FC<TablePagerProps> = ({
 	onPageChange,
 	onRowsPerPageChange,
 	rowsPerPageOptions = DEFAULT_OPTIONS,
+	summary,
 }) => {
 	const { t } = useTranslation();
 
-	return (
+	const pager = (
 		<TablePagination
 			component="div"
 			count={count}
@@ -43,8 +46,19 @@ export const TablePager: React.FC<TablePagerProps> = ({
 			labelDisplayedRows={({ from, to, count: total }) =>
 				t("common.table.displayedRows", { from, to, total })
 			}
-			sx={FOOTER_SX}
+			sx={summary ? { ml: "auto" } : FOOTER_SX}
 		/>
+	);
+
+	if (!summary) {
+		return pager;
+	}
+
+	return (
+		<Box sx={{ ...FOOTER_SX, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+			{summary}
+			{pager}
+		</Box>
 	);
 };
 

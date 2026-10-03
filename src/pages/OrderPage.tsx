@@ -2,9 +2,10 @@ import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import OrderListHeader from "components/order/List/OrderListHeader";
+import OrderListTotals from "components/order/List/OrderListTotals";
 import OrdersTable from "components/order/List/OrdersTable";
 import { buildOrderColumns } from "components/order/List/orderTableConfigs";
-import { readyOr } from "helpers/Loading";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
 import { orderDetailPath, PATHS } from "routing/paths";
@@ -77,6 +78,7 @@ const OrderPage: React.FC = observer(() => {
 				isFiltering={orderStore.isFiltering}
 				onOpen={(o) => navigate(orderDetailPath(o.id))}
 				onCreate={() => navigate(PATHS.newOrder)}
+				summary={isReady(orderStore.listOrders) && <OrderListTotals rows={orderStore.listOrders} />}
 			/>
 		</Box>
 	);

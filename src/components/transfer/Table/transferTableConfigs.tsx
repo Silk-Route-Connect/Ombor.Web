@@ -4,6 +4,7 @@ import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { Transfer, transferUnits } from "models/transfer";
@@ -21,12 +22,14 @@ export function buildTransferColumns(
 		{
 			key: "number",
 			headerName: t("transfer.table.number"),
+			width: COLUMN_WIDTH.number,
 			sortValue: (tr) => tr.id,
 			renderCell: (tr) => <DocNumberCell number={tr.id} onOpen={() => onOpen(tr)} />,
 		},
 		{
 			key: "date",
 			headerName: t("transfer.table.date"),
+			width: COLUMN_WIDTH.dateTime,
 			sortValue: (tr) => Date.parse(tr.date),
 			renderCell: (tr) => <DateCell value={tr.date} />,
 		},
@@ -45,12 +48,14 @@ export function buildTransferColumns(
 		{
 			key: "createdBy",
 			headerName: t("transfer.table.createdBy"),
+			width: COLUMN_WIDTH.author,
 			sortValue: (tr) => tr.createdBy,
 			renderCell: (tr) => <MutedTextCell text={tr.createdBy} />,
 		},
 		{
 			key: "positions",
 			headerName: t("transfer.table.positions"),
+			width: COLUMN_WIDTH.count,
 			align: "right",
 			sortValue: (tr) => tr.lines.length,
 			renderCell: (tr) => <QuantityCell value={tr.lines.length} />,
@@ -58,6 +63,7 @@ export function buildTransferColumns(
 		{
 			key: "units",
 			headerName: t("transfer.table.units"),
+			width: COLUMN_WIDTH.quantity,
 			align: "right",
 			sortValue: (tr) => transferUnits(tr),
 			renderCell: (tr) => <QuantityCell value={transferUnits(tr)} />,
