@@ -127,6 +127,10 @@ Pre: T-PAY-36 (sale remaining 50 000).
 Steps: 1. «Новый платёж»: «Оплата», same partner/wallet, amount 50 000 → settlement modal auto-allocates 50 000 → «Провести платёж». 2. Reopen «Новый платёж», «Оплата», same partner, wallet, amount 10 000 → submit to the settlement modal. 3. «Назад», close without saving.
 Expect: 1 → sale flips to «Оплачено» (Closed); wallet = 2 200 000. 2 → empty state «Открытых долгов нет» / «Вся сумма будет записана как аванс партнёра» — the advance path offered only now, at zero outstanding debt (R40, #6). 3 → no payment created.
 
+### T-PAY-38 · Open debts fail to load — nothing is booked [negative]
+Steps: 1. Block `GET /api/payments/outstanding` (DevTools → Network request blocking). 2. «Новый платёж»: «Оплата», a partner with open debt, amount 100 → «Далее: какие долги закрыть». 3. «Провести платёж». 4. Unblock, «Повторить».
+Expect: 2 → «Не удалось загрузить открытые долги» + reason + «Повторить» where the debt table goes; «Закрыто долгов» and «В аванс» read «—», never 0 / the whole amount. 3 → no `POST /api/payments` (confirming blind would book the whole amount as an advance). 4 → the debt rows load and the FIFO split fills the figures.
+
 ## Reconciliation
 
 ### T-PAY-60 · Transaction status flips propagate across screens [reconcile]

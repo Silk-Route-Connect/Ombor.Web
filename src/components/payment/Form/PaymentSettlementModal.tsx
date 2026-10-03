@@ -15,6 +15,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
 import { Box, Checkbox, Dialog, DialogContent, TextField, Typography } from "@mui/material";
 
+import SettlementSummary from "./SettlementSummary";
+
 interface PaymentSettlementModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
@@ -94,6 +96,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		setRows(buildFifo());
 	}, [buildFifo]);
 
+	const debtsReady = isReady(outstanding);
 	const distributed = rows.reduce((s, r) => s + (r.on ? r.amt : 0), 0);
 	const advance = Math.max(0, amount - distributed);
 
@@ -111,7 +114,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 	const confirm = () => {
 		// Until the open debts are in, confirming would book the whole amount as an
 		// advance — the list area shows the spinner / error with «Повторить» instead.
-		if (!isReady(outstanding)) {
+		if (!debtsReady) {
 			return;
 		}
 		const settlements: SettlementInput[] = rows
@@ -264,57 +267,12 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 					</Box>
 				)}
 
-				{/* summary */}
-				<Box
-					sx={{
-						display: "grid",
-						gridTemplateColumns: "repeat(3, 1fr)",
-						gap: "12px",
-						mt: "18px",
-						p: "14px 16px",
-						borderRadius: "8px",
-						bgcolor: designTokens.gray25,
-						border: "1px solid",
-						borderColor: "divider",
-					}}
-				>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.toDistribute")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 18 }}>
-							{formatCurrency(amount)}
-						</Typography>
-					</Box>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.distributed")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 18, color: "success.main" }}>
-							{formatCurrency(distributed)}
-						</Typography>
-					</Box>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.toAdvance")}
-						</Typography>
-						<Typography
-							sx={{
-								...numericSx,
-								fontWeight: 700,
-								fontSize: 18,
-								color: advance > 0 ? designTokens.saffron700 : "text.disabled",
-							}}
-						>
-							{formatCurrency(advance)}
-						</Typography>
-						{advance > 0 && (
-							<Typography sx={{ fontSize: 11, color: "text.disabled", mt: "2px" }}>
-								{t("payment.settlement.advanceNote")}
-							</Typography>
-						)}
-					</Box>
-				</Box>
+				<SettlementSummary
+					amount={amount}
+					distributed={distributed}
+					advance={advance}
+					debtsReady={debtsReady}
+				/>
 			</DialogContent>
 
 			<FormDialogFooter
