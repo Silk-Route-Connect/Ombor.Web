@@ -116,7 +116,7 @@ export type ProductTransaction = {
 	partnerName: string;
 	/** ISO date string. */
 	date: string;
-	/** Signed quantity in base units: positive into stock, negative out. */
+	/** Line quantity in base units as served (unsigned); the transaction type says in or out. */
 	quantity: number;
 	unitPrice: number;
 	discount: number;

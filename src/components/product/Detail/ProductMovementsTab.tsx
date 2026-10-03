@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { movementKindLabelKey } from "components/shared/Chip/movementKind";
 import MovementKindChip from "components/shared/Chip/MovementKindChip";
-import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DateCell from "components/shared/Table/cells/DateCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
@@ -11,12 +11,16 @@ import TableEmptyState from "components/shared/Table/TableEmptyState";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Measurement, ProductMovement } from "models/product";
 import { numericSx } from "theme";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatQuantity } from "utils/formatCurrency";
+import { measurementShort } from "utils/productUtils";
 
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { Box } from "@mui/material";
 
 interface ProductMovementsTabProps {
+	productName: string;
 	/** Newest first, as served. */
 	movements: ProductMovement[];
 	measurement: Measurement;
@@ -32,6 +36,7 @@ type MovementRow = ProductMovement & { eventId: number };
  * movement (balanceAfter − delta), so it holds under any display sort.
  */
 export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
+	productName,
 	movements,
 	measurement,
 }) => {
@@ -92,11 +97,23 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 		[t, measurement],
 	);
 
+	const handleExport = () => {
+		exportToCsv<MovementRow>(
+			`product_${productName}_movements_${csvDateStamp()}`,
+			[
+				{ header: t("product.detail.txns.date"), value: (m) => formatDate(m.date) },
+				{ header: t("product.detail.table.warehouse"), value: (m) => m.warehouseName },
+				{ header: t("product.detail.txns.type"), value: (m) => t(movementKindLabelKey(m.kind)) },
+				{ header: t("product.detail.table.quantity"), value: (m) => m.quantity },
+				{ header: t("product.detail.moves.balance"), value: (m) => m.balanceAfter },
+				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },
+			],
+			rows,
+		);
+	};
+
 	return (
-		<DetailCard
-			title={t("product.detail.moves.title")}
-			icon={<LayersOutlinedIcon sx={detailCardIconSx} />}
-		>
+		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
 			<DetailTable<MovementRow>
 				rows={rows}
 				columns={columns}
@@ -118,7 +135,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 					</tr>
 				}
 			/>
-		</DetailCard>
+		</DetailTableCard>
 	);
 };
 

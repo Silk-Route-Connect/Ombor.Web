@@ -6,7 +6,7 @@ import UzsUnit from "components/shared/Money/UzsUnit";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatPercent } from "utils/formatCurrency";
 import { measurementLabel, unitInline } from "utils/productUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -99,7 +99,7 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 			? product.salePrice - costBasis
 			: null;
 	const marginPct =
-		margin != null && costBasis != null ? ((margin / costBasis) * 100).toFixed(1) : null;
+		margin != null && costBasis != null ? formatPercent((margin / costBasis) * 100) : null;
 
 	const packagingLabel = product.packaging
 		? (product.packaging.label ?? `${product.packaging.size}${unit ? ` ${unit}` : ""}`)

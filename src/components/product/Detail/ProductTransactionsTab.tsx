@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import MovementKindChip from "components/shared/Chip/MovementKindChip";
-import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DateCell from "components/shared/Table/cells/DateCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
@@ -11,11 +11,15 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { Measurement, ProductTransaction } from "models/product";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
-import { directionOf, lineNet } from "utils/transactionUtils";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { measurementShort } from "utils/productUtils";
+import { directionOf, isRefundType, lineNet } from "utils/transactionUtils";
 
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
 
 interface ProductTransactionsTabProps {
+	productName: string;
 	transactions: ProductTransaction[];
 	measurement: Measurement;
 	/** Opens the sale / supply the line belongs to. */
@@ -34,6 +38,15 @@ const lineTotal = (txn: ProductTransaction): number =>
 		discountType: txn.discountType,
 	});
 
+/**
+ * Stock goes in on a supply and a sale refund, out on a sale and a supply
+ * refund — read from the document type (the served line quantity is unsigned).
+ */
+const stockDirection = (row: TransactionRow): "in" | "out" =>
+	(directionOf(row.transactionType) === "Supply") !== isRefundType(row.transactionType)
+		? "in"
+		: "out";
+
 const sourcePath = (row: TransactionRow): string =>
 	directionOf(row.transactionType) === "Supply"
 		? supplyDetailPath(row.transactionId)
@@ -45,6 +58,7 @@ const sourcePath = (row: TransactionRow): string =>
  * this table has no № column (frontend-gaps follow-up).
  */
 export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
+	productName,
 	transactions,
 	measurement,
 	onOpen,
@@ -80,12 +94,12 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 				key: "quantity",
 				headerName: t("product.detail.table.quantity"),
 				align: "right",
-				sortValue: (r) => r.quantity,
+				sortValue: (r) => (stockDirection(r) === "in" ? 1 : -1) * Math.abs(r.quantity),
 				renderCell: (r) => (
 					<QuantityCell
-						value={r.quantity}
+						value={Math.abs(r.quantity)}
 						measurement={measurement}
-						direction={r.quantity >= 0 ? "in" : "out"}
+						direction={stockDirection(r)}
 					/>
 				),
 			},
@@ -107,11 +121,30 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 		[t, measurement],
 	);
 
+	const handleExport = () => {
+		exportToCsv<TransactionRow>(
+			`product_${productName}_transactions_${csvDateStamp()}`,
+			[
+				{ header: t("product.detail.txns.date"), value: (r) => formatDate(r.date) },
+				{ header: t("product.detail.txns.partner"), value: (r) => r.partnerName },
+				{
+					header: t("product.detail.txns.type"),
+					value: (r) => t(`common.movementKind.${r.transactionType}`),
+				},
+				{
+					header: t("product.detail.table.quantity"),
+					value: (r) => (stockDirection(r) === "in" ? 1 : -1) * Math.abs(r.quantity),
+				},
+				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },
+				{ header: t("product.detail.txns.price"), value: (r) => r.unitPrice },
+				{ header: t("product.detail.txns.total"), value: lineTotal },
+			],
+			rows,
+		);
+	};
+
 	return (
-		<DetailCard
-			title={t("product.detail.txns.title")}
-			icon={<SwapHorizOutlinedIcon sx={detailCardIconSx} />}
-		>
+		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
 			<DetailTable<TransactionRow>
 				rows={rows}
 				columns={columns}
@@ -126,7 +159,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 					/>
 				}
 			/>
-		</DetailCard>
+		</DetailTableCard>
 	);
 };
 

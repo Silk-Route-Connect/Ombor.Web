@@ -60,6 +60,13 @@ export function formatQuantity(value: number): string {
 	return quantityFormatter.format(value);
 }
 
+const percentFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 1 });
+
+/** A percentage with the ru decimal comma: 33.33 → «33,3», 50 → «50» (no «%» sign). */
+export function formatPercent(value: number): string {
+	return percentFormatter.format(value);
+}
+
 /** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */
 export function formatSigned(value: number): string {
 	if (value === 0) {
