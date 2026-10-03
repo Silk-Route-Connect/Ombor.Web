@@ -239,8 +239,9 @@
   "transaction.new.kbd.partner.Supply": "поставщик",
   "transaction.new.kbd.leave": "выйти",
 
-  "transaction.new.search.placeholder": "Найдите товар по названию или артикулу…",
+  "transaction.new.search.placeholder": "Найдите товар по названию, артикулу или штрих-коду…",
   "transaction.new.search.empty": "Товар не найден",
+  "transaction.new.search.create": "Создать товар (Enter)",
   "transaction.new.search.outOfStock": "Нет в наличии",
   "transaction.new.search.inStock": "На складе: {{count}} {{unit}}",
   "transaction.new.search.supplyPriceLabel": "Цена поставки",

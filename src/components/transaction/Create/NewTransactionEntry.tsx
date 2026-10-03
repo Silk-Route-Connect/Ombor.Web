@@ -9,6 +9,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import CartLineRow from "components/transaction/Create/CartLineRow";
 import KeyboardHints from "components/transaction/Create/KeyboardHints";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
+import PosProductCreate from "components/transaction/Create/PosProductCreate";
 import ProductSearchBar from "components/transaction/Create/ProductSearchBar";
 import SaveTemplateModal from "components/transaction/Create/SaveTemplateModal";
 import TemplateLoadMenu from "components/transaction/Create/TemplateLoadMenu";
@@ -73,6 +74,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 	const [bulkApplied, setBulkApplied] = useState(0);
 	/** Product id whose just-added line should grab + select its quantity field. */
 	const [focusQtyId, setFocusQtyId] = useState<number | null>(null);
+	/** What was typed in the search when «Создать товар» opened the product form. */
+	const [creatingProduct, setCreatingProduct] = useState<string | null>(null);
 	/** Analytics: a template was loaded into this entry (see sale/supply_created). */
 	const [fromTemplate, setFromTemplate] = useState(false);
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -288,6 +291,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		const focus = (selector: string) =>
 			(document.querySelector(selector) as HTMLElement | null)?.focus();
 		const handler = (e: KeyboardEvent) => {
+			// Keys inside a modal (the product form opened from the search) belong to it —
+			// its Ctrl+Enter saves the product, never the sale underneath.
+			if ((e.target as HTMLElement | null)?.closest?.('[role="dialog"]')) {
+				return;
+			}
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
 				submitRef.current();
@@ -421,6 +429,19 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 						inCart={entry.inCart}
 						inputRef={searchRef}
 						onAdd={handleAddProduct}
+						onScan={entry.addProduct}
+						onCreateProduct={setCreatingProduct}
+					/>
+					<PosProductCreate
+						typed={creatingProduct}
+						onClose={() => setCreatingProduct(null)}
+						onCreated={(product) => {
+							setCreatingProduct(null);
+							// A product of the other trade type can't join this cart.
+							if (product.type === "All" || product.type === direction) {
+								handleAddProduct(product);
+							}
+						}}
 					/>
 
 					<KeyboardHints direction={direction} />

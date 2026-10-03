@@ -6,6 +6,7 @@ import OrderSourcePicker from "components/order/Create/OrderSourcePicker";
 import BackButton from "components/shared/Buttons/BackButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
 import ProductSearchBar from "components/transaction/Create/ProductSearchBar";
@@ -21,6 +22,7 @@ import { orderDetailPath, PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
+import { addToCart } from "utils/cartUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -96,22 +98,9 @@ export const NewOrder: React.FC = observer(() => {
 	const discTotal = items.reduce((s, l) => s + lineDiscountOf(l), 0);
 	const total = Math.max(0, subtotal - discTotal);
 
-	const addProduct = (product: Product) => {
-		setItems((its) =>
-			its.some((x) => x.product.id === product.id)
-				? its.map((x) => (x.product.id === product.id ? { ...x, quantity: x.quantity + 1 } : x))
-				: [
-						...its,
-						{
-							product,
-							quantity: 1,
-							unitPrice: product.salePrice,
-							discountValue: 0,
-							discountType: "Percentage",
-						},
-					],
-		);
-	};
+	// Order lines count in base units — a scanned package adds its size.
+	const addProduct = (product: Product, asPackage = false) =>
+		setItems((its) => addToCart(its, product, { unitPrice: product.salePrice, asPackage }));
 	const updateItem = (index: number, patch: Partial<CartItem>) =>
 		setItems((its) => its.map((it, i) => (i === index ? { ...it, ...patch } : it)));
 	const removeItem = (index: number) => setItems((its) => its.filter((_, i) => i !== index));
@@ -300,6 +289,7 @@ export const NewOrder: React.FC = observer(() => {
 						inCart={inCart}
 						inputRef={searchRef}
 						onAdd={addProduct}
+						onScan={addProduct}
 					/>
 
 					{/* cart */}
@@ -457,12 +447,7 @@ export const NewOrder: React.FC = observer(() => {
 									}}
 								>
 									{formatCurrency(Math.abs(client.balance))}
-									<Box
-										component="span"
-										sx={{ fontSize: 13, fontWeight: 600, color: "text.disabled", ml: "6px" }}
-									>
-										UZS
-									</Box>
+									<UzsUnit />
 								</Typography>
 							</Box>
 						</Box>
@@ -521,12 +506,7 @@ export const NewOrder: React.FC = observer(() => {
 								}}
 							>
 								{formatCurrency(total)}
-								<Box
-									component="span"
-									sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "5px" }}
-								>
-									UZS
-								</Box>
+								<UzsUnit />
 							</Typography>
 						</Box>
 					</Box>

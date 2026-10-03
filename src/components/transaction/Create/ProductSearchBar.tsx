@@ -5,13 +5,14 @@ import { stockAt } from "hooks/transactions/useTransactionEntry";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { findBarcodeMatch, matchesProductSearch } from "utils/productFilters";
 import { measurementShort } from "utils/productUtils";
-import { matchesSearch } from "utils/stringUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
+import AddIcon from "@mui/icons-material/Add";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { Autocomplete, Box, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, TextField, Typography } from "@mui/material";
 
 interface ProductSearchBarProps {
 	direction: TransactionDirection;
@@ -20,6 +21,17 @@ interface ProductSearchBarProps {
 	inCart: Set<number>;
 	inputRef?: React.Ref<HTMLInputElement>;
 	onAdd: (product: Product) => void;
+	/**
+	 * Enter on a code that is exactly one product's barcode (a USB scanner types
+	 * the code + Enter): add it — in packages for a packaging barcode — keep the
+	 * focus here and clear the field, so the next scan follows.
+	 */
+	onScan: (product: Product, asPackage: boolean) => void;
+	/**
+	 * Nothing matched (or the catalogue is empty): «Создать товар» in the
+	 * dropdown — or Enter — opens the product form with what was typed.
+	 */
+	onCreateProduct?: (typed: string) => void;
 }
 
 /** Sellable items first: out-of-stock products (at the picked warehouse) sink to the bottom. */
@@ -30,9 +42,11 @@ function inStockFirst(products: Product[], warehouseId: number | null): Product[
 }
 
 /**
- * POS product search. Picking a product adds it to the cart and keeps the panel
- * open for rapid multi-add. A Sale option shows the per-warehouse stock (out /
- * low / ok) and the sale price; a Supply option shows the supply (cost) price.
+ * POS product search by name, SKU, barcode or packaging barcode. Picking a
+ * product adds it to the cart and keeps the panel open for rapid multi-add; a
+ * scanned barcode + Enter adds its product directly (`onScan`). A Sale option
+ * shows the per-warehouse stock (out / low / ok) and the sale price; a Supply
+ * option shows the supply (cost) price.
  */
 export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 	direction,
@@ -41,6 +55,8 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 	inCart,
 	inputRef,
 	onAdd,
+	onScan,
+	onCreateProduct,
 }) => {
 	const isSale = direction === "Sale";
 	const { t } = useTranslation();
@@ -51,9 +67,59 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 		return isSale ? inStockFirst(available, warehouseId) : available;
 	}, [products, inCart, isSale, warehouseId]);
 
+	// No product at all answers the text (or the catalogue is empty) — not merely
+	// «all matches are already in the cart», which must never offer a duplicate.
+	const nothingMatches = inputValue.trim()
+		? !products.some((p) => matchesProductSearch(p, inputValue))
+		: products.length === 0;
+	const canCreate = Boolean(onCreateProduct) && nothingMatches;
+
+	const createProduct = (): void => {
+		onCreateProduct?.(inputValue);
+		setInputValue("");
+	};
+
+	// Every product, the ones already in the cart too — a repeated scan adds one more.
+	const handleKeyDown = (
+		event: React.KeyboardEvent<HTMLDivElement> & { defaultMuiPrevented?: boolean },
+	) => {
+		if (event.key !== "Enter" || !inputValue.trim()) {
+			return;
+		}
+		const match = findBarcodeMatch(products, inputValue);
+		if (match || canCreate) {
+			event.defaultMuiPrevented = true;
+			event.preventDefault();
+		}
+		if (match) {
+			onScan(match.product, match.asPackage);
+			setInputValue("");
+		} else if (canCreate) {
+			createProduct();
+		}
+	};
+
+	const noOptions = canCreate ? (
+		<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+			<span>{t("transaction.new.search.empty")}</span>
+			<Button
+				size="small"
+				startIcon={<AddIcon />}
+				// Keep the input focused so the popup stays open until the click lands.
+				onMouseDown={(e) => e.preventDefault()}
+				onClick={createProduct}
+			>
+				{t("transaction.new.search.create")}
+			</Button>
+		</Box>
+	) : (
+		t("transaction.new.search.empty")
+	);
+
 	return (
 		<Autocomplete
 			options={options}
+			onKeyDown={handleKeyDown}
 			value={null}
 			inputValue={inputValue}
 			onInputChange={(_, v, reason) => {
@@ -72,14 +138,9 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 			slotProps={dropdownSlotProps}
 			getOptionLabel={(p) => p.name}
 			filterOptions={(opts, state) =>
-				state.inputValue
-					? opts.filter(
-							(p) =>
-								matchesSearch(p.name, state.inputValue) || matchesSearch(p.sku, state.inputValue),
-						)
-					: opts
+				state.inputValue ? opts.filter((p) => matchesProductSearch(p, state.inputValue)) : opts
 			}
-			noOptionsText={t("transaction.new.search.empty")}
+			noOptionsText={noOptions}
 			renderInput={(params) => (
 				<TextField
 					{...params}

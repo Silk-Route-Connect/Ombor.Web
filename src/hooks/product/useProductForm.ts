@@ -16,6 +16,8 @@ export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
+	/** Create only: values to start from (e.g. the name or barcode typed in the POS search). */
+	defaults?: Partial<ProductFormInputs>;
 	onSave: (
 		payload: ProductFormValues,
 		imagesToRemove: number[],
@@ -84,6 +86,7 @@ export const useProductForm = ({
 	isOpen,
 	isSaving,
 	product,
+	defaults,
 	onSave,
 }: UseProductFormOptions): UseProductFormResult => {
 	const form = useForm<ProductFormInputs>({
@@ -105,7 +108,9 @@ export const useProductForm = ({
 	>(null);
 
 	useEffect(() => {
-		const initialValues = product ? mapProductToFormPayload(product) : { ...DEFAULT_VALUES };
+		const initialValues = product
+			? mapProductToFormPayload(product)
+			: { ...DEFAULT_VALUES, ...defaults };
 		reset(initialValues);
 		setInitialImages(product?.images ?? []);
 		setImagesToRemove([]);
@@ -115,6 +120,8 @@ export const useProductForm = ({
 		} else {
 			setMainSelection(null);
 		}
+		// `defaults` apply when the form opens; a later change must not wipe what was typed.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen, product, reset]);
 
 	const existingImages = useMemo(

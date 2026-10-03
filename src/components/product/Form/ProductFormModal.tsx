@@ -10,7 +10,7 @@ import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
-import { ProductFormValues } from "schemas/ProductSchema";
+import { ProductFormInputs, ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { dialogPaperSx } from "theme";
 import { ServerErrorHandler } from "utils/formServerErrors";
@@ -26,6 +26,8 @@ export interface ProductFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
+	/** Create only: values to start from (the POS passes the typed name or barcode). */
+	defaults?: Partial<ProductFormInputs>;
 	onSave: (
 		payload: ProductFormValues,
 		imagesToRemove: number[],
@@ -38,13 +40,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	isOpen,
 	isSaving,
 	product,
+	defaults,
 	onSave,
 	onClose,
 }) => {
 	const { t } = useTranslation();
 	const { categoryStore } = useStore();
 
-	const form = useProductForm({ isOpen, isSaving, product, onSave });
+	const form = useProductForm({ isOpen, isSaving, product, defaults, onSave });
 	const onKeyDown = useFormKeyboardSubmit(form.submit, isSaving);
 	const sku = useSkuAutofill(form.form, isOpen, !product);
 
