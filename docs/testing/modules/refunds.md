@@ -4,7 +4,7 @@ SaleRefund / SupplyRefund counter-events: creation from the original, caps, effe
 
 ## Surfaces
 
-- **No standalone route.** Refund create = `RefundModal`, opened only from the original's detail (`/sales/:id`, `/supplies/:id`) via the visible header button «Оформить возврат» (the `primaryAction`, ux-9); «Скачать» moved into the ⋮ kebab. The modal footer reads «Провести возврат» with the lock line «После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.»
+- **No standalone route.** Refund create = `RefundModal`, opened on the original's detail (`/sales/:id`, `/supplies/:id`) via the visible header button «Оформить возврат» (the `primaryAction`, ux-9), or from a `/sales` / `/supplies` row's ⋮ «Оформить возврат», which opens that detail with the modal already open. A fully refunded original shows a grey «Возвращено полностью» pill in place of the button, «Возвращено полностью» under its № in the list, and no row ⋮. The modal footer reads «Провести возврат» with the lock line «После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.»
 - **Refund rows** live inside the `/sales` feed (SaleRefund) and `/supplies` feed (SupplyRefund).
 - **Refund detail** = the same `TransactionDetailPage` route, rendering refund-specific parts: clickable «Возврат к продаже/поставке» banner, «Причина возврата» card, «Сумма возврата» financial card. No kebab at all on a refund detail.
 - **Wire:** refunds POST through the shared multipart `POST /api/transactions` with `Type=SaleRefund|SupplyRefund` + `OriginalTransactionId` + `RefundReason` — no dedicated refund route.
@@ -109,6 +109,16 @@ Expect: toast «Возврат к №P проведён»; `/supplies` row: outl
 Pre: T-RFD-32.
 Steps: on `/sales` — 1. set the status filter to «Не оплачено» (the Open option); 2. reset to all, then search the bare number of №S.
 Expect: step 1 — №R1/№R2 disappear, sale №S stays (trap — designed, do not report); step 2 — results include №S AND both its refunds (search matches `originalTransactionNumber`).
+
+### T-RFD-38 · Refund from the list row ⋮ [happy]
+Pre: a sale with something left to refund (e.g. №S before T-RFD-32).
+Steps: on `/sales` open the row's ⋮ → «Оформить возврат». Close the modal with «Отмена»; reload the page; then press Back.
+Expect: the sale's detail opens with the refund modal already open, lines and «Возвращено» filled in. After closing, neither the reload nor Back reopens the modal. Refund rows have no ⋮.
+
+### T-RFD-39 · Fully refunded document explains instead of offering a refund [edge]
+Pre: T-RFD-32 for a one-line №S (or any sale whose every line was refunded in full).
+Steps: 1. `/sales`: find №S. 2. Open №S.
+Expect: 1 — «Возвращено полностью» under the number, no ⋮ on that row. 2 — the header shows a grey «Возвращено полностью» pill instead of «Оформить возврат»; «Возвраты по этой продаже» lists the refunds. A document arriving from a stale list ⋮ after it was fully refunded opens without the modal and toasts «Продажа №S уже возвращена полностью — возвращать нечего».
 
 ### T-RFD-37 · Refund lines are picked with the keyboard [edge]
 Pre: a sale with something left to refund.

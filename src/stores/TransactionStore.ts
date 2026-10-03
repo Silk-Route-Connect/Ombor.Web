@@ -12,6 +12,7 @@ import {
 import TransactionApi from "services/api/TransactionApi";
 import { analytics } from "services/telemetry";
 import { formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
+import { isFullyRefunded, refundsByOriginal } from "utils/refundUtils";
 import { matchesSearch } from "utils/stringUtils";
 import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/transactionUtils";
 
@@ -49,6 +50,8 @@ export interface ITransactionStore {
 	setDateRange(range: DateRangeFilter): void;
 	resetFilters(): void;
 
+	/** Sales / supplies with nothing left to refund. */
+	fullyRefundedIds: ReadonlySet<number>;
 	openRefund(transaction: TransactionRecord): void;
 	closeDialog(): void;
 }
@@ -222,6 +225,22 @@ export class TransactionStore implements ITransactionStore {
 		this.searchTerm = "";
 		this.statusFilter = "all";
 		this.dateRange = "all";
+	}
+
+	/**
+	 * Read from the whole collection, not a feed — a date, status or search filter
+	 * must never hide the refund that emptied a document.
+	 */
+	get fullyRefundedIds(): ReadonlySet<number> {
+		if (!isReady(this.allTransactions)) {
+			return new Set();
+		}
+		const refunds = refundsByOriginal(this.allTransactions);
+		return new Set(
+			this.allTransactions
+				.filter((tx) => isFullyRefunded(tx, refunds.get(tx.id) ?? []))
+				.map((tx) => tx.id),
+		);
 	}
 
 	openRefund(transaction: TransactionRecord): void {

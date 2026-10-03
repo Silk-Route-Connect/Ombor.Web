@@ -1,5 +1,6 @@
 import React from "react";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
 import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
 import DateCell from "components/shared/Table/cells/DateCell";
 import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
@@ -7,6 +8,7 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { TFunction } from "i18next";
 import { TransactionRecord } from "models/transaction";
@@ -14,6 +16,7 @@ import { saleDetailPath, supplyDetailPath } from "routing/paths";
 import { entityNumberSortValue, formatEntityId } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
+import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box } from "@mui/material";
 
 /** The served document number; the lean list DTO may omit it — the id is its display number (DR-14). */
@@ -31,12 +34,22 @@ export const transactionTypeLabel = (t: TFunction, tx: TransactionRecord): strin
 			: `transaction.badge.base.${directionOf(tx.type)}`,
 	);
 
+export interface TransactionRowHandlers {
+	/** Nothing is left to refund — the row says «Возвращено полностью» and offers no refund. */
+	isFullyRefunded: (tx: TransactionRecord) => boolean;
+	/** ⋮ «Оформить возврат»: the refund modal lives on the document's detail. */
+	onRefund: (tx: TransactionRecord) => void;
+}
+
 /**
  * Sales / Supplies feed columns in the canonical order (conventions.md →
- * Tables): № · Дата · Партнёр · Тип · Статус · Позиций · Сумма. Amounts are
+ * Tables): № · Дата · Партнёр · Тип · Статус · Позиций · Сумма · ⋮. Amounts are
  * unsigned — the type chip says «Возврат».
  */
-export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>[] {
+export function buildTransactionColumns(
+	t: TFunction,
+	handlers: TransactionRowHandlers,
+): Column<TransactionRecord>[] {
 	return [
 		{
 			key: "number",
@@ -50,6 +63,11 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 							{t("transaction.list.refundOf", {
 								number: formatEntityId(tx.originalTransactionNumber),
 							})}
+						</Box>
+					)}
+					{handlers.isFullyRefunded(tx) && (
+						<Box sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}>
+							{t("transaction.refund.fullyRefunded")}
 						</Box>
 					)}
 				</Box>
@@ -100,6 +118,27 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 			align: "right",
 			sortValue: (tx) => tx.totalDue,
 			renderCell: (tx) => <MoneyCell value={tx.totalDue} main />,
+		},
+		{
+			key: "actions",
+			headerName: "",
+			align: "right",
+			width: ACTIONS_COLUMN_WIDTH,
+			sortable: false,
+			// A refund is never refunded, and a fully refunded document has nothing left.
+			renderCell: (tx) =>
+				isRefundType(tx.type) || handlers.isFullyRefunded(tx) ? null : (
+					<ActionMenu
+						actions={[
+							{
+								key: "refund",
+								label: t("transaction.detail.createRefund"),
+								icon: <UndoOutlinedIcon fontSize="small" />,
+								onClick: () => handlers.onRefund(tx),
+							},
+						]}
+					/>
+				),
 		},
 	];
 }

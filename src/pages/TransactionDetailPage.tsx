@@ -22,6 +22,7 @@ import { transactionDetailPath } from "components/transaction/List/transactionTa
 import RefundModal from "components/transaction/Refund/RefundModal";
 import { isPresent } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
+import { useOpenRefundOnArrival } from "hooks/transactions/useOpenRefundOnArrival";
 import { observer } from "mobx-react-lite";
 import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
@@ -52,6 +53,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 	}, [txId, selectedTransactionStore]);
 
 	const tx = txId === null ? null : selectedTransactionStore.transaction;
+	useOpenRefundOnArrival();
 	const retry = () => txId !== null && void selectedTransactionStore.load(txId);
 	const detailPath = direction === "Sale" ? saleDetailPath : supplyDetailPath;
 	const openTransaction = (otherId: number) => navigate(detailPath(otherId));
@@ -91,6 +93,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 				tx={tx}
 				direction={direction}
 				onCreateRefund={() => transactionStore.openRefund(tx)}
+				fullyRefunded={selectedTransactionStore.isFullyRefunded}
 				onDownload={() => devToast(t("transaction.detail.download"))}
 			/>
 

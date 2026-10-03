@@ -1,5 +1,6 @@
 import {
 	isLoadError,
+	isPresent,
 	isReady,
 	Loadable,
 	LoadError,
@@ -11,6 +12,7 @@ import { tryRun } from "helpers/TryRun";
 import { makeAutoObservable, runInAction } from "mobx";
 import { TransactionRecord } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
+import { isFullyRefunded } from "utils/refundUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -23,6 +25,8 @@ export interface ISelectedTransactionStore {
 	originalOfCurrent: TransactionRecord | null;
 	/** Set when the collection behind the refund relationships failed to load. */
 	relationsError: LoadError | null;
+	/** Every line of the open sale / supply already went back — nothing is left to refund. */
+	isFullyRefunded: boolean;
 
 	load(id: number): Promise<void>;
 	clear(): void;
@@ -68,6 +72,15 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 			return null;
 		}
 		return this.all.find((t) => t.id === current.originalTransactionId) ?? null;
+	}
+
+	/** False while the refund relationships are unknown (loading or failed) — the backend still caps a refund. */
+	get isFullyRefunded(): boolean {
+		return (
+			isPresent(this.detail) &&
+			isReady(this.all) &&
+			isFullyRefunded(this.detail, this.refundsOfCurrent)
+		);
 	}
 
 	get relationsError(): LoadError | null {
