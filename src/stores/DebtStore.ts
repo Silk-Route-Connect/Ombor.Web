@@ -9,7 +9,10 @@ import { NotificationStore } from "./NotificationStore";
 
 export type DebtTab = "partners" | "transactions";
 export type DebtDirectionFilter = DebtDirection | "all";
-export type DebtAgeBucket = "all" | "0-7" | "8-30" | "31-60" | "60+";
+export type DebtAgeBucket = "all" | "0-7" | "8-30" | "31+" | "31-60" | "60+";
+
+/** Dashboard / Debts summary cards that pre-filter the debts table. */
+export type DebtCard = "receivable" | "payable" | "overdue" | "aged";
 /** Initial-sort seed for the transactions table (column headers own ad-hoc sorting). */
 export type DebtTxPresetSort = "remaining" | "age";
 
@@ -47,6 +50,7 @@ const AGE_PREDICATES: Record<DebtAgeBucket, (d: Debt) => boolean> = {
 	all: () => true,
 	"0-7": (d) => d.ageDays <= 7,
 	"8-30": (d) => d.ageDays >= 8 && d.ageDays <= 30,
+	"31+": (d) => d.ageDays >= 31,
 	"31-60": (d) => d.ageDays >= 31 && d.ageDays <= 60,
 	"60+": (d) => d.ageDays > 60,
 };
@@ -75,7 +79,7 @@ export interface IDebtStore {
 	setOnlyOverdue(value: boolean): void;
 	clearFilters(): void;
 	/** A summary-card click jumps to the transactions tab with a preset filter. */
-	applyCard(card: "receivable" | "payable" | "overdue"): void;
+	applyCard(card: DebtCard): void;
 }
 
 export class DebtStore implements IDebtStore {
@@ -228,10 +232,18 @@ export class DebtStore implements IDebtStore {
 		this.directionFilter = "all";
 	}
 
-	applyCard(card: "receivable" | "payable" | "overdue"): void {
+	applyCard(card: DebtCard): void {
 		this.tab = "transactions";
 		this.txPresetNonce += 1;
-		if (card === "receivable") {
+		this.ageBucket = "all";
+		if (card === "aged") {
+			// The dashboard «Долги старше 30 дней» card: receivables by age (31+), not
+			// the due-date «Просрочено» filter — the two are different measures.
+			this.directionFilter = "Receivable";
+			this.onlyOverdue = false;
+			this.ageBucket = "31+";
+			this.txPresetSort = "age";
+		} else if (card === "receivable") {
 			this.directionFilter = "Receivable";
 			this.onlyOverdue = false;
 			this.txPresetSort = "remaining";

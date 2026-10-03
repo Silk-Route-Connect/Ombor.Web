@@ -17,6 +17,7 @@ import {
 	SectionEyebrow,
 	TermsCheckbox,
 } from "components/auth/AuthFields";
+import { ONBOARDING_STEPS } from "components/onboarding/onboardingSteps";
 import { useCountdown } from "hooks/auth/useCountdown";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
@@ -34,11 +35,8 @@ import {
 } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
-import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Button, Typography } from "@mui/material";
 
 type Step = "form" | "otp" | "welcome";
@@ -222,23 +220,12 @@ const RegisterPage: React.FC = observer(() => {
 	}
 
 	if (step === "welcome") {
-		const steps: Array<[React.ElementType, string, string]> = [
-			[
-				Inventory2OutlinedIcon,
-				t("auth.welcome.step.products.title"),
-				t("auth.welcome.step.products.body"),
-			],
-			[
-				PeopleAltOutlinedIcon,
-				t("auth.welcome.step.partners.title"),
-				t("auth.welcome.step.partners.body"),
-			],
-			[
-				WarehouseOutlinedIcon,
-				t("auth.welcome.step.warehouse.title"),
-				t("auth.welcome.step.warehouse.body"),
-			],
-		];
+		// Same steps the dashboard checklist ticks off from real data.
+		const steps: Array<[React.ElementType, string, string]> = ONBOARDING_STEPS.map((s) => [
+			s.icon,
+			t(`onboarding.step.${s.key}.title`),
+			t(`onboarding.step.${s.key}.body`),
+		]);
 		return (
 			<AuthLayout>
 				<Box sx={{ textAlign: "center" }}>

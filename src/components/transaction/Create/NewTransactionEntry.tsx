@@ -414,6 +414,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 									{t(`transaction.new.partner.required.${direction}`)}
 								</Box>
 							)}
+							{direction === "Sale" && !entry.partner && !triedNoPartner && (
+								<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.4 }}>
+									{t("transaction.new.partner.walkInHint")}
+								</Typography>
+							)}
 						</Box>
 						<Box
 							data-ns="warehouse"

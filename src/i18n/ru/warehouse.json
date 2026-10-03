@@ -103,6 +103,8 @@
   "warehouse.stock.total": "Итого по складу",
   "warehouse.stock.emptyTitle": "Ничего не найдено",
   "warehouse.stock.emptyBody": "По заданным условиям товаров нет. Измените поиск или категорию.",
+  "warehouse.stock.noStockTitle": "На складе пока нет товаров",
+  "warehouse.stock.noStockBody": "Добавьте начальный остаток или оформите поставку — товары появятся здесь.",
 
   "warehouse.movements.searchPlaceholder": "Поиск по товару…",
   "warehouse.movements.allTypes": "Все события",

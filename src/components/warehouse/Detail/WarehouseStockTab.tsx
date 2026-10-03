@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
+import GhostButton from "components/shared/Buttons/GhostButton";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
@@ -16,6 +17,8 @@ import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
+import AddIcon from "@mui/icons-material/Add";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
 import { Box, Typography } from "@mui/material";
@@ -23,6 +26,8 @@ import { Box, Typography } from "@mui/material";
 interface WarehouseStockTabProps {
 	warehouse: Warehouse;
 	stock: WarehouseStockItem[];
+	/** Shown in the empty state of a warehouse with no stock yet (omit when archived). */
+	onAddOpeningStock?: () => void;
 }
 
 type SortCol = "name" | "sku" | "category" | "unit" | "quantity" | "averageCost" | "value";
@@ -45,7 +50,11 @@ const ALL_CATEGORIES = "__all__";
  * stock value, searchable by name/SKU, filterable by category, sortable on every
  * column, with a served «Итого по складу» summary row.
  */
-export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse, stock }) => {
+export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
+	warehouse,
+	stock,
+	onAddOpeningStock,
+}) => {
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [category, setCategory] = useState(ALL_CATEGORIES);
@@ -141,15 +150,28 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 						textAlign: "center",
 					}}
 				>
-					<SearchOffOutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
+					{isFiltering ? (
+						<SearchOffOutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
+					) : (
+						<Inventory2OutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
+					)}
 					<Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-						{t("warehouse.stock.emptyTitle")}
+						{t(isFiltering ? "warehouse.stock.emptyTitle" : "warehouse.stock.noStockTitle")}
 					</Typography>
 					<Typography
-						sx={{ fontSize: 12.5, color: "text.secondary", maxWidth: 320, lineHeight: 1.5 }}
+						sx={{ fontSize: 12.5, color: "text.secondary", maxWidth: 340, lineHeight: 1.5 }}
 					>
-						{t("warehouse.stock.emptyBody")}
+						{t(isFiltering ? "warehouse.stock.emptyBody" : "warehouse.stock.noStockBody")}
 					</Typography>
+					{!isFiltering && onAddOpeningStock && (
+						<GhostButton
+							icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
+							onClick={onAddOpeningStock}
+							sx={{ mt: "10px" }}
+						>
+							{t("warehouse.opening.action")}
+						</GhostButton>
+					)}
 				</Box>
 			) : (
 				<>

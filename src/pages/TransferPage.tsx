@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
 import TransferHeader from "components/transfer/Header/TransferHeader";
@@ -7,16 +9,19 @@ import TransfersTable from "components/transfer/Table/TransfersTable";
 import { observer } from "mobx-react-lite";
 import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
 import { Warehouse } from "models/warehouse";
+import { PATHS } from "routing/paths";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { matchesSearch } from "utils/stringUtils";
 
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
 const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { transferStore, warehouseStore, productStore } = useStore();
 	const [search, setSearch] = useState("");
 
@@ -30,6 +35,16 @@ const TransferPage: React.FC = observer(() => {
 		warehouseStore.allWarehouses === "loading"
 			? []
 			: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	// A transfer needs two warehouses; a new organisation has only the starter one,
+	// so «Новое перемещение» explains that instead of opening an unfillable form.
+	const needsSecondWarehouse =
+		warehouseStore.allWarehouses !== "loading" && activeWarehouses.length < 2;
+
+	const createSecondWarehouse = (): void => {
+		transferStore.closeDialog();
+		warehouseStore.openCreate();
+		navigate(PATHS.warehouses);
+	};
 
 	const handleFormSave = (payload: TransferFormValues): void => {
 		const request: CreateTransferRequest = {
@@ -93,11 +108,28 @@ const TransferPage: React.FC = observer(() => {
 			/>
 
 			<TransferFormModal
-				isOpen={dialogMode.kind === "create"}
+				isOpen={dialogMode.kind === "create" && !needsSecondWarehouse}
 				isSaving={transferStore.isSaving}
 				warehouses={activeWarehouses}
 				onClose={transferStore.closeDialog}
 				onSave={handleFormSave}
+			/>
+
+			<ConfirmDialog
+				isOpen={dialogMode.kind === "create" && needsSecondWarehouse}
+				icon={<WarehouseOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="info"
+				title={t("transfer.needsSecond.title")}
+				content={
+					activeWarehouses.length === 1
+						? t("transfer.needsSecond.body", { name: activeWarehouses[0].name })
+						: t("transfer.needsSecond.bodyNone")
+				}
+				confirmLabel={t("transfer.needsSecond.create")}
+				cancelLabel={t("common.close")}
+				confirmVariant="primary"
+				onConfirm={createSecondWarehouse}
+				onCancel={transferStore.closeDialog}
 			/>
 
 			<TransferDetailModal

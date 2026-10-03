@@ -7,13 +7,14 @@
   "debt.summary.receivable": "Нам должны",
   "debt.summary.payable": "Мы должны",
   "debt.summary.overdue": "Просрочено",
-  "debt.summary.net": "Чистая позиция",
-  "debt.summary.txCount_one": "{{count}} транзакция",
-  "debt.summary.txCount_few": "{{count}} транзакции",
-  "debt.summary.txCount_many": "{{count}} транзакций",
+  "debt.summary.net": "Итог расчётов",
+  "debt.summary.txCount_one": "{{count}} документ",
+  "debt.summary.txCount_few": "{{count}} документа",
+  "debt.summary.txCount_many": "{{count}} документов",
+  "debt.summary.txCount_other": "{{count}} документа",
 
   "debt.tabs.partners": "По партнёрам",
-  "debt.tabs.transactions": "По транзакциям",
+  "debt.tabs.transactions": "По документам",
 
   "debt.legend.receivable": "нам должны",
   "debt.legend.payable": "мы должны",
@@ -28,6 +29,7 @@
   "debt.age.all": "Все сроки",
   "debt.age.0-7": "0–7 дней",
   "debt.age.8-30": "8–30 дней",
+  "debt.age.31+": "Старше 30 дней",
   "debt.age.31-60": "31–60 дней",
   "debt.age.60+": "60+ дней",
 
@@ -36,7 +38,7 @@
 
   "debt.partnerTable.partner": "Партнёр",
   "debt.partnerTable.type": "Тип",
-  "debt.partnerTable.count": "Транзакций",
+  "debt.partnerTable.count": "Документов",
   "debt.partnerTable.oldest": "Старейший долг",
   "debt.partnerTable.amount": "Сумма долга",
   "debt.partnerTable.overdueCount": "{{count}} просрочено",
@@ -55,7 +57,7 @@
   "debt.overdueChip": "просрочка {{days}} дн",
 
   "debt.empty.title": "Нет открытых задолженностей",
-  "debt.empty.body": "Все расчёты закрыты — дебиторской и кредиторской задолженности нет.",
+  "debt.empty.body": "Все долги закрыты — никто никому не должен.",
   "debt.empty.filteredTitle": "Ничего не найдено",
-  "debt.empty.filteredBody": "Под выбранные фильтры не попала ни одна транзакция. Измените условия поиска."
+  "debt.empty.filteredBody": "Под выбранные фильтры не попал ни один долг. Измените условия поиска."
 }

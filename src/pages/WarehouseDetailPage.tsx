@@ -163,7 +163,13 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							<CircularProgress size={28} />
 						</Box>
 					) : tab === "stock" ? (
-						<WarehouseStockTab warehouse={warehouse} stock={stock} />
+						<WarehouseStockTab
+							warehouse={warehouse}
+							stock={stock}
+							onAddOpeningStock={
+								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
+							}
+						/>
 					) : (
 						<WarehouseMovementsTab movements={movements} />
 					)}

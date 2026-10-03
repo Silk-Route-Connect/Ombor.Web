@@ -8,6 +8,7 @@ import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
 import { NotificationStore } from "./NotificationStore";
+import { IOnboardingStore, OnboardingStore } from "./OnboardingStore";
 import { OrderStore } from "./OrderStore";
 import { IPartnerLedgerStore, PartnerLedgerStore } from "./PartnerLedgerStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
@@ -53,6 +54,7 @@ export class RootStore {
 	selectedWalletStore: ISelectedWalletStore;
 	debtStore: IDebtStore;
 	dashboardStore: IDashboardStore;
+	onboardingStore: IOnboardingStore;
 	settingsStore: ISettingsStore;
 	connectivityStore: IConnectivityStore;
 
@@ -85,6 +87,7 @@ export class RootStore {
 		this.selectedWalletStore = new SelectedWalletStore(this.notificationStore);
 		this.debtStore = new DebtStore(this.notificationStore);
 		this.dashboardStore = new DashboardStore(this.notificationStore);
+		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
 		// Registers the ConnectivityBridge reporters used by the http error
 		// interceptor — construct it so the wiring exists before any request.

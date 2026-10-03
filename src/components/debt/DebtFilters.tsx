@@ -111,6 +111,7 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 		{ value: "all", label: t("debt.age.all") },
 		{ value: "0-7", label: t("debt.age.0-7") },
 		{ value: "8-30", label: t("debt.age.8-30") },
+		{ value: "31+", label: t("debt.age.31+") },
 		{ value: "31-60", label: t("debt.age.31-60") },
 		{ value: "60+", label: t("debt.age.60+") },
 	];

@@ -1,0 +1,17 @@
+{
+  "onboarding.titleNew": "Добро пожаловать в Ombor!",
+  "onboarding.title": "Первые шаги",
+  "onboarding.body": "Четыре шага — и учёт переедет из тетради в систему. Галочка появится сама, когда шаг выполнен.",
+  "onboarding.progress": "{{done}} из {{total}}",
+  "onboarding.dismiss": "Скрыть",
+  "onboarding.done": "Готово",
+
+  "onboarding.step.products.title": "Добавьте товары",
+  "onboarding.step.products.body": "Название и цена — артикул заполнится сам.",
+  "onboarding.step.stock.title": "Внесите остатки",
+  "onboarding.step.stock.body": "Откройте склад и нажмите «Начальный остаток» — или оформите поставку.",
+  "onboarding.step.sale.title": "Проведите первую продажу",
+  "onboarding.step.sale.body": "Для покупателей без имени уже есть партнёр «Розничный покупатель». Оплату и долг учтём сами.",
+  "onboarding.step.team.title": "Пригласите сотрудника",
+  "onboarding.step.team.body": "Дайте доступ продавцу или бухгалтеру: Настройки → Пользователи."
+}

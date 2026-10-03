@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AgingPanel from "components/dashboard/AgingPanel";
 import ChartPanel from "components/dashboard/ChartPanel";
 import DashboardKpiCards from "components/dashboard/DashboardKpiCards";
-import DashboardWelcome, { WelcomeStep } from "components/dashboard/DashboardWelcome";
 import { KassaSelection } from "components/dashboard/KassaFilter";
 import KassaFilter from "components/dashboard/KassaFilter";
 import {
@@ -18,10 +17,19 @@ import PeriodControl from "components/dashboard/PeriodControl";
 import RecentTransactionsTable from "components/dashboard/RecentTransactionsTable";
 import SalesSuppliesChart from "components/dashboard/SalesSuppliesChart";
 import TopDebtorsPanel from "components/dashboard/TopDebtorsPanel";
+import GettingStartedCard from "components/onboarding/GettingStartedCard";
+import { OnboardingStepKey } from "components/onboarding/onboardingSteps";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
-import { partnerDetailPath, PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
+import {
+	partnerDetailPath,
+	PATHS,
+	saleDetailPath,
+	supplyDetailPath,
+	warehouseDetailPath,
+} from "routing/paths";
+import { DebtCard } from "stores/DebtStore";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
 
@@ -33,7 +41,7 @@ const DashboardPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const { dashboardStore, debtStore } = useStore();
+	const { dashboardStore, debtStore, onboardingStore } = useStore();
 
 	const [salesType, setSalesType] = useState<ChartKind>("line");
 	const [paymentsType, setPaymentsType] = useState<ChartKind>("bar");
@@ -45,12 +53,21 @@ const DashboardPage: React.FC = observer(() => {
 	}, [dashboardStore]);
 
 	const { data, isLoading } = dashboardStore;
+
+	// Re-check the getting-started steps once per visit, as soon as the snapshot
+	// (whose recent list answers «sold / supplied anything?») is in.
+	const hasData = data !== null;
+	useEffect(() => {
+		if (dashboardStore.data) {
+			void onboardingStore.refresh(dashboardStore.data.recentTransactions);
+		}
+	}, [hasData, dashboardStore, onboardingStore]);
 	const period = dashboardStore.period;
 	const empty = dashboardStore.isEmpty;
 
 	const periodSub = empty ? t("dashboard.newBusiness") : t(`dashboard.period.sub.${period}`);
 
-	const goDebts = (card: "receivable" | "payable" | "overdue"): void => {
+	const goDebts = (card: DebtCard): void => {
 		debtStore.applyCard(card);
 		navigate(PATHS.debts);
 	};
@@ -59,10 +76,15 @@ const DashboardPage: React.FC = observer(() => {
 		navigate(tx.type === "Sale" ? saleDetailPath(tx.id) : supplyDetailPath(tx.id));
 	};
 
-	const onWelcomeStep = (step: WelcomeStep): void => {
-		if (step === "products") navigate(PATHS.products);
-		else if (step === "partners") navigate(PATHS.partners);
-		else navigate(PATHS.newSale);
+	const onSetupStep = (step: OnboardingStepKey): void => {
+		const warehouseId = onboardingStore.singleWarehouseId;
+		const target: Record<OnboardingStepKey, string> = {
+			products: PATHS.products,
+			stock: warehouseId != null ? warehouseDetailPath(warehouseId) : PATHS.warehouses,
+			sale: PATHS.newSale,
+			team: PATHS.settings,
+		};
+		navigate(target[step]);
 	};
 
 	return (
@@ -104,14 +126,21 @@ const DashboardPage: React.FC = observer(() => {
 							pointerEvents: isLoading ? "none" : "auto",
 						}}
 					>
-						{empty && <DashboardWelcome onStep={onWelcomeStep} />}
+						{onboardingStore.visible && onboardingStore.progress && (
+							<GettingStartedCard
+								progress={onboardingStore.progress}
+								doneCount={onboardingStore.doneCount}
+								onStep={onSetupStep}
+								onDismiss={onboardingStore.dismiss}
+							/>
+						)}
 
 						<DashboardKpiCards
 							data={data}
 							onRevenue={() => navigate(PATHS.sales)}
 							onReceivable={() => goDebts("receivable")}
 							onPayable={() => goDebts("payable")}
-							onOverdue={() => goDebts("overdue")}
+							onOverdue={() => goDebts("aged")}
 						/>
 
 						<Box

@@ -7,6 +7,7 @@ import commonRu from "./ru/common.json";
 import dashboardRu from "./ru/dashboard.json";
 import debtRu from "./ru/debt.json";
 import employeeRu from "./ru/employee.json";
+import onboardingRu from "./ru/onboarding.json";
 import orderRu from "./ru/order.json";
 import partnerRu from "./ru/partner.json";
 import paymentRu from "./ru/payment.json";
@@ -72,6 +73,7 @@ const resources = {
 			...walletRu,
 			...debtRu,
 			...dashboardRu,
+			...onboardingRu,
 			...settingsRu,
 		},
 	},

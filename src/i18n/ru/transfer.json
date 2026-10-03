@@ -53,6 +53,10 @@
   "transfer.form.positionsCount": "Позиций:",
   "transfer.form.submit": "Провести перемещение",
   "transfer.form.commitNote": "После проведения изменить нельзя — ошибку исправляют обратным перемещением.",
+  "transfer.needsSecond.title": "Нужен второй склад",
+  "transfer.needsSecond.body": "Перемещение переносит товар с одного склада на другой. Сейчас у вас один склад — «{{name}}». Создайте второй, чтобы перемещать товар.",
+  "transfer.needsSecond.bodyNone": "Перемещение переносит товар с одного склада на другой. Сначала создайте два склада.",
+  "transfer.needsSecond.create": "Создать склад",
 
   "transfer.validation.fromRequired": "Выберите склад-источник",
   "transfer.validation.toRequired": "Выберите склад-получатель",
