@@ -50,11 +50,12 @@ export class NotificationStore {
 	/**
 	 * Error toast for a failed load whose page renders the error state itself.
 	 * No connection / a 5xx is already announced once by the connectivity toast,
-	 * and a 404 is the page's not-found state, so those stay silent here.
+	 * a 404 is the page's not-found state, and a 401 means the session ended (the
+	 * app is on its way to /login), so those stay silent here.
 	 */
 	notifyLoadError(failed: FailedCall, fallbackKey: string, params?: Record<string, unknown>) {
 		const { kind } = parseApiError(failed.cause);
-		if (kind === "network" || kind === "server" || kind === "notFound") {
+		if (kind === "network" || kind === "server" || kind === "notFound" || kind === "unauthorized") {
 			return;
 		}
 		this.notifyApiError(failed, fallbackKey, params);
