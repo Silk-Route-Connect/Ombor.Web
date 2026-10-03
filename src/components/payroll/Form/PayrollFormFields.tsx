@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import MoneyField from "components/shared/Inputs/MoneyField";
@@ -15,6 +15,8 @@ interface PayrollFormFieldsProps {
 	form: UseFormReturn<PayrollFormInputs>;
 	wallets: Wallet[];
 	walletAvailable: number | null;
+	/** The employee's monthly salary — the amount is pre-filled with it. */
+	salary: number | null;
 	disabled: boolean;
 }
 
@@ -22,6 +24,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({
 	form,
 	wallets,
 	walletAvailable,
+	salary,
 	disabled,
 }) => {
 	const { t } = useTranslation();
@@ -30,6 +33,10 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({
 		control,
 		formState: { errors },
 	} = form;
+	const amount = useWatch({ control, name: "amount" });
+	// «Подставлен оклад» only while the amount still is the pre-filled salary.
+	const amountHint =
+		salary != null && salary > 0 && amount === salary ? t("payroll.form.amountHint") : undefined;
 
 	return (
 		<Grid container spacing={2}>
@@ -116,7 +123,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({
 							inputRef={field.ref}
 							label={`${t("payroll.amount")}*`}
 							error={!!errors.amount}
-							helperText={errors.amount?.message ?? t("payroll.form.amountHint")}
+							helperText={errors.amount?.message ?? amountHint}
 							disabled={disabled}
 						/>
 					)}

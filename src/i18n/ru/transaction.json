@@ -227,7 +227,7 @@
   "transaction.new.balance.noneShort": "нет долга",
   "transaction.new.balance.after.Sale": "Баланс после продажи",
   "transaction.new.balance.after.Supply": "Баланс после поставки",
-  "transaction.new.balance.pickPartner.Sale": "Выберите партнёра, чтобы увидеть баланс",
+  "transaction.new.balance.pickPartner.Sale": "Выберите клиента, чтобы увидеть баланс",
   "transaction.new.balance.pickPartner.Supply": "Выберите поставщика, чтобы увидеть баланс",
 
   "transaction.new.kbd.qty": "количество",

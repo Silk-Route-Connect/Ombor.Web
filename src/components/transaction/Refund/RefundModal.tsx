@@ -512,7 +512,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
 							<Box component="span">
 								{t("transaction.refund.totalAmount")}{" "}
 								<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
-									−{formatCurrency(totalAmount)} UZS
+									{totalAmount > 0 && "−"}
+									{formatCurrency(totalAmount)} UZS
 								</Box>
 							</Box>
 						</Box>

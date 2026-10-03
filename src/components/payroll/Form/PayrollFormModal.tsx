@@ -77,7 +77,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 					<DialogContent dividers sx={{ pt: 2 }}>
 						{isEmployeeLocked ? (
 							<Box mb={2}>
-								<Typography sx={{ fontSize: 13.5, color: "text.secondary" }}>
+								<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
 									{[
 										selectedEmployee?.position,
 										selectedEmployee &&
@@ -104,6 +104,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 							form={form}
 							wallets={wallets}
 							walletAvailable={walletAvailable}
+							salary={selectedEmployee?.salary ?? null}
 							disabled={isSaving}
 						/>
 					</DialogContent>
