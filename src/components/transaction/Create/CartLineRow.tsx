@@ -112,7 +112,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 								mt: "5px",
 								fontSize: 11.5,
 								fontWeight: 600,
-								color: over ? "error.main" : near ? "warning.main" : "text.secondary",
+								color: over ? "error.main" : near ? "warning.dark" : "text.secondary",
 							}}
 						>
 							{over ? (

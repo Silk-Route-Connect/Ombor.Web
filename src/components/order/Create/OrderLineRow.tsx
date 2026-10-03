@@ -111,7 +111,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 							mt: "5px",
 							fontSize: 11.5,
 							fontWeight: 600,
-							color: over ? "warning.main" : "text.secondary",
+							color: over ? "warning.dark" : "text.secondary",
 						}}
 					>
 						<Inventory2OutlinedIcon sx={{ fontSize: 12 }} />

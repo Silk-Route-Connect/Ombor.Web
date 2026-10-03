@@ -136,7 +136,7 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 									sx={{
 										fontSize: 12,
 										fontWeight: 600,
-										color: out ? "error.main" : stock < 15 ? "warning.main" : "success.main",
+										color: out ? "error.main" : stock < 15 ? "warning.dark" : "success.main",
 									}}
 								>
 									{out

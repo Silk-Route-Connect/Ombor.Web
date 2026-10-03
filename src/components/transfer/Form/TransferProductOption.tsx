@@ -19,7 +19,7 @@ const TransferProductOption: React.FC<{ product: Product; stock: number }> = ({
 }) => {
 	const { t } = useTranslation();
 	const unit = measurementShort(t, product.measurement);
-	const color = stock === 0 ? "error.main" : stock < 15 ? "warning.main" : "success.main";
+	const color = stock === 0 ? "error.main" : stock < 15 ? "warning.dark" : "success.main";
 
 	return (
 		<>

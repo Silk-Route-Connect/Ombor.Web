@@ -26,7 +26,7 @@ interface ConfirmDialogProps {
 }
 
 const ICON_TILE_SX: Record<ConfirmIconTone, object> = {
-	warning: { bgcolor: designTokens.warningBg, color: "warning.main" },
+	warning: { bgcolor: designTokens.warningBg, color: "warning.dark" },
 	info: { bgcolor: designTokens.primarySoft, color: "primary.main" },
 };
 

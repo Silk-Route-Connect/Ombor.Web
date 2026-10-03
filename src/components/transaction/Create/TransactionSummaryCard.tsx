@@ -272,7 +272,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 								valueColor={
 									remaining > 0
 										? direction === "Sale"
-											? "warning.main"
+											? "warning.dark"
 											: "error.main"
 										: "text.disabled"
 								}
