@@ -39,7 +39,7 @@
 
   "order.partnerType.Customer": "Клиент",
   "order.partnerType.Supplier": "Поставщик",
-  "order.partnerType.Both": "Оба",
+  "order.partnerType.Both": "Клиент + Поставщик",
 
   "order.action.process": "Взять в обработку",
   "order.action.ship": "Отправить",

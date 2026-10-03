@@ -4,7 +4,6 @@
   "adjustment.success.create.Decrease": "Списание проведено: {{product}} — {{quantity}} {{unit}}",
   "adjustment.success.create.Increase": "Приход товара проведён: {{product}} — {{quantity}} {{unit}}",
 
-
   "adjustment.title": "Корректировки",
   "adjustment.create": "Новая корректировка",
   "adjustment.searchPlaceholder": "Поиск по товару…",

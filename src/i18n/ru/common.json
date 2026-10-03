@@ -87,7 +87,6 @@
   "common.dialog.discardChanges.confirm": "Закрыть",
   "common.dialog.discardChanges.cancel": "Продолжить",
 
-
   "paymentTypeDeposit": "Аванс",
   "paymentTypeWithdrawal": "Возврат аванса",
   "paymentTypePayroll": "Зарплата",
