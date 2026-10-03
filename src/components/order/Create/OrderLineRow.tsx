@@ -4,7 +4,7 @@ import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { measurementShort } from "utils/productUtils";
+import { measurementShort, measurementShortLabel } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -68,6 +68,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const unit = measurementShort(t, item.product.measurement);
+	const unitLabel = measurementShortLabel(t, item.product.measurement);
 	const stock = stockAt(item.product, warehouseId);
 	const over = warehouseId != null && item.quantity > stock;
 
@@ -142,7 +143,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 			>
 				{/* quantity stepper */}
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>{t("order.new.line.qty", { unit })}</Typography>
+					<Typography sx={fieldLabelSx}>{t("order.new.line.qty", { unit: unitLabel })}</Typography>
 					<Box
 						sx={{
 							display: "inline-flex",
@@ -194,7 +195,9 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 
 				{/* unit price */}
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>{t("order.new.line.price", { unit })}</Typography>
+					<Typography sx={fieldLabelSx}>
+						{t("order.new.line.price", { unit: unitLabel })}
+					</Typography>
 					<Box sx={boxedInputSx}>
 						<Box component="span" sx={{ color: "text.disabled", fontSize: 13 }}>
 							×

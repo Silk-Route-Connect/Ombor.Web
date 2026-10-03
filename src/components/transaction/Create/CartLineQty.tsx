@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
-import { measurementShort } from "utils/productUtils";
+import { measurementShort, measurementShortLabel } from "utils/productUtils";
 import { parseWholeQuantity } from "utils/quantityInput";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -38,6 +38,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const unit = measurementShort(t, item.product.measurement);
+	const unitLabel = measurementShortLabel(t, item.product.measurement);
 	const packaging = item.product.packaging;
 	const packSize = packaging != null && packaging.size >= 2 ? packaging.size : null;
 	const inPackages = item.inPackages === true && packSize != null;
@@ -118,7 +119,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 		<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
 			<Typography sx={fieldLabelSx}>
 				{t("transaction.new.line.qty", {
-					unit: inPackages ? t("transaction.new.line.packShort") : unit,
+					unit: inPackages ? t("transaction.new.line.packShort") : unitLabel,
 				})}
 			</Typography>
 			<Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -176,7 +177,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 				{packSize != null && (
 					<Box sx={segmentedBoxSx}>
 						<ButtonBase onClick={() => setUnitMode(false)} sx={segmentSx(!inPackages)}>
-							{unit}
+							{unitLabel}
 						</ButtonBase>
 						<ButtonBase
 							onClick={() => setUnitMode(true)}

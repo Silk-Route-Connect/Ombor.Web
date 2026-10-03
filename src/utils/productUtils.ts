@@ -3,12 +3,21 @@ import { Measurement, Product, ProductPackaging, ProductTransaction } from "mode
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 /**
- * Short localized unit code for a quantity cell («кг», «шт»), or «—» when unset
- * (`None`). `Unit` is a legacy alias of Piece the backend may still serve
+ * Short localized unit code next to a number («5 кг», «На складе: 24 шт»), or
+ * empty when unset (`None`) so a unit-less quantity reads «5», never «5 —».
+ * `Unit` is a legacy alias of Piece the backend may still serve
  * (issues-tracker §12) — it keeps its own short code.
  */
 export function measurementShort(t: TFunction, measurement: Measurement): string {
-	return measurement === "None" ? "—" : t(`product.measurementShort.${measurement}`);
+	return measurement === "None" ? "" : t(`product.measurementShort.${measurement}`);
+}
+
+/**
+ * Unit word inside a field label («Кол-во · кг», «Цена за шт»): the short code,
+ * or the generic «ед.» when unset — a label never ends in a bare «за» or «·».
+ */
+export function measurementShortLabel(t: TFunction, measurement: Measurement): string {
+	return measurementShort(t, measurement) || t("product.measurementShort.generic");
 }
 
 /**

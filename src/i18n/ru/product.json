@@ -134,6 +134,7 @@
   "product.measurementShort.Piece": "шт",
   "product.measurementShort.Box": "кор",
   "product.measurementShort.Unit": "ед",
+  "product.measurementShort.generic": "ед.",
 
   "product.type": "Тип товара",
   "product.type.All": "Продажа и поставка",

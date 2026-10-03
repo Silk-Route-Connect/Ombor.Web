@@ -4,7 +4,7 @@ import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { measurementShort } from "utils/productUtils";
+import { measurementShort, measurementShortLabel } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -154,7 +154,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
 					<Typography sx={fieldLabelSx}>
 						{t(isSale ? "transaction.new.line.price" : "transaction.new.line.priceSupply", {
-							unit,
+							unit: measurementShortLabel(t, item.product.measurement),
 						})}
 					</Typography>
 					<Box sx={boxedInputSx}>
