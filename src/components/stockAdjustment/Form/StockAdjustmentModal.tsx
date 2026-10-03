@@ -24,9 +24,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
 import {
 	Box,
 	Dialog,
@@ -38,7 +36,8 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
+
+import DirectionCard from "./DirectionCard";
 
 export interface StockAdjustmentModalProps {
 	isOpen: boolean;
@@ -51,62 +50,6 @@ export interface StockAdjustmentModalProps {
 const toNumberOrZero = (raw: string): number => {
 	const value = raw.trim();
 	return value === "" ? 0 : Number(value);
-};
-
-/** One of the two big direction cards in the toggle (`.dir-opt`). */
-const DirectionCard: React.FC<{
-	direction: AdjustmentDirection;
-	active: boolean;
-	title: string;
-	subtitle: string;
-	onSelect: () => void;
-}> = ({ direction, active, title, subtitle, onSelect }) => {
-	const theme = useTheme();
-	const isDown = direction === "Decrease";
-	const tone = isDown ? theme.palette.error.main : theme.palette.success.main;
-	const tintBg = isDown ? designTokens.errorBg : alpha(theme.palette.success.main, 0.1);
-	const tintBorder = isDown ? designTokens.errorBorder : alpha(theme.palette.success.main, 0.4);
-
-	return (
-		<Box
-			onClick={onSelect}
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "11px",
-				p: "13px 15px",
-				borderRadius: "8px",
-				cursor: "pointer",
-				bgcolor: active ? tintBg : "background.paper",
-				border: "1.5px solid",
-				borderColor: active ? tintBorder : designTokens.gray300,
-				boxShadow: active ? `0 0 0 3px ${alpha(tone, 0.15)}` : "none",
-				transition: "border-color .14s, background .14s",
-				"&:hover": { borderColor: active ? tintBorder : designTokens.gray400 },
-			}}
-		>
-			<Box
-				sx={{
-					width: 34,
-					height: 34,
-					flex: "0 0 auto",
-					borderRadius: "9px",
-					display: "grid",
-					placeItems: "center",
-					bgcolor: tintBg,
-					color: tone,
-				}}
-			>
-				{isDown ? <SouthEastIcon sx={{ fontSize: 18 }} /> : <NorthEastIcon sx={{ fontSize: 18 }} />}
-			</Box>
-			<Box>
-				<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{title}</Typography>
-				<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "1px" }}>
-					{subtitle}
-				</Typography>
-			</Box>
-		</Box>
-	);
 };
 
 const PREV_CAP = {
@@ -370,7 +313,10 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("adjustment.field.direction")} />
-							<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+							<Box
+								role="radiogroup"
+								sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}
+							>
 								<DirectionCard
 									direction="Decrease"
 									active={direction === "Decrease"}
