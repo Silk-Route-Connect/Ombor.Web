@@ -167,7 +167,7 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 							{formatCurrency(w.advancesHeld)}
 						</Box>
 					) : (
-						<Box component="span" sx={{ color: designTokens.gray400, fontWeight: 600 }}>
+						<Box component="span" sx={{ color: designTokens.fg3, fontWeight: 600 }}>
 							—
 						</Box>
 					),

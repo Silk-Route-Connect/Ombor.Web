@@ -258,7 +258,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 						onClick={onRemove}
 						aria-label={t("order.new.line.remove")}
 						sx={{
-							color: designTokens.gray400,
+							color: designTokens.fg3,
 							"&:hover": { color: "error.main", bgcolor: designTokens.errorBg },
 						}}
 					>

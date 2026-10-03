@@ -100,7 +100,7 @@ Numeric steps (`typeScale`, tabular lining figures): `display` 34/40 700 · `num
 - Spacing: MUI 8px unit (`theme.spacing`); prefer multiples of 4px.
 - Control height (`controlSize`): md 38px (buttons, inputs, selects, search, segmented) · sm 31px (dense inline only).
 - Dialog widths (`dialogWidth`): sm 480 · md 640 · lg 880; `dialogPaperSx(size)` adds `maxWidth: calc(100% − 32px)`.
-- Table: 52px rows, 16px cell padding, body 14px, header 12px/600; detail-embedded tables 48px / 18px.
+- Table: 52px rows, 16px cell padding, body 14px, header 12px/600 — list `DataTable` and detail-embedded tables alike.
 - Layout: sidebar 248px expanded / 72px rail (auto-collapsed below 1280px viewport and on POS pages) · topbar 60px · page padding 24px.
 
 ## Elevation

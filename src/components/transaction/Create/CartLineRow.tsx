@@ -207,7 +207,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						onClick={onRemove}
 						aria-label={t("transaction.new.line.remove")}
 						sx={{
-							color: designTokens.gray400,
+							color: designTokens.fg3,
 							"&:hover": { color: "error.main", bgcolor: designTokens.errorBg },
 						}}
 					>

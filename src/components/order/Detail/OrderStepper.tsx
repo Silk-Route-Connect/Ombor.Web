@@ -75,7 +75,7 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 										: {
 												bgcolor: "background.paper",
 												borderColor: designTokens.gray300,
-												color: designTokens.gray400,
+												color: designTokens.fg3,
 											}),
 									...(current ? { boxShadow: `0 0 0 4px ${designTokens.primarySoft}` } : null),
 								}}
