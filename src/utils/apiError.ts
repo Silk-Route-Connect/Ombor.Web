@@ -148,7 +148,21 @@ export function isNotFoundError(cause: unknown): boolean {
 	return parseApiError(cause).kind === "notFound";
 }
 
+/** «42 сек.», «15 мин.» for a login lockout, «3 ч.» for the daily SMS cap — rounded up. */
+export function formatWait(seconds: number): string {
+	if (seconds < 60) {
+		return i18next.t("common.duration.seconds", { count: Math.ceil(seconds) });
+	}
+	if (seconds < 3600) {
+		return i18next.t("common.duration.minutes", { count: Math.ceil(seconds / 60) });
+	}
+	return i18next.t("common.duration.hours", { count: Math.ceil(seconds / 3600) });
+}
+
 function localizedParams(info: ApiErrorInfo): Record<string, unknown> {
+	if (info.code === "auth.rate_limited" && hasRetryAfter(info)) {
+		return { ...info.params, wait: formatWait(info.params.retryAfterSeconds as number) };
+	}
 	const format =
 		info.code === "wallet.insufficient_balance"
 			? formatCurrency
