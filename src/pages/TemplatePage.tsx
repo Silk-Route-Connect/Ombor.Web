@@ -83,9 +83,6 @@ const TemplatePage: React.FC = observer(() => {
 	};
 
 	const all = !isReady(templateStore.allTemplates) ? null : templateStore.allTemplates;
-	const totalCount = !isReady(templateStore.listTemplates)
-		? null
-		: templateStore.listTemplates.length;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering = templateStore.searchTerm.trim() !== "" || templateStore.typeFilter !== "all";
 	const dialogMode = templateStore.dialogMode;
@@ -93,7 +90,6 @@ const TemplatePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<TemplateHeader
-				totalCount={totalCount}
 				searchValue={templateStore.searchTerm}
 				typeFilter={templateStore.typeFilter}
 				onSearch={templateStore.setSearch}

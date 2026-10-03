@@ -5,7 +5,7 @@ import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
-import { isReady, readyOr } from "helpers/Loading";
+import { readyOr } from "helpers/Loading";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
@@ -55,9 +55,6 @@ const CategoryPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<CategoryHeader
-				totalCount={
-					!isReady(categoryStore.allCategories) ? null : categoryStore.allCategories.length
-				}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}

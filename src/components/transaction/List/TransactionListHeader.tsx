@@ -45,10 +45,7 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 				title={t(`transaction.list.title.${direction}`)}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("transaction.list.exportCsv")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

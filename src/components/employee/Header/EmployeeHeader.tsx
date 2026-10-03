@@ -50,10 +50,7 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 				title={t("employeesTitle")}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

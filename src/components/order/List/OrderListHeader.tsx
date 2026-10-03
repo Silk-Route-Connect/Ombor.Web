@@ -50,10 +50,7 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 				title={t("order.title")}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("order.exportCsv")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

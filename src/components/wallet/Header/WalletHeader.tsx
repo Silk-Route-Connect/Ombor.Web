@@ -45,10 +45,7 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 				title={t("wallet.title")}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

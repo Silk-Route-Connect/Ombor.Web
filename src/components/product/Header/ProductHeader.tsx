@@ -17,8 +17,6 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface ProductHeaderProps {
-	/** Total dataset size (unfiltered, archived included) shown in the title. */
-	totalCount: number | null;
 	searchValue: string;
 	selectedCategory: Category | null;
 	typeFilter: ProductTypeFilter;
@@ -40,7 +38,6 @@ const TYPE_TABS: ProductTypeFilter[] = ["all", "sale", "supply", "both"];
  * typeahead, type tabs, archive toggle) sit on the filter row below.
  */
 const ProductHeader: React.FC<ProductHeaderProps> = ({
-	totalCount,
 	searchValue,
 	selectedCategory,
 	typeFilter,
@@ -55,7 +52,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const title = totalCount == null ? t("product.title") : `${t("product.title")} (${totalCount})`;
+	const title = t("product.title");
 
 	return (
 		<>
@@ -63,10 +60,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

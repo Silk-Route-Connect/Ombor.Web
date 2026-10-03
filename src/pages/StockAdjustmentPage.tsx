@@ -75,7 +75,6 @@ const StockAdjustmentPage: React.FC = observer(() => {
 	const all = !isReady(stockAdjustmentStore.allAdjustments)
 		? null
 		: stockAdjustmentStore.allAdjustments;
-	const totalCount = all?.length ?? null;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering =
 		stockAdjustmentStore.searchTerm.trim().length > 0 ||
@@ -85,7 +84,6 @@ const StockAdjustmentPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<StockAdjustmentHeader
-				totalCount={totalCount}
 				searchValue={stockAdjustmentStore.searchTerm}
 				warehouses={activeWarehouses}
 				warehouseFilter={stockAdjustmentStore.warehouseFilter}

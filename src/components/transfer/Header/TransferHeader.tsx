@@ -12,7 +12,6 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, MenuItem, TextField } from "@mui/material";
 
 interface TransferHeaderProps {
-	totalCount: number | null;
 	warehouses: Warehouse[];
 	warehouseFilter: number | null;
 	onWarehouseChange: (warehouseId: number | null) => void;
@@ -30,7 +29,6 @@ const ALL_WAREHOUSES = "__all__";
  * The filter matches a warehouse appearing as source OR destination.
  */
 const TransferHeader: React.FC<TransferHeaderProps> = ({
-	totalCount,
 	warehouses,
 	warehouseFilter,
 	onWarehouseChange,
@@ -41,7 +39,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const title = totalCount == null ? t("transfer.title") : `${t("transfer.title")} (${totalCount})`;
+	const title = t("transfer.title");
 
 	return (
 		<>
@@ -49,10 +47,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

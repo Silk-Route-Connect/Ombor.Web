@@ -5,7 +5,7 @@ import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductHeader from "components/product/Header/ProductHeader";
 import ProductsTable from "components/product/Table/ProductsTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
-import { isReady, readyOr } from "helpers/Loading";
+import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
 import { productDetailPath } from "routing/paths";
@@ -76,10 +76,6 @@ const ProductPage: React.FC = observer(() => {
 		exportToCsv(`products_${csvDateStamp()}`, columns, rows);
 	};
 
-	// Title shows the total dataset size (archived included); the table footer
-	// already reflects the filtered view.
-	const totalCount = !isReady(productStore.allProducts) ? null : productStore.allProducts.length;
-
 	const isFiltering =
 		productStore.searchTerm.trim().length > 0 ||
 		productStore.categoryFilter !== null ||
@@ -89,7 +85,6 @@ const ProductPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<ProductHeader
-				totalCount={totalCount}
 				searchValue={productStore.searchTerm}
 				selectedCategory={productStore.categoryFilter}
 				typeFilter={productStore.typeFilter}

@@ -10,8 +10,6 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 interface CategoryHeaderProps {
-	/** Total dataset size shown in the title; null while loading. */
-	totalCount: number | null;
 	searchValue: string;
 	onCreate: () => void;
 	onSearch: (value: string) => void;
@@ -19,7 +17,6 @@ interface CategoryHeaderProps {
 }
 
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
-	totalCount,
 	searchValue,
 	onCreate,
 	onSearch,
@@ -30,13 +27,10 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 	return (
 		<>
 			<PageHeader
-				title={totalCount == null ? t("category.title") : `${t("category.title")} (${totalCount})`}
+				title={t("category.title")}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

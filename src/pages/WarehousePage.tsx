@@ -79,7 +79,6 @@ const WarehousePage: React.FC = observer(() => {
 	};
 
 	const all = !isReady(warehouseStore.allWarehouses) ? null : warehouseStore.allWarehouses;
-	const totalCount = all?.length ?? null;
 	const isFiltering = warehouseStore.searchTerm.trim().length > 0;
 	const hasAny = (all?.length ?? 0) > 0;
 	const hasActive = (all ?? []).some((w) => !w.isArchived);
@@ -87,7 +86,6 @@ const WarehousePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WarehouseHeader
-				totalCount={totalCount}
 				searchValue={warehouseStore.searchTerm}
 				showArchived={warehouseStore.showArchived}
 				archivedCount={warehouseStore.archivedCount}

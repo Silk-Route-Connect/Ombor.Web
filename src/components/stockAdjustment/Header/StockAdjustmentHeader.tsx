@@ -15,7 +15,6 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
 interface StockAdjustmentHeaderProps {
-	totalCount: number | null;
 	searchValue: string;
 	warehouses: Warehouse[];
 	warehouseFilter: number | null;
@@ -36,7 +35,6 @@ const DIRECTION_TABS: DirectionFilter[] = ["all", "Decrease", "Increase"];
  * below (locked pattern 11).
  */
 const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
-	totalCount,
 	searchValue,
 	warehouses,
 	warehouseFilter,
@@ -49,8 +47,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const title =
-		totalCount == null ? t("adjustment.title") : `${t("adjustment.title")} (${totalCount})`;
+	const title = t("adjustment.title");
 
 	return (
 		<>
@@ -58,10 +55,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

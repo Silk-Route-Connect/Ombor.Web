@@ -71,7 +71,6 @@ const TransferPage: React.FC = observer(() => {
 	};
 
 	const all = !isReady(transferStore.allTransfers) ? null : transferStore.allTransfers;
-	const totalCount = all?.length ?? null;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering = transferStore.warehouseFilter != null || search.trim() !== "";
 	const dialogMode = transferStore.dialogMode;
@@ -87,7 +86,6 @@ const TransferPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<TransferHeader
-				totalCount={totalCount}
 				warehouses={activeWarehouses}
 				warehouseFilter={transferStore.warehouseFilter}
 				onWarehouseChange={transferStore.setWarehouseFilter}

@@ -14,8 +14,6 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface WarehouseHeaderProps {
-	/** Total dataset size (unfiltered, archived included) shown in the title. */
-	totalCount: number | null;
 	searchValue: string;
 	showArchived: boolean;
 	archivedCount: number;
@@ -31,7 +29,6 @@ interface WarehouseHeaderProps {
  * segmented control sit on the filter row below (mirrors PartnerListHeader).
  */
 const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
-	totalCount,
 	searchValue,
 	showArchived,
 	archivedCount,
@@ -42,8 +39,7 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const title =
-		totalCount == null ? t("warehouse.title") : `${t("warehouse.title")} (${totalCount})`;
+	const title = t("warehouse.title");
 
 	return (
 		<>
@@ -51,10 +47,7 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon />}
-							onClick={onExport}
-						>
+						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
 							{t("common.export")}
 						</GhostButton>
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>

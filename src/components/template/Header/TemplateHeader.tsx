@@ -12,7 +12,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box } from "@mui/material";
 
 interface TemplateHeaderProps {
-	totalCount: number | null;
 	searchValue: string;
 	typeFilter: TemplateTypeFilter;
 	onSearch: (value: string) => void;
@@ -26,7 +25,6 @@ interface TemplateHeaderProps {
  * carries no export action, so none is added.
  */
 const TemplateHeader: React.FC<TemplateHeaderProps> = ({
-	totalCount,
 	searchValue,
 	typeFilter,
 	onSearch,
@@ -35,7 +33,7 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const title = totalCount == null ? t("template.title") : `${t("template.title")} (${totalCount})`;
+	const title = t("template.title");
 
 	const typeOptions: SegmentedOption<TemplateTypeFilter>[] = [
 		{ value: "all", label: t("template.filter.all") },
