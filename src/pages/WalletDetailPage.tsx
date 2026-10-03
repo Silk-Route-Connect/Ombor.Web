@@ -28,7 +28,7 @@ const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const walletId = useRouteEntityId();
-	const { walletStore, selectedWalletStore, notificationStore } = useStore();
+	const { walletStore, selectedWalletStore } = useStore();
 
 	const [tab, setTab] = useState<WalletDetailTab>("operations");
 
@@ -87,12 +87,9 @@ const WalletDetailPage: React.FC = observer(() => {
 	};
 
 	const handleOpenPayment = (operation: WalletOperation): void => {
-		if (operation.paymentId) {
+		if (operation.paymentId != null) {
 			navigate(paymentDetailPath(operation.paymentId));
-			return;
 		}
-		// Fallback for the self-contained mock (no real payment id to link to).
-		notificationStore.info(t("wallet.operations.openPayment", { number: operation.paymentNumber }));
 	};
 
 	const handleOpenTransfer = (transferId: number): void => {

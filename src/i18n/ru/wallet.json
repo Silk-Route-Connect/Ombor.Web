@@ -103,7 +103,6 @@
   "wallet.operations.emptyTitle": "Нет операций",
   "wallet.operations.emptyBody": "По этой кассе ещё не было движений денег.",
   "wallet.operations.emptyFiltered": "По выбранным условиям движений не найдено.",
-  "wallet.operations.openPayment": "Платёж {{number}}",
 
   "wallet.operation.Opening": "Начальный остаток",
   "wallet.operation.Payment": "Оплата",
