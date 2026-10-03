@@ -4,18 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import {
+	RefundFinancialCard,
+	SaleFinancialCard,
+} from "components/transaction/Detail/FinancialCards";
+import {
 	AuditCard,
 	NoteAttachmentsCard,
-	PaymentsCard,
-	PositionsCard,
 	ReasonCard,
-	RefundFinancialCard,
-	RefundFooter,
-	RefundHistoryCard,
 	RefundReferenceBanner,
-	SaleFinancialCard,
-} from "components/transaction/Detail/cards";
+} from "components/transaction/Detail/InfoCards";
+import PaymentsCard from "components/transaction/Detail/PaymentsCard";
+import PositionsCard from "components/transaction/Detail/PositionsCard";
+import RefundFooter from "components/transaction/Detail/PositionsFooter";
+import RefundHistoryCard from "components/transaction/Detail/RefundHistoryCard";
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
+import { transactionDetailPath } from "components/transaction/List/transactionTableConfigs";
 import RefundModal from "components/transaction/Refund/RefundModal";
 import { isPresent } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
@@ -138,7 +141,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							total={tx.totalDue}
 							positions={tx.lines.length}
 							originalNumber={tx.originalTransactionNumber}
-							onOpenOriginal={() => original && openTransaction(original.id)}
+							originalPath={original ? transactionDetailPath(original) : ""}
 						/>
 					) : (
 						<SaleFinancialCard

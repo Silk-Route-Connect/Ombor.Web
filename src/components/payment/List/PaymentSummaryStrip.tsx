@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
 import { chipTokens, designTokens, typeScale } from "theme";
@@ -120,12 +121,6 @@ const Card: React.FC<{
 	</Paper>
 );
 
-const Uzs: React.FC = () => (
-	<Box component="span" sx={{ fontSize: 13, fontWeight: 600, color: "text.disabled", ml: "5px" }}>
-		UZS
-	</Box>
-);
-
 /**
  * Three summary cards (the bundle's `.pay-stats`): income · expense · count.
  * The Приход / Расход cards toggle-filter the table by direction (PAY-3) — they
@@ -142,7 +137,7 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 		summary ? (
 			<>
 				{formatCurrency(value)}
-				<Uzs />
+				<UzsUnit />
 			</>
 		) : (
 			t("common.dash")

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { EmployeeStatusBadge } from "components/employee/EmployeeStatusBadge";
+import { useNavigate } from "react-router-dom";
+import EmployeePayrollTable from "components/employee/Detail/EmployeePayrollTable";
+import EmployeeSummary from "components/employee/Detail/EmployeeSummary";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
@@ -9,50 +11,20 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
-import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import WalletLink from "components/wallet/Links/WalletLink";
 import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { PaymentRecord } from "models/payment";
-import { PATHS } from "routing/paths";
+import { PATHS, paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
-import { formatDate, formatDateTime, PresetOption } from "utils/dateUtils";
-import { formatCurrency } from "utils/formatCurrency";
-import { formatPeriod } from "utils/payrollUtils";
+import { PresetOption } from "utils/dateUtils";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
-import { Box, Paper, Typography } from "@mui/material";
-
-const Stat: React.FC<{ label: string; value: React.ReactNode; accent?: boolean }> = ({
-	label,
-	value,
-	accent,
-}) => (
-	<Paper
-		elevation={1}
-		sx={{ border: 1, borderColor: "divider", borderRadius: "12px", p: "17px 20px" }}
-	>
-		<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>{label}</Typography>
-		<Typography
-			sx={{
-				...numericSx,
-				fontSize: 22,
-				fontWeight: 700,
-				mt: "8px",
-				color: accent ? "success.main" : "text.primary",
-			}}
-		>
-			{value}
-		</Typography>
-	</Paper>
-);
+import { Box, Typography } from "@mui/material";
 
 const PERIOD_OPTIONS: { value: PresetOption; labelKey: string }[] = [
 	{ value: "week", labelKey: "reportRangeWeek" },
@@ -62,6 +34,7 @@ const PERIOD_OPTIONS: { value: PresetOption; labelKey: string }[] = [
 
 const EmployeeDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const employeeId = useRouteEntityId();
 	const { employeeStore, selectedEmployeeStore, payrollStore } = useStore();
 
@@ -103,81 +76,6 @@ const EmployeeDetailPage: React.FC = observer(() => {
 			? selectedEmployeeStore.dateFilter.preset
 			: "alltime";
 
-	const payrollColumns = useMemo<Column<PaymentRecord>[]>(
-		() => [
-			{
-				key: "date",
-				headerName: t("employee.payroll.date"),
-				sortValue: (p) => p.date,
-				renderCell: (p) => (
-					<Box
-						component="span"
-						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
-					>
-						{formatDateTime(p.date)}
-					</Box>
-				),
-			},
-			{
-				key: "type",
-				headerName: t("employee.payroll.type"),
-				sortValue: () => t("employee.payroll.salary"),
-				renderCell: () => (
-					<Box
-						component="span"
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "6px",
-							fontSize: 12.5,
-							fontWeight: 600,
-						}}
-					>
-						<Box
-							sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: designTokens.purpleText }}
-						/>
-						{t("employee.payroll.salary")}
-					</Box>
-				),
-			},
-			{
-				key: "period",
-				headerName: t("employee.payroll.period"),
-				sortValue: (p) => p.period ?? p.date,
-				renderCell: (p) => (
-					<Box component="span" sx={{ color: "text.secondary" }}>
-						{formatPeriod(t, p.period ?? p.date)}
-					</Box>
-				),
-			},
-			{
-				key: "wallet",
-				headerName: t("employee.payroll.wallet"),
-				sortValue: (p) => p.walletName ?? "",
-				renderCell: (p) =>
-					p.walletName ? (
-						<WalletLink id={p.walletId} name={p.walletName} />
-					) : (
-						<Box component="span" sx={{ color: designTokens.gray700 }}>
-							—
-						</Box>
-					),
-			},
-			{
-				key: "amount",
-				headerName: t("employee.payroll.amount"),
-				align: "right",
-				sortValue: (p) => p.amount,
-				renderCell: (p) => (
-					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
-						{formatCurrency(p.amount)}
-					</Box>
-				),
-			},
-		],
-		[t],
-	);
-
 	const handleFormSave = (payload: EmployeeFormPayload) => {
 		if (employeeStore.selectedEmployee) {
 			employeeStore.update({ id: employeeStore.selectedEmployee.id, ...payload });
@@ -204,7 +102,6 @@ const EmployeeDetailPage: React.FC = observer(() => {
 	}
 
 	const terminated = employee.status === "Terminated";
-	const phone = employee.contactInfo?.phoneNumbers?.[0];
 
 	// Kebab: edit + the status change (terminate/restore); «Выплатить»/«Восстановить»
 	// is the standalone primary action.
@@ -259,123 +156,15 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				actions={actions}
 			/>
 
-			{/* Identity card — the avatar, status + role and contact/tenure that left
-			    the name-only header (like Partners' balance card). */}
-			<Paper
-				elevation={1}
-				sx={{
-					border: 1,
-					borderColor: "divider",
-					borderRadius: "12px",
-					p: "16px 20px",
-					mb: "20px",
-					display: "flex",
-					alignItems: "center",
-					gap: "14px",
-				}}
-			>
-				<Box
-					sx={{
-						width: 52,
-						height: 52,
-						flex: "0 0 auto",
-						borderRadius: "50%",
-						display: "grid",
-						placeItems: "center",
-						bgcolor: terminated ? designTokens.gray100 : "primary.light",
-						color: terminated ? designTokens.gray500 : "primary.main",
-						fontSize: 21,
-						fontWeight: 700,
-					}}
-				>
-					{employee.name.trim().charAt(0).toUpperCase()}
-				</Box>
-				<Box sx={{ minWidth: 0, flex: 1 }}>
-					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-						<Typography sx={{ fontSize: 15, fontWeight: 700 }}>{employee.position}</Typography>
-						<EmployeeStatusBadge status={employee.status} />
-					</Box>
-					<Typography sx={{ fontSize: 13.5, color: "text.secondary", mt: "5px" }}>
-						{phone ? `${phone} · ` : ""}
-						{t("employee.since")} {formatDate(employee.dateOfEmployment)}
-					</Typography>
-				</Box>
-			</Paper>
+			<EmployeeSummary
+				employee={employee}
+				paidThisMonth={historyReady ? paidThisMonth : null}
+				paymentCount={historyReady ? allHistory.length : null}
+			/>
 
-			<Box
-				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-					gap: "16px",
-					mb: "24px",
-				}}
-			>
-				<Stat
-					label={t("employee.stat.salary")}
-					value={
-						<>
-							{formatCurrency(employee.salary)}{" "}
-							<Box component="small" sx={{ fontSize: 12, fontWeight: 500, color: "text.disabled" }}>
-								{t("employee.stat.salaryUnit")}
-							</Box>
-						</>
-					}
-				/>
-				<Stat
-					accent
-					label={t("employee.stat.paidThisMonth", {
-						month: t(`common.monthLower.${now.getMonth() + 1}`),
-					})}
-					value={
-						historyReady ? (
-							<>
-								{formatCurrency(paidThisMonth)}{" "}
-								<Box
-									component="small"
-									sx={{ fontSize: 12, fontWeight: 500, color: "text.disabled" }}
-								>
-									UZS
-								</Box>
-							</>
-						) : (
-							t("common.dash")
-						)
-					}
-				/>
-				<Stat
-					label={t("employee.stat.totalPayments")}
-					value={historyReady ? allHistory.length : t("common.dash")}
-				/>
-			</Box>
-
-			<Box
-				sx={{ display: "flex", alignItems: "center", gap: "12px", mb: "14px", flexWrap: "wrap" }}
-			>
-				<Typography component="h2" sx={{ fontSize: 17, fontWeight: 700 }}>
-					{t("employee.payrollSection")}
-				</Typography>
-				<Box
-					component="span"
-					sx={{
-						...numericSx,
-						fontSize: 12.5,
-						fontWeight: 700,
-						px: "8px",
-						py: "1px",
-						borderRadius: "999px",
-						bgcolor: "grey.100",
-						color: "text.secondary",
-					}}
-				>
-					{historyReady ? allHistory.length : t("common.dash")}
-				</Box>
-				<Box sx={{ flexGrow: 1 }} />
-				<SegmentedControl<PresetOption>
-					value={presetValue}
-					onChange={(v) => selectedEmployeeStore.setPreset(v)}
-					options={PERIOD_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
-				/>
-			</Box>
+			<Typography component="h2" variant="h2" sx={{ mb: "14px" }}>
+				{t("employee.payrollSection")}
+			</Typography>
 
 			{!isReady(history) ? (
 				<LoadStateView
@@ -384,27 +173,18 @@ const EmployeeDetailPage: React.FC = observer(() => {
 					onRetry={() => void selectedEmployeeStore.getPayrollHistory()}
 					errorTitle={t("payroll.error.getHistory")}
 				/>
-			) : filteredRows.length === 0 ? (
-				<Paper
-					elevation={1}
-					sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-				>
-					<Box sx={{ p: "44px 24px 48px", textAlign: "center" }}>
-						<PaymentsOutlinedIcon sx={{ fontSize: 26, color: "text.disabled" }} />
-						<Typography sx={{ fontWeight: 600, mt: 1 }}>
-							{t("employee.payrollEmptyTitle")}
-						</Typography>
-						<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-							{t("employee.payrollEmptyBody")}
-						</Typography>
-					</Box>
-				</Paper>
 			) : (
-				<DataTable<PaymentRecord>
-					rows={filteredRows}
-					columns={payrollColumns}
-					pagination
-					defaultSort={{ key: "date", order: "desc" }}
+				<EmployeePayrollTable
+					employeeName={employee.name}
+					payments={filteredRows}
+					onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
+					filters={
+						<SegmentedControl<PresetOption>
+							value={presetValue}
+							onChange={(v) => selectedEmployeeStore.setPreset(v)}
+							options={PERIOD_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
+						/>
+					}
 				/>
 			)}
 

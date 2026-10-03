@@ -81,7 +81,6 @@
   "transaction.list.title.Supply": "Поставки",
   "transaction.list.new.Sale": "Новая продажа",
   "transaction.list.new.Supply": "Новая поставка",
-  "transaction.list.exportCsv": "Экспорт CSV",
   "transaction.list.search.Sale": "Поиск по номеру или партнёру…",
   "transaction.list.search.Supply": "Поиск по номеру или поставщику…",
   "transaction.list.refundOf": "Возврат к {{number}}",

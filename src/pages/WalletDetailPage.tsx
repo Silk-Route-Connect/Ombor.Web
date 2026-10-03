@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
 import WalletDetailStats from "components/wallet/Detail/WalletDetailStats";
-import WalletDetailTabs, { WalletDetailTab } from "components/wallet/Detail/WalletDetailTabs";
 import WalletOperationsTab from "components/wallet/Detail/WalletOperationsTab";
 import WalletTransferDetailModal from "components/wallet/Detail/WalletTransferDetailModal";
 import WalletTransfersTab from "components/wallet/Detail/WalletTransfersTab";
@@ -21,6 +21,8 @@ import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
 import { Box, Stack } from "@mui/material";
+
+type WalletDetailTab = "operations" | "transfers";
 
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -110,6 +112,19 @@ const WalletDetailPage: React.FC = observer(() => {
 			? transfersState
 			: "loading";
 
+	const tabs: DetailTabSpec<WalletDetailTab>[] = [
+		{
+			key: "operations",
+			label: t("wallet.detail.tabs.operations"),
+			count: isReady(operationsState) ? operations.length : undefined,
+		},
+		{
+			key: "transfers",
+			label: t("wallet.detail.tabs.transfers"),
+			count: isReady(transfersState) ? transfers.length : undefined,
+		},
+	];
+
 	return (
 		<Box>
 			<WalletDetailHeader
@@ -126,12 +141,7 @@ const WalletDetailPage: React.FC = observer(() => {
 			<WalletDetailStats wallet={wallet} />
 
 			<Stack sx={{ gap: "16px" }}>
-				<WalletDetailTabs
-					value={tab}
-					operationsCount={isReady(operationsState) ? operations.length : undefined}
-					transfersCount={isReady(transfersState) ? transfers.length : undefined}
-					onChange={setTab}
-				/>
+				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 
 				{!isReady(operationsState) || !isReady(transfersState) ? (
 					<LoadStateView
@@ -142,12 +152,14 @@ const WalletDetailPage: React.FC = observer(() => {
 					/>
 				) : tab === "operations" ? (
 					<WalletOperationsTab
+						walletName={wallet.name}
 						operations={operations}
 						onOpenPayment={handleOpenPayment}
 						onOpenTransfer={handleOpenTransfer}
 					/>
 				) : (
 					<WalletTransfersTab
+						walletName={wallet.name}
 						transfers={transfers}
 						canTransfer={!wallet.isArchived}
 						onNewTransfer={() => walletStore.openTransfer(wallet.id)}

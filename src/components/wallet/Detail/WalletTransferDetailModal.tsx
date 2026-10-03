@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
@@ -113,7 +114,8 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 						component="span"
 						sx={{ ...numericSx, fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}
 					>
-						{formatCurrency(transfer.amount)} UZS
+						{formatCurrency(transfer.amount)}
+						<UzsUnit />
 					</Box>
 				</KvRow>
 				<KvRow label={t("wallet.transfer.date")}>

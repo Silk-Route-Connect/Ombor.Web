@@ -1,13 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
-import DetailCard from "components/shared/Detail/DetailCard";
-import InfoHint from "components/shared/InfoHint/InfoHint";
-import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Product } from "models/product";
 import { numericSx } from "theme";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { getImageFullUrl, measurementLabel, stockValue } from "utils/productUtils";
+import { getImageFullUrl } from "utils/productUtils";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -15,7 +12,7 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
-import { cardIconSx, detailTableSx } from "./detailTableSx";
+import ProductStockTable from "./ProductStockTable";
 
 interface ProductOverviewTabProps {
 	product: Product;
@@ -36,14 +33,12 @@ const ZeroStockTag: React.FC = () => {
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
 	const zero = product.totalStock === 0;
-	const unit = measurementLabel(t, product.measurement);
-	const totalValue = stockValue(product);
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
 			<DetailCard
 				title={t("product.detail.images")}
-				icon={<Inventory2OutlinedIcon sx={cardIconSx} />}
+				icon={<Inventory2OutlinedIcon sx={detailCardIconSx} />}
 			>
 				{product.images.length > 0 ? (
 					<Box sx={{ display: "flex", flexWrap: "wrap", gap: "14px", p: "16px 18px" }}>
@@ -91,7 +86,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 
 			<DetailCard
 				title={t("product.description")}
-				icon={<ReceiptLongOutlinedIcon sx={cardIconSx} />}
+				icon={<ReceiptLongOutlinedIcon sx={detailCardIconSx} />}
 			>
 				<Box sx={{ p: "16px 18px" }}>
 					<Typography
@@ -108,89 +103,10 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 
 			<DetailCard
 				title={t("product.detail.stockByWarehouse")}
-				icon={<WarehouseOutlinedIcon sx={cardIconSx} />}
+				icon={<WarehouseOutlinedIcon sx={detailCardIconSx} />}
 				headerExtra={zero ? <ZeroStockTag /> : undefined}
 			>
-				<Box component="table" sx={detailTableSx}>
-					<thead>
-						<tr>
-							<th>{t("product.detail.table.warehouse")}</th>
-							<th>{t("product.detail.table.unit")}</th>
-							<th className="r">{t("product.detail.table.quantity")}</th>
-							<th className="r">
-								<Box
-									component="span"
-									sx={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
-								>
-									{t("product.detail.table.wac")}
-									<InfoHint text={t("common.hint.wac")} />
-								</Box>
-							</th>
-							<th className="r">{t("product.detail.table.value")}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{product.warehouseItems.map((item) => (
-							<tr key={item.warehouseId}>
-								<td>
-									<WarehouseLink id={item.warehouseId} name={item.warehouseName} />
-								</td>
-								<td>
-									<Box component="span" sx={{ color: "text.secondary" }}>
-										{unit}
-									</Box>
-								</td>
-								<td className="r">
-									<Box
-										component="span"
-										sx={{
-											...numericSx,
-											color: item.quantity === 0 ? "error.main" : "text.primary",
-										}}
-									>
-										{formatQuantity(item.quantity)}
-									</Box>
-								</td>
-								<td className="r">
-									<Box component="span" sx={numericSx}>
-										{item.quantity === 0 ? "—" : formatCurrency(item.averageCost)}
-									</Box>
-								</td>
-								<td className="r">
-									<Box component="span" sx={numericSx}>
-										{formatCurrency(item.quantity * item.averageCost)}
-									</Box>
-								</td>
-							</tr>
-						))}
-						<tr className="total">
-							<td>{t("product.detail.table.total")}</td>
-							<td></td>
-							<td className="r">
-								<Box
-									component="span"
-									sx={{
-										...numericSx,
-										fontWeight: 700,
-										color: zero ? "error.main" : "text.primary",
-									}}
-								>
-									{formatQuantity(product.totalStock)}
-								</Box>
-							</td>
-							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-									{product.averageCost != null ? formatCurrency(product.averageCost) : "—"}
-								</Box>
-							</td>
-							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-									{formatCurrency(totalValue)}
-								</Box>
-							</td>
-						</tr>
-					</tbody>
-				</Box>
+				<ProductStockTable product={product} />
 			</DetailCard>
 		</Stack>
 	);

@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { DebtSummary } from "stores/DebtStore";
 import { ChipTokenKey, designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -96,12 +97,7 @@ const Card: React.FC<{ spec: CardSpec; countLabel: string; onClick?: () => void 
 			}}
 		>
 			{spec.value}
-			<Box
-				component="span"
-				sx={{ fontSize: 12, fontWeight: 500, color: "text.disabled", ml: "6px" }}
-			>
-				UZS
-			</Box>
+			<UzsUnit />
 		</Typography>
 		<Box sx={{ mt: "10px" }}>
 			<StatusPill token={spec.pill.token} icon={spec.pill.icon} label={countLabel} />

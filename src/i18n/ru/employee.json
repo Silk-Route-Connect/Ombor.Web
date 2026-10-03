@@ -95,12 +95,11 @@
   "employee.payrollEmptyTitle": "Нет выплат",
   "employee.payrollEmptyBody": "За выбранный период выплат не было.",
 
+  "employee.payroll.number": "№",
   "employee.payroll.date": "Дата",
-  "employee.payroll.type": "Тип",
   "employee.payroll.period": "Период",
   "employee.payroll.amount": "Сумма",
   "employee.payroll.wallet": "Касса",
-  "employee.payroll.salary": "Зарплата",
 
   "employee.terminate.title": "Уволить сотрудника «{{name}}»?",
   "employee.terminate.body": "Сотрудник будет помечен как уволенный и скрыт из активного списка. История его выплат сохранится. Сотрудника можно восстановить позже.",

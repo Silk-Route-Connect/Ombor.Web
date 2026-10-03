@@ -154,6 +154,7 @@ const ProductDetailPage: React.FC = observer(() => {
 							<ProductTransactionsTab
 								transactions={transactions}
 								measurement={product.measurement}
+								onOpen={(path) => navigate(path)}
 							/>
 						))}
 					{tab === "movements" &&
@@ -165,7 +166,7 @@ const ProductDetailPage: React.FC = observer(() => {
 								errorTitle={t("product.error.getTransactions")}
 							/>
 						) : (
-							<ProductMovementsTab movements={movements} />
+							<ProductMovementsTab movements={movements} measurement={product.measurement} />
 						))}
 				</Box>
 

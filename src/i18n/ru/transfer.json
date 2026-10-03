@@ -23,7 +23,6 @@
   "transfer.table.product": "Товар",
   "transfer.table.sku": "Артикул",
   "transfer.table.quantity": "Кол-во",
-  "transfer.table.unit": "Ед.",
 
   "transfer.empty.title": "Пока нет перемещений",
   "transfer.empty.body": "Перемещения переносят товар между складами. Оба склада обновляются сразу — без статусов и подтверждений. Создайте первое перемещение.",

@@ -1,8 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
+import BalanceCell from "components/shared/Table/cells/BalanceCell";
 import { DashboardDebtor } from "models/dashboard";
-import { designTokens, numericSx } from "theme";
-import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
+import { designTokens } from "theme";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
@@ -12,25 +13,6 @@ interface Props {
 	onOpenDebtor: (partnerId: number) => void;
 	onAllPartners: () => void;
 }
-
-const Avatar: React.FC<{ name: string }> = ({ name }) => (
-	<Box
-		sx={{
-			width: 36,
-			height: 36,
-			flex: "0 0 auto",
-			borderRadius: "50%",
-			display: "grid",
-			placeItems: "center",
-			bgcolor: "primary.light",
-			color: "primary.main",
-			fontSize: 14,
-			fontWeight: 700,
-		}}
-	>
-		{name.trim().charAt(0).toUpperCase()}
-	</Box>
-);
 
 /**
  * «Топ должников» — the five partners with the largest outstanding receivable.
@@ -77,7 +59,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 							"&:hover": { bgcolor: designTokens.gray25 },
 						}}
 					>
-						<Avatar name={d.name} />
+						<EntityAvatar name={d.name} />
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography
 								sx={{ fontWeight: 600, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis" }}
@@ -87,7 +69,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 							<Typography
 								sx={{
 									fontSize: 12,
-									color: "text.disabled",
+									color: "text.secondary",
 									overflow: "hidden",
 									textOverflow: "ellipsis",
 								}}
@@ -95,17 +77,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 								{d.company ?? t("dashboard.topDebtors.noCompany")}
 							</Typography>
 						</Box>
-						<Box
-							component="span"
-							sx={{
-								...numericSx,
-								fontWeight: 700,
-								fontSize: 14,
-								color: partnerBalanceColor(d.amount),
-							}}
-						>
-							{formatPartnerBalance(d.amount)}
-						</Box>
+						<BalanceCell balance={d.amount} main />
 					</ButtonBase>
 				))}
 			</Box>

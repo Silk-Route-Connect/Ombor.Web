@@ -1,6 +1,5 @@
 {
   "order.title": "Заказы",
-  "order.exportCsv": "Экспорт CSV",
   "order.create": "Новый заказ",
   "order.searchPlaceholder": "Поиск по номеру или клиенту…",
 
@@ -55,6 +54,7 @@
   "order.detail.positions": "Позиции",
   "order.detail.editable": "Можно редактировать",
   "order.detail.col.product": "Товар",
+  "order.detail.col.sku": "Артикул",
   "order.detail.col.qty": "Кол-во",
   "order.detail.col.unitPrice": "Цена за ед.",
   "order.detail.col.discount": "Скидка",

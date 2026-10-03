@@ -11,7 +11,6 @@
 
   "partner.title": "Партнёры",
   "partner.list.create": "Новый партнёр",
-  "partner.list.exportCsv": "Экспорт CSV",
   "partner.list.searchPlaceholder": "Поиск по имени, компании или телефону…",
 
   "partner.filter.all": "Все",
@@ -29,8 +28,6 @@
   "partner.table.status": "Статус",
   "partner.table.statusActive": "Активен",
   "partner.table.statusArchived": "В архиве",
-
-  "partner.badge.archived": "в архиве",
 
   "partner.empty.title": "Пока нет партнёров",
   "partner.empty.body": "Добавьте первого клиента или поставщика, чтобы начать вести расчёты, продажи и поставки.",
@@ -64,7 +61,6 @@
   "partner.detail.stat.supplies": "Поставки",
   "partner.detail.stat.payments": "Платежи",
   "partner.detail.stat.opening": "Начальный баланс",
-  "partner.detail.exportCsv": "Экспорт CSV",
 
   "partner.tab.ledger": "Журнал",
   "partner.tab.transactions": "Продажи и поставки",
@@ -133,6 +129,7 @@
   "partner.pays.type.payment": "Оплаты",
   "partner.pays.type.deposit": "Авансы",
   "partner.pays.type.withdraw": "Возвраты аванса",
+  "partner.pays.col.number": "№",
   "partner.pays.col.date": "Дата",
   "partner.pays.col.type": "Тип",
   "partner.pays.col.method": "Способ",

@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Warehouse } from "models/warehouse";
 import { typeScale } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
@@ -50,15 +51,6 @@ const Kpi: React.FC<{
 	</Paper>
 );
 
-const Unit: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-	<Box
-		component="span"
-		sx={{ fontSize: 14, fontWeight: 600, color: "text.disabled", ml: "7px", letterSpacing: 0 }}
-	>
-		{children}
-	</Box>
-);
-
 /** Three summary KPI cards per the bundle: products, units, stock value (WAC). */
 export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 	const { t } = useTranslation();
@@ -91,7 +83,7 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 				value={
 					<>
 						{formatCurrency(warehouse.stockValue)}
-						<Unit>UZS</Unit>
+						<UzsUnit />
 					</>
 				}
 				sub={t("warehouse.kpi.valueSub")}

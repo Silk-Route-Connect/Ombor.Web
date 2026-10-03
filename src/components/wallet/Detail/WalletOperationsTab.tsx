@@ -3,46 +3,58 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import { PAYMENT_TYPE_META, PaymentTypeBadge } from "components/payment/PaymentPresentation";
 import StatusPill from "components/shared/Chip/StatusPill";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
-import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
-import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import TableToolbar from "components/shared/Table/TableToolbar";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import NoValue from "components/shared/Table/cells/NoValue";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
-import { numericSx } from "theme";
-import { formatDateTime } from "utils/dateUtils";
-import { formatCurrency } from "utils/formatCurrency";
-import { entityNumberSortValue } from "utils/formatEntityId";
+import { paymentDetailPath } from "routing/paths";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { entityNumberSortValue, formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import { Box, Paper, Typography } from "@mui/material";
 
 type DirFilter = "all" | WalletOperationDirection;
 
-/** DataTable needs an `id`; WalletOperation already carries one. */
-type OperationRow = WalletOperation;
-
 interface WalletOperationsTabProps {
+	walletName: string;
 	operations: WalletOperation[];
 	onOpenPayment: (operation: WalletOperation) => void;
 	onOpenTransfer: (transferId: number) => void;
 }
 
-/** Keep the partner link from also firing the row's open-detail click. */
-const stop = (e: React.MouseEvent) => e.stopPropagation();
+/** A payment row shows its payment number; a transfer row its transfer №; others none. */
+const OperationNumber: React.FC<{
+	operation: WalletOperation;
+	onOpenTransfer: (id: number) => void;
+}> = ({ operation: o, onOpenTransfer }) => {
+	if (o.paymentId != null) {
+		return <DocNumberCell number={o.paymentNumber} to={paymentDetailPath(o.paymentId)} />;
+	}
+	if (o.transferId != null) {
+		const transferId = o.transferId;
+		return <DocNumberCell number={transferId} onOpen={() => onOpenTransfer(transferId)} />;
+	}
+	return <NoValue />;
+};
 
 /**
- * The «Операции» tab on the shared DataTable (warm band, sortable columns,
- * 10/25/50 pager) with a search + direction segmented filter above it. Amounts
- * carry no +/− sign — direction is the shared green ↓ / red ↑ badge (locked
- * pattern 4). A payment row is numbered and typed exactly as on /payments (the
- * served payment type, «Без номера» for legacy rows); a transfer row opens the
- * transfer detail, a payment row routes to its payment.
- *
- * The prototype's period date filter is omitted for now (locked pattern 12).
+ * «Операции»: every money movement of the wallet — № · Дата · Партнёр · Тип ·
+ * Направление · Сумма · Баланс после. Amounts are unsigned and coloured by
+ * direction (pattern 4); a payment row opens the payment, a transfer row the
+ * transfer.
  */
 export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
+	walletName,
 	operations,
 	onOpenPayment,
 	onOpenTransfer,
@@ -50,70 +62,62 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [dir, setDir] = useState<DirFilter>("all");
+	const filtering = query.trim().length > 0 || dir !== "all";
 
-	const rows = useMemo<OperationRow[]>(
+	const rows = useMemo(
 		() =>
-			operations.filter((o) => {
-				if (dir !== "all" && o.direction !== dir) {
-					return false;
-				}
-				if (query.trim()) {
-					return matchesSearch(o.party, query) || matchesSearch(o.paymentNumber, query);
-				}
-				return true;
-			}),
+			operations.filter(
+				(o) =>
+					(dir === "all" || o.direction === dir) &&
+					(!query.trim() || matchesSearch(o.party, query) || matchesSearch(o.paymentNumber, query)),
+			),
 		[operations, query, dir],
 	);
 
-	const filtering = query.trim().length > 0 || dir !== "all";
-
 	// Legacy API builds serve only the coarse `kind`; prefer the payment type when present.
 	const typeLabel = useCallback(
-		(o: OperationRow): string =>
+		(o: WalletOperation): string =>
 			o.paymentType && PAYMENT_TYPE_META[o.paymentType]
 				? t(PAYMENT_TYPE_META[o.paymentType].labelKey)
 				: t(`wallet.operation.${o.kind}`),
 		[t],
 	);
 
-	const dirOptions: Array<{ value: DirFilter; label: string }> = [
-		{ value: "all", label: t("wallet.operations.filterAll") },
-		{ value: "In", label: t("wallet.operations.in") },
-		{ value: "Out", label: t("wallet.operations.out") },
-	];
+	const numberOf = (o: WalletOperation): string => {
+		if (o.paymentId != null) return formatOptionalNumber(o.paymentNumber, t("common.noNumber"));
+		return o.transferId != null ? formatEntityId(o.transferId) : "";
+	};
 
-	const columns = useMemo<Column<OperationRow>[]>(
+	const columns = useMemo<Column<WalletOperation>[]>(
 		() => [
 			{
-				key: "payment",
+				key: "number",
 				headerName: t("wallet.operations.payment"),
-				sortValue: (o) => entityNumberSortValue(o.paymentNumber),
-				renderCell: (o) =>
-					o.paymentId != null ? (
-						<CopyableNumberCell value={o.paymentNumber} />
-					) : (
-						<Box component="span" sx={{ color: "text.disabled" }}>
-							—
-						</Box>
-					),
+				sortValue: (o) =>
+					o.paymentId != null ? entityNumberSortValue(o.paymentNumber) : (o.transferId ?? null),
+				renderCell: (o) => <OperationNumber operation={o} onOpenTransfer={onOpenTransfer} />,
 			},
 			{
 				key: "date",
 				headerName: t("wallet.operations.date"),
-				sortValue: (o) => o.date,
-				renderCell: (o) => (
-					<Box
-						component="span"
-						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
-					>
-						{formatDateTime(o.date)}
-					</Box>
-				),
+				sortValue: (o) => Date.parse(o.date),
+				renderCell: (o) => <DateCell value={o.date} />,
+			},
+			{
+				key: "party",
+				headerName: t("wallet.operations.party"),
+				sortValue: (o) => o.party ?? "",
+				renderCell: (o) =>
+					o.partnerId != null && o.party ? (
+						<PartnerLink id={o.partnerId} name={o.party} />
+					) : (
+						<MutedTextCell text={o.party} />
+					),
 			},
 			{
 				key: "type",
 				headerName: t("wallet.operations.type"),
-				sortValue: (o) => typeLabel(o),
+				sortValue: typeLabel,
 				renderCell: (o) =>
 					o.paymentType && PAYMENT_TYPE_META[o.paymentType] ? (
 						<PaymentTypeBadge type={o.paymentType} />
@@ -124,7 +128,8 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 			{
 				key: "direction",
 				headerName: t("wallet.operations.direction"),
-				sortValue: (o) => o.direction,
+				sortValue: (o) =>
+					t(o.direction === "In" ? "wallet.operations.in" : "wallet.operations.out"),
 				renderCell: (o) => (
 					<DirectionBadge
 						income={o.direction === "In"}
@@ -133,40 +138,12 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				),
 			},
 			{
-				key: "party",
-				headerName: t("wallet.operations.party"),
-				sortValue: (o) => o.party ?? "",
-				renderCell: (o) =>
-					o.partnerId != null && o.party ? (
-						<Box component="span" onClick={stop} sx={{ whiteSpace: "nowrap", fontWeight: 600 }}>
-							<PartnerLink id={o.partnerId} name={o.party} />
-						</Box>
-					) : (
-						<Box
-							component="span"
-							sx={{ color: o.transferId != null ? "text.secondary" : "text.primary" }}
-						>
-							{o.party ?? "—"}
-						</Box>
-					),
-			},
-			{
 				key: "amount",
 				headerName: t("wallet.operations.amount"),
 				align: "right",
 				sortValue: (o) => o.amount,
 				renderCell: (o) => (
-					<Box
-						component="span"
-						sx={{
-							...numericSx,
-							fontWeight: 700,
-							fontSize: 15,
-							color: o.direction === "In" ? "success.main" : "error.main",
-						}}
-					>
-						{formatCurrency(o.amount)}
-					</Box>
+					<MoneyCell value={o.amount} main tone={o.direction === "In" ? "income" : "expense"} />
 				),
 			},
 			{
@@ -174,17 +151,13 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				headerName: t("wallet.operations.balanceAfter"),
 				align: "right",
 				sortValue: (o) => o.balanceAfter,
-				renderCell: (o) => (
-					<Box component="span" sx={{ ...numericSx, fontWeight: 700, color: "text.primary" }}>
-						{formatCurrency(o.balanceAfter)}
-					</Box>
-				),
+				renderCell: (o) => <MoneyCell value={o.balanceAfter} />,
 			},
 		],
-		[t, typeLabel],
+		[t, typeLabel, onOpenTransfer],
 	);
 
-	const handleRowClick = (o: OperationRow): void => {
+	const handleRowClick = (o: WalletOperation): void => {
 		if (o.transferId != null) {
 			onOpenTransfer(o.transferId);
 		} else {
@@ -192,42 +165,62 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 		}
 	};
 
-	return (
-		<>
-			<TableToolbar
-				search={{
-					value: query,
-					onChange: setQuery,
-					placeholder: t("wallet.operations.searchPlaceholder"),
-				}}
-				filters={<SegmentedControl options={dirOptions} value={dir} onChange={setDir} />}
-			/>
+	const handleExport = () => {
+		exportToCsv<WalletOperation>(
+			`wallet_${walletName}_operations_${csvDateStamp()}`,
+			[
+				{ header: t("wallet.operations.payment"), value: numberOf },
+				{ header: t("wallet.operations.date"), value: (o) => formatDate(o.date) },
+				{ header: t("wallet.operations.party"), value: (o) => o.party ?? "" },
+				{ header: t("wallet.operations.type"), value: typeLabel },
+				{
+					header: t("wallet.operations.direction"),
+					value: (o) => t(o.direction === "In" ? "wallet.operations.in" : "wallet.operations.out"),
+				},
+				{ header: t("wallet.operations.amount"), value: (o) => o.amount },
+				{ header: t("wallet.operations.balanceAfter"), value: (o) => o.balanceAfter },
+			],
+			rows,
+		);
+	};
 
-			{rows.length === 0 ? (
-				<Paper
-					elevation={1}
-					sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-				>
-					<Box sx={{ p: "44px 24px 48px", textAlign: "center" }}>
-						<SwapHorizIcon sx={{ fontSize: 26, color: "text.disabled" }} />
-						<Typography sx={{ fontWeight: 600, mt: 1 }}>
-							{t("wallet.operations.emptyTitle")}
-						</Typography>
-						<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-							{filtering ? t("wallet.operations.emptyFiltered") : t("wallet.operations.emptyBody")}
-						</Typography>
-					</Box>
-				</Paper>
-			) : (
-				<DataTable<OperationRow>
-					rows={rows}
-					columns={columns}
-					pagination
-					defaultSort={{ key: "date", order: "desc" }}
-					onRowClick={handleRowClick}
+	return (
+		<DetailTableCard
+			search={{
+				value: query,
+				onChange: setQuery,
+				placeholder: t("wallet.operations.searchPlaceholder"),
+			}}
+			filters={
+				<SegmentedControl<DirFilter>
+					options={[
+						{ value: "all", label: t("wallet.operations.filterAll") },
+						{ value: "In", label: t("wallet.operations.in") },
+						{ value: "Out", label: t("wallet.operations.out") },
+					]}
+					value={dir}
+					onChange={setDir}
 				/>
-			)}
-		</>
+			}
+			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
+		>
+			<DetailTable<WalletOperation>
+				rows={rows}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				onRowClick={handleRowClick}
+				empty={
+					<TableEmptyState
+						icon={<SwapHorizIcon />}
+						title={t("wallet.operations.emptyTitle")}
+						hint={
+							filtering ? t("wallet.operations.emptyFiltered") : t("wallet.operations.emptyBody")
+						}
+					/>
+				}
+			/>
+		</DetailTableCard>
 	);
 };
 

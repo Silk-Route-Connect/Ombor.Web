@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Wallet } from "models/wallet";
 import { designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -59,12 +60,7 @@ const Stat: React.FC<{
 			}}
 		>
 			{value}
-			<Box
-				component="span"
-				sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "6px" }}
-			>
-				UZS
-			</Box>
+			<UzsUnit />
 		</Typography>
 	</Paper>
 );

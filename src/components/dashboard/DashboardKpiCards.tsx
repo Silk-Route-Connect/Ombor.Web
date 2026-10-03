@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { DashboardData } from "models/dashboard";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { designTokens, typeScale } from "theme";
@@ -129,15 +130,10 @@ const KpiCard: React.FC<{ spec: CardSpec }> = ({ spec }) => {
 					color: spec.valueColor,
 				}}
 			>
-				{formatCurrency(Math.round(animated))}
-				{spec.unit && (
-					<Box
-						component="span"
-						sx={{ fontSize: 13, fontWeight: 500, color: "text.disabled", ml: "6px" }}
-					>
-						UZS
-					</Box>
-				)}
+				{/* Count-up frames tick in whole sums; the settled value is the exact
+				    figure, kopecks included («702,01» — never rounded to «702»). */}
+				{formatCurrency(animated === spec.value ? spec.value : Math.trunc(animated))}
+				{spec.unit && <UzsUnit sx={{ fontSize: 13 }} />}
 			</Typography>
 
 			<Box

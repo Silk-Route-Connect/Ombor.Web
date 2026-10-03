@@ -13,6 +13,8 @@ interface QuantityCellProps {
 	value: number | null | undefined;
 	/** Shown as the short unit («шт», «кг») in a muted suffix; omit for plain counts. */
 	measurement?: Measurement;
+	/** A served short unit label, when the row carries the label instead of the enum. */
+	unit?: string;
 	/** Movement ledgers: sign the figure by direction («+12» in, «−3» out). */
 	direction?: "in" | "out";
 }
@@ -21,13 +23,19 @@ interface QuantityCellProps {
  * Quantity / count column cell: tabular, regular weight, ink — stock levels are
  * never coloured (green/red belong to money). Right-align the column.
  */
-export const QuantityCell: React.FC<QuantityCellProps> = ({ value, measurement, direction }) => {
+export const QuantityCell: React.FC<QuantityCellProps> = ({
+	value,
+	measurement,
+	unit: unitLabel,
+	direction,
+}) => {
 	const { t } = useTranslation();
 	if (value == null || !Number.isFinite(value)) {
 		return <NoValue />;
 	}
 	const sign = direction && value !== 0 ? (direction === "in" ? "+" : "−") : "";
-	const unit = measurement && measurement !== "None" ? measurementShort(t, measurement) : null;
+	const unit =
+		unitLabel || (measurement && measurement !== "None" ? measurementShort(t, measurement) : null);
 
 	return (
 		<Box component="span" sx={{ ...numericSx, whiteSpace: "nowrap" }}>

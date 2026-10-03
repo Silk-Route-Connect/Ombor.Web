@@ -185,7 +185,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							}
 						/>
 					) : (
-						<WarehouseMovementsTab movements={movements} />
+						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />
 					)}
 				</Stack>
 			)}

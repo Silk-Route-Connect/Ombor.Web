@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import PaymentAllocationCard from "components/payment/Detail/PaymentAllocationCard";
 import {
-	PaymentAllocationCard,
 	PaymentAttachmentsCard,
 	PaymentGeneralCard,
 	PaymentInfoCard,
 	PaymentPayrollCard,
-	PaymentSourceCard,
 	PaymentWithdrawalCard,
 } from "components/payment/Detail/PaymentDetailCards";
+import PaymentSourceCard from "components/payment/Detail/PaymentSourceCard";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import LoadStateView from "components/shared/LoadState/LoadStateView";

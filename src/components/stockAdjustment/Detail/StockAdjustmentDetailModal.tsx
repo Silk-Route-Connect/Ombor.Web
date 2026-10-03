@@ -103,12 +103,11 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 								...numericSx,
 								fontSize: 18,
 								fontWeight: 700,
-								color: isDown ? "error.main" : "success.main",
 							}}
 						>
 							{isDown ? "−" : "+"}
 							{formatQuantity(adjustment.quantity)}{" "}
-							<Box component="span" sx={{ fontSize: 13, color: "text.disabled", fontWeight: 600 }}>
+							<Box component="span" sx={{ fontSize: 13, color: "text.secondary", fontWeight: 600 }}>
 								{unit}
 							</Box>
 						</Box>
@@ -150,7 +149,7 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 							>
 								{adjustment.createdBy.trim().charAt(0)}
 							</Avatar>
-							<Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+							<Box component="span" sx={{ fontWeight: 600 }}>
 								{adjustment.createdBy}
 							</Box>
 						</Box>

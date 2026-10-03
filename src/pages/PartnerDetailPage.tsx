@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable";
-import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
+import {
+	derivePayments,
+	deriveTransactions,
+	ledgerSourcePath,
+} from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
 import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
 import PartnerDetailRail from "components/partner/Detail/PartnerDetailRail";
@@ -14,13 +17,15 @@ import PartnerDialogs from "components/partner/PartnerDialogs";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
-import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { PATHS } from "routing/paths";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 
@@ -36,7 +41,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const partnerId = useRouteEntityId();
 	const [searchParams] = useSearchParams();
-	const { partnerStore, partnerLedgerStore, notificationStore } = useStore();
+	const { partnerStore, partnerLedgerStore } = useStore();
 
 	// Deep-link: a partner opened from Debts arrives with ?tab=transactions&status=open
 	// so it lands on the Транзакции tab pre-filtered to outstanding debt (B13/DBT-1).
@@ -68,29 +73,9 @@ const PartnerDetailPage: React.FC = observer(() => {
 
 	const goBack = () => navigate(PATHS.partners);
 	const openSource = (entry: PartnerLedgerEntry) => {
-		if (!entry.sourceId) {
-			// Fallback for the self-contained mock (no real source id to link to).
-			notificationStore.info(
-				`${entry.reference ?? t(`partner.event.${entry.type}`)} — ${t("common.pageInDevelopment")}`,
-			);
-			return;
-		}
-		switch (entry.type) {
-			case "sale":
-			case "refund-sale":
-				navigate(saleDetailPath(entry.sourceId));
-				break;
-			case "supply":
-			case "refund-supply":
-				navigate(supplyDetailPath(entry.sourceId));
-				break;
-			case "payment":
-			case "deposit":
-			case "withdraw":
-				navigate(paymentDetailPath(entry.sourceId));
-				break;
-			default:
-				break; // opening — not navigable
+		const path = ledgerSourcePath(entry);
+		if (path) {
+			navigate(path);
 		}
 	};
 
@@ -160,13 +145,13 @@ const PartnerDetailPage: React.FC = observer(() => {
 		if (tab === "transactions") {
 			if (noHistory) {
 				return (
-					<LedgerCard>
-						<EmptyRecords
-							icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 22 }} />}
+					<DetailTableCard>
+						<TableEmptyState
+							icon={<ReceiptLongOutlinedIcon />}
 							title={t("partner.txns.empty.title")}
-							body={t("partner.txns.emptyNew.body")}
+							hint={t("partner.txns.emptyNew.body")}
 						/>
-					</LedgerCard>
+					</DetailTableCard>
 				);
 			}
 			return (
@@ -180,13 +165,13 @@ const PartnerDetailPage: React.FC = observer(() => {
 		}
 		if (noHistory) {
 			return (
-				<LedgerCard>
-					<EmptyRecords
-						icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 22 }} />}
+				<DetailTableCard>
+					<TableEmptyState
+						icon={<AccountBalanceWalletOutlinedIcon />}
 						title={t("partner.pays.empty.title")}
-						body={t("partner.pays.emptyNew.body")}
+						hint={t("partner.pays.emptyNew.body")}
 					/>
-				</LedgerCard>
+				</DetailTableCard>
 			);
 		}
 		return <PaymentsTab payments={payments} partnerName={partner.name} onOpen={openSource} />;
@@ -240,7 +225,6 @@ const PartnerDetailPage: React.FC = observer(() => {
 				}
 				actions={actions}
 				isArchived={partner.isArchived}
-				archivedLabel={t("partner.badge.archived")}
 			/>
 
 			{partner.isArchived && <PartnerArchivedBanner />}

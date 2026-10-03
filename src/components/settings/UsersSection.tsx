@@ -1,10 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { TenantUser } from "models/settings";
 import { designTokens } from "theme";
 import { formatDate } from "utils/dateUtils";
+import { formatUzPhone } from "utils/phoneUtils";
 
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
@@ -14,32 +16,15 @@ import { Box, Tooltip, Typography } from "@mui/material";
 
 import SettingsSectionCard from "./SettingsSectionCard";
 
+/** A user's contact is a phone or an e-mail; phones read «+998 90 123 45 67». */
+const PHONE_LIKE = /^\+?[\d\s()-]+$/;
+
 interface Props {
 	users: TenantUser[];
 	onInvite: () => void;
 	onDeactivate: (user: TenantUser) => void;
 	onReactivate: (user: TenantUser) => void;
 }
-
-const Avatar: React.FC<{ name: string; muted: boolean }> = ({ name, muted }) => (
-	<Box
-		sx={{
-			width: 38,
-			height: 38,
-			flex: "0 0 auto",
-			borderRadius: "50%",
-			display: "grid",
-			placeItems: "center",
-			fontSize: 14,
-			fontWeight: 700,
-			bgcolor: "primary.light",
-			color: "primary.main",
-			...(muted && { opacity: 0.45, filter: "grayscale(1)" }),
-		}}
-	>
-		{name.trim().charAt(0).toUpperCase()}
-	</Box>
-);
 
 /** Пользователи — invite + deactivate/reactivate (never delete, rule 41). */
 const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReactivate }) => {
@@ -104,7 +89,7 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 								borderColor: designTokens.gray25,
 							}}
 						>
-							<Avatar name={u.name} muted={!u.active} />
+							<EntityAvatar name={u.name} size={38} muted={!u.active} />
 							<Box sx={{ flex: 1, minWidth: 0 }}>
 								<Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
 									<Typography
@@ -125,7 +110,7 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 										color: u.active ? "text.secondary" : "text.disabled",
 									}}
 								>
-									{u.contact}
+									{PHONE_LIKE.test(u.contact) ? formatUzPhone(u.contact) : u.contact}
 								</Typography>
 							</Box>
 

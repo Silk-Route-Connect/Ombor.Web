@@ -1,318 +1,195 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
 import { movementKindLabelKey } from "components/shared/Chip/movementKind";
 import MovementKindChip from "components/shared/Chip/MovementKindChip";
-import DetailCard from "components/shared/Detail/DetailCard";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { detailTableSx } from "components/shared/Detail/detailTableChrome";
-import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
-import TablePager from "components/shared/Table/TablePager";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
+import DateCell from "components/shared/Table/cells/DateCell";
+import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import NotesCell from "components/shared/Table/cells/NotesCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
 	WarehouseMovement,
 	WarehouseMovementKind,
 } from "models/warehouse";
-import { designTokens, numericSx } from "theme";
-import { formatDateTime } from "utils/dateUtils";
-import { formatQuantity } from "utils/formatCurrency";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import { Box, MenuItem, TextField, Typography } from "@mui/material";
 
 interface WarehouseMovementsTabProps {
+	warehouseName: string;
 	movements: WarehouseMovement[];
 }
 
-type SortCol = "date" | "event" | "product" | "counterparty" | "quantity" | "balance";
+type KindFilter = WarehouseMovementKind | typeof ALL_TYPES;
+/** Movements key by position — a source event id is not unique across kinds. */
+type MovementRow = WarehouseMovement & { eventId: number };
 
 const ALL_TYPES = "__all__";
 
-const Dash: React.FC = () => (
-	<Box component="span" sx={{ color: "text.disabled" }}>
-		—
-	</Box>
-);
+/** The other side of a movement: the other warehouse, the partner, or the note. */
+const CounterpartyCell: React.FC<{ movement: WarehouseMovement }> = ({ movement: m }) => {
+	if (m.kind === "Transfer" && m.counterpartyWarehouseId) {
+		return <WarehouseLink id={m.counterpartyWarehouseId} name={m.counterparty ?? ""} />;
+	}
+	if (m.counterpartyPartnerId && m.counterparty) {
+		return <PartnerLink id={m.counterpartyPartnerId} name={m.counterparty} />;
+	}
+	if (m.counterparty) {
+		return <MutedTextCell text={m.counterparty} />;
+	}
+	return <NotesCell text={m.note} maxWidth={220} />;
+};
 
 /**
- * «Движения» tab per the bundle: the warehouse stock ledger with typed event
- * chips, signed +/− quantities (green in / red out) and the served running
- * per-product balance. Searchable by product, filterable by event type, sortable
- * on every column (defaults to date, newest first).
+ * «Движения»: the warehouse stock ledger — Дата · Товар · Событие · Контрагент ·
+ * Количество (signed) · Остаток — searchable by product, filterable by event.
  */
-export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ movements }) => {
+export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
+	warehouseName,
+	movements,
+}) => {
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
-	const [type, setType] = useState<WarehouseMovementKind | typeof ALL_TYPES>(ALL_TYPES);
-	const [sortCol, setSortCol] = useState<SortCol>("date");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
-
-	const rows = useMemo(() => {
-		const filtered = movements.filter((movement) => {
-			if (type !== ALL_TYPES && movement.kind !== type) {
-				return false;
-			}
-			if (query.trim() && !matchesSearch(movement.productName, query)) {
-				return false;
-			}
-			return true;
-		});
-		const accessor = (m: WarehouseMovement): string | number => {
-			switch (sortCol) {
-				case "date":
-					return m.date;
-				case "event":
-					return t(movementKindLabelKey(m.kind));
-				case "product":
-					return m.productName;
-				case "counterparty":
-					return m.counterparty ?? "";
-				case "quantity":
-					return m.quantity;
-				case "balance":
-					return m.balanceAfter;
-				default:
-					return "";
-			}
-		};
-		const sorted = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? sorted.reverse() : sorted;
-	}, [movements, query, type, sortCol, sortDir, t]);
-
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
-	};
-
+	const [type, setType] = useState<KindFilter>(ALL_TYPES);
 	const isFiltering = query.trim() !== "" || type !== ALL_TYPES;
 
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const rows = useMemo<MovementRow[]>(
+		() =>
+			movements
+				.filter(
+					(m) =>
+						(type === ALL_TYPES || m.kind === type) &&
+						(!query.trim() || matchesSearch(m.productName, query)),
+				)
+				.map((m, index) => ({ ...m, id: index, eventId: m.id })),
+		[movements, query, type],
+	);
 
-	// Reset to the first page whenever the filters or sort change.
-	useEffect(() => setPage(0), [query, type, sortCol, sortDir]);
+	const columns = useMemo<Column<MovementRow>[]>(
+		() => [
+			{
+				key: "date",
+				headerName: t("warehouse.movements.date"),
+				sortValue: (m) => Date.parse(m.date),
+				renderCell: (m) => <DateCell value={m.date} />,
+			},
+			{
+				key: "product",
+				headerName: t("warehouse.movements.product"),
+				sortValue: (m) => m.productName,
+				renderCell: (m) => <ProductLink id={m.productId} name={m.productName} />,
+			},
+			{
+				key: "event",
+				headerName: t("warehouse.movements.event"),
+				sortValue: (m) => t(movementKindLabelKey(m.kind)),
+				renderCell: (m) => <MovementKindChip kind={m.kind} />,
+			},
+			{
+				key: "counterparty",
+				headerName: t("warehouse.movements.counterparty"),
+				sortValue: (m) => m.counterparty ?? "",
+				renderCell: (m) => <CounterpartyCell movement={m} />,
+			},
+			{
+				key: "quantity",
+				headerName: t("warehouse.movements.quantity"),
+				align: "right",
+				sortValue: (m) => m.quantity,
+				renderCell: (m) => (
+					<QuantityCell
+						value={m.quantity}
+						measurement={m.measurement}
+						direction={m.quantity >= 0 ? "in" : "out"}
+					/>
+				),
+			},
+			{
+				key: "balance",
+				headerName: t("warehouse.movements.balance"),
+				align: "right",
+				sortValue: (m) => m.balanceAfter,
+				renderCell: (m) => <QuantityCell value={m.balanceAfter} measurement={m.measurement} />,
+			},
+		],
+		[t],
+	);
 
-	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+	const handleExport = () => {
+		exportToCsv<MovementRow>(
+			`warehouse_${warehouseName}_movements_${csvDateStamp()}`,
+			[
+				{ header: t("warehouse.movements.date"), value: (m) => formatDate(m.date) },
+				{ header: t("warehouse.movements.product"), value: (m) => m.productName },
+				{ header: t("warehouse.movements.event"), value: (m) => t(movementKindLabelKey(m.kind)) },
+				{
+					header: t("warehouse.movements.counterparty"),
+					value: (m) => m.counterparty ?? m.note ?? "",
+				},
+				{ header: t("warehouse.movements.quantity"), value: (m) => m.quantity },
+				{ header: t("warehouse.movements.balance"), value: (m) => m.balanceAfter },
+				{ header: t("warehouse.stock.unit"), value: (m) => measurementShort(t, m.measurement) },
+			],
+			rows,
+		);
+	};
 
 	return (
-		<DetailCard>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "10px",
-					p: "14px 16px",
-					borderBottom: 1,
-					borderColor: "divider",
-					flexWrap: "wrap",
-				}}
-			>
-				<SearchInput
-					value={query}
-					onChange={setQuery}
-					placeholder={t("warehouse.movements.searchPlaceholder")}
-					dense
-				/>
-				<TextField
-					select
-					size="small"
+		<DetailTableCard
+			search={{
+				value: query,
+				onChange: setQuery,
+				placeholder: t("warehouse.movements.searchPlaceholder"),
+			}}
+			filters={
+				<EntityFilterSelect<KindFilter>
+					icon={<FilterListIcon />}
 					value={type}
-					onChange={(e) => setType(e.target.value as WarehouseMovementKind | typeof ALL_TYPES)}
-					sx={{
-						width: 210,
-						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-					}}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<FilterListIcon sx={{ fontSize: 16, color: "text.disabled", mr: "6px" }} />
-							),
-						},
-					}}
-				>
-					<MenuItem value={ALL_TYPES}>{t("warehouse.movements.allTypes")}</MenuItem>
-					{WAREHOUSE_MOVEMENT_KINDS.map((kind) => (
-						<MenuItem key={kind} value={kind}>
-							{t(movementKindLabelKey(kind))}
-						</MenuItem>
-					))}
-				</TextField>
-				<Box sx={{ flexGrow: 1 }} />
-				<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-					{t("warehouse.movements.count", { value: rows.length })}
-				</Typography>
-			</Box>
-
-			{rows.length === 0 ? (
-				<Box
-					sx={{
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						gap: "6px",
-						p: "40px 24px 44px",
-						textAlign: "center",
-					}}
-				>
-					<LayersOutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
-					<Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-						{isFiltering
-							? t("warehouse.movements.emptyFilteredTitle")
-							: t("warehouse.movements.emptyTitle")}
-					</Typography>
-					<Typography
-						sx={{ fontSize: 12.5, color: "text.secondary", maxWidth: 320, lineHeight: 1.5 }}
-					>
-						{isFiltering
-							? t("warehouse.movements.emptyFilteredBody")
-							: t("warehouse.movements.emptyBody")}
-					</Typography>
-				</Box>
-			) : (
-				<>
-					<Box component="table" sx={detailTableSx}>
-						<thead>
-							<tr>
-								<DetailSortHeader
-									col="date"
-									label={t("warehouse.movements.date")}
-									active={sortCol === "date"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="event"
-									label={t("warehouse.movements.event")}
-									active={sortCol === "event"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="product"
-									label={t("warehouse.movements.product")}
-									active={sortCol === "product"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="counterparty"
-									label={t("warehouse.movements.counterparty")}
-									active={sortCol === "counterparty"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="quantity"
-									label={t("warehouse.movements.quantity")}
-									active={sortCol === "quantity"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-								<DetailSortHeader
-									col="balance"
-									label={t("warehouse.movements.balance")}
-									active={sortCol === "balance"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-							</tr>
-						</thead>
-						<tbody>
-							{paged.map((movement) => {
-								const unit = measurementShort(t, movement.measurement);
-								const isIn = movement.quantity > 0;
-								return (
-									<tr
-										key={`${movement.kind}-${movement.id}-${movement.productId}-${movement.date}`}
-									>
-										<td>
-											<Box
-												component="span"
-												sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
-											>
-												{formatDateTime(movement.date)}
-											</Box>
-										</td>
-										<td>
-											<MovementKindChip kind={movement.kind} />
-										</td>
-										<td>
-											<ProductLink id={movement.productId} name={movement.productName} />
-										</td>
-										<td>
-											{movement.kind === "Transfer" && movement.counterpartyWarehouseId ? (
-												<WarehouseLink
-													id={movement.counterpartyWarehouseId}
-													name={movement.counterparty ?? "—"}
-												/>
-											) : movement.counterpartyPartnerId && movement.counterparty ? (
-												<PartnerLink
-													id={movement.counterpartyPartnerId}
-													name={movement.counterparty}
-												/>
-											) : movement.counterparty ? (
-												<Box component="span" sx={{ color: "text.secondary" }}>
-													{movement.counterparty}
-												</Box>
-											) : movement.note ? (
-												<Box component="span" sx={{ color: "text.disabled" }}>
-													{movement.note}
-												</Box>
-											) : (
-												<Dash />
-											)}
-										</td>
-										<td className="r">
-											<Box
-												component="span"
-												sx={{
-													...numericSx,
-													fontWeight: 700,
-													color: isIn ? "success.main" : "error.main",
-												}}
-											>
-												{isIn ? "+" : "−"}
-												{formatQuantity(Math.abs(movement.quantity))} {unit}
-											</Box>
-										</td>
-										<td className="r">
-											<Box
-												component="span"
-												sx={{ ...numericSx, fontWeight: 600, color: designTokens.gray700 }}
-											>
-												{formatQuantity(movement.balanceAfter)} {unit}
-											</Box>
-										</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</Box>
-					<TablePager
-						count={rows.length}
-						page={page}
-						rowsPerPage={rowsPerPage}
-						onPageChange={setPage}
-						onRowsPerPageChange={(value) => {
-							setRowsPerPage(value);
-							setPage(0);
-						}}
+					allValue={ALL_TYPES}
+					allLabel={t("warehouse.movements.allTypes")}
+					options={WAREHOUSE_MOVEMENT_KINDS.map((kind) => ({
+						value: kind,
+						label: t(movementKindLabelKey(kind)),
+					}))}
+					onChange={setType}
+				/>
+			}
+			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
+		>
+			<DetailTable<MovementRow>
+				rows={rows}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				empty={
+					<TableEmptyState
+						icon={<LayersOutlinedIcon />}
+						title={
+							isFiltering
+								? t("warehouse.movements.emptyFilteredTitle")
+								: t("warehouse.movements.emptyTitle")
+						}
+						hint={
+							isFiltering
+								? t("warehouse.movements.emptyFilteredBody")
+								: t("warehouse.movements.emptyBody")
+						}
 					/>
-				</>
-			)}
-		</DetailCard>
+				}
+			/>
+		</DetailTableCard>
 	);
 };
 

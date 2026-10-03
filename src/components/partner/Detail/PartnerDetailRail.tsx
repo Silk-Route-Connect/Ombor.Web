@@ -2,11 +2,13 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard from "components/shared/Detail/DetailCard";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
+import { formatUzPhone } from "utils/phoneUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -184,12 +186,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						}}
 					>
 						{formatPartnerBalance(partner.balance)}
-						<Box
-							component="span"
-							sx={{ fontSize: 15, fontWeight: 600, color: "text.disabled", ml: "8px" }}
-						>
-							UZS
-						</Box>
+						<UzsUnit sx={{ fontSize: 14 }} />
 					</Typography>
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "6px" }}>
 						{t(hintKey)}
@@ -225,7 +222,8 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 								color: partnerBalanceColor(partner.openingBalance),
 							}}
 						>
-							{formatPartnerBalance(partner.openingBalance)} UZS
+							{formatPartnerBalance(partner.openingBalance)}
+							<UzsUnit />
 						</Box>
 					</Box>
 				</Box>
@@ -270,7 +268,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 								copyValue={phone}
 								copyLabel={t("common.copy")}
 							>
-								{phone}
+								{formatUzPhone(phone)}
 								{i === 0 && phones.length > 1 && (
 									<Box component="span" sx={{ ml: 1 }}>
 										<StatusPill token="teal" label={t("partner.detail.contactPrimary")} />

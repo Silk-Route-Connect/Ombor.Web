@@ -92,7 +92,6 @@
 
   "warehouse.stock.searchPlaceholder": "Поиск по товару или артикулу…",
   "warehouse.stock.allCategories": "Все категории",
-  "warehouse.stock.count": "{{value}} позиций показано",
   "warehouse.stock.product": "Товар",
   "warehouse.stock.sku": "Артикул",
   "warehouse.stock.category": "Категория",
@@ -108,7 +107,6 @@
 
   "warehouse.movements.searchPlaceholder": "Поиск по товару…",
   "warehouse.movements.allTypes": "Все события",
-  "warehouse.movements.count": "{{value}} событий",
   "warehouse.movements.date": "Дата",
   "warehouse.movements.event": "Событие",
   "warehouse.movements.product": "Товар",

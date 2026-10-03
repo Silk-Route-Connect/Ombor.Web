@@ -1,27 +1,25 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
-import GhostButton from "components/shared/Buttons/GhostButton";
-import DetailCard from "components/shared/Detail/DetailCard";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { detailTableSx } from "components/shared/Detail/detailTableChrome";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
-import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { CopyableCell } from "components/shared/Table/CopyableCell";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
-import TablePager from "components/shared/Table/TablePager";
-import i18next from "i18n/config";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import SkuCell from "components/shared/Table/cells/SkuCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
-import AddIcon from "@mui/icons-material/Add";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
-import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface WarehouseStockTabProps {
 	warehouse: Warehouse;
@@ -30,25 +28,14 @@ interface WarehouseStockTabProps {
 	onAddOpeningStock?: () => void;
 }
 
-type SortCol = "name" | "sku" | "category" | "unit" | "quantity" | "averageCost" | "value";
-
-/** Sort accessor per column — every column is sortable (string-locale or numeric via compareValues). */
-const SORT_ACCESSOR: Record<SortCol, (i: WarehouseStockItem) => string | number> = {
-	name: (i) => i.productName,
-	sku: (i) => i.sku,
-	category: (i) => i.categoryName ?? "",
-	unit: (i) => measurementShort(i18next.t, i.measurement),
-	quantity: (i) => i.quantity,
-	averageCost: (i) => i.averageCost,
-	value: (i) => i.value,
-};
+type StockRow = WarehouseStockItem & { id: number };
 
 const ALL_CATEGORIES = "__all__";
 
 /**
- * «Остатки» tab per the bundle: the warehouse's on-hand products with WAC and
- * stock value, searchable by name/SKU, filterable by category, sortable on every
- * column, with a served «Итого по складу» summary row.
+ * «Остатки»: the warehouse's on-hand products — Товар · Артикул · Категория ·
+ * Количество · Сред. себест. · Стоимость — searchable, filterable by category,
+ * with the served «Итого по складу» band on the unfiltered view.
  */
 export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	warehouse,
@@ -58,8 +45,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	const { t } = useTranslation();
 	const [query, setQuery] = useState("");
 	const [category, setCategory] = useState(ALL_CATEGORIES);
-	const [sortCol, setSortCol] = useState<SortCol>("value");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
+	const isFiltering = query.trim() !== "" || category !== ALL_CATEGORIES;
 
 	const categories = useMemo(() => {
 		const names = new Set<string>();
@@ -67,64 +53,90 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 		return [...names].sort((a, b) => a.localeCompare(b, "ru"));
 	}, [stock]);
 
-	const rows = useMemo(() => {
-		const filtered = stock.filter((item) => {
-			if (category !== ALL_CATEGORIES && item.categoryName !== category) {
-				return false;
-			}
-			if (
-				query.trim() &&
-				!matchesSearch(item.productName, query) &&
-				!matchesSearch(item.sku, query)
-			) {
-				return false;
-			}
-			return true;
-		});
-		const accessor = SORT_ACCESSOR[sortCol];
-		const sorted = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? sorted.reverse() : sorted;
-	}, [stock, query, category, sortCol, sortDir]);
+	const rows = useMemo<StockRow[]>(
+		() =>
+			stock
+				.filter(
+					(item) =>
+						(category === ALL_CATEGORIES || item.categoryName === category) &&
+						(!query.trim() ||
+							matchesSearch(item.productName, query) ||
+							matchesSearch(item.sku, query)),
+				)
+				.map((item) => ({ ...item, id: item.productId })),
+		[stock, query, category],
+	);
 
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
+	const columns = useMemo<Column<StockRow>[]>(
+		() => [
+			{
+				key: "name",
+				headerName: t("warehouse.stock.product"),
+				sortValue: (i) => i.productName,
+				renderCell: (i) => <ProductLink id={i.productId} name={i.productName} />,
+			},
+			{
+				key: "sku",
+				headerName: t("warehouse.stock.sku"),
+				sortValue: (i) => i.sku,
+				renderCell: (i) => <SkuCell sku={i.sku} />,
+			},
+			{
+				key: "category",
+				headerName: t("warehouse.stock.category"),
+				sortValue: (i) => i.categoryName ?? "",
+				renderCell: (i) => <MutedTextCell text={i.categoryName} />,
+			},
+			{
+				key: "quantity",
+				headerName: t("warehouse.stock.quantity"),
+				align: "right",
+				sortValue: (i) => i.quantity,
+				renderCell: (i) => <QuantityCell value={i.quantity} measurement={i.measurement} />,
+			},
+			{
+				key: "averageCost",
+				headerName: t("warehouse.stock.wac"),
+				headerTooltip: t("common.hint.wac"),
+				align: "right",
+				sortValue: (i) => i.averageCost,
+				renderCell: (i) => <MoneyCell value={i.averageCost} />,
+			},
+			{
+				key: "value",
+				headerName: t("warehouse.stock.value"),
+				align: "right",
+				sortValue: (i) => i.value,
+				renderCell: (i) => <MoneyCell value={i.value} main />,
+			},
+		],
+		[t],
+	);
+
+	const handleExport = () => {
+		exportToCsv<StockRow>(
+			`warehouse_${warehouse.name}_stock_${csvDateStamp()}`,
+			[
+				{ header: t("warehouse.stock.product"), value: (i) => i.productName },
+				{ header: t("warehouse.stock.sku"), value: (i) => i.sku },
+				{ header: t("warehouse.stock.category"), value: (i) => i.categoryName ?? "" },
+				{ header: t("warehouse.stock.quantity"), value: (i) => i.quantity },
+				{ header: t("warehouse.stock.unit"), value: (i) => measurementShort(t, i.measurement) },
+				{ header: t("warehouse.stock.wac"), value: (i) => i.averageCost },
+				{ header: t("warehouse.stock.value"), value: (i) => i.value },
+			],
+			rows,
+		);
 	};
 
-	const isFiltering = query.trim() !== "" || category !== ALL_CATEGORIES;
-
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(10);
-
-	// Reset to the first page whenever the filters or sort change.
-	useEffect(() => setPage(0), [query, category, sortCol, sortDir]);
-
-	const lastPage = Math.max(0, Math.ceil(rows.length / rowsPerPage) - 1);
-	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
 	return (
-		<DetailCard>
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					gap: "10px",
-					p: "14px 16px",
-					borderBottom: 1,
-					borderColor: "divider",
-					flexWrap: "wrap",
-				}}
-			>
-				<SearchInput
-					value={query}
-					onChange={setQuery}
-					placeholder={t("warehouse.stock.searchPlaceholder")}
-					dense
-				/>
+		<DetailTableCard
+			search={{
+				value: query,
+				onChange: setQuery,
+				placeholder: t("warehouse.stock.searchPlaceholder"),
+			}}
+			filters={
 				<EntityFilterSelect
 					value={category}
 					allValue={ALL_CATEGORIES}
@@ -133,181 +145,51 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 					onChange={setCategory}
 					icon={<LocalOfferOutlinedIcon />}
 				/>
-				<Box sx={{ flexGrow: 1 }} />
-				<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
-					{t("warehouse.stock.count", { value: rows.length })}
-				</Typography>
-			</Box>
-
-			{rows.length === 0 ? (
-				<Box
-					sx={{
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						gap: "6px",
-						p: "40px 24px 44px",
-						textAlign: "center",
-					}}
-				>
-					{isFiltering ? (
-						<SearchOffOutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
+			}
+			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
+		>
+			<DetailTable<StockRow>
+				rows={rows}
+				columns={columns}
+				defaultSort={{ key: "value", order: "desc" }}
+				pagination
+				empty={
+					isFiltering ? (
+						<TableEmptyState
+							icon={<Inventory2OutlinedIcon />}
+							title={t("warehouse.stock.emptyTitle")}
+							hint={t("warehouse.stock.emptyBody")}
+						/>
 					) : (
-						<Inventory2OutlinedIcon sx={{ fontSize: 24, color: "text.disabled", mb: "6px" }} />
-					)}
-					<Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-						{t(isFiltering ? "warehouse.stock.emptyTitle" : "warehouse.stock.noStockTitle")}
-					</Typography>
-					<Typography
-						sx={{ fontSize: 12.5, color: "text.secondary", maxWidth: 340, lineHeight: 1.5 }}
-					>
-						{t(isFiltering ? "warehouse.stock.emptyBody" : "warehouse.stock.noStockBody")}
-					</Typography>
-					{!isFiltering && onAddOpeningStock && (
-						<GhostButton
-							icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-							onClick={onAddOpeningStock}
-							sx={{ mt: "10px" }}
-						>
-							{t("warehouse.opening.action")}
-						</GhostButton>
-					)}
-				</Box>
-			) : (
-				<>
-					<Box component="table" sx={detailTableSx}>
-						<thead>
-							<tr>
-								<DetailSortHeader
-									col="name"
-									label={t("warehouse.stock.product")}
-									active={sortCol === "name"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="sku"
-									label={t("warehouse.stock.sku")}
-									active={sortCol === "sku"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="category"
-									label={t("warehouse.stock.category")}
-									active={sortCol === "category"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="unit"
-									label={t("warehouse.stock.unit")}
-									active={sortCol === "unit"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="quantity"
-									label={t("warehouse.stock.quantity")}
-									active={sortCol === "quantity"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-								<DetailSortHeader
-									col="averageCost"
-									label={t("warehouse.stock.wac")}
-									active={sortCol === "averageCost"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-									tooltip={t("common.hint.wac")}
-								/>
-								<DetailSortHeader
-									col="value"
-									label={t("warehouse.stock.value")}
-									active={sortCol === "value"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-							</tr>
-						</thead>
-						<tbody>
-							{paged.map((item) => (
-								<tr key={item.productId}>
-									<td>
-										<ProductLink id={item.productId} name={item.productName} />
-									</td>
-									<td>
-										<CopyableCell
-											value={item.sku}
-											sx={{ ...numericSx, fontSize: 12, color: "text.secondary" }}
-										>
-											{item.sku}
-										</CopyableCell>
-									</td>
-									<td>
-										<Box component="span" sx={{ color: "text.secondary" }}>
-											{item.categoryName ?? "—"}
-										</Box>
-									</td>
-									<td>
-										<Box component="span" sx={{ color: "text.secondary" }}>
-											{measurementShort(t, item.measurement)}
-										</Box>
-									</td>
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatQuantity(item.quantity)}
-										</Box>
-									</td>
-									<td className="r">
-										<Box component="span" sx={numericSx}>
-											{formatCurrency(item.averageCost)}
-										</Box>
-									</td>
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatCurrency(item.value)}
-										</Box>
-									</td>
-								</tr>
-							))}
-							{!isFiltering && page === lastPage && (
-								<tr className="total">
-									<td>{t("warehouse.stock.total")}</td>
-									<td />
-									<td />
-									<td />
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatQuantity(warehouse.totalUnits)}
-										</Box>
-									</td>
-									<td />
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatCurrency(warehouse.stockValue)}
-										</Box>
-									</td>
-								</tr>
-							)}
-						</tbody>
-					</Box>
-					<TablePager
-						count={rows.length}
-						page={page}
-						rowsPerPage={rowsPerPage}
-						onPageChange={setPage}
-						onRowsPerPageChange={(value) => {
-							setRowsPerPage(value);
-							setPage(0);
-						}}
-					/>
-				</>
-			)}
-		</DetailCard>
+						<TableEmptyState
+							icon={<Inventory2OutlinedIcon />}
+							title={t("warehouse.stock.noStockTitle")}
+							hint={t("warehouse.stock.noStockBody")}
+							action={
+								onAddOpeningStock && {
+									label: t("warehouse.opening.action"),
+									onClick: onAddOpeningStock,
+								}
+							}
+						/>
+					)
+				}
+				footer={
+					!isFiltering && (
+						<tr className="total">
+							<td colSpan={3}>{t("warehouse.stock.total")}</td>
+							<Box component="td" className="r" sx={numericSx}>
+								{formatQuantity(warehouse.totalUnits)}
+							</Box>
+							<td />
+							<Box component="td" className="r" sx={numericSx}>
+								{formatCurrency(warehouse.stockValue)}
+							</Box>
+						</tr>
+					)
+				}
+			/>
+		</DetailTableCard>
 	);
 };
 
