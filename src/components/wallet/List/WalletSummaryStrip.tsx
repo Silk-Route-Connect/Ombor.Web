@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import { WalletSummary } from "stores/WalletStore";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -29,7 +30,7 @@ const CARD_SX = {
 	},
 } as const;
 
-const Cap: React.FC<{ color: string; label: string }> = ({ color, label }) => (
+const Cap: React.FC<{ color: string; label: string; hint?: string }> = ({ color, label, hint }) => (
 	<Box
 		sx={{
 			display: "flex",
@@ -42,6 +43,7 @@ const Cap: React.FC<{ color: string; label: string }> = ({ color, label }) => (
 	>
 		<Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: color }} />
 		{label}
+		{hint && <InfoHint text={hint} />}
 	</Box>
 );
 
@@ -90,12 +92,20 @@ export const WalletSummaryStrip: React.FC<WalletSummaryStripProps> = ({ summary 
 			</Box>
 
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
-				<Cap color="success.main" label={t("wallet.summary.ourMoney")} />
+				<Cap
+					color="success.main"
+					label={t("wallet.summary.ourMoney")}
+					hint={t("wallet.summary.ourMoneyHint")}
+				/>
 				<Value color="success.main" text={formatCurrency(summary.totalOurMoney)} />
 			</Box>
 
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "secondary.main" } }}>
-				<Cap color="secondary.main" label={t("wallet.summary.advances")} />
+				<Cap
+					color="secondary.main"
+					label={t("wallet.summary.advances")}
+					hint={t("wallet.summary.advancesHint")}
+				/>
 				<Value color={designTokens.saffron700} text={formatCurrency(summary.totalAdvances)} />
 			</Box>
 		</Box>

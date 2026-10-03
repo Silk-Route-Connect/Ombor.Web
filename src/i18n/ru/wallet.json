@@ -24,6 +24,8 @@
   "wallet.summary.balance": "Общий баланс",
   "wallet.summary.ourMoney": "Наши средства",
   "wallet.summary.advances": "Авансы партнёров",
+  "wallet.summary.ourMoneyHint": "Деньги в кассах минус авансы партнёров — то, что принадлежит бизнесу.",
+  "wallet.summary.advancesHint": "Деньги, которые партнёры внесли вперёд: они лежат в кассе, но ещё принадлежат партнёрам.",
 
   "wallet.type.cash": "Наличные",
   "wallet.type.card": "Карта",
