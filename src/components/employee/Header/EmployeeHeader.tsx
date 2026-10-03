@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
@@ -8,7 +8,6 @@ import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedCo
 import { EmployeeStatus } from "models/employee";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 type StatusFilter = EmployeeStatus | "all";
@@ -20,6 +19,8 @@ interface EmployeeHeaderProps {
 	onStatusChange: (value: EmployeeStatus | null) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 /**
@@ -34,6 +35,7 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 	onStatusChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -50,9 +52,7 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 				title={t("employeesTitle")}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("employee.create")}
 						</PrimaryButton>

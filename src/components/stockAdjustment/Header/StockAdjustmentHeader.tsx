@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
@@ -10,7 +10,6 @@ import { Warehouse } from "models/warehouse";
 import { DirectionFilter } from "stores/StockAdjustmentStore";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
@@ -24,6 +23,8 @@ interface StockAdjustmentHeaderProps {
 	onDirectionChange: (filter: DirectionFilter) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 const ALL_WAREHOUSES = "__all__";
@@ -44,6 +45,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 	onDirectionChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -55,9 +57,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("adjustment.create")}
 						</PrimaryButton>

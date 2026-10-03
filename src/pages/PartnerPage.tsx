@@ -2,12 +2,12 @@ import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
-import { buildPartnerColumns } from "components/partner/List/partnerColumns";
 import PartnerListHeader from "components/partner/List/PartnerListHeader";
 import PartnersTable from "components/partner/List/PartnersTable";
 import PartnerSummaryStrip from "components/partner/List/PartnerSummaryStrip";
+import { buildPartnerColumns } from "components/partner/List/partnerTableConfigs";
 import PartnerDialogs from "components/partner/PartnerDialogs";
-import { isReady } from "helpers/Loading";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreatePartnerRequest, Partner, UpdatePartnerRequest } from "models/partner";
 import { partnerDetailPath } from "routing/paths";
@@ -114,6 +114,7 @@ const PartnerPage: React.FC = observer(() => {
 				onToggleArchived={(v) => partnerStore.setShowArchived(v)}
 				onCreate={() => partnerStore.openCreate()}
 				onExport={handleExport}
+				exportCount={readyOr(partnerStore.filteredPartners, []).length}
 			/>
 
 			{partnerStore.summary.activeCount > 0 && (

@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { isReady, Loadable } from "helpers/Loading";
 import { numericSx } from "theme";
 
+import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import {
 	Box,
 	Paper,
@@ -76,6 +78,7 @@ export interface DataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
 	columns: Column<T>[];
 	className?: string;
+	/** 10/25/50 pager; on by default — pass `false` only with a documented reason. */
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
 	/** Initial page size; defaults to the first entry of rowsPerPageOptions. */
@@ -84,8 +87,8 @@ export interface DataTableProps<T extends { id: string | number }> {
 	defaultSort?: DefaultSort;
 	onRowClick?: (row: T) => void;
 	onSort?: (field: keyof T, order: SortOrder) => void;
-	/** Empty-state copy; defaults to the localized «Нет записей». */
-	emptyMessage?: string;
+	/** The table's `TableEmptyState` (first-run vs filtered copy); defaults to «Нет записей». */
+	empty?: React.ReactNode;
 	/** Re-runs the failed load behind `rows` (the error state's «Повторить»). */
 	onRetry?: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
@@ -96,13 +99,13 @@ export function DataTable<T extends { id: string | number }>({
 	rows,
 	columns,
 	className,
-	pagination = false,
+	pagination = true,
 	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
 	defaultRowsPerPage,
 	defaultSort,
 	onRowClick,
 	onSort,
-	emptyMessage,
+	empty,
 	onRetry,
 	errorTitle,
 }: Readonly<DataTableProps<T>>) {
@@ -183,10 +186,14 @@ export function DataTable<T extends { id: string | number }>({
 
 	const handleRowClick = (row: T) => onRowClick?.(row);
 
+	// Only a key pressed on the row itself opens it — Enter on a link or button
+	// inside the row belongs to that control.
 	const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTableRowElement>, row: T) => {
-		if (e.key === "Enter") {
-			onRowClick?.(row);
+		if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) {
+			return;
 		}
+		e.preventDefault();
+		onRowClick?.(row);
 	};
 
 	const renderCell = (row: T, col: Column<T>) => {
@@ -226,6 +233,16 @@ export function DataTable<T extends { id: string | number }>({
 			</Tooltip>
 		);
 	};
+
+	if (isReady(rows) && rows.length === 0) {
+		return (
+			<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+				{empty ?? (
+					<TableEmptyState icon={<InboxOutlinedIcon />} title={t("common.table.noRecords")} />
+				)}
+			</Paper>
+		);
+	}
 
 	if (!isReady(displayedRows)) {
 		return (
@@ -286,13 +303,7 @@ export function DataTable<T extends { id: string | number }>({
 				</Table>
 			</TableContainer>
 
-			{isReady(rows) && rows.length === 0 && (
-				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
-					{emptyMessage ?? t("common.table.noRecords")}
-				</Box>
-			)}
-
-			{pagination && isReady(rows) && rows.length > 0 && (
+			{pagination && isReady(rows) && (
 				<Box sx={FOOTER_SX}>
 					<TablePagination
 						component="div"

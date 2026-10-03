@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import TablePager from "components/shared/Table/TablePager";
 import { isReady, Loadable } from "helpers/Loading";
 import { designTokens, numericSx } from "theme";
 
-import {
-	KeyboardArrowDown as KeyboardArrowDownIcon,
-	KeyboardArrowUp as KeyboardArrowUpIcon,
-} from "@mui/icons-material";
+import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import {
 	Box,
 	Collapse,
@@ -18,16 +19,15 @@ import {
 	TableCell,
 	TableContainer,
 	TableHead,
-	TablePagination,
 	TableRow,
 	TableSortLabel,
 } from "@mui/material";
 
+import { Column, DefaultSort, SortOrder } from "../DataTable/DataTable";
 import {
 	BODY_CELL_SX,
 	compareValues,
 	DEFAULT_ROWS_PER_PAGE,
-	FOOTER_SX,
 	HEADER_CELL_SX,
 	HEADER_CONTAINER_SX,
 	ROWS_PER_PAGE_OPTIONS,
@@ -35,79 +35,43 @@ import {
 	TABLE_SCROLL_SX,
 } from "../DataTable/tableConfigs";
 
-export type SortOrder = "asc" | "desc";
+export type { Column, DefaultSort, SortOrder };
 
-/**
- * A single table column. Sorting mirrors {@link Column} in the shared
- * `DataTable`: sortable by default when the column exposes a sort source
- * (`field` or `sortValue`) and has not opted out with `sortable: false`.
- */
-export interface Column<T> {
-	key: string;
-	field?: keyof T;
-	headerName: string;
-	width?: number | string;
-	align?: "left" | "right" | "center";
-	/** Sortable by default; set `false` to opt out. */
-	sortable?: boolean;
-	/** Sort accessor for columns without a plain `field` (e.g. `renderCell`-only). */
-	sortValue?: (row: T) => string | number | boolean | Date | null | undefined;
-	renderCell?: (row: T) => React.ReactNode;
-}
-
-/** Initial sort for a table, by column `key`. */
-export interface DefaultSort {
-	key: string;
-	order: SortOrder;
-}
-
-/**
- * Props for ExpandableDataTable:
- * - rows: Loadable array of items
- * - columns: column definitions
- * - pagination: whether to show paging controls
- * - rowsPerPageOptions: array like [10,25,50]
- * - defaultSort: initial sort column + direction
- * - onRowClick: optional click callback
- * - onSort: optional controlled-sort callback (delegates ordering to the caller)
- * - renderExpanded: optional function that returns JSX for each expanded row
- */
 export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
+	/** Same column API as `DataTable` (sorting, alignment, cells). */
 	columns: Column<T>[];
+	/** 10/25/50 pager; on by default. */
 	pagination?: boolean;
 	rowsPerPageOptions?: number[];
 	defaultSort?: DefaultSort;
-	onRowClick?: (row: T) => void;
-	onSort?: (field: keyof T, order: SortOrder) => void;
-	renderExpanded?: (row: T) => React.ReactNode;
+	renderExpanded: (row: T) => React.ReactNode;
 	canExpand?: (row: T) => boolean;
-	/** Toggle the expand row on a whole-row click, not just the chevron (for
-	 *  rows whose only action is to expand — i.e. no `onRowClick` navigation). */
-	expandOnRowClick?: boolean;
 	className?: string;
 	expandedMaxHeight?: number;
-	tableLayout?: "auto" | "fixed";
+	/** The table's `TableEmptyState`; defaults to «Нет записей». */
+	empty?: React.ReactNode;
 	/** Re-runs the failed load behind `rows` (the error state's «Повторить»). */
 	onRetry?: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить шаблоны». */
 	errorTitle?: string;
 }
 
+/**
+ * `DataTable` twin whose rows expand into a detail panel (Templates). A row
+ * click, Enter or Space toggles the panel; the chevron does the same.
+ */
 export function ExpandableDataTable<T extends { id: string | number }>({
 	rows,
 	columns,
-	pagination = false,
+	pagination = true,
 	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
 	defaultSort,
-	onRowClick,
-	onSort,
 	renderExpanded,
 	canExpand,
-	expandOnRowClick = false,
 	className,
 	expandedMaxHeight = 300,
-	tableLayout = "auto",
+	empty,
 	onRetry,
 	errorTitle,
 }: Readonly<ExpandableDataTableProps<T>>) {
@@ -122,10 +86,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
 
 	const sortedRows = useMemo<Loadable<T[]>>(() => {
-		if (!isReady(rows)) {
-			return rows;
-		}
-		if (onSort || !sortKey) {
+		if (!isReady(rows) || !sortKey) {
 			return rows;
 		}
 		const col = columns.find((c) => c.key === sortKey);
@@ -135,7 +96,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		}
 		const sorted = [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)));
 		return order === "desc" ? sorted.reverse() : sorted;
-	}, [rows, onSort, sortKey, order, columns]);
+	}, [rows, sortKey, order, columns]);
 
 	useEffect(() => {
 		if (!isReady(sortedRows)) return;
@@ -146,42 +107,17 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	}, [sortedRows, rowsPerPage, page]);
 
 	const displayedRows = useMemo<Loadable<T[]>>(() => {
-		if (!isReady(sortedRows)) {
-			return sortedRows;
-		}
-		if (!pagination) {
+		if (!isReady(sortedRows) || !pagination) {
 			return sortedRows;
 		}
 		const start = page * rowsPerPage;
 		return sortedRows.slice(start, start + rowsPerPage);
 	}, [sortedRows, page, rowsPerPage, pagination]);
 
-	const isSelectable = Boolean(onRowClick);
-
 	const handleSortRequest = (col: Column<T>) => {
-		if (!isSortable(col)) {
-			return;
-		}
 		const isAsc = sortKey === col.key && order === "asc";
-		const newOrder: SortOrder = isAsc ? "desc" : "asc";
-		setOrder(newOrder);
+		setOrder(isAsc ? "desc" : "asc");
 		setSortKey(col.key);
-		if (onSort && col.field) {
-			onSort(col.field, newOrder);
-		}
-	};
-
-	const handlePageChange = (_: unknown, newPage: number) => {
-		setPage(newPage);
-	};
-
-	const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setRowsPerPage(parseInt(e.target.value, 10));
-		setPage(0);
-	};
-
-	const handleRowClickInternal = (row: T) => {
-		onRowClick?.(row);
 	};
 
 	const toggleExpandRow = (id: string | number) => {
@@ -196,36 +132,21 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		});
 	};
 
-	const renderCellContent = (row: T, col: Column<T>) => {
-		if (col.renderCell) {
-			return col.renderCell(row);
-		}
-		if (col.field != null) {
-			return row[col.field] as unknown as React.ReactNode;
-		}
-		return null;
-	};
-
-	const renderHeaderCell = (col: Column<T>) => {
-		if (!isSortable(col)) {
-			return col.headerName;
-		}
+	if (isReady(rows) && rows.length === 0) {
 		return (
-			<TableSortLabel
-				active={sortKey === col.key}
-				direction={sortKey === col.key ? order : "asc"}
-				onClick={() => handleSortRequest(col)}
-			>
-				{col.headerName}
-			</TableSortLabel>
+			<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+				{empty ?? (
+					<TableEmptyState icon={<InboxOutlinedIcon />} title={t("common.table.noRecords")} />
+				)}
+			</Paper>
 		);
-	};
+	}
 
-	if (!isReady(displayedRows)) {
+	if (!isReady(displayedRows) || !isReady(sortedRows)) {
 		return (
 			<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 				<LoadStateView
-					state={displayedRows}
+					state={isReady(displayedRows) ? "loading" : displayedRows}
 					size="section"
 					onRetry={onRetry}
 					errorTitle={errorTitle}
@@ -234,15 +155,13 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		);
 	}
 
-	const totalRows = displayedRows.length;
-	const hasNoData = totalRows === 0;
 	return (
 		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<TableContainer sx={TABLE_SCROLL_SX}>
-				<Table stickyHeader size="small" sx={{ tableLayout: tableLayout, width: "100%" }}>
+				<Table stickyHeader size="small" sx={{ width: "100%" }}>
 					<TableHead sx={HEADER_CONTAINER_SX}>
 						<TableRow>
-							{renderExpanded && <TableCell padding="checkbox" sx={{ ...HEADER_CELL_SX }} />}
+							<TableCell padding="checkbox" sx={HEADER_CELL_SX} />
 							{columns.map((col) => (
 								<TableCell
 									key={col.key}
@@ -250,7 +169,17 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 									sx={{ ...HEADER_CELL_SX, width: col.width }}
 									align={col.align ?? "left"}
 								>
-									{renderHeaderCell(col)}
+									{isSortable(col) ? (
+										<TableSortLabel
+											active={sortKey === col.key}
+											direction={sortKey === col.key ? order : "asc"}
+											onClick={() => handleSortRequest(col)}
+										>
+											{col.headerName}
+										</TableSortLabel>
+									) : (
+										col.headerName
+									)}
 								</TableCell>
 							))}
 						</TableRow>
@@ -258,53 +187,51 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 
 					<TableBody>
 						{displayedRows.map((row, index) => {
-							const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
-							const isOpen = isExpandable ? expandedRows.has(row.id) : false;
-							const rowExpands = Boolean(expandOnRowClick && isExpandable);
+							const isExpandable = canExpand ? canExpand(row) : true;
+							const isOpen = isExpandable && expandedRows.has(row.id);
 
 							return (
 								<React.Fragment key={row.id}>
 									<TableRow
-										onClick={() => {
-											handleRowClickInternal(row);
-											if (rowExpands) {
+										tabIndex={isExpandable ? 0 : undefined}
+										aria-expanded={isExpandable ? isOpen : undefined}
+										onClick={() => isExpandable && toggleExpandRow(row.id)}
+										onKeyDown={(e) => {
+											if (
+												isExpandable &&
+												e.target === e.currentTarget &&
+												(e.key === "Enter" || e.key === " ")
+											) {
+												e.preventDefault();
 												toggleExpandRow(row.id);
 											}
 										}}
 										sx={{
-											// DSN-1 body: open row carries the selected tint, even rows zebra,
-											// teal hover. (Zebra is by data index because the collapse rows
-											// interleave with the data rows.)
+											// Zebra by data index — the collapse rows interleave with the data rows.
 											bgcolor: isOpen
 												? "action.selected"
 												: index % 2 === 1
 													? designTokens.gray25
 													: "inherit",
 											"&:hover": { bgcolor: "action.hover" },
-											cursor: isSelectable || rowExpands ? "pointer" : "default",
+											cursor: isExpandable ? "pointer" : "default",
 										}}
 									>
-										{isExpandable ? (
-											<TableCell padding="checkbox">
+										<TableCell padding="checkbox">
+											{isExpandable && (
 												<IconButton
 													size="medium"
 													sx={{ p: 0 }}
+													aria-label={t(isOpen ? "common.collapse" : "common.expand")}
 													onClick={(e) => {
-														e.preventDefault();
 														e.stopPropagation();
 														toggleExpandRow(row.id);
 													}}
 												>
-													{isOpen ? (
-														<KeyboardArrowUpIcon fontSize="medium" />
-													) : (
-														<KeyboardArrowDownIcon fontSize="medium" />
-													)}
+													{isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 												</IconButton>
-											</TableCell>
-										) : (
-											<TableCell padding="checkbox"></TableCell>
-										)}
+											)}
+										</TableCell>
 
 										{columns.map((col) => (
 											<TableCell
@@ -314,19 +241,20 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 													col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX
 												}
 											>
-												{renderCellContent(row, col)}
+												{col.renderCell
+													? col.renderCell(row)
+													: col.field != null
+														? (row[col.field] as unknown as React.ReactNode)
+														: null}
 											</TableCell>
 										))}
 									</TableRow>
 
 									{isExpandable && (
 										<TableRow>
-											<TableCell
-												style={{ paddingBottom: 0, paddingTop: 0 }}
-												colSpan={columns.length + 1}
-											>
+											<TableCell sx={{ py: 0 }} colSpan={columns.length + 1}>
 												<Collapse in={isOpen} timeout="auto" unmountOnExit>
-													<Box sx={{ margin: 1, maxHeight: expandedMaxHeight, overflowY: "auto" }}>
+													<Box sx={{ m: 1, maxHeight: expandedMaxHeight, overflowY: "auto" }}>
 														{renderExpanded(row)}
 													</Box>
 												</Collapse>
@@ -340,28 +268,18 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</Table>
 			</TableContainer>
 
-			{hasNoData && (
-				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
-					{t("noRecords")}
-				</Box>
-			)}
-
-			{pagination && isReady(rows) && rows.length > 0 && (
-				<Box sx={FOOTER_SX}>
-					<TablePagination
-						component="div"
-						count={rows.length}
-						page={page}
-						onPageChange={handlePageChange}
-						rowsPerPage={rowsPerPage}
-						onRowsPerPageChange={handleRowsPerPageChange}
-						rowsPerPageOptions={rowsPerPageOptions}
-						labelRowsPerPage={t("common.table.rowsPerPage")}
-						labelDisplayedRows={({ from, to, count }) =>
-							t("common.table.displayedRows", { from, to, total: count })
-						}
-					/>
-				</Box>
+			{pagination && (
+				<TablePager
+					count={sortedRows.length}
+					page={page}
+					rowsPerPage={rowsPerPage}
+					rowsPerPageOptions={rowsPerPageOptions}
+					onPageChange={setPage}
+					onRowsPerPageChange={(next) => {
+						setRowsPerPage(next);
+						setPage(0);
+					}}
+				/>
 			)}
 		</Paper>
 	);

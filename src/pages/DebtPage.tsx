@@ -3,22 +3,26 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DebtFilters from "components/debt/DebtFilters";
 import DebtSummaryCards from "components/debt/DebtSummaryCards";
-import { PartnerDebtTable, TransactionDebtTable } from "components/debt/DebtTables";
 import DebtTabs from "components/debt/DebtTabs";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/DebtTables";
+import {
+	debtDocumentNumber,
+	debtDocumentPath,
+} from "components/debt/Table/transactionDebtTableConfigs";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import TableToolbar from "components/shared/Table/TableToolbar";
 import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
-import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { partnerDebtPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatEntityId } from "utils/formatEntityId";
+import { directionOf, isRefundType } from "utils/transactionUtils";
 
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 const DebtPage: React.FC = observer(() => {
@@ -41,31 +45,28 @@ const DebtPage: React.FC = observer(() => {
 	const handleExport = (): void => {
 		const rows = debtStore.transactionRows;
 		const columns: CsvColumn<Debt>[] = [
-			{
-				header: t("debt.txTable.document"),
-				value: (d) => formatEntityId(d.number ?? d.transactionId),
-			},
+			{ header: t("debt.txTable.document"), value: (d) => formatEntityId(debtDocumentNumber(d)) },
 			{ header: t("debt.txTable.date"), value: (d) => formatDate(d.date) },
+			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
 			{
 				header: t("debt.txTable.type"),
 				value: (d) =>
-					t(`transaction.badge.base.${d.direction === "Receivable" ? "Sale" : "Supply"}`),
+					t(
+						isRefundType(d.transactionType)
+							? `transaction.badge.refund.${directionOf(d.transactionType)}`
+							: `transaction.badge.base.${directionOf(d.transactionType)}`,
+					),
 			},
-			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
+			{ header: t("debt.txTable.ageCsv"), value: (d) => d.ageDays },
 			{ header: t("debt.txTable.total"), value: (d) => d.total },
 			{ header: t("debt.txTable.paid"), value: (d) => d.paid },
 			{ header: t("debt.txTable.remaining"), value: (d) => d.remaining },
-			{ header: t("debt.txTable.ageCsv"), value: (d) => d.ageDays },
 		];
 		exportToCsv(`debts_${csvDateStamp()}`, columns, rows);
 	};
 
 	const openTransaction = (d: Debt): void => {
-		const path =
-			d.transactionType === "Supply" || d.transactionType === "SupplyRefund"
-				? supplyDetailPath(d.transactionId)
-				: saleDetailPath(d.transactionId);
-		navigate(path);
+		void navigate(debtDocumentPath(d));
 	};
 
 	return (
@@ -73,9 +74,7 @@ const DebtPage: React.FC = observer(() => {
 			<PageHeader
 				title={t("debt.title")}
 				actions={
-					<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={handleExport}>
-						{t("debt.exportCsv")}
-					</GhostButton>
+					<ExportButton onExport={handleExport} rowCount={debtStore.transactionRows.length} />
 				}
 			/>
 

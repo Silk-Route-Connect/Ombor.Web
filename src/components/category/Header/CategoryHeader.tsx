@@ -1,12 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 interface CategoryHeaderProps {
@@ -14,6 +13,8 @@ interface CategoryHeaderProps {
 	onCreate: () => void;
 	onSearch: (value: string) => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
@@ -21,6 +22,7 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 	onCreate,
 	onSearch,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -30,9 +32,7 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 				title={t("category.title")}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("category.create")}
 						</PrimaryButton>

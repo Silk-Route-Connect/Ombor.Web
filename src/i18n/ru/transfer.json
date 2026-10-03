@@ -13,6 +13,7 @@
 
   "transfer.filter.allWarehouses": "Все склады",
 
+  "transfer.table.number": "№",
   "transfer.table.date": "Дата",
   "transfer.table.from": "Откуда",
   "transfer.table.to": "Куда",

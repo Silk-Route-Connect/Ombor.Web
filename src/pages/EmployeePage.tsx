@@ -48,10 +48,10 @@ const EmployeePage: React.FC = observer(() => {
 		const rows = readyOr(employeeStore.filteredEmployees, []);
 		const columns: CsvColumn<Employee>[] = [
 			{ header: t("employee.name"), value: (e) => e.name },
-			{ header: t("employee.position"), value: (e) => e.position },
-			{ header: t("employee.salary"), value: (e) => e.salary },
 			{ header: t("employee.status"), value: (e) => t(`employee.status.${e.status}`) },
+			{ header: t("employee.position"), value: (e) => e.position },
 			{ header: t("employee.dateOfEmployment"), value: (e) => formatDate(e.dateOfEmployment) },
+			{ header: t("employee.salary"), value: (e) => e.salary },
 		];
 		exportToCsv(`employees_${csvDateStamp()}`, columns, rows);
 	};
@@ -69,6 +69,7 @@ const EmployeePage: React.FC = observer(() => {
 				onStatusChange={employeeStore.setFilterStatus}
 				onCreate={employeeStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(employeeStore.filteredEmployees, []).length}
 			/>
 
 			<EmployeesTable

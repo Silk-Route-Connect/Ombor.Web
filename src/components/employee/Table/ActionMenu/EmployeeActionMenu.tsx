@@ -37,14 +37,14 @@ const EmployeeActionMenu: React.FC<EmployeeActionMenuProps> = ({
 		actions.push({
 			key: "pay",
 			label: t("employee.action.pay"),
-			icon: <PaymentsOutlinedIcon fontSize="small" sx={{ color: "primary.main" }} />,
+			icon: <PaymentsOutlinedIcon fontSize="small" />,
 			onClick: onPay,
 		});
 	}
 	actions.push({
 		key: "edit",
 		label: t("common.edit"),
-		icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
+		icon: <EditOutlinedIcon fontSize="small" />,
 		onClick: onEdit,
 	});
 	actions.push(
@@ -52,17 +52,17 @@ const EmployeeActionMenu: React.FC<EmployeeActionMenuProps> = ({
 			? {
 					key: "restore",
 					label: t("employee.action.restore"),
-					labelColor: "success.main",
+					tone: "restore",
 					dividerBefore: true,
-					icon: <RestartAltOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
+					icon: <RestartAltOutlinedIcon fontSize="small" />,
 					onClick: onRestore,
 				}
 			: {
 					key: "terminate",
 					label: t("employee.action.terminate"),
-					labelColor: "error.main",
+					tone: "danger",
 					dividerBefore: true,
-					icon: <PersonOffOutlinedIcon fontSize="small" sx={{ color: "error.main" }} />,
+					icon: <PersonOffOutlinedIcon fontSize="small" />,
 					onClick: onTerminate,
 				},
 	);

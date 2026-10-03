@@ -10,8 +10,9 @@ import { PaymentType } from "./payment";
  * event lists. Balance is opening balance + Wallet-type payment components +
  * inter-wallet transfers (rule 15). "Our money" = balance − advances held for
  * partners (rule 12): the wallet physically holds the advance cash, but partners
- * have a claim on it. Wallets archive-only, never deleted (rule 29); an archived
- * wallet that still holds money still counts in totals (rule 31).
+ * have a claim on it. Archive is the default (rule 29); only a never-referenced
+ * wallet can be deleted (`isDeletable`, pattern 19). An archived wallet that
+ * still holds money still counts in totals (rule 31).
  */
 export const WALLET_TYPES = ["Cash", "Card", "Bank"] as const;
 export type WalletType = (typeof WALLET_TYPES)[number];
@@ -36,6 +37,8 @@ export type Wallet = {
 	openingBalance: number;
 
 	isArchived: boolean;
+	/** Served: false once a payment or transfer references the wallet (DELETE then returns 409). */
+	isDeletable: boolean;
 	/** Display author of the create event. */
 	createdBy: string;
 	/** ISO date string of creation. */

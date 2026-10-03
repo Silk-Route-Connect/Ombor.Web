@@ -43,7 +43,7 @@
   "debt.partnerTable.amount": "Сумма долга",
   "debt.partnerTable.overdueCount": "{{count}} просрочено",
 
-  "debt.txTable.document": "Документ",
+  "debt.txTable.document": "№",
   "debt.txTable.date": "Дата",
   "debt.txTable.type": "Тип",
   "debt.txTable.partner": "Партнёр",

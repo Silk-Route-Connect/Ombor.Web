@@ -68,6 +68,8 @@ export type Product = {
 	lowStockThreshold?: number | null;
 	isLowStock: boolean;
 	isArchived: boolean;
+	/** Served: false once any stock movement or document references the product (DELETE then returns 409). */
+	isDeletable: boolean;
 
 	packaging?: ProductPackaging;
 	images: ProductImage[];

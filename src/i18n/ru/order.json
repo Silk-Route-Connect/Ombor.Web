@@ -6,7 +6,7 @@
 
   "order.filter.all": "Все",
 
-  "order.col.number": "Номер",
+  "order.col.number": "№",
   "order.col.date": "Дата",
   "order.list.overdueTooltip": "Доставка просрочена",
   "order.col.customer": "Клиент",

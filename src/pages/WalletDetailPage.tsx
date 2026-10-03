@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
@@ -12,6 +11,7 @@ import WalletTransferDetailModal from "components/wallet/Detail/WalletTransferDe
 import WalletTransfersTab from "components/wallet/Detail/WalletTransfersTab";
 import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletTransferModal from "components/wallet/Form/WalletTransferModal";
+import WalletDialogs from "components/wallet/WalletDialogs";
 import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
@@ -20,8 +20,6 @@ import { PATHS, paymentDetailPath } from "routing/paths";
 import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import { Box, Stack } from "@mui/material";
 
 const WalletDetailPage: React.FC = observer(() => {
@@ -120,6 +118,7 @@ const WalletDetailPage: React.FC = observer(() => {
 				onEdit={() => walletStore.openEdit(wallet)}
 				onArchive={() => walletStore.openArchive(wallet)}
 				onRestore={() => walletStore.openRestore(wallet)}
+				onDelete={() => walletStore.openDelete(wallet)}
 			/>
 
 			{wallet.isArchived && <WalletArchivedBanner />}
@@ -179,42 +178,10 @@ const WalletDetailPage: React.FC = observer(() => {
 				onClose={walletStore.closeDialog}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("wallet.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.wallet.name : "",
-				})}
-				content={t("wallet.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={walletStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						void walletStore.archive(dialogMode.wallet).then(reflect);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("wallet.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.wallet.name : "",
-				})}
-				content={t("wallet.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={walletStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						void walletStore.restore(dialogMode.wallet).then(reflect);
-					}
-				}}
+			<WalletDialogs
+				onArchived={reflect}
+				onRestored={reflect}
+				onDeleted={() => navigate(PATHS.wallets)}
 			/>
 		</Box>
 	);

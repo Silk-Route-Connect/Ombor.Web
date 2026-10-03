@@ -27,6 +27,7 @@
   "adjustment.reason.Found": "Находка",
   "adjustment.reason.Other": "Другое",
 
+  "adjustment.table.number": "№",
   "adjustment.table.date": "Дата",
   "adjustment.table.warehouse": "Склад",
   "adjustment.table.product": "Товар",
@@ -37,6 +38,7 @@
   "adjustment.table.sku": "Артикул",
   "adjustment.table.category": "Категория",
   "adjustment.table.note": "Примечание",
+  "adjustment.table.unit": "Ед.",
 
   "adjustment.detail.title": "Корректировка запаса",
   "adjustment.detail.dateTime": "Дата и время",

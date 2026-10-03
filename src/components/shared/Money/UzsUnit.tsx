@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import type { SxProps, Theme } from "@mui/material";
 import { Box } from "@mui/material";
@@ -8,18 +9,20 @@ interface UzsUnitProps {
 }
 
 /**
- * The muted «UZS» unit suffix, rendered with consistent styling and spacing
- * wherever an amount shows its currency inline. The app is UZS-only and
- * `formatCurrency` emits no symbol, so callers append this — using one component
- * keeps the gap before «UZS» uniform across the app (F-009).
+ * The muted «UZS» unit after a total or hero figure — never inside a table
+ * cell (columns say «Сумма» and omit the unit). One component keeps the gap,
+ * size and colour of the suffix identical everywhere (F-009, tables-24).
  */
-const UzsUnit: React.FC<UzsUnitProps> = ({ sx }) => (
-	<Box
-		component="span"
-		sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "5px", ...sx }}
-	>
-		UZS
-	</Box>
-);
+const UzsUnit: React.FC<UzsUnitProps> = ({ sx }) => {
+	const { t } = useTranslation();
+	return (
+		<Box
+			component="span"
+			sx={{ fontSize: 12, fontWeight: 600, color: "text.secondary", ml: "5px", ...sx }}
+		>
+			{t("common.unit.uzs")}
+		</Box>
+	);
+};
 
 export default UzsUnit;

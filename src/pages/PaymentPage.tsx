@@ -52,15 +52,18 @@ const PaymentPage: React.FC = observer(() => {
 	const handleExport = (): void => {
 		const rows = readyOr(paymentStore.filteredPayments, []);
 		const columns: CsvColumn<PaymentRecord>[] = [
-			{ header: t("payment.table.number"), value: (p) => formatOptionalNumber(p.number, "") },
+			{
+				header: t("payment.table.number"),
+				value: (p) => formatOptionalNumber(p.number, t("common.noNumber")),
+			},
 			{ header: t("payment.table.date"), value: (p) => formatDate(p.date) },
+			{ header: t("payment.table.party"), value: (p) => p.partnerName ?? p.employeeName ?? "" },
 			{ header: t("payment.table.type"), value: (p) => t(PAYMENT_TYPE_META[p.type].labelKey) },
 			{
 				header: t("payment.table.direction"),
 				value: (p) =>
 					p.direction === "Income" ? t("payment.direction.income") : t("payment.direction.expense"),
 			},
-			{ header: t("payment.table.party"), value: (p) => p.partnerName ?? p.employeeName ?? "" },
 			{ header: t("payment.table.wallet"), value: (p) => p.walletName },
 			{ header: t("payment.table.amount"), value: (p) => p.amount },
 		];
@@ -85,6 +88,7 @@ const PaymentPage: React.FC = observer(() => {
 				onWalletChange={paymentStore.setWalletFilter}
 				onCreate={paymentStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(paymentStore.filteredPayments, []).length}
 			/>
 
 			<PaymentSummaryStrip

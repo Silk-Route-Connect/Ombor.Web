@@ -15,6 +15,7 @@ import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -59,12 +60,13 @@ const TransferPage: React.FC = observer(() => {
 		const rows = readyOr(transferStore.filteredTransfers, []);
 
 		const columns: CsvColumn<Transfer>[] = [
+			{ header: t("transfer.table.number"), value: (tr) => formatEntityId(tr.id) },
 			{ header: t("transfer.table.date"), value: (tr) => formatDate(tr.date) },
 			{ header: t("transfer.table.from"), value: (tr) => tr.fromWarehouseName },
 			{ header: t("transfer.table.to"), value: (tr) => tr.toWarehouseName },
+			{ header: t("transfer.table.createdBy"), value: (tr) => tr.createdBy },
 			{ header: t("transfer.table.positions"), value: (tr) => tr.lines.length },
 			{ header: t("transfer.table.units"), value: (tr) => transferUnits(tr) },
-			{ header: t("transfer.table.createdBy"), value: (tr) => tr.createdBy },
 		];
 
 		exportToCsv(`transfers_${csvDateStamp()}`, columns, rows);
@@ -93,6 +95,7 @@ const TransferPage: React.FC = observer(() => {
 				onSearchChange={setSearch}
 				onCreate={transferStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(transferStore.filteredTransfers, []).length}
 			/>
 
 			<TransfersTable

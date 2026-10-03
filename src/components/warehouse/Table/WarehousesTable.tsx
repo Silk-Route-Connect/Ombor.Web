@@ -1,14 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { isReady, Loadable } from "helpers/Loading";
+import TableEmptyState, { archiveListEmptyKind } from "components/shared/Table/TableEmptyState";
+import { Loadable } from "helpers/Loading";
 import { Warehouse } from "models/warehouse";
 
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface WarehousesTableProps {
 	rows: Loadable<Warehouse[]>;
@@ -24,71 +21,13 @@ interface WarehousesTableProps {
 	onCreate: () => void;
 	/** Re-runs the failed list load (the error state's «Повторить»). */
 	onRetry: () => void;
-	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	/** Error-state title, e.g. «Не удалось загрузить склады». */
 	errorTitle: string;
 }
 
-const EmptyState: React.FC<{
-	variant: "filtering" | "empty" | "allArchived";
-	onCreate: () => void;
-}> = ({ variant, onCreate }) => {
-	const { t } = useTranslation();
-
-	const copy = {
-		filtering: { title: t("warehouse.empty.searchTitle"), body: t("warehouse.empty.searchBody") },
-		empty: { title: t("warehouse.empty.title"), body: t("warehouse.empty.body") },
-		allArchived: {
-			title: t("warehouse.empty.allArchivedTitle"),
-			body: t("warehouse.empty.allArchivedBody"),
-		},
-	}[variant];
-
-	return (
-		<Box sx={{ p: "52px 24px 58px", textAlign: "center" }}>
-			<Box
-				sx={{
-					width: 56,
-					height: 56,
-					borderRadius: 2,
-					mx: "auto",
-					mb: 2,
-					display: "grid",
-					placeItems: "center",
-					bgcolor: "grey.50",
-					border: 1,
-					borderColor: "divider",
-					color: "text.disabled",
-				}}
-			>
-				{variant === "filtering" ? (
-					<SearchIcon sx={{ fontSize: 26 }} />
-				) : (
-					<WarehouseOutlinedIcon sx={{ fontSize: 26 }} />
-				)}
-			</Box>
-			<Typography variant="h2" sx={{ mb: 0.75 }}>
-				{copy.title}
-			</Typography>
-			<Typography
-				variant="body2"
-				sx={{ color: "text.secondary", maxWidth: 400, mx: "auto", lineHeight: 1.6 }}
-			>
-				{copy.body}
-			</Typography>
-			{variant === "empty" && (
-				<Button variant="contained" startIcon={<AddIcon />} onClick={onCreate} sx={{ mt: 2.5 }}>
-					{t("warehouse.create")}
-				</Button>
-			)}
-		</Box>
-	);
-};
-
 /**
- * Warehouse list: the shared DataTable (warm bands, 52px rows, client-side sort,
- * 10/25/50 pagination) plus first-run / filtered / all-archived empty states.
- * The list-level «Итого» totals live in the summary strip above the table (the
- * DataTable has no footer slot).
+ * Warehouse list on the shared DataTable. The list-level totals live in the
+ * summary strip above the table.
  */
 export const WarehousesTable: React.FC<WarehousesTableProps> = ({
 	onRetry,
@@ -102,36 +41,35 @@ export const WarehousesTable: React.FC<WarehousesTableProps> = ({
 	onOpen,
 	onCreate,
 }) => {
-	if (!isReady(rows)) {
-		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
-	}
-
-	if (rows.length === 0) {
-		const variant = isFiltering
-			? "filtering"
-			: !hasAny
-				? "empty"
-				: !hasActive && !showArchived
-					? "allArchived"
-					: "filtering";
-		return (
-			<Paper
-				elevation={1}
-				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-			>
-				<EmptyState variant={variant} onCreate={onCreate} />
-			</Paper>
-		);
-	}
+	const { t } = useTranslation();
+	const kind = archiveListEmptyKind({ isFiltering, hasAny, hasActive, showArchived });
+	const copy = {
+		filtering: { title: t("warehouse.empty.searchTitle"), hint: t("warehouse.empty.searchBody") },
+		empty: { title: t("warehouse.empty.title"), hint: t("warehouse.empty.body") },
+		allArchived: {
+			title: t("warehouse.empty.allArchivedTitle"),
+			hint: t("warehouse.empty.allArchivedBody"),
+		},
+	}[kind];
 
 	return (
 		<DataTable<Warehouse>
 			rows={rows}
 			columns={columns}
-			pagination
-			rowsPerPageOptions={[10, 25, 50]}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			defaultSort={{ key: "name", order: "asc" }}
 			onRowClick={onOpen}
+			empty={
+				<TableEmptyState
+					icon={<WarehouseOutlinedIcon />}
+					title={copy.title}
+					hint={copy.hint}
+					action={
+						kind === "empty" ? { label: t("warehouse.create"), onClick: onCreate } : undefined
+					}
+				/>
+			}
 		/>
 	);
 };

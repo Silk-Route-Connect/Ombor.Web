@@ -75,6 +75,11 @@ export class ProductApi {
 		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
+	/** Hard-delete — allowed only while the product is unreferenced (409 `entity.referenced` otherwise). */
+	async delete(id: number): Promise<void> {
+		await http.delete(this.getUrlWithId(id));
+	}
+
 	private getUrlWithId(id: number): string {
 		return `${this.baseUrl}/${id}`;
 	}

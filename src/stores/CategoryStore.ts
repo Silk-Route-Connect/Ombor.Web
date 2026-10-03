@@ -1,4 +1,3 @@
-import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -23,8 +22,6 @@ export interface ICategoryStore {
 	selectedCategory: Category | null;
 
 	searchTerm: string;
-	sortField: keyof Category | null;
-	sortOrder: SortOrder;
 	isSaving: boolean;
 	dialogMode: DialogMode;
 	deleteError: string | null;
@@ -37,7 +34,6 @@ export interface ICategoryStore {
 
 	// list controls (client-side)
 	setSearch(query: string): void;
-	setSort(field: keyof Category, order: SortOrder): void;
 
 	// dialogs
 	openCreate(): void;
@@ -52,8 +48,6 @@ export class CategoryStore implements ICategoryStore {
 	allCategories: Loadable<Category[]> = "loading";
 	selectedCategory: Category | null = null;
 	searchTerm = "";
-	sortField: keyof Category | null = null;
-	sortOrder: SortOrder = "asc";
 	isSaving = false;
 	dialogMode: DialogMode = { type: "none" };
 	deleteError: string | null = null;
@@ -65,7 +59,7 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	get filteredCategories(): Loadable<Category[]> {
-		return this.applySort(this.applySearch(this.allCategories));
+		return this.applySearch(this.allCategories);
 	}
 
 	async getAll(): Promise<void> {
@@ -153,11 +147,6 @@ export class CategoryStore implements ICategoryStore {
 		this.searchTerm = query;
 	}
 
-	setSort(field: keyof Category, order: SortOrder): void {
-		this.sortField = field;
-		this.sortOrder = order;
-	}
-
 	openCreate(): void {
 		this.selectedCategory = null;
 		this.dialogMode = { type: "form" };
@@ -197,22 +186,6 @@ export class CategoryStore implements ICategoryStore {
 				matchesSearch(category.name, this.searchTerm) ||
 				matchesSearch(category.description, this.searchTerm),
 		);
-	}
-
-	private applySort(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (!isReady(data) || !this.sortField) {
-			return data;
-		}
-
-		const field = this.sortField;
-		const asc = this.sortOrder === "asc" ? 1 : -1;
-
-		return [...data].sort((a, b) => {
-			const aValue = a[field] ?? "";
-			const bValue = b[field] ?? "";
-
-			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
-		});
 	}
 }
 

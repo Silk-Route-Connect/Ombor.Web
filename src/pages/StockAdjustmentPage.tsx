@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import StockAdjustmentModal from "components/stockAdjustment/Form/StockAdjustmentModal";
 import StockAdjustmentHeader from "components/stockAdjustment/Header/StockAdjustmentHeader";
 import StockAdjustmentsTable from "components/stockAdjustment/Table/StockAdjustmentsTable";
-import { isReady } from "helpers/Loading";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import {
 	AdjustmentReason,
@@ -15,6 +15,7 @@ import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 import { measurementShort } from "utils/productUtils";
 
 import { Box } from "@mui/material";
@@ -51,21 +52,22 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			: stockAdjustmentStore.filteredAdjustments;
 
 		const columns: CsvColumn<StockAdjustment>[] = [
+			{ header: t("adjustment.table.number"), value: (a) => formatEntityId(a.id) },
 			{ header: t("adjustment.table.date"), value: (a) => formatDate(a.date) },
-			{ header: t("adjustment.table.warehouse"), value: (a) => a.warehouseName },
 			{ header: t("adjustment.table.product"), value: (a) => a.productName },
 			{ header: t("adjustment.table.sku"), value: (a) => a.sku },
+			{ header: t("adjustment.table.warehouse"), value: (a) => a.warehouseName },
 			{
 				header: t("adjustment.table.direction"),
 				value: (a) => t(`adjustment.direction.${a.direction}`),
 			},
-			{
-				header: t("adjustment.table.quantity"),
-				value: (a) =>
-					`${a.direction === "Decrease" ? "-" : "+"}${a.quantity} ${measurementShort(t, a.measurement)}`,
-			},
 			{ header: t("adjustment.table.reason"), value: (a) => t(`adjustment.reason.${a.reason}`) },
 			{ header: t("adjustment.table.createdBy"), value: (a) => a.createdBy },
+			{
+				header: t("adjustment.table.quantity"),
+				value: (a) => (a.direction === "Decrease" ? -a.quantity : a.quantity),
+			},
+			{ header: t("adjustment.table.unit"), value: (a) => measurementShort(t, a.measurement) },
 			{ header: t("adjustment.table.note"), value: (a) => a.note ?? "" },
 		];
 
@@ -93,6 +95,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 				onDirectionChange={stockAdjustmentStore.setDirectionFilter}
 				onCreate={stockAdjustmentStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(stockAdjustmentStore.filteredAdjustments, []).length}
 			/>
 
 			<StockAdjustmentsTable

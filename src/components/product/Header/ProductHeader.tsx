@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
@@ -10,7 +10,6 @@ import { Category } from "models/category";
 import { ProductTypeFilter } from "stores/ProductStore";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 /** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
@@ -28,6 +27,8 @@ interface ProductHeaderProps {
 	onToggleArchived: (show: boolean) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 const TYPE_TABS: ProductTypeFilter[] = ["all", "sale", "supply", "both"];
@@ -49,6 +50,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 	onToggleArchived,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -60,9 +62,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("product.create")}
 						</PrimaryButton>

@@ -66,6 +66,11 @@ class WalletApi {
 		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
+	/** Hard-delete — allowed only while the wallet is unreferenced (409 `entity.referenced` otherwise). */
+	async delete(id: number): Promise<void> {
+		await http.delete(this.getUrlWithId(id));
+	}
+
 	/** Record an inter-wallet transfer — an audited, immutable event (rule 16). */
 	async createTransfer(request: CreateTransferRequest): Promise<WalletTransfer> {
 		const response = await http.post<WalletTransfer>(`${this.baseUrl}/transfers`, request);

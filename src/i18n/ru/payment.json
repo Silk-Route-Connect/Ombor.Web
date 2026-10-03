@@ -72,7 +72,7 @@
   "payment.summary.expense": "Расход",
   "payment.summary.count": "Платежей",
 
-  "payment.table.number": "Платёж",
+  "payment.table.number": "№",
   "payment.table.date": "Дата",
   "payment.table.type": "Тип операции",
   "payment.table.direction": "Направление",

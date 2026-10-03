@@ -220,7 +220,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 					key: "restore",
 					label: t("employee.action.restore"),
 					icon: <RestartAltOutlinedIcon fontSize="small" />,
-					labelColor: "success.main",
+					tone: "restore",
 					dividerBefore: true,
 					onClick: () => employeeStore.openRestore(employee),
 				}

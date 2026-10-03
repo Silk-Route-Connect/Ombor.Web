@@ -1,13 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { Warehouse } from "models/warehouse";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, MenuItem, TextField } from "@mui/material";
 
@@ -19,6 +18,8 @@ interface TransferHeaderProps {
 	onSearchChange: (value: string) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 const ALL_WAREHOUSES = "__all__";
@@ -36,6 +37,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 	onSearchChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -47,9 +49,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("transfer.create")}
 						</PrimaryButton>

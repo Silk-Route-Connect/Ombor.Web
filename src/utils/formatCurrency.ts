@@ -25,20 +25,30 @@ export function formatShortNumber(input: number): string {
 		}
 	}
 
-	return `${sign}${abs.toLocaleString()}`;
+	return `${sign}${formatQuantity(abs)}`;
 }
 
-// Fixed locale so money always renders as "1 250 000" (space-grouped,
+// Fixed locale so numbers always render as "1 250 000" (space-grouped,
 // per the Ombor Design System) regardless of the user's browser locale.
-const currencyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
+const wholeMoneyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
+const fractionalMoneyFormatter = new Intl.NumberFormat("ru-RU", {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+});
+const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
 
 /**
- * Canonical money formatter (UZS, no currency symbol): 1250000 → "1 250 000".
- * All money display routes through this — never hand-assemble separators
- * (`toLocaleString`, manual grouping) or symbols anywhere.
+ * Canonical money formatter (UZS, no currency symbol): whole sums without
+ * decimals («1 250 000»), anything fractional with exactly two («702,01»,
+ * «1 190 434,20») — never one decimal place. All money display routes through
+ * this, KPIs included — never hand-assemble separators or round before calling.
  */
 export function formatCurrency(value: number): string {
-	return currencyFormatter.format(value);
+	// Round to the cent first so 702,004 reads «702», and `|| 0` drops a -0.
+	const cents = Math.round(value * 100) || 0;
+	return cents % 100 === 0
+		? wholeMoneyFormatter.format(cents / 100)
+		: fractionalMoneyFormatter.format(cents / 100);
 }
 
 /**
@@ -47,7 +57,7 @@ export function formatCurrency(value: number): string {
  * currency. 340 → "340", 1500 → "1 500".
  */
 export function formatQuantity(value: number): string {
-	return currencyFormatter.format(value);
+	return quantityFormatter.format(value);
 }
 
 /** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
 import ProductOverviewTab from "components/product/Detail/ProductOverviewTab";
 import ProductTransactionsTab from "components/product/Detail/ProductTransactionsTab";
 import ProductFormModal from "components/product/Form/ProductFormModal";
-import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import ProductDialogs from "components/product/ProductDialogs";
+import { buildProductActionRows } from "components/product/Table/ActionMenu/ProductActionMenu";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isPresent, isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
@@ -19,19 +20,16 @@ import { CreateProductRequest, Product } from "models/product";
 import { PATHS } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens } from "theme";
 import { ServerErrorHandler } from "utils/formServerErrors";
 import { mapFormPackagingToPackaging } from "utils/productUtils";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import { Box } from "@mui/material";
 
 type ProductDetailTab = "overview" | "transactions" | "movements";
 
 const ProductDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const productId = useRouteEntityId();
 	const { productStore, selectedProductStore } = useStore();
 
@@ -93,49 +91,18 @@ const ProductDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	const handleArchiveConfirmed = async (target: Product): Promise<void> => {
-		const updated = await productStore.archive(target);
-		if (updated) {
-			selectedProductStore.applyProduct(updated);
-		}
-	};
-
-	const handleRestoreConfirmed = async (target: Product): Promise<void> => {
-		const updated = await productStore.restore(target);
-		if (updated) {
-			selectedProductStore.applyProduct(updated);
-		}
-	};
+	const reflect = (updated: Product): void => selectedProductStore.applyProduct(updated);
 
 	const transactions = selectedProductStore.transactions;
 	const movements = selectedProductStore.movements;
 
-	// Edit + Archive/Restore — no delete for products (immutable stock history).
-	const actions: ActionMenuRow[] = [
-		{
-			key: "edit",
-			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
-			onClick: () => productStore.openEdit(product),
-		},
-		product.isArchived
-			? {
-					key: "restore",
-					label: t("common.restore"),
-					labelColor: "success.main",
-					dividerBefore: true,
-					icon: <UnarchiveOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
-					onClick: () => productStore.openRestore(product),
-				}
-			: {
-					key: "archive",
-					label: t("common.archive"),
-					labelColor: designTokens.saffron700,
-					dividerBefore: true,
-					icon: <ArchiveOutlinedIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />,
-					onClick: () => productStore.openArchive(product),
-				},
-	];
+	const actions = buildProductActionRows(t, {
+		product,
+		onEdit: () => productStore.openEdit(product),
+		onArchive: () => productStore.openArchive(product),
+		onRestore: () => productStore.openRestore(product),
+		onDelete: () => productStore.openDelete(product),
+	});
 
 	const tabs: DetailTabSpec<ProductDetailTab>[] = [
 		{ key: "overview", label: t("product.detail.tabs.overview") },
@@ -215,42 +182,10 @@ const ProductDetailPage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("product.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.product.name : "",
-				})}
-				content={t("product.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						void handleArchiveConfirmed(dialogMode.product);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("product.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.product.name : "",
-				})}
-				content={t("product.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						void handleRestoreConfirmed(dialogMode.product);
-					}
-				}}
+			<ProductDialogs
+				onArchived={reflect}
+				onRestored={reflect}
+				onDeleted={() => navigate(PATHS.products)}
 			/>
 		</Box>
 	);

@@ -1,0 +1,66 @@
+import React from "react";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import { TFunction } from "i18next";
+import { Transfer, transferUnits } from "models/transfer";
+
+/**
+ * Transfer list columns in the canonical order (conventions.md → Tables):
+ * № · Дата · Откуда · Куда · Автор · Позиций · Единиц. The number (and the row)
+ * opens the read-only detail modal.
+ */
+export function buildTransferColumns(
+	t: TFunction,
+	onOpen: (transfer: Transfer) => void,
+): Column<Transfer>[] {
+	return [
+		{
+			key: "number",
+			headerName: t("transfer.table.number"),
+			sortValue: (tr) => tr.id,
+			renderCell: (tr) => <DocNumberCell number={tr.id} onOpen={() => onOpen(tr)} />,
+		},
+		{
+			key: "date",
+			headerName: t("transfer.table.date"),
+			sortValue: (tr) => Date.parse(tr.date),
+			renderCell: (tr) => <DateCell value={tr.date} />,
+		},
+		{
+			key: "from",
+			headerName: t("transfer.table.from"),
+			sortValue: (tr) => tr.fromWarehouseName,
+			renderCell: (tr) => <WarehouseLink id={tr.fromWarehouseId} name={tr.fromWarehouseName} />,
+		},
+		{
+			key: "to",
+			headerName: t("transfer.table.to"),
+			sortValue: (tr) => tr.toWarehouseName,
+			renderCell: (tr) => <WarehouseLink id={tr.toWarehouseId} name={tr.toWarehouseName} />,
+		},
+		{
+			key: "createdBy",
+			headerName: t("transfer.table.createdBy"),
+			sortValue: (tr) => tr.createdBy,
+			renderCell: (tr) => <MutedTextCell text={tr.createdBy} />,
+		},
+		{
+			key: "positions",
+			headerName: t("transfer.table.positions"),
+			align: "right",
+			sortValue: (tr) => tr.lines.length,
+			renderCell: (tr) => <QuantityCell value={tr.lines.length} />,
+		},
+		{
+			key: "units",
+			headerName: t("transfer.table.units"),
+			align: "right",
+			sortValue: (tr) => transferUnits(tr),
+			renderCell: (tr) => <QuantityCell value={transferUnits(tr)} />,
+		},
+	];
+}

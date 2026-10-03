@@ -59,6 +59,7 @@ const CategoryPage: React.FC = observer(() => {
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(categoryStore.filteredCategories, []).length}
 			/>
 
 			<CategoryTable
@@ -69,7 +70,6 @@ const CategoryPage: React.FC = observer(() => {
 				onCreate={categoryStore.openCreate}
 				onEdit={categoryStore.openEdit}
 				onDelete={categoryStore.openDelete}
-				onSort={categoryStore.setSort}
 			/>
 
 			<CategoryFormModal

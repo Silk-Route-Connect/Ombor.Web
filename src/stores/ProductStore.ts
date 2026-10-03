@@ -1,4 +1,3 @@
-import { SortOrder } from "components/shared/Table/DataTable/DataTable";
 import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -21,6 +20,8 @@ export type DialogMode =
 	| { kind: "form"; product?: Product }
 	| { kind: "archive"; product: Product }
 	| { kind: "restore"; product: Product }
+	| { kind: "delete"; product: Product }
+	| { kind: "cannotDelete"; product: Product }
 	| { kind: "none" };
 
 export interface IProductStore {
@@ -34,8 +35,6 @@ export interface IProductStore {
 	categoryFilter: Category | null;
 	typeFilter: ProductTypeFilter;
 	showArchived: boolean;
-	sortField: keyof Product | null;
-	sortOrder: SortOrder;
 	isSaving: boolean;
 	dialogMode: DialogMode;
 
@@ -48,17 +47,18 @@ export interface IProductStore {
 	): Promise<Product | null>;
 	archive(product: Product): Promise<Product | null>;
 	restore(product: Product): Promise<Product | null>;
+	remove(product: Product): Promise<boolean>;
 
 	setSearch(term: string): void;
 	setCategoryFilter(category: Category | null): void;
 	setTypeFilter(filter: ProductTypeFilter): void;
 	setShowArchived(show: boolean): void;
-	setSort(field: keyof Product, order: SortOrder): void;
 
 	openCreate(): void;
 	openEdit(product: Product): void;
 	openArchive(product: Product): void;
 	openRestore(product: Product): void;
+	openDelete(product: Product): void;
 	closeDialog(): void;
 }
 
@@ -86,8 +86,6 @@ export class ProductStore implements IProductStore {
 	isSaving = false;
 	dialogMode: DialogMode = { kind: "none" };
 	// Master-data default: name ascending (matches the table's defaultSort).
-	sortField: keyof Product | null = "name";
-	sortOrder: SortOrder = "asc";
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -128,7 +126,7 @@ export class ProductStore implements IProductStore {
 			);
 		}
 
-		return this.applySort(products);
+		return products;
 	}
 
 	/** Sellable products (active only) — for the sales line picker. */
@@ -235,6 +233,24 @@ export class ProductStore implements IProductStore {
 		return updated;
 	}
 
+	async remove(product: Product): Promise<boolean> {
+		const result = await withSaving(this, () => ProductApi.delete(product.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.notifyApiError(result, "product.error.delete");
+			return false;
+		}
+
+		runInAction(() => {
+			if (isReady(this.allProducts)) {
+				this.allProducts = this.allProducts.filter((p) => p.id !== product.id);
+			}
+		});
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("product.success.delete", { name: product.name }));
+		return true;
+	}
+
 	setSearch(term: string): void {
 		this.searchTerm = term;
 	}
@@ -251,11 +267,6 @@ export class ProductStore implements IProductStore {
 		this.showArchived = show;
 	}
 
-	setSort(field: keyof Product, order: SortOrder): void {
-		this.sortField = field;
-		this.sortOrder = order;
-	}
-
 	openCreate(): void {
 		this.dialogMode = { kind: "form" };
 	}
@@ -270,6 +281,13 @@ export class ProductStore implements IProductStore {
 
 	openRestore(product: Product): void {
 		this.dialogMode = { kind: "restore", product };
+	}
+
+	/** Delete is reference-gated: a referenced product gets «cannot delete — archive instead». */
+	openDelete(product: Product): void {
+		this.dialogMode = product.isDeletable
+			? { kind: "delete", product }
+			: { kind: "cannotDelete", product };
 	}
 
 	closeDialog(): void {
@@ -291,26 +309,6 @@ export class ProductStore implements IProductStore {
 			if (isReady(this.allProducts)) {
 				this.allProducts = this.allProducts.map((p) => (p.id === updated.id ? updated : p));
 			}
-		});
-	}
-
-	private applySort(data: Product[]): Product[] {
-		if (!this.sortField) {
-			return data;
-		}
-
-		const field = this.sortField;
-		const asc = this.sortOrder === "asc" ? 1 : -1;
-
-		return [...data].sort((a, b) => {
-			const aValue = a[field] ?? "";
-			const bValue = b[field] ?? "";
-
-			if (typeof aValue === "number" && typeof bValue === "number") {
-				return asc * (aValue - bValue);
-			}
-
-			return asc * String(aValue).localeCompare(String(bValue), undefined, { numeric: true });
 		});
 	}
 }

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { buildOrderColumns } from "components/order/List/orderColumns";
 import OrderListHeader from "components/order/List/OrderListHeader";
 import OrdersTable from "components/order/List/OrdersTable";
+import { buildOrderColumns } from "components/order/List/orderTableConfigs";
 import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
@@ -39,8 +39,9 @@ const OrderPage: React.FC = observer(() => {
 			{ header: t("order.col.number"), value: (o) => formatEntityId(o.orderNumber) },
 			{ header: t("order.col.date"), value: (o) => formatDate(o.date) },
 			{ header: t("order.col.customer"), value: (o) => o.customerName },
+			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },
+			{ header: t("order.col.source"), value: (o) => t(`order.source.${o.source}`) },
 			{ header: t("order.col.positions"), value: (o) => o.lines.length },
-			{ header: t("order.col.total"), value: (o) => o.total },
 			{
 				header: t("order.col.delivery"),
 				value: (o) =>
@@ -48,11 +49,7 @@ const OrderPage: React.FC = observer(() => {
 						? `${formatDate(o.deliveryDate)}${o.deliveryTime ? ` ${shortDeliveryTime(o.deliveryTime)}` : ""}`
 						: "—",
 			},
-			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },
-			{
-				header: t("order.col.source"),
-				value: (o) => t(`order.source.${o.source}`),
-			},
+			{ header: t("order.col.total"), value: (o) => o.total },
 		];
 		exportToCsv(`orders_${csvDateStamp()}`, csvColumns, rows);
 	};
@@ -69,6 +66,7 @@ const OrderPage: React.FC = observer(() => {
 				onDateRangeChange={orderStore.setDateRange}
 				onCreate={() => navigate(PATHS.newOrder)}
 				onExport={handleExport}
+				exportCount={readyOr(orderStore.listOrders, []).length}
 			/>
 
 			<OrdersTable

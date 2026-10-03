@@ -94,7 +94,7 @@
   "transaction.range.90": "Последние 90 дней",
 
   "transaction.col.date": "Дата",
-  "transaction.col.number": "Номер",
+  "transaction.col.number": "№",
   "transaction.col.type": "Тип",
   "transaction.col.partner": "Партнёр",
   "transaction.col.positions": "Позиций",

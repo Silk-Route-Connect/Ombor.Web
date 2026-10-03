@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import OrderStatusTabs from "components/order/List/OrderStatusTabs";
-import FilterDropdown from "components/partner/Detail/FilterDropdown";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
@@ -11,7 +11,6 @@ import { OrderStatusFilter } from "utils/orderUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 interface OrderListHeaderProps {
@@ -24,6 +23,8 @@ interface OrderListHeaderProps {
 	onDateRangeChange: (range: OrderDateRange) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 /**
@@ -41,6 +42,7 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 	onDateRangeChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -50,9 +52,7 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 				title={t("order.title")}
 				actions={
 					<>
-						<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={onExport}>
-							{t("order.exportCsv")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("order.create")}
 						</PrimaryButton>
@@ -68,9 +68,9 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 				/>
 				<OrderStatusTabs value={statusFilter} counts={statusCounts} onChange={onStatusChange} />
 				<Box sx={{ flexGrow: 1 }} />
-				<FilterDropdown<OrderDateRange>
+				<EntityFilterSelect<OrderDateRange>
 					label={t("order.col.date")}
-					icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
+					icon={<CalendarTodayOutlinedIcon />}
 					value={dateRange}
 					onChange={onDateRangeChange}
 					options={[

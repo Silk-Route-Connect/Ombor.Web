@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
-import { buildWarehouseColumns } from "components/warehouse/Table/warehouseColumns";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
 import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
+import { buildWarehouseColumns } from "components/warehouse/Table/warehouseTableConfigs";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
@@ -93,6 +93,7 @@ const WarehousePage: React.FC = observer(() => {
 				onToggleArchived={warehouseStore.setShowArchived}
 				onCreate={warehouseStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(warehouseStore.filteredWarehouses, []).length}
 			/>
 
 			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}

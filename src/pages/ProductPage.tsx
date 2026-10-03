@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductHeader from "components/product/Header/ProductHeader";
+import ProductDialogs from "components/product/ProductDialogs";
 import ProductsTable from "components/product/Table/ProductsTable";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
@@ -15,8 +15,6 @@ import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { ServerErrorHandler } from "utils/formServerErrors";
 import { mapFormPackagingToPackaging, measurementLabel } from "utils/productUtils";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import { Box } from "@mui/material";
 
 const ProductPage: React.FC = observer(() => {
@@ -66,14 +64,20 @@ const ProductPage: React.FC = observer(() => {
 		const rows = readyOr(productStore.filteredProducts, []);
 
 		const columns: CsvColumn<Product>[] = [
-			{ header: t("product.table.name"), value: (p) => p.name },
 			{ header: t("product.table.sku"), value: (p) => p.sku },
-			{ header: t("product.table.category"), value: (p) => p.categoryName ?? "" },
-			{ header: t("product.table.measurement"), value: (p) => measurementLabel(t, p.measurement) },
+			{ header: t("product.table.name"), value: (p) => p.name },
 			{ header: t("product.table.type"), value: (p) => t(`product.type.${p.type}`) },
+			{ header: t("product.table.category"), value: (p) => p.categoryName ?? "" },
 			{ header: t("product.table.stock"), value: (p) => p.totalStock },
-			{ header: t("product.table.salePrice"), value: (p) => p.salePrice || "" },
-			{ header: t("product.table.supplyPrice"), value: (p) => p.supplyPrice || "" },
+			{ header: t("product.table.measurement"), value: (p) => measurementLabel(t, p.measurement) },
+			{
+				header: t("product.table.salePrice"),
+				value: (p) => (p.type === "Supply" ? "" : p.salePrice),
+			},
+			{
+				header: t("product.table.supplyPrice"),
+				value: (p) => (p.type === "Sale" ? "" : p.supplyPrice),
+			},
 			{
 				header: t("product.table.status"),
 				value: (p) =>
@@ -104,6 +108,7 @@ const ProductPage: React.FC = observer(() => {
 				onToggleArchived={productStore.setShowArchived}
 				onCreate={productStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(productStore.filteredProducts, []).length}
 			/>
 
 			<ProductsTable
@@ -116,7 +121,7 @@ const ProductPage: React.FC = observer(() => {
 				onEdit={productStore.openEdit}
 				onArchive={productStore.openArchive}
 				onRestore={productStore.openRestore}
-				onSort={productStore.setSort}
+				onDelete={productStore.openDelete}
 			/>
 
 			<ProductFormModal
@@ -127,43 +132,7 @@ const ProductPage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("product.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.product.name : "",
-				})}
-				content={t("product.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						productStore.archive(dialogMode.product);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("product.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.product.name : "",
-				})}
-				content={t("product.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						productStore.restore(dialogMode.product);
-					}
-				}}
-			/>
+			<ProductDialogs />
 		</Box>
 	);
 });

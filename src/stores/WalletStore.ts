@@ -20,6 +20,8 @@ export type WalletDialogMode =
 	| { kind: "form"; wallet?: Wallet }
 	| { kind: "archive"; wallet: Wallet }
 	| { kind: "restore"; wallet: Wallet }
+	| { kind: "delete"; wallet: Wallet }
+	| { kind: "cannotDelete"; wallet: Wallet }
 	| { kind: "transfer"; fromWalletId?: number }
 	| { kind: "transferDetail"; transfer: WalletTransfer }
 	| { kind: "none" };
@@ -48,6 +50,7 @@ export interface IWalletStore {
 	update(request: UpdateWalletRequest): Promise<Wallet | null>;
 	archive(wallet: Wallet): Promise<Wallet | null>;
 	restore(wallet: Wallet): Promise<Wallet | null>;
+	remove(wallet: Wallet): Promise<boolean>;
 	createTransfer(request: CreateTransferRequest): Promise<WalletTransfer | null>;
 
 	setSearch(term: string): void;
@@ -57,6 +60,7 @@ export interface IWalletStore {
 	openEdit(wallet: Wallet): void;
 	openArchive(wallet: Wallet): void;
 	openRestore(wallet: Wallet): void;
+	openDelete(wallet: Wallet): void;
 	openTransfer(fromWalletId?: number): void;
 	openTransferDetail(transfer: WalletTransfer): void;
 	closeDialog(): void;
@@ -205,6 +209,24 @@ export class WalletStore implements IWalletStore {
 		return this.findWallet(wallet.id);
 	}
 
+	async remove(wallet: Wallet): Promise<boolean> {
+		const result = await withSaving(this, () => WalletApi.delete(wallet.id));
+
+		if (result.status === "fail") {
+			this.notificationStore.notifyApiError(result, "wallet.error.delete");
+			return false;
+		}
+
+		runInAction(() => {
+			if (isReady(this.allWallets)) {
+				this.allWallets = this.allWallets.filter((w) => w.id !== wallet.id);
+			}
+		});
+		this.closeDialog();
+		this.notificationStore.success(i18next.t("wallet.success.delete", { name: wallet.name }));
+		return true;
+	}
+
 	async createTransfer(request: CreateTransferRequest): Promise<WalletTransfer | null> {
 		const result = await withSaving(this, () => WalletApi.createTransfer(request));
 
@@ -248,6 +270,13 @@ export class WalletStore implements IWalletStore {
 
 	openRestore(wallet: Wallet): void {
 		this.dialogMode = { kind: "restore", wallet };
+	}
+
+	/** Delete is reference-gated: a referenced wallet gets the «cannot delete — archive instead» dialog. */
+	openDelete(wallet: Wallet): void {
+		this.dialogMode = wallet.isDeletable
+			? { kind: "delete", wallet }
+			: { kind: "cannotDelete", wallet };
 	}
 
 	openTransfer(fromWalletId?: number): void {

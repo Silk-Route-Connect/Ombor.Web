@@ -1,16 +1,21 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { buildTransactionColumns } from "components/transaction/List/transactionColumns";
 import TransactionListHeader from "components/transaction/List/TransactionListHeader";
 import TransactionsTable from "components/transaction/List/TransactionsTable";
-import { isReady } from "helpers/Loading";
+import {
+	buildTransactionColumns,
+	transactionDisplayNumber,
+	transactionTypeLabel,
+} from "components/transaction/List/transactionTableConfigs";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { TransactionRecord } from "models/transaction";
 import { PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
 import { Box } from "@mui/material";
@@ -47,25 +52,19 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 		exportToCsv<TransactionRecord>(
 			`${mode === "Sale" ? "sales" : "supplies"}_${csvDateStamp()}`,
 			[
-				{ header: t("transaction.col.number"), value: (tx) => tx.transactionNumber ?? tx.id },
+				{
+					header: t("transaction.col.number"),
+					value: (tx) => formatEntityId(transactionDisplayNumber(tx)),
+				},
 				{ header: t("transaction.col.date"), value: (tx) => formatDate(tx.date) },
-				{
-					header: t("transaction.col.type"),
-					value: (tx) =>
-						isRefundType(tx.type)
-							? t(`transaction.badge.refund.${mode}`)
-							: t(`transaction.badge.base.${mode}`),
-				},
 				{ header: t("transaction.col.partner"), value: (tx) => tx.partnerName },
-				{ header: t("transaction.col.positions"), value: (tx) => tx.lines.length },
-				{
-					header: t("transaction.col.amount"),
-					value: (tx) => (isRefundType(tx.type) ? -tx.totalDue : tx.totalDue),
-				},
+				{ header: t("transaction.col.type"), value: (tx) => transactionTypeLabel(t, tx) },
 				{
 					header: t("transaction.col.status"),
 					value: (tx) => (isRefundType(tx.type) ? "" : t(`transaction.statusShort.${tx.status}`)),
 				},
+				{ header: t("transaction.col.positions"), value: (tx) => tx.lines.length },
+				{ header: t("transaction.col.amount"), value: (tx) => tx.totalDue },
 			],
 			rows,
 		);
@@ -83,6 +82,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 				onDateRangeChange={(r) => transactionStore.setDateRange(r)}
 				onCreate={() => navigate(newPath)}
 				onExport={handleExport}
+				exportCount={readyOr(rows, []).length}
 			/>
 
 			<TransactionsTable
