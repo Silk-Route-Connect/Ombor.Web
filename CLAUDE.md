@@ -61,7 +61,7 @@ src/
   i18n/<locale>/         One JSON file per module (flat keys, merged at init — see conventions.md → i18n)
   routing/               Paths, guards (RequireAuth / GuestOnly)
   layouts/               AppLayout, Sidebar, Topbar
-  theme.ts               Single MUI theme — the only styling source of truth
+  theme/                 Single MUI theme + tokens (palette, chipTokens, type scale) — the only styling source of truth
   utils/, helpers/, constants/
 ```
 

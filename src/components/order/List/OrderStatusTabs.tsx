@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { controlSize, designTokens, numericSx } from "theme";
+import { chipTokens, controlSize, designTokens, numericSx } from "theme";
 import { ORDER_STATUS_META, ORDER_STATUS_TABS, OrderStatusFilter } from "utils/orderUtils";
 
 import { Box, ButtonBase } from "@mui/material";
@@ -14,9 +14,9 @@ interface OrderStatusTabsProps {
 const tabLabelKey = (tab: OrderStatusFilter): string =>
 	tab === "all" ? "order.filter.all" : `order.status.${tab}`;
 
-/** Count colour follows the tab's status chip accent («Все» keeps the primary hue). */
+/** Count colour follows the tab's status chip text («Все» keeps the primary hue). */
 const countColor = (tab: OrderStatusFilter): string =>
-	tab === "all" ? "primary.main" : ORDER_STATUS_META[tab].chip.color;
+	tab === "all" ? "primary.main" : chipTokens[ORDER_STATUS_META[tab].token].color;
 
 /**
  * Status filter tabs with count pills (bundle `.seg` + `.seg-cnt`). Like the
@@ -46,6 +46,7 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 					<ButtonBase
 						key={tab}
 						onClick={() => onChange(tab)}
+						aria-pressed={selected}
 						sx={{
 							display: "inline-flex",
 							alignItems: "center",
@@ -69,7 +70,6 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 									fontSize: 11,
 									fontWeight: 700,
 									color: countColor(tab),
-									opacity: selected ? 1 : 0.75,
 								}}
 							>
 								{count}

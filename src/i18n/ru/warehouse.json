@@ -119,15 +119,6 @@
   "warehouse.movements.emptyFilteredTitle": "Событий не найдено",
   "warehouse.movements.emptyFilteredBody": "Измените фильтр события или поиск по товару.",
 
-  "warehouse.movement.Opening": "Начальный остаток",
-  "warehouse.movement.Supply": "Поставка",
-  "warehouse.movement.Sale": "Продажа",
-  "warehouse.movement.Refund": "Возврат",
-  "warehouse.movement.SaleRefund": "Возврат продажи",
-  "warehouse.movement.SupplyRefund": "Возврат поставки",
-  "warehouse.movement.Adjustment": "Корректировка",
-  "warehouse.movement.Transfer": "Перемещение",
-
   "warehouse.opening.action": "Начальный остаток",
   "warehouse.opening.title": "Начальный остаток",
   "warehouse.opening.subtitle": "Зафиксируйте текущие остатки товаров — по одной строке на товар.",

@@ -1,17 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill, { StatusPillSize } from "components/shared/Chip/StatusPill";
 import { PartnerType } from "models/partner";
-import { chipTokens } from "theme";
-
-import { Box } from "@mui/material";
+import { ChipTokenKey } from "theme";
 
 /**
- * Partner type → chipTokens key (DSN-1, no inline colours): Customer = teal
- * (the «sale» hue — who we sell to), Supplier = saffron (the «supply» hue — who
- * we buy from), Both = neutral stone. This keeps Customer and Both visually
- * distinct (the old info/primary mapping read alike), per locked chip semantics.
+ * Customer = teal (who we sell to), Supplier = saffron (who we buy from),
+ * Both = neutral — so Customer and Both never read alike.
  */
-const TYPE_TOKEN: Record<PartnerType, keyof typeof chipTokens> = {
+const TYPE_TOKEN: Record<PartnerType, ChipTokenKey> = {
 	Customer: "sale",
 	Supplier: "supply",
 	Both: "neutral",
@@ -19,48 +16,26 @@ const TYPE_TOKEN: Record<PartnerType, keyof typeof chipTokens> = {
 
 interface PartnerTypeChipProps {
 	type: PartnerType;
+	/** Archived rows render the neutral chip (opacity-dimming failed contrast). */
 	dimmed?: boolean;
-	/** `md` enlarges the pill for header/identity use; `sm` (default) for tables. */
-	size?: "sm" | "md";
+	/** `md` for header/identity use; `sm` (default) for tables. */
+	size?: StatusPillSize;
 }
 
-/**
- * Soft pill per the DSN-1 chip tokens. `Both` reads as «Клиент + Поставщик»
- * (composed from the localized type labels), never the raw enum; Customer /
- * Supplier render their single label.
- */
+/** `Both` reads as «Клиент + Поставщик», never the raw enum (pattern 15). */
 export const PartnerTypeChip: React.FC<PartnerTypeChipProps> = ({ type, dimmed, size = "sm" }) => {
 	const { t } = useTranslation();
-	const tk = chipTokens[TYPE_TOKEN[type]];
-	const dims =
-		size === "md"
-			? { px: "11px", py: "3px", fontSize: 12.5 }
-			: { px: "9px", py: "2px", fontSize: 11 };
 	const label =
 		type === "Both"
 			? `${t("partner.typeShort.Customer")} + ${t("partner.typeShort.Supplier")}`
 			: t(`partner.typeShort.${type}`);
 
 	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				...dims,
-				borderRadius: "999px",
-				fontWeight: 600,
-				lineHeight: 1.4,
-				whiteSpace: "nowrap",
-				color: tk.color,
-				bgcolor: tk.bg,
-				border: "1px solid",
-				borderColor: tk.border,
-				opacity: dimmed ? 0.6 : 1,
-			}}
-		>
-			{label}
-		</Box>
+		<StatusPill
+			token={dimmed ? "neutral" : (TYPE_TOKEN[type] ?? "neutral")}
+			label={label}
+			size={size}
+		/>
 	);
 };
 

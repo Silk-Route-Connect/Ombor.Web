@@ -75,15 +75,20 @@
 
 ## Chips & badges (colors from `chipTokens` only)
 
+Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `borderRadius: 999`. Colour semantics per `chipTokens` (`src/theme/chipTokens.ts`) and ui-patterns «Chip colour semantics».
+
 | Component                                      | Use for                                        | Notes                                                                                                                          |
 | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `TransactionTypeBadge` / `TransactionKindChip` | Sale / Supply / refunds                        | Teal / saffron, refunds outlined, with icons. Live in `components/transaction/TransactionBadges.tsx` / `components/product/Detail/` |
-| `TransactionStatusChip`                        | Open / PartiallyPaid / Overdue / Closed        | Keys off the served `TransactionStatus` enum. Lives in `components/transaction/TransactionBadges.tsx`                          |
-| `DirectionBadge`                               | Income / Expense pills                         | Payments + stock-adjustment direction; unsigned amounts per pattern 4                                                          |
-| `ArchivedBadge`                                | Archived cue on list rows + detail headers     | DSN-1 `.arch-badge` uppercase pill; the single «Архив» definition; label overridable per module                                |
-| `PartnerTypeChip`                              | Partner type incl. Both → «Клиент + Поставщик» | Pattern 15. Lives in `components/partner/`                                                                                     |
-| `OrderStatusChip`                              | Order 7-state machine                          | Token-clean; own mapping (no clean `chipTokens` key). Lives in `components/order/`                                             |
+| `StatusPill`                                   | The one pill primitive                         | `components/shared/Chip/`. `token` (a `chipTokens` key) + label + optional icon, `size` sm 22px/12px (tables) · md 26px/13px (headers), `strike`, `uppercase` |
+| `PaymentStatusChip`                            | Transaction payment status, every surface      | Accepts the `TransactionStatus` enum **and** the ledger/dashboard `paid`/`partial`/`unpaid` vocabulary. Open blue · Partial amber · Overdue red · Closed green |
+| `MovementKindChip` (+ `movementKind.ts`)       | Stock-movement kind (Product + Warehouse «Движения») | One map: Sale teal · Supply saffron · refunds outlined · Opening/Transfer/Adjustment neutral with icons; labels `common.movementKind.*` |
+| `TransactionTypeBadge`                         | Sale / Supply / refunds                        | Delegates to the movement-kind presentation with the transaction's short labels. Lives in `components/transaction/TransactionBadges.tsx` |
+| `DirectionBadge`                               | Income / Expense pills                         | Green ↓ in / red ↑ out (app-wide arrow convention); unsigned amounts per pattern 4                                             |
+| `ArchivedBadge`                                | Archived cue on list rows + detail headers     | Neutral uppercase pill; the single «Архив» definition; label overridable per module                                            |
+| `PartnerTypeChip`                              | Partner type incl. Both → «Клиент + Поставщик» | Pattern 15; archived rows pass `dimmed` → neutral (no opacity). Lives in `components/partner/`                                 |
+| `OrderStatusChip`                              | Order 7-state machine                          | Own lifecycle tokens via `ORDER_STATUS_META` (never the type hues). Lives in `components/order/`                               |
 | `EmployeeStatusBadge`                          | Active / OnVacation / Terminated               | Defensive fallback for nullable served status. Lives in `components/employee/`                                                 |
+| `DirectionChip`                                | Stock-adjustment Increase / Decrease           | Blue ↓ stock in / amber ↑ stock out (stock is not money — no green/red). Lives in `components/stockAdjustment/`                |
 
 ## App / system
 

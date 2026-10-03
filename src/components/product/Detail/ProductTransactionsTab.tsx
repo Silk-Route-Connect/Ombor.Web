@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import MovementKindChip from "components/shared/Chip/MovementKindChip";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
@@ -16,7 +17,6 @@ import { Box } from "@mui/material";
 
 import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
 import HistoryEmptyState from "./HistoryEmptyState";
-import TransactionKindChip from "./TransactionKindChip";
 
 interface ProductTransactionsTabProps {
 	transactions: ProductTransaction[];
@@ -144,7 +144,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 										</Box>
 									</td>
 									<td>
-										<TransactionKindChip kind={txn.transactionType} />
+										<MovementKindChip kind={txn.transactionType} />
 									</td>
 									<td>
 										<PartnerLink id={txn.partnerId} name={txn.partnerName} />

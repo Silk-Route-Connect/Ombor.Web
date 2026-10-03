@@ -1,11 +1,9 @@
 import React from "react";
 import PartnerLink from "components/partner/Links/PartnerLink";
+import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
 import CopyableNumberCell from "components/shared/Table/CopyableNumberCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
-import {
-	TransactionStatusChip,
-	TransactionTypeBadge,
-} from "components/transaction/TransactionBadges";
+import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { TFunction } from "i18next";
 import { TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
@@ -146,7 +144,7 @@ export function buildTransactionColumns(t: TFunction): Column<TransactionRecord>
 						—
 					</Box>
 				) : (
-					<TransactionStatusChip status={tx.status} />
+					<PaymentStatusChip status={tx.status} />
 				),
 		},
 	];

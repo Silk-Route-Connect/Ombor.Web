@@ -2,9 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
+import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
 import MetaDot from "components/shared/Detail/MetaDot";
 import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
-import { TransactionStatusChip } from "components/transaction/TransactionBadges";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { TransactionLine, TransactionRecord, TransactionStatus } from "models/transaction";
 import { WalletType } from "models/wallet";
@@ -392,7 +392,7 @@ export const SaleFinancialCard: React.FC<{
 						<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
 							{t("transaction.detail.fin.status")}
 						</Box>
-						<TransactionStatusChip status={status} />
+						<PaymentStatusChip status={status} />
 					</Box>
 				</Box>
 			</Box>

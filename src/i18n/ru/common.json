@@ -47,6 +47,15 @@
   "common.form.completeRequired": "Заполните необходимые поля",
 
   "common.dash": "—",
+
+  "common.movementKind.Sale": "Продажа",
+  "common.movementKind.Supply": "Поставка",
+  "common.movementKind.SaleRefund": "Возврат продажи",
+  "common.movementKind.SupplyRefund": "Возврат поставки",
+  "common.movementKind.Refund": "Возврат",
+  "common.movementKind.Opening": "Начальный остаток",
+  "common.movementKind.Transfer": "Перемещение",
+  "common.movementKind.Adjustment": "Корректировка",
   "common.pageInDevelopment": "Страница в разработке",
 
   "common.errorBoundary.title": "Что-то пошло не так",

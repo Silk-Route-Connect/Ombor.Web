@@ -89,14 +89,6 @@
   "product.detail.archived.title": "Товар в архиве.",
   "product.detail.archived.body": "Он скрыт из списков и форм подбора, но его остаток и стоимость по-прежнему учитываются в общих итогах. Действия недоступны — восстановите товар, чтобы редактировать.",
 
-  "product.txn.Sale": "Продажа",
-  "product.txn.Supply": "Поставка",
-  "product.txn.SaleRefund": "Возврат продажи",
-  "product.txn.SupplyRefund": "Возврат поставки",
-  "product.txn.Opening": "Начальный остаток",
-  "product.txn.Transfer": "Перемещение",
-  "product.txn.Adjustment": "Корректировка",
-
   "product.typeLong.Sale": "Продажа",
   "product.typeLong.Supply": "Закупка",
   "product.typeLong.All": "Оба (Продажа + Закупка)",

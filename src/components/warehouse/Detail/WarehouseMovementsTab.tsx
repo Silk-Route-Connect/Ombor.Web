@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
+import { movementKindLabelKey } from "components/shared/Chip/movementKind";
+import MovementKindChip from "components/shared/Chip/MovementKindChip";
 import DetailCard from "components/shared/Detail/DetailCard";
 import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
 import { detailTableSx } from "components/shared/Detail/detailTableChrome";
@@ -9,7 +11,6 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
-import MovementKindChip from "components/warehouse/MovementKindChip";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
 	WarehouseMovement,
@@ -67,7 +68,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 				case "date":
 					return m.date;
 				case "event":
-					return t(`warehouse.movement.${m.kind}`);
+					return t(movementKindLabelKey(m.kind));
 				case "product":
 					return m.productName;
 				case "counterparty":
@@ -130,7 +131,6 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					sx={{
 						width: 210,
 						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
 					}}
 					slotProps={{
 						input: {
@@ -143,7 +143,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 					<MenuItem value={ALL_TYPES}>{t("warehouse.movements.allTypes")}</MenuItem>
 					{WAREHOUSE_MOVEMENT_KINDS.map((kind) => (
 						<MenuItem key={kind} value={kind}>
-							{t(`warehouse.movement.${kind}`)}
+							{t(movementKindLabelKey(kind))}
 						</MenuItem>
 					))}
 				</TextField>
