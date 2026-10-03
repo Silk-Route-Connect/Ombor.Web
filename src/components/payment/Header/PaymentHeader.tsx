@@ -67,7 +67,7 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 				actions={
 					<>
 						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							icon={<FileDownloadOutlinedIcon />}
 							onClick={onExport}
 						>
 							{t("common.export")}

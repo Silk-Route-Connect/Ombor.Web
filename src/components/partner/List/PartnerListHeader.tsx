@@ -47,7 +47,7 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 				actions={
 					<>
 						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							icon={<FileDownloadOutlinedIcon />}
 							onClick={onExport}
 						>
 							{t("partner.list.exportCsv")}

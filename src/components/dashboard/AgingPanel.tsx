@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
 import { DashboardAgingBucket, DashboardAgingBucketKey } from "models/dashboard";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -80,10 +80,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 					</Typography>
 					<Typography
 						sx={{
-							...numericSx,
-							fontSize: 26,
-							fontWeight: 700,
-							letterSpacing: "-0.02em",
+							...typeScale.numStrong,
 							lineHeight: 1,
 							color: hasOverdue ? "error.main" : "text.disabled",
 						}}

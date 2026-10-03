@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
 import { DebtSummary } from "stores/DebtStore";
-import { ChipTokenKey, designTokens, numericSx } from "theme";
+import { ChipTokenKey, designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -89,10 +89,7 @@ const Card: React.FC<{ spec: CardSpec; countLabel: string; onClick?: () => void 
 		</Box>
 		<Typography
 			sx={{
-				...numericSx,
-				fontWeight: 700,
-				fontSize: 26,
-				letterSpacing: "-0.02em",
+				...typeScale.numStrong,
 				mt: "9px",
 				lineHeight: 1.05,
 				color: spec.valueColor,

@@ -52,7 +52,7 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 				actions={
 					<>
 						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							icon={<FileDownloadOutlinedIcon />}
 							onClick={onExport}
 						>
 							{t("common.export")}

@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import InfoHint from "components/shared/InfoHint/InfoHint";
 import { WalletSummary } from "stores/WalletStore";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Typography } from "@mui/material";
@@ -50,10 +50,7 @@ const Cap: React.FC<{ color: string; label: string; hint?: string }> = ({ color,
 const Value: React.FC<{ color: string; text: string }> = ({ color, text }) => (
 	<Typography
 		sx={{
-			...numericSx,
-			fontWeight: 700,
-			fontSize: 27,
-			letterSpacing: "-0.02em",
+			...typeScale.numStrong,
 			lineHeight: 1,
 			mt: "10px",
 			color,

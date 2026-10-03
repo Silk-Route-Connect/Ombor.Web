@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { DashboardData } from "models/dashboard";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -123,10 +123,7 @@ const KpiCard: React.FC<{ spec: CardSpec }> = ({ spec }) => {
 
 			<Typography
 				sx={{
-					...numericSx,
-					fontWeight: 700,
-					fontSize: 26,
-					letterSpacing: "-0.02em",
+					...typeScale.numStrong,
 					mt: "9px",
 					lineHeight: 1.05,
 					color: spec.valueColor,

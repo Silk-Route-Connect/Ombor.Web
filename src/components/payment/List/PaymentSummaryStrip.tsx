@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
-import { chipTokens, designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -107,10 +107,7 @@ const Card: React.FC<{
 			<Typography sx={{ fontSize: 13, color: "text.secondary" }}>{caption}</Typography>
 			<Typography
 				sx={{
-					...numericSx,
-					fontSize: 24,
-					fontWeight: 700,
-					letterSpacing: "-0.02em",
+					...typeScale.numStrong,
 					mt: "3px",
 					lineHeight: 1.1,
 					color: valueColor ?? "text.primary",

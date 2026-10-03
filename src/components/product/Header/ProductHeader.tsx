@@ -64,7 +64,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 				actions={
 					<>
 						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+							icon={<FileDownloadOutlinedIcon />}
 							onClick={onExport}
 						>
 							{t("common.export")}

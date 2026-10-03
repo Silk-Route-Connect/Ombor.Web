@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Wallet } from "models/wallet";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Paper, Typography } from "@mui/material";
@@ -52,10 +52,7 @@ const Stat: React.FC<{
 		</Box>
 		<Typography
 			sx={{
-				...numericSx,
-				fontSize: 26,
-				fontWeight: 700,
-				letterSpacing: "-0.025em",
+				...typeScale.numStrong,
 				lineHeight: 1,
 				mt: "10px",
 				color: valueColor,

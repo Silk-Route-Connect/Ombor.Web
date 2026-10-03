@@ -72,7 +72,7 @@ const DebtPage: React.FC = observer(() => {
 				title={t("debt.title")}
 				actions={
 					<GhostButton
-						icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+						icon={<FileDownloadOutlinedIcon />}
 						onClick={handleExport}
 					>
 						{t("debt.exportCsv")}

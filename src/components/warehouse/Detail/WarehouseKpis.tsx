@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Warehouse } from "models/warehouse";
-import { numericSx } from "theme";
+import { numericSx, typeScale } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -38,10 +38,7 @@ const Kpi: React.FC<{
 		</Box>
 		<Typography
 			sx={{
-				...numericSx,
-				fontSize: 30,
-				fontWeight: 700,
-				letterSpacing: "-0.025em",
+				...typeScale.numStrong,
 				lineHeight: 1,
 				mt: "10px",
 				color: accent ? "primary.main" : "text.primary",

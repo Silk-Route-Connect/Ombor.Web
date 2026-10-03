@@ -23,7 +23,7 @@ export const detailHeadCellSx = {
 	fontSize: 12,
 	fontWeight: 600,
 	color: "text.secondary",
-	p: "11px 18px",
+	p: "12px 16px",
 	borderBottom: "1px solid",
 	borderColor: "divider",
 	bgcolor: designTokens.gray25,
@@ -31,14 +31,15 @@ export const detailHeadCellSx = {
 } as const;
 
 /**
- * Body cell: 13.5px, warm `gray25` hairline row borders, vertically centered.
+ * Body cell: 14px / 52px rows (the list `DataTable` density), warm hairline row
+ * borders, vertically centered.
  * A fixed `height` keeps rows uniform regardless of content — so a row carrying a
  * 22px chip (e.g. the movements event chip) is the same height as a plain
  * text/number row, both centered.
  */
 export const detailBodyCellSx = {
-	height: 48,
-	p: "12px 18px",
+	height: 52,
+	p: "12px 16px",
 	borderBottom: "1px solid",
 	// gray100 (was near-white gray25) so row separators are actually visible while
 	// staying subtler than the divider-coloured header underline (XC-17).
