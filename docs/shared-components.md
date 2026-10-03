@@ -106,7 +106,7 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 
 ## Shared non-component units (rules live in `conventions.md`)
 
-`formatCurrency` · `formatEntityId` · `formatDate` / `formatDateTime` + `DATE_FORMAT` · `phoneUtils` · `byLabel` (sortUtils) · `Loading` / `TryRun` / `WithSaving` async helpers · `i18n/languages.ts` (`UI_LANGUAGES`). Locate and reuse — never re-implement or hand-assemble.
+`formatCurrency` · `formatEntityId` (+ `formatOptionalNumber` / `entityNumberSortValue` for numbers legacy rows may lack) · `formatPeriod` / `toPeriod` / `periodYearOptions` (payrollUtils — «YYYY-MM» periods) · `parseWholeQuantity` (quantityInput) · `formatDate` / `formatDateTime` + `DATE_FORMAT` · `phoneUtils` · `byLabel` (sortUtils) · `Loading` / `TryRun` / `WithSaving` async helpers · `i18n/languages.ts` (`UI_LANGUAGES`). Locate and reuse — never re-implement or hand-assemble.
 
 ## Promotion candidates (module-local today — promote on a second consumer)
 

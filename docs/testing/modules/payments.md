@@ -9,7 +9,7 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 - `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт», search «Поиск по номеру, партнёру или сотруднику…», type dropdown «Все типы», wallet dropdown «Все кассы»), `PaymentSummaryStrip` (clickable «Приход»/«Расход» toggle cards + «Платежей» count), `PaymentsTable` (row click → detail; no actions column).
 - `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Распределение» allocation table; rail: «Информация» card.
 - `PaymentCreateModal` (type picker + per-type fields) and `PaymentSettlementModal` («Распределение платежа») — both launched from the list page.
-- `/payments/new` — placeholder page; smoke.md owns it, no cases here.
+- `/payments/new` — the topbar «Создать → Оплата» target: redirects to `/payments` and opens `PaymentCreateModal` (never a placeholder page). The modal preselects the first active wallet.
 - Payroll payments created on employee detail also land in this list (type «Зарплата») — the list rendering is in scope here; the employee-side flow is T-EMP.
 
 ## Traps
@@ -67,7 +67,7 @@ Expect: created; list row party column shows «—» (no partner/employee); deta
 ### T-PAY-08 · Зарплата via the standalone modal [happy] ✍
 Pre: T-PAY-07. Fixture «QA Сотрудник» (salary 3 000 000). Wallet = 2 100 000.
 Steps: 1. «Новый платёж»: type «Зарплата» → employee select + «Период» (month/year) replace the partner field. 2. Pick «QA Сотрудник» — amount autofills 3 000 000; replace with 200 000. 3. Wallet «QA-<MMDD> Касса-П», submit.
-Expect: no direction control (Payroll → always Expense, R14). List row: chip «Зарплата», party «QA Сотрудник». Detail payroll card: Сотрудник / Должность / Период «<месяц> <год>» / Оклад 3 000 000 / Выплачено 200 000. Wallet = 1 900 000.
+Expect: no direction control (Payroll → always Expense, R14). «Период» defaults to the current month and year; the year list is the current year ±2. Network POST carries `Period=YYYY-MM` (e.g. `2026-10`) — never a month name. List row: chip «Зарплата», party «QA Сотрудник». Detail payroll card: Сотрудник / Должность / Период «<месяц> <год>» (localized from `YYYY-MM`) / Оклад 3 000 000 / Выплачено 200 000. Wallet = 1 900 000.
 
 ### T-PAY-09 · List anatomy and the five type labels [happy]
 Pre: T-PAY-03…08 created one payment of each type.

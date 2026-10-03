@@ -148,6 +148,16 @@ Expect: 1 → no unit toggle on a product without packaging (base behavior uncha
 Steps: 1. `/supplies/new`: partner «QA-<MMDD> Поставщик П», «Склад приёмки» = «QA Склад А», add «QA Товар Упаковка» → «упак», qty 3. 2. Read the line. 3. Leave without submitting (discard dialog).
 Expect: same toggle/hint mechanics as Sale (hint «= 36 шт»; price label «Цена поставки за шт» stays per base unit); no stock hints or warnings in either unit mode (stock-in, R20). Display-only — T-POS-08's fallback supply already proves pack-mode stock-in math end-to-end.
 
+### T-POS-40 · Decimal quantity is refused, never merged [negative]
+
+Steps: 1. `/sales/new`: add П1, set qty 1. 2. Type «1,5» (then «1.5») into the qty field. 3. Read the line total, then click outside the field.
+Expect: while «1,5» is in the field the box turns red with «Количество — только целое число» under it, and the line keeps qty 1 (line total = 1 × price — never 15, R21); blur restores «1». Same in the refund modal's «Вернуть» qty: a «,» / «.» keystroke is ignored.
+
+### T-POS-41 · Open debts fail to load → error with retry, never «no debts» [negative]
+
+Steps: 1. `/sales/new`: pick a partner with open debt. 2. In DevTools block `/api/payments/outstanding`, re-pick the partner. 3. Add a line and pay more than the total. 4. Unblock and click «Повторить».
+Expect: 3 → the overpayment block shows «Не удалось загрузить долги партнёра — излишек пока уйдёт сдачей.» with «Повторить»; no «Погасить долги» button and no «Сдача | Аванс» toggle (the excess stays change — an advance is never offered on unknown debt, R40). 4 → the error clears and «Погасить долги» appears.
+
 ## Reconciliation
 
 ### T-POS-60 · Detail arithmetic ↔ list ↔ served totals [reconcile]

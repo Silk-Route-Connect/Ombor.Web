@@ -17,7 +17,7 @@ Module-specific designed behavior — never report these (shared-checklist §6 h
 | **No delete affordance anywhere on wallets** — list ⋮ and detail ⋮ offer edit + archive/restore only | Known divergence, not designed-correct: archive-only is the *shipped interim* behavior (repo-state Wallets; archive dialog copy) and diverges from DR-20/#19 — delete stays visible, reference-gated via served `isDeletable`; the FE affordance "follows" (not yet built). Observe per T-WAL-38; don't report as a NEW defect |
 | A Депозит raises «Баланс» AND «Авансы» while «Наши средства» stays flat | R11 — an advance is a partner's claim on cash sitting in the wallet |
 | After an overpayment-into-advance, «Наши средства» grows by less than the money that came in | R12 — only the settled part is ours (worked example 1) |
-| Operation kind labels mirror payment-type vocabulary: kind `Expense` renders «Общий», `Payment` renders «Оплата» | deliberate i18n mapping (`wallet.operation.*`), #17 wallet clause |
+| A payment row's «Тип» is the same coloured payment-type chip as on `/payments` («Оплата» / «Депозит» / «Вывод» / «Зарплата» / «Общий») | served `paymentType` (live-ui-17); on an API build without it the row falls back to the coarse `kind` label (`wallet.operation.*`) |
 | Clicking a transfer row opens a modal; clicking a payment row navigates to `/payments/:id` | designed split — transfers have no routed detail page |
 | An archived wallet is absent from the transfer and payment-source pickers while its money stays in the strip | R30/R31, #13 — hidden from pickers, not from value |
 | Transfer modal opened from a wallet detail pre-selects that wallet as source | designed default |
@@ -63,9 +63,9 @@ Expect: one Wallet source 25 000 balancing settlement 15 000 + advance 10 000 (R
 
 ### T-WAL-08 · Операции ledger: localization, order, running balance, links [happy]
 Pre: T-WAL-07 (А has 3 operations).
-Steps: on А's Операции tab: read rows; apply direction filter «Расход»; search the partner name from T-WAL-07; click the «Платёж» cell link.
-Expect: newest-first default (#21): «Оплата» 375 000 → «Перевод» 350 000 → «Начальный остаток» 500 000 in «Баланс после» — each row's balanceAfter = previous (older) balanceAfter ± amount; kinds localized, no raw `Opening`/`Payment` (#17); direction pills «Приход»/«Расход», amounts unsigned (#4); filter «Расход» leaves only the transfer row; search leaves only the payment row; payment reference renders «№N» (DR-21) and routes to `/payments/:id`. Party cell is plain text — not clickable (Known below).
-Known: F10 — direction narrowed to In/Out (if the backend serves Income/Expense every row shows red «Расход» — report KNOWN); op `partnerId` unmodeled, party not clickable (WAL-7). If the «Платёж» cell shows bare digits without «№», report a DR-21 defect — `WalletOperationsTab.tsx:121` renders the raw served number and was not in the F19 sweep.
+Steps: on А's Операции tab: read rows; apply direction filter «Расход»; search the partner name from T-WAL-07; click the «Платёж» cell, then the row; sort by «Платёж».
+Expect: «Платёж» is the first column; newest-first default (#21): «Оплата» 375 000 → «Перевод» 350 000 → «Начальный остаток» 500 000 in «Баланс после» — each row's balanceAfter = previous (older) balanceAfter ± amount; kinds localized, no raw `Opening`/`Payment` (#17); direction pills «Приход»/«Расход», amounts unsigned (#4); filter «Расход» leaves only the transfer row; search leaves only the payment row; the payment number renders «№N» (DR-21) exactly as on `/payments` — clicking it copies the number, clicking the row routes to `/payments/:id`; a payment without a number shows «Без номера» (as on `/payments` and the partner ledger), a transfer «—»; sorting by «Платёж» is numeric («№10» after «№9»). The party links to the partner detail.
+Known: F10 — direction narrowed to In/Out (if the backend serves Income/Expense every row shows red «Расход» — report KNOWN).
 
 ## Edge & negative
 

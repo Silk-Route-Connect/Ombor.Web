@@ -39,6 +39,8 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 - Use the existing async helpers (`helpers/Loading.ts`, `TryRun.ts`, `WithSaving.ts`) for loading/saving/error state — follow their established usage; do not invent a parallel async-state pattern.
 - `Selected<Module>Store` holds the currently open entity for the detail page: the entity, its child collections (transactions, payments, …), and their loading state.
 - Errors surface to the user via `NotificationStore` (notistack) — no raw `alert`, no swallowed catches.
+- **Pickers read `active*` getters, never `filtered*`.** A list store's `filtered*` getter follows that page's search and «Активные | Архив» toggle; forms and POS pickers use the store's `active*` getter (every non-archived item) so a filter left on a list page never hides or mis-defaults a picker (`WalletStore.activeWallets`, `WarehouseStore.activeWarehouses`).
+- A fetch whose empty result means something to the user («no debts», «no stock») tracks failure separately and shows an inline error with «Повторить» — a failed load is never rendered as the empty state.
 
 ## Forms
 
@@ -99,6 +101,8 @@ Each formatter is a small shared unit — locate and reuse it; never re-implemen
 - Phones: `PhoneListField` + `phoneUtils` — `formatUzNational` groups the body live as «XX XXX XX XX» behind the fixed «+998»; `formatUzPhone` for read-only display.
 - Dropdowns: order options with `byLabel` (`sortUtils`, alphabetical, ru-locale, numeric-aware) unless a picker is intentionally relevance/recency ranked.
 - Balances: colored, natural-language labeled (ui-patterns #4) — never raw +/− signs.
+- CSV export (`exportToCsv`): pass amounts/counts as numbers (written plain, decimal comma for ru Excel), phones through `formatUzPhone`, statuses as localized labels, and balances with the same sign the table shows (partner balances partner-side). The formula-injection guard touches only text, never numbers, numeric strings or formatted phones.
+- Typed quantities go through `parseWholeQuantity` (`utils/quantityInput.ts`): a «,» / «.» is reported or refused, never stripped into the digits (R21).
 
 ## Naming & TypeScript
 
