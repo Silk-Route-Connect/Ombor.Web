@@ -4,7 +4,7 @@ One direction-parameterized module: the `/sales` · `/supplies` feeds, transacti
 
 ## Surfaces
 
-- `/sales`, `/supplies` — one `TransactionPage` (mode-parameterized): title «Продажи»/«Поставки», «Новая продажа»/«Новая поставка», «Экспорт CSV»; search «Поиск по номеру или партнёру…»/«…или поставщику…», payment-status filter, period filter («Весь период / Последние 7 / 30 / 90 дней»); columns Дата · Номер · Тип · Партнёр · Позиций · Сумма · Статус оплаты; badges «Продажа»/«Поставка» (refund badges per refunds.md); status chips «Не оплачено» (Open) / «Частично» (PartiallyPaid) / «Оплачено» (Closed) / «Просрочено» (Overdue).
+- `/sales`, `/supplies` — one `TransactionPage` (mode-parameterized): title «Продажи»/«Поставки», «Новая продажа»/«Новая поставка», «Экспорт»; search «Поиск по номеру или партнёру…»/«…или поставщику…», payment-status filter, period filter («Весь период / Последние 7 / 30 / 90 дней»); columns № · Дата · Партнёр · Тип · Статус оплаты · Позиций · Сумма (the № opens the document; a copy button appears on row hover; amounts unsigned — a refund's chip says «Возврат»); badges «Продажа»/«Поставка» (refund badges per refunds.md); status chips «Не оплачено» (Open) / «Частично» (PartiallyPaid) / «Оплачено» (Closed) / «Просрочено» (Overdue).
 - `/sales/:id`, `/supplies/:id` — one `TransactionDetailPage` (right rail, #20g): «Позиции» table + «Подытог / Скидка по позициям / Итого» footer; rail: financial card («Сумма продажи»/«Сумма поставки», «Оплачено», «Остаток», «Статус оплаты»), «Информация» («Проведено», «Склад отгрузки»/«Склад приёмки», partner). Header title names the type — «Продажа №N» / «Поставка №N» / «Возврат продажи №N» — with «Оформить возврат» as the visible action and «Скачать» in ⋮ (refund details keep «Скачать» visible), «Платежи», «Примечание и вложения».
 - `/sales/new`, `/supplies/new` — one `NewTransactionEntry` POS page: product search («Найдите товар по названию или артикулу…»), cart «Позиции», partner picker (labelled «Клиент» on a sale with the hint «Покупатель без имени? Выберите «Розничный покупатель»…» while empty; «Поставщик» on a supply; product dropdown lists in-stock items first) + projected «Баланс после продажи/поставки» card, warehouse «Склад»/«Склад приёмки», bulk-discount row, notes/attachments toggle, `TransactionSummaryCard` (totals → payment «Оплата» with wallet + amount + «Вся сумма» → overpayment disposition → «Провести …» button with the lock line «После проведения изменить нельзя — ошибку исправляют возвратом.» under it (Ctrl/⌘+Enter also commits) → «Провести продажу»/«Провести поставку»), «Сохранить как шаблон», «Загрузить шаблон», keyboard hints.
 
@@ -88,7 +88,7 @@ Known: price-change proof is blocked by F1 (product edit crash) — assert curre
 ### T-POS-10 · List filters, search, export [happy]
 
 Pre: T-POS-02…07 data.
-Steps: 1. `/sales`: status filter «Частично». 2. Reset; search the T-POS-04 document number (bare digits). 3. Search «Покупатель». 4. Period «Последние 7 дней». 5. «Экспорт CSV» with search active.
+Steps: 1. `/sales`: status filter «Частично». 2. Reset; search the T-POS-04 document number (bare digits). 3. Search «Покупатель». 4. Period «Последние 7 дней». 5. «Экспорт» with search active.
 Expect: each filter narrows correctly; number search finds the sale; CSV contains exactly the filtered rows (#11); empty combination → «Ничего не найдено» + mode-specific hint text.
 
 ## Edge & negative

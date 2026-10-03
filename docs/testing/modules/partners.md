@@ -4,7 +4,7 @@ Partner master data: list + summary strip, detail (balance, dispute-grade ledger
 
 ## Surfaces
 
-- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт CSV»), `PartnerSummaryStrip` (3 cards), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
+- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт»), `PartnerSummaryStrip` (3 cards), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
 - `/partners/:id` — detail: `DetailPageHeader` (name; type chip + company as titleExtra), sticky 372px right rail (balance hero + «Обороты» + «Контакты»), `DetailTabs` Журнал / Транзакции / Платежи with count pills. Deep-link params: `?tab=transactions|payments&status=open|paid|partial|unpaid`.
 - `PartnerFormModal` (create/edit — shared by list and detail) · `PartnerDialogs` (archive / restore / delete / cannot-delete confirms).
 - Entry points: sidebar «Партнёры»; `PartnerLink` from Debts, transaction/order rows and details.
@@ -73,7 +73,7 @@ Expect: chip renders «Клиент + Поставщик» in both places — ra
 ### T-PRT-09 · Archive never blocked; history resolves; picker excludes [happy]
 Pre: partner А (referenced by a supply + payment).
 Steps: 1) ⋮ → archive → confirm «Архивировать QA-<MMDD> Партнёр А?». 2) List: check «Активные» then «Архив». 3) /supplies list: find the T-PRT-05 row. 4) /supplies/new: search А in the partner picker. 5) Open А's detail. 6) Restore.
-Expect: archive succeeds despite references (R30); toast «QA-<MMDD> Партнёр А — в архиве»; row gone from «Активные», present under «Архив» with badge «в архиве» (#13); the historical supply row still shows А's name (R30); POS picker does NOT offer А; detail shows banner «Партнёр в архиве.» with balance intact (R31 context). Restore returns А to the active list with toast «…восстановлен из архива».
+Expect: archive succeeds despite references (R30); toast «QA-<MMDD> Партнёр А — в архиве»; row gone from «Активные», present under «Архив» with badge «Архив» and the name in grey, no strike-through (#13); the historical supply row still shows А's name (R30); POS picker does NOT offer А; detail shows banner «Партнёр в архиве.» with balance intact (R31 context). Restore returns А to the active list with toast «…восстановлен из архива».
 
 ## Edge & negative
 

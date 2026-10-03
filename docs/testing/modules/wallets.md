@@ -99,17 +99,17 @@ Expect: inline «Введите сумму перевода»; no request sent; 
 ### T-WAL-36 · Archive with balance — strip totals unchanged [edge]
 Pre: T-WAL-06 (Б at 450 000 with 100 000 advances). Record all three strip values.
 Steps: 1. `/wallets` → Касса Б ⋮ → «Архивировать». 2. Confirm dialog. 3. Re-read the strip; switch segments.
-Expect: dialog title «Архивировать кассу «QA-<MMDD> Касса Б»?», body states archive-not-delete and that the balance keeps counting; row leaves «Активные», appears under «Архив» with the «Архив» badge (#13); **all three strip totals are identical before/after** (R31 — archived money still counts).
+Expect: dialog title «Архивировать кассу «QA-<MMDD> Касса Б»?», body says the wallet leaves the pickers and its balance keeps counting in totals; row leaves «Активные», appears under «Архив» with the «Архив» badge (#13); **all three strip totals are identical before/after** (R31 — archived money still counts).
 
 ### T-WAL-37 · Archived wallet: affordances + picker exclusion, then restore [edge]
 Pre: T-WAL-36 (Б archived).
 Steps: 1. Open Б's detail. 2. From А open the transfer modal and both pickers. 3. Open the payment-create wallet picker. 4. Back on Б detail: «Восстановить».
-Expect: Б detail shows banner «Касса в архиве.», a single primary «Восстановить», no ⋮/edit/«Новый перевод» (#2); Б absent from both transfer pickers and from the payment wallet picker (R30, #13); its historical rows (T-WAL-05 transfer in А's Переводы) still resolve by name (R30). Restore → toast «Касса «QA-<MMDD> Касса Б» восстановлена», row back in «Активные», figures intact (450 000 / 100 000 / 350 000).
+Expect: Б detail shows banner «Касса в архиве.», a single primary «Восстановить», no «Новый перевод»; ⋮ holds edit · restore · delete (#2, #19); Б absent from both transfer pickers and from the payment wallet picker (R30, #13); its historical rows (T-WAL-05 transfer in А's Переводы) still resolve by name (R30). Restore → toast «Касса «QA-<MMDD> Касса Б» восстановлена», row back in «Активные», figures intact (450 000 / 100 000 / 350 000).
 
-### T-WAL-38 · No delete affordance anywhere [negative]
+### T-WAL-38 · Delete is always offered, reference-gated [negative]
 Pre: T-WAL-36.
 Steps: inspect the list ⋮ of an active and an archived wallet, and the detail ⋮. Perform the archived-wallet ⋮ inspection on Касса Б while it is archived — i.e. run this check between T-WAL-36 and T-WAL-37 — or re-archive Касса Б, inspect its list ⋮, and restore it afterwards.
-Expect: only edit + archive (or restore) — no delete item anywhere; the archive dialog body states «Кассы нельзя удалить — только архивировать.» (repo-state Wallets — shipped behavior). Known: diverges from DR-20/#19 (delete stays visible, reference-gated; FE affordance pending) — report as KNOWN, and flag that the divergence needs an F-item in frontend-gaps.md or a decision-log ruling. If a delete item appears, DR-20 FE work has landed — re-check this case and the archive-dialog copy «Кассы нельзя удалить — только архивировать.», which also contradicts DR-20/R32.
+Expect: every ⋮ (list, detail; active and archived) shows edit · archive-or-restore · «Удалить» (DR-20/#19). «Удалить» on a wallet with payments or transfers opens «Кассу нельзя удалить» — it explains why and offers «Архивировать» (an archived wallet gets «Понятно» instead); nothing is deleted. Only a never-used wallet gets the «Удалить кассу …?» confirm. The archive dialog no longer says wallets cannot be deleted.
 
 ### T-WAL-39 · Bad deep-link [negative]
 Steps: navigate to `/wallets/9999999`.

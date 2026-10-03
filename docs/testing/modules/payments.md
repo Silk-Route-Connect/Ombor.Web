@@ -72,7 +72,7 @@ Expect: no direction control (Payroll → always Expense, R14). «Период»
 ### T-PAY-09 · List anatomy and the five type labels [happy]
 Pre: T-PAY-03…08 created one payment of each type.
 Steps: 1. Open `/payments`; sort default date-desc. 2. Scan the run's rows.
-Expect: columns «Платёж» (copyable «№N») · «Дата» (date+time) · «Партнёр / Сотрудник» (partner rows link to partner detail) · «Тип операции» with the real localized type — «Оплата», «Аванс», «Возврат аванса», «Зарплата», «Прочее» all present (#17) · «Направление» («Приход» green / «Расход» red pills) · «Касса» (wallet link) · «Сумма» right-aligned, unsigned, green/red by direction (#4). No `⋮` column (R1 — see Traps).
+Expect: columns «№» (the number opens the payment; copy button on row hover; «Без номера» for legacy rows) · «Дата» (date+time) · «Партнёр / Сотрудник» (partner rows link to the partner, payroll rows to the employee) · «Тип операции» with the real localized type — «Оплата», «Аванс», «Возврат аванса», «Зарплата», «Прочее» all present (#17) · «Направление» («Приход» green / «Расход» red pills) · «Касса» (wallet link) · «Сумма» right-aligned, unsigned, green/red by direction (#4). No `⋮` column (R1 — see Traps).
 
 ### T-PAY-10 · Filters and summary-card toggle [happy]
 Pre: T-PAY-09.

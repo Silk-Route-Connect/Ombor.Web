@@ -1,7 +1,7 @@
 # Frontend conventions — Ombor
 
 **Status:** frontend craft doc — the patterns new code must follow; read once per session. Pairs with ../Ombor.Docs/operating-code.md (cross-repo rules: file size, comments, quality bar, git, session discipline) and ../Ombor.Docs/ui-patterns.md (locked UI patterns).
-**Last updated:** 2026-10-03
+**Last updated:** 2026-10-04
 
 Read once per session before writing code. Codifies the patterns the codebase already follows; new code must follow them. Where existing legacy code and this doc disagree, follow this doc for new code and don't refactor legacy outside the task scope. When changing a pattern here seems justified, propose it — don't fork silently.
 
@@ -57,13 +57,33 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 
 ## Tables
 
-- All data tables go through shared `DataTable` (or `ExpandableDataTable`) with a per-module `*TableConfigs` file defining columns — no bespoke `<table>` markup, no raw MUI `Table` in module code. The canonical look (DSN-1: header/footer bands, zebra rows, 52px height, tabular numerics) lives in `components/shared/Table/DataTable/tableConfigs.ts` — never restyle a table per-module.
+**One look per column type in every table** — list pages, detail tabs, line tables and dashboard widgets (owner decision 2026-10-03). Columns are built from the shared cells in `components/shared/Table/cells/`; a cell is never styled by hand.
+
+- **Chrome.** List pages: `DataTable` (or `ExpandableDataTable`) with columns from `<module>TableConfigs.tsx` exporting `build<Module>Columns(t, handlers)`. Detail tabs, line tables and the dashboard: `DetailTable` — the same `Column<T>` API on the `detailTableChrome` look, with an optional total band (`footer`) or pager (`pagination`); a detail tab wraps it in `DetailTableCard`, the one in-card band of search · filters · export. No bespoke `<table>` markup, no raw MUI `Table` in module code; never restyle a table per module.
 - **Labels resolve at render time, never at module import.** Config files (table columns, menus, label maps) store i18n keys or accept `t` as a parameter; they must not call `t()` in module scope, or a live language switch won't update them. The one deliberate exception is zod schemas, which resolve validation messages via module-scope `i18next.t()` — see i18n.
-- **Every column is sortable by default.** Give a column a `field` (or a `sortValue` accessor for `renderCell`-only columns); set `sortable: false` to opt out. The `actions` column and long free-text/notes columns are never sortable. With no `onSort` the table sorts client-side; pass `onSort` to control ordering from the store. Set the initial order with `defaultSort` — **date-desc** on event/feed tables, **name-asc** on master-data tables.
-- **Column order (left → right):** №/ID → date → primary entity → type/status chip → descriptive → money (right-aligned, tabular) → ⋮ actions. New and edited configs follow this; existing tables adopt it in their module passes.
-- **Pagination** is 10 / 25 / 50 rows (the `DataTable` default); override per table only with a documented reason.
-- Row actions live in a three-dot `ActionMenu` cell via the shared `components/shared/ActionMenuCell/MenuActionCell` — give each row a `tone` (`normal` / `warn` / `danger`) for the DSN-1 menu treatment rather than colouring icons by hand.
-- Numeric columns use tabular figures (theme handles this — see ../Ombor.Docs/ui-patterns.md, Display conventions) and right alignment.
+- **Column order (left → right):** № → date → primary entity → type chip → status chip → descriptive (author, notes, counts) → quantities and money (the main amount last) → ⋮ actions.
+- **Sorting.** Every column sorts (a `field` or a `sortValue`); only ⋮ and notes columns opt out (`sortable: false`). Chip and enum columns sort by their localized label, № numerically (`entityNumberSortValue`). `defaultSort`: **date-desc** on event tables, **name-asc** on master data. The table sorts — no parallel sort in a store.
+- **Pagination** 10 / 25 / 50: on by default in `DataTable`; `DetailTable` takes `pagination` for long tabs and leaves it off for short line tables with a total band.
+- **Rows** open on click, Enter or Space; a key pressed on a link or button inside the row stays with that control. A rail list that is not a table uses `clickableRowProps`.
+- **Empty.** Pass `empty={<TableEmptyState icon title hint action? />}` — first-run copy with the create CTA, filtered copy («Ничего не найдено…») without it. Never a hand-made empty card.
+- **Toolbar.** Search, one `EntityFilterSelect` per filter (38px, teal tint while a filter is on, optional `label` prefix), and `ExportButton` — «Экспорт», never disabled, a short info toast when there is nothing to export. List pages put export on the `PageHeader` title row (pattern 11); detail tabs in the card band. The CSV has the table's columns in the table's order.
+- **Row actions** live in the shared `ActionMenu` (`MenuActionCell`) with a row `tone` — `normal`, `warn`, `archive`, `restore`, `danger`; icons are passed uncoloured. Archivable entities (Product, Partner, Wallet, Warehouse) always offer Delete: `isDeletable` → confirm, otherwise «cannot delete — archive instead» (pattern 19).
+
+| Column | Cell | Rule |
+| --- | --- | --- |
+| № | `DocNumberCell` | First column of every event table. «№N» via `formatEntityId`; the number is the link that opens the document (`to`, or `onOpen` for modal details), with a copy button that appears on row hover / focus. Missing number → muted «Без номера» — never the id as a stand-in for a served number, never «#» or a bare number (CSV included). |
+| Date | `DateCell` | Events `formatDateTime`, calendar fields `kind="date"` (`formatDate`); `text.secondary`, tabular, one line; second column. |
+| Entity name | the module `<XLink>` (`PartnerLink`, `ProductLink`, `WarehouseLink`, `WalletLink`, `EmployeeLink`) | `DetailLink` owns colour (primary), weight 600, inherits the size and stops the row click. The row's own name is a link too, inside `EntityCell` (avatar · link · «Архив» · optional second line). Archived / terminated → `archived` (`text.secondary`) + `ArchivedBadge`; no strike-through, no dimming. An entity with no detail page (category, template) is plain 600 text. |
+| Avatar | `EntityAvatar` | Initials; `muted` (stone) when archived / terminated / deactivated. |
+| Type / status | `StatusPill` wrappers | Chip colour semantics (ui-patterns); sort by label. |
+| Money | `MoneyCell` | Right, tabular. `main` marks the table's headline amount (`typeScale.numTable`, 600); other money 400. Ink by default; `tone` income / expense only for direction amounts (payments, wallet operations, debts by direction). Unsigned; 0 → «0», not applicable (`null`) → «—». No «UZS» in cells — `UzsUnit` only on totals and hero figures. |
+| Partner balance | `BalanceCell` | The only signed money: the partner's side (DR-27) via `formatPartnerBalance` + `partnerBalanceColor`; a ledger movement 400, the balance 600. |
+| Quantity / count | `QuantityCell` | Right, tabular, 400, ink — never green / red, stock levels never coloured. The short unit as a muted suffix (`measurement` or a served `unit`). Movement ledgers: one signed column (`direction` in / out → «+» / «−»). |
+| SKU | `SkuCell` | Click-to-copy, 13 / 500, `text.secondary`, one line. |
+| Author, short secondary text | `MutedTextCell` | `text.secondary`, one line, sortable. |
+| Notes, description | `NotesCell` | One line with ellipsis and a tooltip when clipped (`TruncatedText`), `text.secondary`, `sortable: false`. |
+| Phone | `PhoneCell` | `formatUzPhone` «+998 90 123 45 67», tabular; the CSV writes the same text. |
+| No value | `NoValue` | «—». |
 
 ## Detail pages
 
@@ -71,7 +91,7 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 - **Title is the entity name only.** Type chips, company, and all reference fields render in the summary region (a `DetailCard` or the hero card), never in the header title.
 - **No breadcrumbs** — orientation is the H1 title, return is the back button, section-jump is the persistent sidebar.
 - **Geometry:** stacked (full-width summary above full-width tabbed content) by default; right-rail (`1fr {rail}`) only for entities with a compact, pin-worthy summary worth keeping visible beside wide tab tables (currently Product / Order / Transaction / Payment). Decision + rationale in ../Ombor.Docs/ui-patterns.md #20g (DR-01).
-- **Detail-embedded tables** use `detailTableChrome` (warm header band + a total band or a pager footer as config), not the list `DataTable`. Domain logic (e.g. the partner ledger's signed coloring + running balance) stays in the feature, wrapped by the chrome — the chrome styles, it doesn't compute.
+- **Detail-embedded tables** use `DetailTable` (the `detailTableChrome` look: warm header band + a total band or a pager), not the list `DataTable`, with the same shared cells as lists (Tables above). Domain logic (e.g. the partner ledger's running balance) stays in the feature — the chrome styles, it doesn't compute.
 - `Selected<Module>Store` holds the open entity + child collections for the detail page (as above).
 
 ## Styling
@@ -111,12 +131,12 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 
 Each formatter is a small shared unit — locate and reuse it; never re-implement or hand-assemble.
 
-- Money: always `formatCurrency` (UZS, space-grouped «1 250 000»). No currency symbols or separators assembled by hand — no `toLocaleString`, no manual grouping.
-- Entity ids: `formatEntityId` (numeric id → «№123»). The «№» prefix is never assembled inline and the raw id is never shown bare (display-only; persisted per-document numbering is a v2 concern). A served number that may be missing (legacy payments) goes through `formatOptionalNumber` / `CopyableNumberCell` (→ «Без номера») and sorts via `entityNumberSortValue` — never fall back to the database id.
+- Money: always `formatCurrency` (UZS, space-grouped): whole sums without decimals «1 250 000», fractional sums with exactly two «702,01» — never one decimal place, never `Math.round` before formatting (KPIs included). No currency symbols or separators assembled by hand — no `toLocaleString`, no manual grouping. Percentages: `formatPercent` (ru decimal comma).
+- Entity ids: `formatEntityId` (numeric id → «№123»). The «№» prefix is never assembled inline and the raw id is never shown bare (display-only; persisted per-document numbering is a v2 concern). A served number that may be missing (legacy payments) goes through `formatOptionalNumber` / `DocNumberCell` (→ «Без номера») and sorts via `entityNumberSortValue` — never fall back to the database id.
 - Dates: `formatDate` / `formatDateTime` (`dateUtils`, `date-fns`) — the DSN-1 canonical `DD.MM.YYYY` via the `DATE_FORMAT` constant; one display format per context, reuse the constant.
 - Phones: `PhoneListField` + `phoneUtils` — `formatUzNational` groups the body live as «XX XXX XX XX» behind the fixed «+998»; `formatUzPhone` for read-only display.
 - Dropdowns: order options with `byLabel` (`sortUtils`, alphabetical, ru-locale, numeric-aware) unless a picker is intentionally relevance/recency ranked.
-- Balances: colored, natural-language labeled (ui-patterns #4) — never raw +/− signs.
+- Balances: a partner's own balance is signed from the partner's side (DR-27, `BalanceCell`); every other balance and aggregate is colored and natural-language labeled, never signed (ui-patterns #4).
 - CSV export (`exportToCsv`): pass amounts/counts as numbers (written plain, decimal comma for ru Excel), phones through `formatUzPhone`, statuses as localized labels, and balances with the same sign the table shows (partner balances partner-side). The formula-injection guard touches only text, never numbers, numeric strings or formatted phones.
 - Typed quantities go through `parseWholeQuantity` (`utils/quantityInput.ts`): a «,» / «.» is reported or refused, never stripped into the digits (R21).
 

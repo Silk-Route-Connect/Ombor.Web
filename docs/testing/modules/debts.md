@@ -8,7 +8,7 @@ Read with: [../README.md](../README.md) · [../shared-checklist.md](../shared-ch
 - `/debts` (sidebar «Долги»). Read-only: no create button, no `⋮` menus, no row actions — correct, not a gap.
 - `DebtSummaryCards` — 4 cards: «Нам должны» (green), «Мы должны» (red), «Просрочено» (orange, due-date overdue), «Итог расчётов» (color by sign). First three clickable (hover arrow), net card is not. Each carries a «N документов» pill (1 документ / 2–4 документа / 5+ документов) and a small «UZS» suffix.
 - `DebtTabs` — underline tabs «По партнёрам» / «По документам» with count pills; right-aligned legend swatches «нам должны» (green) / «мы должны» (red).
-- Toolbar — search «Поиск по партнёру или номеру…» (matches partner name, company, document-number substring); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней»); direction segmented «Все | Нам должны | Мы должны» (**transactions tab only** — absent on partners tab by design); clearable «Только просроченные» chip (appears only via the «Просрочено» card); «Скачать CSV».
+- Toolbar — search «Поиск по партнёру или номеру…» (matches partner name, company, document-number substring); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней»); direction segmented «Все | Нам должны | Мы должны» (**transactions tab only** — absent on partners tab by design); clearable «Только просроченные» chip (appears only via the «Просрочено» card). «Экспорт» sits on the title row (pattern 11).
 - Exits: partner-tab row → `/partners/:id?tab=transactions&status=open`; transaction-tab row → `/supplies/:id` for Supply/SupplyRefund, `/sales/:id` otherwise; partner name inside a row → partner detail (does not open the transaction).
 
 ## Traps
@@ -68,8 +68,8 @@ Expect: 1→ URL `/partners/<id>?tab=transactions&status=open`; partner detail o
 
 ### T-DBT-08 · CSV exports the current filtered transactions view [happy]
 Pre: T-DBT-01+.
-Steps: 1. Transactions tab; direction «Нам должны»; search «QA-<MMDD>». 2. «Скачать CSV». 3. Switch to «По партнёрам», export again.
-Expect: file `debts_<datestamp>.csv`; headers Документ/Дата/Тип/Партнёр/Сумма/Оплачено/Остаток/Возраст (дней); rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
+Steps: 1. Transactions tab; direction «Нам должны»; search «QA-<MMDD>». 2. «Экспорт» (title row). 3. Switch to «По партнёрам», export again.
+Expect: file `debts_<datestamp>.csv`; headers №/Дата/Партнёр/Тип/Возраст (дней)/Сумма/Оплачено/Остаток — the table's column order; rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
 
 ## Edge & negative
 
