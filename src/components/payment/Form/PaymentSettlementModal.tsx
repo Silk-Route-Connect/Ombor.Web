@@ -4,7 +4,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { OutstandingTransaction, SettlementInput } from "models/payment";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
@@ -124,7 +124,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 			onClose={onBack}
 			disableEscapeKeyDown={isSaving}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 		>
 			<FormDialogHeader
 				title={t("payment.settlement.title")}

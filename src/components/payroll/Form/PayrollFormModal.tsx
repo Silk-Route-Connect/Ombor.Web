@@ -8,6 +8,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
+import { dialogPaperSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { dialogTranslation } from "utils/translationUtils";
 
@@ -60,8 +61,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 				<Dialog
 					open={isOpen}
 					onClose={requestClose}
-					maxWidth="sm"
-					fullWidth
+					slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 					disableEscapeKeyDown={isSaving}
 					disableRestoreFocus
 					onKeyDown={onKeyDown}

@@ -15,7 +15,7 @@ import { Product } from "models/product";
 import { Warehouse } from "models/warehouse";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -165,7 +165,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 680, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("transfer.title.create")}

@@ -11,7 +11,7 @@ import { usePartnerForm } from "hooks/partner/usePartnerForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Partner, PartnerType } from "models/partner";
 import { PartnerFormValues } from "schemas/PartnerSchema";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate as formatLocaleDate } from "utils/dateUtils";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
@@ -102,7 +102,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 620, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={isEdit ? t("partner.form.editTitle") : t("partner.form.createTitle")}

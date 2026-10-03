@@ -14,7 +14,7 @@ import { Order, OrderLineDiscountType, OrderSource, UpdateOrderRequest } from "m
 import { Partner } from "models/partner";
 import { Measurement, Product } from "models/product";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { lineNet } from "utils/orderUtils";
 
@@ -256,7 +256,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
-				slotProps={{ paper: { sx: { width: 860, maxWidth: "95%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={order ? t("order.edit.title", { number: order.orderNumber }) : ""}

@@ -16,7 +16,7 @@ import { Product } from "models/product";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { OpeningStockFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -132,7 +132,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={t("warehouse.opening.title")}

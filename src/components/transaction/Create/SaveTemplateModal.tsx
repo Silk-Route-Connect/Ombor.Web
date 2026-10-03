@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { dialogPaperSx } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import { Dialog, DialogActions, DialogContent, TextField } from "@mui/material";
@@ -48,7 +49,7 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 			open={isOpen}
 			onClose={handleClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 460, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 		>
 			<FormDialogHeader
 				title={t("transaction.new.tpl.title")}

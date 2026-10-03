@@ -16,7 +16,7 @@ import { AdjustmentDirection, reasonsFor } from "models/stockAdjustment";
 import { Warehouse } from "models/warehouse";
 import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -329,7 +329,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 600, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("adjustment.title.create")}

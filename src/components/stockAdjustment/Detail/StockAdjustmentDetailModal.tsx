@@ -7,7 +7,7 @@ import { CopyableCell } from "components/shared/Table/CopyableCell";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { StockAdjustment } from "models/stockAdjustment";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
@@ -61,7 +61,7 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("adjustment.detail.title")}

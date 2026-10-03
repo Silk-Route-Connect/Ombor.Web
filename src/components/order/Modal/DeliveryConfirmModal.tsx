@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
 import { Product } from "models/product";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -105,7 +105,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 			onClose={handleClose}
 			disableEscapeKeyDown={isSaving}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("order.deliver.title")}

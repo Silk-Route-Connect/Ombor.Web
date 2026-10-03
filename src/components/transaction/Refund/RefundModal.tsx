@@ -6,7 +6,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { CreateRefundRequest, TransactionRecord } from "models/transaction";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
@@ -153,7 +153,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
-				slotProps={{ paper: { sx: { width: 820, maxWidth: "96%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={t(`transaction.refund.title.${direction}`, {

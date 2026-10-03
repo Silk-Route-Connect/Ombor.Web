@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
+import { dialogPaperSx } from "theme";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Dialog, DialogContent, LinearProgress } from "@mui/material";
@@ -84,7 +85,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 				onKeyDown={onKeyDown}
 				slotProps={{
 					// Bundle .fcard/.prod-dialog: 720px wide, r-lg corners.
-					paper: { sx: { width: 720, maxWidth: "94%", borderRadius: "12px" } },
+					paper: { sx: dialogPaperSx("lg") },
 				}}
 			>
 				<FormDialogHeader

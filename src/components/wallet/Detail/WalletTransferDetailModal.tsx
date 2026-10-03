@@ -4,7 +4,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -72,7 +72,7 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 480, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 		>
 			<FormDialogHeader
 				title={t("wallet.transfer.detailTitle")}

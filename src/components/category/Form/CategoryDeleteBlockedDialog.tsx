@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Category } from "models/category";
+import { dialogPaperSx } from "theme";
 
 import {
 	Alert,
@@ -36,7 +37,12 @@ const CategoryDeleteBlockedDialog: React.FC<CategoryDeleteBlockedDialogProps> = 
 	}
 
 	return (
-		<Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth disableRestoreFocus>
+		<Dialog
+			open={isOpen}
+			onClose={onClose}
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
+			disableRestoreFocus
+		>
 			<DialogTitle>{t("category.delete.blocked.title", { name: category.name })}</DialogTitle>
 			<DialogContent>
 				<Alert severity="error" variant="outlined" sx={{ mb: 1.5, fontWeight: 600 }}>

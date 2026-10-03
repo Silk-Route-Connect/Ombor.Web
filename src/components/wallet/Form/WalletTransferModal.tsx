@@ -14,7 +14,7 @@ import { useWalletTransferForm } from "hooks/wallet/useWalletTransferForm";
 import { observer } from "mobx-react-lite";
 import { Wallet } from "models/wallet";
 import { TransferFormValues } from "schemas/WalletSchema";
-import { numericSx } from "theme";
+import { dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -152,7 +152,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("wallet.transfer.title")}

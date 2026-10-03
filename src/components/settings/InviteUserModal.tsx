@@ -5,7 +5,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { InviteUserRequest } from "models/settings";
-import { designTokens } from "theme";
+import { designTokens, dialogPaperSx } from "theme";
 import { UZ_COUNTRY_PREFIX, uzNationalPart, uzPhoneToStored } from "utils/phoneUtils";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -67,8 +67,7 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 		<Dialog
 			open={isOpen}
 			onClose={close}
-			fullWidth
-			maxWidth="sm"
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 			disableEscapeKeyDown={saving}
 			onKeyDown={onKeyDown}
 		>

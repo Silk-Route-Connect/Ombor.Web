@@ -13,7 +13,7 @@ import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
 import { WalletFormValues } from "schemas/WalletSchema";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -158,7 +158,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 			>
 				<FormDialogHeader
 					title={editing ? t("wallet.form.editTitle") : t("wallet.form.createTitle")}

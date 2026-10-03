@@ -17,7 +17,7 @@ import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { Template, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
-import { chipTokens, designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -252,7 +252,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 760, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={isEdit ? t("template.title.edit") : t("template.title.create")}

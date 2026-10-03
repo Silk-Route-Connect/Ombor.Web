@@ -23,7 +23,7 @@ import {
 } from "models/payment";
 import { PaymentFormValues } from "schemas/PaymentSchema";
 import { analytics } from "services/telemetry";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { periodYearOptions, toPeriod } from "utils/payrollUtils";
 
@@ -216,7 +216,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 720, maxWidth: "96%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("payment.form.title")}

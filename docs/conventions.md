@@ -44,7 +44,8 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 
 ## Forms
 
-- react-hook-form + zod (`@hookform/resolvers`). Schema in `schemas/`, form logic in `hooks/<module>/use<Module>Form.ts`, fields in `<Module>FormFields.tsx`, shell in `<Module>FormModal.tsx` built on shared `FormDialog`.
+- react-hook-form + zod (`@hookform/resolvers`). Schema in `schemas/`, form logic in `hooks/<module>/use<Module>Form.ts`, fields in `<Module>FormFields.tsx`, shell in `<Module>FormModal.tsx`: an MUI `Dialog` with `slotProps={{ paper: { sx: dialogPaperSx(size) } }}` + `FormDialogHeader` / `FormDialogFooter`.
+- **Three modal sizes only** — `sm` 480 (confirmations, short forms), `md` 640 (standard forms), `lg` 880 (line-item editors). Never a pixel width, `maxWidth="xs|sm|md"` or a per-modal radius; the theme sets the paper radius (`radius.lg`) and the 16px viewport gutter.
 - Forms open as **centered modals** — never drawers.
 - Submit buttons are **never disabled**; validation runs on submit and reports inline per field (CLAUDE.md hard rule 5).
 - Numeric/money inputs use `NumericField` (react-number-format); phones use `PhoneListField` + `phoneUtils`.

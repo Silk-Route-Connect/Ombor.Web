@@ -5,7 +5,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Transfer, transferUnits } from "models/transfer";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
@@ -60,7 +60,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 640, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("transfer.detail.title")}

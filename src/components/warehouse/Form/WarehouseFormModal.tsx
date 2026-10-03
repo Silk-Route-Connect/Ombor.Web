@@ -11,6 +11,7 @@ import { useWarehouseForm } from "hooks/warehouse/useWarehouseForm";
 import { observer } from "mobx-react-lite";
 import { Warehouse } from "models/warehouse";
 import { WarehouseFormValues } from "schemas/WarehouseSchema";
+import { dialogPaperSx } from "theme";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
@@ -59,7 +60,7 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 			>
 				<FormDialogHeader
 					title={warehouse ? t("warehouse.title.edit") : t("warehouse.title.create")}

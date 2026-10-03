@@ -7,6 +7,7 @@ import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategory
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Category } from "models/category";
+import { dialogPaperSx } from "theme";
 import { dialogTranslation } from "utils/translationUtils";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -49,8 +50,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 			<Dialog
 				open={isOpen}
 				onClose={requestClose}
-				fullWidth
-				maxWidth="sm"
+				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}

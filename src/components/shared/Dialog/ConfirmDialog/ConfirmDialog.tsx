@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import { designTokens } from "theme";
+import { designTokens, dialogPaperSx } from "theme";
 
 import { Box, Button, Dialog, Typography } from "@mui/material";
 
@@ -78,7 +78,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			disableRestoreFocus
 			disableEscapeKeyDown
 			slotProps={{
-				paper: { sx: { width: 440, maxWidth: "94%", borderRadius: "12px" } },
+				paper: { sx: dialogPaperSx("sm") },
 			}}
 		>
 			<Box sx={{ p: "24px 24px 4px", display: "flex", alignItems: "flex-start", gap: "16px" }}>

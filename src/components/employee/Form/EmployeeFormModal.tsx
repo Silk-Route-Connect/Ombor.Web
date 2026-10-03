@@ -7,6 +7,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { EmployeeFormPayload, useEmployeeForm } from "hooks/employee/useEmployeeForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Employee } from "models/employee";
+import { dialogPaperSx } from "theme";
 import { dialogTranslation } from "utils/translationUtils";
 
 import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
@@ -45,8 +46,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 			<Dialog
 				open={isOpen}
 				onClose={requestClose}
-				maxWidth="md"
-				fullWidth
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
