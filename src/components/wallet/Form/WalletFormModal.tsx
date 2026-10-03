@@ -6,6 +6,8 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -23,7 +25,6 @@ import {
 	ButtonBase,
 	Dialog,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	Stack,
 	TextField,
@@ -224,7 +225,8 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 									icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
 									value={
 										<Box component="span" sx={numericSx}>
-											{formatCurrency(wallet.openingBalance)} UZS
+											{formatCurrency(wallet.openingBalance)}
+											<UzsUnit />
 										</Box>
 									}
 									tag={t("wallet.form.lockedOpening")}
@@ -248,7 +250,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 												helperText={fieldState.error?.message}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 													},
 												}}
 											/>

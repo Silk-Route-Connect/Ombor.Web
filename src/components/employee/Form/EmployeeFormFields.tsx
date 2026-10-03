@@ -4,12 +4,13 @@ import { useTranslation } from "react-i18next";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import PhoneListField from "components/shared/Inputs/PhoneListField/PhoneListField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { EMPLOYEE_STATUSES, EmployeeStatus } from "models/employee";
 import { EmployeeFormInputs } from "schemas/EmployeeSchema";
 import { designTokens } from "theme";
 
-import { Box, InputAdornment, Stack, TextField, Typography } from "@mui/material";
+import { Box, Stack, TextField, Typography } from "@mui/material";
 
 interface EmployeeFormFieldsProps {
 	form: UseFormReturn<EmployeeFormInputs>;
@@ -86,7 +87,7 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 								error={!!errors.salary}
 								helperText={errors.salary?.message}
 								slotProps={{
-									input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
+									input: { endAdornment: <UzsAdornment /> },
 								}}
 							/>
 						)}

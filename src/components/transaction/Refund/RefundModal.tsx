@@ -4,6 +4,7 @@ import MetaDot from "components/shared/Detail/MetaDot";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useRefundForm } from "hooks/transactions/useRefundForm";
 import { CreateRefundRequest, TransactionRecord } from "models/transaction";
@@ -233,7 +234,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
 								{t("transaction.refund.totalAmount")}{" "}
 								<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
 									{form.totalAmount > 0 && "−"}
-									{formatCurrency(form.totalAmount)} UZS
+									{formatCurrency(form.totalAmount)}
+									<UzsUnit />
 								</Box>
 							</Box>
 						</Box>

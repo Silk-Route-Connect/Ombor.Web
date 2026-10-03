@@ -8,6 +8,8 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -267,7 +269,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 													error={!!fieldState.error}
 													slotProps={{
 														input: {
-															endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+															endAdornment: <UzsAdornment />,
 														},
 													}}
 												/>
@@ -379,12 +381,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 								}}
 							>
 								{formatCurrency(batchValue)}
-								<Box
-									component="span"
-									sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "5px" }}
-								>
-									UZS
-								</Box>
+								<UzsUnit />
 							</Typography>
 						</Box>
 					</Box>

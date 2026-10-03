@@ -10,6 +10,8 @@ import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import PeriodSelect from "components/shared/Inputs/PeriodSelect";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { isLoadError, isReady, Loadable, readyOr } from "helpers/Loading";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
@@ -37,7 +39,6 @@ import {
 	Box,
 	Dialog,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	Select,
@@ -350,7 +351,8 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 											color: partner.balance >= 0 ? "success.main" : "error.main",
 										}}
 									>
-										{formatCurrency(partner.balance)} UZS
+										{formatCurrency(partner.balance)}
+										<UzsUnit />
 									</Box>
 									{(type === "Withdrawal" || partner.advance > 0) && (
 										<>
@@ -361,7 +363,8 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												{t("payment.form.advance")}
 											</Box>
 											<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-												{formatCurrency(partner.advance)} UZS
+												{formatCurrency(partner.advance)}
+												<UzsUnit />
 											</Box>
 										</>
 									)}
@@ -541,7 +544,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										placeholder="0"
 										error={!!fieldError("amount") || overWithdraw || overWallet}
 										slotProps={{
-											input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
+											input: { endAdornment: <UzsAdornment /> },
 										}}
 									/>
 								)}

@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import CommitNote from "components/shared/Dialog/Form/CommitNote";
 import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
@@ -166,12 +167,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 							}}
 						>
 							{formatCurrency(Math.abs(partner.balance))}
-							<Box
-								component="span"
-								sx={{ fontSize: 13, fontWeight: 600, color: "text.disabled", ml: "6px" }}
-							>
-								UZS
-							</Box>
+							<UzsUnit />
 						</Typography>
 					</Box>
 					{hasItems && (
@@ -247,12 +243,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 						}}
 					>
 						{formatCurrency(total)}
-						<Box
-							component="span"
-							sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "5px" }}
-						>
-							UZS
-						</Box>
+						<UzsUnit />
 					</Typography>
 				</Box>
 
@@ -261,7 +252,12 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 						<Box sx={{ borderTop: "1px solid", borderColor: "divider", my: "3px" }} />
 						<Row
 							label={t("transaction.new.totals.payment")}
-							value={`${formatCurrency(paid)} UZS`}
+							value={
+								<>
+									{formatCurrency(paid)}
+									<UzsUnit />
+								</>
+							}
 							bold
 						/>
 
@@ -440,9 +436,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 								"& input": { textAlign: "right", p: 0 },
 							}}
 						/>
-						<Box component="span" sx={{ fontSize: 13, color: "text.secondary" }}>
-							UZS
-						</Box>
+						<UzsUnit />
 					</Box>
 				</Box>
 				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>

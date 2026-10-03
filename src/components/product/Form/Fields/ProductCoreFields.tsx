@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { ProductType } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
@@ -33,7 +34,7 @@ const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as cons
 const TYPES: ProductType[] = ["Sale", "Supply", "All"];
 
 const uzsSuffix = {
-	input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
+	input: { endAdornment: <UzsAdornment /> },
 };
 
 /** Label-above-input row per the bundle's `.frow` (7px gap). */

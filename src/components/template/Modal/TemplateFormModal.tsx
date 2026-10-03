@@ -8,6 +8,8 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
@@ -37,7 +39,6 @@ import {
 	DialogActions,
 	DialogContent,
 	IconButton,
-	InputAdornment,
 	LinearProgress,
 	Typography,
 	useTheme,
@@ -370,8 +371,8 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 									{t("template.form.total")}:{" "}
 									<Box component="b" sx={{ ...numericSx, color: "text.primary", fontWeight: 700 }}>
 										{formatCurrency(totalDue)}
-									</Box>{" "}
-									UZS
+									</Box>
+									<UzsUnit />
 								</Typography>
 							)}
 						</Box>
@@ -434,7 +435,8 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 											<Typography
 												sx={{ ...numericSx, fontSize: 12, color: "text.disabled", mt: "2px" }}
 											>
-												{product?.sku ?? ""} · {formatCurrency(qty * price)} UZS
+												{product?.sku ?? ""} · {formatCurrency(qty * price)}
+												<UzsUnit />
 											</Typography>
 										</Box>
 
@@ -478,7 +480,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 														sx: { ...numericSx, fontWeight: 600 },
 													},
 												}}

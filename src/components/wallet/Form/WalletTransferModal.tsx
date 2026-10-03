@@ -7,6 +7,8 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -25,7 +27,6 @@ import {
 	Box,
 	Dialog,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	Select,
@@ -90,7 +91,8 @@ const WalletPicker: React.FC<{
 						{wallet.name}
 					</Box>
 					<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
-						{formatCurrency(wallet.balance)} UZS
+						{formatCurrency(wallet.balance)}
+						<UzsUnit />
 					</Box>
 				</Box>
 			</MenuItem>
@@ -241,7 +243,8 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 											component="b"
 											sx={{ ...numericSx, fontWeight: 700, color: "text.primary" }}
 										>
-											{formatCurrency(available)} UZS
+											{formatCurrency(available)}
+											<UzsUnit />
 										</Box>
 									</Box>
 								)}
@@ -273,7 +276,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 												}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 													},
 												}}
 											/>

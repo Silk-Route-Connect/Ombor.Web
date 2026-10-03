@@ -7,6 +7,8 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
@@ -32,7 +34,6 @@ import {
 	DialogActions,
 	DialogContent,
 	IconButton,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	TextField,
@@ -426,8 +427,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 									{t("order.edit.total")}:{" "}
 									<Box component="b" sx={{ ...numericSx, color: "text.primary", fontWeight: 700 }}>
 										{formatCurrency(total)}
-									</Box>{" "}
-									UZS
+									</Box>
+									<UzsUnit />
 								</Typography>
 							)}
 						</Box>
@@ -515,7 +516,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 														sx: { ...numericSx, fontWeight: 600 },
 													},
 												}}
