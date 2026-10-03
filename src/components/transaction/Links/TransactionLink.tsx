@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import DetailLink from "components/shared/Link/DetailLink";
 import { TransactionType } from "models/transaction";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { formatEntityId } from "utils/formatEntityId";
 import { directionOf } from "utils/transactionUtils";
 
 interface TransactionLinkProps {
@@ -19,7 +20,9 @@ const TransactionLink: React.FC<TransactionLinkProps> = ({ id, type }) => {
 	const { t } = useTranslation();
 	const to = directionOf(type) === "Supply" ? supplyDetailPath(id) : saleDetailPath(id);
 
-	return <DetailLink to={to}>{`${t(`transaction.type.${type}`)} #${id}`}</DetailLink>;
+	return (
+		<DetailLink to={to}>{`${t(`transaction.type.${type}`)} ${formatEntityId(id)}`}</DetailLink>
+	);
 };
 
 export default TransactionLink;

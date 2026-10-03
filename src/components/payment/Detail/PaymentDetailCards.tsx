@@ -463,7 +463,7 @@ export const PaymentInfoCard: React.FC<{
 				{row(
 					<PersonOutlineIcon sx={{ fontSize: 16 }} />,
 					t("payment.detail.createdBy"),
-					payment.createdBy,
+					payment.createdBy || t("common.dash"),
 				)}
 				{row(
 					<ScheduleOutlinedIcon sx={{ fontSize: 16 }} />,

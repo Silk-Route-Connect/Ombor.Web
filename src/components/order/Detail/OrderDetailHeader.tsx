@@ -169,7 +169,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	return (
 		<DetailPageHeader
 			backTo={PATHS.orders}
-			title={formatEntityId(order.orderNumber)}
+			title={t("order.detail.title", { number: formatEntityId(order.orderNumber) })}
 			primaryAction={
 				<>
 					{step && (

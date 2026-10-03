@@ -5,7 +5,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { TransactionRecord } from "models/transaction";
 import { PATHS } from "routing/paths";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -19,11 +19,12 @@ interface TransactionDetailHeaderProps {
 }
 
 /**
- * Transaction detail header on the shared {@link DetailPageHeader}: the «№…»
- * title ONLY — type/status/date/partner/warehouse all live in the body sections
- * («Информация», financial card, refund banner), per the locked name-only rule.
- * Download stays the visible action; the refund create is the kebab's only row —
- * refund details are kebab-less (a refund cannot be refunded).
+ * Transaction detail header on the shared {@link DetailPageHeader}: the typed
+ * «Продажа №…» title only — status/date/partner/warehouse live in the body
+ * sections. The refund is the only way to correct an immutable sale/supply, so it
+ * is the visible `primaryAction` (a child-event creation, pattern 2); «Скачать»
+ * sits in the kebab. A refund is not refundable, so its page keeps «Скачать» as
+ * the only (visible) action.
  */
 export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = ({
 	tx,
@@ -34,29 +35,39 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 	const { t } = useTranslation();
 	const refund = isRefundType(tx.type);
 
+	const downloadIcon = <FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />;
+
 	const actions: ActionMenuRow[] = refund
 		? []
 		: [
 				{
-					key: "refund",
-					label: t("transaction.detail.createRefund"),
-					icon: <UndoOutlinedIcon fontSize="small" />,
-					onClick: onCreateRefund,
+					key: "download",
+					label: t("transaction.detail.download"),
+					icon: <FileDownloadOutlinedIcon fontSize="small" />,
+					onClick: onDownload,
 				},
 			];
+
+	const primaryAction = refund ? (
+		<GhostButton icon={downloadIcon} onClick={onDownload}>
+			{t("transaction.detail.download")}
+		</GhostButton>
+	) : (
+		<GhostButton
+			icon={<UndoOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+			onClick={onCreateRefund}
+		>
+			{t("transaction.detail.createRefund")}
+		</GhostButton>
+	);
 
 	return (
 		<DetailPageHeader
 			backTo={direction === "Sale" ? PATHS.sales : PATHS.supplies}
-			title={formatEntityId(tx.transactionNumber ?? tx.id)}
-			primaryAction={
-				<GhostButton
-					icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-					onClick={onDownload}
-				>
-					{t("transaction.detail.download")}
-				</GhostButton>
-			}
+			title={t(`transaction.detail.title.${tx.type}`, {
+				number: formatOptionalNumber(tx.transactionNumber, t("common.noNumber")),
+			})}
+			primaryAction={primaryAction}
 			actions={actions}
 		/>
 	);
