@@ -32,7 +32,7 @@
   "common.archived": "Архив",
   "common.back": "Назад",
   "common.restore": "Восстановить",
-  "common.export": "Экспорт",
+  "common.export": "Экспорт CSV",
   "common.copy": "Копировать",
   "common.copied": "Скопировано",
   "common.noNumber": "Без номера",

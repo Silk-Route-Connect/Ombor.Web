@@ -68,7 +68,17 @@ const DebtPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PageHeader title={t("debt.title")} />
+			<PageHeader
+				title={t("debt.title")}
+				actions={
+					<GhostButton
+						icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+						onClick={handleExport}
+					>
+						{t("debt.exportCsv")}
+					</GhostButton>
+				}
+			/>
 
 			{loading ? (
 				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
@@ -101,14 +111,6 @@ const DebtPage: React.FC = observer(() => {
 								onDirectionChange={debtStore.setDirectionFilter}
 								onClearOverdue={() => debtStore.setOnlyOverdue(false)}
 							/>
-						}
-						actions={
-							<GhostButton
-								icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-								onClick={handleExport}
-							>
-								{t("debt.exportCsv")}
-							</GhostButton>
 						}
 					/>
 

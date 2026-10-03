@@ -2,7 +2,7 @@
   "debt.error.getAll": "Не удалось загрузить задолженности",
 
   "debt.title": "Долги",
-  "debt.exportCsv": "Скачать CSV",
+  "debt.exportCsv": "Экспорт CSV",
 
   "debt.summary.receivable": "Нам должны",
   "debt.summary.payable": "Мы должны",
