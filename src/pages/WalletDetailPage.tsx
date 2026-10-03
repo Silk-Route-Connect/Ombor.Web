@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
@@ -46,10 +46,7 @@ const WalletDetailPage: React.FC = observer(() => {
 	const retry = () => walletId !== null && void selectedWalletStore.load(walletId);
 	const dialogMode = walletStore.dialogMode;
 
-	const activeWallets = useMemo(
-		() => readyOr(walletStore.allWallets, []).filter((w) => !w.isArchived),
-		[walletStore.allWallets],
-	);
+	const activeWallets = readyOr(walletStore.activeWallets, []);
 
 	if (!isPresent(wallet)) {
 		return (

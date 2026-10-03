@@ -10,7 +10,6 @@ import {
 	CreateStockAdjustmentRequest,
 	StockAdjustment,
 } from "models/stockAdjustment";
-import { Warehouse } from "models/warehouse";
 import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
@@ -30,9 +29,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 		stockAdjustmentStore.getAll();
 	}, [warehouseStore, productStore, stockAdjustmentStore]);
 
-	const activeWarehouses: Warehouse[] = !isReady(warehouseStore.allWarehouses)
-		? []
-		: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	const activeWarehouses = readyOr(warehouseStore.activeWarehouses, []);
 
 	const handleFormSave = (payload: StockAdjustmentFormValues): void => {
 		const request: CreateStockAdjustmentRequest = {

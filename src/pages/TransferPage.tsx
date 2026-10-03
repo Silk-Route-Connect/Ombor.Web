@@ -9,7 +9,6 @@ import TransfersTable from "components/transfer/Table/TransfersTable";
 import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
-import { Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
@@ -33,12 +32,11 @@ const TransferPage: React.FC = observer(() => {
 		transferStore.getAll();
 	}, [warehouseStore, productStore, transferStore]);
 
-	const activeWarehouses: Warehouse[] = !isReady(warehouseStore.allWarehouses)
-		? []
-		: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	const activeWarehouses = readyOr(warehouseStore.activeWarehouses, []);
 	// A transfer needs two warehouses; a new organisation has only the starter one,
 	// so «Новое перемещение» explains that instead of opening an unfillable form.
-	const needsSecondWarehouse = isReady(warehouseStore.allWarehouses) && activeWarehouses.length < 2;
+	const needsSecondWarehouse =
+		isReady(warehouseStore.activeWarehouses) && activeWarehouses.length < 2;
 
 	const createSecondWarehouse = (): void => {
 		transferStore.closeDialog();
