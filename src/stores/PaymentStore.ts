@@ -76,6 +76,12 @@ export class PaymentStore implements IPaymentStore {
 	directionFilter: PaymentDirection | "all" = "all";
 	isSaving = false;
 	isCreateOpen = false;
+	/**
+	 * Set by a create: advances / open debts / wallet balances moved, so the next
+	 * open refetches. The loaded data itself stays until then — dropping it while
+	 * the dialog is still closing left its selects holding out-of-range values.
+	 */
+	private formDataStale = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -211,9 +217,7 @@ export class PaymentStore implements IPaymentStore {
 			if (isReady(this.allPayments)) {
 				this.allPayments = [result.data, ...this.allPayments];
 			}
-			// Reference figures (advance / outstanding / wallet balance) moved —
-			// refetch form data lazily next time the modal opens.
-			this.formData = "loading";
+			this.formDataStale = true;
 		});
 
 		this.closeCreate();
@@ -256,6 +260,11 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	openCreate(): void {
+		if (this.formDataStale) {
+			this.formDataStale = false;
+			this.formDataLoads.invalidate();
+			this.formData = "loading";
+		}
 		this.isCreateOpen = true;
 	}
 
