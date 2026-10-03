@@ -3,8 +3,14 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
-import { InviteUserRequest, Organization, TenantUser } from "../models/settings";
+import {
+	ChangePasswordRequest,
+	InviteUserRequest,
+	Organization,
+	TenantUser,
+} from "../models/settings";
 import SettingsApi from "../services/api/SettingsApi";
+import { ServerErrorHandler } from "../utils/formServerErrors";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ISettingsStore {
@@ -15,7 +21,17 @@ export interface ISettingsStore {
 	load(): Promise<void>;
 	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
 	updateLanguage(code: string): Promise<void>;
-	inviteUser(request: InviteUserRequest): Promise<boolean>;
+	inviting: boolean;
+	changingPassword: boolean;
+	/** The new user on success (the modal then explains how they sign in), null on failure. */
+	inviteUser(
+		request: InviteUserRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<TenantUser | null>;
+	changePassword(
+		request: ChangePasswordRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<boolean>;
 	deactivateUser(user: TenantUser): Promise<void>;
 	reactivateUser(user: TenantUser): Promise<void>;
 }
@@ -32,6 +48,8 @@ export class SettingsStore implements ISettingsStore {
 	organization: Loadable<Organization | null> = "loading";
 	users: Loadable<TenantUser[]> = "loading";
 	saving = false;
+	inviting = false;
+	changingPassword = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -94,12 +112,22 @@ export class SettingsStore implements ISettingsStore {
 		}
 	}
 
-	async inviteUser(request: InviteUserRequest): Promise<boolean> {
+	async inviteUser(
+		request: InviteUserRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<TenantUser | null> {
+		if (this.inviting) {
+			return null;
+		}
+		runInAction(() => (this.inviting = true));
 		const result = await tryRun(() => SettingsApi.inviteUser(request));
+		runInAction(() => (this.inviting = false));
 
 		if (result.status === "fail") {
-			this.notificationStore.notifyApiError(result, "settings.users.inviteError");
-			return false;
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "settings.users.inviteError");
+			}
+			return null;
 		}
 
 		runInAction(() => {
@@ -107,7 +135,28 @@ export class SettingsStore implements ISettingsStore {
 				this.users = [...this.users, result.data];
 			}
 		});
-		this.notificationStore.success(i18next.t("settings.users.inviteSent"));
+		return result.data;
+	}
+
+	/** On success every other device is signed out at its next refresh; this one stays in. */
+	async changePassword(
+		request: ChangePasswordRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<boolean> {
+		if (this.changingPassword) {
+			return false;
+		}
+		runInAction(() => (this.changingPassword = true));
+		const result = await tryRun(() => SettingsApi.changePassword(request));
+		runInAction(() => (this.changingPassword = false));
+
+		if (result.status === "fail") {
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "settings.security.error");
+			}
+			return false;
+		}
+		this.notificationStore.success(i18next.t("settings.security.changed"));
 		return true;
 	}
 

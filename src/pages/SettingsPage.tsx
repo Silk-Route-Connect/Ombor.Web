@@ -4,6 +4,7 @@ import CurrencySection from "components/settings/CurrencySection";
 import InviteUserModal from "components/settings/InviteUserModal";
 import LanguageSection from "components/settings/LanguageSection";
 import OrganizationSection from "components/settings/OrganizationSection";
+import SecuritySection from "components/settings/SecuritySection";
 import SettingsNav, { SettingsSectionDef } from "components/settings/SettingsNav";
 import SettingsSaveBar from "components/settings/SettingsSaveBar";
 import UsersSection from "components/settings/UsersSection";
@@ -12,17 +13,18 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { isLoadError, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
-import { InviteUserRequest, Organization, TenantUser } from "models/settings";
+import { Organization, TenantUser } from "models/settings";
 import { useStore } from "stores/StoreContext";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { Box } from "@mui/material";
 
-const SECTION_KEYS = ["org", "lang", "currency", "users"] as const;
+const SECTION_KEYS = ["org", "lang", "currency", "users", "security"] as const;
 
 const SettingsPage: React.FC = observer(() => {
 	const { t, i18n } = useTranslation();
@@ -87,6 +89,11 @@ const SettingsPage: React.FC = observer(() => {
 			label: t("settings.users.title"),
 			icon: <PeopleAltOutlinedIcon sx={{ fontSize: 18 }} />,
 		},
+		{
+			key: "security",
+			label: t("settings.security.title"),
+			icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />,
+		},
 	];
 
 	const dirty = useMemo(
@@ -120,13 +127,6 @@ const SettingsPage: React.FC = observer(() => {
 		if (isReady(storeOrg) && storeOrg) {
 			setDraft(storeOrg);
 		}
-	};
-	const onInvite = (request: InviteUserRequest): void => {
-		void settingsStore.inviteUser(request).then((ok) => {
-			if (ok) {
-				setInviteOpen(false);
-			}
-		});
 	};
 	const onDeactivate = (user: TenantUser): void => {
 		if (user.self) {
@@ -187,6 +187,10 @@ const SettingsPage: React.FC = observer(() => {
 							onDeactivate={onDeactivate}
 							onReactivate={(u) => void settingsStore.reactivateUser(u)}
 						/>
+						<SecuritySection
+							saving={settingsStore.changingPassword}
+							onChangePassword={settingsStore.changePassword}
+						/>
 
 						<SettingsSaveBar
 							dirty={dirty}
@@ -200,9 +204,9 @@ const SettingsPage: React.FC = observer(() => {
 
 			<InviteUserModal
 				isOpen={inviteOpen}
-				saving={false}
+				saving={settingsStore.inviting}
 				onClose={() => setInviteOpen(false)}
-				onInvite={onInvite}
+				onInvite={settingsStore.inviteUser}
 			/>
 
 			<ConfirmDialog

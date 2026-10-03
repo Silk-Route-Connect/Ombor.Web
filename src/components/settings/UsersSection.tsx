@@ -18,6 +18,7 @@ import SettingsSectionCard from "./SettingsSectionCard";
 
 /** A user's contact is a phone or an e-mail; phones read «+998 90 123 45 67». */
 const PHONE_LIKE = /^\+?[\d\s()-]+$/;
+const displayContact = (value: string) => (PHONE_LIKE.test(value) ? formatUzPhone(value) : value);
 
 interface Props {
 	users: TenantUser[];
@@ -77,6 +78,9 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 			<Box sx={{ display: "flex", flexDirection: "column" }}>
 				{users.map((u, i) => {
 					const la = lastActive(u);
+					// Invited without a name, the server shows the phone as the name — show
+					// it once, formatted, instead of the same number twice.
+					const unnamed = u.name.trim() === "" || PHONE_LIKE.test(u.name);
 					return (
 						<Box
 							key={u.id}
@@ -89,7 +93,7 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 								borderColor: designTokens.gray25,
 							}}
 						>
-							<EntityAvatar name={u.name} size={38} muted={!u.active} />
+							<EntityAvatar name={unnamed ? "" : u.name} size={38} muted={!u.active} />
 							<Box sx={{ flex: 1, minWidth: 0 }}>
 								<Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
 									<Typography
@@ -99,19 +103,21 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 											color: u.active ? "text.primary" : "text.disabled",
 										}}
 									>
-										{u.name}
+										{unnamed ? displayContact(u.contact) : u.name}
 									</Typography>
 									{u.self && <StatusPill token="teal" uppercase label={t("settings.users.you")} />}
 								</Box>
-								<Typography
-									sx={{
-										fontSize: 12.5,
-										mt: "2px",
-										color: u.active ? "text.secondary" : "text.disabled",
-									}}
-								>
-									{PHONE_LIKE.test(u.contact) ? formatUzPhone(u.contact) : u.contact}
-								</Typography>
+								{!unnamed && (
+									<Typography
+										sx={{
+											fontSize: 13,
+											mt: "2px",
+											color: u.active ? "text.secondary" : "text.disabled",
+										}}
+									>
+										{displayContact(u.contact)}
+									</Typography>
+								)}
 							</Box>
 
 							<StatusPill token={u.active ? "teal" : "neutral"} label={t("settings.users.admin")} />

@@ -1,11 +1,17 @@
-import { InviteUserRequest, Organization, TenantUser } from "../../models/settings";
+import {
+	ChangePasswordRequest,
+	InviteUserRequest,
+	Organization,
+	TenantUser,
+} from "../../models/settings";
 import http from "./http";
 
 /**
  * Settings API over the v1 contract (`/api/settings/*`): organization profile,
  * tenant users, and the per-user interface language. The organization PUT is
  * multipart/form-data (text fields + an optional `logo` file); invite is
- * phone-only (email → 400); language persists the current user's locale.
+ * phone-only (email → 400); language persists the current user's locale;
+ * password changes the signed-in user's own password.
  */
 class SettingsApi {
 	private readonly base = "/api/settings";
@@ -45,6 +51,14 @@ class SettingsApi {
 	/** Persist the current user's interface language (the header globe). */
 	async updateLanguage(language: string): Promise<void> {
 		await http.put(`${this.base}/language`, { language });
+	}
+
+	/**
+	 * The refresh-token cookie travels with the request (credentials are on for
+	 * every call), which is how the server knows which session to keep signed in.
+	 */
+	async changePassword(request: ChangePasswordRequest): Promise<void> {
+		await http.put(`${this.base}/password`, request);
 	}
 
 	async getUsers(): Promise<TenantUser[]> {

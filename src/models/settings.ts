@@ -37,8 +37,23 @@ export type TenantUser = {
 	lastActiveAt: string | null;
 };
 
-/** Invite by email or phone. */
+/**
+ * Invite a colleague by phone (`InviteUserRequest`; v1 accepts only `Phone`, the
+ * `ContactType` enum name). No SMS is sent: the colleague signs in the first time
+ * through «Забыли пароль или входите впервые?» with this number.
+ */
 export type InviteUserRequest = {
-	method: ContactType;
+	method: "Phone";
+	/** `+998XXXXXXXXX`. */
 	value: string;
+	/** The phone is shown as the name when omitted. */
+	firstName?: string | null;
+	lastName?: string | null;
+};
+
+/** `PUT /api/settings/password` — the session that sends it stays signed in, every other one ends. */
+export type ChangePasswordRequest = {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
 };

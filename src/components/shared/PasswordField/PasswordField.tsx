@@ -23,6 +23,11 @@ export interface PasswordFieldProps {
 	autoComplete?: string;
 	name?: string;
 	id?: string;
+	/** `small` matches the 40px fields of settings forms; omit for the default height. */
+	size?: "small" | "medium";
+	/** react-hook-form's `field.ref`, so a server error can focus the field. */
+	inputRef?: React.Ref<HTMLInputElement>;
+	onBlur?: () => void;
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
@@ -36,6 +41,9 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 	autoComplete = "current-password",
 	name,
 	id,
+	size,
+	inputRef,
+	onBlur,
 }) => {
 	const { t } = useTranslation();
 	const [show, setShow] = React.useState<boolean>(false);
@@ -50,15 +58,23 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 	const helperId = id ? `${id}-helper` : undefined;
 
 	return (
-		<FormControl variant="outlined" fullWidth={fullWidth} error={error} disabled={disabled}>
+		<FormControl
+			variant="outlined"
+			size={size}
+			fullWidth={fullWidth}
+			error={error}
+			disabled={disabled}
+		>
 			{label && <InputLabel htmlFor={id}>{label}</InputLabel>}
 
 			<OutlinedInput
 				id={id}
 				name={name}
+				inputRef={inputRef}
 				type={show ? "text" : "password"}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
+				onBlur={onBlur}
 				onKeyUp={handleKeyUp}
 				label={label}
 				autoComplete={autoComplete}
@@ -70,6 +86,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
 							aria-label={t("auth.togglePasswordVisibility")}
 							onClick={toggleShow}
 							edge="end"
+							size={size}
 						>
 							{show ? <VisibilityOff /> : <Visibility />}
 						</IconButton>
