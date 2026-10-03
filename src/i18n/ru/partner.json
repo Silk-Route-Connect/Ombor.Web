@@ -159,7 +159,6 @@
   "partner.form.type": "Тип партнёра",
   "partner.form.company": "Компания",
   "partner.form.companyPlaceholder": "Название компании",
-  "partner.form.optional": "необязательно",
   "partner.form.phones": "Телефоны",
   "partner.form.phonePlaceholder": "+998 90 123 45 67",
   "partner.form.phoneError": "Укажите хотя бы один номер телефона",
