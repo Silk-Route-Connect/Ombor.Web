@@ -32,6 +32,7 @@ export type WarehouseTotals = {
 export interface IWarehouseStore {
 	allWarehouses: Loadable<Warehouse[]>;
 	filteredWarehouses: Loadable<Warehouse[]>;
+	activeWarehouses: Loadable<Warehouse[]>;
 	totals: WarehouseTotals;
 	archivedCount: number;
 
@@ -81,6 +82,18 @@ export class WarehouseStore implements IWarehouseStore {
 			return 0;
 		}
 		return this.allWarehouses.filter((w) => w.isArchived).length;
+	}
+
+	/**
+	 * Every non-archived warehouse, independent of the list page's archive toggle
+	 * and search — the source for pickers (POS, orders), so a filter left on
+	 * «Склады» never hides or mis-defaults the stock location (ux-6).
+	 */
+	get activeWarehouses(): Loadable<Warehouse[]> {
+		if (this.allWarehouses === "loading") {
+			return "loading";
+		}
+		return this.allWarehouses.filter((w) => !w.isArchived);
 	}
 
 	get filteredWarehouses(): Loadable<Warehouse[]> {

@@ -92,8 +92,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 
 	const products = loaded(isSale ? productStore.saleProducts : productStore.supplyProducts);
 	const partners = loaded(isSale ? partnerStore.customers : partnerStore.suppliers);
-	const warehouses = loaded(warehouseStore.filteredWarehouses);
-	const wallets = loaded(walletStore.filteredWallets);
+	const warehouses = loaded(warehouseStore.activeWarehouses);
+	const wallets = loaded(walletStore.activeWallets);
 	const allTemplates = loaded(templateStore.allTemplates);
 
 	// Hard-block a Supply tender that exceeds the paying wallet's balance. A Sale

@@ -147,9 +147,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 	);
 	const allPartners = partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
 	const warehouses = useMemo(
-		() =>
-			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses,
-		[warehouseStore.filteredWarehouses],
+		() => (warehouseStore.activeWarehouses === "loading" ? [] : warehouseStore.activeWarehouses),
+		[warehouseStore.activeWarehouses],
 	);
 
 	// Reset the form from the order whenever the modal (re)opens.

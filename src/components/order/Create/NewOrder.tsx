@@ -82,7 +82,7 @@ export const NewOrder: React.FC = observer(() => {
 
 	const products = loaded(productStore.saleProducts);
 	const customers = loaded(partnerStore.customers);
-	const warehouses = loaded(warehouseStore.filteredWarehouses);
+	const warehouses = loaded(warehouseStore.activeWarehouses);
 
 	// Seed the warehouse default once the list arrives (matches New Sale).
 	useEffect(() => {

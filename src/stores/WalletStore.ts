@@ -33,6 +33,7 @@ export type WalletSummary = {
 export interface IWalletStore {
 	allWallets: Loadable<Wallet[]>;
 	filteredWallets: Loadable<Wallet[]>;
+	activeWallets: Loadable<Wallet[]>;
 	summary: WalletSummary;
 	archivedCount: number;
 
@@ -80,6 +81,18 @@ export class WalletStore implements IWalletStore {
 			return 0;
 		}
 		return this.allWallets.filter((w) => w.isArchived).length;
+	}
+
+	/**
+	 * Every non-archived wallet, independent of the list page's archive toggle and
+	 * search — the source for pickers (POS, orders), so a filter left on «Касса»
+	 * never hides or mis-defaults the paying wallet (ux-6).
+	 */
+	get activeWallets(): Loadable<Wallet[]> {
+		if (this.allWallets === "loading") {
+			return "loading";
+		}
+		return this.allWallets.filter((w) => !w.isArchived);
 	}
 
 	get filteredWallets(): Loadable<Wallet[]> {
