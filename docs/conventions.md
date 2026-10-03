@@ -138,7 +138,7 @@ Each formatter is a small shared unit — locate and reuse it; never re-implemen
 - Dropdowns: order options with `byLabel` (`sortUtils`, alphabetical, ru-locale, numeric-aware) unless a picker is intentionally relevance/recency ranked.
 - Balances: a partner's own balance is signed from the partner's side (DR-27, `BalanceCell`); every other balance and aggregate is colored and natural-language labeled, never signed (ui-patterns #4).
 - CSV export (`exportToCsv`): pass amounts/counts as numbers (written plain, decimal comma for ru Excel), phones through `formatUzPhone`, statuses as localized labels, and balances with the same sign the table shows (partner balances partner-side). The formula-injection guard touches only text, never numbers, numeric strings or formatted phones.
-- Typed quantities go through `parseWholeQuantity` (`utils/quantityInput.ts`): a «,» / «.» is reported or refused, never stripped into the digits (R21).
+- Typed quantities go through `parseWholeQuantity` (`utils/quantityInput.ts`): a «,» / «.» stays visible in the field, flags it with «Количество — только целое число» and is never committed — never stripped or refused keystroke by keystroke, which merges «1,5» into 15 (R21). Gate keystrokes with `isQuantityDraft` (digits, spaces, separators).
 
 ## Naming & TypeScript
 

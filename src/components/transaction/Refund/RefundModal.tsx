@@ -10,7 +10,7 @@ import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
-import { parseWholeQuantity } from "utils/quantityInput";
+import { isQuantityDraft, parseWholeQuantity } from "utils/quantityInput";
 import { directionOf, discountLabel, effectiveUnitPrice } from "utils/transactionUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -108,21 +108,25 @@ const RefundModal: React.FC<RefundModalProps> = ({
 	const evalRow = (i: number) => {
 		const r = rows[i];
 		const c = ctx[i];
-		const qty = r.qty === "" ? 0 : Number(r.qty);
+		const parsed = parseWholeQuantity(r.qty);
+		// «1,5» stays visible and flagged instead of being read as 15 (ux-5, rule 21).
+		const notWhole = r.checked && (parsed.kind === "fraction" || parsed.kind === "invalid");
+		const qty = parsed.kind === "whole" ? parsed.value : 0;
 		const over = r.checked && qty > c.available;
-		const amount = r.checked && !over ? qty * c.price : 0;
-		return { qty, over, amount };
+		const amount = r.checked && !over && !notWhole ? qty * c.price : 0;
+		return { qty, over, notWhole, amount };
 	};
 
 	const selected = rows
 		.map((r, i) => ({ r, c: ctx[i], e: evalRow(i) }))
-		.filter((x) => x.r.checked && x.e.qty > 0);
+		.filter((x) => x.r.checked && x.e.qty > 0 && !x.e.notWhole);
 	const anyOver = rows.some((_, i) => evalRow(i).over);
+	const anyNotWhole = rows.some((_, i) => evalRow(i).notWhole);
 	const totalAmount = selected.reduce((a, x) => a + x.e.amount, 0);
 	const posCount = selected.length;
 
 	const reasonErr = submitted && reason.trim() === "";
-	const noLines = submitted && posCount === 0;
+	const noLines = submitted && posCount === 0 && !anyNotWhole;
 
 	const { discardOpen, requestClose, confirmDiscard, cancelDiscard } = useDirtyClose(
 		dirty,
@@ -132,7 +136,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 
 	const submit = () => {
 		setSubmitted(true);
-		if (posCount === 0 || anyOver || reason.trim() === "") {
+		if (posCount === 0 || anyOver || anyNotWhole || reason.trim() === "") {
 			return;
 		}
 		onSubmit({
@@ -253,7 +257,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
 									const r = rows[i];
 									const e = evalRow(i);
 									const noneLeft = c.available <= 0;
-									const rowBg = e.over
+									const flagged = e.over || e.notWhole;
+									const rowBg = flagged
 										? designTokens.errorBg
 										: r.checked
 											? designTokens.gray25
@@ -339,22 +344,24 @@ const RefundModal: React.FC<RefundModalProps> = ({
 																maxWidth: 104,
 																border: "1px solid",
 																borderRadius: "6px",
-																bgcolor: e.over ? designTokens.errorBg : "background.paper",
-																borderColor: e.over ? "error.main" : designTokens.gray300,
-																"&:focus-within": { borderColor: "primary.main" },
+																bgcolor: flagged ? designTokens.errorBg : "background.paper",
+																borderColor: flagged ? "error.main" : designTokens.gray300,
+																"&:focus-within": {
+																	borderColor: flagged ? "error.main" : "primary.main",
+																},
 															}}
 														>
 															<Box
 																component="input"
 																inputMode="numeric"
+																aria-label={t("transaction.refund.col.toRefund")}
+																aria-invalid={flagged}
 																value={r.qty}
 																onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
-																	// Whole units only: a «,» / «.» keystroke is refused, never merged into the digits.
-																	const parsed = parseWholeQuantity(ev.target.value);
-																	if (parsed.kind === "empty" || parsed.kind === "whole") {
-																		setRow(i, {
-																			qty: parsed.kind === "whole" ? String(parsed.value) : "",
-																		});
+																	// Refusing only the «,» keystroke let «1,5» become 15 as the next digit
+																	// landed; the draft keeps the separator and the row is flagged instead.
+																	if (isQuantityDraft(ev.target.value)) {
+																		setRow(i, { qty: ev.target.value });
 																	}
 																}}
 																sx={{
@@ -367,7 +374,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 																	fontSize: 14,
 																	textAlign: "right",
 																	fontFamily: "inherit",
-																	color: e.over ? "error.main" : "text.primary",
+																	color: flagged ? "error.main" : "text.primary",
 																}}
 															/>
 															<Box component="span" sx={{ color: "text.disabled", fontSize: 11.5 }}>
@@ -389,13 +396,13 @@ const RefundModal: React.FC<RefundModalProps> = ({
 														...bodyCellSx,
 														fontWeight: 700,
 														color:
-															r.checked && !e.over && e.qty > 0 ? "text.primary" : "text.disabled",
+															r.checked && !flagged && e.qty > 0 ? "text.primary" : "text.disabled",
 													}}
 												>
-													{r.checked && !e.over && e.qty > 0 ? formatCurrency(e.amount) : "—"}
+													{r.checked && !flagged && e.qty > 0 ? formatCurrency(e.amount) : "—"}
 												</Box>
 											</Box>
-											{e.over && (
+											{flagged && (
 												<Box component="tr">
 													<Box
 														component="td"
@@ -418,12 +425,14 @@ const RefundModal: React.FC<RefundModalProps> = ({
 															}}
 														>
 															<ErrorOutlineIcon sx={{ fontSize: 13 }} />
-															{t("transaction.refund.maxError", {
-																max: Math.max(c.available, 0),
-																unit: c.unit,
-																refunded: c.refunded,
-																sold: c.sold,
-															})}
+															{e.notWhole
+																? t("transaction.new.line.qtyWholeOnly")
+																: t("transaction.refund.maxError", {
+																		max: Math.max(c.available, 0),
+																		unit: c.unit,
+																		refunded: c.refunded,
+																		sold: c.sold,
+																	})}
 														</Box>
 													</Box>
 												</Box>

@@ -151,7 +151,7 @@ Expect: same toggle/hint mechanics as Sale (hint «= 36 шт»; price label «Ц
 ### T-POS-40 · Decimal quantity is refused, never merged [negative]
 
 Steps: 1. `/sales/new`: add П1, set qty 1. 2. Type «1,5» (then «1.5») into the qty field. 3. Read the line total, then click outside the field.
-Expect: while «1,5» is in the field the box turns red with «Количество — только целое число» under it, and the line keeps qty 1 (line total = 1 × price — never 15, R21); blur restores «1». Same in the refund modal's «Вернуть» qty: a «,» / «.» keystroke is ignored.
+Expect: while «1,5» is in the field the box turns red with «Количество — только целое число» under it, and the line keeps qty 1 (line total = 1 × price — never 15, R21); blur restores «1». Refund modal «К возврату» qty: type «1,5» key by key → the field keeps «1,5», the row turns red with «Количество — только целое число», the line is not counted (sum «—») and «Провести возврат» does not post until it is a whole number — never 15; letters are not accepted.
 
 ### T-POS-41 · Open debts fail to load → error with retry, never «no debts» [negative]
 

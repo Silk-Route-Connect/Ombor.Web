@@ -23,3 +23,8 @@ export function parseWholeQuantity(raw: string): WholeQuantityInput {
 	}
 	return { kind: "whole", value: Number(value) };
 }
+
+/** Text a quantity field may hold while typing: digits, spaces and a «,» / «.» to flag. */
+export function isQuantityDraft(raw: string): boolean {
+	return /^[\d\s.,]*$/.test(raw);
+}
