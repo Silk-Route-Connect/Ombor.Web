@@ -115,6 +115,11 @@ Expect: every ⋮ (list, detail; active and archived) shows edit · archive-or-r
 Steps: navigate to `/wallets/9999999`.
 Expect: «Касса не найдена.» rendered, no crash/blank; network shows the 404.
 
+### T-WAL-40 · Operations date filter and totals band [edge]
+
+Steps: 1. Open a wallet with operations, tab «Операции». 2. In the band pick «Дата: Этот месяц». 3. Toggle «Приход».
+Expect: 2 → only this month's operations; under the table «N операций · Приход … UZS · Расход … UZS» left of the pager. 3 → the band follows the toggle (Расход 0). The wallet's balance cards do not change — the filter narrows the list only.
+
 ## Reconciliation
 
 ### T-WAL-60 · Balance card ↔ newest operation's running balance [reconcile]

@@ -6,7 +6,7 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 
 ## Surfaces
 
-- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт», search «Поиск по номеру, партнёру или сотруднику…», type dropdown «Все типы», wallet dropdown «Все кассы»), `PaymentSummaryStrip` (clickable «Приход»/«Расход» toggle cards + «Платежей» count), `PaymentsTable` (row click → detail; no actions column).
+- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт», search «Поиск по номеру, партнёру или сотруднику…», type dropdown «Все типы», wallet dropdown «Все кассы», the shared date filter «Дата: Весь период …»), `PaymentSummaryStrip` (clickable «Приход»/«Расход» toggle cards + «Платежей» count — they follow the date filter), `PaymentsTable` (row click → detail; no actions column; totals band «N платежей · Приход · Расход» left of the pager).
 - `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Куда пошли деньги» allocation table; rail: «Информация» card.
 - `PaymentCreateModal` (type picker + per-type fields) and `PaymentSettlementModal` («Какие долги закрыть») — both launched from the list page.
 - `/payments/new` — the topbar «Создать → Оплата» target: redirects to `/payments` and opens `PaymentCreateModal` (never a placeholder page). The modal preselects the first active wallet.
@@ -130,6 +130,11 @@ Expect: 1 → sale flips to «Оплачено» (Closed); wallet = 2 200 000. 2
 ### T-PAY-38 · Open debts fail to load — nothing is booked [negative]
 Steps: 1. Block `GET /api/payments/outstanding` (DevTools → Network request blocking). 2. «Новый платёж»: «Оплата», a partner with open debt, amount 100 → «Далее: какие долги закрыть». 3. «Провести платёж». 4. Unblock, «Повторить».
 Expect: 2 → «Не удалось загрузить открытые долги» + reason + «Повторить» where the debt table goes; «Закрыто долгов» and «В аванс» read «—», never 0 / the whole amount. 3 → no `POST /api/payments` (confirming blind would book the whole amount as an advance). 4 → the debt rows load and the FIFO split fills the figures.
+
+### T-PAY-39 · Date filter drives the summary cards and the totals band [edge]
+
+Steps: 1. `/payments`: note the «Приход» / «Расход» cards. 2. «Дата» → «Сегодня». 3. Click the «Приход» card. 4. «Дата» → «Прошлый месяц», then «Весь период».
+Expect: 2 → only today's payments; the cards and «Платежей» now total today only; the band reads «N платежей · Приход … UZS (green) · Расход … UZS (red)» and equals the cards. 3 → the table and the band show income only; the cards stay (PAY-3). 4 → last calendar month, then everything again — the cards return to the step-1 values.
 
 ## Reconciliation
 
