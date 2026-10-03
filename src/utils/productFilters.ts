@@ -34,8 +34,15 @@ export function stockLevel(quantity: number, threshold: number | null | undefine
 	return quantity <= (threshold ?? 0) ? "low" : "ok";
 }
 
-/** A product's level across all warehouses — from the served `isLowStock` (total ≤ threshold). */
+/**
+ * A product's level across all warehouses — from the served `isLowStock` (total ≤
+ * threshold). An archived product is out of trade: no alert, and the «Остаток»
+ * filter never lists it.
+ */
 export function productStockLevel(product: Product): StockLevel {
+	if (product.isArchived) {
+		return "ok";
+	}
 	if (product.totalStock <= 0) {
 		return "out";
 	}

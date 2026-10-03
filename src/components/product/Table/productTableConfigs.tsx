@@ -70,12 +70,11 @@ export function buildProductColumns(
 			headerName: t("product.table.stock"),
 			align: "right",
 			sortValue: (p) => p.totalStock,
-			// Archived products are out of trade — no stock alert on them.
 			renderCell: (p) => (
 				<StockQuantityCell
 					quantity={p.totalStock}
 					measurement={p.measurement}
-					level={p.isArchived ? "ok" : productStockLevel(p)}
+					level={productStockLevel(p)}
 				/>
 			),
 		},

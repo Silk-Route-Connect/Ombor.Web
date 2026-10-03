@@ -61,7 +61,7 @@ const ProductPage: React.FC = observer(() => {
 			{
 				header: t("product.table.stockLevel"),
 				value: (p) => {
-					const level = p.isArchived ? "ok" : productStockLevel(p);
+					const level = productStockLevel(p);
 					return level === "ok" ? "" : t(`product.stockLevel.${level}`);
 				},
 			},

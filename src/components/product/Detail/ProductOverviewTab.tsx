@@ -24,7 +24,7 @@ interface ProductOverviewTabProps {
  */
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const level = product.isArchived ? "ok" : productStockLevel(product);
+	const level = productStockLevel(product);
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
