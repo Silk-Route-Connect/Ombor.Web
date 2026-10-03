@@ -11,7 +11,7 @@ import { WalletType } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatEntityId, hasEntityNumber } from "utils/formatEntityId";
 import {
 	directionOf,
 	discountLabel,
@@ -550,9 +550,9 @@ export const PaymentsCard: React.FC<{
 						</Box>
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "primary.main" }}>
-								{t("transaction.detail.paymentLabel", {
-									id: formatEntityId(p.paymentNumber ?? p.id),
-								})}
+								{hasEntityNumber(p.paymentNumber)
+									? t("transaction.detail.paymentLabel", { id: formatEntityId(p.paymentNumber) })
+									: t("transaction.detail.paymentLabelNoNumber")}
 							</Typography>
 							<Box
 								sx={{

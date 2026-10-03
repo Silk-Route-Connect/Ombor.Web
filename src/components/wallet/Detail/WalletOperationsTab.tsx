@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { PAYMENT_TYPE_META, PaymentTypeBadge } from "components/payment/PaymentPresentation";
 import DirectionBadge from "components/shared/DirectionBadge/DirectionBadge";
-import DetailLink from "components/shared/Link/DetailLink";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
+import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableToolbar from "components/shared/Table/TableToolbar";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
-import { partnerDetailPath, paymentDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { entityNumberSortValue } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -26,7 +28,7 @@ interface WalletOperationsTabProps {
 	onOpenTransfer: (transferId: number) => void;
 }
 
-/** Keep the payment link from also firing the row's open-detail click. */
+/** Keep the partner link from also firing the row's open-detail click. */
 const stop = (e: React.MouseEvent) => e.stopPropagation();
 
 const TypeChip: React.FC<{ label: string }> = ({ label }) => (
@@ -53,7 +55,8 @@ const TypeChip: React.FC<{ label: string }> = ({ label }) => (
  * The «Операции» tab on the shared DataTable (warm band, sortable columns,
  * 10/25/50 pager) with a search + direction segmented filter above it. Amounts
  * carry no +/− sign — direction is the shared green ↓ / red ↑ badge (locked
- * pattern 4). The «Платёж» cell links to the payment; a transfer row opens the
+ * pattern 4). A payment row is numbered and typed exactly as on /payments (the
+ * served payment type, «Без номера» for legacy rows); a transfer row opens the
  * transfer detail, a payment row routes to its payment.
  *
  * The prototype's period date filter is omitted for now (locked pattern 12).
@@ -83,6 +86,15 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 
 	const filtering = query.trim().length > 0 || dir !== "all";
 
+	// Legacy API builds serve only the coarse `kind`; prefer the payment type when present.
+	const typeLabel = useCallback(
+		(o: OperationRow): string =>
+			o.paymentType && PAYMENT_TYPE_META[o.paymentType]
+				? t(PAYMENT_TYPE_META[o.paymentType].labelKey)
+				: t(`wallet.operation.${o.kind}`),
+		[t],
+	);
+
 	const dirOptions: Array<{ value: DirFilter; label: string }> = [
 		{ value: "all", label: t("wallet.operations.filterAll") },
 		{ value: "In", label: t("wallet.operations.in") },
@@ -91,6 +103,19 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 
 	const columns = useMemo<Column<OperationRow>[]>(
 		() => [
+			{
+				key: "payment",
+				headerName: t("wallet.operations.payment"),
+				sortValue: (o) => entityNumberSortValue(o.paymentNumber),
+				renderCell: (o) =>
+					o.paymentId != null ? (
+						<CopyableNumberCell value={o.paymentNumber} />
+					) : (
+						<Box component="span" sx={{ color: "text.disabled" }}>
+							—
+						</Box>
+					),
+			},
 			{
 				key: "date",
 				headerName: t("wallet.operations.date"),
@@ -105,33 +130,15 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				),
 			},
 			{
-				key: "payment",
-				headerName: t("wallet.operations.payment"),
-				sortValue: (o) => o.paymentNumber ?? "",
-				renderCell: (o) => {
-					if (!o.paymentNumber) {
-						return (
-							<Box component="span" sx={{ color: "text.disabled" }}>
-								—
-							</Box>
-						);
-					}
-					return o.paymentId ? (
-						<Box component="span" sx={{ ...numericSx, fontWeight: 600 }} onClick={stop}>
-							<DetailLink to={paymentDetailPath(o.paymentId)}>{o.paymentNumber}</DetailLink>
-						</Box>
-					) : (
-						<Box component="span" sx={{ ...numericSx, fontWeight: 600, color: "text.primary" }}>
-							{o.paymentNumber}
-						</Box>
-					);
-				},
-			},
-			{
 				key: "type",
 				headerName: t("wallet.operations.type"),
-				sortValue: (o) => t(`wallet.operation.${o.kind}`),
-				renderCell: (o) => <TypeChip label={t(`wallet.operation.${o.kind}`)} />,
+				sortValue: (o) => typeLabel(o),
+				renderCell: (o) =>
+					o.paymentType && PAYMENT_TYPE_META[o.paymentType] ? (
+						<PaymentTypeBadge type={o.paymentType} />
+					) : (
+						<TypeChip label={typeLabel(o)} />
+					),
 			},
 			{
 				key: "direction",
@@ -150,8 +157,8 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				sortValue: (o) => o.party ?? "",
 				renderCell: (o) =>
 					o.partnerId != null && o.party ? (
-						<Box component="span" onClick={stop} sx={{ whiteSpace: "nowrap" }}>
-							<DetailLink to={partnerDetailPath(o.partnerId)}>{o.party}</DetailLink>
+						<Box component="span" onClick={stop} sx={{ whiteSpace: "nowrap", fontWeight: 600 }}>
+							<PartnerLink id={o.partnerId} name={o.party} />
 						</Box>
 					) : (
 						<Box
@@ -193,7 +200,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				),
 			},
 		],
-		[t],
+		[t, typeLabel],
 	);
 
 	const handleRowClick = (o: OperationRow): void => {

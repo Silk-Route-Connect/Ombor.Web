@@ -149,8 +149,8 @@ export type PaymentAttachmentDto = {
  */
 export type PaymentRecord = {
 	id: number;
-	/** Human number, e.g. «P-520». */
-	number: string;
+	/** Bare document number («42»). Served for every new payment; a few legacy rows have none. */
+	number: string | null;
 	/** ISO date string. */
 	date: string;
 	type: PaymentType;

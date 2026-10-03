@@ -29,8 +29,8 @@ export type TransactionPaymentLine = {
 	/** Id of the source payment record — the row links to its detail page. */
 	paymentId: number;
 	transactionId: number;
-	/** Human payment number, e.g. «P-512» (shown as the row label). */
-	paymentNumber: string;
+	/** Bare payment number («512»), the row label; null on a few legacy payments. */
+	paymentNumber: string | null;
 	amount: number;
 	/** Wallet the payment moved through (replaces the legacy method label). */
 	walletId?: number | null;

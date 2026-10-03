@@ -1,3 +1,5 @@
+import { PaymentType } from "./payment";
+
 /**
  * Wallet (the «Касса» money-location resource) — answers "how much cash do I
  * have, and where?". A wallet is a Cash register, Card terminal or Bank account
@@ -66,7 +68,7 @@ export type WalletOperation = {
 	date: string;
 	kind: WalletOperationKind;
 	direction: WalletOperationDirection;
-	/** Payment number («P-520») for partner payments; null for transfers. */
+	/** Bare payment number («520») on a payment row; null for transfers and a few legacy payments. */
 	paymentNumber: string | null;
 	/** Partner / recipient name, or the transfer direction («→ Расчётный счёт»); null for non-party ops (e.g. Opening). */
 	party: string | null;
@@ -79,6 +81,8 @@ export type WalletOperation = {
 	transferId: number | null;
 	/** Set for payment-kind operations — opens the payment detail. */
 	paymentId?: number | null;
+	/** The payment's type on a payment row (labelled like the payments list); null for transfers. */
+	paymentType?: PaymentType | null;
 };
 
 /** An inter-wallet transfer — auditable, immutable once created (rule 16). */

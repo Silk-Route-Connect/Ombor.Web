@@ -90,6 +90,7 @@
   "payment.detail.subtitle": "Платёж",
   "payment.detail.immutable": "Платёж проведён окончательно — изменить или удалить нельзя.",
   "payment.detail.notFound": "Платёж не найден.",
+  "payment.detail.untitled": "Платёж без номера",
   "payment.detail.source": "Касса",
   "payment.detail.advanceSource": "Аванс партнёра",
   "payment.detail.allocation": "Распределение",

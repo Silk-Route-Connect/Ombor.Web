@@ -11,6 +11,7 @@ import { PaymentRecord } from "models/payment";
 import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { entityNumberSortValue } from "utils/formatEntityId";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -43,10 +44,8 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 		{
 			key: "number",
 			headerName: t("payment.table.number"),
-			// The backend's legacy DTO omits the human «P-…» number — fall back to «№id»
-			// so the column is never blank (matches the detail-page title).
-			sortValue: (p) => p.number ?? p.id,
-			renderCell: (p) => <CopyableNumberCell value={p.number ?? p.id} />,
+			sortValue: (p) => entityNumberSortValue(p.number),
+			renderCell: (p) => <CopyableNumberCell value={p.number} />,
 		},
 		{
 			key: "date",

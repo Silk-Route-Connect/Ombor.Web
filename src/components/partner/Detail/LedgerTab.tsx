@@ -251,8 +251,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 												{formatEntityId(e.reference)}
 											</Box>
 										) : (
-											<Box component="span" sx={{ color: "text.disabled" }}>
-												—
+											<Box component="span" sx={{ color: "text.disabled", whiteSpace: "nowrap" }}>
+												{isOpening ? "—" : t("common.noNumber")}
 											</Box>
 										)}
 									</Box>

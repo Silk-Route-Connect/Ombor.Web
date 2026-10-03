@@ -14,7 +14,7 @@ import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
@@ -58,7 +58,7 @@ const PaymentDetailPage: React.FC = observer(() => {
 		<Box>
 			<DetailPageHeader
 				backTo={PATHS.payments}
-				title={formatEntityId(payment.number ?? payment.id)}
+				title={formatOptionalNumber(payment.number, t("payment.detail.untitled"))}
 			/>
 
 			<Box

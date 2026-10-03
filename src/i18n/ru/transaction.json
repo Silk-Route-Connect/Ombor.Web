@@ -153,6 +153,7 @@
   "transaction.detail.paymentsEmpty.Sale": "Платежей по этой продаже ещё нет",
   "transaction.detail.paymentsEmpty.Supply": "Платежей по этой поставке ещё нет",
   "transaction.detail.paymentLabel": "Платёж {{id}}",
+  "transaction.detail.paymentLabelNoNumber": "Платёж без номера",
   "transaction.detail.refundOfBanner.Sale": "Возврат к продаже",
   "transaction.detail.refundOfBanner.Supply": "Возврат к поставке",
   "transaction.detail.openOriginal.Sale": "Открыть продажу",
