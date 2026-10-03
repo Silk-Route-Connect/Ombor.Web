@@ -145,7 +145,7 @@ export function getImageFullUrl(path?: string): string | undefined {
 		return undefined;
 	}
 
-	// Self-contained URLs (mock object URLs, inline data URIs) need no base.
+	// Self-contained URLs (an upload preview's object URL or data URI) need no base.
 	if (/^(data|blob|https?):/.test(path)) {
 		return path;
 	}
