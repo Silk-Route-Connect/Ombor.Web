@@ -47,17 +47,22 @@ export class ProductApi {
 	}
 
 	async create(request: CreateProductRequest): Promise<Product> {
+		// The create response omits `isDeletable`; re-read so the list never holds a
+		// partial product (F1, same write-then-re-read as PartnerApi).
 		const form = this.getFormData(request);
-		const response = await http.post<Product>(this.baseUrl, form, formHeaders);
+		const { data } = await http.post<{ id: number }>(this.baseUrl, form, formHeaders);
 
-		return response.data;
+		return this.getById(data.id);
 	}
 
 	async update(request: UpdateProductRequest): Promise<Product> {
+		// The PUT response is the lean UpdateProductResponse (no images, warehouse
+		// items, stock or cost). Storing it crashed the detail page (F1) — re-read
+		// the full ProductDto instead.
 		const form = this.getFormData(request);
-		const response = await http.put<Product>(this.getUrlWithId(request.id), form, formHeaders);
+		await http.put(this.getUrlWithId(request.id), form, formHeaders);
 
-		return response.data;
+		return this.getById(request.id);
 	}
 
 	/** Archive — the backend returns 204 No Content (no body). */
