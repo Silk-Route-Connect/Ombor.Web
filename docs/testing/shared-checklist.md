@@ -29,6 +29,7 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 - «Экспорт» downloads a client-side CSV of the **current filtered view**.
 - Empty table shows hardcoded «Нет записей» — **F16 (known)**, not a new find.
 - A failed list load (backend stopped / 500) shows «Не удалось загрузить …» + reason + «Повторить» in the table area — never the first-run empty state, never «0» in the summary cards (they read «—»). «Повторить» reloads in place.
+- A 500 from one endpoint is that call's error only: the topbar «Нет соединения» chip stays off and submit buttons elsewhere stay active. Only no response (stopped backend, timeout) or a 502 / 503 / 504 turns the chip on and blocks submits until a request succeeds.
 
 ## 3. Every detail page
 

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import i18next from "i18n/config";
 import { isOfflineError } from "services/api/httpOfflineInterceptor";
 
@@ -71,7 +71,14 @@ type ProblemBody = {
 	errors?: unknown;
 };
 
+/**
+ * Gateway statuses: a proxy in front of the API answered because the API itself
+ * is unreachable or timed out — a connectivity failure, not a server bug.
+ */
+const GATEWAY_STATUSES = new Set([502, 503, 504]);
+
 function kindFromStatus(status: number): ApiErrorKind {
+	if (GATEWAY_STATUSES.has(status)) return "network";
 	if (status >= 500) return "server";
 	if (status === 401) return "unauthorized";
 	if (status === 403) return "forbidden";
@@ -122,6 +129,18 @@ export function parseApiError(cause: unknown): ApiErrorInfo {
 		params: asRecord(body.params),
 		fieldErrors: asFieldErrors(body.errors),
 	};
+}
+
+/**
+ * True when the backend could not be reached at all: no response (network error,
+ * timeout) or a gateway 502 / 503 / 504. A cancelled request is not one, and
+ * neither is a 500 — that endpoint failed, the server itself answered.
+ */
+export function isConnectivityFailure(cause: unknown): boolean {
+	if (!axios.isAxiosError(cause) || cause.code === AxiosError.ERR_CANCELED) {
+		return false;
+	}
+	return !cause.response || GATEWAY_STATUSES.has(cause.response.status);
 }
 
 /** True when the call failed because the record does not exist (404). */
