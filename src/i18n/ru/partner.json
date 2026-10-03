@@ -27,7 +27,7 @@
   "partner.table.phone": "Телефон",
   "partner.table.status": "Статус",
   "partner.table.statusActive": "Активен",
-  "partner.table.statusArchived": "В архиве",
+  "partner.table.statusArchived": "Архив",
 
   "partner.empty.title": "Пока нет партнёров",
   "partner.empty.body": "Добавьте первого клиента или поставщика, чтобы начать вести расчёты, продажи и поставки.",
