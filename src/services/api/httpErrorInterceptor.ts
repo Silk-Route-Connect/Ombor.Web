@@ -48,8 +48,9 @@ export function attachHttpErrorInterceptors(instance: AxiosInstance): void {
 				});
 			} else {
 				// A 4xx means the server answered — it's up. Client-caused 4xx
-				// (validation, not-found, conflict, auth) are user errors surfaced
-				// inline in the UI, not defects — they must not create Sentry events
+				// (validation, not-found, conflict, auth) are user errors the calling
+				// store shows by error code (notifyApiError, form field errors, the
+				// page's not-found state), not defects — they must not create Sentry events
 				// (the FE analog of the backend's BeforeSend filter). 5xx/network
 				// still report above; a beforeSend hook drops any 4xx as a backstop.
 				ConnectivityBridge.reportUp();

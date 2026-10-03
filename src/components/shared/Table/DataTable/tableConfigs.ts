@@ -114,8 +114,6 @@ export const FOOTER_SX: SxProps<Theme> = {
 	borderColor: "divider", // DSN --border
 };
 
-export const LOADING_CONTAINER_HEIGHT = 200;
-
 /** Locale-aware comparator for client-side column sorting (ascending). */
 export function compareValues(a: unknown, b: unknown): number {
 	if (a == null && b == null) return 0;

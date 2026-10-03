@@ -28,6 +28,7 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 - Archive control (Products, Partners, Wallets, Warehouses only): segmented «Активные | Архив» that **swaps** the dataset — archived rows never mixed into the active list (#13).
 - «Экспорт» downloads a client-side CSV of the **current filtered view**.
 - Empty table shows hardcoded «Нет записей» — **F16 (known)**, not a new find.
+- A failed list load (backend stopped / 500) shows «Не удалось загрузить …» + reason + «Повторить» in the table area — never the first-run empty state, never «0» in the summary cards (they read «—»). «Повторить» reloads in place.
 
 ## 3. Every detail page
 
@@ -36,6 +37,7 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 - Tabs are underline-style with count pills (#20b).
 - Layout: right-rail **only** on Product, Order, Transaction, Payment; stacked everywhere else (#20g, DR-01) — a missing rail on Partner/Wallet/Warehouse/Employee is correct.
 - Detail-embedded tables use the warm `detailTableChrome` (header band + total band or pager), not the list `DataTable` (#20d); sortable via `DetailSortHeader`; tab-level filters live **inside** the table widget (#14).
+- A missing record (`/payments/999999`) or malformed link (`/payments/abc`) shows «… не найден» with «К списку» and no error toast; a failed load shows the error with «Повторить», never «не найден» and never an endless spinner. Opening record B right after A never shows A's data.
 
 ## 4. Every form (modal)
 
@@ -52,6 +54,7 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 - Document/entity numbers: «№N» via `formatEntityId`. Transactions share **one** number series across Sale/Supply/refunds (DR-21) — a Sale «№5» followed by a Supply «№6» is correct.
 - Balances: color + a direction **word**, never a bare signed number (#4). Implemented vocabulary: owner-POV buckets «Нам должны» / «Мы должны» on Debts, Dashboard, and the POS balance card («Без долга» at zero); partner surfaces render partner-POV **signed** figures — a documented divergence from #4, see `modules/partners.md` Traps before judging signs/colors there. The literal canon strings «Вам должны…»/«Нет долга» exist nowhere in the app — do not assert them.
 - PaymentType labels: Оплата · Депозит · Вывод · Зарплата · Общий (#17). PartnerType `Both` → «Клиент + Поставщик» (#15).
+- Toasts: bottom-left, never over the top bar, at most three, an identical message once. An error toast names the action + the reason («Не удалось удалить склад: запись используется в документах — …»), never English server text.
 - Chips: Sale=teal, Supply=saffron, refunds outlined; status Open=info, PartiallyPaid=warning, Overdue=error, Closed=success; Приход=green / Расход=red pills with unsigned amounts. Green/red on a *number* is reserved for money figures (#4); chips may use the full semantic palette.
 
 ## 6. Traps — designed behavior that looks like a bug (never report these)
