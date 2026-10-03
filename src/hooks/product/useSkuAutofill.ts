@@ -36,6 +36,7 @@ export function useSkuAutofill(
 	isCreate: boolean,
 ): UseSkuAutofillResult {
 	const { control, getValues, setValue } = form;
+	const isSubmitted = form.formState.isSubmitted;
 	const digits = useRef(randomDigits());
 	const lastAuto = useRef<string | null>(null);
 	const name = useWatch({ control, name: "name" });
@@ -58,9 +59,10 @@ export function useSkuAutofill(
 		const next = name?.trim() ? buildSku(name, digits.current) : "";
 		if (next !== current) {
 			lastAuto.current = next;
-			setValue("sku", next, { shouldDirty: next !== "" });
+			// Re-validate only after a submit attempt, so an earlier «Укажите артикул» clears.
+			setValue("sku", next, { shouldDirty: next !== "", shouldValidate: isSubmitted });
 		}
-	}, [name, isOpen, isCreate, getValues, setValue]);
+	}, [name, isOpen, isCreate, isSubmitted, getValues, setValue]);
 
 	const regenerate = () => {
 		digits.current = randomDigits();
