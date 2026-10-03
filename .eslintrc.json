@@ -93,6 +93,18 @@
       {
         "selector": "CallExpression[callee.name='navigate'] > TemplateLiteral.arguments:first-child",
         "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
+      },
+      {
+        "selector": "Literal[value=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
+      },
+      {
+        "selector": "TemplateElement[value.raw=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
+      },
+      {
+        "selector": "JSXText[value=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
       }
     ],
     "no-restricted-imports": [
@@ -131,6 +143,13 @@
             "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
           }
         ]
+      }
+    },
+    {
+      /* Locale files and the language picker's native names are the home of Russian text */
+      "files": ["src/i18n/**"],
+      "rules": {
+        "no-restricted-syntax": "off"
       }
     },
     {
