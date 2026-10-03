@@ -23,6 +23,7 @@ import {
 	Popper,
 	Tooltip,
 	Typography,
+	useMediaQuery,
 } from "@mui/material";
 
 import { ChildNavItem, NavItem, navItems } from "./config";
@@ -34,6 +35,10 @@ const NAV_CHEVRON = 18; // parent expand/collapse chevron
 
 // Dense POS create-pages open with the rail collapsed for room (design autoCollapse).
 const POS_ROUTES = new Set<string>([PATHS.newSale, PATHS.newSupply, PATHS.newOrder]);
+
+// Below this viewport width the 248px column squeezes detail rails and wide
+// tables, so the sidebar starts on the 72px rail (not persisted, like POS).
+const NARROW_VIEWPORT_QUERY = "(max-width: 1279.95px)";
 
 /* Collapse state persists across sessions (design: `ombor.sidebar.expanded`). */
 const SB_KEY = "ombor.sidebar.expanded";
@@ -349,11 +354,11 @@ const Sidebar: React.FC = observer(() => {
 	const { authStore } = useStore();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+	const narrow = useMediaQuery(NARROW_VIEWPORT_QUERY, { noSsr: true });
+	const autoCollapse = narrow || POS_ROUTES.has(pathname);
 
-	// Start collapsed if we land directly on a POS page (avoids an expand→collapse flash).
-	const [expanded, setExpandedState] = useState(() =>
-		POS_ROUTES.has(pathname) ? false : readExpanded(),
-	);
+	// Start collapsed when auto-collapse applies (avoids an expand→collapse flash).
+	const [expanded, setExpandedState] = useState(() => (autoCollapse ? false : readExpanded()));
 	const setExpanded = (value: boolean) => {
 		setExpandedState(value);
 		try {
@@ -380,12 +385,13 @@ const Sidebar: React.FC = observer(() => {
 		}
 	}, [pathname]);
 
-	// Collapse to the rail on the dense POS pages; elsewhere reflect the saved
-	// preference. The auto-collapse is NOT persisted, so a manual toggle wins and
-	// the user's stored choice is restored the moment they leave a POS page.
+	// Collapse to the rail on the dense POS pages and narrow viewports; elsewhere
+	// reflect the saved preference. The auto-collapse is NOT persisted, so a manual
+	// toggle wins until the next navigation and the stored choice comes back once
+	// the reason (POS page / narrow window) is gone.
 	useEffect(() => {
-		setExpandedState(POS_ROUTES.has(pathname) ? false : readExpanded());
-	}, [pathname]);
+		setExpandedState(autoCollapse ? false : readExpanded());
+	}, [pathname, autoCollapse]);
 
 	const toggleGroup = (labelKey: string) =>
 		setExpandedGroups((prev) => ({ ...prev, [labelKey]: !prev[labelKey] }));

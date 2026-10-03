@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import {
 	AuditCard,
 	NoteAttachmentsCard,
@@ -73,7 +74,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 
 	const twoColSx = {
 		display: "grid",
-		gridTemplateColumns: { xs: "1fr", md: "1fr 372px" },
+		gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 		gap: "20px",
 		alignItems: "start",
 	} as const;

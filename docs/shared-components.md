@@ -9,7 +9,7 @@
 
 | Component                              | Use for                                                           | Notes                                                                                                                                        |
 | -------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DataTable`                            | Every list-page table                                             | Canonical DSN-1 chrome via `tableConfigs.ts`; sortable columns by default; 10/25/50 pager; date-desc on event feeds, name-asc on master data |
+| `DataTable`                            | Every list-page table                                             | Canonical DSN-1 chrome via `tableConfigs.ts`; sortable columns by default; 10/25/50 pager; date-desc on event feeds, name-asc on master data. The body scrolls inside the card (capped at the visible height) so the header band stays sticky and the pager stays visible |
 | `ExpandableDataTable`                  | List tables with expand-row detail (Templates, Stock Adjustments) | Same chrome + expand panel                                                                                                                   |
 | `TablePager`                           | Pager footer on bespoke tables that can't use `DataTable`         | Totals-row / expandable tables; same `FOOTER_SX` as `DataTable`; ru-localized, 10/25/50 default                                              |
 | `TableToolbar`                          | Search / filters / export band above a table                      | One flex row: search + filter controls + right-aligned actions (XC-15/DEC-D3). Wraps on narrow widths                                        |
@@ -19,7 +19,7 @@
 | `TimeSeriesChart` (+ chart components) | Charts                                                            | recharts, themed to the palette                                                                                                              |
 | `KpiCard`                              | Dashboard / stat cards                                            | Hero tabular value + delta + sparkline                                                                                                       |
 | `MetaDot`                              | Separator dot in meta lines                                       | 4px gray-400; replaced the invisible 3px separators                                                                                          |
-| `PageHeader`                           | Header on every routed list page                                  | DSN-1 `.page-head`: h1 title (+ optional subtitle) left, actions toolbar right                                                               |
+| `PageHeader`                           | Header on every routed list page                                  | DSN-1 `.page-head`: h1 title (+ optional subtitle) left, actions toolbar right; actions wrap below the title on narrow widths, the title ellipsizes |
 | `PlaceholderPage`                      | Unbuilt routes                                                    | Lives in `pages/`                                                                                                                            |
 | `InfoHint`                             | The «i» tooltip beside a label / column header with an unobvious term | One plain sentence, no formula (pattern 16 WAC, «Наценка»). Swallows the click so it can sit inside a sortable header                       |
 
@@ -31,6 +31,7 @@
 | `DetailTabs`                    | Detail tab bars                                | Underline tabs + count pills                                                                                                   |
 | `DetailCard`                    | Summary / rail cards                           | The card primitive for detail summaries                                                                                        |
 | `detailTableChrome`             | Detail-embedded tables (ledgers, detail tabs)  | **Not** `DataTable`; warm header band + total band _or_ pager footer (pattern 20d)                                             |
+| `DETAIL_RAIL_COLUMNS` (`detailLayout.ts`) | Right-rail detail grids (Product / Order / Transaction / Payment / Partner) | One rule: rail from `lg`, `minmax(0, 1fr) 360px` so wide tab tables never push the grid (pattern 20g) |
 | `DetailSortHeader`              | Sort headers in `detailTableChrome` tables     | For bespoke detail tables that can't use `DataTable`'s TableSortLabel; active column in primary + arrow; optional info tooltip (`InfoHint`) |
 | `ActionMenu` / `MenuActionCell` | Kebab menus; table row actions                 | Row `tone` (`normal` / `warn` / `danger`) — never hand-colored icons; localized aria-label via `common.actions`                |
 

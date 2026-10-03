@@ -10,6 +10,7 @@ import {
 	PaymentSourceCard,
 	PaymentWithdrawalCard,
 } from "components/payment/Detail/PaymentDetailCards";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
@@ -65,9 +66,7 @@ const PaymentDetailPage: React.FC = observer(() => {
 				}
 			/>
 
-			<Box
-				sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 340px" }, gap: "20px" }}
-			>
+			<Box sx={{ display: "grid", gridTemplateColumns: DETAIL_RAIL_COLUMNS, gap: "20px" }}>
 				<Stack sx={{ gap: "16px", minWidth: 0 }}>
 					{isPayroll && <PaymentPayrollCard payment={payment} />}
 					{isGeneral && <PaymentGeneralCard payment={payment} />}

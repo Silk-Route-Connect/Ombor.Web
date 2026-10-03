@@ -10,6 +10,7 @@ import StatusHistoryCard from "components/order/Detail/StatusHistoryCard";
 import TerminalBanner from "components/order/Detail/TerminalBanner";
 import DeliveryConfirmModal from "components/order/Modal/DeliveryConfirmModal";
 import OrderFormModal from "components/order/Modal/OrderFormModal";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, saleDetailPath } from "routing/paths";
@@ -54,7 +55,7 @@ const OrderDetailPage: React.FC = observer(() => {
 
 	const twoColSx = {
 		display: "grid",
-		gridTemplateColumns: { xs: "1fr", md: "1fr 372px" },
+		gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 		gap: "20px",
 		alignItems: "start",
 	} as const;

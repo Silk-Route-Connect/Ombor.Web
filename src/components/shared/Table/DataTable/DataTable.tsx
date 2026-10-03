@@ -29,6 +29,7 @@ import {
 	ROW_SX,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
+	TABLE_SCROLL_SX,
 } from "./tableConfigs";
 
 export type SortOrder = "asc" | "desc";
@@ -235,48 +236,50 @@ export function DataTable<T extends { id: string | number }>({
 	}
 
 	return (
-		<TableContainer component={Paper} elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
-			<Table stickyHeader size="small">
-				<TableHead sx={HEADER_CONTAINER_SX}>
-					<TableRow>
-						{columns.map((col) => (
-							<TableCell
-								key={col.key}
-								sortDirection={isSortable(col) && sortKey === col.key ? order : false}
-								sx={{ ...HEADER_CELL_SX, width: col.width }}
-								align={col.align ?? "left"}
-							>
-								{renderColumn(col)}
-							</TableCell>
-						))}
-					</TableRow>
-				</TableHead>
-
-				<TableBody>
-					{displayedRows.map((row) => (
-						<TableRow
-							key={row.id}
-							onClick={() => handleRowClick(row)}
-							tabIndex={onRowClick ? 0 : undefined}
-							onKeyDown={(e) => handleOnKeyDown(e, row)}
-							sx={{
-								...ROW_SX,
-								cursor: isSelectable ? "pointer" : "default",
-							}}
-						>
+		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+			<TableContainer sx={TABLE_SCROLL_SX}>
+				<Table stickyHeader size="small">
+					<TableHead sx={HEADER_CONTAINER_SX}>
+						<TableRow>
 							{columns.map((col) => (
 								<TableCell
-									key={`${row.id}-${col.key}`}
+									key={col.key}
+									sortDirection={isSortable(col) && sortKey === col.key ? order : false}
+									sx={{ ...HEADER_CELL_SX, width: col.width }}
 									align={col.align ?? "left"}
-									sx={col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX}
 								>
-									{renderCell(row, col)}
+									{renderColumn(col)}
 								</TableCell>
 							))}
 						</TableRow>
-					))}
-				</TableBody>
-			</Table>
+					</TableHead>
+
+					<TableBody>
+						{displayedRows.map((row) => (
+							<TableRow
+								key={row.id}
+								onClick={() => handleRowClick(row)}
+								tabIndex={onRowClick ? 0 : undefined}
+								onKeyDown={(e) => handleOnKeyDown(e, row)}
+								sx={{
+									...ROW_SX,
+									cursor: isSelectable ? "pointer" : "default",
+								}}
+							>
+								{columns.map((col) => (
+									<TableCell
+										key={`${row.id}-${col.key}`}
+										align={col.align ?? "left"}
+										sx={col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX}
+									>
+										{renderCell(row, col)}
+									</TableCell>
+								))}
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</TableContainer>
 
 			{rows !== "loading" && rows.length === 0 && (
 				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
@@ -301,6 +304,6 @@ export function DataTable<T extends { id: string | number }>({
 					/>
 				</Box>
 			)}
-		</TableContainer>
+		</Paper>
 	);
 }

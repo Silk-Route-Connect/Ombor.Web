@@ -33,6 +33,7 @@ import {
 	LOADING_CONTAINER_HEIGHT,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
+	TABLE_SCROLL_SX,
 } from "../DataTable/tableConfigs";
 
 export type SortOrder = "asc" | "desc";
@@ -231,104 +232,108 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	const totalRows = displayedRows.length;
 	const hasNoData = totalRows === 0 && rows !== "loading";
 	return (
-		<TableContainer component={Paper} elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
-			<Table stickyHeader size="small" sx={{ tableLayout: tableLayout, width: "100%" }}>
-				<TableHead sx={HEADER_CONTAINER_SX}>
-					<TableRow>
-						{renderExpanded && <TableCell padding="checkbox" sx={{ ...HEADER_CELL_SX }} />}
-						{columns.map((col) => (
-							<TableCell
-								key={col.key}
-								sortDirection={isSortable(col) && sortKey === col.key ? order : false}
-								sx={{ ...HEADER_CELL_SX, width: col.width }}
-								align={col.align ?? "left"}
-							>
-								{renderHeaderCell(col)}
-							</TableCell>
-						))}
-					</TableRow>
-				</TableHead>
-
-				<TableBody>
-					{displayedRows.map((row, index) => {
-						const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
-						const isOpen = isExpandable ? expandedRows.has(row.id) : false;
-						const rowExpands = Boolean(expandOnRowClick && isExpandable);
-
-						return (
-							<React.Fragment key={row.id}>
-								<TableRow
-									onClick={() => {
-										handleRowClickInternal(row);
-										if (rowExpands) {
-											toggleExpandRow(row.id);
-										}
-									}}
-									sx={{
-										// DSN-1 body: open row carries the selected tint, even rows zebra,
-										// teal hover. (Zebra is by data index because the collapse rows
-										// interleave with the data rows.)
-										bgcolor: isOpen
-											? "action.selected"
-											: index % 2 === 1
-												? designTokens.gray25
-												: "inherit",
-										"&:hover": { bgcolor: "action.hover" },
-										cursor: isSelectable || rowExpands ? "pointer" : "default",
-									}}
+		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+			<TableContainer sx={TABLE_SCROLL_SX}>
+				<Table stickyHeader size="small" sx={{ tableLayout: tableLayout, width: "100%" }}>
+					<TableHead sx={HEADER_CONTAINER_SX}>
+						<TableRow>
+							{renderExpanded && <TableCell padding="checkbox" sx={{ ...HEADER_CELL_SX }} />}
+							{columns.map((col) => (
+								<TableCell
+									key={col.key}
+									sortDirection={isSortable(col) && sortKey === col.key ? order : false}
+									sx={{ ...HEADER_CELL_SX, width: col.width }}
+									align={col.align ?? "left"}
 								>
-									{isExpandable ? (
-										<TableCell padding="checkbox">
-											<IconButton
-												size="medium"
-												sx={{ p: 0 }}
-												onClick={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
-													toggleExpandRow(row.id);
-												}}
+									{renderHeaderCell(col)}
+								</TableCell>
+							))}
+						</TableRow>
+					</TableHead>
+
+					<TableBody>
+						{displayedRows.map((row, index) => {
+							const isExpandable = renderExpanded && (canExpand ? canExpand(row) : true);
+							const isOpen = isExpandable ? expandedRows.has(row.id) : false;
+							const rowExpands = Boolean(expandOnRowClick && isExpandable);
+
+							return (
+								<React.Fragment key={row.id}>
+									<TableRow
+										onClick={() => {
+											handleRowClickInternal(row);
+											if (rowExpands) {
+												toggleExpandRow(row.id);
+											}
+										}}
+										sx={{
+											// DSN-1 body: open row carries the selected tint, even rows zebra,
+											// teal hover. (Zebra is by data index because the collapse rows
+											// interleave with the data rows.)
+											bgcolor: isOpen
+												? "action.selected"
+												: index % 2 === 1
+													? designTokens.gray25
+													: "inherit",
+											"&:hover": { bgcolor: "action.hover" },
+											cursor: isSelectable || rowExpands ? "pointer" : "default",
+										}}
+									>
+										{isExpandable ? (
+											<TableCell padding="checkbox">
+												<IconButton
+													size="medium"
+													sx={{ p: 0 }}
+													onClick={(e) => {
+														e.preventDefault();
+														e.stopPropagation();
+														toggleExpandRow(row.id);
+													}}
+												>
+													{isOpen ? (
+														<KeyboardArrowUpIcon fontSize="medium" />
+													) : (
+														<KeyboardArrowDownIcon fontSize="medium" />
+													)}
+												</IconButton>
+											</TableCell>
+										) : (
+											<TableCell padding="checkbox"></TableCell>
+										)}
+
+										{columns.map((col) => (
+											<TableCell
+												key={`${row.id}-${col.key}`}
+												align={col.align ?? "left"}
+												sx={
+													col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX
+												}
 											>
-												{isOpen ? (
-													<KeyboardArrowUpIcon fontSize="medium" />
-												) : (
-													<KeyboardArrowDownIcon fontSize="medium" />
-												)}
-											</IconButton>
-										</TableCell>
-									) : (
-										<TableCell padding="checkbox"></TableCell>
-									)}
-
-									{columns.map((col) => (
-										<TableCell
-											key={`${row.id}-${col.key}`}
-											align={col.align ?? "left"}
-											sx={col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX}
-										>
-											{renderCellContent(row, col)}
-										</TableCell>
-									))}
-								</TableRow>
-
-								{isExpandable && (
-									<TableRow>
-										<TableCell
-											style={{ paddingBottom: 0, paddingTop: 0 }}
-											colSpan={columns.length + 1}
-										>
-											<Collapse in={isOpen} timeout="auto" unmountOnExit>
-												<Box sx={{ margin: 1, maxHeight: expandedMaxHeight, overflowY: "auto" }}>
-													{renderExpanded(row)}
-												</Box>
-											</Collapse>
-										</TableCell>
+												{renderCellContent(row, col)}
+											</TableCell>
+										))}
 									</TableRow>
-								)}
-							</React.Fragment>
-						);
-					})}
-				</TableBody>
-			</Table>
+
+									{isExpandable && (
+										<TableRow>
+											<TableCell
+												style={{ paddingBottom: 0, paddingTop: 0 }}
+												colSpan={columns.length + 1}
+											>
+												<Collapse in={isOpen} timeout="auto" unmountOnExit>
+													<Box sx={{ margin: 1, maxHeight: expandedMaxHeight, overflowY: "auto" }}>
+														{renderExpanded(row)}
+													</Box>
+												</Collapse>
+											</TableCell>
+										</TableRow>
+									)}
+								</React.Fragment>
+							);
+						})}
+					</TableBody>
+				</Table>
+			</TableContainer>
 
 			{hasNoData && (
 				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
@@ -353,6 +358,6 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 					/>
 				</Box>
 			)}
-		</TableContainer>
+		</Paper>
 	);
 }

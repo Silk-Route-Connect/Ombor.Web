@@ -16,7 +16,7 @@ export default function AppLayout() {
 			<Sidebar />
 			<Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 				<Topbar />
-				<Box component="main" sx={{ flex: 1, overflow: "auto", p: 3 }}>
+				<Box component="main" sx={{ flex: 1, overflow: "auto", scrollbarGutter: "stable", p: 3 }}>
 					<Outlet />
 				</Box>
 			</Box>

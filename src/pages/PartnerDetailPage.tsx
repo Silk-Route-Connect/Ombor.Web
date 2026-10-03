@@ -12,6 +12,7 @@ import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import { observer } from "mobx-react-lite";
@@ -249,7 +250,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 					gap: "20px",
 					alignItems: "start",
 				}}

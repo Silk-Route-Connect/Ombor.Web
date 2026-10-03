@@ -8,6 +8,7 @@ import ProductOverviewTab from "components/product/Detail/ProductOverviewTab";
 import ProductTransactionsTab from "components/product/Detail/ProductTransactionsTab";
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
@@ -167,7 +168,7 @@ const ProductDetailPage: React.FC = observer(() => {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 					gap: "20px",
 					alignItems: "start",
 				}}

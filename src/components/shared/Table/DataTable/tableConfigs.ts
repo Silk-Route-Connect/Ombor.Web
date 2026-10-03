@@ -45,7 +45,18 @@ export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 	border: 1,
 	borderColor: "divider", // DSN --border
 	borderRadius: `${radius.xl}px`, // DSN --radius-xl (16px)
-	overflowX: "auto",
+	overflow: "hidden",
+};
+
+/**
+ * The table body scrolls inside the card, capped at the visible content height
+ * (viewport − 60px topbar − 48px page padding − 56px pager). Any scroll container
+ * between the header and the page's <main> breaks `position: sticky`, so the
+ * table must own its scroll for the header band to stay visible on long lists.
+ */
+export const TABLE_SCROLL_SX: SxProps<Theme> = {
+	overflow: "auto",
+	maxHeight: "calc(100vh - 164px)",
 };
 
 export const HEADER_CONTAINER_SX: SxProps<Theme> = {
@@ -72,13 +83,19 @@ export const HEADER_CELL_SX: SxProps<Theme> = {
 	"& .MuiTableSortLabel-root:hover": { color: "primary.dark" },
 	"& .MuiTableSortLabel-root.Mui-active": { color: "primary.dark" },
 	"& .MuiTableSortLabel-icon": { fontSize: 16, color: "inherit !important" },
+	// The hidden arrow of an inactive column takes no space, so right-aligned
+	// headers line up with their values; it reappears on hover.
+	"& .MuiTableSortLabel-root:not(.Mui-active):not(:hover) .MuiTableSortLabel-icon": {
+		width: 0,
+		mx: 0,
+	},
 };
 
 export const BODY_CELL_SX: SxProps<Theme> = {
 	height: ROW_HEIGHT, // 52px, content vertically centred (DSN)
 	py: 0,
 	px: 2, // 16px
-	fontSize: 13.5, // DSN kit body font
+	fontSize: 14, // body
 	borderBottom: 1,
 	borderColor: designTokens.gray100, // DSN --divider (lighter in-body rows)
 };
