@@ -68,7 +68,7 @@
 | `PhoneListField`                                                       | Phone inputs                                    | Fixed «+998», body grouped via `phoneUtils`                                         |
 | `PasswordField`                                                        | Password inputs (auth, invites)                 | Show/hide toggle + caps-lock warning                                                |
 | `Autocomplete` (`EntityAutocomplete`)                                  | Pickers over `{ id, name }` entity lists        | Trimmed case-insensitive filter + `additionalFilter` hook                           |
-| `AttachmentPicker`                                                     | File-attachment input on forms                  | Upload button + removable chip list                                                 |
+| `AttachmentPicker`                                                     | File-attachment input on forms                  | `GhostButton` upload (a native button opening a hidden file input — keyboard-operable) + removable chip list |
 | `AttachmentChip`                                                       | Downloadable file chip on detail pages          | MIME-typed icon (image/doc) + name + size; used by transaction & payment detail     |
 | `SearchInput`                                                          | Page / table search                             | —                                                                                   |
 | `DateFilterPicker`                                                     | Date filtering                                  | —                                                                                   |
