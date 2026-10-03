@@ -17,6 +17,8 @@ export interface ProductFormFieldsProps {
 	api: UseProductFormResult;
 	disabled: boolean;
 	onGenerateSku?: () => void;
+	/** Create flow: the SKU fills itself from the name — say so under the field. */
+	skuAutofill?: boolean;
 	imagesBaseUrlResolver?: (url: string) => string;
 }
 
@@ -29,6 +31,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	api,
 	disabled,
 	onGenerateSku,
+	skuAutofill,
 	imagesBaseUrlResolver,
 }) => {
 	const { t } = useTranslation();
@@ -76,6 +79,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 				setValue={setValue}
 				disabled={disabled}
 				onGenerateSku={onGenerateSku}
+				skuAutofill={skuAutofill}
 				imagesSlot={
 					<ProductFormImages
 						disabled={disabled}

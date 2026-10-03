@@ -26,6 +26,7 @@ export interface ProductFormCoreFieldsProps {
 	/** Image block rendered in the 196px left column of the top grid. */
 	imagesSlot: React.ReactNode;
 	onGenerateSku?: () => void;
+	skuAutofill?: boolean;
 }
 
 const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as const;
@@ -59,6 +60,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 	disabled,
 	imagesSlot,
 	onGenerateSku,
+	skuAutofill,
 }) => {
 	const { t } = useTranslation();
 	const type = useWatch({ control, name: "type" as const });
@@ -152,7 +154,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 
 			{/* артикул + штрих-код, gap 16, mb 16 */}
 			<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", mb: "16px" }}>
-				<Field label={t("product.sku")} required>
+				<Field label={t("product.form.skuLabel")} required>
 					<Controller
 						name="sku"
 						control={control}
@@ -164,7 +166,10 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								placeholder={t("product.form.skuPlaceholder")}
 								disabled={disabled}
 								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
+								helperText={
+									fieldState.error?.message ??
+									(skuAutofill ? t("product.form.skuHelper") : undefined)
+								}
 								slotProps={{
 									input: {
 										endAdornment: onGenerateSku ? (
