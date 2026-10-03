@@ -20,7 +20,7 @@ import RefundModal from "components/transaction/Refund/RefundModal";
 import { isPresent } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { PATHS, paymentDetailPath } from "routing/paths";
+import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import {
 	isRefundType,
@@ -50,8 +50,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 
 	const tx = txId === null ? null : selectedTransactionStore.transaction;
 	const retry = () => txId !== null && void selectedTransactionStore.load(txId);
-	const detailBase = direction === "Sale" ? "/sales" : "/supplies";
-	const openTransaction = (otherId: number) => navigate(`${detailBase}/${otherId}`);
+	const detailPath = direction === "Sale" ? saleDetailPath : supplyDetailPath;
+	const openTransaction = (otherId: number) => navigate(detailPath(otherId));
 	const devToast = (name: string) =>
 		notificationStore.info(t("transaction.detail.devToast", { name }));
 
