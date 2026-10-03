@@ -14,7 +14,7 @@ import {
 	orderSubtotal,
 	orderTotal,
 } from "utils/orderUtils";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -92,7 +92,7 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 									<Box component="span" sx={numericSx}>
 										{l.quantity}{" "}
 										<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
-											{MEASUREMENT_SHORT[l.measurement]}
+											{measurementShort(t, l.measurement)}
 										</Box>
 									</Box>
 								</td>

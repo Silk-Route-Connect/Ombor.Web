@@ -9,7 +9,7 @@ import { Product } from "models/product";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -204,7 +204,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 						)}
 					</Box>
 					{checks.map(({ line, have, ok }) => {
-						const unit = MEASUREMENT_SHORT[line.measurement];
+						const unit = measurementShort(t, line.measurement);
 						return (
 							<Box
 								key={line.id}

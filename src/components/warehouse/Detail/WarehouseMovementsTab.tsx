@@ -19,7 +19,7 @@ import {
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -231,7 +231,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({ mo
 						</thead>
 						<tbody>
 							{paged.map((movement) => {
-								const unit = MEASUREMENT_SHORT[movement.measurement];
+								const unit = measurementShort(t, movement.measurement);
 								const isIn = movement.quantity > 0;
 								return (
 									<tr

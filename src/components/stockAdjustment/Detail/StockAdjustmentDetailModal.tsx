@@ -10,7 +10,7 @@ import { StockAdjustment } from "models/stockAdjustment";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Avatar, Box, Dialog, DialogActions, DialogContent, Typography } from "@mui/material";
@@ -53,7 +53,7 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 		return null;
 	}
 
-	const unit = MEASUREMENT_SHORT[adjustment.measurement];
+	const unit = measurementShort(t, adjustment.measurement);
 	const isDown = adjustment.direction === "Decrease";
 
 	return (

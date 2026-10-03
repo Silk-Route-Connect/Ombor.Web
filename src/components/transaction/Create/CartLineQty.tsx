@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { parseWholeQuantity } from "utils/quantityInput";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -37,7 +37,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 	onContinue,
 }) => {
 	const { t } = useTranslation();
-	const unit = MEASUREMENT_SHORT[item.product.measurement];
+	const unit = measurementShort(t, item.product.measurement);
 	const packaging = item.product.packaging;
 	const packSize = packaging != null && packaging.size >= 2 ? packaging.size : null;
 	const inPackages = item.inPackages === true && packSize != null;

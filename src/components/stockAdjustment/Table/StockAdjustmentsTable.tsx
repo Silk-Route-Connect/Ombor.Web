@@ -10,7 +10,7 @@ import { StockAdjustment } from "models/stockAdjustment";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
@@ -162,7 +162,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 									textAlign: "left",
 								}}
 							>
-								{MEASUREMENT_SHORT[a.measurement]}
+								{measurementShort(t, a.measurement)}
 							</Box>
 						</Box>
 					);

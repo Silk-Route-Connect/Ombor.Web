@@ -8,7 +8,7 @@ import { Transfer, transferUnits } from "models/transfer";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -149,7 +149,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 									</td>
 									<td>
 										<Box component="span" sx={{ color: "text.secondary" }}>
-											{MEASUREMENT_SHORT[line.measurement]}
+											{measurementShort(t, line.measurement)}
 										</Box>
 									</td>
 								</tr>

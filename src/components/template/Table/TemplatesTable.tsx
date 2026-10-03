@@ -14,7 +14,7 @@ import { Template } from "models/template";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { lineNet } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -170,7 +170,7 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 							</Box>
 							<Box component="td" sx={innerBodySx}>
 								<Box component="span" sx={{ color: "text.secondary" }}>
-									{MEASUREMENT_SHORT[item.measurement]}
+									{measurementShort(t, item.measurement)}
 								</Box>
 							</Box>
 							<Box component="td" sx={{ ...innerBodySx, textAlign: "right" }}>

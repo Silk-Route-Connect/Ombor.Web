@@ -5,7 +5,7 @@ import { stockAt } from "hooks/transactions/useTransactionEntry";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
@@ -93,7 +93,7 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 			renderOption={(props, p) => {
 				const stock = stockAt(p, warehouseId);
 				const out = stock === 0;
-				const unit = MEASUREMENT_SHORT[p.measurement];
+				const unit = measurementShort(t, p.measurement);
 				return (
 					<Box component="li" {...props} key={p.id} sx={{ gap: "12px" }}>
 						<Box

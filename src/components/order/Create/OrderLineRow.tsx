@@ -4,7 +4,7 @@ import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -67,7 +67,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 	onRemove,
 }) => {
 	const { t } = useTranslation();
-	const unit = MEASUREMENT_SHORT[item.product.measurement];
+	const unit = measurementShort(t, item.product.measurement);
 	const stock = stockAt(item.product, warehouseId);
 	const over = warehouseId != null && item.quantity > stock;
 

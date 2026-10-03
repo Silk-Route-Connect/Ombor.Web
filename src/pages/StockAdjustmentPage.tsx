@@ -14,7 +14,7 @@ import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import { Box } from "@mui/material";
 
@@ -63,7 +63,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			{
 				header: t("adjustment.table.quantity"),
 				value: (a) =>
-					`${a.direction === "Decrease" ? "-" : "+"}${a.quantity} ${MEASUREMENT_SHORT[a.measurement]}`,
+					`${a.direction === "Decrease" ? "-" : "+"}${a.quantity} ${measurementShort(t, a.measurement)}`,
 			},
 			{ header: t("adjustment.table.reason"), value: (a) => t(`adjustment.reason.${a.reason}`) },
 			{ header: t("adjustment.table.createdBy"), value: (a) => a.createdBy },

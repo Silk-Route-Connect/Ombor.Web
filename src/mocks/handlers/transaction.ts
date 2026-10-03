@@ -1,6 +1,7 @@
 import { delay, http, HttpResponse } from "msw";
 
-import { MEASUREMENT_SHORT } from "../../utils/productUtils";
+import i18next from "../../i18n/config";
+import { measurementShort } from "../../utils/productUtils";
 import { findPartner } from "../data/partner";
 import { findProduct } from "../data/product";
 import {
@@ -146,7 +147,7 @@ export const transactionHandlers = [
 				return {
 					productId: l.productId,
 					productName: product?.name ?? `#${l.productId}`,
-					unit: product ? MEASUREMENT_SHORT[product.measurement] : undefined,
+					unit: product ? measurementShort(i18next.t, product.measurement) : undefined,
 					quantity: l.quantity,
 					unitPrice: l.unitPrice,
 					discount: l.discount ?? 0,

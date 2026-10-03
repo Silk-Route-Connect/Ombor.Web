@@ -19,7 +19,7 @@ import { Template, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
 import { chipTokens, designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -411,7 +411,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 								const qty = line?.quantity ?? 1;
 								const price = line?.unitPrice ?? 0;
 								const product = activeProducts.find((p) => p.id === line?.productId);
-								const unit = product ? MEASUREMENT_SHORT[product.measurement] : "";
+								const unit = product ? measurementShort(t, product.measurement) : "";
 
 								return (
 									<Box

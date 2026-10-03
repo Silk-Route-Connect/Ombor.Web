@@ -2,24 +2,20 @@ import { TFunction } from "i18next";
 import { Measurement, Product, ProductPackaging, ProductTransaction } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
-/** Short unit codes for the «Ед. изм.» column, keyed by the domain enum. */
-export const MEASUREMENT_SHORT: Record<Measurement, string> = {
-	Gram: "г",
-	Kilogram: "кг",
-	Ton: "т",
-	Piece: "шт",
-	Box: "кор",
-	// Legacy alias of Piece — kept so products the backend still serves as `Unit`
-	// render a short code (issues-tracker §12); not offered in the product picker.
-	Unit: "ед",
-	None: "—",
-};
+/**
+ * Short localized unit code for a quantity cell («кг», «шт»), or «—» when unset
+ * (`None`). `Unit` is a legacy alias of Piece the backend may still serve
+ * (issues-tracker §12) — it keeps its own short code.
+ */
+export function measurementShort(t: TFunction, measurement: Measurement): string {
+	return measurement === "None" ? "—" : t(`product.measurementShort.${measurement}`);
+}
 
 /**
  * Inline unit for a quantity value (e.g. «5 Килограмм») — the FULL localized
  * term, or empty for `None` so a unit-less quantity reads «5» (never a bare
  * trailing dash). For a dedicated unit column/field use {@link measurementLabel}.
- * (`MEASUREMENT_SHORT` is kept for other modules that still render short codes.)
+ * For a short code next to a number use {@link measurementShort}.
  */
 export function unitInline(t: TFunction, measurement: Measurement): string {
 	return measurement === "None" ? "" : t(`product.measurement.${measurement}`);

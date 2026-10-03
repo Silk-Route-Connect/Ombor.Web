@@ -126,6 +126,12 @@
   "product.measurement.Unit": "Единица",
   "product.measurement.None": "Без единицы",
 
+  "product.measurementShort.Gram": "г",
+  "product.measurementShort.Kilogram": "кг",
+  "product.measurementShort.Ton": "т",
+  "product.measurementShort.Piece": "шт",
+  "product.measurementShort.Box": "кор",
+  "product.measurementShort.Unit": "ед",
   "product.type": "Тип товара",
   "product.type.All": "Оба",
   "product.type.Sale": "Продажа",

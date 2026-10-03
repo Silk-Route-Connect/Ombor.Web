@@ -4,7 +4,7 @@ import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -72,7 +72,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const isSale = direction === "Sale";
-	const unit = MEASUREMENT_SHORT[item.product.measurement];
+	const unit = measurementShort(t, item.product.measurement);
 	const stock = stockAt(item.product, warehouseId);
 	// A supply adds stock, so over-stock never applies — only sales validate it.
 	const over = isSale && item.quantity > stock;

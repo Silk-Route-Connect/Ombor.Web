@@ -1,8 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Product } from "models/product";
 import { numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import { Box, Typography } from "@mui/material";
 
@@ -16,7 +17,8 @@ const TransferProductOption: React.FC<{ product: Product; stock: number }> = ({
 	product,
 	stock,
 }) => {
-	const unit = MEASUREMENT_SHORT[product.measurement];
+	const { t } = useTranslation();
+	const unit = measurementShort(t, product.measurement);
 	const color = stock === 0 ? "error.main" : stock < 15 ? "warning.main" : "success.main";
 
 	return (
