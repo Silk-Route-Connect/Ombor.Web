@@ -43,7 +43,6 @@
   "order.action.process": "Взять в обработку",
   "order.action.ship": "Отправить",
   "order.action.deliver": "Подтвердить доставку",
-  "order.action.download": "Скачать",
   "order.action.return": "Отметить возврат",
   "order.action.reject": "Клиент отказался",
   "order.action.cancel": "Отменить заказ",
@@ -90,7 +89,6 @@
   "order.terminal.Returned.openSale": "Оформить возврат по продаже",
 
   "order.detail.notFound": "Заказ не найден",
-  "order.detail.downloadInfo": "Готовится PDF заказа…",
 
   "order.field.client": "Клиент",
   "order.field.warehouse": "Склад",

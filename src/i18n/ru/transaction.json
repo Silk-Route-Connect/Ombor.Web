@@ -119,7 +119,6 @@
   "transaction.detail.title.Supply": "Поставка {{number}}",
   "transaction.detail.title.SaleRefund": "Возврат продажи {{number}}",
   "transaction.detail.title.SupplyRefund": "Возврат поставки {{number}}",
-  "transaction.detail.download": "Скачать",
   "transaction.detail.createRefund": "Оформить возврат",
   "transaction.detail.positions": "Позиции",
   "transaction.detail.col.product": "Товар",
@@ -168,7 +167,6 @@
   "transaction.detail.original.Supply": "Исходная поставка",
   "transaction.detail.positionsReturned": "Позиций возвращено",
   "transaction.detail.refundImmutable": "Возврат проведён и не подлежит изменению",
-  "transaction.detail.devToast": "{{name}} — раздел в разработке",
 
   "transaction.refund.title.Sale": "Возврат к продаже {{number}}",
   "transaction.refund.title.Supply": "Возврат к поставке {{number}}",

@@ -24,7 +24,14 @@ import { isPresent } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { useOpenRefundOnArrival } from "hooks/transactions/useOpenRefundOnArrival";
 import { observer } from "mobx-react-lite";
-import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import {
+	PATHS,
+	paymentDetailPath,
+	saleDetailPath,
+	saleInvoicePath,
+	supplyDetailPath,
+	supplyInvoicePath,
+} from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import {
 	isRefundType,
@@ -43,7 +50,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const txId = useRouteEntityId();
-	const { transactionStore, selectedTransactionStore, notificationStore } = useStore();
+	const { transactionStore, selectedTransactionStore } = useStore();
 
 	useEffect(() => {
 		if (txId !== null) {
@@ -56,9 +63,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 	useOpenRefundOnArrival();
 	const retry = () => txId !== null && void selectedTransactionStore.load(txId);
 	const detailPath = direction === "Sale" ? saleDetailPath : supplyDetailPath;
+	const invoicePath = direction === "Sale" ? saleInvoicePath : supplyInvoicePath;
 	const openTransaction = (otherId: number) => navigate(detailPath(otherId));
-	const devToast = (name: string) =>
-		notificationStore.info(t("transaction.detail.devToast", { name }));
 
 	if (!isPresent(tx)) {
 		return (
@@ -94,7 +100,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 				direction={direction}
 				onCreateRefund={() => transactionStore.openRefund(tx)}
 				fullyRefunded={selectedTransactionStore.isFullyRefunded}
-				onDownload={() => devToast(t("transaction.detail.download"))}
+				onPrint={() => navigate(invoicePath(tx.id))}
 			/>
 
 			{refund && original && (

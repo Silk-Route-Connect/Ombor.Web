@@ -20,7 +20,7 @@ Module-specific designed behavior — never report these (shared-checklist §6 t
 | Success toast «Возврат к №N проведён» cites the ORIGINAL's number, not the new refund's | by design (`transaction.refund.success`) |
 | Checking a line in the modal pre-fills the full available quantity | convenience default, editable |
 | Refund detail has no payments card and no status chip | an unpaid refund's debt surfaces on /debts and the partner ledger, not on its own detail |
-| «Скачать» on any transaction detail → toast «… — раздел в разработке» | dev stub, not a defect |
+| A refund detail's only header button is «Печать накладной» (no ⋮, no refund action) | Designed — a refund is not refundable (R4); the button opens the printable «Накладная» |
 | Warehouse «Движения» filter «Возврат» matches zero rows | Known F8 — verify refund movements in the unfiltered list |
 
 ## Happy path
@@ -66,6 +66,11 @@ Pre: T-RFD-02.
 Steps: open «QA Склад А» detail → Остатки; find product А.
 Expect: qty = 8 (5 + 3 — SaleRefund is a stock-in, R18); unit cost/WAC for А still 10 000 (single-cost history). An unfiltered «Движения» list shows the refund movement.
 Known: F8 — the «Возврат» kind filter matches nothing; do not use it.
+
+### T-RFD-07 · Refund «Накладная» prints from the visible header button [happy]
+Pre: T-RFD-04 (refund №R1 of sale №S).
+Steps: on №R1's detail click the header button «Печать накладной».
+Expect: `/sales/<R1 id>/print`: «Накладная на возврат продажи №R1», «Возврат по продаже №S», «Отправитель» = the client, «Получатель» = the business; lines = the refunded lines; «Итого» = the refund sum (unsigned); NO «Оплачено» / «Осталось оплатить» (a refund moves no money); «Причина возврата: QA возврат — брак».
 
 ## Edge & negative
 

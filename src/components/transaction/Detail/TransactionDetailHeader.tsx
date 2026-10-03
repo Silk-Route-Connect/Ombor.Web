@@ -9,7 +9,7 @@ import { PATHS } from "routing/paths";
 import { formatOptionalNumber } from "utils/formatEntityId";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 
@@ -19,43 +19,45 @@ interface TransactionDetailHeaderProps {
 	onCreateRefund: () => void;
 	/** Every line already went back: the refund action gives way to a «Возвращено полностью» note. */
 	fullyRefunded: boolean;
-	onDownload: () => void;
+	/** Opens the printable «Накладная». */
+	onPrint: () => void;
 }
 
 /**
  * Transaction detail header on the shared {@link DetailPageHeader}: the typed
  * «Продажа №…» title only — status/date/partner/warehouse live in the body
  * sections. The refund is the only way to correct an immutable sale/supply, so it
- * is the visible `primaryAction` (a child-event creation, pattern 2); «Скачать»
- * sits in the kebab. A refund is not refundable, so its page keeps «Скачать» as
- * the only (visible) action.
+ * is the visible `primaryAction` (a child-event creation, pattern 2); «Печать
+ * накладной» sits in the kebab. A refund is not refundable, so its page keeps
+ * the print action as the only (visible) one.
  */
 export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = ({
 	tx,
 	direction,
 	onCreateRefund,
 	fullyRefunded,
-	onDownload,
+	onPrint,
 }) => {
 	const { t } = useTranslation();
 	const refund = isRefundType(tx.type);
-
-	const downloadIcon = <FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />;
 
 	const actions: ActionMenuRow[] = refund
 		? []
 		: [
 				{
-					key: "download",
-					label: t("transaction.detail.download"),
-					icon: <FileDownloadOutlinedIcon fontSize="small" />,
-					onClick: onDownload,
+					key: "print",
+					label: t("print.invoice.action"),
+					icon: <PrintOutlinedIcon fontSize="small" />,
+					onClick: onPrint,
 				},
 			];
 
 	const primaryAction = refund ? (
-		<GhostButton icon={downloadIcon} onClick={onDownload}>
-			{t("transaction.detail.download")}
+		<GhostButton
+			icon={<PrintOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+			onClick={onPrint}
+		>
+			{t("print.invoice.action")}
 		</GhostButton>
 	) : fullyRefunded ? (
 		<StatusPill
