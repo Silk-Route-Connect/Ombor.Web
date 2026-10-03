@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
 import { DebtSummary } from "stores/DebtStore";
-import { ChipTokenKey, designTokens, numericSx, typeScale } from "theme";
+import { ChipTokenKey, designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";

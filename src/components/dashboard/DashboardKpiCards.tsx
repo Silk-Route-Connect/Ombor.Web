@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { DashboardData } from "models/dashboard";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
-import { designTokens, numericSx, typeScale } from "theme";
+import { designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -27,7 +27,7 @@ type CardSpec = {
 	unit?: boolean;
 	valueColor: string;
 	/** Palette family of the sparkline stroke. */
-	spark: "primary" | "success" | "error";
+	spark: "primary" | "success" | "warning" | "error";
 	trend: number[];
 	delta: Delta;
 	footnote: string;
@@ -41,7 +41,7 @@ const DeltaBadge: React.FC<{ delta: Delta }> = ({ delta }) => {
 			: delta.tone === "down"
 				? "error.main"
 				: delta.tone === "warn"
-					? "error.main"
+					? "warning.dark"
 					: "text.secondary";
 	const icon =
 		delta.tone === "warn" ? (
@@ -266,8 +266,10 @@ const DashboardKpiCards: React.FC<Props> = ({
 			caption: t("dashboard.kpi.overdue"),
 			value: data.overdue.value,
 			unit: true,
-			valueColor: "error.main",
-			spark: "error",
+			// Age-based («older than 30 days») — the aging axis keeps amber; red is
+			// reserved for past-due «Просрочено» (ui-patterns → Chip colour semantics).
+			valueColor: "warning.main",
+			spark: "warning",
 			trend: data.overdue.trend,
 			delta: {
 				pct: null,

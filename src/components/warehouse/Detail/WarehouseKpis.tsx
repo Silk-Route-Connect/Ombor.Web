@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Warehouse } from "models/warehouse";
-import { numericSx, typeScale } from "theme";
+import { typeScale } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";

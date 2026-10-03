@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Wallet } from "models/wallet";
-import { designTokens, numericSx, typeScale } from "theme";
+import { designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Paper, Typography } from "@mui/material";

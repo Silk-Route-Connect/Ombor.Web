@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
-import { chipTokens, designTokens, numericSx, typeScale } from "theme";
+import { chipTokens, designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";

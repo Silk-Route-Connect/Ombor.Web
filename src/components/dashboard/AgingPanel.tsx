@@ -82,7 +82,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 						sx={{
 							...typeScale.numStrong,
 							lineHeight: 1,
-							color: hasOverdue ? "error.main" : "text.disabled",
+							color: hasOverdue ? "warning.main" : "text.disabled",
 						}}
 					>
 						{formatCurrency(overdue)}
@@ -90,7 +90,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 				</Box>
 				{hasOverdue && (
 					<StatusPill
-						token="overdue"
+						token="warning"
 						icon={ReportProblemOutlinedIcon}
 						label={t("debt.summary.txCount", { count: overdueCount })}
 					/>
