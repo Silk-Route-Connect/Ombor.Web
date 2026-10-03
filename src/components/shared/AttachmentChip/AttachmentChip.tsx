@@ -70,7 +70,7 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 			</Box>
 			<Box>
 				<Typography sx={{ fontSize: 13, fontWeight: 600 }}>{name}</Typography>
-				<Typography sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "1px" }}>
+				<Typography sx={{ ...numericSx, fontSize: 12, color: "text.disabled", mt: "1px" }}>
 					{formatBytes(t, sizeBytes)}
 				</Typography>
 			</Box>

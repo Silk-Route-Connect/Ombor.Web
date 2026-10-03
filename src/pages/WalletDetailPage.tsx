@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
@@ -13,7 +13,7 @@ import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletTransferModal from "components/wallet/Form/WalletTransferModal";
 import { observer } from "mobx-react-lite";
 import { Wallet, WalletOperation } from "models/wallet";
-import { PATHS, paymentDetailPath } from "routing/paths";
+import { paymentDetailPath } from "routing/paths";
 import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
@@ -24,7 +24,6 @@ import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const location = useLocation();
 	const { id } = useParams<{ id: string }>();
 	const walletId = Number(id);
 	const { walletStore, selectedWalletStore, notificationStore } = useStore();
@@ -40,8 +39,6 @@ const WalletDetailPage: React.FC = observer(() => {
 		setTab("operations");
 		return () => selectedWalletStore.clear();
 	}, [walletId, selectedWalletStore, walletStore]);
-
-	const goBack = () => (location.key === "default" ? navigate(PATHS.wallets) : navigate(-1));
 
 	const wallet = selectedWalletStore.wallet;
 	const dialogMode = walletStore.dialogMode;
@@ -124,7 +121,6 @@ const WalletDetailPage: React.FC = observer(() => {
 		<Box>
 			<WalletDetailHeader
 				wallet={wallet}
-				onBack={goBack}
 				onNewTransfer={() => walletStore.openTransfer(wallet.id)}
 				onEdit={() => walletStore.openEdit(wallet)}
 				onArchive={() => walletStore.openArchive(wallet)}

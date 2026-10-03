@@ -99,12 +99,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 				)}
 
 				<Box sx={{ minWidth: 0, pt: "1px" }}>
-					<Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", mb: "8px" }}>
+					<Typography variant="h6" component="h2" sx={{ mb: 1 }}>
 						{title}
 					</Typography>
 
 					{content && (
-						<Box sx={{ fontSize: 13.5, color: "text.secondary", lineHeight: 1.62 }}>{content}</Box>
+						<Box sx={{ fontSize: 14, color: "text.secondary", lineHeight: 1.6 }}>{content}</Box>
 					)}
 				</Box>
 			</Box>

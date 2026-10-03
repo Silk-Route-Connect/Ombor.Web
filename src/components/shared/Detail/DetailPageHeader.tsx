@@ -88,12 +88,8 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				<Box sx={{ minWidth: 0 }}>
 					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
 						<Typography
-							component="h1"
+							variant="h1"
 							sx={{
-								fontSize: 24,
-								fontWeight: 700,
-								letterSpacing: "-0.02em",
-								lineHeight: 1.25,
 								overflow: "hidden",
 								textOverflow: "ellipsis",
 								whiteSpace: "nowrap",
@@ -111,7 +107,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 								alignItems: "center",
 								gap: "8px",
 								mt: "6px",
-								fontSize: 13.5,
+								fontSize: 14,
 								color: "text.secondary",
 							}}
 						>

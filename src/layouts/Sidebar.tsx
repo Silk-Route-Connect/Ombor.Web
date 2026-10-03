@@ -191,7 +191,7 @@ function SubItem({ item, active, onClick }: Readonly<SubItemProps>) {
 			<ListItemText
 				primary={t(item.labelKey)}
 				slotProps={{
-					primary: { sx: { fontSize: 13.5, fontWeight: active ? 600 : 500 } },
+					primary: { sx: { fontSize: 14, fontWeight: active ? 600 : 500 } },
 				}}
 			/>
 		</ListItemButton>
