@@ -84,6 +84,9 @@ export class AuthStore {
 	/** Shell-provided callbacks */
 	private sideEffects: AuthSideEffects = {};
 
+	/** True while a logout runs — concurrent forced logouts collapse into one. */
+	private loggingOut = false;
+
 	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 
@@ -201,7 +204,7 @@ export class AuthStore {
 		return response.accessToken;
 	}
 
-	/* ── Password reset (mocked target v1 contract). None of these enter the app —
+	/* ── Password reset. None of these enter the app —
 	 * the user logs in afterwards with the new password. ── */
 
 	public async requestPasswordReset(
@@ -267,12 +270,14 @@ export class AuthStore {
 		}
 		analytics.reset();
 
+		this.loggingOut = true;
 		try {
 			await authApi.logout();
 		} catch {
 			// ignore network/logout errors; still clear local state
 		} finally {
 			runInAction(() => {
+				this.loggingOut = false;
 				this.accessToken = null;
 				this.user = null;
 				this.status = "unauthenticated";
@@ -291,6 +296,11 @@ export class AuthStore {
 	 * Interceptor-triggered logout (refresh failed or unauthorized on auth route).
 	 */
 	private handleExternalLogout(reason: "refresh_failed" | "unauthorized"): void {
+		// Several requests can fail at once; only the first ends an active session,
+		// so the user is sent to /login once (auth-12).
+		if (this.loggingOut || this.status !== "authenticated") {
+			return;
+		}
 		// We intentionally don't await here to avoid blocking interceptor chains
 		void this.logout();
 	}

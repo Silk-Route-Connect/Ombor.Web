@@ -28,38 +28,57 @@ import { ITransferStore, TransferStore } from "./TransferStore";
 import { IWalletStore, WalletStore } from "./WalletStore";
 import { IWarehouseStore, WarehouseStore } from "./WarehouseStore";
 
+/**
+ * Composes every store. Notification, auth and connectivity live for the whole
+ * tab; everything holding business data is per-session and rebuilt by `reset()`
+ * on logout, so the next sign-in in the same tab never sees the previous
+ * user's or business's data (frontend-4).
+ */
 export class RootStore {
 	notificationStore: NotificationStore;
-	categoryStore: ICategoryStore;
-	productStore: IProductStore;
-	partnerStore: IPartnerStore;
-	partnerLedgerStore: IPartnerLedgerStore;
-	saleStore: ISaleStore;
-	templateStore: TemplateStore;
-	transactionStore: ITransactionStore;
-	selectedTransactionStore: ISelectedTransactionStore;
-	selectedProductStore: ISelectedProductStore;
-	paymentStore: IPaymentStore;
-	selectedPaymentStore: ISelectedPaymentStore;
-	warehouseStore: IWarehouseStore;
-	selectedWarehouseStore: ISelectedWarehouseStore;
-	stockAdjustmentStore: IStockAdjustmentStore;
-	transferStore: ITransferStore;
-	orderStore: OrderStore;
+	categoryStore!: ICategoryStore;
+	productStore!: IProductStore;
+	partnerStore!: IPartnerStore;
+	partnerLedgerStore!: IPartnerLedgerStore;
+	saleStore!: ISaleStore;
+	templateStore!: TemplateStore;
+	transactionStore!: ITransactionStore;
+	selectedTransactionStore!: ISelectedTransactionStore;
+	selectedProductStore!: ISelectedProductStore;
+	paymentStore!: IPaymentStore;
+	selectedPaymentStore!: ISelectedPaymentStore;
+	warehouseStore!: IWarehouseStore;
+	selectedWarehouseStore!: ISelectedWarehouseStore;
+	stockAdjustmentStore!: IStockAdjustmentStore;
+	transferStore!: ITransferStore;
+	orderStore!: OrderStore;
 	authStore: AuthStore;
-	employeeStore: IEmployeeStore;
-	selectedEmployeeStore: ISelectedEmployeeStore;
-	payrollStore: IPayrollStore;
-	walletStore: IWalletStore;
-	selectedWalletStore: ISelectedWalletStore;
-	debtStore: IDebtStore;
-	dashboardStore: IDashboardStore;
-	onboardingStore: IOnboardingStore;
-	settingsStore: ISettingsStore;
+	employeeStore!: IEmployeeStore;
+	selectedEmployeeStore!: ISelectedEmployeeStore;
+	payrollStore!: IPayrollStore;
+	walletStore!: IWalletStore;
+	selectedWalletStore!: ISelectedWalletStore;
+	debtStore!: IDebtStore;
+	dashboardStore!: IDashboardStore;
+	onboardingStore!: IOnboardingStore;
+	settingsStore!: ISettingsStore;
 	connectivityStore: IConnectivityStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
+		this.authStore = new AuthStore();
+		// Registers the ConnectivityBridge reporters used by the http error
+		// interceptor — construct it so the wiring exists before any request.
+		this.connectivityStore = new ConnectivityStore(this.notificationStore);
+		this.createDataStores();
+	}
+
+	/** Drops every per-session store (logout) — see the class note. */
+	reset(): void {
+		this.createDataStores();
+	}
+
+	private createDataStores(): void {
 		this.categoryStore = new CategoryStore(this.notificationStore);
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
@@ -76,7 +95,6 @@ export class RootStore {
 		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
 		this.transferStore = new TransferStore(this.notificationStore);
 		this.orderStore = new OrderStore(this.notificationStore);
-		this.authStore = new AuthStore();
 		this.employeeStore = new EmployeeStore(this.notificationStore);
 		this.selectedEmployeeStore = new SelectedEmployeeStore(
 			this.employeeStore,
@@ -89,9 +107,6 @@ export class RootStore {
 		this.dashboardStore = new DashboardStore(this.notificationStore);
 		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
-		// Registers the ConnectivityBridge reporters used by the http error
-		// interceptor — construct it so the wiring exists before any request.
-		this.connectivityStore = new ConnectivityStore(this.notificationStore);
 	}
 }
 
