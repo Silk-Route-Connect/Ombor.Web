@@ -81,7 +81,7 @@
 
   "common.loadState.errorTitle": "Не удалось загрузить данные",
   "common.loadState.notFound": "Запись не найдена",
-  "common.loadState.notFoundBody": "Возможно, её удалили или ссылка неверна.",
+  "common.loadState.notFoundBody": "Возможно, запись удалили или ссылка неверна.",
   "common.loadState.backToList": "К списку",
   "common.loadState.reason.network": "Нет связи с сервером. Проверьте интернет и нажмите «Повторить».",
   "common.loadState.reason.server": "Сервер ответил ошибкой. Попробуйте ещё раз через минуту.",

@@ -330,7 +330,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 						{t("warehouse.opening.addLine")}
 					</Button>
 					{noMoreProducts && !canAddRow && (
-						<Typography role="status" sx={{ fontSize: 12.5, color: "text.secondary", ml: 1 }}>
+						<Typography role="status" sx={{ fontSize: 12, color: "text.secondary", ml: 1 }}>
 							{t("warehouse.opening.noMoreProducts")}
 						</Typography>
 					)}

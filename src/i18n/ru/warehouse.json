@@ -1,7 +1,7 @@
 {
   "warehouse.error.getAll": "Не удалось загрузить склады",
   "warehouse.error.getById": "Не удалось загрузить склад",
-  "warehouse.error.getStock": "Не удалось загрузить остатки склада",
+  "warehouse.error.getStock": "Не удалось загрузить остатки и движения склада",
   "warehouse.error.create": "Не удалось создать склад",
   "warehouse.error.update": "Не удалось обновить склад",
   "warehouse.error.archive": "Не удалось архивировать склад",

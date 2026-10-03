@@ -88,7 +88,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 					{t("addPhoneNumber")}
 				</Button>
 				{addHint && (
-					<Typography role="status" sx={{ fontSize: 12.5, color: "text.secondary", mt: "4px" }}>
+					<Typography role="status" sx={{ fontSize: 12, color: "text.secondary", mt: "4px" }}>
 						{addHint}
 					</Typography>
 				)}
