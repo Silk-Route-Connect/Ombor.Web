@@ -45,7 +45,11 @@ const KNOWN_CODES = new Set([
 	"auth.current_password_invalid",
 	"stock.insufficient",
 	"wallet.insufficient_balance",
+	"payment.direction_mismatch",
+	"file.invalid",
+	"file.too_large",
 	"entity.referenced",
+	"conflict.duplicate",
 	"entity.not_found",
 	"validation.failed",
 ]);
