@@ -1,7 +1,7 @@
 # Frontend conventions — Ombor
 
 **Status:** frontend craft doc — the patterns new code must follow; read once per session. Pairs with ../Ombor.Docs/operating-code.md (cross-repo rules: file size, comments, quality bar, git, session discipline) and ../Ombor.Docs/ui-patterns.md (locked UI patterns).
-**Last updated:** 2026-07-14
+**Last updated:** 2026-10-03
 
 Read once per session before writing code. Codifies the patterns the codebase already follows; new code must follow them. Where existing legacy code and this doc disagree, follow this doc for new code and don't refactor legacy outside the task scope. When changing a pattern here seems justified, propose it — don't fork silently.
 
@@ -73,9 +73,20 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 
 ## Styling
 
-- `theme.ts` is the **only** styling source: colors, typography, spacing, radii. No hardcoded hex values, no magic pixel values — use `sx` with theme tokens.
+- `src/theme/` is the **only** styling source: colours, typography, spacing, radii, chip colours (values mirrored in `docs/design-tokens.md`). Import tokens `from "theme"`. No colour literals outside it — no hex, `rgb()/rgba()`, or `"#fff"` (use `"common.white"`, palette paths like `"success.main"`, or `designTokens.*`); lint flags them. No magic pixel values where a token exists (`radius.*`, `controlSize`, `dialogPaperSx`).
 - `sx` for component styling; the existing `global.scss` / module `.scss` are legacy — don't add new SCSS files.
 - No new styling libraries.
+- **Text tiers (contrast-checked):** `text.primary` (ink) for content; `text.secondary` (fg2, 6.4:1) for any readable secondary data — SKU, dates, №, company, units; `text.disabled` = fg3 (4.8:1) for tertiary meta and placeholders only. `designTokens.decoration` / `gray400` is for icons, dots and hairlines — **never text**. Text on a tint uses the family's dark shade (`success.dark`, `warning.dark`, … / `chipTokens`), never `warning.main` (3.3:1).
+- **Borders:** input / select / control outlines come from the theme (`borderControl`, 3.7:1) — never override `.MuiOutlinedInput-notchedOutline` per component. `divider` / `gray200` / `gray300` are decorative hairlines for cards and tables.
+- **Chips:** every status / type / direction pill renders through `StatusPill` (or a semantic wrapper over it: `PaymentStatusChip`, `MovementKindChip`, `TransactionTypeBadge`, `DirectionBadge`, …) keyed by a `chipTokens` name. Never hand-roll a `Box` with `borderRadius: 999`, never dim a chip with `opacity` (use the `neutral` token). Colour meaning per ../Ombor.Docs/ui-patterns.md → Chip colour semantics.
+- **Keyboard:** anything clickable is reachable and operable by keyboard. Use `ButtonBase` (or `Button`, `ListItemButton`, `Paper component={ButtonBase}`) for clickable cards, rows, options and tiles so they inherit the theme's focus ring; only where that is impossible add `role="button"` + `tabIndex={0}` + an Enter/Space handler (the global `:focus-visible` rule styles it). Toggle groups expose state: `aria-pressed` on segmented items, `role="tab"` + `aria-selected` on tabs, `role="radio"` + `aria-checked` on option cards, `aria-current` on in-page nav. Never remove the focus outline.
+- **Layout:** detail rails use `DETAIL_RAIL_COLUMNS` (rail from `lg`, `minmax(0, 1fr)` main column). The sidebar auto-collapses below 1280px, so page breakpoints may assume the 72px rail there.
+
+## Typography
+
+- Use Typography **variants** for headings and running text: `h1` page / detail titles (26/700), `h2` sections (20/600), `h3` card titles (16/600), `h6` dialog titles (18/700, what `DialogTitle` renders), `body1` 14, `body2` 13, `caption` 12, `overline` 11. Numeric hero values use `typeScale.numStrong` / `numHero`, table money `typeScale.numTable`, always with `numericSx`.
+- When a raw `fontSize` is unavoidable in `sx`, it must be a step of that scale — **11, 12, 13, 14, 15, 16, 18, 20, 26** — never a fractional size (12.5, 13.5 …) and never a new step. Weights 400–700 only (Onest 800 is not loaded; lint flags 800).
+- Existing literals are legacy: snap them to the scale when you touch the line, don't sweep unrelated files.
 
 ## i18n
 

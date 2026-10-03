@@ -73,7 +73,6 @@ export const designTokens = {
 	fg1: INK,
 	fg2: NEUTRAL[600],
 	fg3: NEUTRAL[500],
-	textSecondary: NEUTRAL[600],
 	// on-tint text (chips, tinted tiles)
 	successFg: SUCCESS_FG,
 	dangerFg: DANGER_FG,
@@ -98,7 +97,6 @@ export const designTokens = {
 	successBorder: "#C2E0D2",
 	infoBg: "#E7F0F6",
 	infoBorder: "#C5DBEA",
-	saffronBadgeBorder: "#ECD3A4",
 	purpleBg: "#ECE7F7", // payroll badge fill (app extension)
 	purpleText: "#6A4BB0", // payroll badge text (5.3:1 on purpleBg)
 	purpleBorder: "#D6CBEE",
@@ -110,6 +108,4 @@ export const designTokens = {
 	scrim: "rgba(255,255,255,0.72)", // frosted card over the auth backdrop
 	primaryWash: "rgba(18,103,107,0.05)", // chart hover cursor
 	loadingVeil: "rgba(244,241,234,0.55)", // canvas-tinted veil over content while it reloads
-	// One visible keyboard-focus ring (6.6:1): white gap + teal ring.
-	focusRing: `0 0 0 2px ${NEUTRAL[0]}, 0 0 0 4px ${TEAL_500}`,
 } as const;
