@@ -25,9 +25,9 @@ class SettingsApi {
 
 	/**
 	 * Update the organization profile. Sent as multipart/form-data: the text
-	 * fields plus an optional `logo` file (omitting the file keeps the existing
-	 * logo; the server returns the hosted `logoUrl`). `logoUrl` is also sent so the
-	 * mock can reflect the client preview / removal — the real backend ignores it.
+	 * fields plus an optional `logo` file — a new file replaces the logo (the server
+	 * returns its hosted `logoUrl`), and a profile whose `logoUrl` was cleared sends
+	 * `removeLogo`; otherwise the existing logo is kept.
 	 */
 	async updateOrganization(org: Organization, logoFile?: File | null): Promise<Organization> {
 		const form = new FormData();
@@ -35,9 +35,10 @@ class SettingsApi {
 		form.append("address", org.address ?? "");
 		form.append("phone", org.phone ?? "");
 		form.append("email", org.email ?? "");
-		form.append("logoUrl", org.logoUrl ?? "");
 		if (logoFile) {
 			form.append("logo", logoFile, logoFile.name);
+		} else if (!org.logoUrl) {
+			form.append("removeLogo", "true");
 		}
 
 		const { data } = await http.put<Organization>(

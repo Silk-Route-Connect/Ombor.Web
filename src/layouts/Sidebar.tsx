@@ -1,7 +1,6 @@
 import React, { ElementType, Fragment, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import OmborMark from "components/shared/brand/OmborMark";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
@@ -9,13 +8,11 @@ import { useStore } from "stores/StoreContext";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
 	Box,
 	ButtonBase,
 	Collapse,
-	IconButton,
 	List,
 	ListItemButton,
 	ListItemIcon,
@@ -28,6 +25,7 @@ import {
 } from "@mui/material";
 
 import { ChildNavItem, NavItem, navItems } from "./config";
+import SidebarBrand from "./SidebarBrand";
 
 export const SIDEBAR_WIDTH = 248; // expanded column
 const RAIL_WIDTH = 72; // collapsed icon rail
@@ -57,65 +55,6 @@ function isRouteActive(pathname: string, to: string): boolean {
 	}
 	return pathname === to || pathname.startsWith(`${to}/`);
 }
-
-/* ───────────────────────────── Brand + toggle ───────────────────────────── */
-
-const Brand = observer(function Brand({
-	expanded,
-	onToggle,
-}: {
-	expanded: boolean;
-	onToggle: () => void;
-}) {
-	const { t } = useTranslation();
-	const { authStore } = useStore();
-	const businessName = authStore.getUser()?.organizationName;
-
-	// Hamburger lives inside the sidebar (top-right when expanded, under the mark
-	// when collapsed) — deliberately not in the topbar.
-	const toggle = (
-		<Tooltip title={t(expanded ? "sidebar.collapse" : "sidebar.expand")} placement="right" arrow>
-			<IconButton
-				onClick={onToggle}
-				aria-label={t(expanded ? "sidebar.collapse" : "sidebar.expand")}
-				sx={{
-					width: 38,
-					height: 38,
-					borderRadius: 1,
-					color: "text.secondary",
-					flexShrink: 0,
-					"&:hover": { bgcolor: "action.hover", color: "text.primary" },
-				}}
-			>
-				<MenuIcon sx={{ fontSize: 20 }} />
-			</IconButton>
-		</Tooltip>
-	);
-
-	if (!expanded) {
-		return (
-			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, pb: 1.5 }}>
-				<OmborMark size={34} />
-				{toggle}
-			</Box>
-		);
-	}
-
-	return (
-		<Box sx={{ display: "flex", alignItems: "center", gap: 1.25, px: 1, pt: 0.75, pb: 1.75 }}>
-			<OmborMark size={34} />
-			<Box sx={{ minWidth: 0, flex: 1 }}>
-				<Typography sx={{ fontSize: 19, fontWeight: 700, lineHeight: 1.2 }}>Ombor</Typography>
-				{businessName && (
-					<Typography noWrap sx={{ fontSize: 11, color: "text.disabled", mt: "1px" }}>
-						{businessName}
-					</Typography>
-				)}
-			</Box>
-			{toggle}
-		</Box>
-	);
-});
 
 /* ─────────────────────── Expanded nav (labels + accordion) ─────────────────────── */
 
@@ -434,7 +373,7 @@ const Sidebar: React.FC = observer(() => {
 					}),
 			}}
 		>
-			<Brand expanded={expanded} onToggle={() => setExpanded(!expanded)} />
+			<SidebarBrand expanded={expanded} onToggle={() => setExpanded(!expanded)} />
 
 			<List
 				disablePadding

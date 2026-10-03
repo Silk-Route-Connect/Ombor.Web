@@ -11,7 +11,10 @@ export type Organization = {
 	address: string;
 	phone: string;
 	email: string;
-	/** Logo as a data URL (mock); null when none set. */
+	/**
+	 * Hosted logo path, relative to the API's image base — resolve it with
+	 * `getImageFullUrl` (a data URL while a new upload is previewed); null when none.
+	 */
 	logoUrl: string | null;
 };
 

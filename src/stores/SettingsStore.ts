@@ -20,7 +20,8 @@ export interface ISettingsStore {
 
 	load(): Promise<void>;
 	/** The business profile for documents (print header, debt reminder) — loaded once, kept current by saves. */
-	ensureOrganization(): Promise<Loadable<Organization | null>>;
+	/** `quiet`: a background load (the sidebar logo) that must not toast when it fails. */
+	ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>>;
 	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
 	updateLanguage(code: string): Promise<void>;
 	inviting: boolean;
@@ -81,14 +82,14 @@ export class SettingsStore implements ISettingsStore {
 		});
 	}
 
-	async ensureOrganization(): Promise<Loadable<Organization | null>> {
+	async ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>> {
 		if (isReady(this.organization)) {
 			return this.organization;
 		}
 		runInAction(() => (this.organization = "loading"));
 
 		const result = await tryRun(() => SettingsApi.getOrganization());
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "settings.error.loadOrganization");
 		}
 

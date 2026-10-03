@@ -4,6 +4,7 @@ import GhostButton from "components/shared/Buttons/GhostButton";
 import { Organization } from "models/settings";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
+import { getImageFullUrl } from "utils/productUtils";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -59,6 +60,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 	const { notificationStore } = useStore();
 	const fileRef = useRef<HTMLInputElement>(null);
 
+	const logoSrc = getImageFullUrl(org.logoUrl ?? undefined);
 	const initials = org.name
 		.split(" ")
 		.map((w) => w[0])
@@ -153,8 +155,8 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 								fontSize: 24,
 								letterSpacing: "-0.02em",
 								boxShadow: 1,
-								...(org.logoUrl && {
-									backgroundImage: `url(${org.logoUrl})`,
+								...(logoSrc && {
+									backgroundImage: `url(${logoSrc})`,
 									backgroundSize: "cover",
 									backgroundPosition: "center",
 									color: "transparent",
