@@ -63,7 +63,8 @@
 | Component          | Use for                            | Notes                                                                        |
 | ------------------ | ---------------------------------- | ----------------------------------------------------------------------------- |
 | `PrimaryButton`    | Page-level primary actions         | MUI contained + icon slot; visuals come from the theme                        |
-| `GhostButton`      | Secondary page actions             | DSN-1 `.btn-ghost`: surface bg, strong-border outline, no shadow              |
+| `GhostButton`      | Secondary page actions             | DSN-1 `.btn-ghost`: surface bg, strong-border outline, no shadow; sizes its own icon (no `!important`)             |
+| `BackButton`       | The ‹ back control left of a page title | 38px bordered square, localized aria-label («Назад»); used by `DetailPageHeader` and the POS create pages |
 
 ## Links & navigation
 

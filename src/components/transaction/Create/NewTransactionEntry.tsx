@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import PaymentSettlementModal from "components/payment/Form/PaymentSettlementModal";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
+import BackButton from "components/shared/Buttons/BackButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import CartLineRow from "components/transaction/Create/CartLineRow";
@@ -27,7 +28,6 @@ import { formatCurrency } from "utils/formatCurrency";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -327,27 +327,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				}}
 			>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "14px" }}>
-					<ButtonBase
-						onClick={tryLeave}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							bgcolor: "background.paper",
-							color: designTokens.gray600,
-							"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</ButtonBase>
-					<Typography
-						component="h1"
-						sx={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}
-					>
-						{t(`transaction.new.title.${direction}`)}
-					</Typography>
+					<BackButton onClick={tryLeave} />
+					<Typography variant="h1">{t(`transaction.new.title.${direction}`)}</Typography>
 				</Box>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
 					<Button

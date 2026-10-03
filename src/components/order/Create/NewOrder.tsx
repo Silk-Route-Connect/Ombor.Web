@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import OrderLineRow from "components/order/Create/OrderLineRow";
 import OrderSourcePicker from "components/order/Create/OrderSourcePicker";
+import BackButton from "components/shared/Buttons/BackButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
@@ -25,7 +26,6 @@ import { formatCurrency } from "utils/formatCurrency";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import CheckIcon from "@mui/icons-material/Check";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -194,27 +194,8 @@ export const NewOrder: React.FC = observer(() => {
 				}}
 			>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "14px" }}>
-					<ButtonBase
-						onClick={tryLeave}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							bgcolor: "background.paper",
-							color: designTokens.gray600,
-							"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</ButtonBase>
-					<Typography
-						component="h1"
-						sx={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}
-					>
-						{t("order.new.title")}
-					</Typography>
+					<BackButton onClick={tryLeave} />
+					<Typography variant="h1">{t("order.new.title")}</Typography>
 				</Box>
 				<GhostButton onClick={tryLeave}>{t("order.new.cancel")}</GhostButton>
 			</Box>
