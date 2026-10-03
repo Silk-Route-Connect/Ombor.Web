@@ -58,7 +58,7 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 					bgcolor: done ? "success.main" : designTokens.primarySoft,
 					color: done ? "common.white" : "primary.main",
 					fontWeight: 700,
-					fontSize: 13.5,
+					fontSize: 13,
 				}}
 			>
 				{done ? <CheckIcon sx={{ fontSize: 17 }} /> : index + 1}
@@ -69,7 +69,7 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 				>
 					{t(`onboarding.step.${step.key}.title`)}
 				</Typography>
-				<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "3px", lineHeight: 1.5 }}>
+				<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "3px", lineHeight: 1.5 }}>
 					{done ? t("onboarding.done") : t(`onboarding.step.${step.key}.body`)}
 				</Typography>
 			</Box>

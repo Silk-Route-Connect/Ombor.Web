@@ -42,9 +42,7 @@ const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 						<Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>
 							{t(doneCount === 0 ? "onboarding.titleNew" : "onboarding.title")}
 						</Typography>
-						<Typography
-							sx={{ fontSize: 13.5, color: "text.secondary", mt: "4px", lineHeight: 1.6 }}
-						>
+						<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "4px", lineHeight: 1.6 }}>
 							{t("onboarding.body")}
 						</Typography>
 					</Box>

@@ -261,7 +261,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								/>
 							)}
 						/>
-						<Typography sx={{ fontSize: 12.5, color: "text.secondary", lineHeight: 1.5 }}>
+						<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.5 }}>
 							{t(`payment.typeHint.${type}`)}
 						</Typography>
 					</Stack>
