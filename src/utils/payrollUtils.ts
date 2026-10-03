@@ -11,6 +11,16 @@ export const currentPeriod = (): string => {
 	return toPeriod(d.getFullYear(), d.getMonth() + 1);
 };
 
+/** Year and 1-based month of a «YYYY-MM» period; anything else reads as the current month. */
+export const parsePeriod = (value: string): { year: number; month: number } => {
+	const match = /^(\d{4})-(\d{2})$/.exec(value);
+	if (!match) {
+		const now = new Date();
+		return { year: now.getFullYear(), month: now.getMonth() + 1 };
+	}
+	return { year: Number(match[1]), month: Number(match[2]) };
+};
+
 /** Year choices for a payroll period: the current year ±2, ascending — never a fixed list. */
 export const periodYearOptions = (now: Date = new Date()): number[] => {
 	const year = now.getFullYear();

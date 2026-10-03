@@ -3,11 +3,13 @@ import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import PeriodSelect from "components/shared/Inputs/PeriodSelect";
 import { Wallet } from "models/wallet";
 import { PATHS } from "routing/paths";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
 import { designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { parsePeriod, toPeriod } from "utils/payrollUtils";
 
 import { Box, Grid, Link, MenuItem, TextField } from "@mui/material";
 
@@ -98,15 +100,19 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({
 			</Grid>
 
 			<Grid size={{ xs: 12, sm: 6 }}>
-				<TextField
-					{...register("period")}
-					label={`${t("payroll.period")}*`}
-					type="month"
-					error={!!errors.period}
-					helperText={errors.period?.message}
-					fullWidth
-					disabled={disabled}
-					slotProps={{ inputLabel: { shrink: true } }}
+				<Controller
+					name="period"
+					control={control}
+					render={({ field }) => (
+						<PeriodSelect
+							{...parsePeriod(field.value)}
+							onChange={({ month, year }) => field.onChange(toPeriod(year, month))}
+							label={`${t("payroll.period")}*`}
+							error={!!errors.period}
+							helperText={errors.period?.message}
+							disabled={disabled}
+						/>
+					)}
 				/>
 			</Grid>
 

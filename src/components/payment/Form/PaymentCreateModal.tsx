@@ -8,6 +8,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import PeriodSelect from "components/shared/Inputs/PeriodSelect";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { isLoadError, isReady, Loadable, readyOr } from "helpers/Loading";
@@ -27,7 +28,7 @@ import { PaymentFormValues } from "schemas/PaymentSchema";
 import { analytics } from "services/telemetry";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { periodYearOptions, toPeriod } from "utils/payrollUtils";
+import { toPeriod } from "utils/payrollUtils";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -46,9 +47,6 @@ import {
 } from "@mui/material";
 
 import PaymentSettlementModal from "./PaymentSettlementModal";
-
-/** 1-based month numbers; labels come from the shared `common.month.*` keys. */
-const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
 
 /**
  * Bounded, anchored-below dropdown menu — keeps long pickers (the partner list)
@@ -426,44 +424,15 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							</Stack>
 							<Stack sx={{ gap: "7px" }}>
 								<FormFieldLabel label={t("payment.form.period")} required />
-								<Box sx={{ display: "flex", gap: "10px" }}>
-									<Controller
-										name="month"
-										control={control}
-										render={({ field }) => (
-											<Select
-												size="small"
-												fullWidth
-												value={field.value}
-												onChange={(e) => field.onChange(Number(e.target.value))}
-											>
-												{MONTH_NUMBERS.map((n) => (
-													<MenuItem key={n} value={n}>
-														{t(`common.month.${n}`)}
-													</MenuItem>
-												))}
-											</Select>
-										)}
-									/>
-									<Controller
-										name="year"
-										control={control}
-										render={({ field }) => (
-											<Select
-												size="small"
-												sx={{ width: 110 }}
-												value={field.value}
-												onChange={(e) => field.onChange(Number(e.target.value))}
-											>
-												{periodYearOptions().map((y) => (
-													<MenuItem key={y} value={y}>
-														{y}
-													</MenuItem>
-												))}
-											</Select>
-										)}
-									/>
-								</Box>
+								<PeriodSelect
+									size="small"
+									month={Number(watch("month"))}
+									year={Number(watch("year"))}
+									onChange={({ month, year }) => {
+										setValue("month", month, { shouldDirty: true });
+										setValue("year", year, { shouldDirty: true });
+									}}
+								/>
 							</Stack>
 						</Box>
 					)}
