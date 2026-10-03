@@ -93,7 +93,7 @@
   "payment.detail.title": "Платёж {{number}}",
   "payment.detail.source": "Касса",
   "payment.detail.advanceSource": "Аванс партнёра",
-  "payment.detail.allocation": "Чем погашено",
+  "payment.detail.allocation": "Куда пошли деньги",
   "payment.detail.allocationTooltip": "Какие продажи или поставки закрыл этот платёж.",
   "payment.detail.allocTarget": "Назначение",
   "payment.detail.allocType": "Тип",

@@ -53,7 +53,7 @@ const AllocationTarget: React.FC<{ allocation: PaymentAllocationEntry; t: TFunct
 	return <DetailLink to={to}>{label}</DetailLink>;
 };
 
-/** «Чем погашено»: where the payment's money went, settled documents linked. */
+/** «Куда пошли деньги»: where the payment's money went, settled documents linked. */
 export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
 

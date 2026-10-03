@@ -7,7 +7,7 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 ## Surfaces
 
 - `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт», search «Поиск по номеру, партнёру или сотруднику…», type dropdown «Все типы», wallet dropdown «Все кассы»), `PaymentSummaryStrip` (clickable «Приход»/«Расход» toggle cards + «Платежей» count), `PaymentsTable` (row click → detail; no actions column).
-- `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Чем погашено» allocation table; rail: «Информация» card.
+- `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Куда пошли деньги» allocation table; rail: «Информация» card.
 - `PaymentCreateModal` (type picker + per-type fields) and `PaymentSettlementModal` («Какие долги закрыть») — both launched from the list page.
 - `/payments/new` — the topbar «Создать → Оплата» target: redirects to `/payments` and opens `PaymentCreateModal` (never a placeholder page). The modal preselects the first active wallet.
 - Payroll payments created on employee detail also land in this list (type «Зарплата») — the list rendering is in scope here; the employee-side flow is T-EMP.
@@ -17,11 +17,11 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 - **Settlement modal opens on every standalone «Оплата» submit** (button reads «Далее: какие долги закрыть»), including at zero debt. Pattern #5 («only on overpayment») governs the guided POS flow; the standalone modal stays functionally as-is per DR-05. Not a bug.
 - **DR-05 — allocation-ordering semantics are deferred.** Assert only what's served: `/api/payments/outstanding` is oldest-first and «Авто (сначала старые)» fills that order top-down. Do NOT write up mixed sale/refund ordering, direction-vs-debt-position outcomes, or expect a partner-page «оплатить долги» button.
 - **«В аванс» shows for any unallocated remainder** even while debt rows sit unchecked — the R40 gate is server-side (see T-PAY-36); the visible figure is not a #6 violation.
-- **Transaction references show «№{id}», not the document number.** `OutstandingTransactionDto` and `PaymentAllocationEntryDto` serve no display `number`, so the settlement modal and the detail's «Чем погашено» label rows via the internal transactionId. A mismatch against the transaction's own «№N» is a contract gap (same class as F20) — report as an F-item observation, not a settlement failure. Click-through must still land on the right transaction.
+- **Transaction references show «№{id}», not the document number.** `OutstandingTransactionDto` and `PaymentAllocationEntryDto` serve no display `number`, so the settlement modal and the detail's «Куда пошли деньги» label rows via the internal transactionId. A mismatch against the transaction's own «№N» is a contract gap (same class as F20) — report as an F-item observation, not a settlement failure. Click-through must still land on the right transaction.
 - **No `⋮` actions column on the payments list at all** — payments are immutable (R1); row click opens the detail. Not a #21 violation.
 - **Type picker exists only in this standalone modal** (R13). Guided flows (POS payment, transaction «Оплатить», employee payroll) fix the type by context — no type control there is correct.
 - **Direction control is usually absent** — derived per R14. It appears only for a «Both» partner (label «Направление (партнёр «Клиент + Поставщик»)») and always for «Прочее». Every type shows a one-line hint under the type selector (`payment.typeHint.*`).
-- **Withdrawal detail renders a «Возврат аванса» card**, not a «Чем погашено» table — designed rendering.
+- **Withdrawal detail renders a «Возврат аванса» card**, not a «Куда пошли деньги» table — designed rendering.
 - **Income payments have no wallet-balance guard** — only Expense-direction draws are blocked (DR-25).
 - **Dual payroll paths** (standalone modal + employee detail) are both valid; any number of payroll payments per employee+month (R1).
 - **Payment detail has no notes/attachments sections** — Known F18 (backend gap), don't report as missing UI.
@@ -41,13 +41,13 @@ Expect: sale created; status chip «Не оплачено» in `/sales`; partner
 ### T-PAY-03 · Worked example (a): overpayment → settlement + advance [happy] ✍
 Pre: T-PAY-02 (open 600 000 debt).
 Steps: 1. `/payments` → «Новый платёж»: type «Оплата», partner «QA-<MMDD> Плательщик», wallet «QA-<MMDD> Касса-П», amount 1 000 000. 2. Submit «Далее: какие долги закрыть». 3. In «Какие долги закрыть»: verify auto-FIFO preallocated 600 000 to the sale; «Сумма платежа» 1 000 000, «Закрыто долгов» 600 000, «В аванс» 400 000 + note «Зачислится как аванс партнёра». 4. «Провести платёж».
-Expect: the footer carries the lock line «После проведения изменить нельзя — ошибку исправляют платежом в обратную сторону.»; success toast «Платёж №N проведён — 1 000 000 UZS»; new row in the list. Detail: «Касса» card = «QA-<MMDD> Касса-П» 1 000 000 (single source, R9); «Чем погашено» rows: «Продажа №…» / «Погашение долга» 600 000 and «Аванс партнёра» / «Зачисление аванса» 400 000 — settling allocations sum = source sum (R8); «Информация»: Тип «Оплата», Направление «Приход» (derived, R14).
-Known: F9 — if the «Чем погашено» block crashes on an unexpected allocationType, report KNOWN. F18 — no notes/attachments sections.
+Expect: the footer carries the lock line «После проведения изменить нельзя — ошибку исправляют платежом в обратную сторону.»; success toast «Платёж №N проведён — 1 000 000 UZS»; new row in the list. Detail: «Касса» card = «QA-<MMDD> Касса-П» 1 000 000 (single source, R9); «Куда пошли деньги» rows: «Продажа №…» / «Погашение долга» 600 000 and «Аванс партнёра» / «Зачисление аванса» 400 000 — settling allocations sum = source sum (R8); «Информация»: Тип «Оплата», Направление «Приход» (derived, R14).
+Known: F9 — if the «Куда пошли деньги» block crashes on an unexpected allocationType, report KNOWN. F18 — no notes/attachments sections.
 
 ### T-PAY-04 · Worked example (c): change return — memo only [happy] ✍
 Pre: T-PAY-03 (partner debt 0). Wallet «QA-<MMDD> Касса-П» = 2 000 000.
 Steps: 1. `/sales/new`: same partner/warehouse, 4 × «QA-<MMDD> Товар-П» (total 400 000). 2. Payment section: 500 000 from «QA-<MMDD> Касса-П»; leave the overpayment toggle on «Сдача» (the default, #5, R40). 3. Submit.
-Expect: sale Closed («Оплачено»). In `/payments` the generated «Оплата» payment's detail: «Касса» source = **400 000** — net of change (R15); «Чем погашено»: «Погашение долга» 400 000 + «Сдача» 100 000 on a muted row with the «справочно» tag (R10 — memo, outside the R8 identity). Wallet balance = 2 400 000 (+400 000, not +500 000); the 100 000 appears in neither wallet operations nor partner balance (R10, R15). Partner detail still shows the zero-balance state — hero «0» + «Баланс закрыт — обязательств нет» (see [partners.md](partners.md) POV trap).
+Expect: sale Closed («Оплачено»). In `/payments` the generated «Оплата» payment's detail: «Касса» source = **400 000** — net of change (R15); «Куда пошли деньги»: «Погашение долга» 400 000 + «Сдача» 100 000 on a muted row with the «справочно» tag (R10 — memo, outside the R8 identity). Wallet balance = 2 400 000 (+400 000, not +500 000); the 100 000 appears in neither wallet operations nor partner balance (R10, R15). Partner detail still shows the zero-balance state — hero «0» + «Баланс закрыт — обязательств нет» (see [partners.md](partners.md) POV trap).
 
 ### T-PAY-05 · «Возврат аванса» — return the advance [happy] ✍
 Pre: T-PAY-03 gave the partner a 400 000 advance. Wallet = 2 400 000.
@@ -57,7 +57,7 @@ Expect: no direction control (Customer → derived Expense, R14). Detail: «Во
 ### T-PAY-06 · «Аванс» — create an advance [happy] ✍
 Pre: T-PAY-05. Wallet = 2 000 000, partner advance 0.
 Steps: 1. «Новый платёж»: type «Аванс», partner «QA-<MMDD> Плательщик», wallet «QA-<MMDD> Касса-П», amount 150 000. 2. Submit.
-Expect: no direction control (single-type partner → derived, R14). Wallet = 2 150 000. Create-modal hint for the partner now «Баланс: 0 UZS · Аванс: 150 000 UZS» (advance is a claim on cash in the wallet, R11). Detail «Чем погашено» shows «Аванс партнёра» / «Зачисление аванса» 150 000 (verify against canon R10/R11 — served allocation shape for deposits).
+Expect: no direction control (single-type partner → derived, R14). Wallet = 2 150 000. Create-modal hint for the partner now «Баланс: 0 UZS · Аванс: 150 000 UZS» (advance is a claim on cash in the wallet, R11). Detail «Куда пошли деньги» shows «Аванс партнёра» / «Зачисление аванса» 150 000 (verify against canon R10/R11 — served allocation shape for deposits).
 
 ### T-PAY-07 · «Прочее» — direction user-set, description required [happy] ✍
 Pre: T-PAY-06. Wallet = 2 150 000.
@@ -120,7 +120,7 @@ Expect: 3 → input clamps to 200 000 (≤ min(row remaining, payment amount) �
 ### T-PAY-36 · Unallocated remainder with open debt — advance must not be created [edge] ✍
 Pre: T-PAY-35 (sale remaining 100 000). Wallet = 2 100 000.
 Steps: 1. «Новый платёж»: «Оплата», same partner/wallet, amount 50 000 → settlement modal. 2. Uncheck the sale's row — «Закрыто долгов» 0, «В аванс» 50 000. 3. «Провести платёж». 4. Open the created payment's detail; check `POST /api/payments` in the network log.
-Expect: (verify against canon R40 / contract `POST /api/payments` notes) the request carries empty `settlements`; the backend then settles oldest-first — detail «Чем погашено» must show «Погашение долга» 50 000 against the open sale and **no «Зачисление аванса»** row, sale remaining 50 000. An AdvanceCredit created while debt remains is a FAIL (R40). Wallet = 2 150 000 either way.
+Expect: (verify against canon R40 / contract `POST /api/payments` notes) the request carries empty `settlements`; the backend then settles oldest-first — detail «Куда пошли деньги» must show «Погашение долга» 50 000 against the open sale and **no «Зачисление аванса»** row, sale remaining 50 000. An AdvanceCredit created while debt remains is a FAIL (R40). Wallet = 2 150 000 either way.
 
 ### T-PAY-37 · Zero-debt settlement empty state; close the sale [edge] ✍
 Pre: T-PAY-36 (sale remaining 50 000).

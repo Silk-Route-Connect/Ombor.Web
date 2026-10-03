@@ -134,7 +134,7 @@
   "partner.pays.col.type": "Тип",
   "partner.pays.col.method": "Способ",
   "partner.pays.col.amount": "Сумма",
-  "partner.pays.col.allocation": "Чем погашено",
+  "partner.pays.col.allocation": "Куда пошли деньги",
   "partner.pays.col.wallet": "Касса",
   "partner.pays.advance": "Аванс",
   "partner.pays.empty.title": "Нет записей",
