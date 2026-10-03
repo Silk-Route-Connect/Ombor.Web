@@ -193,6 +193,7 @@
   "transaction.refund.commitNote": "После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.",
   "transaction.refund.error": "Не удалось провести возврат",
   "transaction.refund.success": "Возврат к {{number}} проведён",
+  "transaction.refund.selectLine": "Вернуть «{{name}}»",
 
   "transaction.new.title.Sale": "Новая продажа",
   "transaction.new.title.Supply": "Новая поставка",

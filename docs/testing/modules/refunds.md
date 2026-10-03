@@ -110,6 +110,11 @@ Pre: T-RFD-32.
 Steps: on `/sales` — 1. set the status filter to «Не оплачено» (the Open option); 2. reset to all, then search the bare number of №S.
 Expect: step 1 — №R1/№R2 disappear, sale №S stays (trap — designed, do not report); step 2 — results include №S AND both its refunds (search matches `originalTransactionNumber`).
 
+### T-RFD-37 · Refund lines are picked with the keyboard [edge]
+Pre: a sale with something left to refund.
+Steps: open «Оформить возврат»; press Tab until a line's checkbox shows the focus ring; press Space; Tab once; type «1»; Shift+Tab back to the checkbox; press Space.
+Expect: the first Space checks the line and pre-fills its available quantity; the quantity field takes «1»; the second Space unchecks the line and clears it. A screen reader announces the checkbox as «Вернуть «<товар>»» with its checked state.
+
 ## Reconciliation
 
 Run after all cases above. Event ledger for «QA-<MMDD> Возврат Партнёр»: sale +75 000 unpaid; sale-refunds −45 000, −30 000 unpaid; supply of А 100 000 fully paid (net 0); supply/sale of Б fully paid (net 0); supply-refund +10 000 unpaid.
