@@ -56,7 +56,11 @@ function SnackbarInjector() {
 function App() {
 	return (
 		<StoreProvider>
-			<SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+			<SnackbarProvider
+				maxSnack={3}
+				preventDuplicate
+				anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+			>
 				<BrowserRouter>
 					<AppBootstrap />
 					<SnackbarInjector />
