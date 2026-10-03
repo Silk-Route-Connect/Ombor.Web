@@ -17,6 +17,8 @@
   "templateSearchPlaceholder": "Поиск шаблонов...",
   "phoneNumber": "Номер телефона",
   "addPhoneNumber": "Добавить номер",
+  "common.phone.maxReached": "Можно указать не больше {{count}} номеров",
+  "common.phone.fillEmptyFirst": "Сначала заполните пустой номер",
   "partnerAutocomplete.partner": "Партнёр",
   "partnerAutocomplete.search": "Поиск партнёров...",
   "noRecords": "Нет записей",

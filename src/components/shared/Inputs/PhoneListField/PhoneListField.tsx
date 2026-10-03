@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PhoneRow, PhoneRowField } from "components/shared/Inputs/PhoneListField/PhoneRow";
 import { nanoid } from "nanoid";
 
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 
 interface PhoneListFieldProps {
 	disabled: boolean;
@@ -31,6 +31,8 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const prevRowsRef = useRef<PhoneRowField[]>([]);
+	// Why «Добавить номер» did nothing — the button stays enabled (hard rule 5).
+	const [addHint, setAddHint] = useState<string | null>(null);
 
 	const rows = useMemo(() => {
 		const phoneRows = toRows(values, prevRowsRef.current);
@@ -38,10 +40,22 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 		return phoneRows;
 	}, [values]);
 
-	const handleAdd = () => onChange([...values, ""]);
+	const handleAdd = () => {
+		if (rows.length >= maxCount) {
+			setAddHint(t("common.phone.maxReached", { count: maxCount }));
+			return;
+		}
+		if (rows.some((r) => r.value.trim() === "")) {
+			setAddHint(t("common.phone.fillEmptyFirst"));
+			return;
+		}
+		setAddHint(null);
+		onChange([...values, ""]);
+	};
 
 	const handleUpdate = useCallback(
 		(id: string, value: string) => {
+			setAddHint(null);
 			const updated = rows.map((el) => (el.id === id ? value : el.value));
 			onChange([...updated]);
 		},
@@ -49,12 +63,10 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 	);
 
 	const handleRemove = (id: string) => {
+		setAddHint(null);
 		const updated = rows.filter((el) => el.id !== id).map((el) => el.value);
 		onChange(updated.length ? [...updated] : [""]);
 	};
-
-	const addDisabled =
-		disabled || rows.length >= maxCount || rows.some((r) => r.value.trim() === "");
 
 	return (
 		<Grid container spacing={2}>
@@ -72,9 +84,14 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 			))}
 
 			<Grid size={{ xs: 12 }}>
-				<Button size="small" onClick={handleAdd} disabled={addDisabled}>
+				<Button size="small" onClick={handleAdd} disabled={disabled}>
 					{t("addPhoneNumber")}
 				</Button>
+				{addHint && (
+					<Typography role="status" sx={{ fontSize: 12.5, color: "text.secondary", mt: "4px" }}>
+						{addHint}
+					</Typography>
+				)}
 			</Grid>
 		</Grid>
 	);

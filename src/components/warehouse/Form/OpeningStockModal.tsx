@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
@@ -124,6 +124,16 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	// A new row is only useful while un-stocked, un-picked products remain.
 	const pickedIds = new Set((watchedItems ?? []).map((l) => l.productId).filter(Boolean));
 	const canAddRow = activeProducts.some((p) => !stockedIds.has(p.id) && !pickedIds.has(p.id));
+	// The add button stays enabled (hard rule 5); a click with nothing left explains why.
+	const [noMoreProducts, setNoMoreProducts] = useState(false);
+	const addRow = () => {
+		if (!canAddRow) {
+			setNoMoreProducts(true);
+			return;
+		}
+		setNoMoreProducts(false);
+		lines.append(emptyLine());
+	};
 
 	return (
 		<>
@@ -312,13 +322,18 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					)}
 
 					<Button
-						onClick={() => lines.append(emptyLine())}
-						disabled={!canAddRow}
+						onClick={addRow}
+						disabled={isSaving}
 						startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
 						sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
 					>
 						{t("warehouse.opening.addLine")}
 					</Button>
+					{noMoreProducts && !canAddRow && (
+						<Typography role="status" sx={{ fontSize: 12.5, color: "text.secondary", ml: 1 }}>
+							{t("warehouse.opening.noMoreProducts")}
+						</Typography>
+					)}
 
 					<Box
 						sx={{
