@@ -12,7 +12,7 @@ import DeliveryConfirmModal from "components/order/Modal/DeliveryConfirmModal";
 import OrderFormModal from "components/order/Modal/OrderFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath } from "routing/paths";
+import { partnerDetailPath, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -74,7 +74,7 @@ const OrderDetailPage: React.FC = observer(() => {
 			/>
 
 			<OrderStepper order={order} />
-			<TerminalBanner order={order} />
+			<TerminalBanner order={order} onOpenSale={(saleId) => navigate(saleDetailPath(saleId))} />
 
 			<Box sx={twoColSx}>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
@@ -144,9 +144,7 @@ const OrderDetailPage: React.FC = observer(() => {
 				title={t("order.confirm.return.title", {
 					number: dialog.kind === "return" ? dialog.order.orderNumber : "",
 				})}
-				content={t("order.confirm.return.body", {
-					saleId: dialog.kind === "return" ? (dialog.order.saleId ?? "") : "",
-				})}
+				content={t("order.confirm.return.body")}
 				confirmLabel={t("order.confirm.return.confirm")}
 				cancelLabel={t("order.confirm.back")}
 				confirmVariant="danger"

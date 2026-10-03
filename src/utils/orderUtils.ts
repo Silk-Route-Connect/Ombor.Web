@@ -118,7 +118,11 @@ export function discountShortLabel(
 		: `−${formatCurrency(line.discount)}`;
 }
 
-/** Status tabs on the list toolbar (the prototype omits Rejected / Returned). */
+/**
+ * Status tabs on the list toolbar — every status, so the per-tab counts always
+ * add up to «Все» (the prototype's omission of Rejected / Returned left those
+ * orders unfilterable, live-ui-5).
+ */
 export type OrderStatusFilter = "all" | OrderStatus;
 export const ORDER_STATUS_TABS: OrderStatusFilter[] = [
 	"all",
@@ -126,7 +130,9 @@ export const ORDER_STATUS_TABS: OrderStatusFilter[] = [
 	"Processing",
 	"Shipping",
 	"Delivered",
+	"Returned",
 	"Cancelled",
+	"Rejected",
 ];
 
 /** Count of orders per status (for the tab pills). */
