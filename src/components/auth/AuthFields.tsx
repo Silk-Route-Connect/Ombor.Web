@@ -21,10 +21,10 @@ const shellSx = (error?: boolean) =>
 		px: "12px",
 		borderRadius: "8px",
 		border: "1px solid",
-		borderColor: error ? "error.main" : designTokens.gray300,
+		borderColor: error ? "error.main" : designTokens.borderControl,
 		bgcolor: error ? designTokens.errorBg : "background.paper",
 		transition: "border-color .14s, box-shadow .14s",
-		"&:hover": { borderColor: error ? "error.main" : designTokens.gray400 },
+		"&:hover": { borderColor: error ? "error.main" : "text.primary" },
 		"&:focus-within": {
 			borderColor: error ? "error.main" : "primary.main",
 			boxShadow: error

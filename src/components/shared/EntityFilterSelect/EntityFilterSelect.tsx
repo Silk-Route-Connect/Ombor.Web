@@ -1,5 +1,4 @@
 import React from "react";
-import { designTokens } from "theme";
 
 import { Box, MenuItem, SxProps, TextField, Theme } from "@mui/material";
 
@@ -48,7 +47,6 @@ const EntityFilterSelect: React.FC<EntityFilterSelectProps> = ({
 		sx={{
 			width,
 			"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-			"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
 			...sx,
 		}}
 		slotProps={

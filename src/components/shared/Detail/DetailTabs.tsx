@@ -1,4 +1,4 @@
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -22,12 +22,17 @@ interface DetailTabsProps<K extends string> {
  */
 export function DetailTabs<K extends string>({ tabs, active, onChange }: DetailTabsProps<K>) {
 	return (
-		<Box sx={{ display: "flex", gap: "4px", borderBottom: 1, borderColor: "divider" }}>
+		<Box
+			role="tablist"
+			sx={{ display: "flex", gap: "4px", borderBottom: 1, borderColor: "divider" }}
+		>
 			{tabs.map((tab) => {
 				const selected = tab.key === active;
 				return (
 					<ButtonBase
 						key={tab.key}
+						role="tab"
+						aria-selected={selected}
 						onClick={() => onChange(tab.key)}
 						sx={{
 							display: "inline-flex",
@@ -56,7 +61,7 @@ export function DetailTabs<K extends string>({ tabs, active, onChange }: DetailT
 									textAlign: "center",
 									px: "7px",
 									py: "1px",
-									borderRadius: "999px",
+									borderRadius: `${radius.pill}px`,
 									color: selected ? "primary.main" : "text.secondary",
 									bgcolor: selected ? designTokens.primarySoft : designTokens.gray100,
 								}}

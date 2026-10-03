@@ -1,3 +1,4 @@
+import { PaymentDirection } from "models/payment";
 import { TransactionLine, TransactionStatus, TransactionType } from "models/transaction";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -20,6 +21,10 @@ export const isRefundType = (type: TransactionType): boolean =>
 
 export const directionOf = (type: TransactionType): TransactionDirection =>
 	type === "Sale" || type === "SaleRefund" ? "Sale" : "Supply";
+
+/** Money direction of the payments settling a transaction: sales and supply refunds bring money in. */
+export const paymentDirectionOf = (type: TransactionType): PaymentDirection =>
+	type === "Sale" || type === "SupplyRefund" ? "Income" : "Expense";
 
 /* ───────────────────────── line + total math ─────────────────────────
    Mirrors the design's sales-data.jsx: every total is computed from line

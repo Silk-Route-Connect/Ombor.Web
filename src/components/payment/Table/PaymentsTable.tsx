@@ -12,6 +12,7 @@ import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { entityNumberSortValue } from "utils/formatEntityId";
+import { paymentDirectionColor } from "utils/paymentUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -118,7 +119,7 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 						...numericSx,
 						fontWeight: 700,
 						fontSize: 15,
-						color: p.direction === "Income" ? "success.main" : "error.main",
+						color: paymentDirectionColor(p.direction),
 					}}
 				>
 					{formatCurrency(p.amount)}

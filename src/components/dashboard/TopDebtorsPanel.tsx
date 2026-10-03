@@ -2,10 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { DashboardDebtor } from "models/dashboard";
 import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 
 interface Props {
 	debtors: DashboardDebtor[];
@@ -35,7 +35,8 @@ const Avatar: React.FC<{ name: string }> = ({ name }) => (
 /**
  * «Топ должников» — the five partners with the largest outstanding receivable.
  * Rows deep-link to the partner detail; a footer links to the full partner list.
- * Amounts are red (we are owed) — colour only, no signs (locked pattern 4).
+ * Each row is about one partner, so the amount reads from the partner's side
+ * (DR-27): a debtor shows «−…» in red, via the shared partner-balance helpers.
  */
 const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners }) => {
 	const { t } = useTranslation();
@@ -60,10 +61,14 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 
 			<Box sx={{ p: "4px 0" }}>
 				{debtors.map((d) => (
-					<Box
+					<ButtonBase
 						key={d.partnerId}
 						onClick={() => onOpenDebtor(d.partnerId)}
 						sx={{
+							width: "100%",
+							justifyContent: "flex-start",
+							textAlign: "left",
+							fontFamily: "inherit",
 							display: "flex",
 							alignItems: "center",
 							gap: "12px",
@@ -92,17 +97,25 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 						</Box>
 						<Box
 							component="span"
-							sx={{ ...numericSx, fontWeight: 700, fontSize: 14.5, color: "error.main" }}
+							sx={{
+								...numericSx,
+								fontWeight: 700,
+								fontSize: 14,
+								color: partnerBalanceColor(d.amount),
+							}}
 						>
-							{formatCurrency(d.amount)}
+							{formatPartnerBalance(d.amount)}
 						</Box>
-					</Box>
+					</ButtonBase>
 				))}
 			</Box>
 
-			<Box
+			<ButtonBase
 				onClick={onAllPartners}
 				sx={{
+					width: "100%",
+					fontFamily: "inherit",
+					borderRadius: "0 0 12px 12px",
 					mt: "auto",
 					display: "flex",
 					alignItems: "center",
@@ -120,7 +133,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 			>
 				{t("dashboard.topDebtors.allPartners")}
 				<ChevronRightIcon sx={{ fontSize: 15 }} />
-			</Box>
+			</ButtonBase>
 		</Paper>
 	);
 };

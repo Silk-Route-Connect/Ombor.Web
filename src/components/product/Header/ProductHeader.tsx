@@ -8,7 +8,6 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { Category } from "models/category";
 import { ProductTypeFilter } from "stores/ProductStore";
-import { designTokens } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -93,9 +92,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 					placeholder={t("product.filter.allCategories")}
 					sx={{
 						width: 220,
-						// Bundle .sdrop-trig: surface bg with the strong border.
 						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
 					}}
 					onChange={onCategoryChange}
 				/>

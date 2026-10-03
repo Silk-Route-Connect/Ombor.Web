@@ -13,6 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
 	Box,
+	ButtonBase,
 	Collapse,
 	IconButton,
 	List,
@@ -314,19 +315,22 @@ function RailGroup({
 					{item.children?.map((child) => {
 						const active = isRouteActive(pathname, child.to);
 						return (
-							<Box
+							<ButtonBase
 								key={child.labelKey}
 								onClick={() => {
 									onNavigate(child.to);
 									setAnchor(null);
 								}}
 								sx={{
+									width: "100%",
+									justifyContent: "flex-start",
+									fontFamily: "inherit",
 									display: "flex",
 									alignItems: "center",
 									px: 1.5,
 									py: 1,
 									borderRadius: 1.5,
-									fontSize: 13.5,
+									fontSize: 14,
 									fontWeight: active ? 600 : 500,
 									cursor: "pointer",
 									color: active ? "primary.main" : "text.secondary",
@@ -338,7 +342,7 @@ function RailGroup({
 								}}
 							>
 								{t(child.labelKey)}
-							</Box>
+							</ButtonBase>
 						);
 					})}
 				</Paper>

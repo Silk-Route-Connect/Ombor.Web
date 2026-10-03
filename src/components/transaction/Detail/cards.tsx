@@ -12,9 +12,11 @@ import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId, hasEntityNumber } from "utils/formatEntityId";
+import { paymentDirectionColor } from "utils/paymentUtils";
 import {
 	directionOf,
 	discountLabel,
+	paymentDirectionOf,
 	TransactionDirection,
 	txDiscountTotal,
 	txSubtotal,
@@ -573,7 +575,12 @@ export const PaymentsCard: React.FC<{
 						</Box>
 						<Box
 							component="span"
-							sx={{ ...numericSx, fontWeight: 700, fontSize: 14.5, color: "success.main" }}
+							sx={{
+								...numericSx,
+								fontWeight: 700,
+								fontSize: 14,
+								color: paymentDirectionColor(paymentDirectionOf(tx.type)),
+							}}
 						>
 							{formatCurrency(p.amount)}
 						</Box>

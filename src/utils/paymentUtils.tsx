@@ -1,6 +1,6 @@
 import AllocationLink from "components/payment/Links/AllocationLink";
 import i18next from "i18n/config";
-import { Payment } from "models/payment";
+import { Payment, PaymentDirection } from "models/payment";
 
 export const isSingleFullAllocation = (p: Payment) =>
 	p.allocations.length === 1 &&
@@ -24,3 +24,7 @@ export function formatPaymentType(payment: Payment): React.ReactNode {
 }
 
 export const canExpandPayment = (p: Payment) => p.allocations.length > 1;
+
+/** Colour of a payment amount: money in green, money out red — on every surface. */
+export const paymentDirectionColor = (direction: PaymentDirection): string =>
+	direction === "Income" ? "success.main" : "error.main";

@@ -5,7 +5,6 @@ import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { Warehouse } from "models/warehouse";
-import { designTokens } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -79,7 +78,6 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 					sx={{
 						width: 220,
 						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
 					}}
 					slotProps={{
 						input: {
