@@ -8,11 +8,14 @@ import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/De
 import {
 	debtDocumentNumber,
 	debtDocumentPath,
+	DebtRow,
+	toDebtRows,
 } from "components/debt/Table/transactionDebtTableConfigs";
 import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
 import ExportButton from "components/shared/Buttons/ExportButton";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableToolbar from "components/shared/Table/TableToolbar";
 import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
@@ -30,6 +33,7 @@ const DebtPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { debtStore, debtReminderStore } = useStore();
+	const tableOrder = useTableOrder<DebtRow>();
 
 	useEffect(() => {
 		debtStore.getAll();
@@ -44,7 +48,8 @@ const DebtPage: React.FC = observer(() => {
 		debtStore.directionFilter !== "all";
 
 	const handleExport = (): void => {
-		const rows = debtStore.transactionRows;
+		// «По документам» order while that tab is open; the store's order from «По партнёрам».
+		const rows = tableOrder.apply(toDebtRows(debtStore.transactionRows));
 		const columns: CsvColumn<Debt>[] = [
 			{ header: t("debt.txTable.document"), value: (d) => formatEntityId(debtDocumentNumber(d)) },
 			{ header: t("debt.txTable.date"), value: (d) => formatDate(d.date) },
@@ -131,6 +136,7 @@ const DebtPage: React.FC = observer(() => {
 						<TransactionDebtTable
 							key={debtStore.txPresetNonce}
 							rows={debtStore.transactionRows}
+							exportOrder={tableOrder}
 							anyFilter={anyFilter}
 							defaultSort={{ key: debtStore.txPresetSort, order: "desc" }}
 							onOpen={openTransaction}

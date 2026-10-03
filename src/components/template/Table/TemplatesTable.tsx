@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ExpandableDataTable } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 
@@ -20,6 +21,8 @@ interface TemplatesTableProps extends TemplateColumnHandlers {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить шаблоны». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Template>;
 }
 
 /**
@@ -36,6 +39,7 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 	onEdit,
 	onDelete,
 	onCreate,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
@@ -46,6 +50,7 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 
 	return (
 		<ExpandableDataTable<Template>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

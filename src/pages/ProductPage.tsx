@@ -5,6 +5,7 @@ import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductHeader from "components/product/Header/ProductHeader";
 import ProductDialogs from "components/product/ProductDialogs";
 import ProductsTable from "components/product/Table/ProductsTable";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
@@ -22,6 +23,7 @@ const ProductPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { productStore, categoryStore } = useStore();
+	const tableOrder = useTableOrder<Product>();
 
 	useEffect(() => {
 		categoryStore.getAll();
@@ -80,7 +82,7 @@ const ProductPage: React.FC = observer(() => {
 			},
 		];
 
-		exportToCsv(`products_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`products_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const isFiltering =
@@ -110,6 +112,7 @@ const ProductPage: React.FC = observer(() => {
 			/>
 
 			<ProductsTable
+				exportOrder={tableOrder}
 				onRetry={() => void productStore.getAll()}
 				errorTitle={t("product.error.getAll")}
 				data={productStore.filteredProducts}

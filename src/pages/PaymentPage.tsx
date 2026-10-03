@@ -7,6 +7,7 @@ import PaymentListTotals from "components/payment/List/PaymentListTotals";
 import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { isLoading, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreatePaymentRecordRequest, PaymentRecord } from "models/payment";
@@ -25,6 +26,7 @@ const PaymentPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { paymentStore } = useStore();
+	const tableOrder = useTableOrder<PaymentRecord>();
 
 	useEffect(() => {
 		paymentStore.getAll();
@@ -69,7 +71,7 @@ const PaymentPage: React.FC = observer(() => {
 			{ header: t("payment.table.wallet"), value: (p) => p.walletName },
 			{ header: t("payment.table.amount"), value: (p) => p.amount },
 		];
-		exportToCsv(`payments_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`payments_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const isFiltering =
@@ -103,6 +105,7 @@ const PaymentPage: React.FC = observer(() => {
 			/>
 
 			<PaymentsTable
+				exportOrder={tableOrder}
 				rows={paymentStore.filteredPayments}
 				onRetry={paymentStore.getAll}
 				errorTitle={t("payment.error.getAll")}

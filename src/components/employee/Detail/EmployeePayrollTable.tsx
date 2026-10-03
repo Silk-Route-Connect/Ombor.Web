@@ -9,6 +9,7 @@ import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { PaymentRecord } from "models/payment";
 import { paymentDetailPath } from "routing/paths";
@@ -39,6 +40,7 @@ export const EmployeePayrollTable: React.FC<EmployeePayrollTableProps> = ({
 	onOpen,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PaymentRecord>();
 
 	const columns = useMemo<Column<PaymentRecord>[]>(
 		() => [
@@ -91,7 +93,7 @@ export const EmployeePayrollTable: React.FC<EmployeePayrollTableProps> = ({
 				{ header: t("employee.payroll.wallet"), value: (p) => p.walletName ?? "" },
 				{ header: t("employee.payroll.amount"), value: (p) => p.amount },
 			],
-			payments,
+			tableOrder.apply(payments),
 		);
 	};
 
@@ -101,6 +103,7 @@ export const EmployeePayrollTable: React.FC<EmployeePayrollTableProps> = ({
 			exportCsv={{ onExport: handleExport, rowCount: payments.length }}
 		>
 			<DetailTable<PaymentRecord>
+				exportOrder={tableOrder}
 				rows={payments}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
 
@@ -18,6 +19,8 @@ interface EmployeesTableProps extends EmployeeColumnHandlers {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить сотрудников». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Employee>;
 }
 
 /**
@@ -36,6 +39,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 	onEdit,
 	onTerminate,
 	onRestore,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
@@ -45,6 +49,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 
 	return (
 		<DataTable<Employee>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

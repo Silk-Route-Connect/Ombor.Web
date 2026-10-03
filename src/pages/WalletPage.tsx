@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletHeader from "components/wallet/Header/WalletHeader";
 import WalletsTable from "components/wallet/List/WalletsTable";
@@ -21,6 +22,7 @@ const WalletPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { walletStore } = useStore();
+	const tableOrder = useTableOrder<Wallet>();
 
 	useEffect(() => {
 		walletStore.getAll();
@@ -58,7 +60,7 @@ const WalletPage: React.FC = observer(() => {
 			},
 		];
 
-		exportToCsv(`wallets_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`wallets_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const all = !isReady(walletStore.allWallets) ? null : walletStore.allWallets;
@@ -82,6 +84,7 @@ const WalletPage: React.FC = observer(() => {
 			{all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
 
 			<WalletsTable
+				exportOrder={tableOrder}
 				onRetry={() => void walletStore.getAll()}
 				errorTitle={t("wallet.error.getAll")}
 				rows={walletStore.filteredWallets}

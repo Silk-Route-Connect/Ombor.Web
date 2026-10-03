@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Product } from "models/product";
 
@@ -18,6 +19,8 @@ interface ProductsTableProps extends ProductColumnHandlers {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить товары». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Product>;
 }
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
@@ -31,6 +34,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 	onArchive,
 	onRestore,
 	onDelete,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
@@ -40,6 +44,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 
 	return (
 		<DataTable<Product>
+			exportOrder={exportOrder}
 			rows={data}
 			onRetry={onRetry}
 			errorTitle={errorTitle}

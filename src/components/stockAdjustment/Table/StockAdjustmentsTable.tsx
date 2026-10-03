@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import StockAdjustmentDetailModal from "components/stockAdjustment/Detail/StockAdjustmentDetailModal";
 import { Loadable } from "helpers/Loading";
 import { StockAdjustment } from "models/stockAdjustment";
@@ -22,6 +23,8 @@ interface StockAdjustmentsTableProps {
 	errorTitle: string;
 	/** Totals of the filtered rows in the footer band. */
 	summary?: React.ReactNode;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<StockAdjustment>;
 }
 
 /**
@@ -36,6 +39,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	hasAny,
 	onCreate,
 	summary,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const [selected, setSelected] = useState<StockAdjustment | null>(null);
@@ -45,6 +49,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	return (
 		<>
 			<DataTable<StockAdjustment>
+				exportOrder={exportOrder}
 				rows={rows}
 				columns={columns}
 				onRetry={onRetry}

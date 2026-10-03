@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
 import StockAdjustmentModal from "components/stockAdjustment/Form/StockAdjustmentModal";
 import StockAdjustmentHeader from "components/stockAdjustment/Header/StockAdjustmentHeader";
@@ -24,6 +25,7 @@ import { Box } from "@mui/material";
 const StockAdjustmentPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const { stockAdjustmentStore, warehouseStore, productStore } = useStore();
+	const tableOrder = useTableOrder<StockAdjustment>();
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -70,7 +72,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			{ header: t("adjustment.table.note"), value: (a) => a.note ?? "" },
 		];
 
-		exportToCsv(`stock-adjustments_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`stock-adjustments_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const all = !isReady(stockAdjustmentStore.allAdjustments)
@@ -97,6 +99,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			/>
 
 			<StockAdjustmentsTable
+				exportOrder={tableOrder}
 				onRetry={() => void stockAdjustmentStore.getAll()}
 				errorTitle={t("adjustment.error.getAll")}
 				rows={rows}

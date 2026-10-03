@@ -7,6 +7,7 @@ import PartnersTable from "components/partner/List/PartnersTable";
 import PartnerSummaryStrip from "components/partner/List/PartnerSummaryStrip";
 import { buildPartnerColumns } from "components/partner/List/partnerTableConfigs";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Partner } from "models/partner";
@@ -23,6 +24,7 @@ const PartnerPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { partnerStore } = useStore();
+	const tableOrder = useTableOrder<Partner>();
 
 	useEffect(() => {
 		void partnerStore.getAll();
@@ -81,7 +83,7 @@ const PartnerPage: React.FC = observer(() => {
 						p.isArchived ? t("partner.table.statusArchived") : t("partner.table.statusActive"),
 				},
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -109,6 +111,7 @@ const PartnerPage: React.FC = observer(() => {
 			)}
 
 			<PartnersTable
+				exportOrder={tableOrder}
 				onRetry={() => void partnerStore.getAll()}
 				errorTitle={t("partner.error.getAll")}
 				rows={partnerStore.filteredPartners}

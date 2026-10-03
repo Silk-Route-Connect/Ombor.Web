@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
@@ -25,6 +26,7 @@ const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { transferStore, warehouseStore, productStore } = useStore();
+	const tableOrder = useTableOrder<Transfer>();
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -67,7 +69,7 @@ const TransferPage: React.FC = observer(() => {
 			{ header: t("transfer.table.units"), value: (tr) => transferUnits(tr) },
 		];
 
-		exportToCsv(`transfers_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`transfers_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const all = !isReady(transferStore.allTransfers) ? null : transferStore.allTransfers;
@@ -91,6 +93,7 @@ const TransferPage: React.FC = observer(() => {
 			/>
 
 			<TransfersTable
+				exportOrder={tableOrder}
 				onRetry={() => void transferStore.getAll()}
 				errorTitle={t("transfer.error.getAll")}
 				rows={rows}

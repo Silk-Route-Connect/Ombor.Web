@@ -6,6 +6,7 @@ import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeesTable from "components/employee/Table/EmployeesTable";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { readyOr } from "helpers/Loading";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
@@ -24,6 +25,7 @@ const EmployeePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { employeeStore, payrollStore } = useStore();
+	const tableOrder = useTableOrder<Employee>();
 
 	useEffect(() => {
 		employeeStore.getAll();
@@ -53,7 +55,7 @@ const EmployeePage: React.FC = observer(() => {
 			{ header: t("employee.dateOfEmployment"), value: (e) => formatDate(e.dateOfEmployment) },
 			{ header: t("employee.salary"), value: (e) => e.salary },
 		];
-		exportToCsv(`employees_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`employees_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const all = readyOr(employeeStore.allEmployees, []);
@@ -73,6 +75,7 @@ const EmployeePage: React.FC = observer(() => {
 			/>
 
 			<EmployeesTable
+				exportOrder={tableOrder}
 				onRetry={() => void employeeStore.getAll()}
 				errorTitle={t("employees.error.getAll")}
 				rows={employeeStore.filteredEmployees}

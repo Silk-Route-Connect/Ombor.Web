@@ -9,6 +9,7 @@ import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { PartnerLedgerEntry } from "models/partner";
 import { designTokens } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -48,6 +49,7 @@ const isOpening = (e: PartnerLedgerEntry) => e.type === "opening";
  */
 export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpenSource }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [eventFilter, setEventFilter] = useState<EventFilter>("all");
 	const [period, setPeriod] = useState<LedgerPeriod>("all");
 	const [search, setSearch] = useState("");
@@ -124,7 +126,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				{ header: t("partner.ledger.col.amount"), value: (e) => -e.delta || 0 },
 				{ header: t("partner.ledger.col.balanceAfter"), value: (e) => -e.balance || 0 },
 			],
-			filtered,
+			tableOrder.apply(filtered),
 		);
 	};
 
@@ -161,6 +163,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}
 		>
 			<DetailTable<PartnerLedgerEntry>
+				exportOrder={tableOrder}
 				rows={filtered}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

@@ -8,6 +8,7 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { WalletTransfer } from "models/wallet";
 import { formatDate } from "utils/dateUtils";
@@ -38,6 +39,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 	onOpenTransfer,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<WalletTransfer>();
 	const [query, setQuery] = useState("");
 
 	const rows = useMemo(
@@ -104,7 +106,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				{ header: t("wallet.transfers.createdBy"), value: (tr) => tr.createdBy },
 				{ header: t("wallet.transfers.amount"), value: (tr) => tr.amount },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -124,6 +126,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 			exportCsv={firstRun ? undefined : { onExport: handleExport, rowCount: rows.length }}
 		>
 			<DetailTable<WalletTransfer>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

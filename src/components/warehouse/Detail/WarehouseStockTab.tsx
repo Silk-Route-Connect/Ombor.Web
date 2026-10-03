@@ -10,6 +10,7 @@ import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -50,6 +51,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	lowStockThresholds,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<StockRow>();
 	const [query, setQuery] = useState("");
 	const [category, setCategory] = useState(ALL_CATEGORIES);
 	const [stockFilter, setStockFilter] = useState<StockFilter>("all");
@@ -144,7 +146,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				{ header: t("warehouse.stock.wac"), value: (i) => i.averageCost },
 				{ header: t("warehouse.stock.value"), value: (i) => i.value },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -180,6 +182,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
 		>
 			<DetailTable<StockRow>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "value", order: "desc" }}

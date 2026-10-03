@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 
@@ -21,6 +22,8 @@ interface PartnersTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Partner>;
 }
 
 /** Partner list table: shared DataTable with first-run / filtered empty states. */
@@ -34,12 +37,14 @@ export const PartnersTable: React.FC<PartnersTableProps> = ({
 	showArchived,
 	onOpen,
 	onCreate,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const firstRun = !isFiltering && !hasActive && !showArchived;
 
 	return (
 		<DataTable<Partner>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

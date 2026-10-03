@@ -2,13 +2,14 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable, DefaultSort } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Debt } from "models/debt";
 import { DebtPartnerGroup } from "stores/DebtStore";
 
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 
 import { buildPartnerDebtColumns, PartnerDebtRowHandlers } from "./partnerDebtTableConfigs";
-import { buildTransactionDebtColumns, DebtRow } from "./transactionDebtTableConfigs";
+import { buildTransactionDebtColumns, DebtRow, toDebtRows } from "./transactionDebtTableConfigs";
 
 const DebtEmptyState: React.FC<{ anyFilter: boolean }> = ({ anyFilter }) => {
 	const { t } = useTranslation();
@@ -57,6 +58,8 @@ interface TransactionDebtTableProps {
 	anyFilter: boolean;
 	/** Initial sort — seeded by the summary-card presets («Просрочено» → age). */
 	defaultSort: DefaultSort;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<DebtRow>;
 	onOpen: (debt: Debt) => void;
 }
 
@@ -65,18 +68,17 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 	rows,
 	anyFilter,
 	defaultSort,
+	exportOrder,
 	onOpen,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(() => buildTransactionDebtColumns(t), [t]);
-	const dataRows = useMemo<DebtRow[]>(
-		() => rows.map((d) => ({ ...d, id: d.transactionId })),
-		[rows],
-	);
+	const dataRows = useMemo(() => toDebtRows(rows), [rows]);
 
 	return (
 		<DataTable<DebtRow>
 			rows={dataRows}
+			exportOrder={exportOrder}
 			columns={columns}
 			defaultSort={defaultSort}
 			onRowClick={onOpen}

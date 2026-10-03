@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState, { archiveListEmptyKind } from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Wallet } from "models/wallet";
 
@@ -23,6 +24,8 @@ interface WalletsTableProps extends WalletColumnHandlers {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить кассы». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Wallet>;
 }
 
 /**
@@ -43,6 +46,7 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 	onArchive,
 	onRestore,
 	onDelete,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
@@ -61,6 +65,7 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 
 	return (
 		<DataTable<Wallet>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

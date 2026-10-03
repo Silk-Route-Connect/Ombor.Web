@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Order } from "models/order";
 
@@ -19,6 +20,8 @@ interface OrdersTableProps {
 	errorTitle: string;
 	/** Totals of the filtered rows in the footer band. */
 	summary?: React.ReactNode;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Order>;
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
@@ -30,11 +33,13 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 	onOpen,
 	onCreate,
 	summary,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 
 	return (
 		<DataTable<Order>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

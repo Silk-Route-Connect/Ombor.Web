@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplatesTable from "components/template/Table/TemplatesTable";
@@ -25,6 +26,7 @@ import { Box } from "@mui/material";
 const TemplatePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const { templateStore, partnerStore, productStore } = useStore();
+	const tableOrder = useTableOrder<Template>();
 
 	useEffect(() => {
 		templateStore.resetFilters();
@@ -97,7 +99,11 @@ const TemplatePage: React.FC = observer(() => {
 			},
 			{ header: t("template.table.total"), value: templateTotal },
 		];
-		exportToCsv(`templates_${csvDateStamp()}`, columns, readyOr(templateStore.listTemplates, []));
+		exportToCsv(
+			`templates_${csvDateStamp()}`,
+			columns,
+			tableOrder.apply(readyOr(templateStore.listTemplates, [])),
+		);
 	};
 
 	const all = !isReady(templateStore.allTemplates) ? null : templateStore.allTemplates;
@@ -118,6 +124,7 @@ const TemplatePage: React.FC = observer(() => {
 			/>
 
 			<TemplatesTable
+				exportOrder={tableOrder}
 				onRetry={() => void templateStore.getAll()}
 				errorTitle={t("template.error.getAll")}
 				rows={templateStore.listTemplates}

@@ -9,6 +9,7 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { PartnerLedgerEntry } from "models/partner";
 import { formatDate } from "utils/dateUtils";
@@ -41,6 +42,7 @@ const isIncome = (p: PartnerLedgerEntry) => p.delta < 0;
  */
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName, onOpen }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [type, setType] = useState<TypeFilter>("all");
 	const [search, setSearch] = useState("");
 
@@ -124,7 +126,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				{ header: t("partner.pays.col.wallet"), value: (p) => p.walletName ?? "" },
 				{ header: t("partner.pays.col.amount"), value: (p) => Math.abs(p.delta) },
 			],
-			filtered,
+			tableOrder.apply(filtered),
 		);
 	};
 
@@ -148,6 +150,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}
 		>
 			<DetailTable<PartnerLedgerEntry>
+				exportOrder={tableOrder}
 				rows={filtered}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState, { archiveListEmptyKind } from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Warehouse } from "models/warehouse";
 
@@ -23,6 +24,8 @@ interface WarehousesTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить склады». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Warehouse>;
 }
 
 /**
@@ -40,6 +43,7 @@ export const WarehousesTable: React.FC<WarehousesTableProps> = ({
 	showArchived,
 	onOpen,
 	onCreate,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const kind = archiveListEmptyKind({ isFiltering, hasAny, hasActive, showArchived });
@@ -54,6 +58,7 @@ export const WarehousesTable: React.FC<WarehousesTableProps> = ({
 
 	return (
 		<DataTable<Warehouse>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
 			onRetry={onRetry}

@@ -26,7 +26,7 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 - Pager 10/25/50, ru-localized (#21). All lists fetch-all and page client-side — sluggishness on large data is **F14 (known)**.
 - Row actions only inside the `⋮` `ActionMenu` — inline icon buttons are a defect (#21). Archived rows carry the «Архив» badge.
 - Archive control (Products, Partners, Wallets, Warehouses only): segmented «Активные | Архив» that **swaps** the dataset — archived rows never mixed into the active list (#13).
-- «Экспорт» downloads a client-side CSV of the **current filtered view**.
+- «Экспорт» downloads a client-side CSV of the **current filtered view**, rows in the order the table shows them — re-sort a column (e.g. partners by name, then by balance) and the next CSV follows it.
 - Empty table shows hardcoded «Нет записей» — **F16 (known)**, not a new find.
 - A failed list load (backend stopped / 500) shows «Не удалось загрузить …» + reason + «Повторить» in the table area — never the first-run empty state, never «0» in the summary cards (they read «—»). «Повторить» reloads in place.
 - A 500 from one endpoint is that call's error only: the topbar «Нет соединения» chip stays off and submit buttons elsewhere stay active. Only no response (stopped backend, timeout) or a 502 / 503 / 504 turns the chip on and blocks submits until a request succeeds.

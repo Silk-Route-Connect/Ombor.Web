@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TransactionListHeader from "components/transaction/List/TransactionListHeader";
 import TransactionListTotals from "components/transaction/List/TransactionListTotals";
 import TransactionsTable from "components/transaction/List/TransactionsTable";
@@ -31,6 +32,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { transactionStore } = useStore();
+	const tableOrder = useTableOrder<TransactionRecord>();
 
 	useEffect(() => {
 		transactionStore.resetFilters();
@@ -72,7 +74,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 				{ header: t("transaction.col.positions"), value: (tx) => tx.lines.length },
 				{ header: t("transaction.col.amount"), value: (tx) => tx.totalDue },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -92,6 +94,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 			/>
 
 			<TransactionsTable
+				exportOrder={tableOrder}
 				onRetry={() => void transactionStore.getAll()}
 				errorTitle={t("transactions.errors.getAll")}
 				rows={rows}

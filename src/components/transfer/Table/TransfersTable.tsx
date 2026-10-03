@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { buildTransferColumns } from "components/transfer/Table/transferTableConfigs";
 import { Loadable } from "helpers/Loading";
 import { Transfer } from "models/transfer";
@@ -21,6 +22,8 @@ interface TransfersTableProps {
 	errorTitle: string;
 	/** Totals of the filtered rows in the footer band. */
 	summary?: React.ReactNode;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Transfer>;
 }
 
 export const TransfersTable: React.FC<TransfersTableProps> = ({
@@ -32,6 +35,7 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 	onOpen,
 	onCreate,
 	summary,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(() => buildTransferColumns(t, onOpen), [t, onOpen]);
@@ -39,6 +43,7 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 
 	return (
 		<DataTable<Transfer>
+			exportOrder={exportOrder}
 			rows={rows}
 			onRetry={onRetry}
 			errorTitle={errorTitle}

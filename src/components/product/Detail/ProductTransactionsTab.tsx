@@ -9,6 +9,7 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { Measurement, ProductTransaction } from "models/product";
 import { saleDetailPath, supplyDetailPath } from "routing/paths";
 import { formatDate } from "utils/dateUtils";
@@ -64,6 +65,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 	onOpen,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<TransactionRow>();
 
 	const rows = useMemo<TransactionRow[]>(
 		() => transactions.map((txn, index) => ({ ...txn, id: index, transactionId: txn.id })),
@@ -139,13 +141,14 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 				{ header: t("product.detail.txns.price"), value: (r) => r.unitPrice },
 				{ header: t("product.detail.txns.total"), value: lineTotal },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
 	return (
 		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
 			<DetailTable<TransactionRow>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

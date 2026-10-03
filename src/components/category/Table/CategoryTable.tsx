@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { buildCategoryColumns } from "components/category/Table/categoryTableConfigs";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Category } from "models/category";
 
@@ -18,6 +19,8 @@ interface CategoryTableProps {
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить категории». */
 	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Category>;
 }
 
 export const CategoryTable: React.FC<CategoryTableProps> = ({
@@ -28,6 +31,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 	onCreate,
 	onEdit,
 	onDelete,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
@@ -38,6 +42,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 
 	return (
 		<DataTable<Category>
+			exportOrder={exportOrder}
 			rows={data}
 			onRetry={onRetry}
 			errorTitle={errorTitle}

@@ -13,6 +13,7 @@ import NotesCell from "components/shared/Table/cells/NotesCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
@@ -61,6 +62,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 	movements,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<MovementRow>();
 	const [query, setQuery] = useState("");
 	const [type, setType] = useState<KindFilter>(ALL_TYPES);
 	const isFiltering = query.trim() !== "" || type !== ALL_TYPES;
@@ -142,7 +144,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 				{ header: t("warehouse.movements.balance"), value: (m) => m.balanceAfter },
 				{ header: t("warehouse.stock.unit"), value: (m) => measurementShort(t, m.measurement) },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -169,6 +171,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
 		>
 			<DetailTable<MovementRow>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

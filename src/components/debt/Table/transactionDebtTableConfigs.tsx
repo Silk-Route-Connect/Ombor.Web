@@ -19,6 +19,10 @@ import { Box } from "@mui/material";
 
 export type DebtRow = Debt & { id: number };
 
+/** Debts keyed for the table (a document has one open debt row). */
+export const toDebtRows = (debts: Debt[]): DebtRow[] =>
+	debts.map((d) => ({ ...d, id: d.transactionId }));
+
 /** The source document number — the served one, else the id (DR-14). */
 export const debtDocumentNumber = (d: Debt): string | number => d.number ?? d.transactionId;
 

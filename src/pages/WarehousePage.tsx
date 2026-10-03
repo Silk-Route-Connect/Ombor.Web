@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
@@ -21,6 +22,7 @@ const WarehousePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { warehouseStore } = useStore();
+	const tableOrder = useTableOrder<Warehouse>();
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -75,7 +77,7 @@ const WarehousePage: React.FC = observer(() => {
 			},
 		];
 
-		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, rows);
+		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, tableOrder.apply(rows));
 	};
 
 	const all = !isReady(warehouseStore.allWarehouses) ? null : warehouseStore.allWarehouses;
@@ -99,6 +101,7 @@ const WarehousePage: React.FC = observer(() => {
 			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
 
 			<WarehousesTable
+				exportOrder={tableOrder}
 				onRetry={() => void warehouseStore.getAll()}
 				errorTitle={t("warehouse.error.getAll")}
 				rows={warehouseStore.filteredWarehouses}

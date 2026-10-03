@@ -8,6 +8,7 @@ import DateCell from "components/shared/Table/cells/DateCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Measurement, ProductMovement } from "models/product";
 import { numericSx } from "theme";
@@ -41,6 +42,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 	measurement,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<MovementRow>();
 
 	const rows = useMemo<MovementRow[]>(
 		() => movements.map((m, index) => ({ ...m, id: index, eventId: m.id })),
@@ -108,13 +110,14 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 				{ header: t("product.detail.moves.balance"), value: (m) => m.balanceAfter },
 				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
 	return (
 		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
 			<DetailTable<MovementRow>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

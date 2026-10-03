@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { PaymentRecord } from "models/payment";
 
@@ -19,6 +20,8 @@ interface PaymentsTableProps {
 	errorTitle: string;
 	/** Totals of the filtered rows in the footer band. */
 	summary?: React.ReactNode;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<PaymentRecord>;
 }
 
 /** Payments list on the shared {@link DataTable}; a row opens the full-page detail. */
@@ -29,12 +32,14 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 	onRetry,
 	errorTitle,
 	summary,
+	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(() => buildPaymentColumns(t), [t]);
 
 	return (
 		<DataTable
+			exportOrder={exportOrder}
 			rows={rows}
 			onRetry={onRetry}
 			errorTitle={errorTitle}

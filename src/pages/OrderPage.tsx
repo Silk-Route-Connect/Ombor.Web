@@ -5,6 +5,7 @@ import OrderListHeader from "components/order/List/OrderListHeader";
 import OrderListTotals from "components/order/List/OrderListTotals";
 import OrdersTable from "components/order/List/OrdersTable";
 import { buildOrderColumns } from "components/order/List/orderTableConfigs";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
@@ -26,6 +27,7 @@ const OrderPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { orderStore } = useStore();
+	const tableOrder = useTableOrder<Order>();
 
 	useEffect(() => {
 		orderStore.resetFilters();
@@ -52,7 +54,7 @@ const OrderPage: React.FC = observer(() => {
 			},
 			{ header: t("order.col.total"), value: (o) => o.total },
 		];
-		exportToCsv(`orders_${csvDateStamp()}`, csvColumns, rows);
+		exportToCsv(`orders_${csvDateStamp()}`, csvColumns, tableOrder.apply(rows));
 	};
 
 	return (
@@ -71,6 +73,7 @@ const OrderPage: React.FC = observer(() => {
 			/>
 
 			<OrdersTable
+				exportOrder={tableOrder}
 				onRetry={() => void orderStore.getAll()}
 				errorTitle={t("order.error.getAll")}
 				rows={orderStore.listOrders}

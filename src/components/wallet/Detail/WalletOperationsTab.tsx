@@ -15,6 +15,7 @@ import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
 import { WalletOperation, WalletOperationDirection } from "models/wallet";
 import { paymentDetailPath } from "routing/paths";
@@ -66,6 +67,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 	onOpenTransfer,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<WalletOperation>();
 	const [query, setQuery] = useState("");
 	const [dir, setDir] = useState<DirFilter>("all");
 	const [dateRange, setDateRange] = useState<DateRangeValue>(ALL_DATES);
@@ -192,7 +194,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				{ header: t("wallet.operations.amount"), value: (o) => o.amount },
 				{ header: t("wallet.operations.balanceAfter"), value: (o) => o.balanceAfter },
 			],
-			rows,
+			tableOrder.apply(rows),
 		);
 	};
 
@@ -220,6 +222,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 			exportCsv={{ onExport: handleExport, rowCount: rows.length }}
 		>
 			<DetailTable<WalletOperation>
+				exportOrder={tableOrder}
 				rows={rows}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}

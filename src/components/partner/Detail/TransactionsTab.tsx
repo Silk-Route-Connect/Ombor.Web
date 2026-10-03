@@ -11,6 +11,7 @@ import NoValue from "components/shared/Table/cells/NoValue";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { PartnerLedgerEntry } from "models/partner";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -49,6 +50,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 	onOpen,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [type, setType] = useState<TypeFilter>("all");
 	const [status, setStatus] = useState<StatusFilter>(initialStatus ?? "all");
 	const [search, setSearch] = useState("");
@@ -147,7 +149,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				{ header: t("partner.txns.col.positions"), value: (tx) => tx.itemCount ?? "" },
 				{ header: t("partner.txns.col.amount"), value: (tx) => Math.abs(tx.delta) },
 			],
-			filtered,
+			tableOrder.apply(filtered),
 		);
 	};
 
@@ -186,6 +188,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}
 		>
 			<DetailTable<PartnerLedgerEntry>
+				exportOrder={tableOrder}
 				rows={filtered}
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
