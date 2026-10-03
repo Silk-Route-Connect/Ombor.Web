@@ -124,7 +124,7 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						tick={AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
-					<Tooltip content={renderTooltip} cursor={{ fill: "rgba(18,103,107,0.05)" }} />
+					<Tooltip content={renderTooltip} cursor={{ fill: designTokens.primaryWash }} />
 					<Bar dataKey="sales" fill={sales} radius={[3, 3, 0, 0]} maxBarSize={16} {...anim} />
 					<Bar
 						dataKey="supplies"

@@ -19,14 +19,16 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 	<Box
 		sx={{
 			bgcolor: designTokens.gray900,
-			color: "#fff",
+			color: "common.white",
 			borderRadius: "8px",
 			boxShadow: 16,
 			p: "9px 11px",
 			minWidth: 132,
 		}}
 	>
-		<Box sx={{ ...numericSx, fontSize: 11, color: designTokens.gray400, mb: "6px" }}>{heading}</Box>
+		<Box sx={{ ...numericSx, fontSize: 11, color: designTokens.onDarkMuted, mb: "6px" }}>
+			{heading}
+		</Box>
 		{rows.map((r) => (
 			<Box
 				key={r.label}
@@ -39,7 +41,7 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 					...(r.divider && {
 						mt: "6px",
 						pt: "6px",
-						borderTop: "1px solid rgba(255,255,255,.14)",
+						borderTop: `1px solid ${designTokens.onDarkLine}`,
 					}),
 				}}
 			>

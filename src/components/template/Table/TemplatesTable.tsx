@@ -214,7 +214,7 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
 								textAlign: "right",
 							}}
 						>
-							<Box component="span" sx={{ ...numericSx, fontWeight: 800, fontSize: 16 }}>
+							<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 16 }}>
 								{formatCurrency(total)}
 							</Box>
 							<Box

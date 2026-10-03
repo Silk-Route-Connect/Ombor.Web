@@ -49,7 +49,7 @@ const Value: React.FC<{ color: string; text: string }> = ({ color, text }) => (
 	<Typography
 		sx={{
 			...numericSx,
-			fontWeight: 800,
+			fontWeight: 700,
 			fontSize: 27,
 			letterSpacing: "-0.02em",
 			lineHeight: 1,

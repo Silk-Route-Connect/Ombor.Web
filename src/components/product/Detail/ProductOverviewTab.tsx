@@ -171,7 +171,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 									component="span"
 									sx={{
 										...numericSx,
-										fontWeight: 800,
+										fontWeight: 700,
 										color: zero ? "error.main" : "text.primary",
 									}}
 								>
@@ -179,12 +179,12 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								</Box>
 							</td>
 							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 									{product.averageCost != null ? formatCurrency(product.averageCost) : "—"}
 								</Box>
 							</td>
 							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 									{formatCurrency(totalValue)}
 								</Box>
 							</td>

@@ -56,7 +56,7 @@ const ImageThumb: React.FC<{
 					height: 16,
 					borderRadius: "50%",
 					bgcolor: "error.main",
-					color: "#fff",
+					color: "common.white",
 				}}
 			>
 				<CloseIcon sx={{ fontSize: 11 }} />

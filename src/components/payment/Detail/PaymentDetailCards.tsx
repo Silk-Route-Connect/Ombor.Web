@@ -78,7 +78,7 @@ export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ paymen
 							</Box>
 							<Box
 								component="span"
-								sx={{ ...numericSx, fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}
+								sx={{ ...numericSx, fontWeight: 700, fontSize: 17, letterSpacing: "-0.02em" }}
 							>
 								{formatCurrency(s.amount)}{" "}
 								<Box
@@ -242,7 +242,7 @@ export const PaymentWithdrawalCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 				<Typography sx={{ fontWeight: 600 }}>{t("payment.detail.advanceReturned")}</Typography>
 				<Box
 					component="span"
-					sx={{ ...numericSx, fontWeight: 800, fontSize: 17, color: "error.main" }}
+					sx={{ ...numericSx, fontWeight: 700, fontSize: 17, color: "error.main" }}
 				>
 					{formatCurrency(payment.amount)} UZS
 				</Box>

@@ -289,7 +289,7 @@ function RailGroup({
 						borderRadius: 2,
 						border: 1,
 						borderColor: "divider",
-						boxShadow: "0 14px 36px rgba(28,38,37,.20)",
+						boxShadow: 8,
 					}}
 				>
 					<Typography

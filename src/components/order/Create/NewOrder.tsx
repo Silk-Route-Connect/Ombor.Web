@@ -471,7 +471,7 @@ export const NewOrder: React.FC = observer(() => {
 									sx={{
 										...numericSx,
 										fontSize: 23,
-										fontWeight: 800,
+										fontWeight: 700,
 										color: tone.color,
 										lineHeight: 1.05,
 									}}
@@ -535,7 +535,7 @@ export const NewOrder: React.FC = observer(() => {
 								sx={{
 									...numericSx,
 									fontSize: 22,
-									fontWeight: 800,
+									fontWeight: 700,
 									color: "primary.main",
 									letterSpacing: "-0.02em",
 								}}

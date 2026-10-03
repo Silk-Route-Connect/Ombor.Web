@@ -23,6 +23,7 @@ import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
 import { partnerDetailPath, PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { designTokens } from "theme";
 
 import { Box, CircularProgress, useTheme } from "@mui/material";
 
@@ -89,7 +90,7 @@ const DashboardPage: React.FC = observer(() => {
 								display: "flex",
 								justifyContent: "center",
 								pt: 12,
-								bgcolor: "rgba(247,248,250,0.55)",
+								bgcolor: designTokens.loadingVeil,
 							}}
 						>
 							<CircularProgress />

@@ -272,7 +272,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 															placeItems: "center",
 															cursor: "pointer",
 															border: "1.5px solid",
-															color: "#fff",
+															color: "common.white",
 															...(r.checked
 																? { bgcolor: "primary.main", borderColor: "primary.main" }
 																: {

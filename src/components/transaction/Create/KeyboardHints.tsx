@@ -29,7 +29,7 @@ const Kbd: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 			border: "1px solid",
 			borderColor: designTokens.gray300,
 			borderRadius: "5px",
-			boxShadow: "0 1px 0 rgba(22,42,43,.08)",
+			boxShadow: `0 1px 0 ${designTokens.border}`,
 		}}
 	>
 		{children}

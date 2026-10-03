@@ -406,7 +406,7 @@ const termsBox = (filled: boolean, error?: boolean) => (
 			border: "1.5px solid",
 			borderColor: error ? "error.main" : filled ? "primary.main" : designTokens.gray300,
 			bgcolor: filled ? "primary.main" : "background.paper",
-			color: "#fff",
+			color: "common.white",
 			display: "grid",
 			placeItems: "center",
 			transition: "background .12s, border-color .12s",

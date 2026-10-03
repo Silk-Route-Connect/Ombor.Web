@@ -190,7 +190,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ moveme
 							<td className="r"></td>
 							<td className="r"></td>
 							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+								<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 									{formatQuantity(openingBalance)}
 								</Box>
 							</td>

@@ -277,7 +277,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
 							{t("payment.settlement.toDistribute")}
 						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 800, fontSize: 18 }}>
+						<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 18 }}>
 							{formatCurrency(amount)}
 						</Typography>
 					</Box>
@@ -285,7 +285,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
 							{t("payment.settlement.distributed")}
 						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 800, fontSize: 18, color: "success.main" }}>
+						<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 18, color: "success.main" }}>
 							{formatCurrency(distributed)}
 						</Typography>
 					</Box>
@@ -296,7 +296,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 						<Typography
 							sx={{
 								...numericSx,
-								fontWeight: 800,
+								fontWeight: 700,
 								fontSize: 18,
 								color: advance > 0 ? designTokens.saffron700 : "text.disabled",
 							}}

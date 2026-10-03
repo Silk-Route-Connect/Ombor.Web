@@ -40,7 +40,7 @@ const Kpi: React.FC<{
 			sx={{
 				...numericSx,
 				fontSize: 30,
-				fontWeight: 800,
+				fontWeight: 700,
 				letterSpacing: "-0.025em",
 				lineHeight: 1,
 				mt: "10px",

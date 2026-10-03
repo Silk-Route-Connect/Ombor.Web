@@ -56,7 +56,7 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 					placeItems: "center",
 					flex: "0 0 auto",
 					...(isImage
-						? { bgcolor: "rgba(42,111,151,0.12)", color: "info.main" }
+						? { bgcolor: designTokens.infoBg, color: "info.main" }
 						: { bgcolor: designTokens.errorBg, color: "error.main" }),
 				}}
 			>

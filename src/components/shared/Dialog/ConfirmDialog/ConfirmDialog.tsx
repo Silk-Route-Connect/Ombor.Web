@@ -39,14 +39,15 @@ const CONFIRM_SX: Record<ConfirmVariant, object> = {
 		borderColor: designTokens.errorBorder,
 		"&:hover": { bgcolor: designTokens.errorBg, borderColor: designTokens.errorBorder },
 	},
+	// Saffron 700 keeps the white label at 5.8:1 (the 500 fill was 2.8:1).
 	warning: {
-		bgcolor: "secondary.main",
-		color: "#fff",
-		"&:hover": { bgcolor: designTokens.saffron600 },
+		bgcolor: "secondary.dark",
+		color: "common.white",
+		"&:hover": { bgcolor: designTokens.warningFg },
 	},
 	primary: {
 		bgcolor: "primary.main",
-		color: "#fff",
+		color: "primary.contrastText",
 		"&:hover": { bgcolor: "primary.dark" },
 	},
 };

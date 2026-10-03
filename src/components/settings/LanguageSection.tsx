@@ -59,7 +59,7 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 									border: "2px solid",
 									borderColor: on ? "primary.main" : designTokens.gray300,
 									bgcolor: on ? "primary.main" : "transparent",
-									color: "#fff",
+									color: "common.white",
 									display: "grid",
 									placeItems: "center",
 								}}

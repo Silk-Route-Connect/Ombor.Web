@@ -160,7 +160,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 							sx={{
 								...numericSx,
 								fontSize: 23,
-								fontWeight: 800,
+								fontWeight: 700,
 								color: tone.color,
 								lineHeight: 1.05,
 							}}
@@ -199,7 +199,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 								{t(`transaction.new.balance.after.${direction}`)}
 							</Box>
 							<Typography
-								sx={{ ...numericSx, fontWeight: 800, fontSize: 16, color: afterTone.color }}
+								sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: afterTone.color }}
 							>
 								{formatCurrency(Math.abs(balanceAfter))}
 							</Typography>
@@ -241,7 +241,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 						sx={{
 							...numericSx,
 							fontSize: 22,
-							fontWeight: 800,
+							fontWeight: 700,
 							color: "primary.main",
 							letterSpacing: "-0.02em",
 						}}

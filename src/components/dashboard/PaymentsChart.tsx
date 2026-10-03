@@ -99,7 +99,7 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						tickFormatter={(v) => formatShortNumber(Math.abs(v as number))}
 					/>
 					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
-					<Tooltip content={renderTooltip} cursor={{ fill: "rgba(18,103,107,0.05)" }} />
+					<Tooltip content={renderTooltip} cursor={{ fill: designTokens.primaryWash }} />
 					<Bar dataKey="payin" fill={green} radius={[3, 3, 0, 0]} maxBarSize={14} {...anim} />
 					<Bar
 						dataKey="payoutNeg"

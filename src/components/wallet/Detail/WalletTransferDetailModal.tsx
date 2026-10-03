@@ -111,7 +111,7 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 				<KvRow label={t("wallet.transfer.amount")}>
 					<Box
 						component="span"
-						sx={{ ...numericSx, fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}
+						sx={{ ...numericSx, fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}
 					>
 						{formatCurrency(transfer.amount)} UZS
 					</Box>

@@ -45,10 +45,10 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 				borderRadius: "16px",
 				border: "1px solid",
 				borderColor: "divider",
-				bgcolor: "rgba(255,255,255,0.72)",
+				bgcolor: designTokens.scrim,
 				backdropFilter: "blur(10px)",
 				WebkitBackdropFilter: "blur(10px)",
-				boxShadow: "0 24px 60px -16px rgba(20,40,40,.28)",
+				boxShadow: 16,
 				overflow: "hidden",
 			}}
 		>

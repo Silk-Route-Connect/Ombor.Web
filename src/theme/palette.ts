@@ -106,8 +106,10 @@ export const designTokens = {
 	onDarkMuted: "rgba(255,255,255,0.82)", // secondary text on teal / ink (≥5:1)
 	onDarkLine: "rgba(255,255,255,0.14)", // hairline on teal / ink
 	onDarkFill: "rgba(255,255,255,0.13)", // chip fill on teal
+	onDarkGrid: "rgba(255,255,255,0.10)", // decorative grid on the teal brand panel
 	scrim: "rgba(255,255,255,0.72)", // frosted card over the auth backdrop
 	primaryWash: "rgba(18,103,107,0.05)", // chart hover cursor
+	loadingVeil: "rgba(244,241,234,0.55)", // canvas-tinted veil over content while it reloads
 	// One visible keyboard-focus ring (6.6:1): white gap + teal ring.
 	focusRing: `0 0 0 2px ${NEUTRAL[0]}, 0 0 0 4px ${TEAL_500}`,
 } as const;

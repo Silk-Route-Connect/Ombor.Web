@@ -259,13 +259,13 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 									<td />
 									<td />
 									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 											{formatQuantity(warehouse.totalUnits)}
 										</Box>
 									</td>
 									<td />
 									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
+										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
 											{formatCurrency(warehouse.stockValue)}
 										</Box>
 									</td>

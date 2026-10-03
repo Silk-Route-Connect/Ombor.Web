@@ -40,14 +40,14 @@ const switchSx = {
 		p: "2px",
 		"&.Mui-checked": {
 			transform: "translateX(18px)",
-			color: "#fff",
+			color: "common.white",
 			"& + .MuiSwitch-track": { bgcolor: "primary.main", opacity: 1 },
 		},
 	},
 	"& .MuiSwitch-thumb": {
 		width: 20,
 		height: 20,
-		bgcolor: "#fff",
+		bgcolor: "common.white",
 		boxShadow: (theme: { shadows: string[] }) => theme.shadows[1],
 	},
 	"& .MuiSwitch-track": { borderRadius: 999, bgcolor: designTokens.gray300, opacity: 1 },

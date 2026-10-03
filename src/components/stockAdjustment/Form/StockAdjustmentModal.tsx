@@ -117,7 +117,7 @@ const PREV_CAP = {
 } as const;
 const PREV_NUM = {
 	...numericSx,
-	fontWeight: 800,
+	fontWeight: 700,
 	fontSize: 21,
 	letterSpacing: "-0.01em",
 	lineHeight: 1.1,
