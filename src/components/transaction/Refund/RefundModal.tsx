@@ -11,6 +11,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
+import { parseWholeQuantity } from "utils/quantityInput";
 import { directionOf, discountLabel, effectiveUnitPrice } from "utils/transactionUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -357,9 +358,15 @@ const RefundModal: React.FC<RefundModalProps> = ({
 																component="input"
 																inputMode="numeric"
 																value={r.qty}
-																onChange={(ev: React.ChangeEvent<HTMLInputElement>) =>
-																	setRow(i, { qty: ev.target.value.replace(/[^\d]/g, "") })
-																}
+																onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
+																	// Whole units only: a «,» / «.» keystroke is refused, never merged into the digits.
+																	const parsed = parseWholeQuantity(ev.target.value);
+																	if (parsed.kind === "empty" || parsed.kind === "whole") {
+																		setRow(i, {
+																			qty: parsed.kind === "whole" ? String(parsed.value) : "",
+																		});
+																	}
+																}}
 																sx={{
 																	...numericSx,
 																	width: 44,

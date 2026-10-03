@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { parseWholeQuantity } from "utils/quantityInput";
 
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -54,6 +55,9 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 	// click-then-type replaces too. Holds package counts while in package mode.
 	const [qtyDraft, setQtyDraft] = useState<string | null>(null);
 	const qtyValue = qtyDraft ?? String(displayQty);
+	// A non-whole draft («1,5») is shown with a hint and never committed — the line
+	// keeps its last valid quantity, and blur restores it.
+	const [qtyInvalid, setQtyInvalid] = useState(false);
 
 	useEffect(() => {
 		if (autoFocusQty && qtyRef.current) {
@@ -63,15 +67,20 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 		}
 	}, [autoFocusQty, onAutoFocused]);
 
-	const setDisplayQty = (next: number) => {
+	const resetDraft = () => {
 		setQtyDraft(null);
+		setQtyInvalid(false);
+	};
+	const setDisplayQty = (next: number) => {
+		resetDraft();
 		onChange({ quantity: Math.max(1, next) * step });
 	};
 	const onQtyChange = (raw: string) => {
 		setQtyDraft(raw);
-		const n = parseInt(raw.replace(/[^\d]/g, ""), 10);
-		if (!Number.isNaN(n) && n >= 1) {
-			onChange({ quantity: n * step });
+		const parsed = parseWholeQuantity(raw);
+		setQtyInvalid(parsed.kind === "fraction" || parsed.kind === "invalid");
+		if (parsed.kind === "whole" && parsed.value >= 1) {
+			onChange({ quantity: parsed.value * step });
 		}
 	};
 	const onQtyKeyDown = (e: React.KeyboardEvent) => {
@@ -94,7 +103,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 		if (packSize == null || packs === inPackages) {
 			return;
 		}
-		setQtyDraft(null);
+		resetDraft();
 		if (packs) {
 			const packCount = Math.max(1, Math.ceil(item.quantity / packSize));
 			onChange({ inPackages: true, quantity: packCount * packSize });
@@ -119,7 +128,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 						alignItems: "center",
 						height: 36,
 						border: "1px solid",
-						borderColor: designTokens.gray300,
+						borderColor: qtyInvalid ? "error.main" : designTokens.gray300,
 						borderRadius: "6px",
 						overflow: "hidden",
 					}}
@@ -137,7 +146,8 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 						value={qtyValue}
 						onFocus={(e) => e.currentTarget.select()}
 						onChange={(e) => onQtyChange(e.target.value)}
-						onBlur={() => setQtyDraft(null)}
+						onBlur={resetDraft}
+						inputProps={{ inputMode: "numeric", "aria-invalid": qtyInvalid }}
 						onKeyDown={onQtyKeyDown}
 						sx={{
 							width: 44,
@@ -188,6 +198,11 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 					</Typography>
 				)}
 			</Box>
+			{qtyInvalid && (
+				<Typography role="alert" sx={{ fontSize: 12, color: "error.main" }}>
+					{t("transaction.new.line.qtyWholeOnly")}
+				</Typography>
+			)}
 		</Box>
 	);
 };

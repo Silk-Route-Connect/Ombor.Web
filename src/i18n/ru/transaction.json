@@ -248,6 +248,7 @@
   "transaction.new.cart.addProduct": "Добавить товар",
 
   "transaction.new.line.qty": "Кол-во · {{unit}}",
+  "transaction.new.line.qtyWholeOnly": "Количество — только целое число",
   "transaction.new.line.price": "Цена за {{unit}}",
   "transaction.new.line.priceSupply": "Цена поставки за {{unit}}",
   "transaction.new.line.discount": "Скидка",
