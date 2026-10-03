@@ -3,6 +3,7 @@ import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
+import { ServerErrorHandler } from "utils/formServerErrors";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -39,9 +40,12 @@ export interface IProductStore {
 	dialogMode: DialogMode;
 
 	getAll(): Promise<void>;
-	create(request: CreateProductRequest): Promise<void>;
+	create(request: CreateProductRequest, applyServerErrors?: ServerErrorHandler): Promise<void>;
 	/** Resolve with the fresh product on success, or null on failure. */
-	update(request: UpdateProductRequest): Promise<Product | null>;
+	update(
+		request: UpdateProductRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<Product | null>;
 	archive(product: Product): Promise<Product | null>;
 	restore(product: Product): Promise<Product | null>;
 
@@ -155,11 +159,16 @@ export class ProductStore implements IProductStore {
 		runInAction(() => (this.allProducts = toLoadable(result)));
 	}
 
-	async create(request: CreateProductRequest): Promise<void> {
+	async create(
+		request: CreateProductRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<void> {
 		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.notifyApiError(result, "product.error.create");
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "product.error.create");
+			}
 			return;
 		}
 
@@ -173,11 +182,16 @@ export class ProductStore implements IProductStore {
 		this.notificationStore.success(i18next.t("product.success.create"));
 	}
 
-	async update(request: UpdateProductRequest): Promise<Product | null> {
+	async update(
+		request: UpdateProductRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.notifyApiError(result, "product.error.update");
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "product.error.update");
+			}
 			return null;
 		}
 

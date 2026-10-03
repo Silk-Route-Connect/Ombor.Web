@@ -20,6 +20,7 @@ import { PATHS } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
+import { ServerErrorHandler } from "utils/formServerErrors";
 import { mapFormPackagingToPackaging } from "utils/productUtils";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
@@ -66,6 +67,7 @@ const ProductDetailPage: React.FC = observer(() => {
 	const handleFormSave = async (
 		payload: ProductFormValues,
 		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
 	): Promise<void> => {
 		const request: CreateProductRequest = {
 			categoryId: payload.categoryId,
@@ -82,11 +84,10 @@ const ProductDetailPage: React.FC = observer(() => {
 			attachments: payload.attachments,
 		};
 
-		const updated = await productStore.update({
-			...request,
-			id: product.id,
-			imagesToDelete: imagesToRemove,
-		});
+		const updated = await productStore.update(
+			{ ...request, id: product.id, imagesToDelete: imagesToRemove },
+			applyServerErrors,
+		);
 		if (updated) {
 			selectedProductStore.applyProduct(updated);
 		}

@@ -13,6 +13,7 @@ import { Product } from "models/product";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { dialogPaperSx } from "theme";
+import { ServerErrorHandler } from "utils/formServerErrors";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import { Dialog, DialogContent, LinearProgress } from "@mui/material";
@@ -25,7 +26,11 @@ export interface ProductFormModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
+	onSave: (
+		payload: ProductFormValues,
+		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
+	) => void;
 	onClose: () => void;
 }
 

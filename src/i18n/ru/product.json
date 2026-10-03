@@ -165,6 +165,7 @@
   "product.validation.invalidType": "Неверный тип товара.",
   "product.validation.skuRequired": "Укажите артикул.",
   "product.validation.skuTooLong": "Артикул не должен превышать 100 символов.",
+  "product.validation.skuTaken": "Товар с таким артикулом уже есть — укажите другой.",
   "product.validation.descriptionTooLong": "Описание не должно превышать 500 символов.",
   "product.validation.invalidBarcode": "Некорректный штрих‑код.",
   "product.validation.supplyPriceNonNegative": "Цена поставки не может быть отрицательной.",

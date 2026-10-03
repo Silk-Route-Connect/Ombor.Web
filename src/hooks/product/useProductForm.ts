@@ -3,13 +3,24 @@ import { useForm, UseFormReturn, UseFormStateReturn, useWatch } from "react-hook
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Product, ProductImage } from "models/product";
 import { ProductFormInputs, ProductFormValues, ProductSchema } from "schemas/ProductSchema";
+import { applyServerFieldErrors, ServerErrorHandler, ServerFieldMap } from "utils/formServerErrors";
 import { mapProductToFormPayload } from "utils/productUtils";
+
+/** Server-only rules land on their field: a duplicate SKU, a category deleted meanwhile. */
+const SERVER_FIELDS: ServerFieldMap<ProductFormInputs> = {
+	SKU: { field: "sku", messageKey: "product.validation.skuTaken" },
+	CategoryId: { field: "categoryId", messageKey: "product.validation.categoryRequired" },
+};
 
 export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
+	onSave: (
+		payload: ProductFormValues,
+		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
+	) => void;
 }
 
 export interface UseProductFormResult {
@@ -83,7 +94,7 @@ export const useProductForm = ({
 		defaultValues: DEFAULT_VALUES,
 	});
 
-	const { control, formState, setValue, handleSubmit, reset, clearErrors } = form;
+	const { control, formState, setValue, handleSubmit, reset, clearErrors, setError } = form;
 
 	const [initialImages, setInitialImages] = useState<ProductImage[]>([]);
 	const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
@@ -227,7 +238,9 @@ export const useProductForm = ({
 	// Thread the tracked image removals through to the save callback — RHF's
 	// handleSubmit only forwards validated form values, so the deletions
 	// (tracked outside the form) must be passed explicitly.
-	const submit = handleSubmit((values) => onSave(values, imagesToRemove));
+	const applyServerErrors: ServerErrorHandler = (cause) =>
+		applyServerFieldErrors(cause, setError, SERVER_FIELDS);
+	const submit = handleSubmit((values) => onSave(values, imagesToRemove, applyServerErrors));
 	// Save stays enabled (hard rule 5): validation runs on submit and reports
 	// inline; the button is only inert while a save is in flight.
 	const canSave = !isSaving;

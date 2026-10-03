@@ -12,6 +12,7 @@ import { productDetailPath } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { ServerErrorHandler } from "utils/formServerErrors";
 import { mapFormPackagingToPackaging, measurementLabel } from "utils/productUtils";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
@@ -31,7 +32,11 @@ const ProductPage: React.FC = observer(() => {
 	const dialogMode = productStore.dialogMode;
 	const editingProduct = dialogMode.kind === "form" ? (dialogMode.product ?? null) : null;
 
-	const handleFormSave = (payload: ProductFormValues, imagesToRemove: number[]): void => {
+	const handleFormSave = (
+		payload: ProductFormValues,
+		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
+	): void => {
 		const request: CreateProductRequest = {
 			categoryId: payload.categoryId,
 			name: payload.name,
@@ -48,9 +53,12 @@ const ProductPage: React.FC = observer(() => {
 		};
 
 		if (editingProduct) {
-			productStore.update({ ...request, id: editingProduct.id, imagesToDelete: imagesToRemove });
+			productStore.update(
+				{ ...request, id: editingProduct.id, imagesToDelete: imagesToRemove },
+				applyServerErrors,
+			);
 		} else {
-			productStore.create(request);
+			productStore.create(request, applyServerErrors);
 		}
 	};
 
