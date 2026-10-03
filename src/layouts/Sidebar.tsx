@@ -365,7 +365,9 @@ const Sidebar: React.FC = observer(() => {
 
 	// Groups the user opened stay open while navigating; the group owning
 	// the current route is expanded additively, never collapsing others.
-	const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+	const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() =>
+		Object.fromEntries(navItems.filter((i) => i.defaultOpen).map((i) => [i.labelKey, true])),
+	);
 
 	useEffect(() => {
 		const owner = navItems.find((item) =>
