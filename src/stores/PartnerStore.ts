@@ -46,7 +46,8 @@ export interface IPartnerStore {
 	dialogMode: PartnerDialogMode;
 
 	getAll(): Promise<void>;
-	create(request: CreatePartnerRequest): Promise<void>;
+	/** The created partner, or null when the create failed (already toasted). */
+	create(request: CreatePartnerRequest): Promise<Partner | null>;
 	update(request: UpdatePartnerRequest): Promise<Partner | null>;
 	archive(partner: Partner): Promise<Partner | null>;
 	restore(partner: Partner): Promise<Partner | null>;
@@ -167,12 +168,12 @@ export class PartnerStore implements IPartnerStore {
 		runInAction(() => (this.allPartners = toLoadable(result)));
 	}
 
-	async create(request: CreatePartnerRequest): Promise<void> {
+	async create(request: CreatePartnerRequest): Promise<Partner | null> {
 		const result = await withSaving(this, () => PartnerApi.create(request));
 
 		if (result.status === "fail") {
 			this.notificationStore.notifyApiError(result, "partner.error.create");
-			return;
+			return null;
 		}
 
 		runInAction(() => {
@@ -183,6 +184,7 @@ export class PartnerStore implements IPartnerStore {
 
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("partner.success.create", { name: result.data.name }));
+		return result.data;
 	}
 
 	async update(request: UpdatePartnerRequest): Promise<Partner | null> {

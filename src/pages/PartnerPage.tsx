@@ -9,11 +9,12 @@ import { buildPartnerColumns } from "components/partner/List/partnerTableConfigs
 import PartnerDialogs from "components/partner/PartnerDialogs";
 import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
-import { CreatePartnerRequest, Partner, UpdatePartnerRequest } from "models/partner";
+import { Partner } from "models/partner";
 import { partnerDetailPath } from "routing/paths";
-import { PartnerFormValues, signedOpeningBalance } from "schemas/PartnerSchema";
+import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { toCreatePartnerRequest, toUpdatePartnerRequest } from "utils/partnerRequest";
 import { formatUzPhone } from "utils/phoneUtils";
 
 import { Box } from "@mui/material";
@@ -50,24 +51,10 @@ const PartnerPage: React.FC = observer(() => {
 	const handleSave = (values: PartnerFormValues) => {
 		const editing =
 			partnerStore.dialogMode.kind === "form" ? partnerStore.dialogMode.partner : null;
-		const base = {
-			type: values.type,
-			name: values.name,
-			companyName: values.companyName,
-			address: values.address,
-			email: values.email,
-			telegram: values.telegram,
-			phoneNumbers: values.phoneNumbers,
-		};
 		if (editing) {
-			const request: UpdatePartnerRequest = { id: editing.id, ...base };
-			void partnerStore.update(request);
+			void partnerStore.update(toUpdatePartnerRequest(editing.id, values));
 		} else {
-			const request: CreatePartnerRequest = {
-				...base,
-				openingBalance: signedOpeningBalance(values),
-			};
-			void partnerStore.create(request);
+			void partnerStore.create(toCreatePartnerRequest(values));
 		}
 	};
 

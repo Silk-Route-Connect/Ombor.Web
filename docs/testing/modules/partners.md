@@ -96,8 +96,13 @@ Expect: submit is clickable (hard rule 5); inline errors — name «Имя до�
 
 ### T-PRT-31 · Per-row phone validation [negative]
 Pre: create form; name filled valid.
-Steps: 1) Phone row 1: valid `901234567`. 2) «Добавить телефон», row 2: `12`. 3) Submit.
+Steps: 1) Phone row 1: valid `901234567`. 2) «Добавить номер», row 2: `12`. 3) Submit.
 Expect: only row 2 errors — «Телефон должен содержать только цифры (опционально «+») и иметь 7-15 символов» under that row; row 1 unaffected; submit blocked until fixed.
+
+### T-PRT-33 · Phone list is the shared phone field [edge]
+Pre: create form; name filled valid.
+Steps: 1) Click «Добавить номер» while the first row is empty. 2) Fill it, add rows up to 5, click «Добавить номер» again. 3) Delete a row with the bin icon inside the field.
+Expect: the same phone field as the employee form — fixed «+998», body grouped «90 123 45 67». 1→ no row added, hint «Сначала заполните пустой номер». 2→ at 5 rows the button stays enabled and says «Можно указать не больше 5 номеров». 3→ the row goes; the last remaining row has no bin.
 
 ### T-PRT-32 · Telegram round-trip — persists and renders (F12) [edge]
 Pre: partner А.

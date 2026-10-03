@@ -10,6 +10,8 @@ interface PhoneListFieldProps {
 	disabled: boolean;
 	values: string[];
 	errors: (FieldError | undefined)[];
+	/** An error about the list as a whole (e.g. «at least one phone»), under the rows. */
+	listError?: string;
 	maxCount?: number;
 	onChange: (values: string[]) => void;
 	onBlur: () => void;
@@ -25,6 +27,7 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 	disabled,
 	values,
 	errors,
+	listError,
 	maxCount = 5,
 	onChange,
 	onBlur,
@@ -84,6 +87,9 @@ const PhoneListField: React.FC<PhoneListFieldProps> = ({
 			))}
 
 			<Grid size={{ xs: 12 }}>
+				{listError && (
+					<Typography sx={{ fontSize: 12, color: "error.main", mb: "4px" }}>{listError}</Typography>
+				)}
 				<Button size="small" onClick={handleAdd} disabled={disabled}>
 					{t("addPhoneNumber")}
 				</Button>

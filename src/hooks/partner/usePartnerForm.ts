@@ -10,6 +10,8 @@ interface UsePartnerFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
 	partner?: Partner | null;
+	/** Create only: values the empty form starts from. */
+	defaults?: Partial<PartnerFormInputs>;
 	onSave: (values: PartnerFormValues) => void;
 	onClose: () => void;
 }
@@ -32,6 +34,7 @@ export function usePartnerForm({
 	isOpen,
 	isSaving,
 	partner,
+	defaults,
 	onSave,
 	onClose,
 }: UsePartnerFormParams): UsePartnerFormResult {
@@ -47,7 +50,10 @@ export function usePartnerForm({
 		if (!isOpen) {
 			return;
 		}
-		form.reset(partner ? mapPartnerToFormPayload(partner) : { ...emptyPartnerFormDefaults });
+		form.reset(
+			partner ? mapPartnerToFormPayload(partner) : { ...emptyPartnerFormDefaults, ...defaults },
+		);
+		// Defaults apply when the form opens, not on every change of the object.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [partner, isOpen]);
 

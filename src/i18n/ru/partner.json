@@ -163,8 +163,6 @@
   "partner.form.phones": "Телефоны",
   "partner.form.phonePlaceholder": "+998 90 123 45 67",
   "partner.form.phoneError": "Укажите хотя бы один номер телефона",
-  "partner.form.addPhone": "Добавить телефон",
-  "partner.form.maxPhones": "Максимум 5 номеров",
   "partner.form.email": "Email",
   "partner.form.emailPlaceholder": "mail@example.uz",
   "partner.form.telegram": "Telegram",

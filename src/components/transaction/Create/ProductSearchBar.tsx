@@ -5,7 +5,7 @@ import { stockAt } from "hooks/transactions/useTransactionEntry";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { findBarcodeMatch, matchesProductSearch } from "utils/productFilters";
+import { findBarcodeMatch, matchesProductSearch, stockLevel } from "utils/productFilters";
 import { measurementShort } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
@@ -165,7 +165,9 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 			)}
 			renderOption={(props, p) => {
 				const stock = stockAt(p, warehouseId);
-				const out = stock === 0;
+				// Amber follows the product's «Минимальный остаток», like the list pills.
+				const level = stockLevel(stock, p.lowStockThreshold);
+				const out = level === "out";
 				const unit = measurementShort(t, p.measurement);
 				return (
 					<Box component="li" {...props} key={p.id} sx={{ gap: "12px" }}>
@@ -197,7 +199,7 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 									sx={{
 										fontSize: 12,
 										fontWeight: 600,
-										color: out ? "error.main" : stock < 15 ? "warning.dark" : "success.main",
+										color: out ? "error.main" : level === "low" ? "warning.dark" : "success.main",
 									}}
 								>
 									{out

@@ -26,10 +26,11 @@ import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
+import { Partner, PartnerLedgerEntry } from "models/partner";
 import { partnerStatementPath, PATHS } from "routing/paths";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
+import { toUpdatePartnerRequest } from "utils/partnerRequest";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -102,17 +103,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 	};
 
 	const handleEditSave = (values: PartnerFormValues) => {
-		const request: UpdatePartnerRequest = {
-			id: partner.id,
-			type: values.type,
-			name: values.name,
-			companyName: values.companyName,
-			address: values.address,
-			email: values.email,
-			telegram: values.telegram,
-			phoneNumbers: values.phoneNumbers,
-		};
-		void partnerStore.update(request).then(reflect);
+		void partnerStore.update(toUpdatePartnerRequest(partner.id, values)).then(reflect);
 	};
 
 	const handleDelete = () => {
