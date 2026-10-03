@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard from "components/shared/Detail/DetailCard";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Product } from "models/product";
@@ -18,7 +19,11 @@ interface ProductDetailRailProps {
 
 /** Shared label/value row for the «Цены» and «Информация» cards — one idiom:
  *  13px secondary label left, value right, hairline `gray25` separators. */
-const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+const Row: React.FC<{ label: string; hint?: string; children: React.ReactNode }> = ({
+	label,
+	hint,
+	children,
+}) => (
 	<Box
 		sx={{
 			display: "flex",
@@ -31,8 +36,19 @@ const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, ch
 			"&:last-child": { borderBottom: "none" },
 		}}
 	>
-		<Typography component="span" sx={{ fontSize: 13, color: "text.secondary", flex: "0 0 auto" }}>
+		<Typography
+			component="span"
+			sx={{
+				display: "inline-flex",
+				alignItems: "center",
+				gap: "4px",
+				fontSize: 13,
+				color: "text.secondary",
+				flex: "0 0 auto",
+			}}
+		>
 			{label}
+			{hint && <InfoHint text={hint} />}
 		</Typography>
 		{children}
 	</Box>
@@ -68,7 +84,7 @@ const PriceValue: React.FC<{
 };
 
 /**
- * Persistent right rail: «Цены» (sale / supply / avg-cost / margin) and
+ * Persistent right rail: «Цены» (sale / supply / avg-cost / markup) and
  * «Информация» — both use the shared {@link Row} idiom with a `DetailCard`
  * title/icon header. Stock-on-hand lives solely in the Overview tab's
  * per-warehouse table.
@@ -121,11 +137,14 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 					<Row label={t("product.supplyPrice")}>
 						<PriceValue value={product.supplyPrice} color="info.main" />
 					</Row>
-					<Row label={t("product.detail.prices.wac")}>
+					<Row label={t("product.detail.prices.wac")} hint={t("common.hint.wac")}>
 						<PriceValue value={product.averageCost} color={designTokens.saffron700} emphasized />
 					</Row>
 					{margin != null && (
-						<Row label={t("product.detail.prices.margin")}>
+						<Row
+							label={t("product.detail.prices.margin")}
+							hint={t("product.detail.prices.marginHint")}
+						>
 							<PriceValue
 								value={margin}
 								color="success.main"

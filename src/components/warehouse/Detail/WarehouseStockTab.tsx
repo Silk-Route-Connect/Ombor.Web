@@ -9,10 +9,11 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
 import TablePager from "components/shared/Table/TablePager";
+import i18next from "i18n/config";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
@@ -31,7 +32,7 @@ const SORT_ACCESSOR: Record<SortCol, (i: WarehouseStockItem) => string | number>
 	name: (i) => i.productName,
 	sku: (i) => i.sku,
 	category: (i) => i.categoryName ?? "",
-	unit: (i) => MEASUREMENT_SHORT[i.measurement],
+	unit: (i) => measurementShort(i18next.t, i.measurement),
 	quantity: (i) => i.quantity,
 	averageCost: (i) => i.averageCost,
 	value: (i) => i.value,
@@ -198,7 +199,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 									dir={sortDir}
 									onSort={onSort}
 									align="right"
-									tooltip={t("warehouse.stock.wacTooltip")}
+									tooltip={t("common.hint.wac")}
 								/>
 								<DetailSortHeader
 									col="value"
@@ -231,7 +232,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({ warehouse,
 									</td>
 									<td>
 										<Box component="span" sx={{ color: "text.secondary" }}>
-											{MEASUREMENT_SHORT[item.measurement]}
+											{measurementShort(t, item.measurement)}
 										</Box>
 									</td>
 									<td className="r">

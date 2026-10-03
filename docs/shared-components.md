@@ -21,6 +21,7 @@
 | `MetaDot`                              | Separator dot in meta lines                                       | 4px gray-400; replaced the invisible 3px separators                                                                                          |
 | `PageHeader`                           | Header on every routed list page                                  | DSN-1 `.page-head`: h1 title (+ optional subtitle) left, actions toolbar right                                                               |
 | `PlaceholderPage`                      | Unbuilt routes                                                    | Lives in `pages/`                                                                                                                            |
+| `InfoHint`                             | The «i» tooltip beside a label / column header with an unobvious term | One plain sentence, no formula (pattern 16 WAC, «Наценка»). Swallows the click so it can sit inside a sortable header                       |
 
 ## Detail-page scaffold (pattern 20)
 
@@ -30,7 +31,7 @@
 | `DetailTabs`                    | Detail tab bars                                | Underline tabs + count pills                                                                                                   |
 | `DetailCard`                    | Summary / rail cards                           | The card primitive for detail summaries                                                                                        |
 | `detailTableChrome`             | Detail-embedded tables (ledgers, detail tabs)  | **Not** `DataTable`; warm header band + total band _or_ pager footer (pattern 20d)                                             |
-| `DetailSortHeader`              | Sort headers in `detailTableChrome` tables     | For bespoke detail tables that can't use `DataTable`'s TableSortLabel; active column in primary + arrow; optional info tooltip |
+| `DetailSortHeader`              | Sort headers in `detailTableChrome` tables     | For bespoke detail tables that can't use `DataTable`'s TableSortLabel; active column in primary + arrow; optional info tooltip (`InfoHint`) |
 | `ActionMenu` / `MenuActionCell` | Kebab menus; table row actions                 | Row `tone` (`normal` / `warn` / `danger`) — never hand-colored icons; localized aria-label via `common.actions`                |
 
 ## Forms & inputs

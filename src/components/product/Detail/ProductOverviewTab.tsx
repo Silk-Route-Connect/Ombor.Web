@@ -1,9 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard from "components/shared/Detail/DetailCard";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Product } from "models/product";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { getImageFullUrl, measurementLabel, stockValue } from "utils/productUtils";
 
@@ -22,29 +24,7 @@ interface ProductOverviewTabProps {
 /** Bundle `.zero-tag`: red pill flag on the warehouse card. */
 const ZeroStockTag: React.FC = () => {
 	const { t } = useTranslation();
-
-	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "5px",
-				fontSize: 11.5,
-				fontWeight: 700,
-				color: "error.main",
-				bgcolor: designTokens.errorBg,
-				border: "1px solid",
-				borderColor: designTokens.errorBorder,
-				px: "9px",
-				py: "2px",
-				borderRadius: "999px",
-			}}
-		>
-			<ErrorOutlineIcon sx={{ fontSize: 13 }} />
-			{t("product.detail.outOfStock")}
-		</Box>
-	);
+	return <StatusPill token="danger" icon={ErrorOutlineIcon} label={t("product.detail.outOfStock")} />;
 };
 
 /**
@@ -135,7 +115,15 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 							<th>{t("product.detail.table.warehouse")}</th>
 							<th>{t("product.detail.table.unit")}</th>
 							<th className="r">{t("product.detail.table.quantity")}</th>
-							<th className="r">{t("product.detail.table.wac")}</th>
+							<th className="r">
+								<Box
+									component="span"
+									sx={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
+								>
+									{t("product.detail.table.wac")}
+									<InfoHint text={t("common.hint.wac")} />
+								</Box>
+							</th>
 							<th className="r">{t("product.detail.table.value")}</th>
 						</tr>
 					</thead>

@@ -1,9 +1,9 @@
 import React from "react";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, SxProps, Theme, Tooltip } from "@mui/material";
+import { Box, SxProps, Theme } from "@mui/material";
 
 export type SortDir = "asc" | "desc";
 
@@ -58,14 +58,7 @@ export function DetailSortHeader<K extends string>({
 				}}
 			>
 				{label}
-				{tooltip && (
-					<Tooltip title={tooltip} placement="top" arrow>
-						<InfoOutlinedIcon
-							onClick={(e) => e.stopPropagation()}
-							sx={{ fontSize: 14, color: "text.disabled", cursor: "help" }}
-						/>
-					</Tooltip>
-				)}
+				{tooltip && <InfoHint text={tooltip} />}
 				{active &&
 					(dir === "asc" ? (
 						<ArrowUpwardIcon sx={{ fontSize: 13 }} />
