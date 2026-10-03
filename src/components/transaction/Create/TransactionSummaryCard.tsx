@@ -15,6 +15,7 @@ import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Avatar, Box, ButtonBase, Typography } from "@mui/material";
 
+import OutstandingDebtsError from "./OutstandingDebtsError";
 import { balancePresentation, initialsOf } from "./saleBalance";
 import WalletPicker from "./WalletPicker";
 
@@ -95,6 +96,8 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 		useAdvance,
 		allDebtsSettled,
 		outstanding,
+		outstandingFailed,
+		retryOutstanding,
 		overChoice,
 		balanceAfter,
 		pay,
@@ -330,6 +333,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 									/>
 								)}
 
+								{outstandingFailed && <OutstandingDebtsError onRetry={retryOutstanding} />}
 								{outstanding.length > 0 && !allDebtsSettled && (
 									<ButtonBase
 										onClick={onOpenSettle}

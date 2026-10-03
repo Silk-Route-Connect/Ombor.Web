@@ -290,6 +290,7 @@
   "transaction.new.totals.advanceToggle": "Аванс",
   "transaction.new.totals.change": "Сдача",
   "transaction.new.totals.settleDebtsBtn": "Погасить долги",
+  "transaction.new.totals.debtsLoadFailed": "Не удалось загрузить долги партнёра — излишек пока уйдёт сдачей.",
   "transaction.new.settled": "Распределено по долгам · {{amount}} UZS",
 
   "transaction.new.pay.label.Sale": "Оплата",
