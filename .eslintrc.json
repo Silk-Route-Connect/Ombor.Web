@@ -80,7 +80,15 @@
       "warn",
       {
         "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
-        "message": "Hardcoded hex color — use tokens from theme.ts instead (docs/conventions.md → Styling)."
+        "message": "Hardcoded hex color — use tokens from src/theme instead (docs/conventions.md → Styling)."
+      },
+      {
+        "selector": "Literal[value=/rgba?\\(/], TemplateElement[value.raw=/rgba?\\(|#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Hardcoded colour — use tokens from src/theme instead (docs/conventions.md → Styling)."
+      },
+      {
+        "selector": "Property[key.name='fontWeight'] > Literal[value=800]",
+        "message": "Onest 800 is not loaded — weights stop at 700 (docs/conventions.md → Typography)."
       },
       {
         "selector": "CallExpression[callee.property.name='toLocaleString']",
@@ -130,6 +138,10 @@
       "rules": {
         "no-restricted-syntax": [
           "warn",
+          {
+            "selector": "Property[key.name='fontWeight'] > Literal[value=800]",
+            "message": "Onest 800 is not loaded — weights stop at 700 (docs/conventions.md → Typography)."
+          },
           {
             "selector": "CallExpression[callee.property.name='toLocaleString']",
             "message": "Do not call toLocaleString directly — use the shared formatCurrency/formatDate formatters."
