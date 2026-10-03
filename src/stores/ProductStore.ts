@@ -1,4 +1,5 @@
 import { SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
@@ -91,15 +92,15 @@ export class ProductStore implements IProductStore {
 
 	/** Total archived products — drives the «Архив» toggle badge (unfiltered). */
 	get archivedCount(): number {
-		if (this.allProducts === "loading") {
+		if (!isReady(this.allProducts)) {
 			return 0;
 		}
 		return this.allProducts.filter((p) => p.isArchived).length;
 	}
 
 	get filteredProducts(): Loadable<Product[]> {
-		if (this.allProducts === "loading") {
-			return "loading";
+		if (!isReady(this.allProducts)) {
+			return this.allProducts;
 		}
 
 		// «Активные | Архив» segmented view: each side shows only its set (the
@@ -128,16 +129,16 @@ export class ProductStore implements IProductStore {
 
 	/** Sellable products (active only) — for the sales line picker. */
 	get saleProducts(): Loadable<Product[]> {
-		if (this.allProducts === "loading") {
-			return "loading";
+		if (!isReady(this.allProducts)) {
+			return this.allProducts;
 		}
 		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Supply");
 	}
 
 	/** Supplyable products (active only) — for the supply line picker. */
 	get supplyProducts(): Loadable<Product[]> {
-		if (this.allProducts === "loading") {
-			return "loading";
+		if (!isReady(this.allProducts)) {
+			return this.allProducts;
 		}
 		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Sale");
 	}
@@ -148,22 +149,22 @@ export class ProductStore implements IProductStore {
 		const result = await tryRun(() => ProductApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "product.error.getAll");
 		}
 
-		runInAction(() => (this.allProducts = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allProducts = toLoadable(result)));
 	}
 
 	async create(request: CreateProductRequest): Promise<void> {
 		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.create"));
+			this.notificationStore.notifyApiError(result, "product.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allProducts !== "loading") {
+			if (isReady(this.allProducts)) {
 				this.allProducts = [result.data, ...this.allProducts];
 			}
 		});
@@ -176,12 +177,12 @@ export class ProductStore implements IProductStore {
 		const result = await withSaving(this, () => ProductApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.update"));
+			this.notificationStore.notifyApiError(result, "product.error.update");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allProducts !== "loading") {
+			if (isReady(this.allProducts)) {
 				this.allProducts = this.allProducts.map((p) => (p.id === result.data.id ? result.data : p));
 			}
 		});
@@ -195,7 +196,7 @@ export class ProductStore implements IProductStore {
 		const result = await withSaving(this, () => ProductApi.archive(product.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.archive"));
+			this.notificationStore.notifyApiError(result, "product.error.archive");
 			return null;
 		}
 
@@ -210,7 +211,7 @@ export class ProductStore implements IProductStore {
 		const result = await withSaving(this, () => ProductApi.restore(product.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.restore"));
+			this.notificationStore.notifyApiError(result, "product.error.restore");
 			return null;
 		}
 
@@ -273,7 +274,7 @@ export class ProductStore implements IProductStore {
 
 	private replaceProduct(updated: Product): void {
 		runInAction(() => {
-			if (this.allProducts !== "loading") {
+			if (isReady(this.allProducts)) {
 				this.allProducts = this.allProducts.map((p) => (p.id === updated.id ? updated : p));
 			}
 		});

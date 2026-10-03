@@ -71,7 +71,7 @@
   "wallet.restore.body": "Касса снова станет активной. Через неё можно будет проводить платежи и переводы.",
 
   "wallet.detail.back": "Назад",
-  "wallet.detail.notFound": "Касса не найдена.",
+  "wallet.detail.notFound": "Касса не найдена",
   "wallet.detail.openingLabel": "Начальный остаток:",
   "wallet.detail.createdLabel": "создана",
   "wallet.detail.archived.title": "Касса в архиве.",

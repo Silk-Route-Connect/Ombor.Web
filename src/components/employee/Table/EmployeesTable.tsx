@@ -2,8 +2,9 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeStatusBadge } from "components/employee/EmployeeStatusBadge";
 import EmployeeActionMenu from "components/employee/Table/ActionMenu/EmployeeActionMenu";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -11,7 +12,7 @@ import { formatCurrency } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface EmployeesTableProps {
 	rows: Loadable<Employee[]>;
@@ -22,6 +23,10 @@ interface EmployeesTableProps {
 	onEdit: (employee: Employee) => void;
 	onTerminate: (employee: Employee) => void;
 	onRestore: (employee: Employee) => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const Avatar: React.FC<{ name: string; dim?: boolean }> = ({ name, dim }) => (
@@ -51,6 +56,8 @@ const Avatar: React.FC<{ name: string; dim?: boolean }> = ({ name, dim }) => (
  * hard delete).
  */
 export const EmployeesTable: React.FC<EmployeesTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	isFiltering,
 	onOpen,
@@ -142,12 +149,8 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 		[t, onPay, onEdit, onTerminate, onRestore],
 	);
 
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

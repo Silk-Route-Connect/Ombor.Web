@@ -97,11 +97,13 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 | `AppSplashScreen`                     | Full-viewport boot / auth loading | Spinner + optional message                                                     |
 | `OmborMark`                           | The Ombor brand monogram         | Inline SVG, variants `tile` / `reversed` / `monoTeal` / `monoWhite`; geometry frozen |
 | `NotFoundPage`                        | Catch-all 404 route              | Lives in `pages/`                                                              |
+| `LoadStateView`                       | Everything that is not data: loading, failed load, not found | `components/shared/LoadState/`. Takes the not-ready `Loadable` state: spinner · error (reason from the `LoadError` kind) with «Повторить» · not-found with «К списку». `size` `page` (own card) or `section` (table body / tab / modal). `DataTable` / `ExpandableDataTable` render it for non-ready `rows` (`onRetry`, `errorTitle`) |
+| `StateMessage`                        | Icon tile + title + line + action body of `LoadStateView` | Same folder; use through `LoadStateView`, not directly                         |
 
 
 ## Shared non-component units (rules live in `conventions.md`)
 
-`formatCurrency` · `formatEntityId` (+ `formatOptionalNumber` / `entityNumberSortValue` for numbers legacy rows may lack) · `formatPeriod` / `toPeriod` / `periodYearOptions` (payrollUtils — «YYYY-MM» periods) · `parseWholeQuantity` (quantityInput) · `formatDate` / `formatDateTime` + `DATE_FORMAT` · `phoneUtils` · `byLabel` (sortUtils) · `Loading` / `TryRun` / `WithSaving` async helpers · `i18n/languages.ts` (`UI_LANGUAGES`). Locate and reuse — never re-implement or hand-assemble.
+`formatCurrency` · `formatEntityId` (+ `formatOptionalNumber` / `entityNumberSortValue` for numbers legacy rows may lack) · `formatPeriod` / `toPeriod` / `periodYearOptions` (payrollUtils — «YYYY-MM» periods) · `parseWholeQuantity` (quantityInput) · `formatDate` / `formatDateTime` + `DATE_FORMAT` · `phoneUtils` · `byLabel` (sortUtils) · `Loading` (`Loadable`, `LoadError`, `isReady` / `isPresent` / `isLoading` / `readyOr` / `mapLoadable` / `toLoadable` / `toDetailLoadable`) / `LoadSequence` (latest-only loads) / `TryRun` / `WithSaving` async helpers · `apiError` (`parseApiError` / `describeApiError` — server error codes → localized text) + `NotificationStore.notifyApiError` / `notifyLoadError` · `useRouteEntityId` (`hooks/shared/` — `:id` or null → not-found) · `i18n/languages.ts` (`UI_LANGUAGES`). Locate and reuse — never re-implement or hand-assemble.
 
 ## Promotion candidates (module-local today — promote on a second consumer)
 

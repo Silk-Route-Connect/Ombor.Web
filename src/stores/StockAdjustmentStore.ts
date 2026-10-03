@@ -1,3 +1,4 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { formatQuantity } from "utils/formatCurrency";
@@ -57,8 +58,8 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 	}
 
 	get filteredAdjustments(): Loadable<StockAdjustment[]> {
-		if (this.allAdjustments === "loading") {
-			return "loading";
+		if (!isReady(this.allAdjustments)) {
+			return this.allAdjustments;
 		}
 
 		let rows = this.allAdjustments;
@@ -87,22 +88,22 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		const result = await tryRun(() => StockAdjustmentApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("adjustment.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "adjustment.error.getAll");
 		}
 
-		runInAction(() => (this.allAdjustments = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allAdjustments = toLoadable(result)));
 	}
 
 	async create(request: CreateStockAdjustmentRequest): Promise<StockAdjustment | null> {
 		const result = await withSaving(this, () => StockAdjustmentApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("adjustment.error.create"));
+			this.notificationStore.notifyApiError(result, "adjustment.error.create");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allAdjustments !== "loading") {
+			if (isReady(this.allAdjustments)) {
 				this.allAdjustments = [result.data, ...this.allAdjustments];
 			}
 		});

@@ -1,13 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Warehouse } from "models/warehouse";
 
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface WarehousesTableProps {
 	rows: Loadable<Warehouse[]>;
@@ -21,6 +22,10 @@ interface WarehousesTableProps {
 	showArchived: boolean;
 	onOpen: (warehouse: Warehouse) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{
@@ -86,6 +91,8 @@ const EmptyState: React.FC<{
  * DataTable has no footer slot).
  */
 export const WarehousesTable: React.FC<WarehousesTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	columns,
 	isFiltering,
@@ -95,12 +102,8 @@ export const WarehousesTable: React.FC<WarehousesTableProps> = ({
 	onOpen,
 	onCreate,
 }) => {
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

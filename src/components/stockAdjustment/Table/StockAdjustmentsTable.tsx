@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import StockAdjustmentDetailModal from "components/stockAdjustment/Detail/StockAdjustmentDetailModal";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { StockAdjustment } from "models/stockAdjustment";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
@@ -15,7 +16,7 @@ import { measurementShort } from "utils/productUtils";
 import AddIcon from "@mui/icons-material/Add";
 import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface StockAdjustmentsTableProps {
 	rows: Loadable<StockAdjustment[]>;
@@ -23,6 +24,10 @@ interface StockAdjustmentsTableProps {
 	/** Whether any adjustment exists at all (drives the empty-state copy). */
 	hasAny: boolean;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: () => void }> = ({
@@ -77,6 +82,8 @@ const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: ()
  * (ADJ-2); direction is a chip, the signed quantity keeps its ledger +/− colour.
  */
 export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	isFiltering,
 	hasAny,
@@ -192,12 +199,8 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 		[t],
 	);
 
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

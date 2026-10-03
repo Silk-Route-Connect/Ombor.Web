@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import type { Product, ProductType } from "models/product";
 import { useStore } from "stores/StoreContext";
@@ -28,7 +29,7 @@ const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
 	const { productStore } = useStore();
 
 	const options = useMemo(() => {
-		if (productStore.allProducts === "loading") {
+		if (!isReady(productStore.allProducts)) {
 			return [];
 		}
 
@@ -45,7 +46,7 @@ const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
 		<EntityAutocomplete<Product>
 			label={t("fieldProduct")}
 			placeholder={t("searchProductsPlaceholder")}
-			options={options === "loading" ? [] : options}
+			options={readyOr(options, [])}
 			value={value}
 			inputRef={inputRef}
 			onChange={onChange}

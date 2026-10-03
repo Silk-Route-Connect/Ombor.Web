@@ -34,7 +34,7 @@ export class PayrollStore implements IPayrollStore {
 		const result = await withSaving(this, () => PayrollApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payroll.error.create"));
+			this.notificationStore.notifyApiError(result, "payroll.error.create");
 			return false;
 		}
 

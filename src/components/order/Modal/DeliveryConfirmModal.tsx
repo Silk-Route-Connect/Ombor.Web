@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
 import { Product } from "models/product";
@@ -47,9 +48,9 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 	const [warehouseId, setWarehouseId] = useState<number>(0);
 	const [tried, setTried] = useState(false);
 
-	const warehouses = warehouseStore.allWarehouses === "loading" ? [] : warehouseStore.allWarehouses;
+	const warehouses = readyOr(warehouseStore.allWarehouses, []);
 	const productById = useMemo(() => {
-		const products = productStore.allProducts === "loading" ? [] : productStore.allProducts;
+		const products = readyOr(productStore.allProducts, []);
 		return new Map<number, Product>(products.map((p) => [p.id, p]));
 	}, [productStore.allProducts]);
 

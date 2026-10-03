@@ -7,6 +7,7 @@ import PartnerListHeader from "components/partner/List/PartnerListHeader";
 import PartnersTable from "components/partner/List/PartnersTable";
 import PartnerSummaryStrip from "components/partner/List/PartnerSummaryStrip";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreatePartnerRequest, Partner, UpdatePartnerRequest } from "models/partner";
 import { partnerDetailPath } from "routing/paths";
@@ -72,7 +73,7 @@ const PartnerPage: React.FC = observer(() => {
 
 	const handleExport = () => {
 		const rows = partnerStore.filteredPartners;
-		if (rows === "loading") {
+		if (!isReady(rows)) {
 			return;
 		}
 		exportToCsv<Partner>(
@@ -120,6 +121,8 @@ const PartnerPage: React.FC = observer(() => {
 			)}
 
 			<PartnersTable
+				onRetry={() => void partnerStore.getAll()}
+				errorTitle={t("partner.error.getAll")}
 				rows={partnerStore.filteredPartners}
 				columns={columns}
 				isFiltering={isFiltering}

@@ -6,6 +6,7 @@ import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeesTable from "components/employee/Table/EmployeesTable";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { readyOr } from "helpers/Loading";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { observer } from "mobx-react-lite";
@@ -44,8 +45,7 @@ const EmployeePage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			employeeStore.filteredEmployees === "loading" ? [] : employeeStore.filteredEmployees;
+		const rows = readyOr(employeeStore.filteredEmployees, []);
 		const columns: CsvColumn<Employee>[] = [
 			{ header: t("employee.name"), value: (e) => e.name },
 			{ header: t("employee.position"), value: (e) => e.position },
@@ -56,7 +56,7 @@ const EmployeePage: React.FC = observer(() => {
 		exportToCsv(`employees_${csvDateStamp()}`, columns, rows);
 	};
 
-	const all = employeeStore.allEmployees === "loading" ? [] : employeeStore.allEmployees;
+	const all = readyOr(employeeStore.allEmployees, []);
 	const isFiltering =
 		employeeStore.searchTerm.trim().length > 0 || employeeStore.filterStatus !== null;
 
@@ -72,6 +72,8 @@ const EmployeePage: React.FC = observer(() => {
 			/>
 
 			<EmployeesTable
+				onRetry={() => void employeeStore.getAll()}
+				errorTitle={t("employees.error.getAll")}
 				rows={employeeStore.filteredEmployees}
 				isFiltering={isFiltering && all.length > 0}
 				onOpen={(employee) => navigate(employeeDetailPath(employee.id))}

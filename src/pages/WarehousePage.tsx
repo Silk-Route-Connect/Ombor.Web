@@ -7,6 +7,7 @@ import { buildWarehouseColumns } from "components/warehouse/Table/warehouseColum
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
 import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -59,8 +60,7 @@ const WarehousePage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses;
+		const rows = readyOr(warehouseStore.filteredWarehouses, []);
 
 		const csvColumns: CsvColumn<Warehouse>[] = [
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
@@ -78,7 +78,7 @@ const WarehousePage: React.FC = observer(() => {
 		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, rows);
 	};
 
-	const all = warehouseStore.allWarehouses === "loading" ? null : warehouseStore.allWarehouses;
+	const all = !isReady(warehouseStore.allWarehouses) ? null : warehouseStore.allWarehouses;
 	const totalCount = all?.length ?? null;
 	const isFiltering = warehouseStore.searchTerm.trim().length > 0;
 	const hasAny = (all?.length ?? 0) > 0;
@@ -100,6 +100,8 @@ const WarehousePage: React.FC = observer(() => {
 			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
 
 			<WarehousesTable
+				onRetry={() => void warehouseStore.getAll()}
+				errorTitle={t("warehouse.error.getAll")}
 				rows={warehouseStore.filteredWarehouses}
 				columns={columns}
 				isFiltering={isFiltering}

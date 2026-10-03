@@ -6,6 +6,7 @@ import PaymentHeader from "components/payment/Header/PaymentHeader";
 import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
+import { isLoading, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreatePaymentRecordRequest, PaymentRecord } from "models/payment";
 import { isOpenCreateState } from "routing/navigationState";
@@ -39,7 +40,7 @@ const PaymentPage: React.FC = observer(() => {
 	// Load reference data lazily when the create modal opens (refetched after a
 	// create, since advances / outstanding / wallet balances moved).
 	useEffect(() => {
-		if (paymentStore.isCreateOpen && paymentStore.formData === "loading") {
+		if (paymentStore.isCreateOpen && isLoading(paymentStore.formData)) {
 			paymentStore.getFormData();
 		}
 	}, [paymentStore.isCreateOpen, paymentStore.formData, paymentStore]);
@@ -49,7 +50,7 @@ const PaymentPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows = paymentStore.filteredPayments === "loading" ? [] : paymentStore.filteredPayments;
+		const rows = readyOr(paymentStore.filteredPayments, []);
 		const columns: CsvColumn<PaymentRecord>[] = [
 			{ header: t("payment.table.number"), value: (p) => formatOptionalNumber(p.number, "") },
 			{ header: t("payment.table.date"), value: (p) => formatDate(p.date) },
@@ -87,13 +88,15 @@ const PaymentPage: React.FC = observer(() => {
 			/>
 
 			<PaymentSummaryStrip
-				summary={paymentStore.summary}
+				summary={isReady(paymentStore.filteredPayments) ? paymentStore.summary : null}
 				directionFilter={paymentStore.directionFilter}
 				onToggle={paymentStore.setDirectionFilter}
 			/>
 
 			<PaymentsTable
 				rows={paymentStore.filteredPayments}
+				onRetry={paymentStore.getAll}
+				errorTitle={t("payment.error.getAll")}
 				isFiltering={isFiltering}
 				onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
 			/>
@@ -104,6 +107,7 @@ const PaymentPage: React.FC = observer(() => {
 				formData={paymentStore.formData}
 				outstanding={paymentStore.outstanding}
 				onLoadOutstanding={paymentStore.loadOutstanding}
+				onRetryFormData={paymentStore.getFormData}
 				onSave={handleCreate}
 				onClose={paymentStore.closeCreate}
 			/>

@@ -1,14 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 
 import AddIcon from "@mui/icons-material/Add";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 interface PartnersTableProps {
 	rows: Loadable<Partner[]>;
@@ -20,6 +21,10 @@ interface PartnersTableProps {
 	showArchived: boolean;
 	onOpen: (partner: Partner) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{ variant: "empty" | "filtering"; onCreate: () => void }> = ({
@@ -77,6 +82,8 @@ const EmptyState: React.FC<{ variant: "empty" | "filtering"; onCreate: () => voi
 
 /** Partner list table: shared DataTable with pagination, plus first-run / filtered empty states. */
 export const PartnersTable: React.FC<PartnersTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	columns,
 	isFiltering,
@@ -85,12 +92,8 @@ export const PartnersTable: React.FC<PartnersTableProps> = ({
 	onOpen,
 	onCreate,
 }) => {
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

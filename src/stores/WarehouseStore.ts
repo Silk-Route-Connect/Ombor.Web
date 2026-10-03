@@ -1,3 +1,4 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { matchesSearch } from "utils/stringUtils";
@@ -78,7 +79,7 @@ export class WarehouseStore implements IWarehouseStore {
 
 	/** Total archived warehouses — drives the «Архив» toggle badge (unfiltered). */
 	get archivedCount(): number {
-		if (this.allWarehouses === "loading") {
+		if (!isReady(this.allWarehouses)) {
 			return 0;
 		}
 		return this.allWarehouses.filter((w) => w.isArchived).length;
@@ -90,15 +91,15 @@ export class WarehouseStore implements IWarehouseStore {
 	 * «Склады» never hides or mis-defaults the stock location (ux-6).
 	 */
 	get activeWarehouses(): Loadable<Warehouse[]> {
-		if (this.allWarehouses === "loading") {
-			return "loading";
+		if (!isReady(this.allWarehouses)) {
+			return this.allWarehouses;
 		}
 		return this.allWarehouses.filter((w) => !w.isArchived);
 	}
 
 	get filteredWarehouses(): Loadable<Warehouse[]> {
-		if (this.allWarehouses === "loading") {
-			return "loading";
+		if (!isReady(this.allWarehouses)) {
+			return this.allWarehouses;
 		}
 
 		// «Активные | Архив» segmented view: each side shows only its set (the
@@ -124,7 +125,7 @@ export class WarehouseStore implements IWarehouseStore {
 	 * do I hold in total".
 	 */
 	get totals(): WarehouseTotals {
-		if (this.allWarehouses === "loading") {
+		if (!isReady(this.allWarehouses)) {
 			return { productCount: 0, totalUnits: 0, stockValue: 0 };
 		}
 		return this.allWarehouses.reduce(
@@ -143,22 +144,22 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await tryRun(() => WarehouseApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "warehouse.error.getAll");
 		}
 
-		runInAction(() => (this.allWarehouses = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allWarehouses = toLoadable(result)));
 	}
 
 	async create(request: CreateWarehouseRequest): Promise<void> {
 		const result = await withSaving(this, () => WarehouseApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.create"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allWarehouses !== "loading") {
+			if (isReady(this.allWarehouses)) {
 				this.allWarehouses = [...this.allWarehouses, result.data];
 			}
 		});
@@ -173,7 +174,7 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await withSaving(this, () => WarehouseApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.update"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.update");
 			return null;
 		}
 
@@ -187,7 +188,7 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await withSaving(this, () => WarehouseApi.archive(warehouse.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.archive"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.archive");
 			return null;
 		}
 
@@ -203,7 +204,7 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await withSaving(this, () => WarehouseApi.restore(warehouse.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.restore"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.restore");
 			return null;
 		}
 
@@ -219,12 +220,12 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await withSaving(this, () => WarehouseApi.delete(warehouse.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.delete"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.delete");
 			return false;
 		}
 
 		runInAction(() => {
-			if (this.allWarehouses !== "loading") {
+			if (isReady(this.allWarehouses)) {
 				this.allWarehouses = this.allWarehouses.filter((w) => w.id !== warehouse.id);
 			}
 		});
@@ -241,7 +242,7 @@ export class WarehouseStore implements IWarehouseStore {
 		const result = await withSaving(this, () => WarehouseApi.addOpeningStock(warehouseId, request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.openingStock"));
+			this.notificationStore.notifyApiError(result, "warehouse.error.openingStock");
 			return null;
 		}
 
@@ -293,7 +294,7 @@ export class WarehouseStore implements IWarehouseStore {
 
 	private replaceWarehouse(updated: Warehouse): void {
 		runInAction(() => {
-			if (this.allWarehouses !== "loading") {
+			if (isReady(this.allWarehouses)) {
 				this.allWarehouses = this.allWarehouses.map((w) => (w.id === updated.id ? updated : w));
 			}
 		});

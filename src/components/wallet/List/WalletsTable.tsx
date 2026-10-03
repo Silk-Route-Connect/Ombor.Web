@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import { WalletActionMenu } from "components/wallet/Table/WalletActionMenu";
 import {
@@ -8,14 +9,14 @@ import {
 	WalletTypeAvatar,
 	WalletTypeBadge,
 } from "components/wallet/WalletPresentation";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Wallet } from "models/wallet";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface WalletsTableProps {
 	rows: Loadable<Wallet[]>;
@@ -30,6 +31,10 @@ interface WalletsTableProps {
 	onEdit: (wallet: Wallet) => void;
 	onArchive: (wallet: Wallet) => void;
 	onRestore: (wallet: Wallet) => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const moneySx = { ...numericSx, fontWeight: 700, fontSize: 15, letterSpacing: "-0.01em" } as const;
@@ -100,6 +105,8 @@ const EmptyState: React.FC<{
  * row.
  */
 export const WalletsTable: React.FC<WalletsTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	showArchived,
 	isFiltering,
@@ -195,12 +202,8 @@ export const WalletsTable: React.FC<WalletsTableProps> = ({
 		[t, onEdit, onArchive, onRestore],
 	);
 
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

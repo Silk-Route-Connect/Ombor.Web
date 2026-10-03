@@ -1,18 +1,20 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 import { EmployeeStatusBadge } from "components/employee/EmployeeStatusBadge";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import WalletLink from "components/wallet/Links/WalletLink";
+import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { PaymentRecord } from "models/payment";
 import { PATHS } from "routing/paths";
@@ -26,7 +28,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 const Stat: React.FC<{ label: string; value: React.ReactNode; accent?: boolean }> = ({
 	label,
@@ -60,28 +62,27 @@ const PERIOD_OPTIONS: { value: PresetOption; labelKey: string }[] = [
 
 const EmployeeDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
-	const employeeId = Number(id);
+	const employeeId = useRouteEntityId();
 	const { employeeStore, selectedEmployeeStore, payrollStore } = useStore();
 
 	useEffect(() => {
-		if (Number.isFinite(employeeId)) {
-			// Clear any lingering subject so the page shows its loader (not stale data)
-			// until getById resolves for this id.
-			employeeStore.setSelectedEmployee(null);
-			employeeStore.getById(employeeId);
+		if (employeeId !== null) {
+			void selectedEmployeeStore.load(employeeId);
 		}
-		return () => employeeStore.setSelectedEmployee(null);
-	}, [employeeId, employeeStore]);
+		return () => selectedEmployeeStore.clear();
+	}, [employeeId, selectedEmployeeStore]);
 
+	const employeeState = employeeId === null ? null : selectedEmployeeStore.employee;
+	// The loaded employee doubles as the dialogs' target and is updated in place by edits.
 	const employee = employeeStore.selectedEmployee;
 	const { dialogMode } = employeeStore;
 	const dialogKind = dialogMode.kind;
 
 	const history = selectedEmployeeStore.payrollHistory;
-	const allHistory = history === "loading" ? [] : history;
+	const historyReady = isReady(history);
+	const allHistory = useMemo(() => readyOr(history, []), [history]);
 	const filtered = selectedEmployeeStore.filteredPayrollHistory;
-	const filteredRows = filtered === "loading" ? [] : filtered;
+	const filteredRows = readyOr(filtered, []);
 
 	// Paid in the current calendar month (the «Выплачено за <месяц>» stat).
 	const now = new Date();
@@ -191,11 +192,14 @@ const EmployeeDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	if (employee === null) {
+	if (!isPresent(employeeState) || employee === null) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
+			<LoadStateView
+				state={isPresent(employeeState) ? "loading" : employeeState}
+				onRetry={() => employeeId !== null && void selectedEmployeeStore.load(employeeId)}
+				errorTitle={t("employees.error.getById")}
+				notFound={{ title: t("employee.detail.notFound"), backTo: PATHS.employees }}
+			/>
 		);
 	}
 
@@ -323,15 +327,25 @@ const EmployeeDetailPage: React.FC = observer(() => {
 						month: t(`common.monthLower.${now.getMonth() + 1}`),
 					})}
 					value={
-						<>
-							{formatCurrency(paidThisMonth)}{" "}
-							<Box component="small" sx={{ fontSize: 12, fontWeight: 500, color: "text.disabled" }}>
-								UZS
-							</Box>
-						</>
+						historyReady ? (
+							<>
+								{formatCurrency(paidThisMonth)}{" "}
+								<Box
+									component="small"
+									sx={{ fontSize: 12, fontWeight: 500, color: "text.disabled" }}
+								>
+									UZS
+								</Box>
+							</>
+						) : (
+							t("common.dash")
+						)
 					}
 				/>
-				<Stat label={t("employee.stat.totalPayments")} value={allHistory.length} />
+				<Stat
+					label={t("employee.stat.totalPayments")}
+					value={historyReady ? allHistory.length : t("common.dash")}
+				/>
 			</Box>
 
 			<Box
@@ -353,7 +367,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 						color: "text.secondary",
 					}}
 				>
-					{allHistory.length}
+					{historyReady ? allHistory.length : t("common.dash")}
 				</Box>
 				<Box sx={{ flexGrow: 1 }} />
 				<SegmentedControl<PresetOption>
@@ -363,10 +377,13 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				/>
 			</Box>
 
-			{history === "loading" ? (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-					<CircularProgress size={26} />
-				</Box>
+			{!isReady(history) ? (
+				<LoadStateView
+					state={history}
+					size="section"
+					onRetry={() => void selectedEmployeeStore.getPayrollHistory()}
+					errorTitle={t("payroll.error.getHistory")}
+				/>
 			) : filteredRows.length === 0 ? (
 				<Paper
 					elevation={1}

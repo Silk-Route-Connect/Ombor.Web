@@ -1,8 +1,8 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { makeAutoObservable, runInAction } from "mobx";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
-import i18next from "../i18n/config";
 import { Debt, DebtDirection, DebtTransactionType } from "../models/debt";
 import DebtApi from "../services/api/DebtApi";
 import { NotificationStore } from "./NotificationStore";
@@ -105,15 +105,15 @@ export class DebtStore implements IDebtStore {
 		const result = await tryRun(() => DebtApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("debt.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "debt.error.getAll");
 		}
 
-		runInAction(() => (this.allDebts = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allDebts = toLoadable(result)));
 	}
 
 	/** Totals over every debt — the summary cards are a global snapshot. */
 	get summary(): DebtSummary {
-		if (this.allDebts === "loading") {
+		if (!isReady(this.allDebts)) {
 			return {
 				receivable: 0,
 				receivableCount: 0,
@@ -144,7 +144,7 @@ export class DebtStore implements IDebtStore {
 
 	/** Shared filter (search + age + overdue) applied to both tabs. */
 	private get baseFiltered(): Debt[] {
-		if (this.allDebts === "loading") {
+		if (!isReady(this.allDebts)) {
 			return [];
 		}
 		const ageFn = AGE_PREDICATES[this.ageBucket];

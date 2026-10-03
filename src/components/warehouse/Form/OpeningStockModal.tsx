@@ -8,6 +8,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useOpeningStockForm } from "hooks/warehouse/useOpeningStockForm";
@@ -97,7 +98,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],

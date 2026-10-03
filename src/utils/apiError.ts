@@ -1,30 +1,189 @@
 import axios from "axios";
+import i18next from "i18n/config";
+import { isOfflineError } from "services/api/httpOfflineInterceptor";
+
+import { formatCurrency, formatQuantity } from "./formatCurrency";
+
+export type ApiErrorKind =
+	| "network"
+	| "server"
+	| "unauthorized"
+	| "forbidden"
+	| "notFound"
+	| "conflict"
+	| "validation"
+	| "rateLimited"
+	| "unknown";
+
+/** A failed API call reduced to what the UI may act on — never the raw server text. */
+export interface ApiErrorInfo {
+	kind: ApiErrorKind;
+	status?: number;
+	/** Machine-readable domain code (backend-contracts/conventions.md → Error codes). */
+	code?: string;
+	params: Record<string, unknown>;
+	/** Field errors keyed by the server's PascalCase property name (`"SKU"`, `"PhoneNumber"`). */
+	fieldErrors: Record<string, string[]>;
+}
 
 /**
- * Pulls a human-readable message out of a backend error response. The API
- * returns ASP.NET ProblemDetails / ValidationProblemDetails (docs/openapi.json):
- * `{ title, detail, errors: { field: string[] } }`. Returns undefined when no
- * usable message is present so callers can fall back to a translated default.
+ * Codes the UI has localized text for (`common.apiError.<code>`). Anything else
+ * falls back to the caller's generic message — server `detail`/`errors` text is
+ * English developer text and is never shown.
  */
-export function getApiErrorMessage(error: unknown): string | undefined {
-	if (!axios.isAxiosError(error)) {
-		return undefined;
-	}
+const KNOWN_CODES = new Set([
+	"auth.invalid_credentials",
+	"auth.phone_taken",
+	"auth.email_taken",
+	"auth.telegram_taken",
+	"auth.code_invalid",
+	"auth.code_expired",
+	"auth.too_many_attempts",
+	"auth.rate_limited",
+	"auth.account_deactivated",
+	"auth.session_expired",
+	"auth.current_password_invalid",
+	"stock.insufficient",
+	"wallet.insufficient_balance",
+	"entity.referenced",
+	"entity.not_found",
+	"validation.failed",
+]);
 
-	const data = error.response?.data as
-		| { detail?: string; title?: string; errors?: Record<string, string[]> }
-		| undefined;
+type ProblemBody = {
+	code?: unknown;
+	params?: unknown;
+	errors?: unknown;
+};
 
-	if (!data) {
-		return undefined;
-	}
+function kindFromStatus(status: number): ApiErrorKind {
+	if (status >= 500) return "server";
+	if (status === 401) return "unauthorized";
+	if (status === 403) return "forbidden";
+	if (status === 404) return "notFound";
+	if (status === 409) return "conflict";
+	if (status === 429) return "rateLimited";
+	if (status === 400 || status === 422) return "validation";
+	return "unknown";
+}
 
-	if (data.errors) {
-		const messages = Object.values(data.errors).flat().filter(Boolean);
-		if (messages.length > 0) {
-			return messages.join(" ");
+function asRecord(value: unknown): Record<string, unknown> {
+	return value !== null && typeof value === "object" && !Array.isArray(value)
+		? (value as Record<string, unknown>)
+		: {};
+}
+
+function asFieldErrors(value: unknown): Record<string, string[]> {
+	const out: Record<string, string[]> = {};
+	for (const [key, messages] of Object.entries(asRecord(value))) {
+		if (Array.isArray(messages)) {
+			out[key] = messages.filter((m): m is string => typeof m === "string");
 		}
 	}
+	return out;
+}
 
-	return data.detail || data.title || undefined;
+/** Reads ProblemDetails `code` / `params` / `errors` off a failed call (any thrown value). */
+export function parseApiError(cause: unknown): ApiErrorInfo {
+	if (isOfflineError(cause)) {
+		return { kind: "network", params: {}, fieldErrors: {} };
+	}
+	if (!axios.isAxiosError(cause)) {
+		return { kind: "unknown", params: {}, fieldErrors: {} };
+	}
+	if (!cause.response) {
+		return { kind: "network", params: {}, fieldErrors: {} };
+	}
+
+	const status = cause.response.status;
+	const body = asRecord(cause.response.data) as ProblemBody;
+	return {
+		kind: kindFromStatus(status),
+		status,
+		code: typeof body.code === "string" ? body.code : undefined,
+		params: asRecord(body.params),
+		fieldErrors: asFieldErrors(body.errors),
+	};
+}
+
+/** True when the call failed because the record does not exist (404). */
+export function isNotFoundError(cause: unknown): boolean {
+	return parseApiError(cause).kind === "notFound";
+}
+
+function localizedParams(info: ApiErrorInfo): Record<string, unknown> {
+	const format =
+		info.code === "wallet.insufficient_balance"
+			? formatCurrency
+			: info.code === "stock.insufficient"
+				? formatQuantity
+				: null;
+	if (!format) {
+		return info.params;
+	}
+	const asText = (v: unknown) => (typeof v === "number" ? format(v) : v);
+	return {
+		...info.params,
+		available: asText(info.params.available),
+		requested: asText(info.params.requested),
+	};
+}
+
+function hasRetryAfter(info: ApiErrorInfo): boolean {
+	return typeof info.params.retryAfterSeconds === "number";
+}
+
+/**
+ * The i18n key + params describing *why* a call failed, or null when there is
+ * nothing more specific to say than the caller's own message. Known domain codes
+ * win; otherwise the transport kind (no connection, server error, conflict…).
+ */
+export function apiErrorReason(
+	info: ApiErrorInfo,
+): { key: string; params: Record<string, unknown> } | null {
+	if (info.code === "auth.rate_limited" && !hasRetryAfter(info)) {
+		return { key: "common.apiError.rateLimited", params: {} };
+	}
+	if (info.code && KNOWN_CODES.has(info.code)) {
+		return { key: `common.apiError.${info.code}`, params: localizedParams(info) };
+	}
+	switch (info.kind) {
+		case "network":
+			return { key: "common.apiError.network", params: {} };
+		case "server":
+			return { key: "common.apiError.server", params: {} };
+		case "forbidden":
+			return { key: "common.apiError.forbidden", params: {} };
+		case "notFound":
+			return { key: "common.apiError.entity.not_found", params: {} };
+		case "conflict":
+			return { key: "common.apiError.conflict", params: {} };
+		case "rateLimited":
+			return { key: "common.apiError.rateLimited", params: {} };
+		case "validation":
+			return { key: "common.apiError.validation.failed", params: {} };
+		default:
+			return null;
+	}
+}
+
+/**
+ * Localized one-line message for a failed call: the caller's action
+ * («Не удалось создать товар») plus the reason when one is known
+ * («…: такой артикул уже есть»). Never returns server text.
+ */
+export function describeApiError(
+	cause: unknown,
+	fallbackKey: string,
+	fallbackParams?: Record<string, unknown>,
+): string {
+	const action = i18next.t(fallbackKey, fallbackParams);
+	const reason = apiErrorReason(parseApiError(cause));
+	if (!reason) {
+		return action;
+	}
+	return i18next.t("common.apiError.withReason", {
+		action,
+		reason: i18next.t(reason.key, reason.params),
+	});
 }

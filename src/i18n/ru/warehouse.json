@@ -81,7 +81,7 @@
   "warehouse.kpi.valueSub": "по средней себестоимости",
 
   "warehouse.detail.back": "Назад",
-  "warehouse.detail.notFound": "Склад не найден.",
+  "warehouse.detail.notFound": "Склад не найден",
   "warehouse.detail.tabs.stock": "Остатки",
   "warehouse.detail.tabs.movements": "Движения",
   "warehouse.detail.archived.title": "Склад в архиве.",

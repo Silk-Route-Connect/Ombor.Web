@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
 import WalletDetailStats from "components/wallet/Detail/WalletDetailStats";
@@ -11,28 +12,29 @@ import WalletTransferDetailModal from "components/wallet/Detail/WalletTransferDe
 import WalletTransfersTab from "components/wallet/Detail/WalletTransfersTab";
 import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletTransferModal from "components/wallet/Form/WalletTransferModal";
+import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { Wallet, WalletOperation } from "models/wallet";
-import { paymentDetailPath } from "routing/paths";
+import { PATHS, paymentDetailPath } from "routing/paths";
 import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const walletId = Number(id);
+	const walletId = useRouteEntityId();
 	const { walletStore, selectedWalletStore, notificationStore } = useStore();
 
 	const [tab, setTab] = useState<WalletDetailTab>("operations");
 
 	useEffect(() => {
-		if (Number.isFinite(walletId)) {
-			selectedWalletStore.load(walletId);
+		if (walletId !== null) {
+			void selectedWalletStore.load(walletId);
 		}
 		// The transfer picker needs the full active-wallet list.
 		walletStore.getAll();
@@ -40,30 +42,23 @@ const WalletDetailPage: React.FC = observer(() => {
 		return () => selectedWalletStore.clear();
 	}, [walletId, selectedWalletStore, walletStore]);
 
-	const wallet = selectedWalletStore.wallet;
+	const wallet = walletId === null ? null : selectedWalletStore.wallet;
+	const retry = () => walletId !== null && void selectedWalletStore.load(walletId);
 	const dialogMode = walletStore.dialogMode;
 
 	const activeWallets = useMemo(
-		() =>
-			walletStore.allWallets === "loading"
-				? []
-				: walletStore.allWallets.filter((w) => !w.isArchived),
+		() => readyOr(walletStore.allWallets, []).filter((w) => !w.isArchived),
 		[walletStore.allWallets],
 	);
 
-	if (wallet === "loading") {
+	if (!isPresent(wallet)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (wallet === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("wallet.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={wallet}
+				onRetry={retry}
+				errorTitle={t("wallet.error.getById")}
+				notFound={{ title: t("wallet.detail.notFound"), backTo: PATHS.wallets }}
+			/>
 		);
 	}
 
@@ -101,21 +96,21 @@ const WalletDetailPage: React.FC = observer(() => {
 	};
 
 	const handleOpenTransfer = (transferId: number): void => {
-		const found =
-			selectedWalletStore.transfers === "loading"
-				? undefined
-				: selectedWalletStore.transfers.find((tr) => tr.id === transferId);
+		const found = readyOr(selectedWalletStore.transfers, []).find((tr) => tr.id === transferId);
 		if (found) {
 			walletStore.openTransferDetail(found);
 		}
 	};
 
-	const operations =
-		selectedWalletStore.operations === "loading" ? [] : selectedWalletStore.operations;
-	const transfers =
-		selectedWalletStore.transfers === "loading" ? [] : selectedWalletStore.transfers;
-	const ledgersLoading =
-		selectedWalletStore.operations === "loading" || selectedWalletStore.transfers === "loading";
+	const operationsState = selectedWalletStore.operations;
+	const transfersState = selectedWalletStore.transfers;
+	const operations = readyOr(operationsState, []);
+	const transfers = readyOr(transfersState, []);
+	const ledgersState = isLoadError(operationsState)
+		? operationsState
+		: isLoadError(transfersState)
+			? transfersState
+			: "loading";
 
 	return (
 		<Box>
@@ -124,7 +119,7 @@ const WalletDetailPage: React.FC = observer(() => {
 				onNewTransfer={() => walletStore.openTransfer(wallet.id)}
 				onEdit={() => walletStore.openEdit(wallet)}
 				onArchive={() => walletStore.openArchive(wallet)}
-				onRestore={() => void walletStore.restore(wallet).then(reflect)}
+				onRestore={() => walletStore.openRestore(wallet)}
 			/>
 
 			{wallet.isArchived && <WalletArchivedBanner />}
@@ -134,15 +129,18 @@ const WalletDetailPage: React.FC = observer(() => {
 			<Stack sx={{ gap: "16px" }}>
 				<WalletDetailTabs
 					value={tab}
-					operationsCount={operations.length}
-					transfersCount={transfers.length}
+					operationsCount={isReady(operationsState) ? operations.length : undefined}
+					transfersCount={isReady(transfersState) ? transfers.length : undefined}
 					onChange={setTab}
 				/>
 
-				{ledgersLoading ? (
-					<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-						<CircularProgress size={28} />
-					</Box>
+				{!isReady(operationsState) || !isReady(transfersState) ? (
+					<LoadStateView
+						state={ledgersState}
+						size="section"
+						onRetry={retry}
+						errorTitle={t("wallet.error.getOperations")}
+					/>
 				) : tab === "operations" ? (
 					<WalletOperationsTab
 						operations={operations}

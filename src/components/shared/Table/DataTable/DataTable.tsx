@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loadable } from "helpers/Loading";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady, Loadable } from "helpers/Loading";
 import { numericSx } from "theme";
 
 import {
 	Box,
-	CircularProgress,
 	Paper,
 	Table,
 	TableBody,
@@ -25,7 +25,6 @@ import {
 	FOOTER_SX,
 	HEADER_CELL_SX,
 	HEADER_CONTAINER_SX,
-	LOADING_CONTAINER_HEIGHT,
 	ROW_SX,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
@@ -87,6 +86,10 @@ export interface DataTableProps<T extends { id: string | number }> {
 	onSort?: (field: keyof T, order: SortOrder) => void;
 	/** Empty-state copy; defaults to the localized «Нет записей». */
 	emptyMessage?: string;
+	/** Re-runs the failed load behind `rows` (the error state's «Повторить»). */
+	onRetry?: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle?: string;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -100,6 +103,8 @@ export function DataTable<T extends { id: string | number }>({
 	onRowClick,
 	onSort,
 	emptyMessage,
+	onRetry,
+	errorTitle,
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
@@ -115,8 +120,8 @@ export function DataTable<T extends { id: string | number }>({
 		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
 
 	const sortedRows = useMemo<Loadable<T[]>>(() => {
-		if (rows === "loading") {
-			return "loading";
+		if (!isReady(rows)) {
+			return rows;
 		}
 		// Controlled sort (onSort) or no active sort → leave ordering to the caller.
 		if (onSort || !sortKey) {
@@ -132,7 +137,7 @@ export function DataTable<T extends { id: string | number }>({
 	}, [rows, onSort, sortKey, order, columns]);
 
 	useEffect(() => {
-		if (sortedRows === "loading") {
+		if (!isReady(sortedRows)) {
 			return;
 		}
 
@@ -143,8 +148,8 @@ export function DataTable<T extends { id: string | number }>({
 	}, [sortedRows, rowsPerPage, page]);
 
 	const displayedRows = useMemo<Loadable<T[]>>(() => {
-		if (sortedRows === "loading") {
-			return "loading";
+		if (!isReady(sortedRows)) {
+			return sortedRows;
 		}
 
 		return pagination
@@ -222,16 +227,16 @@ export function DataTable<T extends { id: string | number }>({
 		);
 	};
 
-	if (displayedRows === "loading") {
+	if (!isReady(displayedRows)) {
 		return (
-			<Box
-				display="flex"
-				justifyContent="center"
-				alignItems="center"
-				height={LOADING_CONTAINER_HEIGHT}
-			>
-				<CircularProgress />
-			</Box>
+			<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+				<LoadStateView
+					state={displayedRows}
+					size="section"
+					onRetry={onRetry}
+					errorTitle={errorTitle}
+				/>
+			</Paper>
 		);
 	}
 
@@ -281,13 +286,13 @@ export function DataTable<T extends { id: string | number }>({
 				</Table>
 			</TableContainer>
 
-			{rows !== "loading" && rows.length === 0 && (
+			{isReady(rows) && rows.length === 0 && (
 				<Box p={4} textAlign="center" color="text.secondary" fontStyle="italic">
 					{emptyMessage ?? t("common.table.noRecords")}
 				</Box>
 			)}
 
-			{pagination && rows !== "loading" && rows.length > 0 && (
+			{pagination && isReady(rows) && rows.length > 0 && (
 				<Box sx={FOOTER_SX}>
 					<TablePagination
 						component="div"

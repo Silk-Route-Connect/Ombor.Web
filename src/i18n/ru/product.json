@@ -50,7 +50,7 @@
   "product.empty.searchBody": "По заданным условиям ничего не найдено. Измените поиск, категорию или тип товара.",
 
   "product.detail.back": "Назад",
-  "product.detail.notFound": "Товар не найден.",
+  "product.detail.notFound": "Товар не найден",
   "product.detail.tabs.overview": "Обзор",
   "product.detail.tabs.transactions": "Продажи и поставки",
   "product.detail.tabs.movements": "Движения",

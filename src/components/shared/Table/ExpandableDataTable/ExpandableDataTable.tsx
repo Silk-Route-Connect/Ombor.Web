@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loadable } from "helpers/Loading";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady, Loadable } from "helpers/Loading";
 import { designTokens, numericSx } from "theme";
 
 import {
@@ -9,7 +10,6 @@ import {
 } from "@mui/icons-material";
 import {
 	Box,
-	CircularProgress,
 	Collapse,
 	IconButton,
 	Paper,
@@ -30,7 +30,6 @@ import {
 	FOOTER_SX,
 	HEADER_CELL_SX,
 	HEADER_CONTAINER_SX,
-	LOADING_CONTAINER_HEIGHT,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
 	TABLE_SCROLL_SX,
@@ -89,6 +88,10 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	className?: string;
 	expandedMaxHeight?: number;
 	tableLayout?: "auto" | "fixed";
+	/** Re-runs the failed load behind `rows` (the error state's «Повторить»). */
+	onRetry?: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить шаблоны». */
+	errorTitle?: string;
 }
 
 export function ExpandableDataTable<T extends { id: string | number }>({
@@ -105,6 +108,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	className,
 	expandedMaxHeight = 300,
 	tableLayout = "auto",
+	onRetry,
+	errorTitle,
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
@@ -117,8 +122,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		col.key !== "actions" && col.sortable !== false && (col.sortValue != null || col.field != null);
 
 	const sortedRows = useMemo<Loadable<T[]>>(() => {
-		if (rows === "loading") {
-			return "loading";
+		if (!isReady(rows)) {
+			return rows;
 		}
 		if (onSort || !sortKey) {
 			return rows;
@@ -133,7 +138,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	}, [rows, onSort, sortKey, order, columns]);
 
 	useEffect(() => {
-		if (sortedRows === "loading") return;
+		if (!isReady(sortedRows)) return;
 		const maxPage = Math.max(0, Math.ceil(sortedRows.length / rowsPerPage) - 1);
 		if (page > maxPage) {
 			setPage(maxPage);
@@ -141,8 +146,8 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 	}, [sortedRows, rowsPerPage, page]);
 
 	const displayedRows = useMemo<Loadable<T[]>>(() => {
-		if (sortedRows === "loading") {
-			return "loading";
+		if (!isReady(sortedRows)) {
+			return sortedRows;
 		}
 		if (!pagination) {
 			return sortedRows;
@@ -216,21 +221,21 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 		);
 	};
 
-	if (displayedRows === "loading") {
+	if (!isReady(displayedRows)) {
 		return (
-			<Box
-				display="flex"
-				justifyContent="center"
-				alignItems="center"
-				height={LOADING_CONTAINER_HEIGHT}
-			>
-				<CircularProgress />
-			</Box>
+			<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
+				<LoadStateView
+					state={displayedRows}
+					size="section"
+					onRetry={onRetry}
+					errorTitle={errorTitle}
+				/>
+			</Paper>
 		);
 	}
 
 	const totalRows = displayedRows.length;
-	const hasNoData = totalRows === 0 && rows !== "loading";
+	const hasNoData = totalRows === 0;
 	return (
 		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<TableContainer sx={TABLE_SCROLL_SX}>
@@ -341,7 +346,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 				</Box>
 			)}
 
-			{pagination && rows !== "loading" && rows.length > 0 && (
+			{pagination && isReady(rows) && rows.length > 0 && (
 				<Box sx={FOOTER_SX}>
 					<TablePagination
 						component="div"

@@ -5,7 +5,7 @@ import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/Paym
 import { CopyableNumberCell } from "components/shared/Table/CopyableNumberCell";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import WalletLink from "components/wallet/Links/WalletLink";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { TFunction } from "i18next";
 import { PaymentRecord } from "models/payment";
 import { numericSx } from "theme";
@@ -22,6 +22,10 @@ interface PaymentsTableProps {
 	rows: Loadable<PaymentRecord[]>;
 	isFiltering: boolean;
 	onOpen: (payment: PaymentRecord) => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 /** Keep an inner entity link from also triggering the row's open-detail click. */
@@ -134,10 +138,16 @@ function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
  * pagination). Loading + populated states are the table's; the rich, filter-aware
  * empty state is rendered here instead of the table's bare placeholder.
  */
-export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering, onOpen }) => {
+export const PaymentsTable: React.FC<PaymentsTableProps> = ({
+	rows,
+	isFiltering,
+	onOpen,
+	onRetry,
+	errorTitle,
+}) => {
 	const { t } = useTranslation();
 
-	if (rows !== "loading" && rows.length === 0) {
+	if (isReady(rows) && rows.length === 0) {
 		return (
 			<Paper
 				elevation={1}
@@ -178,6 +188,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({ rows, isFiltering,
 	return (
 		<DataTable
 			rows={rows}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			columns={buildPaymentColumns(t)}
 			pagination
 			defaultSort={{ key: "date", order: "desc" }}

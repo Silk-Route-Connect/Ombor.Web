@@ -1,14 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { TransactionRecord } from "models/transaction";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 interface TransactionsTableProps {
 	rows: Loadable<TransactionRecord[]>;
@@ -17,6 +18,10 @@ interface TransactionsTableProps {
 	isFiltering: boolean;
 	onOpen: (tx: TransactionRecord) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{
@@ -68,6 +73,8 @@ const EmptyState: React.FC<{
 };
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	columns,
 	direction,
@@ -75,12 +82,8 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 	onOpen,
 	onCreate,
 }) => {
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

@@ -1,3 +1,4 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -48,13 +49,15 @@ export class SettingsStore implements ISettingsStore {
 			tryRun(() => SettingsApi.getUsers()),
 		]);
 
-		if (org.status === "fail" || users.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.error.load"));
+		if (org.status === "fail") {
+			this.notificationStore.notifyLoadError(org, "settings.error.load");
+		} else if (users.status === "fail") {
+			this.notificationStore.notifyLoadError(users, "settings.error.load");
 		}
 
 		runInAction(() => {
-			this.organization = org.status === "success" ? org.data : null;
-			this.users = users.status === "success" ? users.data : [];
+			this.organization = toLoadable(org);
+			this.users = toLoadable(users);
 		});
 	}
 
@@ -71,7 +74,7 @@ export class SettingsStore implements ISettingsStore {
 		});
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.error.save"));
+			this.notificationStore.notifyApiError(result, "settings.error.save");
 			return false;
 		}
 		this.notificationStore.success(i18next.t("settings.saved"));
@@ -87,7 +90,7 @@ export class SettingsStore implements ISettingsStore {
 		const language = code === "uz" ? "uz-Latn" : code;
 		const result = await tryRun(() => SettingsApi.updateLanguage(language));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.lang.saveError"));
+			this.notificationStore.notifyApiError(result, "settings.lang.saveError");
 		}
 	}
 
@@ -95,12 +98,12 @@ export class SettingsStore implements ISettingsStore {
 		const result = await tryRun(() => SettingsApi.inviteUser(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.inviteError"));
+			this.notificationStore.notifyApiError(result, "settings.users.inviteError");
 			return false;
 		}
 
 		runInAction(() => {
-			if (this.users !== "loading") {
+			if (isReady(this.users)) {
 				this.users = [...this.users, result.data];
 			}
 		});
@@ -111,7 +114,7 @@ export class SettingsStore implements ISettingsStore {
 	async deactivateUser(user: TenantUser): Promise<void> {
 		const result = await tryRun(() => SettingsApi.deactivateUser(user.id));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.statusError"));
+			this.notificationStore.notifyApiError(result, "settings.users.statusError");
 			return;
 		}
 		this.replaceUser(result.data);
@@ -123,7 +126,7 @@ export class SettingsStore implements ISettingsStore {
 	async reactivateUser(user: TenantUser): Promise<void> {
 		const result = await tryRun(() => SettingsApi.reactivateUser(user.id));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.statusError"));
+			this.notificationStore.notifyApiError(result, "settings.users.statusError");
 			return;
 		}
 		this.replaceUser(result.data);
@@ -134,7 +137,7 @@ export class SettingsStore implements ISettingsStore {
 
 	private replaceUser(updated: TenantUser): void {
 		runInAction(() => {
-			if (this.users !== "loading") {
+			if (isReady(this.users)) {
 				this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
 			}
 		});

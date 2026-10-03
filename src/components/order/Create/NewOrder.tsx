@@ -10,6 +10,7 @@ import PartnerPicker from "components/transaction/Create/PartnerPicker";
 import ProductSearchBar from "components/transaction/Create/ProductSearchBar";
 import { balancePresentation, initialsOf } from "components/transaction/Create/saleBalance";
 import WarehousePicker from "components/transaction/Create/WarehousePicker";
+import { readyOr } from "helpers/Loading";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
 import { observer } from "mobx-react-lite";
 import { CreateOrderRequest, OrderSource } from "models/order";
@@ -32,8 +33,6 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Avatar, Box, ButtonBase, InputBase, Typography } from "@mui/material";
-
-const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
 /** Net discount amount of a cart line (percent of gross, or fixed capped at gross). */
 const lineDiscountOf = (it: CartItem): number => {
@@ -80,9 +79,9 @@ export const NewOrder: React.FC = observer(() => {
 		void warehouseStore.getAll();
 	}, [productStore, partnerStore, warehouseStore]);
 
-	const products = loaded(productStore.saleProducts);
-	const customers = loaded(partnerStore.customers);
-	const warehouses = loaded(warehouseStore.activeWarehouses);
+	const products = readyOr(productStore.saleProducts, []);
+	const customers = readyOr(partnerStore.customers, []);
+	const warehouses = readyOr(warehouseStore.activeWarehouses, []);
 
 	// Seed the warehouse default once the list arrives (matches New Sale).
 	useEffect(() => {

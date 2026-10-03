@@ -5,6 +5,7 @@ import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { isReady, readyOr } from "helpers/Loading";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
@@ -37,8 +38,7 @@ const CategoryPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			categoryStore.filteredCategories === "loading" ? [] : categoryStore.filteredCategories;
+		const rows = readyOr(categoryStore.filteredCategories, []);
 
 		const columns: CsvColumn<Category>[] = [
 			{ header: t("category.table.name"), value: (c) => c.name },
@@ -56,7 +56,7 @@ const CategoryPage: React.FC = observer(() => {
 		<Box>
 			<CategoryHeader
 				totalCount={
-					categoryStore.allCategories === "loading" ? null : categoryStore.allCategories.length
+					!isReady(categoryStore.allCategories) ? null : categoryStore.allCategories.length
 				}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
@@ -65,6 +65,8 @@ const CategoryPage: React.FC = observer(() => {
 			/>
 
 			<CategoryTable
+				onRetry={() => void categoryStore.getAll()}
+				errorTitle={t("category.error.load")}
 				data={categoryStore.filteredCategories}
 				searchTerm={categoryStore.searchTerm}
 				onCreate={categoryStore.openCreate}

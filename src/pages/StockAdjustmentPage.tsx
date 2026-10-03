@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import StockAdjustmentModal from "components/stockAdjustment/Form/StockAdjustmentModal";
 import StockAdjustmentHeader from "components/stockAdjustment/Header/StockAdjustmentHeader";
 import StockAdjustmentsTable from "components/stockAdjustment/Table/StockAdjustmentsTable";
+import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import {
 	AdjustmentReason,
@@ -28,10 +29,9 @@ const StockAdjustmentPage: React.FC = observer(() => {
 		stockAdjustmentStore.getAll();
 	}, [warehouseStore, productStore, stockAdjustmentStore]);
 
-	const activeWarehouses: Warehouse[] =
-		warehouseStore.allWarehouses === "loading"
-			? []
-			: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	const activeWarehouses: Warehouse[] = !isReady(warehouseStore.allWarehouses)
+		? []
+		: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
 
 	const handleFormSave = (payload: StockAdjustmentFormValues): void => {
 		const request: CreateStockAdjustmentRequest = {
@@ -46,10 +46,9 @@ const StockAdjustmentPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			stockAdjustmentStore.filteredAdjustments === "loading"
-				? []
-				: stockAdjustmentStore.filteredAdjustments;
+		const rows = !isReady(stockAdjustmentStore.filteredAdjustments)
+			? []
+			: stockAdjustmentStore.filteredAdjustments;
 
 		const columns: CsvColumn<StockAdjustment>[] = [
 			{ header: t("adjustment.table.date"), value: (a) => formatDate(a.date) },
@@ -73,8 +72,9 @@ const StockAdjustmentPage: React.FC = observer(() => {
 		exportToCsv(`stock-adjustments_${csvDateStamp()}`, columns, rows);
 	};
 
-	const all =
-		stockAdjustmentStore.allAdjustments === "loading" ? null : stockAdjustmentStore.allAdjustments;
+	const all = !isReady(stockAdjustmentStore.allAdjustments)
+		? null
+		: stockAdjustmentStore.allAdjustments;
 	const totalCount = all?.length ?? null;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering =
@@ -98,6 +98,8 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			/>
 
 			<StockAdjustmentsTable
+				onRetry={() => void stockAdjustmentStore.getAll()}
+				errorTitle={t("adjustment.error.getAll")}
 				rows={stockAdjustmentStore.filteredAdjustments}
 				isFiltering={isFiltering}
 				hasAny={hasAny}

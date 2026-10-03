@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { buildOrderColumns } from "components/order/List/orderColumns";
 import OrderListHeader from "components/order/List/OrderListHeader";
 import OrdersTable from "components/order/List/OrdersTable";
+import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
 import { orderDetailPath, PATHS } from "routing/paths";
@@ -33,7 +34,7 @@ const OrderPage: React.FC = observer(() => {
 	const columns = useMemo(() => buildOrderColumns(t), [t]);
 
 	const handleExport = (): void => {
-		const rows = orderStore.listOrders === "loading" ? [] : orderStore.listOrders;
+		const rows = readyOr(orderStore.listOrders, []);
 		const csvColumns: CsvColumn<Order>[] = [
 			{ header: t("order.col.number"), value: (o) => formatEntityId(o.orderNumber) },
 			{ header: t("order.col.date"), value: (o) => formatDate(o.date) },
@@ -71,6 +72,8 @@ const OrderPage: React.FC = observer(() => {
 			/>
 
 			<OrdersTable
+				onRetry={() => void orderStore.getAll()}
+				errorTitle={t("order.error.getAll")}
 				rows={orderStore.listOrders}
 				columns={columns}
 				isFiltering={orderStore.isFiltering}

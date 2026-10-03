@@ -1,3 +1,4 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { matchesSearch } from "utils/stringUtils";
@@ -77,7 +78,7 @@ export class WalletStore implements IWalletStore {
 
 	/** Total archived wallets — drives the «Архив» toggle badge (unfiltered). */
 	get archivedCount(): number {
-		if (this.allWallets === "loading") {
+		if (!isReady(this.allWallets)) {
 			return 0;
 		}
 		return this.allWallets.filter((w) => w.isArchived).length;
@@ -89,15 +90,15 @@ export class WalletStore implements IWalletStore {
 	 * never hides or mis-defaults the paying wallet (ux-6).
 	 */
 	get activeWallets(): Loadable<Wallet[]> {
-		if (this.allWallets === "loading") {
-			return "loading";
+		if (!isReady(this.allWallets)) {
+			return this.allWallets;
 		}
 		return this.allWallets.filter((w) => !w.isArchived);
 	}
 
 	get filteredWallets(): Loadable<Wallet[]> {
-		if (this.allWallets === "loading") {
-			return "loading";
+		if (!isReady(this.allWallets)) {
+			return this.allWallets;
 		}
 
 		// «Активные | Архив» segmented view: each side shows only its set (the
@@ -117,7 +118,7 @@ export class WalletStore implements IWalletStore {
 	 * figures are summed, not recomputed from event lists (rule 12).
 	 */
 	get summary(): WalletSummary {
-		if (this.allWallets === "loading") {
+		if (!isReady(this.allWallets)) {
 			return { totalBalance: 0, totalOurMoney: 0, totalAdvances: 0 };
 		}
 		return this.allWallets.reduce(
@@ -136,22 +137,22 @@ export class WalletStore implements IWalletStore {
 		const result = await tryRun(() => WalletApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "wallet.error.getAll");
 		}
 
-		runInAction(() => (this.allWallets = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allWallets = toLoadable(result)));
 	}
 
 	async create(request: CreateWalletRequest): Promise<void> {
 		const result = await withSaving(this, () => WalletApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.create"));
+			this.notificationStore.notifyApiError(result, "wallet.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allWallets !== "loading") {
+			if (isReady(this.allWallets)) {
 				this.allWallets = [...this.allWallets, result.data];
 			}
 		});
@@ -164,7 +165,7 @@ export class WalletStore implements IWalletStore {
 		const result = await withSaving(this, () => WalletApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.update"));
+			this.notificationStore.notifyApiError(result, "wallet.error.update");
 			return null;
 		}
 
@@ -178,7 +179,7 @@ export class WalletStore implements IWalletStore {
 		const result = await withSaving(this, () => WalletApi.archive(wallet.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.archive"));
+			this.notificationStore.notifyApiError(result, "wallet.error.archive");
 			return null;
 		}
 
@@ -193,7 +194,7 @@ export class WalletStore implements IWalletStore {
 		const result = await withSaving(this, () => WalletApi.restore(wallet.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.restore"));
+			this.notificationStore.notifyApiError(result, "wallet.error.restore");
 			return null;
 		}
 
@@ -208,7 +209,7 @@ export class WalletStore implements IWalletStore {
 		const result = await withSaving(this, () => WalletApi.createTransfer(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.transfer"));
+			this.notificationStore.notifyApiError(result, "wallet.error.transfer");
 			return null;
 		}
 
@@ -262,7 +263,7 @@ export class WalletStore implements IWalletStore {
 	}
 
 	private findWallet(id: number): Wallet | null {
-		if (this.allWallets === "loading") {
+		if (!isReady(this.allWallets)) {
 			return null;
 		}
 		return this.allWallets.find((w) => w.id === id) ?? null;
@@ -270,7 +271,7 @@ export class WalletStore implements IWalletStore {
 
 	private replaceWallet(updated: Wallet): void {
 		runInAction(() => {
-			if (this.allWallets !== "loading") {
+			if (isReady(this.allWallets)) {
 				this.allWallets = this.allWallets.map((w) => (w.id === updated.id ? updated : w));
 			}
 		});

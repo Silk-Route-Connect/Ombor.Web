@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady, Loadable, readyOr } from "helpers/Loading";
 import { OutstandingTransaction, SettlementInput } from "models/payment";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -11,15 +13,7 @@ import { formatEntityId } from "utils/formatEntityId";
 
 import CheckIcon from "@mui/icons-material/Check";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
-import {
-	Box,
-	Checkbox,
-	CircularProgress,
-	Dialog,
-	DialogContent,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Checkbox, Dialog, DialogContent, TextField, Typography } from "@mui/material";
 
 interface PaymentSettlementModalProps {
 	isOpen: boolean;
@@ -28,7 +22,9 @@ interface PaymentSettlementModalProps {
 	amount: number;
 	walletName: string;
 	direction: "Income" | "Expense";
-	outstanding: OutstandingTransaction[] | "loading";
+	outstanding: Loadable<OutstandingTransaction[]>;
+	/** Re-runs a failed open-debts load. */
+	onRetry?: () => void;
 	onBack: () => void;
 	onConfirm: (settlements: SettlementInput[], advance: number) => void;
 }
@@ -71,12 +67,13 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 	walletName,
 	direction,
 	outstanding,
+	onRetry,
 	onBack,
 	onConfirm,
 }) => {
 	const { t } = useTranslation();
 
-	const rowsData = outstanding === "loading" ? [] : outstanding;
+	const rowsData = useMemo(() => readyOr(outstanding, []), [outstanding]);
 
 	const buildFifo = useMemo(
 		() => (): Row[] => {
@@ -112,6 +109,11 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		setRows((cur) => cur.map((x, j) => (j === i ? { on: !x.on, amt: !x.on ? x.amt : 0 } : x)));
 
 	const confirm = () => {
+		// Until the open debts are in, confirming would book the whole amount as an
+		// advance — the list area shows the spinner / error with «Повторить» instead.
+		if (!isReady(outstanding)) {
+			return;
+		}
 		const settlements: SettlementInput[] = rows
 			.map((r, i) => (r.on && r.amt > 0 ? { transactionId: rowsData[i].id, amount: r.amt } : null))
 			.filter((s): s is SettlementInput => s !== null);
@@ -151,10 +153,13 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 					</GhostButton>
 				</Box>
 
-				{outstanding === "loading" ? (
-					<Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
-						<CircularProgress size={26} />
-					</Box>
+				{!isReady(outstanding) ? (
+					<LoadStateView
+						state={outstanding}
+						size="section"
+						onRetry={onRetry}
+						errorTitle={t("payment.settlement.loadFailed")}
+					/>
 				) : rowsData.length === 0 ? (
 					<Box
 						sx={{

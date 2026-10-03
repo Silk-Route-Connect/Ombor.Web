@@ -1,13 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Order } from "models/order";
 
 import AddIcon from "@mui/icons-material/Add";
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 interface OrdersTableProps {
 	rows: Loadable<Order[]>;
@@ -15,6 +16,10 @@ interface OrdersTableProps {
 	isFiltering: boolean;
 	onOpen: (order: Order) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{ filtering: boolean; onCreate: () => void }> = ({
@@ -62,18 +67,16 @@ const EmptyState: React.FC<{ filtering: boolean; onCreate: () => void }> = ({
 };
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	columns,
 	isFiltering,
 	onOpen,
 	onCreate,
 }) => {
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

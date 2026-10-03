@@ -1,3 +1,4 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -46,8 +47,8 @@ export class TransferStore implements ITransferStore {
 	}
 
 	get filteredTransfers(): Loadable<Transfer[]> {
-		if (this.allTransfers === "loading") {
-			return "loading";
+		if (!isReady(this.allTransfers)) {
+			return this.allTransfers;
 		}
 
 		if (this.warehouseFilter == null) {
@@ -65,22 +66,22 @@ export class TransferStore implements ITransferStore {
 		const result = await tryRun(() => TransferApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transfer.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "transfer.error.getAll");
 		}
 
-		runInAction(() => (this.allTransfers = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allTransfers = toLoadable(result)));
 	}
 
 	async create(request: CreateTransferRequest): Promise<Transfer | null> {
 		const result = await withSaving(this, () => TransferApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transfer.error.create"));
+			this.notificationStore.notifyApiError(result, "transfer.error.create");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allTransfers !== "loading") {
+			if (isReady(this.allTransfers)) {
 				this.allTransfers = [result.data, ...this.allTransfers];
 			}
 		});

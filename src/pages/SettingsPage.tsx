@@ -8,7 +8,9 @@ import SettingsNav, { SettingsSectionDef } from "components/settings/SettingsNav
 import SettingsSaveBar from "components/settings/SettingsSaveBar";
 import UsersSection from "components/settings/UsersSection";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import { isLoadError, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { InviteUserRequest, Organization, TenantUser } from "models/settings";
 import { useStore } from "stores/StoreContext";
@@ -18,7 +20,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 
 const SECTION_KEYS = ["org", "lang", "currency", "users"] as const;
 
@@ -41,7 +43,7 @@ const SettingsPage: React.FC = observer(() => {
 
 	// Seed / re-sync the editable draft from the persisted org (on load + save).
 	useEffect(() => {
-		if (storeOrg !== "loading" && storeOrg) {
+		if (isReady(storeOrg) && storeOrg) {
 			setDraft(storeOrg);
 		}
 	}, [storeOrg]);
@@ -90,13 +92,14 @@ const SettingsPage: React.FC = observer(() => {
 	const dirty = useMemo(
 		() =>
 			draft !== null &&
-			storeOrg !== "loading" &&
+			isReady(storeOrg) &&
 			storeOrg !== null &&
 			JSON.stringify(draft) !== JSON.stringify(storeOrg),
 		[draft, storeOrg],
 	);
 
-	const loading = storeOrg === "loading" || storeUsers === "loading" || draft === null;
+	const loading = !isReady(storeOrg) || !isReady(storeUsers) || draft === null;
+	const failed = isLoadError(storeOrg) ? storeOrg : isLoadError(storeUsers) ? storeUsers : null;
 
 	const jump = (key: string): void => {
 		document
@@ -114,7 +117,7 @@ const SettingsPage: React.FC = observer(() => {
 		}
 	};
 	const onReset = (): void => {
-		if (storeOrg !== "loading" && storeOrg) {
+		if (isReady(storeOrg) && storeOrg) {
 			setDraft(storeOrg);
 		}
 	};
@@ -133,16 +136,18 @@ const SettingsPage: React.FC = observer(() => {
 		setConfirmUser(user);
 	};
 
-	const users = storeUsers === "loading" ? [] : storeUsers;
+	const users = readyOr(storeUsers, []);
 
 	return (
 		<Box>
 			<PageHeader title={t("settings.title")} />
 
 			{loading || !draft ? (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-					<CircularProgress />
-				</Box>
+				<LoadStateView
+					state={failed ?? "loading"}
+					onRetry={() => void settingsStore.load()}
+					errorTitle={t("settings.error.load")}
+				/>
 			) : (
 				<Box
 					sx={{

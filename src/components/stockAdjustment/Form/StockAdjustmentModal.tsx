@@ -7,6 +7,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useStockAdjustmentForm } from "hooks/stockAdjustment/useStockAdjustmentForm";
@@ -232,7 +233,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],

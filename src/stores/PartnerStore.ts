@@ -1,4 +1,4 @@
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -81,15 +81,15 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	get archivedCount(): number {
-		if (this.allPartners === "loading") {
+		if (!isReady(this.allPartners)) {
 			return 0;
 		}
 		return this.allPartners.filter((p) => p.isArchived).length;
 	}
 
 	get filteredPartners(): Loadable<Partner[]> {
-		if (this.allPartners === "loading") {
-			return "loading";
+		if (!isReady(this.allPartners)) {
+			return this.allPartners;
 		}
 
 		// «Активные | Архив» segmented view: each side shows only its set (the
@@ -117,22 +117,22 @@ export class PartnerStore implements IPartnerStore {
 	}
 
 	get customers(): Loadable<Partner[]> {
-		if (this.allPartners === "loading") {
-			return "loading";
+		if (!isReady(this.allPartners)) {
+			return this.allPartners;
 		}
 		return this.allPartners.filter((p) => !p.isArchived && p.type !== "Supplier");
 	}
 
 	get suppliers(): Loadable<Partner[]> {
-		if (this.allPartners === "loading") {
-			return "loading";
+		if (!isReady(this.allPartners)) {
+			return this.allPartners;
 		}
 		return this.allPartners.filter((p) => !p.isArchived && p.type !== "Customer");
 	}
 
 	/** Strip totals over active (non-archived) partners (display aggregates, rule 8). */
 	get summary(): PartnerSummary {
-		if (this.allPartners === "loading") {
+		if (!isReady(this.allPartners)) {
 			return {
 				receivable: 0,
 				payable: 0,
@@ -161,22 +161,22 @@ export class PartnerStore implements IPartnerStore {
 		const result = await tryRun(() => PartnerApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "partner.error.getAll");
 		}
 
-		runInAction(() => (this.allPartners = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allPartners = toLoadable(result)));
 	}
 
 	async create(request: CreatePartnerRequest): Promise<void> {
 		const result = await withSaving(this, () => PartnerApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.create"));
+			this.notificationStore.notifyApiError(result, "partner.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allPartners !== "loading") {
+			if (isReady(this.allPartners)) {
 				this.allPartners = [result.data, ...this.allPartners];
 			}
 		});
@@ -189,7 +189,7 @@ export class PartnerStore implements IPartnerStore {
 		const result = await withSaving(this, () => PartnerApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.update"));
+			this.notificationStore.notifyApiError(result, "partner.error.update");
 			return null;
 		}
 
@@ -203,7 +203,7 @@ export class PartnerStore implements IPartnerStore {
 		const result = await withSaving(this, () => PartnerApi.archive(partner.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.archive"));
+			this.notificationStore.notifyApiError(result, "partner.error.archive");
 			return null;
 		}
 
@@ -218,7 +218,7 @@ export class PartnerStore implements IPartnerStore {
 		const result = await withSaving(this, () => PartnerApi.restore(partner.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.restore"));
+			this.notificationStore.notifyApiError(result, "partner.error.restore");
 			return null;
 		}
 
@@ -232,12 +232,12 @@ export class PartnerStore implements IPartnerStore {
 		const result = await withSaving(this, () => PartnerApi.delete(partner.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.delete"));
+			this.notificationStore.notifyApiError(result, "partner.error.delete");
 			return false;
 		}
 
 		runInAction(() => {
-			if (this.allPartners !== "loading") {
+			if (isReady(this.allPartners)) {
 				this.allPartners = this.allPartners.filter((p) => p.id !== partner.id);
 			}
 		});
@@ -299,7 +299,7 @@ export class PartnerStore implements IPartnerStore {
 
 	private replacePartner(updated: Partner): void {
 		runInAction(() => {
-			if (this.allPartners !== "loading") {
+			if (isReady(this.allPartners)) {
 				this.allPartners = this.allPartners.map((p) => (p.id === updated.id ? updated : p));
 			}
 		});

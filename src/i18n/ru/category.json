@@ -34,7 +34,7 @@
   "category.delete.blocked.referenced_many": "Невозможно удалить: категория содержит {{count}} товаров",
   "category.delete.blocked.referencedBody": "Сначала переместите товары в другую категорию или удалите их. Категории без товаров можно удалить сразу.",
 
-  "category.error.load": "Ошибка при загрузке категорий",
+  "category.error.load": "Не удалось загрузить категории",
   "category.error.create": "Ошибка при создании категории",
   "category.error.update": "Ошибка при обновлении категории",
   "category.error.delete": "Ошибка при удалении категории",

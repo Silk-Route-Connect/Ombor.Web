@@ -1,4 +1,4 @@
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -77,8 +77,8 @@ export class TransactionStore implements ITransactionStore {
 	}
 
 	private feedFor(direction: TransactionDirection): Loadable<TransactionRecord[]> {
-		if (this.allTransactions === "loading") {
-			return "loading";
+		if (!isReady(this.allTransactions)) {
+			return this.allTransactions;
 		}
 
 		const types = DIRECTION_TYPES[direction];
@@ -123,10 +123,10 @@ export class TransactionStore implements ITransactionStore {
 		const result = await tryRun(() => TransactionApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transactions.errors.getAll"));
+			this.notificationStore.notifyLoadError(result, "transactions.errors.getAll");
 		}
 
-		runInAction(() => (this.allTransactions = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allTransactions = toLoadable(result)));
 	}
 
 	/**
@@ -141,12 +141,12 @@ export class TransactionStore implements ITransactionStore {
 		const result = await withSaving(this, () => TransactionApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t(`transaction.new.error.${request.type}`));
+			this.notificationStore.notifyApiError(result, `transaction.new.error.${request.type}`);
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allTransactions !== "loading") {
+			if (isReady(this.allTransactions)) {
 				this.allTransactions = [result.data, ...this.allTransactions];
 			}
 		});
@@ -184,12 +184,12 @@ export class TransactionStore implements ITransactionStore {
 		);
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("transaction.refund.error"));
+			this.notificationStore.notifyApiError(result, "transaction.refund.error");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allTransactions !== "loading") {
+			if (isReady(this.allTransactions)) {
 				this.allTransactions = [result.data, ...this.allTransactions];
 			}
 		});

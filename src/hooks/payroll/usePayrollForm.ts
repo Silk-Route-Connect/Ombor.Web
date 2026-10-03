@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { Employee } from "models/employee";
 import { Wallet } from "models/wallet";
@@ -71,9 +72,7 @@ export function usePayrollForm({
 
 	const wallets = useMemo(
 		() =>
-			walletStore.allWallets === "loading"
-				? []
-				: walletStore.allWallets.filter((w) => !w.isArchived),
+			!isReady(walletStore.allWallets) ? [] : walletStore.allWallets.filter((w) => !w.isArchived),
 		[walletStore.allWallets],
 	);
 
@@ -104,7 +103,7 @@ export function usePayrollForm({
 		if (isEmployee(mode) && mode.id === employeeId) {
 			return mode;
 		}
-		if (employeeStore.allEmployees === "loading") {
+		if (!isReady(employeeStore.allEmployees)) {
 			return null;
 		}
 
@@ -116,10 +115,9 @@ export function usePayrollForm({
 
 	const setEmployeeId = (id: number) => {
 		setValue("employeeId", id, { shouldDirty: true, shouldValidate: true });
-		const picked =
-			employeeStore.allEmployees === "loading"
-				? undefined
-				: employeeStore.allEmployees.find((e) => e.id === id);
+		const picked = !isReady(employeeStore.allEmployees)
+			? undefined
+			: employeeStore.allEmployees.find((e) => e.id === id);
 		// Prefill the salary only while the user hasn't typed an amount themselves.
 		if (picked && !getFieldState("amount").isDirty) {
 			setValue("amount", picked.salary, { shouldValidate: true });

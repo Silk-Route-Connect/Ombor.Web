@@ -1,4 +1,4 @@
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable, readyOr, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -39,14 +39,14 @@ export class OrderStore {
 
 	/** Status counts for the toolbar tabs (from the unfiltered set). */
 	get statusCounts(): Record<OrderStatusFilter, number> {
-		const all = this.allOrders === "loading" ? [] : this.allOrders;
+		const all = readyOr(this.allOrders, []);
 		return countByStatus(all);
 	}
 
 	/** The list view: status tab + date range + search (number or customer), newest first. */
 	get listOrders(): Loadable<Order[]> {
-		if (this.allOrders === "loading") {
-			return "loading";
+		if (!isReady(this.allOrders)) {
+			return this.allOrders;
 		}
 
 		let list = [...this.allOrders];
@@ -83,7 +83,7 @@ export class OrderStore {
 	}
 
 	orderById(id: number): Order | null {
-		if (this.allOrders === "loading") {
+		if (!isReady(this.allOrders)) {
 			return null;
 		}
 		return this.allOrders.find((o) => o.id === id) ?? null;
@@ -94,14 +94,14 @@ export class OrderStore {
 
 		const result = await tryRun(() => OrderApi.getAll());
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "order.error.getAll");
 		}
 
-		runInAction(() => (this.allOrders = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allOrders = toLoadable(result)));
 	}
 
 	private replace(order: Order): void {
-		if (this.allOrders !== "loading") {
+		if (isReady(this.allOrders)) {
 			this.allOrders = this.allOrders.map((o) => (o.id === order.id ? order : o));
 		}
 	}
@@ -134,7 +134,7 @@ export class OrderStore {
 		const fromStatus = this.orderById(id)?.status;
 		const result = await withSaving(this, call);
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t(errorKey));
+			this.notificationStore.notifyApiError(result, errorKey);
 			return;
 		}
 		runInAction(() => {
@@ -214,11 +214,11 @@ export class OrderStore {
 	async create(request: CreateOrderRequest): Promise<Order | null> {
 		const result = await withSaving(this, () => OrderApi.create(request));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.create"));
+			this.notificationStore.notifyApiError(result, "order.error.create");
 			return null;
 		}
 		runInAction(() => {
-			if (this.allOrders !== "loading") {
+			if (isReady(this.allOrders)) {
 				this.allOrders = [result.data, ...this.allOrders];
 			}
 		});
@@ -237,7 +237,7 @@ export class OrderStore {
 	async update(request: UpdateOrderRequest): Promise<void> {
 		const result = await withSaving(this, () => OrderApi.update(request));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.update"));
+			this.notificationStore.notifyApiError(result, "order.error.update");
 			return;
 		}
 		runInAction(() => {

@@ -1,7 +1,8 @@
 import { SortOrder } from "components/shared/Table/DataTable/DataTable";
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
-import { getApiErrorMessage } from "utils/apiError";
+import { describeApiError } from "utils/apiError";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -73,22 +74,22 @@ export class CategoryStore implements ICategoryStore {
 		const result = await tryRun(() => CategoryApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("category.error.load"));
+			this.notificationStore.notifyLoadError(result, "category.error.load");
 		}
 
-		runInAction(() => (this.allCategories = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allCategories = toLoadable(result)));
 	}
 
 	async create(request: CreateCategoryRequest): Promise<void> {
 		const result = await withSaving(this, () => CategoryApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("category.error.create"));
+			this.notificationStore.notifyApiError(result, "category.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allCategories !== "loading") {
+			if (isReady(this.allCategories)) {
 				this.allCategories = [result.data, ...this.allCategories];
 			}
 		});
@@ -101,12 +102,12 @@ export class CategoryStore implements ICategoryStore {
 		const result = await withSaving(this, () => CategoryApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("category.error.update"));
+			this.notificationStore.notifyApiError(result, "category.error.update");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allCategories !== "loading") {
+			if (isReady(this.allCategories)) {
 				this.allCategories = this.allCategories.map((category) =>
 					category.id === result.data.id ? result.data : category,
 				);
@@ -131,7 +132,7 @@ export class CategoryStore implements ICategoryStore {
 			await CategoryApi.delete(id);
 
 			runInAction(() => {
-				if (this.allCategories !== "loading") {
+				if (isReady(this.allCategories)) {
 					this.allCategories = this.allCategories.filter((category) => category.id !== id);
 				}
 			});
@@ -140,11 +141,9 @@ export class CategoryStore implements ICategoryStore {
 			this.notificationStore.success(i18next.t("category.success.delete"));
 		} catch (error) {
 			// Reached only for categories the pre-check deemed deletable; if the API
-			// still rejects (e.g. a 409 because counts changed), surface its actual
-			// ProblemDetails message inline rather than a generic toast.
-			runInAction(
-				() => (this.deleteError = getApiErrorMessage(error) ?? i18next.t("category.error.delete")),
-			);
+			// still rejects (e.g. a 409 because counts changed), show the localized
+			// reason inline rather than a generic toast.
+			runInAction(() => (this.deleteError = describeApiError(error, "category.error.delete")));
 		} finally {
 			runInAction(() => (this.isSaving = false));
 		}
@@ -189,7 +188,7 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	private applySearch(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (data === "loading" || !this.searchTerm.trim()) {
+		if (!isReady(data) || !this.searchTerm.trim()) {
 			return data;
 		}
 
@@ -201,7 +200,7 @@ export class CategoryStore implements ICategoryStore {
 	}
 
 	private applySort(data: Loadable<Category[]>): Loadable<Category[]> {
-		if (data === "loading" || !this.sortField) {
+		if (!isReady(data) || !this.sortField) {
 			return data;
 		}
 

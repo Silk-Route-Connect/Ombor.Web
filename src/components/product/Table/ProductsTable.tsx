@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { buildProductColumns } from "components/product/Table/productsTableConfigs";
 import { DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Product } from "models/product";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -22,6 +22,10 @@ interface ProductsTableProps {
 	onArchive: (product: Product) => void;
 	onRestore: (product: Product) => void;
 	onSort: (field: keyof Product, order: SortOrder) => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const EmptyState: React.FC<{ isFiltering: boolean; onCreate: () => void }> = ({
@@ -73,6 +77,8 @@ const EmptyState: React.FC<{ isFiltering: boolean; onCreate: () => void }> = ({
 };
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
+	onRetry,
+	errorTitle,
 	data,
 	isFiltering,
 	onCreate,
@@ -85,13 +91,15 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 	const { t } = useTranslation();
 	const columns = buildProductColumns({ t, onEdit, onArchive, onRestore });
 
-	if (data !== "loading" && data.length === 0) {
+	if (isReady(data) && data.length === 0) {
 		return <EmptyState isFiltering={isFiltering} onCreate={onCreate} />;
 	}
 
 	return (
 		<DataTable<Product>
 			rows={data}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			columns={columns}
 			pagination
 			rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { buildTransactionColumns } from "components/transaction/List/transactionColumns";
 import TransactionListHeader from "components/transaction/List/TransactionListHeader";
 import TransactionsTable from "components/transaction/List/TransactionsTable";
+import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { TransactionRecord } from "models/transaction";
 import { PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -40,7 +41,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 		transactionStore.dateRange !== "all";
 
 	const handleExport = () => {
-		if (rows === "loading") {
+		if (!isReady(rows)) {
 			return;
 		}
 		exportToCsv<TransactionRecord>(
@@ -85,6 +86,8 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 			/>
 
 			<TransactionsTable
+				onRetry={() => void transactionStore.getAll()}
+				errorTitle={t("transactions.errors.getAll")}
 				rows={rows}
 				columns={columns}
 				direction={mode}

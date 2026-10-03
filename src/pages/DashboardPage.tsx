@@ -19,6 +19,7 @@ import SalesSuppliesChart from "components/dashboard/SalesSuppliesChart";
 import TopDebtorsPanel from "components/dashboard/TopDebtorsPanel";
 import GettingStartedCard from "components/onboarding/GettingStartedCard";
 import { OnboardingStepKey } from "components/onboarding/onboardingSteps";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
@@ -96,11 +97,11 @@ const DashboardPage: React.FC = observer(() => {
 			/>
 
 			{data === null ? (
-				isLoading && (
-					<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-						<CircularProgress />
-					</Box>
-				)
+				<LoadStateView
+					state={dashboardStore.loadError ?? "loading"}
+					onRetry={dashboardStore.load}
+					errorTitle={t("dashboard.error.load")}
+				/>
 			) : (
 				<Box sx={{ position: "relative" }}>
 					{isLoading && (

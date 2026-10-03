@@ -7,6 +7,7 @@ import WalletHeader from "components/wallet/Header/WalletHeader";
 import WalletsTable from "components/wallet/List/WalletsTable";
 import WalletSummaryStrip from "components/wallet/List/WalletSummaryStrip";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateWalletRequest, Wallet } from "models/wallet";
 import { walletDetailPath } from "routing/paths";
@@ -44,7 +45,7 @@ const WalletPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows = walletStore.filteredWallets === "loading" ? [] : walletStore.filteredWallets;
+		const rows = readyOr(walletStore.filteredWallets, []);
 
 		const columns: CsvColumn<Wallet>[] = [
 			{ header: t("wallet.table.name"), value: (w) => w.name },
@@ -62,7 +63,7 @@ const WalletPage: React.FC = observer(() => {
 		exportToCsv(`wallets_${csvDateStamp()}`, columns, rows);
 	};
 
-	const all = walletStore.allWallets === "loading" ? null : walletStore.allWallets;
+	const all = !isReady(walletStore.allWallets) ? null : walletStore.allWallets;
 	const isFiltering = walletStore.searchTerm.trim().length > 0;
 	const hasAny = (all?.length ?? 0) > 0;
 	const hasActive = (all ?? []).some((w) => !w.isArchived);
@@ -79,9 +80,11 @@ const WalletPage: React.FC = observer(() => {
 				onExport={handleExport}
 			/>
 
-			<WalletSummaryStrip summary={walletStore.summary} />
+			{all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
 
 			<WalletsTable
+				onRetry={() => void walletStore.getAll()}
+				errorTitle={t("wallet.error.getAll")}
 				rows={walletStore.filteredWallets}
 				showArchived={walletStore.showArchived}
 				isFiltering={isFiltering}

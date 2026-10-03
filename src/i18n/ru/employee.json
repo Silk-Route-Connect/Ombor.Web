@@ -41,8 +41,9 @@
   "employee.validation.addressTooLong": "Адрес не должен превышать 250 символов",
   "employee.validation.telegramTooLong": "Telegram не должен превышать 250 символов",
 
-  "employees.error.getAll": "Ошибка загрузки сотрудников",
-  "employees.error.getById": "Ошибка загрузки сотрудника",
+  "employees.error.getAll": "Не удалось загрузить сотрудников",
+  "employees.error.getById": "Не удалось загрузить сотрудника",
+  "employee.detail.notFound": "Сотрудник не найден",
   "employees.error.create": "Ошибка создания сотрудника",
   "employees.error.update": "Ошибка обновления сотрудника",
   "employees.error.delete": "Ошибка удаления сотрудника",

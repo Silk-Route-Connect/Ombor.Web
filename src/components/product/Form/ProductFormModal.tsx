@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { readyOr } from "helpers/Loading";
 import { useProductForm } from "hooks/product/useProductForm";
 import { useSkuAutofill } from "hooks/product/useSkuAutofill";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
@@ -54,7 +55,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 		}
 	}, [isOpen, categoryStore]);
 
-	const categories = categoryStore.allCategories === "loading" ? [] : categoryStore.allCategories;
+	const categories = readyOr(categoryStore.allCategories, []);
 	const firstCategoryId =
 		categories.length > 0
 			? [...categories].sort((a, b) => a.name.localeCompare(b.name, "ru"))[0].id

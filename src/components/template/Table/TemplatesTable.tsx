@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import ProductLink from "components/product/Links/ProductLink";
 import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import {
 	Column,
 	ExpandableDataTable,
 } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -21,7 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 
 interface TemplatesTableProps {
 	rows: Loadable<Template[]>;
@@ -31,6 +32,10 @@ interface TemplatesTableProps {
 	onEdit: (template: Template) => void;
 	onDelete: (template: Template) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 /** Keep an inner entity link from also toggling the row's expand click. */
@@ -238,6 +243,8 @@ const TemplateItemsDetail: React.FC<{ template: Template }> = ({ template }) => 
  * ActionMenu; the partner and product cells deep-link to their detail pages.
  */
 export const TemplatesTable: React.FC<TemplatesTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	isFiltering,
 	hasAny,
@@ -340,12 +347,8 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 		[t, onEdit, onDelete],
 	);
 
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
+	if (!isReady(rows)) {
+		return <LoadStateView state={rows} onRetry={onRetry} errorTitle={errorTitle} />;
 	}
 
 	if (rows.length === 0) {

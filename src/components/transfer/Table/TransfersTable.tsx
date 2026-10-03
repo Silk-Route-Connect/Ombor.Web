@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import { buildTransferColumns } from "components/transfer/Table/transfersTableConfigs";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Transfer } from "models/transfer";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -16,6 +16,10 @@ interface TransfersTableProps {
 	hasAny: boolean;
 	onOpen: (transfer: Transfer) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -69,6 +73,8 @@ const EmptyState: React.FC<{ isFiltering: boolean; hasAny: boolean; onCreate: ()
 };
 
 export const TransfersTable: React.FC<TransfersTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	isFiltering,
 	hasAny,
@@ -77,13 +83,15 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	if (rows !== "loading" && rows.length === 0) {
+	if (isReady(rows) && rows.length === 0) {
 		return <EmptyState isFiltering={isFiltering} hasAny={hasAny} onCreate={onCreate} />;
 	}
 
 	return (
 		<DataTable<Transfer>
 			rows={rows}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			columns={buildTransferColumns(t)}
 			pagination
 			rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}

@@ -7,6 +7,7 @@ import {
 	useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isReady, readyOr } from "helpers/Loading";
 import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { Template, TemplateType } from "models/template";
@@ -110,7 +111,7 @@ export const useTemplateForm = ({
 			// Switching the type re-prices every line to the matching live price
 			// (sale ↔ supply), mirroring the prototype. Lines whose product is no
 			// longer in the catalogue keep their current price.
-			const catalogue = productStore.allProducts === "loading" ? [] : productStore.allProducts;
+			const catalogue = readyOr(productStore.allProducts, []);
 			const current = form.getValues("items");
 			current.forEach((item, index) => {
 				const product = catalogue.find((p) => p.id === item.productId);
@@ -181,7 +182,7 @@ export const useTemplateForm = ({
 	const submit = form.handleSubmit(onSave);
 
 	const selectedPartner = useMemo(() => {
-		if (partnerStore.customers === "loading" || partnerStore.suppliers === "loading") {
+		if (!isReady(partnerStore.customers) || !isReady(partnerStore.suppliers)) {
 			return null;
 		}
 

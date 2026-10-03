@@ -8,6 +8,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { observer } from "mobx-react-lite";
 import { Order, OrderLineDiscountType, OrderSource, UpdateOrderRequest } from "models/order";
@@ -140,14 +141,14 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 
 	const activeProducts = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
 	);
-	const allPartners = partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
+	const allPartners = readyOr(partnerStore.allPartners, []);
 	const warehouses = useMemo(
-		() => (warehouseStore.activeWarehouses === "loading" ? [] : warehouseStore.activeWarehouses),
+		() => readyOr(warehouseStore.activeWarehouses, []),
 		[warehouseStore.activeWarehouses],
 	);
 

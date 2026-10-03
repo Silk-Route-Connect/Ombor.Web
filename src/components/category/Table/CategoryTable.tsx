@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { buildCategoryColumns } from "components/category/Table/categoryTableConfigs";
 import { DataTable, SortOrder } from "components/shared/Table/DataTable/DataTable";
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable } from "helpers/Loading";
 import { Category } from "models/category";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -16,6 +16,10 @@ interface CategoryTableProps {
 	onEdit: (category: Category) => void;
 	onDelete: (category: Category) => void;
 	onSort: (field: keyof Category, order: SortOrder) => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
 }
 
 const CARD_SX = {
@@ -73,6 +77,8 @@ const EmptyState: React.FC<{ searchTerm: string; onCreate: () => void }> = ({
 };
 
 export const CategoryTable: React.FC<CategoryTableProps> = ({
+	onRetry,
+	errorTitle,
 	data,
 	searchTerm,
 	onCreate,
@@ -83,7 +89,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 	const { t } = useTranslation();
 	const columns = buildCategoryColumns({ t, onEdit, onDelete });
 
-	if (data !== "loading" && data.length === 0) {
+	if (isReady(data) && data.length === 0) {
 		return <EmptyState searchTerm={searchTerm} onCreate={onCreate} />;
 	}
 
@@ -91,6 +97,8 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 	return (
 		<DataTable<Category>
 			rows={data}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			columns={columns}
 			pagination
 			rowsPerPageOptions={[10, 25, 50]}

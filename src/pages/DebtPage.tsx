@@ -6,8 +6,10 @@ import DebtSummaryCards from "components/debt/DebtSummaryCards";
 import { PartnerDebtTable, TransactionDebtTable } from "components/debt/DebtTables";
 import DebtTabs from "components/debt/DebtTabs";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import TableToolbar from "components/shared/Table/TableToolbar";
+import { isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
 import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -17,7 +19,7 @@ import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatEntityId } from "utils/formatEntityId";
 
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 
 const DebtPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -28,7 +30,7 @@ const DebtPage: React.FC = observer(() => {
 		debtStore.getAll();
 	}, [debtStore]);
 
-	const loading = debtStore.allDebts === "loading";
+	const allDebts = debtStore.allDebts;
 
 	const anyFilter =
 		debtStore.searchTerm.trim().length > 0 ||
@@ -71,19 +73,18 @@ const DebtPage: React.FC = observer(() => {
 			<PageHeader
 				title={t("debt.title")}
 				actions={
-					<GhostButton
-						icon={<FileDownloadOutlinedIcon />}
-						onClick={handleExport}
-					>
+					<GhostButton icon={<FileDownloadOutlinedIcon />} onClick={handleExport}>
 						{t("debt.exportCsv")}
 					</GhostButton>
 				}
 			/>
 
-			{loading ? (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-					<CircularProgress />
-				</Box>
+			{!isReady(allDebts) ? (
+				<LoadStateView
+					state={allDebts}
+					onRetry={() => void debtStore.getAll()}
+					errorTitle={t("debt.error.getAll")}
+				/>
 			) : (
 				<>
 					<DebtSummaryCards summary={debtStore.summary} onCard={debtStore.applyCard} />

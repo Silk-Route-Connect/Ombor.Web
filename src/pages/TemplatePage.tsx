@@ -4,6 +4,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplatesTable from "components/template/Table/TemplatesTable";
+import { isReady } from "helpers/Loading";
 import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
 import { observer } from "mobx-react-lite";
 import { CreateTemplateRequest, UpdateTemplateRequest } from "models/template";
@@ -81,9 +82,10 @@ const TemplatePage: React.FC = observer(() => {
 		}
 	};
 
-	const all = templateStore.allTemplates === "loading" ? null : templateStore.allTemplates;
-	const totalCount =
-		templateStore.listTemplates === "loading" ? null : templateStore.listTemplates.length;
+	const all = !isReady(templateStore.allTemplates) ? null : templateStore.allTemplates;
+	const totalCount = !isReady(templateStore.listTemplates)
+		? null
+		: templateStore.listTemplates.length;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering = templateStore.searchTerm.trim() !== "" || templateStore.typeFilter !== "all";
 	const dialogMode = templateStore.dialogMode;
@@ -100,6 +102,8 @@ const TemplatePage: React.FC = observer(() => {
 			/>
 
 			<TemplatesTable
+				onRetry={() => void templateStore.getAll()}
+				errorTitle={t("template.error.getAll")}
 				rows={templateStore.listTemplates}
 				isFiltering={isFiltering}
 				hasAny={hasAny}

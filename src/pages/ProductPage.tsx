@@ -5,6 +5,7 @@ import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductHeader from "components/product/Header/ProductHeader";
 import ProductsTable from "components/product/Table/ProductsTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
 import { productDetailPath } from "routing/paths";
@@ -54,7 +55,7 @@ const ProductPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows = productStore.filteredProducts === "loading" ? [] : productStore.filteredProducts;
+		const rows = readyOr(productStore.filteredProducts, []);
 
 		const columns: CsvColumn<Product>[] = [
 			{ header: t("product.table.name"), value: (p) => p.name },
@@ -77,8 +78,7 @@ const ProductPage: React.FC = observer(() => {
 
 	// Title shows the total dataset size (archived included); the table footer
 	// already reflects the filtered view.
-	const totalCount =
-		productStore.allProducts === "loading" ? null : productStore.allProducts.length;
+	const totalCount = !isReady(productStore.allProducts) ? null : productStore.allProducts.length;
 
 	const isFiltering =
 		productStore.searchTerm.trim().length > 0 ||
@@ -104,6 +104,8 @@ const ProductPage: React.FC = observer(() => {
 			/>
 
 			<ProductsTable
+				onRetry={() => void productStore.getAll()}
+				errorTitle={t("product.error.getAll")}
 				data={productStore.filteredProducts}
 				isFiltering={isFiltering}
 				onCreate={productStore.openCreate}

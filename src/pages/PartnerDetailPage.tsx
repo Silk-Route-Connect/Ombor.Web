@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable";
 import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
@@ -15,6 +15,9 @@ import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isPresent, isReady, readyOr } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
 import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
@@ -24,15 +27,14 @@ import { useStore } from "stores/StoreContext";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 type PartnerDetailTab = "ledger" | "transactions" | "payments";
 
 const PartnerDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const partnerId = Number(id);
+	const partnerId = useRouteEntityId();
 	const [searchParams] = useSearchParams();
 	const { partnerStore, partnerLedgerStore, notificationStore } = useStore();
 
@@ -49,19 +51,17 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const [tab, setTab] = useState<PartnerDetailTab>(initialTab);
 
 	useEffect(() => {
-		if (Number.isFinite(partnerId)) {
+		if (partnerId !== null) {
 			void partnerLedgerStore.load(partnerId);
 		}
 		setTab(initialTab);
 		return () => partnerLedgerStore.clear();
 	}, [partnerId, initialTab, partnerLedgerStore]);
 
-	const partner = partnerLedgerStore.partner;
+	const partner = partnerId === null ? null : partnerLedgerStore.partner;
 	const ledgerState = partnerLedgerStore.ledger;
-	const ledger = useMemo<PartnerLedgerEntry[]>(
-		() => (ledgerState === "loading" ? [] : ledgerState),
-		[ledgerState],
-	);
+	const ledger = useMemo<PartnerLedgerEntry[]>(() => readyOr(ledgerState, []), [ledgerState]);
+	const retry = () => partnerId !== null && void partnerLedgerStore.load(partnerId);
 
 	const transactions = useMemo(() => deriveTransactions(ledger), [ledger]);
 	const payments = useMemo(() => derivePayments(ledger), [ledger]);
@@ -94,19 +94,17 @@ const PartnerDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	if (partner === "loading" || partnerLedgerStore.ledger === "loading") {
+	// The ledger is the page's core (tabs, rail figures) — the page waits for both
+	// and shows a failed ledger as the page error, never as an empty history.
+	if (!isPresent(partner) || !isReady(ledgerState)) {
+		const state = !isPresent(partner) ? partner : isReady(ledgerState) ? "loading" : ledgerState;
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (partner === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("partner.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={state}
+				onRetry={retry}
+				errorTitle={t(isPresent(partner) ? "partner.error.getLedger" : "partner.error.getById")}
+				notFound={{ title: t("partner.detail.notFound"), backTo: PATHS.partners }}
+			/>
 		);
 	}
 

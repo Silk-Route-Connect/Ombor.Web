@@ -8,8 +8,8 @@ export type WalletDetailTab = "operations" | "transfers";
 
 interface WalletDetailTabsProps {
 	value: WalletDetailTab;
-	operationsCount: number;
-	transfersCount: number;
+	operationsCount?: number;
+	transfersCount?: number;
 	onChange: (tab: WalletDetailTab) => void;
 }
 
@@ -22,7 +22,7 @@ export const WalletDetailTabs: React.FC<WalletDetailTabsProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	const tabs: Array<{ key: WalletDetailTab; label: string; count: number }> = [
+	const tabs: Array<{ key: WalletDetailTab; label: string; count?: number }> = [
 		{ key: "operations", label: t("wallet.detail.tabs.operations"), count: operationsCount },
 		{ key: "transfers", label: t("wallet.detail.tabs.transfers"), count: transfersCount },
 	];
@@ -51,21 +51,23 @@ export const WalletDetailTabs: React.FC<WalletDetailTabsProps> = ({
 						}}
 					>
 						{tab.label}
-						<Box
-							component="span"
-							sx={{
-								...numericSx,
-								fontSize: 12,
-								fontWeight: 600,
-								px: "7px",
-								py: "1px",
-								borderRadius: "999px",
-								bgcolor: selected ? "primary.light" : "grey.100",
-								color: selected ? "primary.main" : "text.secondary",
-							}}
-						>
-							{tab.count}
-						</Box>
+						{tab.count != null && (
+							<Box
+								component="span"
+								sx={{
+									...numericSx,
+									fontSize: 12,
+									fontWeight: 600,
+									px: "7px",
+									py: "1px",
+									borderRadius: "999px",
+									bgcolor: selected ? "primary.light" : "grey.100",
+									color: selected ? "primary.main" : "text.secondary",
+								}}
+							>
+								{tab.count}
+							</Box>
+						)}
 					</ButtonBase>
 				);
 			})}

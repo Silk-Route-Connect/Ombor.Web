@@ -8,7 +8,9 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
+import { isLoadError, isReady, Loadable, readyOr } from "helpers/Loading";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -52,6 +54,8 @@ const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
  * Bounded, anchored-below dropdown menu — keeps long pickers (the partner list)
  * from spilling as a full-page overlay; opens below the field, capped + scrollable (PAY-7).
  */
+const EMPTY_FORM_DATA: PaymentFormData = { partners: [], employees: [], wallets: [] };
+
 const DROPDOWN_MENU_PROPS = {
 	anchorOrigin: { vertical: "bottom" as const, horizontal: "left" as const },
 	transformOrigin: { vertical: "top" as const, horizontal: "left" as const },
@@ -61,9 +65,11 @@ const DROPDOWN_MENU_PROPS = {
 export interface PaymentCreateModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
-	formData: PaymentFormData | "loading";
-	outstanding: OutstandingTransaction[] | "loading";
+	formData: Loadable<PaymentFormData>;
+	outstanding: Loadable<OutstandingTransaction[]>;
 	onLoadOutstanding: (partnerId: number) => void;
+	/** Re-runs a failed reference-data load (partners, employees, wallets). */
+	onRetryFormData: () => void;
 	onSave: (request: CreatePaymentRecordRequest) => void;
 	onClose: () => void;
 }
@@ -92,13 +98,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	formData,
 	outstanding,
 	onLoadOutstanding,
+	onRetryFormData,
 	onSave,
 	onClose,
 }) => {
 	const { t } = useTranslation();
 	const { form } = usePaymentForm({
 		isOpen,
-		wallets: formData === "loading" ? [] : formData.wallets,
+		wallets: isReady(formData) ? formData.wallets : [],
 	});
 	const { control, watch, setValue, handleSubmit, formState } = form;
 	const [settleOpen, setSettleOpen] = useState(false);
@@ -115,7 +122,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	const addFiles = (list: FileList) => setFiles((cur) => [...cur, ...Array.from(list)]);
 	const removeFile = (index: number) => setFiles((cur) => cur.filter((_, j) => j !== index));
 
-	const data = formData === "loading" ? { partners: [], employees: [], wallets: [] } : formData;
+	const data = readyOr(formData, EMPTY_FORM_DATA);
 
 	const type = watch("type") as PaymentType;
 	const partnerId = watch("partnerId");
@@ -153,10 +160,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	}, [type, partnerId, onLoadOutstanding]);
 
 	const hasOpenDebts =
-		type === "Transaction" &&
-		partner != null &&
-		outstanding !== "loading" &&
-		outstanding.length > 0;
+		type === "Transaction" && partner != null && isReady(outstanding) && outstanding.length > 0;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		formState.isDirty || files.length > 0,
@@ -228,6 +232,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
+					{isLoadError(formData) && (
+						<LoadStateView
+							state={formData}
+							size="section"
+							onRetry={onRetryFormData}
+							errorTitle={t("payment.error.formData")}
+						/>
+					)}
 					{/* STEP 1 — type */}
 					<Stack sx={{ gap: "7px", mb: "16px" }}>
 						<FormFieldLabel label={t("payment.form.typeLabel")} />
@@ -637,6 +649,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 					walletName={data.wallets.find((w) => w.id === watch("walletId"))?.name ?? ""}
 					direction={effectiveDir}
 					outstanding={outstanding}
+					onRetry={() => onLoadOutstanding(partner.id)}
 					onBack={() => setSettleOpen(false)}
 					onConfirm={(settlements) => {
 						setSettleOpen(false);

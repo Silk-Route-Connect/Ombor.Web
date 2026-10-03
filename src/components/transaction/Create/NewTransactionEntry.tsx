@@ -13,6 +13,7 @@ import SaveTemplateModal from "components/transaction/Create/SaveTemplateModal";
 import TemplateLoadMenu from "components/transaction/Create/TemplateLoadMenu";
 import TransactionSummaryCard from "components/transaction/Create/TransactionSummaryCard";
 import WarehousePicker from "components/transaction/Create/WarehousePicker";
+import { readyOr } from "helpers/Loading";
 import { CartItem, useTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { observer } from "mobx-react-lite";
 import { SettlementInput } from "models/payment";
@@ -34,8 +35,6 @@ import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, Button, ButtonBase, InputBase, Typography } from "@mui/material";
-
-const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
 type DialogKind = "none" | "unsaved" | "noPay" | "settle" | "saveTemplate";
 
@@ -90,11 +89,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		void templateStore.getAll();
 	}, [productStore, partnerStore, warehouseStore, walletStore, templateStore]);
 
-	const products = loaded(isSale ? productStore.saleProducts : productStore.supplyProducts);
-	const partners = loaded(isSale ? partnerStore.customers : partnerStore.suppliers);
-	const warehouses = loaded(warehouseStore.activeWarehouses);
-	const wallets = loaded(walletStore.activeWallets);
-	const allTemplates = loaded(templateStore.allTemplates);
+	const products = readyOr(isSale ? productStore.saleProducts : productStore.supplyProducts, []);
+	const partners = readyOr(isSale ? partnerStore.customers : partnerStore.suppliers, []);
+	const warehouses = readyOr(warehouseStore.activeWarehouses, []);
+	const wallets = readyOr(walletStore.activeWallets, []);
+	const allTemplates = readyOr(templateStore.allTemplates, []);
 
 	// Hard-block a Supply tender that exceeds the paying wallet's balance. A Sale
 	// is money-in and its change is self-covered, so only Supply outflows are guarded.

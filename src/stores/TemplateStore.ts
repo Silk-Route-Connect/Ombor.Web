@@ -1,4 +1,4 @@
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -59,7 +59,7 @@ export interface ITemplateStore {
 export class TemplateStore implements ITemplateStore {
 	private readonly notificationStore: NotificationStore;
 
-	allTemplates: Loadable<Template[]> = [];
+	allTemplates: Loadable<Template[]> = "loading";
 
 	searchTerm: string = "";
 	typeFilter: TemplateTypeFilter = "all";
@@ -76,8 +76,8 @@ export class TemplateStore implements ITemplateStore {
 
 	/** The redesigned list: search (name or partner) + the type segment. */
 	get listTemplates(): Loadable<Template[]> {
-		if (this.allTemplates === "loading") {
-			return "loading";
+		if (!isReady(this.allTemplates)) {
+			return this.allTemplates;
 		}
 
 		let templates = this.allTemplates;
@@ -97,20 +97,15 @@ export class TemplateStore implements ITemplateStore {
 	}
 
 	async getAll() {
-		if (this.allTemplates === "loading") {
-			return;
-		}
-
 		runInAction(() => (this.allTemplates = "loading"));
 
 		const result = await tryRun(() => TemplateApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("template.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "template.error.getAll");
 		}
 
-		const data = result.status === "fail" ? [] : result.data;
-		runInAction(() => (this.allTemplates = data));
+		runInAction(() => (this.allTemplates = toLoadable(result)));
 	}
 
 	async getById(templateId: number): Promise<void> {
@@ -118,7 +113,7 @@ export class TemplateStore implements ITemplateStore {
 		const result = await tryRun(() => TemplateApi.getById(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("template.error.getById"));
+			this.notificationStore.notifyApiError(result, "template.error.getById");
 		}
 
 		const data = result.status === "fail" ? null : result.data;
@@ -129,12 +124,12 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("template.error.create"));
+			this.notificationStore.notifyApiError(result, "template.error.create");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allTemplates !== "loading") {
+			if (isReady(this.allTemplates)) {
 				this.allTemplates = [result.data, ...this.allTemplates];
 			}
 		});
@@ -149,12 +144,12 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.update(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("template.error.update"));
+			this.notificationStore.notifyApiError(result, "template.error.update");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allTemplates !== "loading") {
+			if (isReady(this.allTemplates)) {
 				this.allTemplates = this.allTemplates.map((el) =>
 					el.id === result.data.id ? result.data : el,
 				);
@@ -172,12 +167,12 @@ export class TemplateStore implements ITemplateStore {
 		const result = await withSaving(this, () => TemplateApi.delete(templateId));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("template.error.delete"));
+			this.notificationStore.notifyApiError(result, "template.error.delete");
 			return;
 		}
 
 		runInAction(() => {
-			if (this.allTemplates !== "loading") {
+			if (isReady(this.allTemplates)) {
 				this.allTemplates = this.allTemplates.filter((el) => el.id !== templateId);
 			}
 		});

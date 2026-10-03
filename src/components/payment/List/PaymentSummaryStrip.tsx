@@ -12,7 +12,8 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 
 interface PaymentSummaryStripProps {
-	summary: PaymentSummary;
+	/** Null while the list is loading or failed — the cards show «—», never a fake 0. */
+	summary: PaymentSummary | null;
 	/** Active direction toggle (`"all"` when none). */
 	directionFilter: PaymentDirection | "all";
 	/** Toggle the table's direction filter (click the active card again to clear). */
@@ -137,6 +138,15 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 	onToggle,
 }) => {
 	const { t } = useTranslation();
+	const money = (value: number): React.ReactNode =>
+		summary ? (
+			<>
+				{formatCurrency(value)}
+				<Uzs />
+			</>
+		) : (
+			t("common.dash")
+		);
 
 	return (
 		<Box
@@ -152,12 +162,7 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				iconBg={chipTokens.income.bg}
 				iconColor={chipTokens.income.color}
 				caption={t("payment.summary.income")}
-				value={
-					<>
-						{formatCurrency(summary.income)}
-						<Uzs />
-					</>
-				}
+				value={money(summary?.income ?? 0)}
 				valueColor="success.main"
 				clickable
 				active={directionFilter === "Income"}
@@ -169,12 +174,7 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				iconBg={chipTokens.expense.bg}
 				iconColor={chipTokens.expense.color}
 				caption={t("payment.summary.expense")}
-				value={
-					<>
-						{formatCurrency(summary.expense)}
-						<Uzs />
-					</>
-				}
+				value={money(summary?.expense ?? 0)}
 				valueColor="error.main"
 				clickable
 				active={directionFilter === "Expense"}
@@ -186,7 +186,7 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				iconBg={chipTokens.teal.bg}
 				iconColor={chipTokens.teal.color}
 				caption={t("payment.summary.count")}
-				value={summary.count}
+				value={summary ? summary.count : t("common.dash")}
 			/>
 		</Box>
 	);

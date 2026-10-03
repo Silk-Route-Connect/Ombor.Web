@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import {
 	AuditCard,
 	NoteAttachmentsCard,
@@ -16,8 +17,10 @@ import {
 } from "components/transaction/Detail/cards";
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
 import RefundModal from "components/transaction/Refund/RefundModal";
+import { isPresent } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { paymentDetailPath } from "routing/paths";
+import { PATHS, paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import {
 	isRefundType,
@@ -26,7 +29,7 @@ import {
 	txSubtotal,
 } from "utils/transactionUtils";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
 
 interface TransactionDetailPageProps {
 	direction: TransactionDirection;
@@ -35,42 +38,41 @@ interface TransactionDetailPageProps {
 const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ direction }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const txId = Number(id);
+	const txId = useRouteEntityId();
 	const { transactionStore, selectedTransactionStore, notificationStore } = useStore();
 
 	useEffect(() => {
-		if (Number.isFinite(txId)) {
+		if (txId !== null) {
 			void selectedTransactionStore.load(txId);
 		}
 		return () => selectedTransactionStore.clear();
 	}, [txId, selectedTransactionStore]);
 
-	const tx = selectedTransactionStore.transaction;
+	const tx = txId === null ? null : selectedTransactionStore.transaction;
+	const retry = () => txId !== null && void selectedTransactionStore.load(txId);
 	const detailBase = direction === "Sale" ? "/sales" : "/supplies";
 	const openTransaction = (otherId: number) => navigate(`${detailBase}/${otherId}`);
 	const devToast = (name: string) =>
 		notificationStore.info(t("transaction.detail.devToast", { name }));
 
-	if (tx === "loading") {
+	if (!isPresent(tx)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (tx === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("transaction.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={tx}
+				onRetry={retry}
+				errorTitle={t("transactions.errors.getById")}
+				notFound={{
+					title: t("transaction.detail.notFound"),
+					backTo: direction === "Sale" ? PATHS.sales : PATHS.supplies,
+				}}
+			/>
 		);
 	}
 
 	const refund = isRefundType(tx.type);
 	const refundsOf = selectedTransactionStore.refundsOfCurrent;
 	const original = selectedTransactionStore.originalOfCurrent;
+	const relationsError = selectedTransactionStore.relationsError;
 
 	const twoColSx = {
 		display: "grid",
@@ -106,6 +108,17 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 						count={tx.lines.length}
 						footer={refund ? <RefundFooter lines={tx.lines} /> : undefined}
 					/>
+
+					{relationsError && (
+						<Paper variant="outlined" sx={{ borderRadius: 1.5 }}>
+							<LoadStateView
+								state={relationsError}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("transaction.detail.relationsLoadFailed")}
+							/>
+						</Paper>
+					)}
 
 					{!refund && refundsOf.length > 0 && (
 						<RefundHistoryCard direction={direction} refunds={refundsOf} onOpen={openTransaction} />
@@ -161,7 +174,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 								: tx,
 							payload,
 						);
-						if (created) {
+						if (created && txId !== null) {
 							await selectedTransactionStore.load(txId);
 						}
 					}}

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
@@ -12,6 +11,9 @@ import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isPresent, isReady } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { CreateProductRequest, Product } from "models/product";
 import { PATHS } from "routing/paths";
@@ -23,44 +25,39 @@ import { mapFormPackagingToPackaging } from "utils/productUtils";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 type ProductDetailTab = "overview" | "transactions" | "movements";
 
 const ProductDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
-	const productId = Number(id);
+	const productId = useRouteEntityId();
 	const { productStore, selectedProductStore } = useStore();
 
 	const [tab, setTab] = useState<ProductDetailTab>("overview");
 
 	useEffect(() => {
-		if (Number.isFinite(productId)) {
-			selectedProductStore.load(productId);
+		if (productId !== null) {
+			void selectedProductStore.load(productId);
 		}
 		// The same route instance serves every product id — reset the tab too.
 		setTab("overview");
 		return () => selectedProductStore.clear();
 	}, [productId, selectedProductStore]);
 
-	const product = selectedProductStore.product;
+	const product = productId === null ? null : selectedProductStore.product;
 	const dialogMode = productStore.dialogMode;
 	const editingProduct = dialogMode.kind === "form" ? (dialogMode.product ?? null) : null;
+	const retry = () => productId !== null && void selectedProductStore.load(productId);
 
-	if (product === "loading") {
+	if (!isPresent(product)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (product === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("product.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={product}
+				onRetry={retry}
+				errorTitle={t("product.error.getById")}
+				notFound={{ title: t("product.detail.notFound"), backTo: PATHS.products }}
+			/>
 		);
 	}
 
@@ -144,12 +141,12 @@ const ProductDetailPage: React.FC = observer(() => {
 		{
 			key: "transactions",
 			label: t("product.detail.tabs.transactions"),
-			count: transactions === "loading" ? undefined : transactions.length,
+			count: isReady(transactions) ? transactions.length : undefined,
 		},
 		{
 			key: "movements",
 			label: t("product.detail.tabs.movements"),
-			count: movements === "loading" ? undefined : movements.length,
+			count: isReady(movements) ? movements.length : undefined,
 		},
 	];
 
@@ -178,10 +175,13 @@ const ProductDetailPage: React.FC = observer(() => {
 
 					{tab === "overview" && <ProductOverviewTab product={product} />}
 					{tab === "transactions" &&
-						(transactions === "loading" ? (
-							<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-								<CircularProgress size={28} />
-							</Box>
+						(!isReady(transactions) ? (
+							<LoadStateView
+								state={transactions}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("product.error.getTransactions")}
+							/>
 						) : (
 							<ProductTransactionsTab
 								transactions={transactions}
@@ -189,10 +189,13 @@ const ProductDetailPage: React.FC = observer(() => {
 							/>
 						))}
 					{tab === "movements" &&
-						(movements === "loading" ? (
-							<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-								<CircularProgress size={28} />
-							</Box>
+						(!isReady(movements) ? (
+							<LoadStateView
+								state={movements}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("product.error.getTransactions")}
+							/>
 						) : (
 							<ProductMovementsTab movements={movements} />
 						))}

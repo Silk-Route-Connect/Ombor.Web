@@ -115,6 +115,7 @@
   "transaction.empty.searchBody.Supply": "По заданным условиям поставок и возвратов нет. Измените поиск, статус оплаты или период.",
 
   "transaction.detail.notFound": "Документ не найден",
+  "transaction.detail.relationsLoadFailed": "Не удалось загрузить связанные возвраты",
   "transaction.detail.title.Sale": "Продажа {{number}}",
   "transaction.detail.title.Supply": "Поставка {{number}}",
   "transaction.detail.title.SaleRefund": "Возврат продажи {{number}}",

@@ -6,6 +6,7 @@ import TransferDetailModal from "components/transfer/Detail/TransferDetailModal"
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
 import TransferHeader from "components/transfer/Header/TransferHeader";
 import TransfersTable from "components/transfer/Table/TransfersTable";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
 import { Warehouse } from "models/warehouse";
@@ -31,14 +32,12 @@ const TransferPage: React.FC = observer(() => {
 		transferStore.getAll();
 	}, [warehouseStore, productStore, transferStore]);
 
-	const activeWarehouses: Warehouse[] =
-		warehouseStore.allWarehouses === "loading"
-			? []
-			: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	const activeWarehouses: Warehouse[] = !isReady(warehouseStore.allWarehouses)
+		? []
+		: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
 	// A transfer needs two warehouses; a new organisation has only the starter one,
 	// so «Новое перемещение» explains that instead of opening an unfillable form.
-	const needsSecondWarehouse =
-		warehouseStore.allWarehouses !== "loading" && activeWarehouses.length < 2;
+	const needsSecondWarehouse = isReady(warehouseStore.allWarehouses) && activeWarehouses.length < 2;
 
 	const createSecondWarehouse = (): void => {
 		transferStore.closeDialog();
@@ -57,8 +56,7 @@ const TransferPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			transferStore.filteredTransfers === "loading" ? [] : transferStore.filteredTransfers;
+		const rows = readyOr(transferStore.filteredTransfers, []);
 
 		const columns: CsvColumn<Transfer>[] = [
 			{ header: t("transfer.table.date"), value: (tr) => formatDate(tr.date) },
@@ -72,7 +70,7 @@ const TransferPage: React.FC = observer(() => {
 		exportToCsv(`transfers_${csvDateStamp()}`, columns, rows);
 	};
 
-	const all = transferStore.allTransfers === "loading" ? null : transferStore.allTransfers;
+	const all = !isReady(transferStore.allTransfers) ? null : transferStore.allTransfers;
 	const totalCount = all?.length ?? null;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering = transferStore.warehouseFilter != null || search.trim() !== "";
@@ -80,7 +78,7 @@ const TransferPage: React.FC = observer(() => {
 
 	const base = transferStore.filteredTransfers;
 	const rows =
-		base === "loading" || search.trim() === ""
+		!isReady(base) || search.trim() === ""
 			? base
 			: base.filter((tr) =>
 					matchesSearch([tr.fromWarehouseName, tr.toWarehouseName, tr.createdBy].join(" "), search),
@@ -100,6 +98,8 @@ const TransferPage: React.FC = observer(() => {
 			/>
 
 			<TransfersTable
+				onRetry={() => void transferStore.getAll()}
+				errorTitle={t("transfer.error.getAll")}
 				rows={rows}
 				isFiltering={isFiltering}
 				hasAny={hasAny}

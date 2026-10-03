@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DeliveryInfoCard from "components/order/Detail/DeliveryInfoCard";
 import OrderDetailHeader from "components/order/Detail/OrderDetailHeader";
 import OrderPositionsCard from "components/order/Detail/OrderPositionsCard";
@@ -12,42 +12,41 @@ import DeliveryConfirmModal from "components/order/Modal/DeliveryConfirmModal";
 import OrderFormModal from "components/order/Modal/OrderFormModal";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath, saleDetailPath } from "routing/paths";
+import { partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 const OrderDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const orderId = Number(id);
+	const orderId = useRouteEntityId();
 	const { orderStore, notificationStore } = useStore();
 
+	// The page reads the orders cache; a cache that is still empty or failed is (re)fetched.
 	useEffect(() => {
-		if (orderStore.allOrders === "loading") {
+		if (!isReady(orderStore.allOrders)) {
 			void orderStore.getAll();
 		}
 	}, [orderStore]);
 
-	if (orderStore.allOrders === "loading") {
+	const allOrders = orderStore.allOrders;
+	const order = orderId === null ? null : orderStore.orderById(orderId);
+	if (!isReady(allOrders) || !order) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	const order = orderStore.orderById(orderId);
-	if (!order) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("order.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={isReady(allOrders) ? null : allOrders}
+				onRetry={() => void orderStore.getAll()}
+				errorTitle={t("order.error.getAll")}
+				notFound={{ title: t("order.detail.notFound"), backTo: PATHS.orders }}
+			/>
 		);
 	}
 

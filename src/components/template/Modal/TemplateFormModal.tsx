@@ -9,6 +9,7 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
@@ -212,14 +213,13 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
 	);
 
-	const allPartners: Partner[] =
-		partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
+	const allPartners: Partner[] = readyOr(partnerStore.allPartners, []);
 	const partnerValue = allPartners.find((p) => p.id === partnerId) ?? null;
 
 	const pickedIds = (watchedItems ?? []).map((l) => l.productId);
