@@ -64,8 +64,8 @@ export type TransactionRecord = {
 	status: TransactionStatus;
 	lines: TransactionLine[];
 
-	/* ── Redesign enrichment served by the v1 mock (optional so the legacy
-	   create flow keeps compiling against the same type). ── */
+	/* Detail-only fields (TransactionDetailDto) — optional because the lean list
+	   and create responses don't carry them. */
 	/** Time-of-day "HH:mm" for the detail header. */
 	time?: string;
 	/** Detail-only: the warehouse the transaction moved stock through. Carried so a

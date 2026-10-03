@@ -28,8 +28,8 @@ export const paymentDirectionOf = (type: TransactionType): PaymentDirection =>
 
 /* ───────────────────────── line + total math ─────────────────────────
    Mirrors the design's sales-data.jsx: every total is computed from line
-   items so each screen reconciles digit-for-digit. The mock serves the same
-   computed values; these helpers drive the detail's footer breakdown. */
+   items so each screen reconciles digit-for-digit; these helpers drive the
+   detail's footer breakdown. */
 
 export const lineGross = (line: Pick<TransactionLine, "quantity" | "unitPrice">): number =>
 	line.quantity * line.unitPrice;

@@ -130,10 +130,8 @@ export class TransactionStore implements ITransactionStore {
 	}
 
 	/**
-	 * Redesigned POS New Sale / New Supply create. Posts the JSON v1 contract; on
-	 * success the created transaction is prepended to the feed and returned for
-	 * navigation. Self-contained mock: stock, partner balance and wallet balance
-	 * are not mutated (known limitation, like refunds/transfers).
+	 * POS New Sale / New Supply create. On success the created transaction is
+	 * prepended to the feed and returned for navigation.
 	 */
 	async createTransactionEntry(
 		request: CreateTransactionEntryRequest,

@@ -36,7 +36,7 @@ export type OrderLine = {
 	id: number;
 	productId: number;
 	productName: string;
-	/** Served product article + unit (mock-enriched from the catalogue). */
+	/** Served product article + unit (joined from the catalogue). */
 	sku: string;
 	measurement: Measurement;
 	quantity: number;

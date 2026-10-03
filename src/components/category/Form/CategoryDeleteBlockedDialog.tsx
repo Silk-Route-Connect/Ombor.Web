@@ -23,7 +23,7 @@ interface CategoryDeleteBlockedDialogProps {
  * Shown when a delete is attempted on a category that still has referencing
  * products. The delete action is never disabled; this dialog carries the inline
  * explanation instead (CLAUDE.md hard rule 5; business-rules rule 32). The
- * message mirrors the 409 ProblemDetails the mock returns for the same case.
+ * message mirrors the 409 the backend returns for the same case.
  */
 const CategoryDeleteBlockedDialog: React.FC<CategoryDeleteBlockedDialogProps> = ({
 	isOpen,

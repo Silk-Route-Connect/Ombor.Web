@@ -13,7 +13,7 @@ import http from "./http";
  * Orders API. Read + edit + the state-machine transitions
  * (process/ship/deliver/cancel/reject/return). `deliver` carries the chosen
  * write-off warehouse (the redesign picks it at delivery confirmation); the
- * other transitions take only the id. Mocked at the target v1 contract.
+ * other transitions take only the id.
  */
 class OrderApi extends BaseApi {
 	constructor() {

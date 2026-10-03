@@ -24,7 +24,7 @@ export type TemplateItem = {
 	id: number;
 	productName: string;
 	productId: number;
-	/** Served product article + unit (mock-enriched from the catalogue) for the expand-row. */
+	/** Served product article + unit (joined from the catalogue) for the expand-row. */
 	sku: string;
 	measurement: Measurement;
 	quantity: number;

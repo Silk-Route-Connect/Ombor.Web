@@ -66,7 +66,7 @@ export function isOrderOverdue(order: Pick<Order, "status" | "deliveryDate">): b
 
 /**
  * Display form of a served delivery time. The backend serializes `TimeOnly` as
- * «HH:mm:ss» (the mock seeds «HH:mm») — the UI shows «HH:mm» either way.
+ * «HH:mm:ss»; the UI shows «HH:mm».
  */
 export const shortDeliveryTime = (time: string): string => time.slice(0, 5);
 
