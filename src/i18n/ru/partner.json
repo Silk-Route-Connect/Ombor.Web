@@ -26,6 +26,9 @@
   "partner.table.balance": "Баланс",
   "partner.table.company": "Компания",
   "partner.table.phone": "Телефон",
+  "partner.table.status": "Статус",
+  "partner.table.statusActive": "Активен",
+  "partner.table.statusArchived": "В архиве",
 
   "partner.badge.archived": "в архиве",
 

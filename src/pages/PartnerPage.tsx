@@ -13,6 +13,7 @@ import { partnerDetailPath } from "routing/paths";
 import { PartnerFormValues, signedOpeningBalance } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatUzPhone } from "utils/phoneUtils";
 
 import { Box } from "@mui/material";
 
@@ -79,10 +80,18 @@ const PartnerPage: React.FC = observer(() => {
 			[
 				{ header: t("partner.table.name"), value: (p) => p.name },
 				{ header: t("partner.table.type"), value: (p) => t(`partner.typeShort.${p.type}`) },
-				{ header: t("partner.table.balance"), value: (p) => p.balance },
 				{ header: t("partner.table.company"), value: (p) => p.companyName ?? "" },
-				{ header: t("partner.table.phone"), value: (p) => p.phoneNumbers.join(", ") },
-				{ header: t("partner.list.archiveToggle"), value: (p) => (p.isArchived ? "1" : "") },
+				{
+					header: t("partner.table.phone"),
+					value: (p) => p.phoneNumbers.map(formatUzPhone).filter(Boolean).join(", "),
+				},
+				// Partner-side sign exactly as the table shows it (DR-27): a debtor exports negative.
+				{ header: t("partner.table.balance"), value: (p) => -p.balance || 0 },
+				{
+					header: t("partner.table.status"),
+					value: (p) =>
+						p.isArchived ? t("partner.table.statusArchived") : t("partner.table.statusActive"),
+				},
 			],
 			rows,
 		);
