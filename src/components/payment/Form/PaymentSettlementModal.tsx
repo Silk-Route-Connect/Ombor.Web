@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { OutstandingTransaction, SettlementInput } from "models/payment";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -16,7 +16,6 @@ import {
 	Checkbox,
 	CircularProgress,
 	Dialog,
-	DialogActions,
 	DialogContent,
 	TextField,
 	Typography,
@@ -313,23 +312,16 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 				</Box>
 			</DialogContent>
 
-			<DialogActions
-				sx={{
-					px: "24px",
-					py: "14px",
-					gap: "10px",
-					borderTop: "1px solid",
-					borderColor: "divider",
-					bgcolor: designTokens.gray25,
-				}}
-			>
-				<GhostButton onClick={onBack} disabled={isSaving}>
-					{t("payment.settlement.back")}
-				</GhostButton>
-				<PrimaryButton icon={<CheckIcon />} onClick={confirm} disabled={isSaving}>
-					{t("payment.settlement.confirm")}
-				</PrimaryButton>
-			</DialogActions>
+			<FormDialogFooter
+				canSave={!isSaving}
+				loading={isSaving}
+				onCancel={onBack}
+				onSave={confirm}
+				cancelLabel={t("payment.settlement.back")}
+				submitLabel={t("payment.settlement.confirm")}
+				submitIcon={<CheckIcon />}
+				commitNote={t("payment.form.commitNote")}
+			/>
 		</Dialog>
 	);
 };

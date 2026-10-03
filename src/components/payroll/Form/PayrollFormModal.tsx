@@ -8,8 +8,10 @@ import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
+import { formatCurrency } from "utils/formatCurrency";
 import { dialogTranslation } from "utils/translationUtils";
 
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
 
 interface PayrollFormModalProps {
@@ -35,6 +37,7 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 			confirmDiscard,
 			cancelDiscard,
 			wallets,
+			walletAvailable,
 			selectedEmployee,
 			setEmployeeId,
 			isEmployeeLocked,
@@ -46,9 +49,11 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 			onClose,
 		});
 
-		const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+		const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
-		const title = t("payroll.createTitle");
+		const title = selectedEmployee
+			? t("payroll.createTitleFor", { name: selectedEmployee.name })
+			: t("payroll.createTitle");
 
 		return (
 			<>
@@ -72,9 +77,16 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 					<DialogContent dividers sx={{ pt: 2 }}>
 						{isEmployeeLocked ? (
 							<Box mb={2}>
-								<Typography variant="body1" fontWeight={600}>
-									{selectedEmployee?.name}
-									{selectedEmployee?.position && ` • ${selectedEmployee.position}`}
+								<Typography sx={{ fontSize: 13.5, color: "text.secondary" }}>
+									{[
+										selectedEmployee?.position,
+										selectedEmployee &&
+											t("payroll.form.salaryLine", {
+												amount: formatCurrency(selectedEmployee.salary),
+											}),
+									]
+										.filter(Boolean)
+										.join(" · ")}
 								</Typography>
 							</Box>
 						) : (
@@ -88,7 +100,12 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 								/>
 							</Box>
 						)}
-						<PayrollFormFields form={form} wallets={wallets} disabled={isSaving} />
+						<PayrollFormFields
+							form={form}
+							wallets={wallets}
+							walletAvailable={walletAvailable}
+							disabled={isSaving}
+						/>
 					</DialogContent>
 
 					<FormDialogFooter
@@ -96,6 +113,9 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 						onSave={submit}
 						canSave={canSave}
 						loading={isSaving}
+						submitLabel={t("payroll.form.submit")}
+						submitIcon={<PaymentsOutlinedIcon />}
+						commitNote={t("payroll.form.commitNote")}
 					/>
 				</Dialog>
 

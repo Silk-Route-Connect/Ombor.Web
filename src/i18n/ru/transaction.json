@@ -184,10 +184,10 @@
   "transaction.refund.reasonError": "Укажите причину возврата — поле обязательно",
   "transaction.refund.noLinesBanner": "Выберите хотя бы одну позицию и укажите количество к возврату.",
   "transaction.refund.overBanner": "Количество к возврату превышает доступное. Исправьте отмеченные позиции.",
-  "transaction.refund.immutable": "Возврат необратим — после сохранения запись нельзя изменить или удалить. Исправления возможны только новым возвратом.",
   "transaction.refund.totalPositions": "Позиций к возврату:",
   "transaction.refund.totalAmount": "Сумма возврата:",
   "transaction.refund.submit": "Провести возврат",
+  "transaction.refund.commitNote": "После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.",
   "transaction.refund.error": "Не удалось провести возврат",
   "transaction.refund.success": "Возврат к {{number}} проведён",
 
@@ -197,8 +197,8 @@
   "transaction.new.cancel": "Отмена",
   "transaction.new.error.Sale": "Не удалось провести продажу",
   "transaction.new.error.Supply": "Не удалось провести поставку",
-  "transaction.new.success.Sale": "Продажа #{{number}} проведена",
-  "transaction.new.success.Supply": "Поставка #{{number}} проведена",
+  "transaction.new.success.Sale": "Продажа {{number}} проведена",
+  "transaction.new.success.Supply": "Поставка {{number}} проведена",
 
   "transaction.new.partner.label.Sale": "Партнёр",
   "transaction.new.partner.label.Supply": "Поставщик",
@@ -303,6 +303,7 @@
   "transaction.new.submit.fixQty": "Исправьте количество в выделенных позициях",
   "transaction.new.submit.button.Sale": "Провести продажу",
   "transaction.new.submit.button.Supply": "Провести поставку",
+  "transaction.new.submit.commitNote": "После проведения изменить нельзя — ошибку исправляют возвратом.",
 
   "transaction.new.dialog.unsaved.title": "Несохранённые изменения",
   "transaction.new.dialog.unsaved.body.Sale": "Несохранённые изменения будут потеряны. Покинуть страницу новой продажи?",

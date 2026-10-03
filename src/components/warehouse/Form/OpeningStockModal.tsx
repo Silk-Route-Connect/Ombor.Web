@@ -2,13 +2,12 @@ import React, { useEffect, useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useOpeningStockForm } from "hooks/warehouse/useOpeningStockForm";
@@ -19,7 +18,7 @@ import { OpeningStockFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -29,7 +28,6 @@ import {
 	Box,
 	Button,
 	Dialog,
-	DialogActions,
 	DialogContent,
 	InputAdornment,
 	LinearProgress,
@@ -82,7 +80,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 	const watchedItems = watch("items");
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -171,7 +169,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							const unitCost = line?.unitCost ?? 0;
 							const product = productById.get(productId) ?? null;
 							const unit = product
-								? MEASUREMENT_SHORT[product.measurement]
+								? measurementShort(t, product.measurement)
 								: t("warehouse.opening.unitFallback");
 
 							const pickedElsewhere = (watchedItems ?? [])
@@ -398,25 +396,15 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					</Stack>
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "14px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-						flexWrap: "wrap",
-					}}
-				>
-					<Box sx={{ flexGrow: 1 }} />
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton icon={<CheckIcon />} onClick={submit} disabled={!canSave}>
-						{t("warehouse.opening.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={canSave}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={t("warehouse.opening.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("warehouse.opening.commitNote")}
+				/>
 			</Dialog>
 
 			<ConfirmDialog

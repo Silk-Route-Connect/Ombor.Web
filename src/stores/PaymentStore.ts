@@ -1,5 +1,7 @@
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { formatCurrency } from "utils/formatCurrency";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -204,7 +206,10 @@ export class PaymentStore implements IPaymentStore {
 
 		this.closeCreate();
 		this.notificationStore.success(
-			i18next.t("payment.success.create", { number: result.data.number }),
+			i18next.t("payment.success.create", {
+				number: formatOptionalNumber(result.data.number, i18next.t("common.noNumber")),
+				amount: formatCurrency(result.data.amount),
+			}),
 		);
 		analytics.capture("payment_recorded", {
 			payment_type: result.data.type,

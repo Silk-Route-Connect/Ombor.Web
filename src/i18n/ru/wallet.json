@@ -55,7 +55,7 @@
   "wallet.form.editSubtitle": "Тип и начальный остаток изменить нельзя",
   "wallet.form.errorBanner": "Проверьте отмеченные поля перед сохранением.",
   "wallet.form.namePlaceholder": "Например: Основная касса, Терминал Uzcard, Расчётный счёт Капиталбанк",
-  "wallet.form.openingHint": "Записывается как событие аудита. После создания изменить нельзя.",
+  "wallet.form.openingHint": "Записывается один раз — после создания кассы изменить нельзя.",
   "wallet.form.lockedType": "нельзя изменить",
   "wallet.form.lockedOpening": "записан при создании",
 
@@ -126,6 +126,7 @@
   "wallet.transfer.overBalance": "Доступно только {{available}} UZS — нельзя перевести больше остатка.",
   "wallet.transfer.errorBanner": "Проверьте отмеченные поля перед проведением перевода.",
   "wallet.transfer.submit": "Перевести",
+  "wallet.transfer.commitNote": "После перевода изменить нельзя — ошибку исправляют обратным переводом.",
   "wallet.transfer.date": "Дата",
   "wallet.transfer.createdBy": "Создал",
   "wallet.transfer.detailImmutable": "Перевод записан окончательно.",

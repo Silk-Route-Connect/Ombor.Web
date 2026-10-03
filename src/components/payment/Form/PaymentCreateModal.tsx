@@ -3,12 +3,11 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
@@ -34,7 +33,6 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import {
 	Box,
 	Dialog,
-	DialogActions,
 	DialogContent,
 	InputAdornment,
 	LinearProgress,
@@ -205,7 +203,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		});
 	});
 
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const fieldError = (name: keyof PaymentFormValues): string | undefined =>
 		(formState.errors[name]?.message as string | undefined) ?? undefined;
@@ -614,43 +612,17 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 					)}
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "14px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-					}}
-				>
-					<Box
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "8px",
-							flex: 1,
-							minWidth: 0,
-							fontSize: 12,
-							color: designTokens.saffron700,
-						}}
-					>
-						<ReportProblemOutlinedIcon
-							sx={{ fontSize: 15, color: "warning.main", flex: "0 0 auto" }}
-						/>
-						{t("payment.form.immutableWarn")}
-					</Box>
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton
-						icon={type === "Transaction" ? <BalanceOutlinedIcon /> : <CheckIcon />}
-						onClick={submit}
-						disabled={isSaving}
-					>
-						{type === "Transaction" ? t("payment.form.submitSettle") : t("payment.form.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={!isSaving}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={
+						type === "Transaction" ? t("payment.form.submitSettle") : t("payment.form.submit")
+					}
+					submitIcon={type === "Transaction" ? <BalanceOutlinedIcon /> : <CheckIcon />}
+					commitNote={t("payment.form.commitNote")}
+				/>
 			</Dialog>
 
 			{settleOpen && partner && (

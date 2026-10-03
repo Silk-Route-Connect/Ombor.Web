@@ -18,8 +18,9 @@ import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
+import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -262,7 +263,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const warehouseId = watch("warehouseId");
 	const direction = watch("direction") as AdjustmentDirection;
@@ -294,7 +295,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 		[productStore.allProducts],
 	);
 
-	const unit = selected ? MEASUREMENT_SHORT[selected.measurement] : t("adjustment.unitFallback");
+	const unit = selected ? measurementShort(t, selected.measurement) : t("adjustment.unitFallback");
 
 	const avail = useMemo(
 		() => selected?.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0,
@@ -530,6 +531,9 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 					onSave={submit}
 					canSave={canSave}
 					loading={isSaving}
+					submitLabel={t("adjustment.form.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("adjustment.form.commitNote")}
 				/>
 			</Dialog>
 

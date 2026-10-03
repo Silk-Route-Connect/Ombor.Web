@@ -47,6 +47,7 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 - Submit buttons are **never disabled**; validation runs on submit and reports inline per field (CLAUDE.md hard rule 5).
 - Numeric/money inputs use `NumericField` (react-number-format); phones use `PhoneListField` + `phoneUtils`.
 - Dirty-close protection via `useDirtyClose`.
+- **Commit convention for immutable events** (sale, supply, refund, payment, payroll, stock adjustment, transfer, opening stock): the submit button says what happens («Провести продажу», «Выплатить зарплату», «Провести корректировку»), and one `CommitNote` line under it states the consequence and the correction path («После проведения изменить нельзя — ошибку исправляют возвратом»). Use `FormDialogFooter` with `submitLabel` + `commitNote`. A bare Enter never commits such an event — wire `useFormKeyboardSubmit(submit, isSaving, { requireModifier: true })` so only a click or Ctrl/⌘+Enter does. The success toast names what was created («Продажа №12 проведена», «Списание проведено: Шоколад — 5 шт»).
 
 ## Tables
 

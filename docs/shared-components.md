@@ -37,7 +37,8 @@
 
 | Component                                                             | Use for                                         | Notes                                                                               |
 | --------------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `FormDialog` (+ `FormDialogHeader` / `FormDialogFooter` / `SaveButton`) | All modal forms                                 | Centered modals only (pattern 3); submit never disabled (hard rule 5), outage-aware |
+| `FormDialog` (+ `FormDialogHeader` / `FormDialogFooter` / `SaveButton`) | All modal forms                                 | Centered modals only (pattern 3); submit never disabled (hard rule 5), outage-aware. `FormDialogFooter` takes `submitLabel`/`submitIcon`/`cancelLabel`, a left `summary` slot and a `commitNote` — every immutable-event modal uses it (commit convention, conventions.md → Forms) |
+| `CommitNote`                                                           | The consequence line under an immutable-event commit button | `Dialog/Form/`. Lock icon + one line («После проведения изменить нельзя — …»). Rendered by `FormDialogFooter.commitNote`; used directly only where the commit button isn't a dialog footer (POS summary card) |
 | `ConfirmDialog`                                                        | Confirmations                                   | —                                                                                   |
 | `FormFieldLabel`                                                       | Field label above design-system inputs          | `.flabel`: 13px/600 gray-700, error-colored required asterisk                       |
 | `NumericField`                                                         | Non-money numeric inputs (quantity, count)      | Native MUI `type=number` (min/max/step). **No** thousands grouping — for money use `MoneyField`/`MoneyInputBase` |
@@ -56,7 +57,7 @@
 | `PartnerPicker`                                                        | Partner selection with balance as color + label | Lives in `components/transaction/Create/`; reused by New Order                     |
 | `ProductSearchBar`                                                     | Product-search cart feeder (POS flows)          | Lives in `components/transaction/Create/`; reused by New Order                     |
 | `useDirtyClose` (hook)                                                 | Unsaved-changes guard on modals                 | Lives in `hooks/shared/`                                                            |
-| `useFormKeyboardSubmit` (hook)                                         | Enter / Ctrl+Enter submit on form modals (XC-11) | Lives in `hooks/shared/`; returns an `onKeyDown` for the modal `<Dialog>`           |
+| `useFormKeyboardSubmit` (hook)                                         | Enter / Ctrl+Enter submit on form modals (XC-11) | Lives in `hooks/shared/`; returns an `onKeyDown` for the modal `<Dialog>`. Pass `{ requireModifier: true }` on immutable money/stock events — only Ctrl+Enter or a click commits, never a bare Enter |
 
 ## Buttons
 

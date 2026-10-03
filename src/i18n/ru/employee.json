@@ -51,24 +51,8 @@
   "employees.success.update": "Сотрудник успешно обновлен",
   "employees.success.delete": "Сотрудник успешно удален",
 
-  "payment.amount": "Сумма",
-  "payment.date": "Дата",
-  "payment.currency": "Валюта",
-  "payment.method": "Способ оплаты",
-  "payment.exchangeRate": "Курс обмена",
-  "payment.notes": "Примечания",
 
-  "payment.method.Cash": "Наличные",
-  "payment.method.Card": "Карта",
-  "payment.method.BankTransfer": "Банковский перевод",
 
-  "payment.validation.amountPositive": "Сумма должна быть положительной",
-  "payment.validation.dateRequired": "Дата обязательна",
-  "payment.validation.currencyInvalid": "Недопустимая валюта",
-  "payment.validation.methodInvalid": "Недопустимый способ оплаты",
-  "payment.validation.exchangeRatePositive": "Курс обмена должен быть положительным",
-  "payment.validation.notesTooLong": "Примечания не должны превышать 500 символов",
-  "payment.validation.employeeRequired": "Выберите сотрудника",
 
   "employee.details.title": "Информация о сотруднике",
   "employee.details.employmentInfo": "Информация о работе",

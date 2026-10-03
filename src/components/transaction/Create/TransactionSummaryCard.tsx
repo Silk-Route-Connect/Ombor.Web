@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import CommitNote from "components/shared/Dialog/Form/CommitNote";
 import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
@@ -524,6 +525,10 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 				>
 					{t(`transaction.new.submit.button.${direction}`)}
 				</PrimaryButton>
+				<CommitNote
+					text={t("transaction.new.submit.commitNote")}
+					sx={{ justifyContent: "center", textAlign: "center" }}
+				/>
 			</Box>
 		</Box>
 	);

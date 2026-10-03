@@ -147,9 +147,9 @@
   "payment.form.overWithdraw": "Аванс партнёра: {{advance}} UZS. Нельзя вывести больше.",
   "payment.form.overWallet": "Доступно только {{available}} UZS — нельзя списать больше остатка кассы.",
   "payment.form.debtsBanner": "У партнёра есть открытые долги. При проведении откроется распределение.",
-  "payment.form.immutableWarn": "Платёж нельзя изменить или удалить после проведения.",
   "payment.form.submit": "Провести платёж",
-  "payment.form.submitSettle": "Распределить и провести",
+  "payment.form.submitSettle": "Далее: какие долги закрыть",
+  "payment.form.commitNote": "После проведения изменить нельзя — ошибку исправляют платежом в обратную сторону.",
 
   "payment.settlement.title": "Распределение платежа",
   "payment.settlement.subtitle": "Платёж на {{amount}} UZS ({{wallet}}) — распределите по открытым {{kind}} «{{partner}}». Нераспределённое станет авансом.",
@@ -183,5 +183,5 @@
   "payment.error.getById": "Не удалось загрузить платёж",
   "payment.error.formData": "Не удалось загрузить данные для формы",
   "payment.error.create": "Не удалось провести платёж",
-  "payment.success.create": "Платёж {{number}} проведён"
+  "payment.success.create": "Платёж {{number}} проведён — {{amount}} UZS"
 }

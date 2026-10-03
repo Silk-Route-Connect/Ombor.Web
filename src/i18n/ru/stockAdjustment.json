@@ -1,8 +1,9 @@
 {
   "adjustment.error.getAll": "Не удалось загрузить корректировки",
   "adjustment.error.create": "Не удалось сохранить корректировку",
+  "adjustment.success.create.Decrease": "Списание проведено: {{product}} — {{quantity}} {{unit}}",
+  "adjustment.success.create.Increase": "Приход товара проведён: {{product}} — {{quantity}} {{unit}}",
 
-  "adjustment.success.create": "Корректировка сохранена",
 
   "adjustment.title": "Корректировки",
   "adjustment.create": "Новая корректировка",
@@ -14,10 +15,10 @@
   "adjustment.filter.allWarehouses": "Все склады",
   "adjustment.filter.direction.all": "Все",
   "adjustment.filter.direction.Decrease": "Списание",
-  "adjustment.filter.direction.Increase": "Оприходование",
+  "adjustment.filter.direction.Increase": "Приход товара",
 
   "adjustment.direction.Decrease": "Списание",
-  "adjustment.direction.Increase": "Оприходование",
+  "adjustment.direction.Increase": "Приход товара",
 
   "adjustment.reason.Damage": "Порча",
   "adjustment.reason.Expiry": "Истечение срока",
@@ -70,6 +71,8 @@
   "adjustment.form.floorNote": "Нельзя списать больше, чем есть: доступно {{available}} {{unit}}, запрошено {{requested}} {{unit}}. Остаток не может опуститься ниже нуля.",
   "adjustment.form.reasonPlaceholder": "Выберите причину",
   "adjustment.form.notePlaceholder": "Дополнительные детали корректировки…",
+  "adjustment.form.submit": "Провести корректировку",
+  "adjustment.form.commitNote": "После проведения изменить нельзя — ошибку исправляют новой корректировкой.",
 
   "adjustment.validation.warehouseRequired": "Выберите склад",
   "adjustment.validation.productRequired": "Выберите товар",

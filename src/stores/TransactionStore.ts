@@ -11,7 +11,7 @@ import {
 } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
 import { analytics } from "services/telemetry";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/transactionUtils";
 
@@ -152,7 +152,7 @@ export class TransactionStore implements ITransactionStore {
 		});
 		this.notificationStore.success(
 			i18next.t(`transaction.new.success.${request.type}`, {
-				number: result.data.transactionNumber,
+				number: formatOptionalNumber(result.data.transactionNumber, i18next.t("common.noNumber")),
 			}),
 		);
 		return result.data;

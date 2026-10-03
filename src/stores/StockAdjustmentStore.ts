@@ -1,5 +1,7 @@
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { formatQuantity } from "utils/formatCurrency";
+import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -106,7 +108,13 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(i18next.t("adjustment.success.create"));
+		this.notificationStore.success(
+			i18next.t(`adjustment.success.create.${result.data.direction}`, {
+				product: result.data.productName,
+				quantity: formatQuantity(result.data.quantity),
+				unit: measurementShort(i18next.t, result.data.measurement),
+			}),
+		);
 		analytics.capture("stock_adjustment_created", {
 			direction: request.direction,
 			reason: request.reason,

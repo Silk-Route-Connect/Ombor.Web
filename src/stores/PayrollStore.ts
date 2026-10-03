@@ -4,6 +4,7 @@ import { makeAutoObservable } from "mobx";
 import { CreatePayrollRequest } from "models/payroll";
 import PayrollApi from "services/api/PayrollApi";
 import { analytics } from "services/telemetry";
+import { formatCurrency } from "utils/formatCurrency";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -37,7 +38,9 @@ export class PayrollStore implements IPayrollStore {
 			return false;
 		}
 
-		this.notificationStore.success(i18next.t("payroll.success.create"));
+		this.notificationStore.success(
+			i18next.t("payroll.success.create", { amount: formatCurrency(request.amount) }),
+		);
 		// The employee-detail «Выплатить» is the primary payroll flow; fire the
 		// same event the Payments-page path does so payroll isn't undercounted.
 		analytics.capture("payment_recorded", {

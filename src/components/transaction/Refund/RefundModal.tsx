@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import MetaDot from "components/shared/Detail/MetaDot";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { CreateRefundRequest, TransactionRecord } from "models/transaction";
 import { designTokens, numericSx } from "theme";
@@ -17,19 +16,10 @@ import { directionOf, discountLabel, effectiveUnitPrice } from "utils/transactio
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import {
-	Box,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	LinearProgress,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Dialog, DialogContent, LinearProgress, TextField, Typography } from "@mui/material";
 
 interface RefundModalProps {
 	transaction: TransactionRecord;
@@ -482,70 +472,43 @@ const RefundModal: React.FC<RefundModalProps> = ({
 							helperText={reasonErr ? t("transaction.refund.reasonError") : undefined}
 						/>
 					</Box>
-
-					<Box
-						sx={{
-							display: "flex",
-							gap: "10px",
-							alignItems: "flex-start",
-							mt: "20px",
-							p: "12px 14px",
-							bgcolor: "rgba(42,111,151,0.08)",
-							border: "1px solid rgba(42,111,151,0.24)",
-							borderRadius: "8px",
-						}}
-					>
-						<InfoOutlinedIcon
-							sx={{ fontSize: 17, color: "info.main", mt: "1px", flex: "0 0 auto" }}
-						/>
-						<Typography sx={{ fontSize: 12.5, color: "info.main", lineHeight: 1.5 }}>
-							{t("transaction.refund.immutable")}
-						</Typography>
-					</Box>
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "10px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-					}}
-				>
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "12px",
-							fontSize: 13,
-							color: "text.secondary",
-							flexWrap: "wrap",
-						}}
-					>
-						<Box component="span">
-							{t("transaction.refund.totalPositions")}{" "}
-							<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
-								{posCount}
+				<FormDialogFooter
+					canSave={!isSaving}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={t("transaction.refund.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("transaction.refund.commitNote")}
+					summary={
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								gap: "12px",
+								fontSize: 13,
+								color: "text.secondary",
+								flexWrap: "wrap",
+							}}
+						>
+							<Box component="span">
+								{t("transaction.refund.totalPositions")}{" "}
+								<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
+									{posCount}
+								</Box>
+							</Box>
+							<MetaDot />
+							<Box component="span">
+								{t("transaction.refund.totalAmount")}{" "}
+								<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
+									−{formatCurrency(totalAmount)} UZS
+								</Box>
 							</Box>
 						</Box>
-						<MetaDot />
-						<Box component="span">
-							{t("transaction.refund.totalAmount")}{" "}
-							<Box component="b" sx={{ ...numericSx, color: "text.primary" }}>
-								−{formatCurrency(totalAmount)} UZS
-							</Box>
-						</Box>
-					</Box>
-					<Box sx={{ flexGrow: 1 }} />
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton icon={<CheckIcon />} onClick={submit} disabled={isSaving}>
-						{t("transaction.refund.submit")}
-					</PrimaryButton>
-				</DialogActions>
+					}
+				/>
 			</Dialog>
 
 			<ConfirmDialog
