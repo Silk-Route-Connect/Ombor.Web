@@ -1,4 +1,4 @@
-import { TransactionType } from "./transaction";
+import { TransactionLineDiscountType, TransactionType } from "./transaction";
 
 // `Unit` duplicates `Piece`; removed from the product picker + default (2026-07-16).
 // Kept in the type because the backend still serves it for legacy products — the
@@ -118,6 +118,8 @@ export type ProductTransaction = {
 	quantity: number;
 	unitPrice: number;
 	discount: number;
+	/** How `discount` is read (rule 37); older API builds omit it. */
+	discountType?: TransactionLineDiscountType;
 };
 
 /**

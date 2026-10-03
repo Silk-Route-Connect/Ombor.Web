@@ -11,6 +11,7 @@ import { numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { unitInline } from "utils/productUtils";
+import { lineNet } from "utils/transactionUtils";
 
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
 import { Box } from "@mui/material";
@@ -24,6 +25,15 @@ interface ProductTransactionsTabProps {
 }
 
 type SortCol = "date" | "type" | "partner" | "quantity" | "price" | "total";
+
+/** Line net after the served discount — the amount actually booked (frontend-18). */
+const lineTotal = (txn: ProductTransaction): number =>
+	lineNet({
+		quantity: Math.abs(txn.quantity),
+		unitPrice: txn.unitPrice,
+		discount: txn.discount,
+		discountType: txn.discountType,
+	});
 
 /** «Транзакции» per the bundle: dated history with signed quantities, sortable
  *  on every column (defaults to date, newest first). */
@@ -52,7 +62,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 				case "price":
 					return txn.unitPrice;
 				case "total":
-					return Math.abs(txn.quantity) * txn.unitPrice;
+					return lineTotal(txn);
 				default:
 					return "";
 			}
@@ -162,7 +172,7 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 									</td>
 									<td className="r">
 										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatCurrency(Math.abs(txn.quantity) * txn.unitPrice)}
+											{formatCurrency(lineTotal(txn))}
 										</Box>
 									</td>
 								</tr>
