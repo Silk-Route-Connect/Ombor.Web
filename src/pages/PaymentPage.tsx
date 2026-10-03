@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PaymentCreateModal from "components/payment/Form/PaymentCreateModal";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
 import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
@@ -8,6 +8,8 @@ import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
 import { observer } from "mobx-react-lite";
 import { CreatePaymentRecordRequest, PaymentRecord } from "models/payment";
+import { isOpenCreateState } from "routing/navigationState";
+import { PATHS, paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -18,11 +20,21 @@ import { Box } from "@mui/material";
 const PaymentPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { paymentStore } = useStore();
 
 	useEffect(() => {
 		paymentStore.getAll();
 	}, [paymentStore]);
+
+	// Arrived from the topbar «Создать → Оплата»: open the real create modal, then
+	// drop the state so a reload or back-navigation does not reopen it.
+	useEffect(() => {
+		if (isOpenCreateState(location.state)) {
+			paymentStore.openCreate();
+			navigate(PATHS.payments, { replace: true, state: null });
+		}
+	}, [location.state, navigate, paymentStore]);
 
 	// Load reference data lazily when the create modal opens (refetched after a
 	// create, since advances / outstanding / wallet balances moved).
@@ -83,7 +95,7 @@ const PaymentPage: React.FC = observer(() => {
 			<PaymentsTable
 				rows={paymentStore.filteredPayments}
 				isFiltering={isFiltering}
-				onOpen={(payment) => navigate(`/payments/${payment.id}`)}
+				onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
 			/>
 
 			<PaymentCreateModal

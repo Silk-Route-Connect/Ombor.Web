@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route } from "react-router-dom";
 import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import CategoryPage from "pages/CategoryPage";
@@ -34,6 +34,7 @@ import WalletPage from "pages/WalletPage";
 import WarehouseDetailPage from "pages/WarehouseDetailPage";
 import WarehousePage from "pages/WarehousePage";
 import GuestOnly from "routing/GuestOnly";
+import { OPEN_CREATE_STATE } from "routing/navigationState";
 import { PATHS } from "routing/paths";
 import RequireAuth from "routing/RequireAuth";
 import { SentryRoutes as Routes } from "services/telemetry";
@@ -102,7 +103,7 @@ function App() {
 								<Route path={PATHS.newOrder} element={<NewOrderPage />} />
 								<Route
 									path={PATHS.newPayment}
-									element={<PlaceholderPage titleKey="page.newPayment.title" />}
+									element={<Navigate to={PATHS.payments} replace state={OPEN_CREATE_STATE} />}
 								/>
 								<Route path={PATHS.employees} element={<EmployeePage />} />
 								<Route path={PATHS.employeeDetail} element={<EmployeeDetailPage />} />
