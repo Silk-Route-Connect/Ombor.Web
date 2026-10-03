@@ -1,6 +1,7 @@
 import React, { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import GhostButton from "components/shared/Buttons/GhostButton";
 import { UI_LANGUAGES } from "i18n/languages";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
@@ -13,7 +14,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import {
 	Avatar,
 	Box,
-	Button,
 	IconButton,
 	ListItemText,
 	Menu,
@@ -132,9 +132,10 @@ const Topbar: React.FC = observer(() => {
 
 			<SearchField />
 
-			<Button variant="contained" startIcon={<AddIcon />} onClick={openMenu(setCreateAnchor)}>
+			{/* Ghost, not filled: each page keeps a single filled primary action of its own. */}
+			<GhostButton icon={<AddIcon />} onClick={openMenu(setCreateAnchor)}>
 				{t("topbar.create")}
-			</Button>
+			</GhostButton>
 			<Menu
 				anchorEl={createAnchor}
 				open={Boolean(createAnchor)}
