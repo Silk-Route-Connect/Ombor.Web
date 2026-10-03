@@ -41,6 +41,8 @@ export type VerifyOtpResponse =
 			accessToken?: null;
 			refreshToken?: null;
 			message?: string;
+			/** `auth.code_invalid` / `auth.code_expired` / `auth.too_many_attempts`. */
+			code?: string;
 	  };
 
 export interface RefreshTokenResponse {
@@ -70,7 +72,7 @@ export interface VerifyResetCodeRequest {
 
 export type VerifyResetCodeResponse =
 	| { success: true; message?: string }
-	| { success: false; message?: string };
+	| { success: false; message?: string; code?: string };
 
 export interface ResetPasswordRequest {
 	phoneNumber: string;
@@ -81,4 +83,4 @@ export interface ResetPasswordRequest {
 
 export type ResetPasswordResponse =
 	| { success: true; message?: string }
-	| { success: false; message?: string };
+	| { success: false; message?: string; code?: string };

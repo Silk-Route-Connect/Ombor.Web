@@ -8,6 +8,7 @@ import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
+import { loginFailureText } from "utils/authErrors";
 import { phoneError as phoneErrorOf } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
@@ -48,8 +49,8 @@ const LoginPage: React.FC = observer(() => {
 				password,
 			});
 			// On success the store sets auth + redirects to the app.
-		} catch {
-			setBanner(t("auth.login.failed"));
+		} catch (e) {
+			setBanner(loginFailureText(e));
 		} finally {
 			setSubmitting(false);
 		}

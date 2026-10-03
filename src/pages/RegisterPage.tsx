@@ -26,6 +26,8 @@ import { PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens } from "theme";
+import { describeApiReason } from "utils/apiError";
+import { codeFailureText, isPhoneTaken } from "utils/authErrors";
 import {
 	confirmError,
 	maskedPhone,
@@ -60,6 +62,7 @@ const RegisterPage: React.FC = observer(() => {
 	const [terms, setTerms] = useState(false);
 	const [tried, setTried] = useState(false);
 	const [banner, setBanner] = useState<string | null>(null);
+	const [phoneTaken, setPhoneTaken] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 
 	// otp
@@ -67,7 +70,7 @@ const RegisterPage: React.FC = observer(() => {
 	const [e164, setE164] = useState("");
 	const [code, setCode] = useState("");
 	const [codeTried, setCodeTried] = useState(false);
-	const [codeInvalid, setCodeInvalid] = useState(false);
+	const [codeError, setCodeError] = useState<string | null>(null);
 	const [verifying, setVerifying] = useState(false);
 	const [resending, setResending] = useState(false);
 	const { seconds, start } = useCountdown(RESEND_SECONDS);
@@ -79,7 +82,7 @@ const RegisterPage: React.FC = observer(() => {
 		company: tried ? requiredError(company) : null,
 		firstName: tried ? requiredError(firstName) : null,
 		lastName: tried ? requiredError(lastName) : null,
-		phone: tried ? phoneErrorOf(phone) : null,
+		phone: tried ? (phoneErrorOf(phone) ?? (phoneTaken ? "auth.errors.phoneTaken" : null)) : null,
 		password: tried ? passwordError(password) : null,
 		confirm: tried ? confirmError(password, confirm) : null,
 		terms: tried && !terms,
@@ -121,13 +124,19 @@ const RegisterPage: React.FC = observer(() => {
 			setE164(phoneE164);
 			setCode("");
 			setCodeTried(false);
-			setCodeInvalid(false);
+			setCodeError(null);
 			setStep("otp");
 			start(RESEND_SECONDS);
 			notificationStore.success(t("auth.otp.sent", { phone: maskedPhone(phone) }));
 			void response;
-		} catch {
-			setBanner(t("auth.register.failed"));
+		} catch (e) {
+			// An already-registered phone is a field error with a way forward, not
+			// «try later» (ux-7); anything else says what actually failed.
+			if (isPhoneTaken(e)) {
+				setPhoneTaken(true);
+			} else {
+				setBanner(describeApiReason(e, "auth.register.failed"));
+			}
 		} finally {
 			setSubmitting(false);
 		}
@@ -135,7 +144,7 @@ const RegisterPage: React.FC = observer(() => {
 
 	const submitOtp = async () => {
 		setCodeTried(true);
-		setCodeInvalid(false);
+		setCodeError(null);
 		if (code.length < OTP_LENGTH) {
 			return;
 		}
@@ -144,10 +153,10 @@ const RegisterPage: React.FC = observer(() => {
 			const token = await authStore.verifyOtp({ phoneNumber: e164, code });
 			setAccessToken(token);
 			setStep("welcome");
-		} catch {
-			// Keep the entered code and flag it invalid so the user sees
-			// «Неверный код», not the length-based «code incomplete» message.
-			setCodeInvalid(true);
+		} catch (e) {
+			// Keep the entered code and say why it was refused (wrong / expired /
+			// too many tries / no connection), not the length-based message.
+			setCodeError(codeFailureText(e));
 		} finally {
 			setVerifying(false);
 		}
@@ -158,23 +167,20 @@ const RegisterPage: React.FC = observer(() => {
 			return;
 		}
 		setResending(true);
-		setCodeInvalid(false);
+		setCodeError(null);
 		try {
 			await authStore.register(registration);
 			start(RESEND_SECONDS);
 			notificationStore.success(t("auth.otp.resent"));
-		} catch {
-			notificationStore.error(t("auth.otp.failed"));
+		} catch (e) {
+			notificationStore.error(describeApiReason(e, "auth.otp.failed"));
 		} finally {
 			setResending(false);
 		}
 	};
 
-	const codeErr = codeInvalid
-		? "auth.errors.codeInvalid"
-		: codeTried && code.length < OTP_LENGTH
-			? "auth.errors.codeIncomplete"
-			: null;
+	const codeErr =
+		codeError ?? (codeTried && code.length < OTP_LENGTH ? t("auth.errors.codeIncomplete") : null);
 
 	if (step === "otp") {
 		return (
@@ -187,11 +193,11 @@ const RegisterPage: React.FC = observer(() => {
 					value={code}
 					onChange={(v) => {
 						setCode(v);
-						setCodeInvalid(false);
+						setCodeError(null);
 					}}
 					length={OTP_LENGTH}
 					autoFocus
-					error={codeErr ? t(codeErr) : undefined}
+					error={codeErr ?? undefined}
 				/>
 				<Typography sx={{ textAlign: "center", fontSize: 13, color: "text.secondary", mt: "14px" }}>
 					{t("auth.otp.resendPrompt")}{" "}
@@ -338,7 +344,10 @@ const RegisterPage: React.FC = observer(() => {
 					label={t("auth.field.phone")}
 					value={phone}
 					error={E.phone ? t(E.phone) : undefined}
-					onChange={setPhone}
+					onChange={(v) => {
+						setPhone(v);
+						setPhoneTaken(false);
+					}}
 				/>
 				<AuthPasswordField
 					label={t("auth.field.password")}

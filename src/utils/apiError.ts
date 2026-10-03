@@ -50,6 +50,21 @@ const KNOWN_CODES = new Set([
 	"validation.failed",
 ]);
 
+/**
+ * A domain failure the server returned inside a 200 body (`success: false` +
+ * `code`, e.g. verify-reset-code). Thrown so callers map it exactly like a
+ * ProblemDetails `code`.
+ */
+export class ApiCodeError extends Error {
+	readonly code: string | undefined;
+
+	constructor(code: string | undefined, message?: string) {
+		super(message ?? code ?? "Request failed");
+		this.name = "ApiCodeError";
+		this.code = code;
+	}
+}
+
 type ProblemBody = {
 	code?: unknown;
 	params?: unknown;
@@ -87,6 +102,9 @@ function asFieldErrors(value: unknown): Record<string, string[]> {
 export function parseApiError(cause: unknown): ApiErrorInfo {
 	if (isOfflineError(cause)) {
 		return { kind: "network", params: {}, fieldErrors: {} };
+	}
+	if (cause instanceof ApiCodeError) {
+		return { kind: "validation", code: cause.code, params: {}, fieldErrors: {} };
 	}
 	if (!axios.isAxiosError(cause)) {
 		return { kind: "unknown", params: {}, fieldErrors: {} };
@@ -165,6 +183,20 @@ export function apiErrorReason(
 		default:
 			return null;
 	}
+}
+
+/**
+ * A standalone localized sentence for a failed call — the reason alone
+ * («Нет связи с сервером»), or `fallbackKey` when nothing more specific is known.
+ * For surfaces with no action to prefix (auth banners, field errors).
+ */
+export function describeApiReason(cause: unknown, fallbackKey: string): string {
+	const reason = apiErrorReason(parseApiError(cause));
+	if (!reason) {
+		return i18next.t(fallbackKey);
+	}
+	const text = i18next.t(reason.key, reason.params);
+	return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**

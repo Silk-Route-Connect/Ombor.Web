@@ -8,6 +8,8 @@ import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { describeApiReason } from "utils/apiError";
+import { codeFailureText } from "utils/authErrors";
 import {
 	confirmError,
 	maskedPhone,
@@ -34,7 +36,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 	const [password, setPassword] = useState("");
 	const [confirm, setConfirm] = useState("");
 	const [tried, setTried] = useState(false);
-	const [codeInvalid, setCodeInvalid] = useState(false);
+	const [codeError, setCodeError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
 	const { seconds, start } = useCountdown(RESEND_SECONDS);
 
@@ -56,8 +58,8 @@ const ResetPasswordPage: React.FC = observer(() => {
 			setStep("code");
 			start(RESEND_SECONDS);
 			notificationStore.success(t("auth.reset.sent", { phone: maskedPhone(phone) }));
-		} catch {
-			notificationStore.error(t("auth.reset.failed"));
+		} catch (e) {
+			notificationStore.error(describeApiReason(e, "auth.reset.failed"));
 		} finally {
 			setBusy(false);
 		}
@@ -66,7 +68,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 	/* ── step: code ── */
 	const verifyCode = async () => {
 		setTried(true);
-		setCodeInvalid(false);
+		setCodeError(null);
 		if (code.length < CODE_LENGTH) {
 			return;
 		}
@@ -75,10 +77,10 @@ const ResetPasswordPage: React.FC = observer(() => {
 			await authStore.verifyResetCode({ phoneNumber: e164, code });
 			resetTried();
 			setStep("newpass");
-		} catch {
-			// Keep the entered code and flag it as invalid so the user sees
-			// «Неверный код», not the length-based «code incomplete» message.
-			setCodeInvalid(true);
+		} catch (e) {
+			// Keep the entered code and say why it was refused (wrong / expired /
+			// too many tries / no connection), not the length-based message.
+			setCodeError(codeFailureText(e));
 		} finally {
 			setBusy(false);
 		}
@@ -89,13 +91,13 @@ const ResetPasswordPage: React.FC = observer(() => {
 			return;
 		}
 		setBusy(true);
-		setCodeInvalid(false);
+		setCodeError(null);
 		try {
 			await authStore.requestPasswordReset({ phoneNumber: e164 });
 			start(RESEND_SECONDS);
 			notificationStore.success(t("auth.reset.sent", { phone: maskedPhone(phone) }));
-		} catch {
-			notificationStore.error(t("auth.reset.failed"));
+		} catch (e) {
+			notificationStore.error(describeApiReason(e, "auth.reset.failed"));
 		} finally {
 			setBusy(false);
 		}
@@ -116,16 +118,16 @@ const ResetPasswordPage: React.FC = observer(() => {
 				confirmPassword: confirm,
 			});
 			setStep("success");
-		} catch {
-			notificationStore.error(t("auth.reset.changeFailed"));
+		} catch (e) {
+			notificationStore.error(describeApiReason(e, "auth.reset.changeFailed"));
 		} finally {
 			setBusy(false);
 		}
 	};
 
 	if (step === "code") {
-		const codeErr = codeInvalid
-			? t("auth.errors.codeInvalid")
+		const codeErr = codeError
+			? codeError
 			: tried && code.length < CODE_LENGTH
 				? t("auth.errors.codeIncomplete")
 				: undefined;
@@ -139,7 +141,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 					value={code}
 					onChange={(v) => {
 						setCode(v);
-						setCodeInvalid(false);
+						setCodeError(null);
 					}}
 					length={CODE_LENGTH}
 					autoFocus
@@ -168,7 +170,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 					<AuthBackLink
 						onClick={() => {
 							setCode("");
-							setCodeInvalid(false);
+							setCodeError(null);
 							resetTried();
 							setStep("phone");
 						}}

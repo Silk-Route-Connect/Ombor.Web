@@ -11,6 +11,7 @@ import {
 import { authApi } from "services/api/AuthApi";
 import { AuthTokenBridge } from "services/auth/tokenBridge";
 import { analytics } from "services/telemetry";
+import { ApiCodeError } from "utils/apiError";
 
 /** Auth lifecycle status for routing/guards */
 export type AuthStatus = "idle" | "checking" | "authenticated" | "unauthenticated";
@@ -193,7 +194,10 @@ export class AuthStore {
 		const response = await authApi.verifyPhone(request);
 
 		if (response.success !== true || !response.accessToken) {
-			throw new Error(response.message ?? "OTP verification failed");
+			throw new ApiCodeError(
+				response.success === false ? response.code : undefined,
+				response.message ?? "OTP verification failed",
+			);
 		}
 
 		// The backend confirms registration here — the welcome screen that follows
@@ -223,14 +227,14 @@ export class AuthStore {
 	public async verifyResetCode(request: VerifyResetCodeRequest): Promise<void> {
 		const response = await authApi.verifyResetCode(request);
 		if (response.success !== true) {
-			throw new Error(response.message ?? "Reset code verification failed");
+			throw new ApiCodeError(response.code, response.message ?? "Reset code verification failed");
 		}
 	}
 
 	public async resetPassword(request: ResetPasswordRequest): Promise<void> {
 		const response = await authApi.resetPassword(request);
 		if (response.success !== true) {
-			throw new Error(response.message ?? "Password reset failed");
+			throw new ApiCodeError(response.code, response.message ?? "Password reset failed");
 		}
 		analytics.capture("password_reset_completed");
 	}
