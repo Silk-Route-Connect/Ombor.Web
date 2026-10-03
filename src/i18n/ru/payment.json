@@ -43,7 +43,6 @@
   "payment.reason.General": "Прочее",
   "payment.allocations": "Распределения",
   "payment.allocationType": "Тип распределения",
-  "payment.addPayment": "Добавить платёж",
   "payment.removePayment": "Удалить",
   "payment.partnerBalanceBefore": "Баланс до",
   "payment.partnerBalanceAfter": "Баланс после",

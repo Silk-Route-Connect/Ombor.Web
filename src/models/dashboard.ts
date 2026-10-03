@@ -1,21 +1,5 @@
 import { WalletType } from "./wallet";
 
-/**
- * Time-series primitives consumed by the shared `TimeSeriesChart`. Kept generic
- * (a `date` plus arbitrary numeric series keyed by `dataKey`).
- */
-export type TimeSeriesPoint = {
-	date: string;
-	[key: string]: number | string;
-};
-
-export type TimeSeriesConfig = {
-	dataKey: string;
-	name: string;
-	stroke?: string;
-	strokeDasharray?: string;
-};
-
 /* ───────────────────────── Главное (dashboard) ───────────────────────── */
 
 /**

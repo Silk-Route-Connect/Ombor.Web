@@ -15,9 +15,6 @@
 | `TableToolbar`                          | Search / filters / export band above a table                      | One flex row: search + filter controls + right-aligned actions (XC-15/DEC-D3). Wraps on narrow widths                                        |
 | `TruncatedText`                        | List-table cells holding genuinely long free text                 | Single-line ellipsis at `maxWidth`; tooltip with the full text only when actually clipped                                                    |
 | `CopyableNumberCell`                   | «№…» cells with copy                                              | Extracted from Orders during the TXN pass; a missing number renders the muted «Без номера» (never an id stand-in)                           |
-| `tableStyles.ts`                       | Legacy shared styles for hand-rolled tables                       | Near-retired — the July passes migrated its consumers to `DataTable`; don't adopt for new work                                               |
-| `TimeSeriesChart` (+ chart components) | Charts                                                            | recharts, themed to the palette                                                                                                              |
-| `KpiCard`                              | Dashboard / stat cards                                            | Hero tabular value + delta + sparkline                                                                                                       |
 | `MetaDot`                              | Separator dot in meta lines                                       | 4px gray-400; replaced the invisible 3px separators                                                                                          |
 | `PageHeader`                           | Header on every routed list page                                  | DSN-1 `.page-head`: h1 title (+ optional subtitle) left, actions toolbar right; actions wrap below the title on narrow widths, the title ellipsizes |
 | `PlaceholderPage`                      | Unbuilt routes                                                    | Lives in `pages/`                                                                                                                            |
@@ -67,8 +64,6 @@
 | ------------------ | ---------------------------------- | ----------------------------------------------------------------------------- |
 | `PrimaryButton`    | Page-level primary actions         | MUI contained + icon slot; visuals come from the theme                        |
 | `GhostButton`      | Secondary page actions             | DSN-1 `.btn-ghost`: surface bg, strong-border outline, no shadow              |
-| `DownloadButton`   | Export menus                       | csv / pdf / png options, configurable per surface                             |
-| `AddPaymentButton` | «Добавить оплату» affordance       | Outlined + payment icon                                                       |
 
 ## Links & navigation
 
@@ -97,13 +92,12 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 
 | Component                             | Use for                          | Notes                                                                          |
 | ------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
-| `OfflineBanner` + `ConnectivityStore` | Backend-outage UX                | Fed by the http error interceptor; blocks submits until recovery. Banner lives in `layouts/` |
+| `OfflineIndicator` + `ConnectivityStore` | Backend / device-outage UX       | Topbar chip fed by the http error interceptor and the browser online state; blocks submits until recovery. Lives in `layouts/` |
 | `ErrorFallback`                       | Root render-crash fallback       | Rendered by the root Sentry.ErrorBoundary; reload is the only recovery         |
 | `AppSplashScreen`                     | Full-viewport boot / auth loading | Spinner + optional message                                                     |
 | `OmborMark`                           | The Ombor brand monogram         | Inline SVG, variants `tile` / `reversed` / `monoTeal` / `monoWhite`; geometry frozen |
 | `NotFoundPage`                        | Catch-all 404 route              | Lives in `pages/`                                                              |
 
-**Deprecated residue:** `SidePane/tabConfigs.ts` — legacy side-pane styling (hard rule 3), zero importers as of 2026-07-14; delete with the last legacy side-pane rewrite. Never adopt.
 
 ## Shared non-component units (rules live in `conventions.md`)
 

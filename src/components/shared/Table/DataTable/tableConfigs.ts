@@ -21,10 +21,6 @@ import { SxProps, Theme } from "@mui/material";
  * Density is the kit spec: 52px rows, 16px horizontal cell padding, 12px header
  * padding (the foundational card shows 46/14/11px — off the 8px scale; the kit's
  * tokenised values are used instead).
- *
- * NB: the hand-rolled module tables (Employees / Payments / Wallets / Debt) carry
- * their own copy of these in `components/shared/Table/tableStyles.ts`; they adopt
- * this look in their module passes (kept separate here, out of this scope).
  */
 
 export const DEFAULT_ROWS_PER_PAGE = 10;
