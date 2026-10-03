@@ -3,7 +3,14 @@ import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
 import { ServerErrorHandler } from "utils/formServerErrors";
-import { matchesSearch } from "utils/stringUtils";
+import {
+	matchesProductSearch,
+	matchesStockFilter,
+	matchesType,
+	productStockLevel,
+	ProductTypeFilter,
+	StockFilter,
+} from "utils/productFilters";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
@@ -11,10 +18,7 @@ import { CreateProductRequest, Product, UpdateProductRequest } from "../models/p
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
 
-/** Type filter tabs (prototype: Все / Продажа / Закупка / Оба). "both" matches
- * only products that are both sellable and supplyable (type "All"); "sale" and
- * "supply" inclusively match "All" too. */
-export type ProductTypeFilter = "all" | "sale" | "supply" | "both";
+export type { ProductTypeFilter, StockFilter } from "utils/productFilters";
 
 export type DialogMode =
 	| { kind: "form"; product?: Product }
@@ -34,12 +38,17 @@ export interface IProductStore {
 	searchTerm: string;
 	categoryFilter: Category | null;
 	typeFilter: ProductTypeFilter;
+	stockFilter: StockFilter;
 	showArchived: boolean;
 	isSaving: boolean;
 	dialogMode: DialogMode;
 
 	getAll(): Promise<void>;
-	create(request: CreateProductRequest, applyServerErrors?: ServerErrorHandler): Promise<void>;
+	/** Resolve with the created product, or null on failure. */
+	create(
+		request: CreateProductRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<Product | null>;
 	/** Resolve with the fresh product on success, or null on failure. */
 	update(
 		request: UpdateProductRequest,
@@ -52,6 +61,7 @@ export interface IProductStore {
 	setSearch(term: string): void;
 	setCategoryFilter(category: Category | null): void;
 	setTypeFilter(filter: ProductTypeFilter): void;
+	setStockFilter(filter: StockFilter): void;
 	setShowArchived(show: boolean): void;
 
 	openCreate(): void;
@@ -62,19 +72,6 @@ export interface IProductStore {
 	closeDialog(): void;
 }
 
-function matchesType(type: Product["type"], filter: ProductTypeFilter): boolean {
-	switch (filter) {
-		case "sale":
-			return type === "Sale" || type === "All";
-		case "supply":
-			return type === "Supply" || type === "All";
-		case "both":
-			return type === "All";
-		default:
-			return true;
-	}
-}
-
 export class ProductStore implements IProductStore {
 	private readonly notificationStore: NotificationStore;
 
@@ -82,10 +79,10 @@ export class ProductStore implements IProductStore {
 	searchTerm = "";
 	categoryFilter: Category | null = null;
 	typeFilter: ProductTypeFilter = "all";
+	stockFilter: StockFilter = "all";
 	showArchived = false;
 	isSaving = false;
 	dialogMode: DialogMode = { kind: "none" };
-	// Master-data default: name ascending (matches the table's defaultSort).
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -120,10 +117,12 @@ export class ProductStore implements IProductStore {
 			products = products.filter((p) => matchesType(p.type, this.typeFilter));
 		}
 
+		if (this.stockFilter !== "all") {
+			products = products.filter((p) => matchesStockFilter(productStockLevel(p), this.stockFilter));
+		}
+
 		if (this.searchTerm.trim()) {
-			products = products.filter(
-				(p) => matchesSearch(p.name, this.searchTerm) || matchesSearch(p.sku, this.searchTerm),
-			);
+			products = products.filter((p) => matchesProductSearch(p, this.searchTerm));
 		}
 
 		return products;
@@ -160,14 +159,14 @@ export class ProductStore implements IProductStore {
 	async create(
 		request: CreateProductRequest,
 		applyServerErrors?: ServerErrorHandler,
-	): Promise<void> {
+	): Promise<Product | null> {
 		const result = await withSaving(this, () => ProductApi.create(request));
 
 		if (result.status === "fail") {
 			if (!applyServerErrors?.(result.cause)) {
 				this.notificationStore.notifyApiError(result, "product.error.create");
 			}
-			return;
+			return null;
 		}
 
 		runInAction(() => {
@@ -178,6 +177,7 @@ export class ProductStore implements IProductStore {
 
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("product.success.create"));
+		return result.data;
 	}
 
 	async update(
@@ -261,6 +261,10 @@ export class ProductStore implements IProductStore {
 
 	setTypeFilter(filter: ProductTypeFilter): void {
 		this.typeFilter = filter;
+	}
+
+	setStockFilter(filter: StockFilter): void {
+		this.stockFilter = filter;
 	}
 
 	setShowArchived(show: boolean): void {

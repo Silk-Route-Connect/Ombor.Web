@@ -16,12 +16,12 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isPresent, isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { CreateProductRequest, Product } from "models/product";
+import { Product } from "models/product";
 import { PATHS } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { ServerErrorHandler } from "utils/formServerErrors";
-import { mapFormPackagingToPackaging } from "utils/productUtils";
+import { toProductRequest } from "utils/productUtils";
 
 import { Box } from "@mui/material";
 
@@ -67,23 +67,8 @@ const ProductDetailPage: React.FC = observer(() => {
 		imagesToRemove: number[],
 		applyServerErrors: ServerErrorHandler,
 	): Promise<void> => {
-		const request: CreateProductRequest = {
-			categoryId: payload.categoryId,
-			name: payload.name,
-			sku: payload.sku,
-			description: payload.description,
-			barcode: payload.barcode,
-			salePrice: payload.salePrice,
-			supplyPrice: payload.supplyPrice,
-			measurement: payload.measurement,
-			type: payload.type,
-			lowStockThreshold: payload.lowStockThreshold ?? null,
-			packaging: mapFormPackagingToPackaging(payload.packaging),
-			attachments: payload.attachments,
-		};
-
 		const updated = await productStore.update(
-			{ ...request, id: product.id, imagesToDelete: imagesToRemove },
+			{ ...toProductRequest(payload), id: product.id, imagesToDelete: imagesToRemove },
 			applyServerErrors,
 		);
 		if (updated) {

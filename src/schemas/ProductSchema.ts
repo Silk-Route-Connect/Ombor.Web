@@ -120,7 +120,12 @@ export const ProductSchema = z
 		supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
 		salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
 
-		lowStockThreshold: z.number().int().min(0).nullable().optional(),
+		lowStockThreshold: z
+			.number()
+			.int(i18next.t("product.validation.lowStockInvalid"))
+			.min(0, i18next.t("product.validation.lowStockInvalid"))
+			.nullable()
+			.optional(),
 
 		// packaging is optional; when provided, size is required by ProductPackagingSchema
 		packaging: ProductPackagingSchema.optional(),

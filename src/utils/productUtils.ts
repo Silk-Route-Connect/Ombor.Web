@@ -1,6 +1,12 @@
 import { TFunction } from "i18next";
-import { Measurement, Product, ProductPackaging, ProductTransaction } from "models/product";
-import { ProductFormInputs } from "schemas/ProductSchema";
+import {
+	CreateProductRequest,
+	Measurement,
+	Product,
+	ProductPackaging,
+	ProductTransaction,
+} from "models/product";
+import { ProductFormInputs, ProductFormValues } from "schemas/ProductSchema";
 
 /**
  * Short localized unit code next to a number («5 кг», «На складе: 24 шт»), or
@@ -88,7 +94,8 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 		supplyPrice: Number(product.supplyPrice),
 		salePrice: Number(product.salePrice),
 
-		lowStockThreshold: product.lowStockThreshold ?? null,
+		// 0 is the served default and means the same as no threshold — show it empty.
+		lowStockThreshold: product.lowStockThreshold || null,
 
 		packaging: product.packaging
 			? {
@@ -114,6 +121,22 @@ export const mapFormPackagingToPackaging = (
 		barcode: packaging.barcode ?? null,
 	};
 };
+
+/** The validated product form → the create / update request body. */
+export const toProductRequest = (payload: ProductFormValues): CreateProductRequest => ({
+	categoryId: payload.categoryId,
+	name: payload.name,
+	sku: payload.sku,
+	description: payload.description,
+	barcode: payload.barcode,
+	salePrice: payload.salePrice,
+	supplyPrice: payload.supplyPrice,
+	measurement: payload.measurement,
+	type: payload.type,
+	lowStockThreshold: payload.lowStockThreshold ?? null,
+	packaging: mapFormPackagingToPackaging(payload.packaging),
+	attachments: payload.attachments,
+});
 
 const IMAGE_BASE_URL = import.meta.env.VITE_OMBOR_API_BASE_URL ?? "";
 

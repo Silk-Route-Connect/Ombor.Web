@@ -6,7 +6,7 @@ import UzsUnit from "components/shared/Money/UzsUnit";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
-import { formatCurrency, formatPercent } from "utils/formatCurrency";
+import { formatCurrency, formatPercent, formatQuantity } from "utils/formatCurrency";
 import { measurementLabel, unitInline } from "utils/productUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -122,6 +122,13 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 			value: measurementLabel(t, product.measurement),
 		},
 		{ id: "packaging", label: t("product.packaging"), value: packagingLabel },
+		{
+			id: "lowStock",
+			label: t("product.form.lowStockLabel"),
+			value: product.lowStockThreshold
+				? `${formatQuantity(product.lowStockThreshold)}${unit ? ` ${unit}` : ""}`
+				: "—",
+		},
 	];
 
 	return (

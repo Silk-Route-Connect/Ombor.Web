@@ -11,6 +11,7 @@ import { Box, Divider, Stack, TextField } from "@mui/material";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";
+import ProductStockAlertField from "./Fields/ProductStockAlertField";
 import ProductFormImages from "./Images/ProductFormImages";
 
 export interface ProductFormFieldsProps {
@@ -24,8 +25,8 @@ export interface ProductFormFieldsProps {
 
 /**
  * Dialog body per the bundle: core fields (with the image block in the top
- * grid's left column), a section divider (20px margins), «Фасовка», and the
- * description textarea (20px above).
+ * grid's left column), a section divider (20px margins), «Фасовка», the
+ * «Минимальный остаток» alert threshold and the description textarea.
  */
 const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	api,
@@ -108,6 +109,8 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 				enablePackaging={enablePackaging}
 				disablePackaging={disablePackaging}
 			/>
+
+			<ProductStockAlertField control={control} disabled={disabled} />
 
 			<Stack sx={{ gap: "7px", mt: "20px" }}>
 				<FormFieldLabel label={t("product.description")} />

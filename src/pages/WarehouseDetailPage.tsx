@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import GhostButton from "components/shared/Buttons/GhostButton";
@@ -21,6 +21,7 @@ import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
+import { lowStockThresholds } from "utils/productFilters";
 
 import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -32,9 +33,18 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const warehouseId = useRouteEntityId();
-	const { warehouseStore, selectedWarehouseStore } = useStore();
+	const { warehouseStore, selectedWarehouseStore, productStore } = useStore();
 
 	const [tab, setTab] = useState<WarehouseDetailTab>("stock");
+
+	// Products carry the «Минимальный остаток» the stock tab's low-stock alert compares with.
+	useEffect(() => {
+		void productStore.getAll();
+	}, [productStore]);
+	const thresholds = useMemo(
+		() => lowStockThresholds(readyOr(productStore.allProducts, [])),
+		[productStore.allProducts],
+	);
 
 	useEffect(() => {
 		if (warehouseId !== null) {
@@ -183,6 +193,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							onAddOpeningStock={
 								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
 							}
+							lowStockThresholds={thresholds}
 						/>
 					) : (
 						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />

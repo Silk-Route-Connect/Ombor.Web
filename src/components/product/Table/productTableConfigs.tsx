@@ -1,16 +1,17 @@
 import React from "react";
 import ProductLink from "components/product/Links/ProductLink";
 import ProductTypeChip from "components/product/ProductTypeChip";
+import StockQuantityCell from "components/product/StockQuantityCell";
 import { ProductActionMenu } from "components/product/Table/ActionMenu/ProductActionMenu";
 import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
-import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import { TFunction } from "i18next";
 import { Product } from "models/product";
+import { productStockLevel } from "utils/productFilters";
 
 import ProductThumb from "./ProductThumb";
 
@@ -27,9 +28,9 @@ const supplyPriceOf = (p: Product): number | null => (p.type === "Sale" ? null :
 
 /**
  * Product list columns in the canonical order (conventions.md → Tables):
- * Артикул · Товар · Тип · Категория · Остаток (with its unit) · Цена продажи ·
- * Цена поставки · ⋮. The unit rides on the stock figure, so the list fits
- * 1366px without a horizontal scroll (live-ui-8).
+ * Артикул · Товар · Тип · Категория · Остаток (with its unit and the «Мало» /
+ * «Нет в наличии» alert) · Цена продажи · Цена поставки · ⋮. The unit rides on
+ * the stock figure, so the list fits 1366px without a horizontal scroll (live-ui-8).
  */
 export function buildProductColumns(
 	t: TFunction,
@@ -69,7 +70,14 @@ export function buildProductColumns(
 			headerName: t("product.table.stock"),
 			align: "right",
 			sortValue: (p) => p.totalStock,
-			renderCell: (p) => <QuantityCell value={p.totalStock} measurement={p.measurement} />,
+			// Archived products are out of trade — no stock alert on them.
+			renderCell: (p) => (
+				<StockQuantityCell
+					quantity={p.totalStock}
+					measurement={p.measurement}
+					level={p.isArchived ? "ok" : productStockLevel(p)}
+				/>
+			),
 		},
 		{
 			key: "salePrice",

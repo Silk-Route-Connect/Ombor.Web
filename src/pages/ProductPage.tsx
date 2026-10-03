@@ -7,13 +7,14 @@ import ProductDialogs from "components/product/ProductDialogs";
 import ProductsTable from "components/product/Table/ProductsTable";
 import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
-import { CreateProductRequest, Product } from "models/product";
+import { Product } from "models/product";
 import { productDetailPath } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { ServerErrorHandler } from "utils/formServerErrors";
-import { mapFormPackagingToPackaging, measurementLabel } from "utils/productUtils";
+import { productStockLevel } from "utils/productFilters";
+import { measurementLabel, toProductRequest } from "utils/productUtils";
 
 import { Box } from "@mui/material";
 
@@ -35,20 +36,7 @@ const ProductPage: React.FC = observer(() => {
 		imagesToRemove: number[],
 		applyServerErrors: ServerErrorHandler,
 	): void => {
-		const request: CreateProductRequest = {
-			categoryId: payload.categoryId,
-			name: payload.name,
-			sku: payload.sku,
-			description: payload.description,
-			barcode: payload.barcode,
-			salePrice: payload.salePrice,
-			supplyPrice: payload.supplyPrice,
-			measurement: payload.measurement,
-			type: payload.type,
-			lowStockThreshold: payload.lowStockThreshold ?? null,
-			packaging: mapFormPackagingToPackaging(payload.packaging),
-			attachments: payload.attachments,
-		};
+		const request = toProductRequest(payload);
 
 		if (editingProduct) {
 			productStore.update(
@@ -71,6 +59,13 @@ const ProductPage: React.FC = observer(() => {
 			{ header: t("product.table.stock"), value: (p) => p.totalStock },
 			{ header: t("product.table.measurement"), value: (p) => measurementLabel(t, p.measurement) },
 			{
+				header: t("product.table.stockLevel"),
+				value: (p) => {
+					const level = p.isArchived ? "ok" : productStockLevel(p);
+					return level === "ok" ? "" : t(`product.stockLevel.${level}`);
+				},
+			},
+			{
 				header: t("product.table.salePrice"),
 				value: (p) => (p.type === "Supply" ? "" : p.salePrice),
 			},
@@ -92,6 +87,7 @@ const ProductPage: React.FC = observer(() => {
 		productStore.searchTerm.trim().length > 0 ||
 		productStore.categoryFilter !== null ||
 		productStore.typeFilter !== "all" ||
+		productStore.stockFilter !== "all" ||
 		productStore.showArchived;
 
 	return (
@@ -100,11 +96,13 @@ const ProductPage: React.FC = observer(() => {
 				searchValue={productStore.searchTerm}
 				selectedCategory={productStore.categoryFilter}
 				typeFilter={productStore.typeFilter}
+				stockFilter={productStore.stockFilter}
 				showArchived={productStore.showArchived}
 				archivedCount={productStore.archivedCount}
 				onSearch={productStore.setSearch}
 				onCategoryChange={productStore.setCategoryFilter}
 				onTypeChange={productStore.setTypeFilter}
+				onStockChange={productStore.setStockFilter}
 				onToggleArchived={productStore.setShowArchived}
 				onCreate={productStore.openCreate}
 				onExport={handleExport}

@@ -1,30 +1,22 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Product } from "models/product";
 import { numericSx } from "theme";
+import { productStockLevel } from "utils/productFilters";
 import { getImageFullUrl } from "utils/productUtils";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
+import StockLevelPill from "../StockLevelPill";
 import ProductStockTable from "./ProductStockTable";
 
 interface ProductOverviewTabProps {
 	product: Product;
 }
-
-/** Bundle `.zero-tag`: red pill flag on the warehouse card. */
-const ZeroStockTag: React.FC = () => {
-	const { t } = useTranslation();
-	return (
-		<StatusPill token="danger" icon={ErrorOutlineIcon} label={t("product.detail.outOfStock")} />
-	);
-};
 
 /**
  * «Обзор» per the bundle: images, description and the per-warehouse stock
@@ -32,7 +24,7 @@ const ZeroStockTag: React.FC = () => {
  */
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const zero = product.totalStock === 0;
+	const level = product.isArchived ? "ok" : productStockLevel(product);
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
@@ -104,7 +96,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 			<DetailCard
 				title={t("product.detail.stockByWarehouse")}
 				icon={<WarehouseOutlinedIcon sx={detailCardIconSx} />}
-				headerExtra={zero ? <ZeroStockTag /> : undefined}
+				headerExtra={level === "ok" ? undefined : <StockLevelPill level={level} />}
 			>
 				<ProductStockTable product={product} />
 			</DetailCard>

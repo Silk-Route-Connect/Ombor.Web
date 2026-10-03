@@ -16,7 +16,7 @@
 
   "product.title": "Товары",
   "product.create": "Новый товар",
-  "product.searchPlaceholder": "Поиск по названию или артикулу…",
+  "product.searchPlaceholder": "Поиск по названию, артикулу или штрих-коду…",
 
   "product.title.create": "Новый товар",
   "product.title.edit": "Редактировать товар",
@@ -30,6 +30,12 @@
   "product.filter.type.sale": "Продажа",
   "product.filter.type.supply": "Поставка",
   "product.filter.type.both": "Продажа и поставка",
+  "product.filter.stock.label": "Остаток",
+  "product.filter.stock.all": "Все",
+  "product.filter.stock.low": "Заканчивается",
+  "product.filter.stock.out": "Нет в наличии",
+  "product.stockLevel.low": "Мало",
+  "product.stockLevel.out": "Нет в наличии",
 
   "product.table.name": "Название",
   "product.table.sku": "Артикул",
@@ -37,6 +43,7 @@
   "product.table.measurement": "Ед. изм.",
   "product.table.type": "Тип",
   "product.table.stock": "Остаток",
+  "product.table.stockLevel": "Запас",
   "product.table.salePrice": "Цена продажи",
   "product.table.supplyPrice": "Цена поставки",
   "product.table.status": "Статус",
@@ -58,7 +65,6 @@
   "product.detail.imagesEmpty": "Нет изображений",
   "product.detail.descriptionEmpty": "Описание не заполнено.",
   "product.detail.stockByWarehouse": "Наличие на складах",
-  "product.detail.outOfStock": "Нет на складе",
   "product.detail.table.warehouse": "Склад",
   "product.detail.table.quantity": "Кол-во",
   "product.detail.table.wac": "Сред. себест.",
@@ -116,6 +122,8 @@
   "product.form.skuLabel": "Артикул (код товара)",
   "product.form.skuHelper": "Заполнится сам по названию — можно изменить",
   "product.form.optionalPlaceholder": "Необязательно",
+  "product.form.lowStockLabel": "Минимальный остаток",
+  "product.form.lowStockHelper": "Когда остаток на всех складах опустится до этого числа, товар отметится «Мало» в списках. Пусто — отметка появится, только когда товар закончится.",
   "product.form.descriptionPlaceholder": "Описание товара…",
   "product.form.packLabelPlaceholder": "Например: Коробка 24 шт",
 
@@ -177,6 +185,7 @@
   "product.validation.packSizeMin": "В упаковке должно быть не менее 2 единиц.",
   "product.validation.packLabelTooLong": "Название упаковки не должно превышать 50 символов.",
   "product.validation.invalidPackBarcode": "Некорректный штрих‑код упаковки.",
+  "product.validation.lowStockInvalid": "Укажите целое число не меньше 0.",
 
   "tabDetails": "Детали",
   "tabSales": "Продажи",
