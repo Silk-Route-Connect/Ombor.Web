@@ -131,6 +131,7 @@
   "warehouse.opening.colValue": "Сумма",
   "warehouse.opening.unitFallback": "ед.",
   "warehouse.opening.addLine": "Добавить товар",
+  "warehouse.opening.commitNote": "После записи изменить нельзя — ошибку исправляют корректировкой остатка.",
   "warehouse.opening.submit": "Записать остаток",
   "warehouse.opening.summaryPositions": "Позиций",
   "warehouse.opening.summaryUnits": "Всего единиц",

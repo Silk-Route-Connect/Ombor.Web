@@ -13,7 +13,6 @@ import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
-import { TFunction } from "i18next";
 import { observer } from "mobx-react-lite";
 import { PaymentRecord } from "models/payment";
 import { PATHS } from "routing/paths";
@@ -21,21 +20,13 @@ import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { formatDate, formatDateTime, PresetOption } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatPeriod } from "utils/payrollUtils";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
-
-/** «Июль 2026» from a payroll period ("YYYY-MM") or an ISO date, via i18n month names. */
-const monthYearLabel = (t: TFunction, value: string): string => {
-	const match = /^(\d{4})-(\d{2})/.exec(value);
-	if (!match) {
-		return value;
-	}
-	return `${t(`common.month.${Number(match[2])}`)} ${match[1]}`;
-};
 
 const Stat: React.FC<{ label: string; value: React.ReactNode; accent?: boolean }> = ({
 	label,
@@ -154,7 +145,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				sortValue: (p) => p.period ?? p.date,
 				renderCell: (p) => (
 					<Box component="span" sx={{ color: "text.secondary" }}>
-						{monthYearLabel(t, p.period ?? p.date)}
+						{formatPeriod(t, p.period ?? p.date)}
 					</Box>
 				),
 			},

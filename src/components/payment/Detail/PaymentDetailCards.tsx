@@ -12,6 +12,7 @@ import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
+import { formatPeriod } from "utils/payrollUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
@@ -274,7 +275,7 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 			>
 				{item(t("payment.detail.employee"), payment.employeeName)}
 				{item(t("payment.detail.position"), payment.employeePosition)}
-				{item(t("payment.detail.period"), payment.period)}
+				{item(t("payment.detail.period"), payment.period && formatPeriod(t, payment.period))}
 				{item(
 					t("payment.detail.salary"),
 					<Box component="span" sx={numericSx}>

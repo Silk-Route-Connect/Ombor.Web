@@ -26,6 +26,7 @@ import { PaymentFormValues } from "schemas/PaymentSchema";
 import { analytics } from "services/telemetry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { periodYearOptions, toPeriod } from "utils/payrollUtils";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -48,7 +49,6 @@ import PaymentSettlementModal from "./PaymentSettlementModal";
 
 /** 1-based month numbers; labels come from the shared `common.month.*` keys. */
 const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
-const YEARS = ["2026", "2025"];
 
 /**
  * Bounded, anchored-below dropdown menu — keeps long pickers (the partner list)
@@ -98,7 +98,10 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	onClose,
 }) => {
 	const { t } = useTranslation();
-	const { form } = usePaymentForm({ isOpen });
+	const { form } = usePaymentForm({
+		isOpen,
+		wallets: formData === "loading" ? [] : formData.wallets,
+	});
 	const { control, watch, setValue, handleSubmit, formState } = form;
 	const [settleOpen, setSettleOpen] = useState(false);
 	const [files, setFiles] = useState<File[]>([]);
@@ -171,7 +174,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		walletId: watch("walletId") as number,
 		amount,
 		description: type === "General" ? watch("description") : null,
-		period: type === "Payroll" ? `${watch("month")} ${watch("year")}` : null,
+		period: type === "Payroll" ? toPeriod(Number(watch("year")), Number(watch("month"))) : null,
 		settlements,
 		attachments: files,
 	});
@@ -419,16 +422,13 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												size="small"
 												fullWidth
 												value={field.value}
-												onChange={(e) => field.onChange(e.target.value)}
+												onChange={(e) => field.onChange(Number(e.target.value))}
 											>
-												{MONTH_NUMBERS.map((n) => {
-													const label = t(`common.month.${n}`);
-													return (
-														<MenuItem key={n} value={label}>
-															{label}
-														</MenuItem>
-													);
-												})}
+												{MONTH_NUMBERS.map((n) => (
+													<MenuItem key={n} value={n}>
+														{t(`common.month.${n}`)}
+													</MenuItem>
+												))}
 											</Select>
 										)}
 									/>
@@ -440,9 +440,9 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												size="small"
 												sx={{ width: 110 }}
 												value={field.value}
-												onChange={(e) => field.onChange(e.target.value)}
+												onChange={(e) => field.onChange(Number(e.target.value))}
 											>
-												{YEARS.map((y) => (
+												{periodYearOptions().map((y) => (
 													<MenuItem key={y} value={y}>
 														{y}
 													</MenuItem>

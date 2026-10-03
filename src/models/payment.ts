@@ -175,7 +175,7 @@ export type PaymentRecord = {
 
 	/** General-payment description. */
 	description: string | null;
-	/** Payroll period, e.g. «Июнь 2026». */
+	/** Payroll period «YYYY-MM» (legacy rows may hold a label like «Июнь 2026»); render via formatPeriod. */
 	period: string | null;
 	/** Payroll salary at payment time. */
 	salary: number | null;
@@ -254,7 +254,7 @@ export type CreatePaymentRecordRequest = {
 	amount: number;
 	/** General-payment description (required for General). */
 	description: string | null;
-	/** Payroll period «Июнь 2026» (required for Payroll). */
+	/** Payroll period «YYYY-MM» (required for Payroll) — build it with toPeriod. */
 	period: string | null;
 	/** Transaction-type settlement allocations; excess becomes an advance. */
 	settlements: SettlementInput[];
