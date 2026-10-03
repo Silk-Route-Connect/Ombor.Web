@@ -73,7 +73,7 @@ export class CategoryStore implements ICategoryStore {
 		const result = await tryRun(() => CategoryApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("category.error.load") + `: ${result.error}`);
+			this.notificationStore.error(i18next.t("category.error.load"));
 		}
 
 		runInAction(() => (this.allCategories = result.status === "success" ? result.data : []));

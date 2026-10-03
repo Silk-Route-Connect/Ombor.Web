@@ -67,7 +67,6 @@
   "payDebts.totalCovered": "Покрыто",
   "payDebts.remainingDebt": "Остаток Долга",
   "payDebts.availableLeft": "Остаток аванса",
-  "payDebts.notEnough": "Недосаточна аванса",
   "payment.saveAsAdvance": "Сохранить как аванс",
   "payment.advancePayment": "Авансовый платёж",
   "payDebts.paidDebt": "Оплата долгов",
@@ -277,7 +276,7 @@
   "transaction.new.template.none.Sale": "У этого партнёра нет шаблонов",
   "transaction.new.template.none.Supply": "У этого поставщика нет шаблонов",
   "transaction.new.template.count": "{{count}} позиц.",
-  "transaction.new.template.loaded": "Шаблон «{{name}}» загружён",
+  "transaction.new.template.loaded": "Шаблон «{{name}}» загружен",
 
   "transaction.new.totals.subtotal": "Подытог",
   "transaction.new.totals.discount": "Скидка",

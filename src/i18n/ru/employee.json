@@ -51,9 +51,6 @@
   "employees.success.update": "Сотрудник успешно обновлен",
   "employees.success.delete": "Сотрудник успешно удален",
 
-
-
-
   "employee.details.title": "Информация о сотруднике",
   "employee.details.employmentInfo": "Информация о работе",
   "employee.details.contactInfo": "Контактная информация",
@@ -70,6 +67,9 @@
 
   "employee.create": "Новый сотрудник",
   "employee.filter.all": "Все",
+  "employee.filter.Active": "Активные",
+  "employee.filter.OnVacation": "В отпуске",
+  "employee.filter.Terminated": "Уволенные",
 
   "employee.action.pay": "Выплатить",
   "employee.action.terminate": "Уволить",

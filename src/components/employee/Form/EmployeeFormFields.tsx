@@ -2,7 +2,7 @@ import React from "react";
 import { Controller, FieldError, UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import PhoneListField from "components/shared/Inputs/PhoneListField/PhoneListField";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { EMPLOYEE_STATUSES, EmployeeStatus } from "models/employee";
@@ -74,16 +74,17 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 						name="salary"
 						control={control}
 						render={({ field }) => (
-							<NumericField
-								{...field}
-								value={field.value || ""}
+							<MoneyField
+								value={field.value ?? 0}
+								onChange={field.onChange}
+								onBlur={field.onBlur}
+								name={field.name}
+								inputRef={field.ref}
 								size="small"
-								min={0}
 								placeholder="0"
 								disabled={disabled}
 								error={!!errors.salary}
 								helperText={errors.salary?.message}
-								onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
 								slotProps={{
 									input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
 								}}

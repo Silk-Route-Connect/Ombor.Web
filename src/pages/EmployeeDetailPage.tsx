@@ -52,10 +52,10 @@ const Stat: React.FC<{ label: string; value: React.ReactNode; accent?: boolean }
 	</Paper>
 );
 
-const PERIOD_OPTIONS: { value: PresetOption; label: string }[] = [
-	{ value: "week", label: "Неделя" },
-	{ value: "month", label: "Месяц" },
-	{ value: "alltime", label: "Весь период" },
+const PERIOD_OPTIONS: { value: PresetOption; labelKey: string }[] = [
+	{ value: "week", labelKey: "reportRangeWeek" },
+	{ value: "month", labelKey: "reportRangeMonth" },
+	{ value: "alltime", labelKey: "reportRangeAll" },
 ];
 
 const EmployeeDetailPage: React.FC = observer(() => {
@@ -320,7 +320,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				<Stat
 					accent
 					label={t("employee.stat.paidThisMonth", {
-						month: t(`common.month.${now.getMonth() + 1}`),
+						month: t(`common.monthLower.${now.getMonth() + 1}`),
 					})}
 					value={
 						<>
@@ -359,7 +359,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				<SegmentedControl<PresetOption>
 					value={presetValue}
 					onChange={(v) => selectedEmployeeStore.setPreset(v)}
-					options={PERIOD_OPTIONS}
+					options={PERIOD_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
 				/>
 			</Box>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { dropdownSlotProps } from "components/transaction/Create/dropdownSx";
 import { stockAt } from "hooks/transactions/useTransactionEntry";
@@ -22,6 +22,13 @@ interface ProductSearchBarProps {
 	onAdd: (product: Product) => void;
 }
 
+/** Sellable items first: out-of-stock products (at the picked warehouse) sink to the bottom. */
+function inStockFirst(products: Product[], warehouseId: number | null): Product[] {
+	const inStock = products.filter((p) => stockAt(p, warehouseId) > 0);
+	const out = products.filter((p) => stockAt(p, warehouseId) <= 0);
+	return [...inStock, ...out];
+}
+
 /**
  * POS product search. Picking a product adds it to the cart and keeps the panel
  * open for rapid multi-add. A Sale option shows the per-warehouse stock (out /
@@ -39,9 +46,14 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 	const { t } = useTranslation();
 	const [inputValue, setInputValue] = useState("");
 
+	const options = useMemo(() => {
+		const available = products.filter((p) => !inCart.has(p.id));
+		return isSale ? inStockFirst(available, warehouseId) : available;
+	}, [products, inCart, isSale, warehouseId]);
+
 	return (
 		<Autocomplete
-			options={products.filter((p) => !inCart.has(p.id))}
+			options={options}
 			value={null}
 			inputValue={inputValue}
 			onInputChange={(_, v, reason) => {

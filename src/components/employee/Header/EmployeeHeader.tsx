@@ -39,9 +39,9 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 
 	const statusOptions: { value: StatusFilter; label: string }[] = [
 		{ value: "all", label: t("employee.filter.all") },
-		{ value: "Active", label: t("employee.status.Active") },
-		{ value: "OnVacation", label: t("employee.status.OnVacation") },
-		{ value: "Terminated", label: t("employee.status.Terminated") },
+		{ value: "Active", label: t("employee.filter.Active") },
+		{ value: "OnVacation", label: t("employee.filter.OnVacation") },
+		{ value: "Terminated", label: t("employee.filter.Terminated") },
 	];
 
 	return (

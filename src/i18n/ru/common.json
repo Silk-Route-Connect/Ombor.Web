@@ -22,7 +22,7 @@
   "noRecords": "Нет записей",
   "noOptionsTitle": "Нет записей",
   "reportRangeAll": "Весь период",
-  "reportRangeCustom": "Свой",
+  "reportRangeCustom": "Свои даты",
 
   "common.create": "Добавить",
   "common.delete": "Удалить",
@@ -42,6 +42,9 @@
   "common.retry": "Повторить",
   "common.discard": "Закрыть",
   "common.understood": "Понятно",
+  "common.close": "Закрыть",
+  "common.size.kb": "{{value}} КБ",
+  "common.size.mb": "{{value}} МБ",
   "common.hint.wac": "Средняя цена, по которой товар закупался, — с учётом всех поступлений по разным ценам. Пересчитывается при каждой поставке.",
 
   "common.deleteTitle": "Подтвердите удаление",
@@ -84,7 +87,6 @@
   "common.dialog.discardChanges.confirm": "Закрыть",
   "common.dialog.discardChanges.cancel": "Продолжить",
 
-  "common.fieldRequired": "Поле объязательно",
 
   "paymentTypeDeposit": "Депозит",
   "paymentTypeWithdrawal": "Снятие",
@@ -177,6 +179,18 @@
   "common.month.10": "Октябрь",
   "common.month.11": "Ноябрь",
   "common.month.12": "Декабрь",
+  "common.monthLower.1": "январь",
+  "common.monthLower.2": "февраль",
+  "common.monthLower.3": "март",
+  "common.monthLower.4": "апрель",
+  "common.monthLower.5": "май",
+  "common.monthLower.6": "июнь",
+  "common.monthLower.7": "июль",
+  "common.monthLower.8": "август",
+  "common.monthLower.9": "сентябрь",
+  "common.monthLower.10": "октябрь",
+  "common.monthLower.11": "ноябрь",
+  "common.monthLower.12": "декабрь",
 
   "currency.UZS": "UZS (сўм)",
   "currency.USD": "USD ($)",

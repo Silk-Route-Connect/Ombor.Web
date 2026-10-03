@@ -46,7 +46,7 @@
   "order.action.deliver": "Подтвердить доставку",
   "order.action.download": "Скачать",
   "order.action.return": "Отметить возврат",
-  "order.action.reject": "Отметить отклонён клиентом",
+  "order.action.reject": "Клиент отказался",
   "order.action.cancel": "Отменить заказ",
 
   "order.detail.promotedSale": "Оформлено как продажа",
@@ -188,7 +188,7 @@
   "order.toast.shipped": "Заказ №{{number}}: отправлен",
   "order.toast.delivered": "Заказ №{{number}} доставлен · создана продажа №{{saleId}}",
   "order.toast.cancelled": "Заказ №{{number}} отменён",
-  "order.toast.rejected": "Заказ №{{number}} отмечен как отклонён",
+  "order.toast.rejected": "Заказ №{{number}}: клиент отказался",
   "order.toast.returned": "Заказ №{{number}} отмечен как возвращённый — оформите возврат по продаже",
   "order.toast.updated": "Заказ №{{number}} обновлён",
 

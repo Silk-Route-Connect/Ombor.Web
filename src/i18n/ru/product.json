@@ -156,7 +156,7 @@
   "product.images.makeMain": "Сделать главным",
   "product.images.remove": "Удалить",
 
-  "product.validation.nameMin": "Название должно содержать мин 2 символа.",
+  "product.validation.nameMin": "Название должно быть не короче 2 символов.",
   "product.validation.nameMax": "Название не должно превышать 250 символов.",
   "product.validation.categoryRequired": "Выберите категорию.",
   "product.validation.invalidMeasurement": "Неверная единица измерения.",
@@ -182,7 +182,6 @@
   "reportTo": "По",
   "reportRangeWeek": "Неделя",
   "reportRangeMonth": "Месяц",
-  "reportRangeCustom": "Свои даты",
   "reportExportPNG": "Скачать PNG",
   "reportExportPDF": "Скачать PDF",
   "reportExportCSV": "Скачать CSV",

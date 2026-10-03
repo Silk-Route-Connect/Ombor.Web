@@ -26,7 +26,9 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 	private readonly notificationStore: NotificationStore;
 
 	payrollHistory: Loadable<PaymentRecord[]> = [];
-	dateFilter: DateFilter = { type: "preset", preset: "week" };
+	// «Весь период» by default so the payouts counted in the section badge are visible
+	// on arrival — a week/month window hid the only payout (live-ui-27).
+	dateFilter: DateFilter = { type: "preset", preset: "alltime" };
 
 	constructor(employeeStore: IEmployeeStore, notificationStore: NotificationStore) {
 		this.employeeStore = employeeStore;
@@ -79,7 +81,7 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 				runInAction(() => {
 					this.selectedEmployee = employee;
 					this.payrollHistory = [];
-					this.dateFilter = { type: "preset", preset: "week" };
+					this.dateFilter = { type: "preset", preset: "alltime" };
 				});
 
 				if (employee) {
