@@ -149,7 +149,7 @@ Expect: balance card «−50 000» red — the opening event alone (50 000 recei
 ### T-PRT-62 · Summary strip self-consistency [reconcile]
 Pre: /partners, «Активные» view, partners А and Б present (post T-PRT-60).
 Steps: 1) Set pager to 50; type filter «Все». 2) Sum the red («−») balance cells and the green («+») balance cells across all active rows. 3) Compare with the strip.
-Expect: «Всего к получению» = sum of red balances (unsigned); «Всего к оплате» = sum of green; «Итог расчётов» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners («N партнёров должны нам» / «мы должны N партнёрам»); the net card subtitle counts ALL active partners («N активных»), zero-balance included; archived partners excluded from all three.
+Expect: «Всего к получению» = sum of red balances (unsigned); «Всего к оплате» = sum of green; «Итог расчётов» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners in correct Russian forms («1 партнёр должен нам», «3 партнёра должны нам», «5 партнёров должны нам» / «мы должны 1 партнёру», «мы должны 5 партнёрам»); the net card subtitle counts ALL active partners («51 активный», «52 активных»), zero-balance included; archived partners excluded from all three.
 Known: REC-3 — the strip once rendered all-zero counts (unreconciled). If reproduced, report KNOWN with exact repro detail (filters, timing, data state), not a new defect.
 
 ### T-PRT-63 · Count-pill arithmetic [reconcile]

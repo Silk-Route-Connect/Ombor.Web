@@ -68,7 +68,7 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 				icon={<Inventory2OutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
 				caption={t("warehouse.kpi.products")}
 				value={formatQuantity(warehouse.productCount)}
-				sub={t("warehouse.kpi.productsSub")}
+				sub={t("warehouse.kpi.productsSub", { count: warehouse.productCount })}
 			/>
 			<Kpi
 				icon={<LayersOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}

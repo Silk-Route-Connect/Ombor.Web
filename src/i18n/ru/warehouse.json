@@ -27,7 +27,10 @@
   "warehouse.filter.archive": "Архив",
 
   "warehouse.summary.products": "Товаров на складах",
-  "warehouse.summary.productsSub": "позиций на всех складах",
+  "warehouse.summary.productsSub_one": "позиция на всех складах",
+  "warehouse.summary.productsSub_few": "позиции на всех складах",
+  "warehouse.summary.productsSub_many": "позиций на всех складах",
+  "warehouse.summary.productsSub_other": "позиций на всех складах",
   "warehouse.summary.units": "Всего единиц",
   "warehouse.summary.unitsSub": "суммарное количество товара",
   "warehouse.summary.value": "Стоимость остатка",
@@ -73,7 +76,10 @@
   "warehouse.cannotDelete.confirm": "Архивировать",
 
   "warehouse.kpi.products": "Товаров",
-  "warehouse.kpi.productsSub": "различных позиций на складе",
+  "warehouse.kpi.productsSub_one": "позиция на складе",
+  "warehouse.kpi.productsSub_few": "позиции на складе",
+  "warehouse.kpi.productsSub_many": "позиций на складе",
+  "warehouse.kpi.productsSub_other": "позиций на складе",
   "warehouse.kpi.units": "Единиц",
   "warehouse.kpi.unitsSuffix": "ед.",
   "warehouse.kpi.unitsSub": "суммарное количество товара",

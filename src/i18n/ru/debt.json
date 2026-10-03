@@ -40,7 +40,10 @@
   "debt.partnerTable.count": "Документов",
   "debt.partnerTable.oldest": "Старейший долг",
   "debt.partnerTable.amount": "Сумма долга",
-  "debt.partnerTable.overdueCount": "{{count}} просрочено",
+  "debt.partnerTable.overdueCount_one": "{{count}} просроченный",
+  "debt.partnerTable.overdueCount_few": "{{count}} просроченных",
+  "debt.partnerTable.overdueCount_many": "{{count}} просроченных",
+  "debt.partnerTable.overdueCount_other": "{{count}} просроченных",
 
   "debt.txTable.document": "№",
   "debt.txTable.date": "Дата",

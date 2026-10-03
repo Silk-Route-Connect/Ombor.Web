@@ -278,7 +278,10 @@
   "transaction.new.template.load": "Загрузить шаблон",
   "transaction.new.template.none.Sale": "У этого партнёра нет шаблонов",
   "transaction.new.template.none.Supply": "У этого поставщика нет шаблонов",
-  "transaction.new.template.count": "{{count}} позиц.",
+  "transaction.new.template.count_one": "{{count}} позиция",
+  "transaction.new.template.count_few": "{{count}} позиции",
+  "transaction.new.template.count_many": "{{count}} позиций",
+  "transaction.new.template.count_other": "{{count}} позиций",
   "transaction.new.template.loaded": "Шаблон «{{name}}» загружен",
 
   "transaction.new.totals.subtotal": "Подытог",

@@ -35,7 +35,10 @@
 
   "settings.users.title": "Пользователи",
   "settings.users.activeCount": "{{count}} с доступом к системе",
-  "settings.users.deactivatedCount": "{{count}} деактивировано",
+  "settings.users.deactivatedCount_one": "{{count}} деактивирован",
+  "settings.users.deactivatedCount_few": "{{count}} деактивировано",
+  "settings.users.deactivatedCount_many": "{{count}} деактивировано",
+  "settings.users.deactivatedCount_other": "{{count}} деактивировано",
   "settings.users.invite": "Пригласить пользователя",
   "settings.users.you": "вы",
   "settings.users.admin": "Администратор",
