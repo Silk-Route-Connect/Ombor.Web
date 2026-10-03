@@ -53,7 +53,7 @@ Expect: toast «Перевод проведён: QA-<MMDD> Касса А → QA-
 
 ### T-WAL-06 · Deposit raises balance AND advances; «Наши средства» flat [happy] ✍
 Pre: T-WAL-05 (Б at 350 000). Create partner «QA-<MMDD> Партнёр Кас» (Клиент, opening 0) via `/partners`.
-Steps: `/payments` → create payment → type «Депозит», partner «QA-<MMDD> Партнёр Кас», wallet Касса Б, amount 100 000 → submit.
+Steps: `/payments` → create payment → type «Аванс», partner «QA-<MMDD> Партнёр Кас», wallet Касса Б, amount 100 000 → submit.
 Expect: Б cards: Баланс 450 000 · Авансы 100 000 · Наши средства 350 000 (R11, R12); Операции top row «Депозит» · «Приход» · 100 000 · Баланс после 450 000. Strip deltas vs T-WAL-05 end: Общий баланс +100 000, Авансы партнёров +100 000, Наши средства ±0.
 
 ### T-WAL-07 · Overpay-into-advance: balance +full tender, our money +settled part only [happy] ✍

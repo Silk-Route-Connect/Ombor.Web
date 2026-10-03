@@ -6,9 +6,9 @@ Read with: [../README.md](../README.md) · [../shared-checklist.md](../shared-ch
 ## Surfaces
 
 - `/debts` (sidebar «Долги»). Read-only: no create button, no `⋮` menus, no row actions — correct, not a gap.
-- `DebtSummaryCards` — 4 cards: «Нам должны» (green), «Мы должны» (red), «Просрочено» (orange), «Чистая позиция» (color by sign). First three clickable (hover arrow), net card is not. Each carries a «N транзакций» pill and a small «UZS» suffix.
-- `DebtTabs` — underline tabs «По партнёрам» / «По транзакциям» with count pills; right-aligned legend swatches «нам должны» (green) / «мы должны» (red).
-- Toolbar — search «Поиск по партнёру или номеру…» (matches partner name, company, document-number substring); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / 31–60 дней / 60+ дней»); direction segmented «Все | Нам должны | Мы должны» (**transactions tab only** — absent on partners tab by design); clearable «Только просроченные» chip (appears only via the «Просрочено» card); «Скачать CSV».
+- `DebtSummaryCards` — 4 cards: «Нам должны» (green), «Мы должны» (red), «Просрочено» (orange, due-date overdue), «Итог расчётов» (color by sign). First three clickable (hover arrow), net card is not. Each carries a «N документов» pill (1 документ / 2–4 документа / 5+ документов) and a small «UZS» suffix.
+- `DebtTabs` — underline tabs «По партнёрам» / «По документам» with count pills; right-aligned legend swatches «нам должны» (green) / «мы должны» (red).
+- Toolbar — search «Поиск по партнёру или номеру…» (matches partner name, company, document-number substring); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней»); direction segmented «Все | Нам должны | Мы должны» (**transactions tab only** — absent on partners tab by design); clearable «Только просроченные» chip (appears only via the «Просрочено» card); «Скачать CSV».
 - Exits: partner-tab row → `/partners/:id?tab=transactions&status=open`; transaction-tab row → `/supplies/:id` for Supply/SupplyRefund, `/sales/:id` otherwise; partner name inside a row → partner detail (does not open the transaction).
 
 ## Traps
@@ -19,7 +19,7 @@ Module-specific designed-behavior-looks-like-bug items (shared-checklist §6 sti
 | --- | --- |
 | A debt green «Нам должны» here renders red/negative on that partner's detail page | /debts and Dashboard are owner-POV; partner detail is partner-POV signed — see partners.md before judging |
 | A row with «Возраст» 200 дн and no «просрочка» chip; «Просрочено» card stays 0 | blank `dueDate` = due on receipt, never overdue (contract `overdueDays` = 0 without due date). No UI collects a due date today — a QA run can never create an overdue debt |
-| Dashboard «Просрочено» ≠ /debts «Просрочено» card | deliberate: dashboard = receivables aged 31+ days; /debts = due-date overdue, both directions (contract; repo-state Dashboard) |
+| Dashboard «Долги старше 30 дней» ≠ /debts «Просрочено» card | deliberate: dashboard = receivables aged 31+ days; /debts = due-date overdue, both directions. Only the due-date measure is called «Просрочено» (ui-patterns Display conventions) |
 | Cards don't move when searching/filtering/switching tabs | summary is a global snapshot over ALL open debts, never the filtered view |
 | Partner-tab «Тип» chip contradicts the partner's real type (a Customer shown as «Поставщик») | chip encodes the debt role: «Клиент» = they owe us, «Поставщик» = we owe them |
 | Red 70 000 sorts above green 60 000 in «Сумма долга» | column sorts by absolute exposure regardless of direction; direction is color-only, no ± signs (#4) |
@@ -33,7 +33,7 @@ Run in doc order — later cases consume earlier cases' data. `<MMDD>` = run dat
 ### T-DBT-01 · Seed run debt set — cards move by exact gross deltas [happy] ✍
 Pre: QA org; stable fixtures «QA Склад А», «QA Касса», «QA Товар Штучный» (supply 10 000 / sale 15 000) per fixtures.md.
 Steps: 1. Open /debts; record all four card values + pill counts (baseline — never assert absolutes, fixtures.md). 2. Create partners «QA-<MMDD> Дебитор» (Клиент, opening 0) and «QA-<MMDD> Универсал» (Клиент + Поставщик, opening 0). 3. New Supply (sales-supplies.md): Универсал, QA Склад А, QA Товар Штучный ×10 @ 10 000 = 100 000, no payment; note its «№» (call it D1). 4. New Sale: Дебитор, QA Склад А, ×4 @ 15 000 = 60 000, no payment (D2). 5. New Sale: Универсал, QA Склад А, ×2 @ 15 000 = 30 000, no payment (D3). 6. Reload /debts.
-Expect: «Нам должны» +90 000, pill +2; «Мы должны» +100 000, pill +1; «Просрочено» ±0 (no due dates — Traps); «Чистая позиция» delta −10 000, value unsigned, color by net sign (#4); figures served, page only sums them (R12). Pill plurals correct: 1 «транзакция» / 2–4 «транзакции» / 5+ «транзакций».
+Expect: «Нам должны» +90 000, pill +2; «Мы должны» +100 000, pill +1; «Просрочено» ±0 (no due dates — Traps); «Итог расчётов» delta −10 000, value unsigned, color by net sign (#4); figures served, page only sums them (R12). Pill plurals correct: 1 «документ» / 2–4 «документа» / 5+ «документов».
 Known: F16 — plural words and the card «UZS» unit are hardcoded strings.
 
 ### T-DBT-02 · Transaction row anatomy — fresh debt, age 0, direction colors [happy]
@@ -49,17 +49,17 @@ Expect: D2 row now 60 000 / 25 000 / 35 000 (remaining = total − paid); the ro
 ### T-DBT-04 · По партнёрам groups net per partner while cards stay gross [happy]
 Pre: T-DBT-01..03 (Универсал holds BOTH directions: receivable 30 000 + payable 100 000).
 Steps: 1. Tab «По партнёрам»; search «QA-<MMDD>». 2. Record the Универсал row amount AND the gross card values.
-Expect: «QA-<MMDD> Дебитор»: 1 транзакция, «Сумма долга» 35 000 green, «в сроке» under «Старейший долг». «QA-<MMDD> Универсал»: count 2, oldest = today, amount = |30 000 − 100 000| = 70 000 red (per-partner signed net; unsigned display, color = direction, #4); «Тип» chip renders the newest row's debt role — expected «Клиент» (D3 is newest). **Explicit compare:** the cards count this partner gross (its 30 000 inside «Нам должны», its 100 000 inside «Мы должны») while its row shows net 70 000 — internally consistent arithmetic, but record the observed pair in the report: the gross-cards-vs-net-rows presentation is a standing product-audit concern (not an F-item; report as observation with numbers, not a new defect).
+Expect: «QA-<MMDD> Дебитор»: 1 документ, «Сумма долга» 35 000 green, «в сроке» under «Старейший долг». «QA-<MMDD> Универсал»: count 2, oldest = today, amount = |30 000 − 100 000| = 70 000 red (per-partner signed net; unsigned display, color = direction, #4); «Тип» chip renders the newest row's debt role — expected «Клиент» (D3 is newest). **Explicit compare:** the cards count this partner gross (its 30 000 inside «Нам должны», its 100 000 inside «Мы должны») while its row shows net 70 000 — internally consistent arithmetic, but record the observed pair in the report: the gross-cards-vs-net-rows presentation is a standing product-audit concern (not an F-item; report as observation with numbers, not a new defect).
 
 ### T-DBT-05 · Clickable summary cards preset the transactions tab [happy]
 Pre: T-DBT-01+.
 Steps: 1. From the partners tab click «Нам должны». 2. Click «Мы должны». 3. Sort by any header manually, then click «Мы должны» again. 4. Click «Просрочено». 5. Clear the «Только просроченные» chip via its ×.
-Expect: 1→ jumps to «По транзакциям», segmented «Нам должны» active, receivable rows only, initial sort «Остаток» desc; 2→ segmented «Мы должны», payable rows only; 3→ re-click re-seeds the sort even after a manual re-sort (repo-state Debts decision — preset seeds via nonce); 4→ segmented resets to «Все», chip «Только просроченные» appears, only rows with an overdue chip remain (with run data only: filtered empty state «Ничего не найдено»), initial sort «Возраст» desc; 5→ chip gone, rows return. «Чистая позиция» is not clickable — no hover arrow, no action.
+Expect: 1→ jumps to «По транзакциям», segmented «Нам должны» active, receivable rows only, initial sort «Остаток» desc; 2→ segmented «Мы должны», payable rows only; 3→ re-click re-seeds the sort even after a manual re-sort (repo-state Debts decision — preset seeds via nonce); 4→ segmented resets to «Все», chip «Только просроченные» appears, only rows with an overdue chip remain (with run data only: filtered empty state «Ничего не найдено»), initial sort «Возраст» desc; 5→ chip gone, rows return. «Итог расчётов» is not clickable — no hover arrow, no action.
 
 ### T-DBT-06 · Search and tab count pills track the filtered view [happy]
 Pre: T-DBT-01+.
 Steps: 1. Clear filters; note both tab pills. 2. Search «QA-<MMDD> Универсал». 3. Search D2's bare number (digits only). 4. Search «zzzнет».
-Expect: 2→ transactions pill = the run Универсал's open rows, partners pill = 1; 3→ the D2 row is present; any other rows shown must contain the searched digits as a substring of their «№» or partner name/company (search is substring over name, company, and number) — only a row matching neither is a FAIL; 4→ pills 0 and the module empty state «Ничего не найдено» + «Под выбранные фильтры не попала ни одна транзакция…» (module-specific card, not the shared «Нет записей»); cards unchanged throughout (Traps).
+Expect: 2→ transactions pill = the run Универсал's open rows, partners pill = 1; 3→ the D2 row is present; any other rows shown must contain the searched digits as a substring of their «№» or partner name/company (search is substring over name, company, and number) — only a row matching neither is a FAIL; 4→ pills 0 and the module empty state «Ничего не найдено» + «Под выбранные фильтры не попал ни один долг…» (module-specific card, not the shared «Нет записей»); cards unchanged throughout (Traps).
 
 ### T-DBT-07 · Drill-downs: partner row, transaction row, partner cell [happy]
 Pre: T-DBT-01+.
@@ -81,7 +81,7 @@ Expect: 2→ every run row present (buckets partition on served ageDays: ≤7 / 
 ### T-DBT-31 · Blank due date is never overdue, at any age [edge]
 Pre: any org data; run rows from T-DBT-01.
 Steps: 1. Transactions tab, «Все сроки», empty search. 2. Scan for rows with large «Возраст» and no chip. 3. Compare the «Просрочено» card against the set of rows carrying a red «просрочка N дн» chip.
-Expect: rows without a due date show only «N дн» — no chip regardless of age (contract: overdueDays = 0 when no due date; Traps); «Просрочено» card value = Σ «Остаток» over chip-carrying rows only, both directions counted; since no UI collects a due date, if zero chips exist anywhere the card must read 0 with «0 транзакций».
+Expect: rows without a due date show only «N дн» — no chip regardless of age (contract: overdueDays = 0 when no due date; Traps); «Просрочено» card value = Σ «Остаток» over chip-carrying rows only, both directions counted; since no UI collects a due date, if zero chips exist anywhere the card must read 0 with «0 документов».
 
 ### T-DBT-32 · Unpaid SupplyRefund appears as a receivable [edge] ✍
 Pre: T-DBT-01 (D1 open, 100 000); record cards.
@@ -107,9 +107,9 @@ Run after the edge cases (their writes are in the books). Perform paired reads b
 Steps: 1. /debts: record «Нам должны» / «Мы должны» values + pill counts. 2. Open `/` (dashboard), any period.
 Expect: dashboard receivable KPI value = «Нам должны» card and payable KPI value = «Мы должны» card, exactly (contract: dashboard debt figures are a snapshot that reconciles with `GET /api/debts`; `period` drives only revenue/series). KPI counts expected to equal the pill counts (verify against contract partners-debts-dashboard.md if they diverge).
 
-### T-DBT-61 · Dashboard «Просрочено» = 31+-day receivable aging, NOT /debts overdue [reconcile]
-Steps: 1. /debts transactions tab: direction «Нам должны», «Срок: 31–60» → sum «Остаток»; repeat with «60+»; S = both sums. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the overdue KPI V.
-Expect: V = S (contract: dashboard Overdue = receivables aged 31+ days). Do **not** assert V = C — C is due-date overdue across both directions; V ≠ C is designed (Traps; repo-state Dashboard). V ≠ S is a real FAIL. With a young QA org S, C, V may all be 0 — equality then proves nothing; note it and pass on V = S.
+### T-DBT-61 · Dashboard «Долги старше 30 дней» = 31+-day receivable aging, NOT /debts overdue [reconcile]
+Steps: 1. /debts transactions tab: direction «Нам должны», «Срок: Старше 30 дней» → sum «Остаток» = S. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the «Долги старше 30 дней» KPI V; click it.
+Expect: V = S (contract: dashboard Overdue = receivables aged 31+ days); the click lands on /debts «По документам» with «Нам должны» + «Срок: Старше 30 дней» preset, sorted by «Возраст» — never the «Только просроченные» chip. Do **not** assert V = C — C is due-date overdue across both directions; V ≠ C is designed (Traps; repo-state Dashboard). V ≠ S is a real FAIL. With a young QA org S, C, V may all be 0 — equality then proves nothing; note it and pass on V = S.
 
 ### T-DBT-62 · Dashboard aging panel ↔ /debts bucket sums [reconcile]
 Steps: for each bucket 0-7 / 8-30 / 31-60 / 60+: /debts direction «Нам должны» + matching «Срок» filter → sum «Остаток»; compare with the dashboard aging panel amount for that bucket.
@@ -122,5 +122,5 @@ Expect: Универсал balance card magnitude 60 000, Дебитор 15 000 
 
 ### T-DBT-64 · Cross-tab identity: rows = groups = net card [reconcile]
 Steps: 1. Clear all filters. 2. Transactions tab: R = Σ «Остаток» over green rows, P = Σ over red rows (use the CSV from T-DBT-08 mechanics for large sets). 3. Partners tab: N = Σ signed row sums (green +, red −). 4. Cards.
-Expect: R = «Нам должны», P = «Мы должны», N = R − P = «Чистая позиция» (magnitude + color by sign); partners pill = distinct partners among the rows; transactions pill = row count. All three views aggregate one served list — any drift is a real defect (R12).
+Expect: R = «Нам должны», P = «Мы должны», N = R − P = «Итог расчётов» (magnitude + color by sign); partners pill = distinct partners among the rows; transactions pill = row count. All three views aggregate one served list — any drift is a real defect (R12).
 Known: Σ of partner-row **magnitudes** ≠ R + P whenever a mixed-direction partner exists (rows net, cards gross — see T-DBT-04); that alone is the documented observation, not drift.

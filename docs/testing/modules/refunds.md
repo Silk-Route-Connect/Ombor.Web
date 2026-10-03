@@ -4,7 +4,7 @@ SaleRefund / SupplyRefund counter-events: creation from the original, caps, effe
 
 ## Surfaces
 
-- **No standalone route.** Refund create = `RefundModal`, opened only from the original's detail (`/sales/:id`, `/supplies/:id`) via ⋮ kebab → «Создать возврат» — the kebab's only row («Скачать» is the separate visible header button).
+- **No standalone route.** Refund create = `RefundModal`, opened only from the original's detail (`/sales/:id`, `/supplies/:id`) via the visible header button «Оформить возврат» (the `primaryAction`, ux-9); «Скачать» moved into the ⋮ kebab. The modal footer reads «Провести возврат» with the lock line «После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.»
 - **Refund rows** live inside the `/sales` feed (SaleRefund) and `/supplies` feed (SupplyRefund).
 - **Refund detail** = the same `TransactionDetailPage` route, rendering refund-specific parts: clickable «Возврат к продаже/поставке» banner, «Причина возврата» card, «Сумма возврата» financial card. No kebab at all on a refund detail.
 - **Wire:** refunds POST through the shared multipart `POST /api/transactions` with `Type=SaleRefund|SupplyRefund` + `OriginalTransactionId` + `RefundReason` — no dedicated refund route.
@@ -38,7 +38,7 @@ Expect: sale №S detail — «Итого» 75 000, «Оплачено» 0, «О
 ### T-RFD-02 · First SaleRefund: 3 of 5, mandatory reason [happy] ✍
 Pre: T-RFD-01.
 Steps:
-1. On `/sales/:id` of №S: ⋮ → «Создать возврат».
+1. On `/sales/:id` of №S (title «Продажа №S»): click «Оформить возврат».
 2. Verify modal title «Возврат к продаже №S»; meta row shows partner, warehouse, date; line А: «Продано» 5, «Возвращено» «—», «Доступно» 5 (R5).
 3. Check the line — qty pre-fills 5; change to 3. Footer reads «Позиций к возврату: 1» · «Сумма возврата: −45 000 UZS» (3 × 15 000).
 4. Verify «Причина возврата» label carries a red asterisk (R7 — visibly marked) and the info banner «Возврат необратим…» is present (R1).
@@ -58,7 +58,7 @@ Expect: title «№R1» only (#20e); banner «Возврат к продаже»
 
 ### T-RFD-05 · Original reflects refunded quantities [happy]
 Pre: T-RFD-04.
-Steps: on №S's detail scroll to «Возвраты по этой продаже»; then reopen ⋮ → «Создать возврат» (don't submit — close it).
+Steps: on №S's detail scroll to «Возвраты по этой продаже»; then reopen «Оформить возврат» (don't submit — close it).
 Expect: refund-history card count pill 1; row = date · «№R1» · positions 1 · reason · −45 000; row click opens №R1. Reopened modal line А: «Возвращено» 3, «Доступно» 2 (R5 — remaining = 5 − 3). Original's own figures unchanged: «Итого» still 75 000 (R1 — counter-event, not mutation).
 
 ### T-RFD-06 · SaleRefund returned stock to the warehouse [happy]

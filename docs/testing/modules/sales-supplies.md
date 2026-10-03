@@ -5,8 +5,8 @@ One direction-parameterized module: the `/sales` · `/supplies` feeds, transacti
 ## Surfaces
 
 - `/sales`, `/supplies` — one `TransactionPage` (mode-parameterized): title «Продажи»/«Поставки», «Новая продажа»/«Новая поставка», «Экспорт CSV»; search «Поиск по номеру или партнёру…»/«…или поставщику…», payment-status filter, period filter («Весь период / Последние 7 / 30 / 90 дней»); columns Дата · Номер · Тип · Партнёр · Позиций · Сумма · Статус оплаты; badges «Продажа»/«Поставка» (refund badges per refunds.md); status chips «Не оплачено» (Open) / «Частично» (PartiallyPaid) / «Оплачено» (Closed) / «Просрочено» (Overdue).
-- `/sales/:id`, `/supplies/:id` — one `TransactionDetailPage` (right rail, #20g): «Позиции» table + «Подытог / Скидка по позициям / Итого» footer; rail: financial card («Сумма продажи»/«Сумма поставки», «Оплачено», «Остаток», «Статус оплаты»), «Информация» (Создано, «Склад отгрузки»/«Склад приёмки», partner), «Платежи», «Примечание и вложения».
-- `/sales/new`, `/supplies/new` — one `NewTransactionEntry` POS page: product search («Найдите товар по названию или артикулу…»), cart «Позиции», partner picker + projected «Баланс после продажи/поставки» card, warehouse «Склад»/«Склад приёмки», bulk-discount row, notes/attachments toggle, `TransactionSummaryCard` (totals → payment «Оплата» with wallet + amount + «Вся сумма» → overpayment disposition → immutability note → «Провести продажу»/«Провести поставку»), «Сохранить как шаблон», «Загрузить шаблон», keyboard hints.
+- `/sales/:id`, `/supplies/:id` — one `TransactionDetailPage` (right rail, #20g): «Позиции» table + «Подытог / Скидка по позициям / Итого» footer; rail: financial card («Сумма продажи»/«Сумма поставки», «Оплачено», «Остаток», «Статус оплаты»), «Информация» («Проведено», «Склад отгрузки»/«Склад приёмки», partner). Header title names the type — «Продажа №N» / «Поставка №N» / «Возврат продажи №N» — with «Оформить возврат» as the visible action and «Скачать» in ⋮ (refund details keep «Скачать» visible), «Платежи», «Примечание и вложения».
+- `/sales/new`, `/supplies/new` — one `NewTransactionEntry` POS page: product search («Найдите товар по названию или артикулу…»), cart «Позиции», partner picker (labelled «Клиент» on a sale with the hint «Покупатель без имени? Выберите «Розничный покупатель»…» while empty; «Поставщик» on a supply; product dropdown lists in-stock items first) + projected «Баланс после продажи/поставки» card, warehouse «Склад»/«Склад приёмки», bulk-discount row, notes/attachments toggle, `TransactionSummaryCard` (totals → payment «Оплата» with wallet + amount + «Вся сумма» → overpayment disposition → «Провести …» button with the lock line «После проведения изменить нельзя — ошибку исправляют возвратом.» under it (Ctrl/⌘+Enter also commits) → «Провести продажу»/«Провести поставку»), «Сохранить как шаблон», «Загрузить шаблон», keyboard hints.
 
 ## Traps
 
@@ -20,7 +20,7 @@ Module-specific; shared-checklist §6 still applies.
 | Sale submit with zero payment interrupts with a dialog «Провести без оплаты?» → «Провести в долг» | deliberate friction before creating debt, not a validation failure |
 | Wallet options render «{тип} · баланс N UZS» exposing balances in the picker | designed tender affordance |
 | Cart-line «Цена за ед», «Скидка» and «Оплата» amount fields space-group digits as you type («1 500 000») and show blank + placeholder «0» at zero | `MoneyInputBase` live thousands grouping; the raw whole-number UZS is stored, not the formatted string |
-| «Скачать» on detail → toast «… — раздел в разработке» | dev stub |
+| «Скачать» (in ⋮ on a sale/supply, visible on a refund) → toast «… — раздел в разработке» | dev stub until the print feature |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
 | Line totals and stock hints stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count now **is** persisted (F21 resolved 2026-07-19 — FE sends `packageQuantity`, server snapshots `packageSize`) and the detail line shows "N упак / <base>" |
@@ -39,7 +39,7 @@ Expect: products created with **no quantity/cost inputs** on the form (R22); pro
 
 Pre: T-POS-01.
 Steps: 1. `/supplies/new`: partner «QA-<MMDD> Поставщик П», «Склад приёмки» = «QA Склад А». 2. Add П1, qty 10, «Цена поставки за шт» 100. 3. Add П2, qty 10, «Цена поставки за шт» 100. 4. «Оплата»: wallet «QA Касса», «Вся сумма» (2 000). 5. «Провести поставку».
-Expect: success toast cites the document number — per DR-21/F19 it must render «№N»; the current string is «Поставка #{{number}} проведена» — if «#N» renders, report a Cosmetic defect (convention violation), the supply itself is fine. «QA Склад А» → Остатки: П1 qty 10, «Сред. себест.» 100; П2 qty 10, «Сред. себест.» 100 (#16); П1 product detail totalStock 10.
+Expect: success toast «Поставка №N проведена» (DR-21/F19 — «#N» is a defect). «QA Склад А» → Остатки: П1 qty 10, «Сред. себест.» 100; П2 qty 10, «Сред. себест.» 100 (#16); П1 product detail totalStock 10.
 
 ### T-POS-03 · Second supply at a new price — WAC oracle [happy] ✍
 

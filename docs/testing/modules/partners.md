@@ -23,7 +23,7 @@ Module-specific designed-behavior; shared-checklist traps not repeated.
 | «Обороты» rail card sums ledger deltas client-side. | Display subtotals of served deltas — not a recomputed balance; no R12 violation. The balance itself is served. |
 | Opening ledger row: tinted, not clickable, date without time, «—» in «Номер». | Designed — opening is a synthetic event (id 0, no source record). |
 | Zero balance renders «—» in the list column (detail shows «0» + «Баланс закрыт — обязательств нет»). | Designed muting of settled partners. |
-| Form type control shows short «Оба»; chips elsewhere show «Клиент + Поставщик». | #15 governs chips; the compact form label is a localized short form, not a raw enum leak. |
+| Form type control, chips, CSV all show «Клиент + Поставщик» — «Оба» is never shown. | #15 + plain-language glossary (ui-patterns Display conventions). |
 | Archived partner selectable in the **Template** form partner picker. | Known F15 — belongs to `modules/templates.md` (Wave 2); do not test or report here. |
 
 ## Happy path
@@ -38,7 +38,7 @@ Expect: toast «Партнёр «QA-<MMDD> Партнёр А» создан»; r
 ### T-PRT-02 · Detail page structure, rail, count pills [happy]
 Pre: partner А (T-PRT-01).
 Steps: 1) Open А from the list. 2) Inspect header, rail, tabs.
-Expect: header = name + type chip «Поставщик» + no meta beyond titleExtra (#20e, Traps); rail balance hero «−50 000» red + hint «Дебиторская задолженность — партнёр должен нам»; opening strip per T-PRT-01; «Обороты» rows Продажи/Поставки/Платежи all «—» (zero); «Контакты» lists the phone. Tabs «Журнал 1 · Транзакции 0 · Платежи 0» (#20b). Транзакции tab shows empty state «Партнёр только создан — пока есть только начальный баланс…».
+Expect: header = name + type chip «Поставщик» + no meta beyond titleExtra (#20e, Traps); rail balance hero «−50 000» red + hint «Партнёр должен нам»; opening strip per T-PRT-01; «Обороты» rows Продажи/Поставки/Платежи all «—» (zero); «Контакты» lists the phone. Tabs «Журнал 1 · Транзакции 0 · Платежи 0» (#20b). Транзакции tab shows empty state «Партнёр только создан — пока есть только начальный баланс…».
 
 ### T-PRT-03 · Ledger opening row semantics [happy]
 Pre: partner А.
@@ -55,10 +55,10 @@ Pre: partner А; fixtures «QA Склад А», «QA Товар Штучный»
 Steps: 1) /supplies/new: partner А, warehouse «QA Склад А», «QA Товар Штучный» ×10 (total 100 000), no payment, submit. 2) Back to А → Журнал.
 Expect: new supply row on top (date-desc default): event «Поставка», «Номер» = «№…» (the supply's document number via `formatEntityId`, F20 resolved 2026-07-19 — a «—» here on a sale/supply/refund row is now a regression; only the opening event stays «—»), Сумма «+100 000» green (we owe more, partner-POV), «Баланс после» «+50 000» = −(50 000 − 100 000) green; balance card now «+50 000» green + hint «Кредиторская задолженность — мы должны партнёру»; «Обороты» Поставки = 100 000; pills «Журнал 2 · Транзакции 1 · Платежи 0» (R12).
 
-### T-PRT-06 · Deep link lands on filtered Транзакции tab [happy]
+### T-PRT-06 · Deep link lands on filtered «Продажи и поставки» tab [happy]
 Pre: partner А with the open supply debt (T-PRT-05).
 Steps: 1) Navigate directly to `/partners/<id А>?tab=transactions&status=open`. 2) Also: /debts → По партнёрам → click А and note whether the link carries the same params.
-Expect: Транзакции tab active, status filter preset «Открытые — долг», showing exactly the unpaid supply (status chip «Не оплачено», Сумма 100 000). `open` = unpaid ∪ partial. Refresh keeps the filtered landing.
+Expect: «Продажи и поставки» tab active, status filter preset «Открытые — долг», showing exactly the unpaid supply (status chip «Не оплачено», Сумма 100 000). `open` = unpaid ∪ partial. Refresh keeps the filtered landing.
 
 ### T-PRT-07 · Payment settles debt; ledger and balance reconcile [happy] ✍
 Pre: partner А (open supply 100 000).
@@ -67,7 +67,7 @@ Expect: payment row: event «Оплата», Сумма «−100 000» red (thei
 
 ### T-PRT-08 · PartnerType Both chip [happy]
 Pre: partner А.
-Steps: 1) Edit А → type «Оба» → save. 2) Check list row and detail header.
+Steps: 1) Edit А → type «Клиент + Поставщик» → save. 2) Check list row and detail header.
 Expect: chip renders «Клиент + Поставщик» in both places — raw «Both» never shown (#15).
 
 ### T-PRT-09 · Archive never blocked; history resolves; picker excludes [happy]
@@ -132,10 +132,10 @@ Expect: balance card «−50 000» red — the opening event alone (50 000 recei
 ### T-PRT-62 · Summary strip self-consistency [reconcile]
 Pre: /partners, «Активные» view, partners А and Б present (post T-PRT-60).
 Steps: 1) Set pager to 50; type filter «Все». 2) Sum the red («−») balance cells and the green («+») balance cells across all active rows. 3) Compare with the strip.
-Expect: «Всего к получению» = sum of red balances (unsigned); «Всего к оплате» = sum of green; «Чистая позиция» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners («N партнёров должны нам» / «мы должны N партнёрам»); the net card subtitle counts ALL active partners («N активных»), zero-balance included; archived partners excluded from all three.
+Expect: «Всего к получению» = sum of red balances (unsigned); «Всего к оплате» = sum of green; «Итог расчётов» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners («N партнёров должны нам» / «мы должны N партнёрам»); the net card subtitle counts ALL active partners («N активных»), zero-balance included; archived partners excluded from all three.
 Known: REC-3 — the strip once rendered all-zero counts (unreconciled). If reproduced, report KNOWN with exact repro detail (filters, timing, data state), not a new defect.
 
 ### T-PRT-63 · Count-pill arithmetic [reconcile]
 Pre: partner А (post T-PRT-07).
 Steps: 1) А detail: read the three tab pills.
-Expect: Журнал = Транзакции + Платежи + 1 (the opening row): «3 = 1 + 1 + 1». The tabs are pure partitions of one served ledger — a mismatch means rows are dropped or double-counted between tabs.
+Expect: Журнал = «Продажи и поставки» + Платежи + 1 (the opening row): «3 = 1 + 1 + 1». The tabs are pure partitions of one served ledger — a mismatch means rows are dropped or double-counted between tabs.
