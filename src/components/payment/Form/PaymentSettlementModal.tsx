@@ -24,6 +24,12 @@ interface PaymentSettlementModalProps {
 	amount: number;
 	walletName: string;
 	direction: "Income" | "Expense";
+	/**
+	 * `commit` (a standalone payment): the confirm books the payment.
+	 * `apply` (the POS overpayment): the confirm only applies the split to the
+	 * cart — nothing is saved until the sale / supply itself is booked.
+	 */
+	mode?: "commit" | "apply";
 	outstanding: Loadable<OutstandingTransaction[]>;
 	/** Re-runs a failed open-debts load. */
 	onRetry?: () => void;
@@ -68,12 +74,14 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 	amount,
 	walletName,
 	direction,
+	mode = "commit",
 	outstanding,
 	onRetry,
 	onBack,
 	onConfirm,
 }) => {
 	const { t } = useTranslation();
+	const applyOnly = mode === "apply";
 
 	const rowsData = useMemo(() => readyOr(outstanding, []), [outstanding]);
 
@@ -133,14 +141,17 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		>
 			<FormDialogHeader
 				title={t("payment.settlement.title")}
-				subtitle={t("payment.settlement.subtitle", {
-					amount: formatCurrency(amount),
-					wallet: walletName,
-					partner: partnerName,
-					kind: t(
-						direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
-					),
-				})}
+				subtitle={t(
+					applyOnly ? "payment.settlement.subtitleApply" : "payment.settlement.subtitle",
+					{
+						amount: formatCurrency(amount),
+						wallet: walletName,
+						partner: partnerName,
+						kind: t(
+							direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
+						),
+					},
+				)}
 				disabled={isSaving}
 				onClose={onBack}
 			/>
@@ -268,6 +279,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 					distributed={distributed}
 					advance={advance}
 					debtsReady={debtsReady}
+					restGoesToAdvance={!applyOnly}
 				/>
 			</DialogContent>
 
@@ -277,9 +289,16 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 				onCancel={onBack}
 				onSave={confirm}
 				cancelLabel={t("payment.settlement.back")}
-				submitLabel={t("payment.settlement.confirm")}
+				submitLabel={t(applyOnly ? "payment.settlement.apply" : "payment.settlement.confirm")}
 				submitIcon={<CheckIcon />}
-				commitNote={t("payment.form.commitNote")}
+				commitNote={applyOnly ? undefined : t("payment.form.commitNote")}
+				summary={
+					applyOnly ? (
+						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+							{t("payment.settlement.applyHint")}
+						</Typography>
+					) : undefined
+				}
 			/>
 		</Dialog>
 	);

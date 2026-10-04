@@ -265,8 +265,9 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		entry.setSettleAlloc(settlements);
 		setDialog("none");
 		const distributed = settlements.reduce((s, a) => s + a.amount, 0);
-		notificationStore.success(
-			t("transaction.new.settled", { amount: formatCurrency(distributed) }),
+		// Nothing is saved yet — the split rides along with the sale / supply.
+		notificationStore.info(
+			t(`transaction.new.settled.${direction}`, { amount: formatCurrency(distributed) }),
 		);
 	};
 
@@ -737,6 +738,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 					amount={entry.overExcess}
 					walletName={walletName}
 					direction={isSale ? "Income" : "Expense"}
+					mode="apply"
 					outstanding={entry.outstanding}
 					onBack={() => setDialog("none")}
 					onConfirm={confirmSettlement}

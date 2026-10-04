@@ -160,6 +160,7 @@
 
   "payment.settlement.title": "Какие долги закрыть",
   "payment.settlement.subtitle": "Платёж на {{amount}} UZS ({{wallet}}) — выберите, какие {{kind}} «{{partner}}» он закрывает. Остаток станет авансом.",
+  "payment.settlement.subtitleApply": "Излишек оплаты {{amount}} UZS ({{wallet}}) — выберите, какие {{kind}} «{{partner}}» он закрывает. Остаток уйдёт сдачей или авансом.",
   "payment.settlement.debts": "долги",
   "payment.settlement.supplies": "поставки",
   "payment.settlement.auto": "Авто (сначала старые)",
@@ -176,8 +177,12 @@
   "payment.settlement.distributed": "Закрыто долгов",
   "payment.settlement.toAdvance": "В аванс",
   "payment.settlement.advanceNote": "Зачислится как аванс партнёра",
+  "payment.settlement.rest": "Останется",
+  "payment.settlement.restNote": "Сдача или аванс — выберите в итогах",
   "payment.settlement.back": "Назад",
   "payment.settlement.confirm": "Провести платёж",
+  "payment.settlement.apply": "Применить",
+  "payment.settlement.applyHint": "Сохранится вместе с документом, когда вы его проведёте",
 
   "payment.validation.partnerRequired": "Выберите партнёра",
   "payment.validation.employeeRequired": "Выберите сотрудника",
