@@ -6,11 +6,13 @@ import StatementPeriodFields from "components/partner/Statement/StatementPeriodF
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PrintLayout from "components/shared/Print/PrintLayout";
 import PrintOrganizationGate from "components/shared/Print/PrintOrganizationGate";
+import { parseISO } from "date-fns";
 import { isPresent, isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { formatDate } from "utils/dateUtils";
 import { buildPartnerStatement, parseStatementPeriod } from "utils/partnerStatement";
 
 /**
@@ -59,6 +61,11 @@ const PartnerStatementPage: React.FC = observer(() => {
 			{(organization) => (
 				<PrintLayout
 					title={t("print.statement.toolbarTitle", { name: partner.name })}
+					documentTitle={t("print.statement.documentTitle", {
+						name: partner.name,
+						from: formatDate(parseISO(period.from)),
+						to: formatDate(parseISO(period.to)),
+					})}
 					backTo={partnerDetailPath(partnerId)}
 					toolbar={
 						<StatementPeriodFields

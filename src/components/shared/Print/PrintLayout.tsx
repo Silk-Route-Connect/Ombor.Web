@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
@@ -11,6 +11,11 @@ import { PRINT_PAGE_MARGIN, printSheetSx } from "./printStyles";
 interface PrintLayoutProps {
 	/** Screen title of the print view («Накладная на продажу №12»). */
 	title: string;
+	/**
+	 * The browser tab title while the view is open — «Сохранить как PDF» offers it
+	 * as the file name. Defaults to `title`.
+	 */
+	documentTitle?: string;
 	/** Where back returns on a direct load (the document's own detail page). */
 	backTo: string;
 	/** Screen-only controls left of «Печать» — e.g. the statement period. */
@@ -25,8 +30,22 @@ interface PrintLayoutProps {
  * browser's own print dialog — on paper only the sheet remains (the app chrome
  * hides itself under `@media print`, see AppLayout) with A4 page margins.
  */
-export const PrintLayout: React.FC<PrintLayoutProps> = ({ title, backTo, toolbar, children }) => {
+export const PrintLayout: React.FC<PrintLayoutProps> = ({
+	title,
+	documentTitle = title,
+	backTo,
+	toolbar,
+	children,
+}) => {
 	const { t } = useTranslation();
+
+	useEffect(() => {
+		const previous = document.title;
+		document.title = documentTitle;
+		return () => {
+			document.title = previous;
+		};
+	}, [documentTitle]);
 
 	return (
 		<Box>

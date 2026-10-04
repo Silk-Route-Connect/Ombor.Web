@@ -51,6 +51,7 @@
   "print.invoice.receivedBy": "Получил",
 
   "print.statement.toolbarTitle": "Акт сверки — {{name}}",
+  "print.statement.documentTitle": "Акт сверки — {{name}} — {{from}}–{{to}}",
   "print.statement.periodFrom": "С",
   "print.statement.periodTo": "По",
   "print.statement.title": "Акт сверки взаиморасчётов",

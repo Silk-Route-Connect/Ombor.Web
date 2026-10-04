@@ -46,9 +46,12 @@ export const defaultStatementPeriod = (now: Date = new Date()): StatementPeriod 
 const isDay = (value: string | null): value is string =>
 	value !== null && /^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value));
 
+const earlier = (a: string, b: string): string => (a <= b ? a : b);
+
 /**
  * The period from the page's `?from&to`: a missing or malformed end takes the
- * default, and reversed ends are swapped so `from` is never after `to`.
+ * default, reversed ends are swapped so `from` is never after `to`, and both
+ * are capped at today — the act states the balance «На <по>», never a future day.
  */
 export function parseStatementPeriod(
 	from: string | null,
@@ -56,10 +59,19 @@ export function parseStatementPeriod(
 	now: Date = new Date(),
 ): StatementPeriod {
 	const fallback = defaultStatementPeriod(now);
+	const today = fallback.to;
 	const start = isDay(from) ? from : fallback.from;
 	const end = isDay(to) ? to : fallback.to;
-	return start <= end ? { from: start, to: end } : { from: end, to: start };
+	const [first, last] = start <= end ? [start, end] : [end, start];
+	return { from: earlier(first, today), to: earlier(last, today) };
 }
+
+/**
+ * A zero opening balance is served as a «Начальный баланс» entry on the
+ * partner's opening date, which can fall after their first documents — on paper
+ * it would be an empty row in the middle of the period.
+ */
+const isEmptyOpening = (e: PartnerLedgerEntry): boolean => e.type === "opening" && e.delta === 0;
 
 /**
  * Builds the statement from the served ledger (newest-first; its running
@@ -75,7 +87,7 @@ export function buildPartnerStatement(
 	const before = chronological.filter((e) => dayKey(e.date) < period.from);
 	const inPeriod = chronological.filter((e) => {
 		const day = dayKey(e.date);
-		return day >= period.from && day <= period.to;
+		return day >= period.from && day <= period.to && !isEmptyOpening(e);
 	});
 
 	const opening = before.length > 0 ? before[before.length - 1].balance : 0;

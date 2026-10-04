@@ -32,10 +32,13 @@ const saldo = (t: TFunction, value: number): string => {
 	return `${formatCurrency(Math.abs(value))} ${t(side)}`;
 };
 
+/** A Дебет / Кредит amount; zero leaves the cell blank, as on a paper act. */
+const amountCell = (value: number): string => (value ? formatCurrency(value) : "");
+
 /** A balance placed in the Дебет or Кредит column, the other one left blank. */
 const sideCells = (value: number) => ({
-	debit: value >= 0 ? formatCurrency(value) : "",
-	credit: value < 0 ? formatCurrency(-value) : "",
+	debit: value > 0 ? amountCell(value) : "",
+	credit: value < 0 ? amountCell(-value) : "",
 });
 
 const day = (iso: string) => formatDate(parseISO(iso));
@@ -78,13 +81,13 @@ export const PartnerStatementSheet: React.FC<PartnerStatementSheetProps> = ({
 				key: "debit",
 				header: t("print.col.debit"),
 				align: "right",
-				render: (r) => (r.debit ? formatCurrency(r.debit) : ""),
+				render: (r) => amountCell(r.debit),
 			},
 			{
 				key: "credit",
 				header: t("print.col.credit"),
 				align: "right",
-				render: (r) => (r.credit ? formatCurrency(r.credit) : ""),
+				render: (r) => amountCell(r.credit),
 			},
 			{
 				key: "balance",
@@ -108,8 +111,8 @@ export const PartnerStatementSheet: React.FC<PartnerStatementSheetProps> = ({
 			key: "turnover",
 			label: t("print.statement.turnoverRow"),
 			cells: {
-				debit: formatCurrency(statement.debitTotal),
-				credit: formatCurrency(statement.creditTotal),
+				debit: amountCell(statement.debitTotal),
+				credit: amountCell(statement.creditTotal),
 			},
 		},
 		{
