@@ -425,6 +425,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 					<ProductSearchBar
 						direction={direction}
 						products={products}
+						catalogue={readyOr(productStore.allProducts, [])}
 						warehouseId={entry.warehouseId}
 						inCart={entry.inCart}
 						inputRef={searchRef}

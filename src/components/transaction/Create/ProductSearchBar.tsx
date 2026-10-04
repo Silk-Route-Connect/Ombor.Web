@@ -5,7 +5,12 @@ import { stockAt } from "hooks/transactions/useTransactionEntry";
 import { Product } from "models/product";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { findBarcodeMatch, matchesProductSearch, stockLevel } from "utils/productFilters";
+import {
+	findBarcodeMatch,
+	findBarcodeOwner,
+	matchesProductSearch,
+	stockLevel,
+} from "utils/productFilters";
 import { measurementShort } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
@@ -17,6 +22,11 @@ import { Autocomplete, Box, Button, TextField, Typography } from "@mui/material"
 interface ProductSearchBarProps {
 	direction: TransactionDirection;
 	products: Product[];
+	/**
+	 * Every product, archived and other-type ones too: a code one of them carries
+	 * explains why it can't be added instead of offering a duplicate product.
+	 */
+	catalogue?: Product[];
 	warehouseId: number | null;
 	inCart: Set<number>;
 	inputRef?: React.Ref<HTMLInputElement>;
@@ -51,6 +61,7 @@ function inStockFirst(products: Product[], warehouseId: number | null): Product[
 export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 	direction,
 	products,
+	catalogue,
 	warehouseId,
 	inCart,
 	inputRef,
@@ -72,7 +83,8 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 	const nothingMatches = inputValue.trim()
 		? !products.some((p) => matchesProductSearch(p, inputValue))
 		: products.length === 0;
-	const canCreate = Boolean(onCreateProduct) && nothingMatches;
+	const codeOwner = nothingMatches && catalogue ? findBarcodeOwner(catalogue, inputValue) : null;
+	const canCreate = Boolean(onCreateProduct) && nothingMatches && !codeOwner;
 
 	const createProduct = (): void => {
 		onCreateProduct?.(inputValue);
@@ -99,22 +111,36 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 		}
 	};
 
-	const noOptions = canCreate ? (
-		<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
-			<span>{t("transaction.new.search.empty")}</span>
-			<Button
-				size="small"
-				startIcon={<AddIcon />}
-				// Keep the input focused so the popup stays open until the click lands.
-				onMouseDown={(e) => e.preventDefault()}
-				onClick={createProduct}
-			>
-				{t("transaction.new.search.create")}
-			</Button>
-		</Box>
-	) : (
-		t("transaction.new.search.empty")
-	);
+	const ownerNote = codeOwner
+		? t(
+				codeOwner.isArchived
+					? "transaction.new.search.ownerArchived"
+					: isSale
+						? "transaction.new.search.ownerNotForSale"
+						: "transaction.new.search.ownerNotForSupply",
+				{ name: codeOwner.name },
+			)
+		: null;
+
+	const noOptions =
+		ownerNote ??
+		(canCreate ? (
+			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+				<span>{t("transaction.new.search.empty")}</span>
+				<Button
+					size="small"
+					startIcon={<AddIcon />}
+					// Keep the input focused so the popup stays open until the click lands.
+					onMouseDown={(e) => e.preventDefault()}
+					onClick={createProduct}
+				>
+					{t("transaction.new.search.create")}
+				</Button>
+			</Box>
+		) : (
+			// Every match is already a cart line (a repeat scan still adds one on Enter).
+			t(nothingMatches ? "transaction.new.search.empty" : "transaction.new.search.inCart")
+		));
 
 	return (
 		<Autocomplete

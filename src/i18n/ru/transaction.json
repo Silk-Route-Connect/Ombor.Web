@@ -245,6 +245,10 @@
 
   "transaction.new.search.placeholder": "Найдите товар по названию, артикулу или штрих-коду…",
   "transaction.new.search.empty": "Товар не найден",
+  "transaction.new.search.inCart": "Уже в позициях — измените количество в строке",
+  "transaction.new.search.ownerArchived": "Этот код у товара «{{name}}» из архива — верните товар из архива, чтобы добавить его",
+  "transaction.new.search.ownerNotForSale": "Этот код у товара «{{name}}» — он только для поставок. Чтобы продавать, смените тип товара",
+  "transaction.new.search.ownerNotForSupply": "Этот код у товара «{{name}}» — он только для продаж. Чтобы оформить поставку, смените тип товара",
   "transaction.new.search.create": "Создать товар (Enter)",
   "transaction.new.search.outOfStock": "Нет в наличии",
   "transaction.new.search.inStock": "На складе: {{count}} {{unit}}",

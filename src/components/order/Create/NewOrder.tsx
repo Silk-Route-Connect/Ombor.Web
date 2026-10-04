@@ -285,6 +285,7 @@ export const NewOrder: React.FC = observer(() => {
 					<ProductSearchBar
 						direction="Sale"
 						products={products}
+						catalogue={readyOr(productStore.allProducts, [])}
 						warehouseId={warehouseId}
 						inCart={inCart}
 						inputRef={searchRef}

@@ -96,11 +96,28 @@ export function findBarcodeMatch(products: Product[], code: string): BarcodeMatc
 	}
 	const matches: BarcodeMatch[] = [];
 	for (const product of products) {
-		if (product.barcode?.trim() === value) {
-			matches.push({ product, asPackage: false });
-		} else if (product.packaging && product.packaging.barcode?.trim() === value) {
-			matches.push({ product, asPackage: true });
+		const scanned = scannedAs(product, value);
+		if (scanned) {
+			matches.push({ product, asPackage: scanned === "package" });
 		}
 	}
 	return matches.length === 1 ? matches[0] : null;
+}
+
+/**
+ * The first product already carrying the code as its barcode or packaging
+ * barcode. The POS checks the whole catalogue (archived and other-type products
+ * too) before offering «Создать товар», since a second product with the same
+ * code would stop the scanner adding either.
+ */
+export function findBarcodeOwner(products: Product[], code: string): Product | null {
+	const value = code.trim();
+	return value ? (products.find((product) => scannedAs(product, value) !== null) ?? null) : null;
+}
+
+function scannedAs(product: Product, code: string): "unit" | "package" | null {
+	if (product.barcode?.trim() === code) {
+		return "unit";
+	}
+	return product.packaging?.barcode?.trim() === code ? "package" : null;
 }

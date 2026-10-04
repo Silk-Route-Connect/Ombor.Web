@@ -178,7 +178,13 @@ Expect: 1 → only this month's documents (from the 1st, not the last 30 days); 
 
 Pre: «QA Товар Упаковка» with a product barcode and a packaging barcode (set them in the product form if empty).
 Steps: 1. `/sales/new`: pick a client and a warehouse. 2. Type (or scan) the product barcode, press Enter. 3. Press Enter again on the same code (scan again). 4. Type the packaging barcode, Enter. 5. Type an unknown code «999000111222», Enter; cancel the form.
-Expect: 2 → the line is added with qty 1, the search field is empty and keeps the focus (a scanner can go on). 3 → the same line goes to 2. 4 → the line grows by one package (the pack size); on a new product the line opens in «упак» mode. 5 → the product form opens with the code filled into «Штрих-код»; cancelling returns to the sale with the cart unchanged. Ctrl+Enter inside that form never posts the sale.
+Expect: 2 → the line is added with qty 1, the search field is empty and keeps the focus (a scanner can go on). 3 → the same line goes to 2. 4 → the line grows by one package (the pack size); on a new product the line opens in «упак» mode. 5 → the product form opens with the code filled into «Штрих-код»; cancelling returns to the sale with the cart unchanged. Ctrl+Enter inside that form never posts the sale. While a scanned code's product is already a cart line, the dropdown reads «Уже в позициях — измените количество в строке», never «Товар не найден».
+
+### T-POS-44 · A code another product carries is never offered as a new product [edge]
+
+Pre: a sale-only product with a barcode (any «Продажа» product of the seed).
+Steps: 1. `/supplies/new`: type (or scan) that product's barcode. 2. Press Enter.
+Expect: 1 → the dropdown names the product and says it is only for sales («…только для продаж. Чтобы оформить поставку, смените тип товара»); no «Создать товар». 2 → nothing is added and no form opens. An archived product's code reads «…из архива — верните товар из архива…» the same way.
 
 ## Reconciliation
 
