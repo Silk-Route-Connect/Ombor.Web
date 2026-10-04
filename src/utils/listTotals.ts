@@ -1,3 +1,4 @@
+import { Order, OrderStatus } from "models/order";
 import { StockAdjustment } from "models/stockAdjustment";
 import { TransactionRecord } from "models/transaction";
 
@@ -10,28 +11,59 @@ import { isRefundType } from "./transactionUtils";
 export const sumBy = <T>(rows: readonly T[], valueOf: (row: T) => number): number =>
 	rows.reduce((sum, row) => sum + valueOf(row), 0);
 
-/** Sales / Supplies footer: documents, their sum, refunds apart, paid and still unpaid. */
+/** Sales / Supplies footer: documents, their net sum, refunds named apart, paid and still unpaid. */
 export interface TransactionTotals {
 	count: number;
+	/** Sales (or supplies) minus their refunds — the sum of the list's signed «Сумма» column. */
 	amount: number;
+	/** The refunds netted out of `amount`, as a positive figure. */
 	refunds: number;
 	paid: number;
 	remaining: number;
 }
 
 /**
- * Refunds are listed with unsigned amounts, so they are totalled apart instead
- * of inflating «Сумма»; paid / unpaid count only sales or supplies.
+ * A refund row reads negative (D12), so «Сумма» nets refunds out exactly as the
+ * column adds up; «Возвраты» shows the refunded part. Paid / unpaid count only
+ * sales or supplies.
  */
 export function transactionTotals(rows: readonly TransactionRecord[]): TransactionTotals {
 	const documents = rows.filter((tx) => !isRefundType(tx.type));
-	const refunds = rows.filter((tx) => isRefundType(tx.type));
+	const refunds = sumBy(
+		rows.filter((tx) => isRefundType(tx.type)),
+		(tx) => tx.totalDue,
+	);
 	return {
 		count: rows.length,
-		amount: sumBy(documents, (tx) => tx.totalDue),
-		refunds: sumBy(refunds, (tx) => tx.totalDue),
+		amount: sumBy(documents, (tx) => tx.totalDue) - refunds,
+		refunds,
 		paid: sumBy(documents, (tx) => tx.totalPaid),
 		remaining: sumBy(documents, (tx) => Math.max(0, tx.totalDue - tx.totalPaid)),
+	};
+}
+
+/** Orders that will never be sold — their sum would overstate the orders on the list. */
+const DROPPED_ORDER_STATUSES: ReadonlySet<OrderStatus> = new Set(["Cancelled", "Rejected"]);
+
+/** Orders footer: the count and the sum of the live orders. */
+export interface OrderTotals {
+	count: number;
+	amount: number;
+	/** Some listed orders are cancelled / rejected and left out of `amount` (the label says so). */
+	excludesDropped: boolean;
+}
+
+/**
+ * «Сумма» leaves cancelled and rejected orders out. On a list made only of them
+ * (the «Отменён» / «Отклонён» tab) nothing else is left, so it sums what is listed.
+ */
+export function orderTotals(rows: readonly Order[]): OrderTotals {
+	const live = rows.filter((o) => !DROPPED_ORDER_STATUSES.has(o.status));
+	const excludesDropped = live.length > 0 && live.length < rows.length;
+	return {
+		count: rows.length,
+		amount: sumBy(live.length > 0 ? live : rows, (o) => o.total),
+		excludesDropped,
 	};
 }
 

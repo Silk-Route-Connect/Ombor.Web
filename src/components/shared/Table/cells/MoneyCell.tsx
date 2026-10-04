@@ -1,6 +1,6 @@
 import React from "react";
 import { numericSx, typeScale } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatCurrencyMinus } from "utils/formatCurrency";
 
 import { Box } from "@mui/material";
 
@@ -27,13 +27,21 @@ interface MoneyCellProps {
 	/** The table's main amount column (one per table): the 600 headline weight. */
 	main?: boolean;
 	tone?: MoneyTone;
+	/** A refund row in the Sales / Supplies feed: the served (positive) amount reads «−18 000» (D12). */
+	negative?: boolean;
 }
 
 /**
- * Money column cell: unsigned, tabular, no «UZS» (the unit shows only on totals
- * and hero figures). Right-align the column (`align: "right"`).
+ * Money column cell: unsigned (except a `negative` refund row), tabular, no
+ * «UZS» (the unit shows only on totals and hero figures). Right-align the
+ * column (`align: "right"`).
  */
-export const MoneyCell: React.FC<MoneyCellProps> = ({ value, main = false, tone = "ink" }) => {
+export const MoneyCell: React.FC<MoneyCellProps> = ({
+	value,
+	main = false,
+	tone = "ink",
+	negative = false,
+}) => {
 	if (value == null || !Number.isFinite(value)) {
 		return <NoValue />;
 	}
@@ -46,7 +54,7 @@ export const MoneyCell: React.FC<MoneyCellProps> = ({ value, main = false, tone 
 				whiteSpace: "nowrap",
 			}}
 		>
-			{formatCurrency(value)}
+			{negative ? formatCurrencyMinus(-value) : formatCurrency(value)}
 		</Box>
 	);
 };

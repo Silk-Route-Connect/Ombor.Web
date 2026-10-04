@@ -26,6 +26,10 @@ export const transactionDisplayNumber = (tx: TransactionRecord): string | number
 export const transactionDetailPath = (tx: TransactionRecord): string =>
 	directionOf(tx.type) === "Supply" ? supplyDetailPath(tx.id) : saleDetailPath(tx.id);
 
+/** The amount as the list shows it: a refund is negative (D12) — sort, CSV and totals agree. */
+export const signedTransactionAmount = (tx: TransactionRecord): number =>
+	isRefundType(tx.type) ? -tx.totalDue : tx.totalDue;
+
 /** Sort / CSV label of the type chip (refunds have their own label). */
 export const transactionTypeLabel = (t: TFunction, tx: TransactionRecord): string =>
 	t(
@@ -47,8 +51,8 @@ export interface TransactionRowHandlers {
 
 /**
  * Sales / Supplies feed columns in the canonical order (conventions.md →
- * Tables): № · Дата · Партнёр · Тип · Статус · Позиций · Сумма · ⋮. Amounts are
- * unsigned — the type chip says «Возврат».
+ * Tables): № · Дата · Партнёр · Тип · Статус · Позиций · Сумма · ⋮. A refund's
+ * amount reads negative («−18 000», owner decision D12) and sorts below zero.
  */
 export function buildTransactionColumns(
 	t: TFunction,
@@ -125,8 +129,8 @@ export function buildTransactionColumns(
 			headerName: t("transaction.col.amount"),
 			width: COLUMN_WIDTH.money,
 			align: "right",
-			sortValue: (tx) => tx.totalDue,
-			renderCell: (tx) => <MoneyCell value={tx.totalDue} main />,
+			sortValue: signedTransactionAmount,
+			renderCell: (tx) => <MoneyCell value={tx.totalDue} main negative={isRefundType(tx.type)} />,
 		},
 		{
 			key: "actions",

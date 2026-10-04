@@ -16,7 +16,7 @@ Module-specific designed behavior — never report these (shared-checklist §6 t
 | Observation | Why it's correct |
 | --- | --- |
 | Refund rows show «—» in «Статус» and vanish entirely when any status filter is active | refunds carry no payment status (`TransactionStore.feedFor`, design parity) |
-| Refund amount «−…» renders muted gray, not red | green/red reserved for money-direction figures (#4) |
+| Refund amount «−…» renders in ink, not red | green/red reserved for money-direction figures (#4); the minus is owner decision D12 |
 | Success toast «Возврат к №N проведён» cites the ORIGINAL's number, not the new refund's | by design (`transaction.refund.success`) |
 | Checking a line in the modal pre-fills the full available quantity | convenience default, editable |
 | Refund detail has no payments card and no status chip | an unpaid refund's debt surfaces on /debts and the partner ledger, not on its own detail |
@@ -48,7 +48,7 @@ Expect: toast «Возврат к №S проведён»; modal closes; detail 
 ### T-RFD-03 · Refund row rendering in /sales [happy]
 Pre: T-RFD-02. Record the refund's number №R1.
 Steps: open `/sales`, default sort; locate the refund row.
-Expect: sits directly ABOVE sale №S (date-desc tie handling by design); outlined chip «Возврат» with undo icon; amount «−45 000» muted; «Статус» «—»; № cell shows №R1 with sublabel «Возврат к №S» (DR-21 — «№» prefix, no Latin prefixes).
+Expect: sits directly ABOVE sale №S (date-desc tie handling by design); outlined chip «Возврат» with undo icon; amount «−45 000» (ink, D12); «Статус» «—»; № cell shows №R1 with sublabel «Возврат к №S» (DR-21 — «№» prefix, no Latin prefixes).
 Known: F19 resolved F6 — a blank «Возврат к №N» sublabel is a REGRESSION; report as a new defect, not F6.
 
 ### T-RFD-04 · Refund detail: content, links, no refund-of-refund [happy]

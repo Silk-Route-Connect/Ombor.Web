@@ -19,6 +19,7 @@
   "order.totals.count_few": "{{formatted}} заказа",
   "order.totals.count_many": "{{formatted}} заказов",
   "order.totals.count_other": "{{formatted}} заказа",
+  "order.totals.amountLive": "Сумма без отменённых и отклонённых",
 
   "order.empty.title": "Пока нет заказов",
   "order.empty.body": "Здесь появятся заказы клиентов — ожидающие сборки, доставки и оформления в продажу. Создайте первый заказ.",

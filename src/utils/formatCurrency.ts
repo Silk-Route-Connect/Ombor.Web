@@ -67,6 +67,14 @@ export function formatPercent(value: number): string {
 	return percentFormatter.format(value);
 }
 
+/**
+ * Money that may be negative, with a true minus: «−18 000» (a refund row and
+ * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned.
+ */
+export function formatCurrencyMinus(value: number): string {
+	return value < 0 ? `−${formatCurrency(-value)}` : formatCurrency(value);
+}
+
 /** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */
 export function formatSigned(value: number): string {
 	if (value === 0) {

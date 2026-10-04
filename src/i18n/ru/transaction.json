@@ -91,6 +91,7 @@
   "transaction.totals.count_few": "{{formatted}} документа",
   "transaction.totals.count_many": "{{formatted}} документов",
   "transaction.totals.count_other": "{{formatted}} документа",
+  "transaction.totals.amountNet": "Сумма с учётом возвратов",
 
   "transaction.col.date": "Дата",
   "transaction.col.number": "№",

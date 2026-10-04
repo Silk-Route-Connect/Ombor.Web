@@ -7,6 +7,7 @@ import TransactionListTotals from "components/transaction/List/TransactionListTo
 import TransactionsTable from "components/transaction/List/TransactionsTable";
 import {
 	buildTransactionColumns,
+	signedTransactionAmount,
 	transactionDetailPath,
 	transactionDisplayNumber,
 	transactionTypeLabel,
@@ -72,7 +73,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 					value: (tx) => (isRefundType(tx.type) ? "" : t(`transaction.statusShort.${tx.status}`)),
 				},
 				{ header: t("transaction.col.positions"), value: (tx) => tx.lines.length },
-				{ header: t("transaction.col.amount"), value: (tx) => tx.totalDue },
+				{ header: t("transaction.col.amount"), value: signedTransactionAmount },
 			],
 			tableOrder.apply(rows),
 		);

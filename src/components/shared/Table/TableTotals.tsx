@@ -1,7 +1,7 @@
 import React from "react";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrencyMinus } from "utils/formatCurrency";
 
 import { Box } from "@mui/material";
 
@@ -9,7 +9,7 @@ import { MoneyTone } from "./cells/MoneyCell";
 
 export interface TableTotalItem {
 	label: string;
-	/** A money sum (UZS) over the filtered rows. */
+	/** A money sum (UZS) over the filtered rows; a negative one reads «−…» (Sales «Возвраты», D12). */
 	value: number;
 	/** `income` / `expense` only for a direction total (Приход / Расход). */
 	tone?: MoneyTone;
@@ -58,7 +58,7 @@ const TableTotals: React.FC<TableTotalsProps> = ({ count, items = [] }) => (
 					component="span"
 					sx={{ ...numericSx, fontWeight: 600, color: TONE_COLOR[item.tone ?? "ink"] }}
 				>
-					{formatCurrency(item.value)}
+					{formatCurrencyMinus(item.value)}
 				</Box>
 				<UzsUnit />
 			</Box>
