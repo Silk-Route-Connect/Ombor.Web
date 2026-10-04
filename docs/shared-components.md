@@ -83,6 +83,7 @@
 | `ProductSearchBar`                                                     | Product-search cart feeder (POS flows)          | Lives in `components/transaction/Create/`; reused by New Order                     |
 | `useDirtyClose` (hook)                                                 | Unsaved-changes guard on modals                 | Lives in `hooks/shared/`                                                            |
 | `useFormKeyboardSubmit` (hook)                                         | Enter / Ctrl+Enter submit on form modals (XC-11) | Lives in `hooks/shared/`; returns an `onKeyDown` for the modal `<Dialog>`. Pass `{ requireModifier: true }` on immutable money/stock events — only Ctrl+Enter or a click commits, never a bare Enter |
+| `useSidewaysScroll` (hook) + `sidewaysFadeMask` | A control strip too wide for its toolbar (Orders status tabs) | Lives in `hooks/shared/`; scrolls sideways with no scrollbar (wheel, swipe, Tab), reports which edge hides items for an edge fade and arrow (`step`) |
 
 ## Buttons
 
