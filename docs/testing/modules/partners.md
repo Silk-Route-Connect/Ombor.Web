@@ -104,6 +104,11 @@ Pre: create form; name filled valid.
 Steps: 1) Click «Добавить номер» while the first row is empty. 2) Fill it, add rows up to 5, click «Добавить номер» again. 3) Delete a row with the bin icon inside the field.
 Expect: the same phone field as the employee form — fixed «+998», body grouped «90 123 45 67». 1→ no row added, hint «Сначала заполните пустой номер». 2→ at 5 rows the button stays enabled and says «Можно указать не больше 5 номеров». 3→ the row goes; the last remaining row has no bin.
 
+### T-PRT-39 · Errors appear on submit, never on leaving a field [edge]
+Pre: create form open, nothing typed.
+Steps: 1) Click into «Имя», leave it empty, then click «Добавить номер» once. 2) Click «Сохранить». 3) Type two letters into «Имя».
+Expect: 1 → no error appears and nothing moves; the single click lands on «Добавить номер» (hint «Сначала заполните пустой номер»). 2 → the errors appear inline («Имя должно содержать минимум 2 символа», phones). 3 → the name error clears as you type. The employee form behaves the same.
+
 ### T-PRT-32 · Telegram round-trip — persists and renders (F12) [edge]
 Pre: partner А.
 Steps: 1) Edit А → Telegram «@qa_prt_check» → save. 2) Hard-reload the detail page. 3) Check «Контакты» in the rail.

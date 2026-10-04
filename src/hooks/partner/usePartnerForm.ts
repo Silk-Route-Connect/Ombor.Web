@@ -40,7 +40,9 @@ export function usePartnerForm({
 }: UsePartnerFormParams): UsePartnerFormResult {
 	const form = useForm<PartnerFormInputs>({
 		resolver: zodResolver(PartnerSchema),
-		mode: "onBlur",
+		// Errors appear on submit, then follow every change. A blur-time error pushed the
+		// fields below down under the pointer, so the click aimed at «Добавить номер» missed.
+		mode: "onSubmit",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
 		defaultValues: emptyPartnerFormDefaults,
