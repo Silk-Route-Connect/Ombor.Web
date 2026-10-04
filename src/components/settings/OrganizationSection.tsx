@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { Organization } from "models/settings";
 import { useStore } from "stores/StoreContext";
-import { designTokens } from "theme";
 import { getImageFullUrl } from "utils/productUtils";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
@@ -28,21 +28,11 @@ const LabeledField: React.FC<{
 	const { t } = useTranslation();
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-			<Typography
-				component="label"
-				sx={{ fontSize: 13, fontWeight: 600, color: designTokens.gray700 }}
-			>
-				{label}
-				{optional ? (
-					<Box component="span" sx={{ fontWeight: 500, color: "text.disabled", ml: "4px" }}>
-						{t("settings.org.optional")}
-					</Box>
-				) : (
-					<Box component="span" sx={{ color: "error.main" }}>
-						{" *"}
-					</Box>
-				)}
-			</Typography>
+			<FormFieldLabel
+				label={label}
+				required={!optional}
+				hint={optional ? t("settings.org.optional") : undefined}
+			/>
 			{children}
 		</Box>
 	);
@@ -123,7 +113,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 						fullWidth
 						sx={fieldSx}
 						value={org.phone}
-						placeholder="+998 …"
+						placeholder={t("settings.org.phonePlaceholder")}
 						onChange={(e) => onChange({ phone: e.target.value })}
 					/>
 				</LabeledField>
