@@ -17,7 +17,8 @@ const TemplateItemSchema = z
 
 		quantity: z.number().int().min(1, i18next.t("template.validation.quantityInvalid")),
 
-		unitPrice: z.number().gt(0, i18next.t("template.validation.unitPriceInvalid")),
+		// 0 is a free item — the API takes any price ≥ 0 on template, order and sale lines.
+		unitPrice: z.number().min(0, i18next.t("template.validation.unitPriceInvalid")),
 
 		discount: z.number().min(0, i18next.t("template.validation.discountMin")),
 

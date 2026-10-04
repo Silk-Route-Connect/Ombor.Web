@@ -93,7 +93,7 @@
   "template.validation.itemsRequired": "Добавьте хотя бы одну позицию",
   "template.validation.productIdInvalid": "Выберите товар",
   "template.validation.quantityInvalid": "Количество должно быть больше 0",
-  "template.validation.unitPriceInvalid": "Цена должна быть больше 0",
+  "template.validation.unitPriceInvalid": "Цена не может быть отрицательной",
   "template.validation.discountMin": "Скидка не может быть меньше 0%",
   "template.validation.discountMax": "Скидка не может быть больше 100%",
   "template.validation.duplicateProduct": "Товар уже добавлен в список"
