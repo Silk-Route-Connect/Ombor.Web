@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import DeliveryInfoCard from "components/order/Detail/DeliveryInfoCard";
 import OrderDetailHeader from "components/order/Detail/OrderDetailHeader";
 import OrderPositionsCard from "components/order/Detail/OrderPositionsCard";
@@ -81,6 +82,7 @@ const OrderDetailPage: React.FC = observer(() => {
 					<OrderPositionsCard order={order} />
 					<DeliveryInfoCard order={order} />
 					<StatusHistoryCard order={order} />
+					<EntityHistory kind="Order" id={order.id} refreshKey={order} variant="card" />
 				</Box>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 					<OrderSidebar order={order} onOpenCustomer={openCustomer} />

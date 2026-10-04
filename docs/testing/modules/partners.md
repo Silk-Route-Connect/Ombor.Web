@@ -144,6 +144,11 @@ Pre: partner А.
 Steps: 1) Open `/partners/<id А>/statement?from=2026-12-31&to=2026-01-01`. 2) Open `…/statement?from=abc`. 3) Open `/partners/999999/statement`.
 Expect: 1→ the period reads «с 01.01.2026 по <today>» (ends swapped, then capped at today — never an empty act, never a balance «на» a future day). 2→ the default period (01.01.<this year> – today). 3→ «Партнёр не найден» with «К списку», no toast.
 
+### T-PRT-39 · «История» tab [edge] ✍
+Pre: partner А.
+Steps: 1) Detail → tab «История». 2) With the tab open, ⋮ → edit → change the address, save.
+Expect: 1→ changes to the partner record itself, newest first («Партнёр «А» добавлен» with the opening balance signed partner-side); its sales, supplies and payments stay on the other tabs; a row opens to «Поле · Было · Стало». 2→ «Партнёр «А» изменён: адрес … → …» appears at the top without leaving the tab. Details in [activity-log.md](activity-log.md) (T-ACT-06).
+
 ## Reconciliation
 
 ### T-PRT-60 · Headline: balance card ↔ ledger ↔ /debts ↔ open transactions [reconcile] ✍

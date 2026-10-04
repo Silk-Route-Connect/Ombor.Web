@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Navigate, Route } from "react-router-dom";
 import AppLayout from "layouts/AppLayout";
 import { SnackbarProvider, useSnackbar } from "notistack";
+import ActivityLogPage from "pages/ActivityLogPage";
 import CategoryPage from "pages/CategoryPage";
 import DashboardPage from "pages/DashboardPage";
 import DebtPage from "pages/DebtPage";
@@ -20,7 +21,6 @@ import PartnerPage from "pages/PartnerPage";
 import PartnerStatementPage from "pages/PartnerStatementPage";
 import PaymentDetailPage from "pages/PaymentDetailPage";
 import PaymentPage from "pages/PaymentPage";
-import PlaceholderPage from "pages/PlaceholderPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
@@ -122,10 +122,7 @@ function App() {
 								/>
 								<Route path={PATHS.employees} element={<EmployeePage />} />
 								<Route path={PATHS.employeeDetail} element={<EmployeeDetailPage />} />
-								<Route
-									path={PATHS.activityLog}
-									element={<PlaceholderPage titleKey="page.activityLog.title" />}
-								/>
+								<Route path={PATHS.activityLog} element={<ActivityLogPage />} />
 								<Route path={PATHS.settings} element={<SettingsPage />} />
 								<Route path="*" element={<NotFoundPage />} />
 							</Route>

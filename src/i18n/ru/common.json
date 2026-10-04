@@ -72,7 +72,6 @@
   "common.movementKind.Opening": "Начальный остаток",
   "common.movementKind.Transfer": "Перемещение",
   "common.movementKind.Adjustment": "Корректировка",
-  "common.pageInDevelopment": "Страница в разработке",
 
   "common.errorBoundary.title": "Что-то пошло не так",
   "common.errorBoundary.message": "Произошла непредвиденная ошибка. Отчёт уже отправлен — мы разберёмся. Попробуйте перезагрузить страницу.",

@@ -186,6 +186,11 @@ Pre: a sale-only product with a barcode (any «Продажа» product of the s
 Steps: 1. `/supplies/new`: type (or scan) that product's barcode. 2. Press Enter.
 Expect: 1 → the dropdown names the product and says it is only for sales («…только для продаж. Чтобы оформить поставку, смените тип товара»); no «Создать товар». 2 → nothing is added and no form opens. An archived product's code reads «…из архива — верните товар из архива…» the same way.
 
+### T-POS-45 · «История изменений» card on a sale [edge]
+Pre: the T-POS-04 credit sale with a later payment.
+Steps: open the sale detail, scroll to «История изменений».
+Expect: «Продажа №N проведена — <клиент>» with the time and the user, then «Расчёты по продаже №N обновлены: статус оплаты Не оплачено → Частично …» for the payment that settled it; opening a row shows «Поле · Было · Стало». No edit or delete affordance anywhere in the card (#8). Details in [activity-log.md](activity-log.md).
+
 ## Reconciliation
 
 ### T-POS-60 · Detail arithmetic ↔ list ↔ served totals [reconcile]

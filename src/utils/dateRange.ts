@@ -1,5 +1,6 @@
 import {
 	addDays,
+	format,
 	isValid,
 	parseISO,
 	startOfDay,
@@ -91,6 +92,20 @@ export const isDateRangeActive = (value: DateRangeValue): boolean => value.prese
 export function formatCustomRange(from: string, to: string): string {
 	const day = (iso: string) => formatDate(parseISO(iso));
 	return from === to ? day(from) : `${day(from)} – ${day(to)}`;
+}
+
+/**
+ * The filter's period as inclusive calendar days for a server-side filter
+ * (`from` / `to` «yyyy-MM-dd»); both absent for «Весь период».
+ */
+export function toDayParams(
+	value: DateRangeValue,
+	now: Date = new Date(),
+): { from?: string; to?: string } {
+	const range = resolveDateRange(value, now);
+	return range === null
+		? {}
+		: { from: format(range.start, "yyyy-MM-dd"), to: format(addDays(range.end, -1), "yyyy-MM-dd") };
 }
 
 /** A custom range from two picked days, ordered so `from` is never after `to`. */

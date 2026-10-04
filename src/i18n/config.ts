@@ -1,6 +1,7 @@
 import { initReactI18next } from "react-i18next";
 import i18next from "i18next";
 
+import activityRu from "./ru/activity.json";
 import authRu from "./ru/auth.json";
 import categoryRu from "./ru/category.json";
 import commonRu from "./ru/common.json";
@@ -77,6 +78,7 @@ const resources = {
 			...onboardingRu,
 			...settingsRu,
 			...printRu,
+			...activityRu,
 		},
 	},
 	uz: {

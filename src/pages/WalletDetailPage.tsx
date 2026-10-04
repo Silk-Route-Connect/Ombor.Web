@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
@@ -22,7 +23,7 @@ import { useStore } from "stores/StoreContext";
 
 import { Box, Stack } from "@mui/material";
 
-type WalletDetailTab = "operations" | "transfers";
+type WalletDetailTab = "operations" | "transfers" | "history";
 
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -117,6 +118,7 @@ const WalletDetailPage: React.FC = observer(() => {
 			label: t("wallet.detail.tabs.transfers"),
 			count: isReady(transfersState) ? transfers.length : undefined,
 		},
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	return (
@@ -137,7 +139,9 @@ const WalletDetailPage: React.FC = observer(() => {
 			<Stack sx={{ gap: "16px" }}>
 				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 
-				{!isReady(operationsState) || !isReady(transfersState) ? (
+				{tab === "history" ? (
+					<EntityHistory kind="Wallet" id={wallet.id} refreshKey={wallet} />
+				) : !isReady(operationsState) || !isReady(transfersState) ? (
 					<LoadStateView
 						state={ledgersState}
 						size="section"

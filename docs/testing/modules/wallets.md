@@ -120,6 +120,11 @@ Expect: «Касса не найдена.» rendered, no crash/blank; network sh
 Steps: 1. Open a wallet with operations, tab «Операции». 2. In the band pick «Дата: Этот месяц». 3. Toggle «Приход».
 Expect: 2 → only this month's operations; under the table «N операций · Приход … UZS · Расход … UZS» left of the pager. 3 → the band follows the toggle (Расход 0). The wallet's balance cards do not change — the filter narrows the list only.
 
+### T-WAL-41 · «История» tab [edge]
+Pre: T-WAL-01 wallet.
+Steps: Detail → tab «История».
+Expect: «Касса «QA-<MMDD> Касса А» добавлена · 500 000 UZS» (the opening balance as the amount); a rename reads «Касса «…» изменена: название … → …». Payments and transfers through the wallet stay on «Операции» / «Переводы» — the history lists changes to the wallet record only. Details in [activity-log.md](activity-log.md) (T-ACT-06).
+
 ## Reconciliation
 
 ### T-WAL-60 · Balance card ↔ newest operation's running balance [reconcile]

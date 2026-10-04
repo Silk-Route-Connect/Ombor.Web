@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import EmployeePayrollTable from "components/employee/Detail/EmployeePayrollTable";
 import EmployeeSummary from "components/employee/Detail/EmployeeSummary";
 import { employeeManageActions } from "components/employee/employeeActions";
@@ -8,6 +9,7 @@ import EmployeeDialogs from "components/employee/EmployeeDialogs";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
@@ -22,7 +24,9 @@ import { PresetOption } from "utils/dateUtils";
 
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
-import { Box, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+
+type EmployeeDetailTab = "payroll" | "history";
 
 const PERIOD_OPTIONS: { value: PresetOption; labelKey: string }[] = [
 	{ value: "week", labelKey: "reportRangeWeek" },
@@ -35,11 +39,13 @@ const EmployeeDetailPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const employeeId = useRouteEntityId();
 	const { employeeStore, selectedEmployeeStore, payrollStore } = useStore();
+	const [tab, setTab] = useState<EmployeeDetailTab>("payroll");
 
 	useEffect(() => {
 		if (employeeId !== null) {
 			void selectedEmployeeStore.load(employeeId);
 		}
+		setTab("payroll");
 		return () => selectedEmployeeStore.clear();
 	}, [employeeId, selectedEmployeeStore]);
 
@@ -109,6 +115,15 @@ const EmployeeDetailPage: React.FC = observer(() => {
 		onDelete: () => employeeStore.openDelete(employee),
 	});
 
+	const employeeTabs: DetailTabSpec<EmployeeDetailTab>[] = [
+		{
+			key: "payroll",
+			label: t("employee.payrollSection"),
+			count: historyReady ? allHistory.length : undefined,
+		},
+		{ key: "history", label: t("activity.history.tab") },
+	];
+
 	return (
 		<Box>
 			<DetailPageHeader
@@ -140,31 +155,33 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				paymentCount={historyReady ? allHistory.length : null}
 			/>
 
-			<Typography component="h2" variant="h2" sx={{ mb: "14px" }}>
-				{t("employee.payrollSection")}
-			</Typography>
+			<Stack sx={{ gap: "16px" }}>
+				<DetailTabs tabs={employeeTabs} active={tab} onChange={setTab} />
 
-			{!isReady(history) ? (
-				<LoadStateView
-					state={history}
-					size="section"
-					onRetry={() => void selectedEmployeeStore.getPayrollHistory()}
-					errorTitle={t("payroll.error.getHistory")}
-				/>
-			) : (
-				<EmployeePayrollTable
-					employeeName={employee.name}
-					payments={filteredRows}
-					onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
-					filters={
-						<SegmentedControl<PresetOption>
-							value={presetValue}
-							onChange={(v) => selectedEmployeeStore.setPreset(v)}
-							options={PERIOD_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
-						/>
-					}
-				/>
-			)}
+				{tab === "history" ? (
+					<EntityHistory kind="Employee" id={employee.id} refreshKey={employee} />
+				) : !isReady(history) ? (
+					<LoadStateView
+						state={history}
+						size="section"
+						onRetry={() => void selectedEmployeeStore.getPayrollHistory()}
+						errorTitle={t("payroll.error.getHistory")}
+					/>
+				) : (
+					<EmployeePayrollTable
+						employeeName={employee.name}
+						payments={filteredRows}
+						onOpen={(payment) => navigate(paymentDetailPath(payment.id))}
+						filters={
+							<SegmentedControl<PresetOption>
+								value={presetValue}
+								onChange={(v) => selectedEmployeeStore.setPreset(v)}
+								options={PERIOD_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
+							/>
+						}
+					/>
+				)}
+			</Stack>
 
 			<EmployeeFormModal
 				isOpen={dialogKind === "form"}

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import {
 	derivePayments,
 	deriveTransactions,
@@ -37,7 +38,7 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Box } from "@mui/material";
 
-type PartnerDetailTab = "ledger" | "transactions" | "payments";
+type PartnerDetailTab = "ledger" | "transactions" | "payments" | "history";
 
 const PartnerDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -136,9 +137,13 @@ const PartnerDetailPage: React.FC = observer(() => {
 		{ key: "ledger", label: t("partner.tab.ledger"), count: ledger.length },
 		{ key: "transactions", label: t("partner.tab.transactions"), count: transactions.length },
 		{ key: "payments", label: t("partner.tab.payments"), count: payments.length },
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	const renderTab = () => {
+		if (tab === "history") {
+			return <EntityHistory kind="Partner" id={partner.id} refreshKey={partner} />;
+		}
 		if (tab === "ledger") {
 			return <LedgerTab ledger={ledger} partnerName={partner.name} onOpenSource={openSource} />;
 		}

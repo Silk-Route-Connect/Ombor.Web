@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import {
@@ -139,6 +140,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					{!refund && (tx.notes || (tx.attachments?.length ?? 0) > 0) && (
 						<NoteAttachmentsCard tx={tx} />
 					)}
+
+					<EntityHistory kind={tx.type} id={tx.id} refreshKey={tx} variant="card" />
 				</Stack>
 
 				<Box sx={sideSx}>

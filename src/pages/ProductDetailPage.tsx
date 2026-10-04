@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
@@ -25,7 +26,7 @@ import { toProductRequest } from "utils/productUtils";
 
 import { Box } from "@mui/material";
 
-type ProductDetailTab = "overview" | "transactions" | "movements";
+type ProductDetailTab = "overview" | "transactions" | "movements" | "history";
 
 const ProductDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -101,6 +102,7 @@ const ProductDetailPage: React.FC = observer(() => {
 			label: t("product.detail.tabs.movements"),
 			count: isReady(movements) ? movements.length : undefined,
 		},
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	return (
@@ -158,6 +160,9 @@ const ProductDetailPage: React.FC = observer(() => {
 								measurement={product.measurement}
 							/>
 						))}
+					{tab === "history" && (
+						<EntityHistory kind="Product" id={product.id} refreshKey={product} />
+					)}
 				</Box>
 
 				<Box sx={{ position: "sticky", top: 0 }}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
@@ -27,7 +28,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { Box, Stack } from "@mui/material";
 
-type WarehouseDetailTab = "stock" | "movements";
+type WarehouseDetailTab = "stock" | "movements" | "history";
 
 const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -148,6 +149,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 			label: t("warehouse.detail.tabs.movements"),
 			count: isReady(movementsState) ? movements.length : undefined,
 		},
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	return (
@@ -179,7 +181,9 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				<Stack sx={{ gap: "16px" }}>
 					<DetailTabs<WarehouseDetailTab> tabs={tabs} active={tab} onChange={setTab} />
 
-					{!ledgersReady ? (
+					{tab === "history" ? (
+						<EntityHistory kind="Warehouse" id={warehouse.id} refreshKey={warehouse} />
+					) : !ledgersReady ? (
 						<LoadStateView
 							state={ledgersState}
 							size="section"
