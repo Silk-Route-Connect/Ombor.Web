@@ -189,10 +189,13 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							);
 
 							const rowError = formState.errors.items?.[index];
-							const rowErrorMsg =
-								rowError?.productId?.message ??
-								rowError?.quantity?.message ??
-								rowError?.unitCost?.message;
+							// The row line is this field's only message (inlineHint off), so a typed
+							// «3,5» says why at once, ahead of the row's submit errors.
+							const rowErrorMsg = Number.isNaN(quantity)
+								? t("common.quantity.wholeOnly")
+								: (rowError?.productId?.message ??
+									rowError?.quantity?.message ??
+									rowError?.unitCost?.message);
 							const lineValue = productId > 0 && quantity > 0 ? quantity * unitCost : 0;
 							const onlyLine = lines.fields.length === 1;
 
