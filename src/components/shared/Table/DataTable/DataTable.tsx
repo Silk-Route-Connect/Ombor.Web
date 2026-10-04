@@ -15,7 +15,7 @@ import DataTableHead from "./DataTableHead";
 import {
 	BODY_CELL_SX,
 	DEFAULT_ROWS_PER_PAGE,
-	FIXED_TABLE_SX,
+	fixedTableSx,
 	FOOTER_SX,
 	ROW_SX,
 	ROWS_PER_PAGE_OPTIONS,
@@ -142,6 +142,11 @@ export function DataTable<T extends { id: string | number }>({
 			: sortedRows;
 	}, [sortedRows, page, rowsPerPage, pagination]);
 
+	const tableSx = useMemo(
+		() => (fixedLayout ? fixedTableSx(columns.map((col) => col.width)) : undefined),
+		[fixedLayout, columns],
+	);
+
 	const isSelectable = Boolean(onRowClick);
 
 	const handleRequestSort = (col: Column<T>) => {
@@ -205,7 +210,7 @@ export function DataTable<T extends { id: string | number }>({
 	return (
 		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<TableContainer sx={TABLE_SCROLL_SX}>
-				<Table stickyHeader size="small" sx={fixedLayout ? FIXED_TABLE_SX : undefined}>
+				<Table stickyHeader size="small" sx={tableSx}>
 					<DataTableHead
 						columns={columns}
 						sortKey={sortKey}

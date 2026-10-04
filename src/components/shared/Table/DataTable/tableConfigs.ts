@@ -54,11 +54,21 @@ export const COLUMN_WIDTH = {
 	author: 168,
 } as const;
 
-/** Fixed layout; below `minWidth` the table scrolls inside its card instead of crushing. */
-export const FIXED_TABLE_SX: SxProps<Theme> = {
-	tableLayout: "fixed",
-	minWidth: 880,
-};
+/** The narrowest an entity-name column (no `COLUMN_WIDTH`) gets before the table scrolls. */
+export const NAME_COLUMN_MIN_WIDTH = 120;
+
+/**
+ * Fixed layout sized to its columns: the fixed widths plus a readable share for
+ * each name column. Below that the table scrolls inside its card instead of
+ * crushing the names to a few letters (a 9-column list at 1280px).
+ */
+export function fixedTableSx(widths: ReadonlyArray<number | string | undefined>): SxProps<Theme> {
+	const minWidth = widths.reduce<number>(
+		(sum, width) => sum + (typeof width === "number" ? width : NAME_COLUMN_MIN_WIDTH),
+		0,
+	);
+	return { tableLayout: "fixed", minWidth };
+}
 
 export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 	border: 1,
