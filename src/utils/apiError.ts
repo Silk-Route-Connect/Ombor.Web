@@ -46,6 +46,7 @@ const KNOWN_CODES = new Set([
 	"stock.insufficient",
 	"wallet.insufficient_balance",
 	"payment.direction_mismatch",
+	"product.sku_taken",
 	"file.invalid",
 	"file.too_large",
 	"entity.referenced",

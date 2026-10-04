@@ -137,6 +137,7 @@
   "common.apiError.stock.insufficient": "недостаточно товара «{{productName}}» — в наличии {{available}}, нужно {{requested}}",
   "common.apiError.wallet.insufficient_balance": "в кассе «{{walletName}}» недостаточно денег — доступно {{available}} UZS, нужно {{requested}} UZS",
   "common.apiError.payment.direction_mismatch": "приход закрывает только долги клиентов, а расход — только наши долги поставщикам",
+  "common.apiError.product.sku_taken": "товар с таким артикулом уже есть — укажите другой",
   "common.apiError.file.invalid": "файл не подходит — загрузите изображение (PNG, JPG, GIF) или PDF; для фото товара и логотипа — только изображение",
   "common.apiError.file.too_large": "файл слишком большой — не больше {{maxMegabytes}} МБ",
   "common.apiError.conflict.duplicate": "такая запись уже есть — проверьте название или номер",
