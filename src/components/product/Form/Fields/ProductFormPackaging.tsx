@@ -26,11 +26,6 @@ export interface ProductFormPackagingProps {
 	disablePackaging: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
 /** Bundle `.switch`: 42×24 pill, gray-300 track (primary when on), 20px knob. */
 const switchSx = {
 	width: 42,
@@ -120,15 +115,10 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 							render={({ field, fieldState }) => (
 								<NumericField
 									{...field}
-									value={field.value}
 									size="small"
-									min={2}
-									step={1}
-									selectOnFocus
 									disabled={disabled}
 									error={!!fieldState.error}
 									helperText={fieldState.error?.message}
-									onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 								/>
 							)}
 						/>

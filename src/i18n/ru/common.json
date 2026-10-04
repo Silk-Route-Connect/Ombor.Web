@@ -41,6 +41,7 @@
   "common.expand": "Развернуть",
   "common.collapse": "Свернуть",
   "common.unit.uzs": "UZS",
+  "common.quantity.wholeOnly": "Количество — только целое число",
   "common.copy": "Копировать",
   "common.copied": "Скопировано",
   "common.noNumber": "Без номера",

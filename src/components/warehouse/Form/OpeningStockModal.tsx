@@ -49,11 +49,6 @@ export interface OpeningStockModalProps {
 	onClose: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
 const LINE_GRID = "1fr 108px 150px 132px 38px";
 
 const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
@@ -242,12 +237,10 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 											render={({ field, fieldState }) => (
 												<NumericField
 													{...field}
-													value={field.value || ""}
 													size="small"
-													min={0}
 													disabled={isSaving}
 													error={!!fieldState.error}
-													onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
+													inlineHint={false}
 													slotProps={{
 														input: {
 															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,

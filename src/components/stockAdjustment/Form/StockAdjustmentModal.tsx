@@ -48,11 +48,6 @@ export interface StockAdjustmentModalProps {
 	onClose: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
 const PREV_CAP = {
 	fontSize: 11,
 	fontWeight: 600,
@@ -363,12 +358,10 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 									render={({ field, fieldState }) => (
 										<NumericField
 											{...field}
-											value={field.value || ""}
 											size="small"
-											min={0}
 											disabled={isSaving}
 											error={!!fieldState.error || overStock}
-											onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
+											helperText={fieldState.error?.message}
 											slotProps={{
 												input: {
 													endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
@@ -377,11 +370,6 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 										/>
 									)}
 								/>
-								{formState.errors.quantity && (
-									<Typography sx={{ fontSize: 12, color: "error.main" }}>
-										{formState.errors.quantity.message}
-									</Typography>
-								)}
 							</Stack>
 
 							<Stack sx={{ gap: "7px" }}>

@@ -54,8 +54,9 @@ const optionalTrimmedMax = (max: number, key: string) =>
 		.optional();
 
 export const ProductPackagingSchema = z.object({
+	// NaN is a typed «1,5» (NumericField).
 	size: z
-		.number()
+		.number({ error: i18next.t("common.quantity.wholeOnly") })
 		.refine(Number.isInteger, { message: i18next.t("product.validation.packSizeInvalid") })
 		.min(2, i18next.t("product.validation.packSizeMin")),
 	label: z

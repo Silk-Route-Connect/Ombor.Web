@@ -48,11 +48,6 @@ export interface TransferFormModalProps {
 	onClose: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
 const WarehouseSelect: React.FC<{
 	value: number;
 	warehouses: Warehouse[];
@@ -296,12 +291,9 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 											render={({ field, fieldState }) => (
 												<NumericField
 													{...field}
-													value={field.value || ""}
 													size="small"
-													min={0}
 													disabled={isSaving}
 													error={!!fieldState.error || over}
-													onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 													slotProps={{
 														input: {
 															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
