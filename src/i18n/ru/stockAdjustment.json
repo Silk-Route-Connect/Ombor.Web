@@ -60,7 +60,7 @@
   "adjustment.empty.title": "Пока нет корректировок",
   "adjustment.empty.body": "Корректировки фиксируют изменения остатка без продаж и поставок — порча, недостача, пересчёт, находка. Создайте первую запись.",
   "adjustment.empty.searchTitle": "Ничего не найдено",
-  "adjustment.empty.searchBody": "По заданным условиям корректировок нет. Измените склад, направление или поиск.",
+  "adjustment.empty.searchBody": "По заданным условиям корректировок нет. Измените поиск, склад, направление или период.",
 
   "adjustment.field.warehouse": "Склад",
   "adjustment.field.direction": "Направление",

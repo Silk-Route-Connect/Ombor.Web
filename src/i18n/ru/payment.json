@@ -87,7 +87,7 @@
   "payment.empty.title": "Пока нет платежей",
   "payment.empty.body": "Проведите первый платёж — оплату, аванс, возврат аванса, зарплату или прочий расход.",
   "payment.empty.searchTitle": "Платежи не найдены",
-  "payment.empty.searchBody": "Измените запрос поиска или фильтры по типу и кассе.",
+  "payment.empty.searchBody": "Измените поиск, тип, кассу или период.",
 
   "payment.detail.back": "Назад",
   "payment.detail.subtitle": "Платёж",

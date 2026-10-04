@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
-import { format, startOfMonth } from "date-fns";
-import { customDateRange, DateRangeValue } from "utils/dateRange";
+import { addDays, format, startOfMonth } from "date-fns";
+import { customDateRange, DateRangeValue, resolveDateRange } from "utils/dateRange";
 
 import { Box, Popover, Stack, TextField, Typography } from "@mui/material";
 
 interface DateRangePopoverProps {
 	anchorEl: HTMLElement | null;
 	open: boolean;
-	/** The range currently applied, to start from; otherwise this month so far. */
+	/** The period currently applied, to start from; «Весь период» starts from this month so far. */
 	current: DateRangeValue;
 	onApply: (value: DateRangeValue) => void;
 	onClose: () => void;
@@ -39,8 +39,9 @@ const DateRangePopover: React.FC<DateRangePopoverProps> = ({
 			return;
 		}
 		const today = new Date();
-		setFrom(current.preset === "custom" ? current.from : format(startOfMonth(today), ISO_DAY));
-		setTo(current.preset === "custom" ? current.to : format(today, ISO_DAY));
+		const range = resolveDateRange(current, today);
+		setFrom(format(range ? range.start : startOfMonth(today), ISO_DAY));
+		setTo(format(range ? addDays(range.end, -1) : today, ISO_DAY));
 		setError(false);
 	}, [open, current]);
 
