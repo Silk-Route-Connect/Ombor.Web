@@ -52,6 +52,7 @@
   "dashboard.topDebtors.allPartners": "Все партнёры",
 
   "dashboard.recent.title": "Последние продажи и поставки",
+  "dashboard.recent.number": "№",
   "dashboard.recent.date": "Дата",
   "dashboard.recent.partner": "Партнёр",
   "dashboard.recent.type": "Тип",

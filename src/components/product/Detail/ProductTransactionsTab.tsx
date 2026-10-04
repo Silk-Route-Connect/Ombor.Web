@@ -5,15 +5,17 @@ import MovementKindChip from "components/shared/Chip/MovementKindChip";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import { Measurement, ProductTransaction } from "models/product";
-import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { transactionDetailPath } from "routing/paths";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
 import { measurementShort } from "utils/productUtils";
 import { directionOf, isRefundType, lineNet } from "utils/transactionUtils";
 
@@ -49,14 +51,11 @@ const stockDirection = (row: TransactionRow): "in" | "out" =>
 		: "out";
 
 const sourcePath = (row: TransactionRow): string =>
-	directionOf(row.transactionType) === "Supply"
-		? supplyDetailPath(row.transactionId)
-		: saleDetailPath(row.transactionId);
+	transactionDetailPath(row.transactionType, row.transactionId);
 
 /**
  * «Транзакции»: every sale / supply / refund line of the product, newest first;
- * a row opens its document. The served line carries no document number, so
- * this table has no № column (frontend-gaps follow-up).
+ * the № (or the whole row) opens its document.
  */
 export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 	productName,
@@ -74,6 +73,12 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 
 	const columns = useMemo<Column<TransactionRow>[]>(
 		() => [
+			{
+				key: "number",
+				headerName: t("product.detail.txns.number"),
+				sortValue: (r) => entityNumberSortValue(r.transactionNumber),
+				renderCell: (r) => <DocNumberCell number={r.transactionNumber} to={sourcePath(r)} />,
+			},
 			{
 				key: "date",
 				headerName: t("product.detail.txns.date"),
@@ -127,6 +132,10 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 		exportToCsv<TransactionRow>(
 			`product_${productName}_transactions_${csvDateStamp()}`,
 			[
+				{
+					header: t("product.detail.txns.number"),
+					value: (r) => formatOptionalNumber(r.transactionNumber, t("common.noNumber")),
+				},
 				{ header: t("product.detail.txns.date"), value: (r) => formatDate(r.date) },
 				{ header: t("product.detail.txns.partner"), value: (r) => r.partnerName },
 				{

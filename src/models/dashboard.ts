@@ -64,11 +64,14 @@ export type DashboardRecentTransaction = {
 	id: number;
 	/** ISO date-time. */
 	date: string;
+	partnerId: number;
 	partnerName: string;
 	type: "Sale" | "Supply";
 	total: number;
 	paid: number;
 	status: DashboardTxStatus;
+	/** The document's bare number («42»; differs from `id`); null for a legacy row. */
+	transactionNumber: string | null;
 };
 
 export type DashboardData = {

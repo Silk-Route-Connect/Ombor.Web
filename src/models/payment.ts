@@ -1,4 +1,5 @@
 import { PartnerType } from "./partner";
+import type { TransactionType } from "./transaction";
 import { WalletType } from "./wallet";
 
 export type PaymentCurrency = "UZS" | "USD" | "RUB";
@@ -126,8 +127,10 @@ export type PaymentAllocationEntry = {
 	/** Set for TransactionSettlement; null otherwise. The UI composes the label. */
 	transactionId: number | null;
 	/** Type of the settled transaction (routes the link); null for advance/change. */
-	transactionType?: "Sale" | "Supply" | "SaleRefund" | "SupplyRefund" | null;
+	transactionType?: TransactionType | null;
 	amount: number;
+	/** The settled document's bare number («42»; differs from `transactionId`); null for advance/change and legacy rows. */
+	transactionNumber: string | null;
 };
 
 /** A file uploaded with a payment (F18); served raw values only. */
@@ -204,6 +207,8 @@ export type OutstandingTransaction = {
 	total: number;
 	paid: number;
 	remaining: number;
+	/** The document's bare number («42»; differs from `id`); null for a legacy row. */
+	number: string | null;
 };
 
 /** A partner option for the create modal — carries served balance + advance. */

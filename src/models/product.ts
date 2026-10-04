@@ -122,6 +122,8 @@ export type ProductTransaction = {
 	discount: number;
 	/** How `discount` is read (rule 37); older API builds omit it. */
 	discountType?: TransactionLineDiscountType;
+	/** The document's bare number («42»; differs from `id`); null for a legacy row. */
+	transactionNumber: string | null;
 };
 
 /**

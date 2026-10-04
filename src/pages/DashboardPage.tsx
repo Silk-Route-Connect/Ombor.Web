@@ -26,8 +26,7 @@ import { DashboardRecentTransaction } from "models/dashboard";
 import {
 	partnerDetailPath,
 	PATHS,
-	saleDetailPath,
-	supplyDetailPath,
+	transactionDetailPath,
 	warehouseDetailPath,
 } from "routing/paths";
 import { DebtCard } from "stores/DebtStore";
@@ -74,7 +73,7 @@ const DashboardPage: React.FC = observer(() => {
 	};
 
 	const onRecentRow = (tx: DashboardRecentTransaction): void => {
-		navigate(tx.type === "Sale" ? saleDetailPath(tx.id) : supplyDetailPath(tx.id));
+		navigate(transactionDetailPath(tx.type, tx.id));
 	};
 
 	const onSetupStep = (step: OnboardingStepKey): void => {

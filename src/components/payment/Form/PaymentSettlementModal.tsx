@@ -9,7 +9,7 @@ import { OutstandingTransaction, SettlementInput } from "models/payment";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 
 import CheckIcon from "@mui/icons-material/Check";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
@@ -226,7 +226,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 												component="span"
 												sx={{ ...numericSx, fontWeight: 600, color: "primary.main" }}
 											>
-												{formatEntityId(r.id)}
+												{formatOptionalNumber(r.number, t("common.noNumber"))}
 											</Box>{" "}
 											<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
 												{t(

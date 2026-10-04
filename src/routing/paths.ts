@@ -1,3 +1,5 @@
+import type { TransactionType } from "models/transaction";
+
 /** Canonical route paths — the only place URL literals are declared. */
 export const PATHS = {
 	dashboard: "/",
@@ -71,6 +73,10 @@ export const saleDetailPath = (id: number): string => `/sales/${id}`;
 
 /** Concrete detail route for a supply/supply-refund transaction. */
 export const supplyDetailPath = (id: number): string => `/supplies/${id}`;
+
+/** Detail route of a sale, supply or refund — a refund opens in its base document's module. */
+export const transactionDetailPath = (type: TransactionType, id: number): string =>
+	type === "Supply" || type === "SupplyRefund" ? supplyDetailPath(id) : saleDetailPath(id);
 
 /** Printable invoice («Накладная») of a sale or sale refund. */
 export const saleInvoicePath = (id: number): string => `${saleDetailPath(id)}/print`;

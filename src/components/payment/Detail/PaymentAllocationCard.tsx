@@ -7,9 +7,9 @@ import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { PaymentAllocationEntry, PaymentAllocationKind, PaymentRecord } from "models/payment";
-import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { transactionDetailPath } from "routing/paths";
 import { designTokens, radius } from "theme";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -20,9 +20,6 @@ const ALLOC_LABEL_KEY: Record<PaymentAllocationKind, string> = {
 	AdvanceCredit: "payment.alloc.advance",
 	ChangeReturn: "payment.alloc.change",
 };
-
-const isSupplySide = (a: PaymentAllocationEntry) =>
-	a.transactionType === "Supply" || a.transactionType === "SupplyRefund";
 
 /** «Продажа №12» → the settled document (a link), or the advance / change label. */
 const AllocationTarget: React.FC<{ allocation: PaymentAllocationEntry; t: TFunction }> = ({
@@ -42,15 +39,15 @@ const AllocationTarget: React.FC<{ allocation: PaymentAllocationEntry; t: TFunct
 	if (a.transactionId == null) {
 		return <>{t("payment.alloc.settlement")}</>;
 	}
-	const word = a.transactionType
-		? t(isSupplySide(a) ? "payment.alloc.supply" : "payment.alloc.sale")
-		: t("payment.alloc.txRef");
-	const label = `${word} ${formatEntityId(a.transactionId)}`;
+	const number = formatOptionalNumber(a.transactionNumber, t("common.noNumber"));
 	if (a.transactionType == null) {
-		return <>{label}</>;
+		return <>{t("payment.alloc.txRef", { number })}</>;
 	}
-	const to = isSupplySide(a) ? supplyDetailPath(a.transactionId) : saleDetailPath(a.transactionId);
-	return <DetailLink to={to}>{label}</DetailLink>;
+	return (
+		<DetailLink to={transactionDetailPath(a.transactionType, a.transactionId)}>
+			{t(`transaction.detail.title.${a.transactionType}`, { number })}
+		</DetailLink>
+	);
 };
 
 /** «Куда пошли деньги»: where the payment's money went, settled documents linked. */

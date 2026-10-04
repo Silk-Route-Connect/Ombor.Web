@@ -1,13 +1,17 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import PartnerLink from "components/partner/Links/PartnerLink";
 import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { DashboardRecentTransaction } from "models/dashboard";
+import { transactionDetailPath } from "routing/paths";
 import { radius } from "theme";
+import { entityNumberSortValue } from "utils/formatEntityId";
 
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -18,16 +22,23 @@ interface Props {
 
 /**
  * «Последние продажи и поставки» — a read-only briefing of the latest documents
- * (no pager by design): Дата · Партнёр · Тип · Статус · Оплачено · Сумма. A row
- * (click, Enter or Space) opens the sale / supply. The served row carries
- * neither the document number nor the partner id, so there is no № column and
- * the partner is plain text (frontend-gaps follow-up).
+ * (no pager by design): № · Дата · Партнёр · Тип · Статус · Оплачено · Сумма. A
+ * row (click, Enter or Space) or its № opens the sale / supply; the partner
+ * name opens the partner.
  */
 const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 	const { t } = useTranslation();
 
 	const columns = useMemo<Column<DashboardRecentTransaction>[]>(
 		() => [
+			{
+				key: "number",
+				headerName: t("dashboard.recent.number"),
+				sortValue: (r) => entityNumberSortValue(r.transactionNumber),
+				renderCell: (r) => (
+					<DocNumberCell number={r.transactionNumber} to={transactionDetailPath(r.type, r.id)} />
+				),
+			},
 			{
 				key: "date",
 				headerName: t("dashboard.recent.date"),
@@ -38,11 +49,7 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 				key: "partner",
 				headerName: t("dashboard.recent.partner"),
 				sortValue: (r) => r.partnerName,
-				renderCell: (r) => (
-					<Box component="span" sx={{ fontWeight: 600 }}>
-						{r.partnerName}
-					</Box>
-				),
+				renderCell: (r) => <PartnerLink id={r.partnerId} name={r.partnerName} />,
 			},
 			{
 				key: "type",

@@ -125,9 +125,7 @@
   "payment.alloc.settlement": "Погашение долга",
   "payment.alloc.advance": "Зачисление аванса",
   "payment.alloc.change": "Сдача",
-  "payment.alloc.txRef": "Документ",
-  "payment.alloc.sale": "Продажа",
-  "payment.alloc.supply": "Поставка",
+  "payment.alloc.txRef": "Документ {{number}}",
   "payment.alloc.advanceTarget": "Аванс партнёра",
 
   "payment.form.title": "Новый платёж",
