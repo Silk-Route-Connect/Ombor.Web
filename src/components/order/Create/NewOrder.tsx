@@ -24,6 +24,7 @@ import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
 import { addToCart } from "utils/cartUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { toApiDeliveryTime } from "utils/orderUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
@@ -153,7 +154,7 @@ export const NewOrder: React.FC = observer(() => {
 			warehouseId,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
-			deliveryTime: deliveryTime || null,
+			deliveryTime: toApiDeliveryTime(deliveryTime),
 			notes: note.trim() || null,
 			lines: items.map((it) => ({
 				productId: it.product.id,

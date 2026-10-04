@@ -82,6 +82,13 @@ export function isOrderDueToday(order: DeliveryFields): boolean {
  */
 export const shortDeliveryTime = (time: string): string => time.slice(0, 5);
 
+/**
+ * Request form of a delivery time picked in an «HH:mm» time input. The API binds
+ * `TimeOnly` only from «HH:mm:ss» — a bare «HH:mm» fails the whole body binding.
+ */
+export const toApiDeliveryTime = (time: string): string | null =>
+	time === "" ? null : time.length === 5 ? `${time}:00` : time;
+
 export const isOrderEditable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderCancelable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderFinal = (status: OrderStatus): boolean =>

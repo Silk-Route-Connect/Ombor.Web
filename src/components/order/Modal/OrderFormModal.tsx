@@ -19,7 +19,7 @@ import { Measurement, Product } from "models/product";
 import { useStore } from "stores/StoreContext";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { lineNet } from "utils/orderUtils";
+import { lineNet, shortDeliveryTime, toApiDeliveryTime } from "utils/orderUtils";
 
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CheckIcon from "@mui/icons-material/Check";
@@ -165,7 +165,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			setLines(order.lines.map((l) => ({ ...l })));
 			setAddress(order.deliveryAddress ?? "");
 			setDeliveryDate(order.deliveryDate ?? "");
-			setDeliveryTime(order.deliveryTime ?? "");
+			setDeliveryTime(order.deliveryTime ? shortDeliveryTime(order.deliveryTime) : "");
 			setNote(order.notes ?? "");
 			setSubmitted(false);
 			setDirty(false);
@@ -231,7 +231,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			warehouseId: warehouseId === "" ? null : warehouseId,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
-			deliveryTime: deliveryTime || null,
+			deliveryTime: toApiDeliveryTime(deliveryTime),
 			notes: note.trim() || null,
 			lines: lines.map((l) => ({
 				productId: l.productId,
