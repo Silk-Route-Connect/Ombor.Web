@@ -50,6 +50,8 @@ export interface IEmployeeStore {
 	terminate(employee: Employee): Promise<void>;
 	/** Set status back to Active («Восстановить»). */
 	restore(employee: Employee): Promise<void>;
+	/** A salary was just paid: the employee can no longer be deleted. */
+	markPaid(employeeId: number): void;
 
 	// setters for filters & sorting
 	setSearch(searchTerm: string): void;
@@ -218,6 +220,10 @@ export class EmployeeStore implements IEmployeeStore {
 		this.applyWrite(result.data);
 		this.closeDialog();
 		this.notificationStore.success(successMessage);
+	}
+
+	markPaid(employeeId: number): void {
+		this.patchEmployee(employeeId, { isDeletable: false });
 	}
 
 	/** A create / update answer carries no `isDeletable` — the record keeps the one it had. */

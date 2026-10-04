@@ -40,6 +40,7 @@ const EmployeePage: React.FC = observer(() => {
 	const handlePayrollSave = async (payload: PayrollFormPayload) => {
 		const ok = await payrollStore.create(payload);
 		if (ok) {
+			employeeStore.markPaid(payload.employeeId);
 			employeeStore.closeDialog();
 		}
 	};
