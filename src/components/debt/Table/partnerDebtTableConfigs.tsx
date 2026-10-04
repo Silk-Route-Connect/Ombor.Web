@@ -24,32 +24,40 @@ export interface PartnerDebtRowHandlers {
 	onStatement: (row: DebtPartnerRow) => void;
 }
 
-/** Why the position differs from its unpaid documents: an advance netted into it. */
-function positionNote(p: DebtPartnerRow, t: TFunction): string | null {
+/**
+ * Why the position differs from its unpaid documents: the advances netted into
+ * it. A partner can hold both at once (ours raises what it owes, its own lowers
+ * it), and the amount only reconciles when both are named.
+ */
+function positionNotes(p: DebtPartnerRow, t: TFunction): string[] {
 	if (p.direction === "Settled") {
-		return t("debt.position.settled");
+		return [t("debt.position.settled")];
 	}
+	const notes: string[] = [];
 	if (p.partnerAdvance > 0) {
-		return t("debt.position.partnerAdvance", { amount: formatCurrency(p.partnerAdvance) });
+		notes.push(t("debt.position.partnerAdvance", { amount: formatCurrency(p.partnerAdvance) }));
 	}
 	if (p.companyAdvance > 0) {
-		return t("debt.position.companyAdvance", { amount: formatCurrency(p.companyAdvance) });
+		notes.push(t("debt.position.companyAdvance", { amount: formatCurrency(p.companyAdvance) }));
 	}
-	return null;
+	return notes;
 }
 
 const AmountCell: React.FC<{ row: DebtPartnerRow; t: TFunction }> = ({ row, t }) => {
-	const note = positionNote(row, t);
 	const tone =
 		row.direction === "Receivable" ? "income" : row.direction === "Payable" ? "expense" : "ink";
 	return (
 		<Box sx={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-end" }}>
 			<MoneyCell value={row.amount} main tone={tone} />
-			{note && (
-				<Box component="span" sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}>
+			{positionNotes(row, t).map((note) => (
+				<Box
+					key={note}
+					component="span"
+					sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}
+				>
 					{note}
 				</Box>
-			)}
+			))}
 		</Box>
 	);
 };
@@ -99,7 +107,7 @@ export function buildPartnerDebtColumns(
 			sortValue: (p) => p.oldestAgeDays ?? -1,
 			renderCell: (p) => (
 				<Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-					{p.oldestAgeDays === null ? (
+					{p.oldestAgeDays == null ? (
 						<NoValue />
 					) : (
 						<Box

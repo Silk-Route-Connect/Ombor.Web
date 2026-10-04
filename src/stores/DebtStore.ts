@@ -160,7 +160,7 @@ export class DebtStore implements IDebtStore {
 				if (this.onlyOverdue && p.overdueCount === 0) {
 					return false;
 				}
-				if (this.ageBucket !== "all" && (p.oldestAgeDays === null || !ageFn(p.oldestAgeDays))) {
+				if (this.ageBucket !== "all" && (p.oldestAgeDays == null || !ageFn(p.oldestAgeDays))) {
 					return false;
 				}
 				return !term || matchesSearch(p.name, term) || matchesSearch(p.company, term);
