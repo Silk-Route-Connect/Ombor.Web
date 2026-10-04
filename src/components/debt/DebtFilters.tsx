@@ -4,7 +4,7 @@ import EntityFilterSelect, {
 	FilterOption,
 } from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
-import { DebtAgeBucket, DebtDirectionFilter, DebtTab } from "stores/DebtStore";
+import { DebtAgeBucket, DebtDirectionFilter } from "stores/DebtStore";
 import { controlSize, designTokens, radius } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,7 +13,6 @@ import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import { ButtonBase } from "@mui/material";
 
 interface DebtFiltersProps {
-	tab: DebtTab;
 	ageBucket: DebtAgeBucket;
 	directionFilter: DebtDirectionFilter;
 	onlyOverdue: boolean;
@@ -23,13 +22,12 @@ interface DebtFiltersProps {
 }
 
 /**
- * Debt filter controls for the table toolbar: the direction segmented (documents
- * tab only), the age dropdown (the shared filter select) and the removable
- * «Только просроченные» chip a summary card sets. The prototype's date-range
- * picker is omitted (locked pattern 12).
+ * Debt filter controls for the table toolbar, shared by both tabs: the
+ * direction segmented, the age dropdown (the shared filter select) and the
+ * removable «Только просроченные» chip a summary card sets. The prototype's
+ * date-range picker is omitted (locked pattern 12).
  */
 export const DebtFilters: React.FC<DebtFiltersProps> = ({
-	tab,
 	ageBucket,
 	directionFilter,
 	onlyOverdue,
@@ -50,17 +48,15 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 
 	return (
 		<>
-			{tab === "transactions" && (
-				<SegmentedControl
-					value={directionFilter}
-					onChange={onDirectionChange}
-					options={[
-						{ value: "all", label: t("debt.direction.all") },
-						{ value: "Receivable", label: t("debt.direction.receivable") },
-						{ value: "Payable", label: t("debt.direction.payable") },
-					]}
-				/>
-			)}
+			<SegmentedControl
+				value={directionFilter}
+				onChange={onDirectionChange}
+				options={[
+					{ value: "all", label: t("debt.direction.all") },
+					{ value: "Receivable", label: t("debt.direction.receivable") },
+					{ value: "Payable", label: t("debt.direction.payable") },
+				]}
+			/>
 
 			<EntityFilterSelect<DebtAgeBucket>
 				icon={<ScheduleOutlinedIcon />}

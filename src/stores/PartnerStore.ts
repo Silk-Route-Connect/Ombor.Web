@@ -19,16 +19,6 @@ export type PartnerDialogMode =
 	| { kind: "cannotDelete"; partner: Partner }
 	| { kind: "none" };
 
-/** List summary strip totals (receivables / payables / net). */
-export type PartnerSummary = {
-	receivable: number;
-	payable: number;
-	net: number;
-	receivableCount: number;
-	payableCount: number;
-	activeCount: number;
-};
-
 export interface IPartnerStore {
 	allPartners: Loadable<Partner[]>;
 	filteredPartners: Loadable<Partner[]>;
@@ -36,7 +26,8 @@ export interface IPartnerStore {
 	customers: Loadable<Partner[]>;
 	/** Active (non-archived) partners selectable in pickers — Supplier or Both. */
 	suppliers: Loadable<Partner[]>;
-	summary: PartnerSummary;
+	/** Active (non-archived) partners. */
+	activeCount: number;
 	archivedCount: number;
 
 	searchTerm: string;
@@ -131,29 +122,9 @@ export class PartnerStore implements IPartnerStore {
 		return this.allPartners.filter((p) => !p.isArchived && p.type !== "Customer");
 	}
 
-	/** Strip totals over active (non-archived) partners (display aggregates, rule 8). */
-	get summary(): PartnerSummary {
-		if (!isReady(this.allPartners)) {
-			return {
-				receivable: 0,
-				payable: 0,
-				net: 0,
-				receivableCount: 0,
-				payableCount: 0,
-				activeCount: 0,
-			};
-		}
-		const active = this.allPartners.filter((p) => !p.isArchived);
-		const receivable = active.filter((p) => p.balance > 0).reduce((s, p) => s + p.balance, 0);
-		const payable = active.filter((p) => p.balance < 0).reduce((s, p) => s - p.balance, 0);
-		return {
-			receivable,
-			payable,
-			net: receivable - payable,
-			receivableCount: active.filter((p) => p.balance > 0).length,
-			payableCount: active.filter((p) => p.balance < 0).length,
-			activeCount: active.length,
-		};
+	/** The debt totals of the summary strip are served (`DebtStore.summary`), never summed here (rule 8). */
+	get activeCount(): number {
+		return isReady(this.allPartners) ? this.allPartners.filter((p) => !p.isArchived).length : 0;
 	}
 
 	async getAll(): Promise<void> {

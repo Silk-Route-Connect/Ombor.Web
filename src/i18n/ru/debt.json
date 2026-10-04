@@ -1,5 +1,6 @@
 {
-  "debt.error.getAll": "Не удалось загрузить задолженности",
+  "debt.error.getAll": "Не удалось загрузить долги",
+  "debt.error.summary": "Не удалось загрузить итоги по долгам",
 
   "debt.title": "Долги",
 
@@ -11,9 +12,13 @@
   "debt.summary.txCount_few": "{{count}} документа",
   "debt.summary.txCount_many": "{{count}} документов",
   "debt.summary.txCount_other": "{{count}} документа",
+  "debt.summary.partners_one": "{{count}} партнёр",
+  "debt.summary.partners_few": "{{count}} партнёра",
+  "debt.summary.partners_many": "{{count}} партнёров",
+  "debt.summary.partners_other": "{{count}} партнёра",
 
   "debt.tabs.partners": "По партнёрам",
-  "debt.tabs.transactions": "По документам",
+  "debt.tabs.transactions": "Неоплаченные документы",
 
   "debt.legend.receivable": "нам должны",
   "debt.legend.payable": "мы должны",
@@ -44,6 +49,10 @@
   "debt.partnerTable.overdueCount_few": "{{count}} просроченных",
   "debt.partnerTable.overdueCount_many": "{{count}} просроченных",
   "debt.partnerTable.overdueCount_other": "{{count}} просроченных",
+
+  "debt.position.settled": "закрыто авансом",
+  "debt.position.partnerAdvance": "с учётом аванса партнёра {{amount}}",
+  "debt.position.companyAdvance": "с учётом нашего аванса {{amount}}",
 
   "debt.txTable.document": "№",
   "debt.txTable.date": "Дата",

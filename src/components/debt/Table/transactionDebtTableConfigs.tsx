@@ -9,7 +9,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TransactionTypeBadge } from "components/transaction/TransactionBadges";
 import { TFunction } from "i18next";
 import { Debt } from "models/debt";
-import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { transactionDetailPath } from "routing/paths";
 import { numericSx } from "theme";
 import { entityNumberSortValue } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
@@ -23,13 +23,8 @@ export type DebtRow = Debt & { id: number };
 export const toDebtRows = (debts: Debt[]): DebtRow[] =>
 	debts.map((d) => ({ ...d, id: d.transactionId }));
 
-/** The source document number — the served one, else the id (DR-14). */
-export const debtDocumentNumber = (d: Debt): string | number => d.number ?? d.transactionId;
-
 export const debtDocumentPath = (d: Debt): string =>
-	d.transactionType === "Supply" || d.transactionType === "SupplyRefund"
-		? supplyDetailPath(d.transactionId)
-		: saleDetailPath(d.transactionId);
+	transactionDetailPath(d.transactionType, d.transactionId);
 
 /**
  * By-document debt columns in the canonical order (conventions.md → Tables):
@@ -41,8 +36,8 @@ export function buildTransactionDebtColumns(t: TFunction): Column<DebtRow>[] {
 		{
 			key: "document",
 			headerName: t("debt.txTable.document"),
-			sortValue: (d) => entityNumberSortValue(debtDocumentNumber(d)),
-			renderCell: (d) => <DocNumberCell number={debtDocumentNumber(d)} to={debtDocumentPath(d)} />,
+			sortValue: (d) => entityNumberSortValue(d.number),
+			renderCell: (d) => <DocNumberCell number={d.number} to={debtDocumentPath(d)} />,
 		},
 		{
 			key: "date",

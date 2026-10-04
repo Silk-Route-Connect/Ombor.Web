@@ -23,12 +23,20 @@ import { Box } from "@mui/material";
 const PartnerPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { partnerStore } = useStore();
+	const { partnerStore, debtStore } = useStore();
 	const tableOrder = useTableOrder<Partner>();
 
 	useEffect(() => {
 		void partnerStore.getAll();
 	}, [partnerStore]);
+
+	// The strip's totals are served; a partner create / edit / delete (a new list) can move them.
+	const partners = partnerStore.allPartners;
+	useEffect(() => {
+		if (isReady(partners)) {
+			void debtStore.getSummary();
+		}
+	}, [partners, debtStore]);
 
 	const handleDelete = (partner: Partner) => {
 		if (partner.isDeletable) {
@@ -106,8 +114,8 @@ const PartnerPage: React.FC = observer(() => {
 				exportCount={readyOr(partnerStore.filteredPartners, []).length}
 			/>
 
-			{partnerStore.summary.activeCount > 0 && (
-				<PartnerSummaryStrip summary={partnerStore.summary} />
+			{partnerStore.activeCount > 0 && (
+				<PartnerSummaryStrip summary={debtStore.summary} activeCount={partnerStore.activeCount} />
 			)}
 
 			<PartnersTable
@@ -117,7 +125,7 @@ const PartnerPage: React.FC = observer(() => {
 				rows={partnerStore.filteredPartners}
 				columns={columns}
 				isFiltering={isFiltering}
-				hasActive={partnerStore.summary.activeCount > 0}
+				hasActive={partnerStore.activeCount > 0}
 				showArchived={partnerStore.showArchived}
 				onOpen={(p) => navigate(partnerDetailPath(p.id))}
 				onCreate={() => partnerStore.openCreate()}

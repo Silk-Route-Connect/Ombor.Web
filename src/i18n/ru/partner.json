@@ -36,8 +36,8 @@
   "partner.empty.searchBody": "Измените запрос поиска или фильтр по типу.",
   "partner.empty.searchArchivedHint": " Возможно, нужный партнёр в архиве.",
 
-  "partner.summary.receivable": "Всего к получению",
-  "partner.summary.payable": "Всего к оплате",
+  "partner.summary.receivable": "Нам должны",
+  "partner.summary.payable": "Мы должны",
   "partner.summary.net": "Итог расчётов",
   "partner.summary.receivableSub_one": "{{count}} партнёр должен нам",
   "partner.summary.receivableSub_few": "{{count}} партнёра должны нам",

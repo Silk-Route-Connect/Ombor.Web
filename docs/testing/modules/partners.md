@@ -4,7 +4,7 @@ Partner master data: list + summary strip, detail (balance, dispute-grade ledger
 
 ## Surfaces
 
-- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт»), `PartnerSummaryStrip` (3 cards), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
+- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт»), `PartnerSummaryStrip` (3 cards «Нам должны» / «Мы должны» / «Итог расчётов» — the served `GET /api/debts/summary` totals, the same figures as /debts and the dashboard; «—» until they load), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
 - `/partners/:id` — detail: `DetailPageHeader` (name; type chip + company as titleExtra), sticky 372px right rail (balance hero + «Обороты» + «Контакты»), `DetailTabs` Журнал / Транзакции / Платежи with count pills. Deep-link params: `?tab=transactions|payments&status=open|paid|partial|unpaid`. ⋮ starts with «Напомнить о долге» (only while the partner owes us) and «Акт сверки», then edit / archive / delete.
 - `/partners/:id/statement?from&to` — the printable «Акт сверки» (`PartnerStatementPage` on the shared print layout): toolbar «С» / «По» + «Печать»; default period 01.01 of this year → today.
 - `DebtReminderDialog` — «Напомнить о долге»: ready editable text + «Копировать» / «SMS» / «Отправить в Telegram» (the owner's own apps; Ombor sends nothing).
@@ -143,18 +143,18 @@ Expect: 1→ the period reads «с 01.01.2026 по 31.12.2026» (ends swapped, n
 
 ### T-PRT-60 · Headline: balance card ↔ ledger ↔ /debts ↔ open transactions [reconcile] ✍
 Pre: partner Б (opening 0, from T-PRT-34); fixtures «QA Склад А», «QA Товар Штучный».
-Steps: 1) /supplies/new: partner Б, «QA Товар Штучный» ×18 (total 180 000), no payment, submit. 2) Б's detail: read the balance card. 3) Журнал: read «Баланс после» of the newest row. 4) Транзакции tab, filter «Открытые — долг»: sum the amounts. 5) /debts → По партнёрам: find Б's row; По транзакциям: find the supply.
+Steps: 1) /supplies/new: partner Б, «QA Товар Штучный» ×18 (total 180 000), no payment, submit. 2) Б's detail: read the balance card. 3) Журнал: read «Баланс после» of the newest row. 4) Транзакции tab, filter «Открытые — долг»: sum the amounts. 5) /debts → По партнёрам: find Б's row; Неоплаченные документы: find the supply.
 Expect: one number four ways — balance card «+180 000» green = ledger last running balance «+180 000» = /debts remaining for Б 180 000 (payable direction) = sum of open transactions 180 000 (single row, «Не оплачено»). Any divergence is a Blocker-grade defect in the dispute-grade ledger (R12; ledger contract: running balance reconciles exactly to the net balance).
 
-### T-PRT-61 · Balance includes opening; /debts excludes settled [reconcile]
+### T-PRT-61 · Balance includes opening; /debts lists it by partner, not as a document [reconcile]
 Pre: partner А settled (T-PRT-07: opening −50 000 display, supply paid).
 Steps: 1) А detail: balance card. 2) /debts (both tabs): search А.
-Expect: balance card «−50 000» red — the opening event alone (50 000 receivable + 0 open transactions); А appears **nowhere** on /debts (its only transaction is fully paid; /debts is a transactions-only read model, not the partner balance). This asymmetry is by design — an opening-balance debt is visible on the partner, not on /debts (contract: debts notes; R12).
+Expect: balance card «−50 000» red — the opening event alone (50 000 receivable + 0 open transactions); /debts «По партнёрам» lists А with «Сумма долга» 50 000 green and «Документов» 0 (debt totals are net partner positions, opening included — business-rules «Debt totals»); А is absent from «Неоплаченные документы» (its only transaction is fully paid).
 
 ### T-PRT-62 · Summary strip self-consistency [reconcile]
 Pre: /partners, «Активные» view, partners А and Б present (post T-PRT-60).
 Steps: 1) Set pager to 50; type filter «Все». 2) Sum the red («−») balance cells and the green («+») balance cells across all active rows. 3) Compare with the strip.
-Expect: «Всего к получению» = sum of red balances (unsigned); «Всего к оплате» = sum of green; «Итог расчётов» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners in correct Russian forms («1 партнёр должен нам», «3 партнёра должны нам», «5 партнёров должны нам» / «мы должны 1 партнёру», «мы должны 5 партнёрам»); the net card subtitle counts ALL active partners («51 активный», «52 активных»), zero-balance included; archived partners excluded from all three.
+Expect: «Нам должны» = sum of red balances (unsigned) **plus archived partners' red balances** (check «Архив»); «Мы должны» = sum of green, archived included; «Итог расчётов» = |receivable − payable| with the direction word («в нашу пользу» when receivable ≥ payable); the receivable/payable card subtitles count contributing partners in correct Russian forms («1 партнёр должен нам», «3 партнёра должны нам», «5 партнёров должны нам» / «мы должны 1 партнёру», «мы должны 5 партнёрам»); the net card subtitle counts ALL active partners («51 активный», «52 активных»), zero-balance included. The three figures equal /debts «Нам должны» / «Мы должны» / «Итог расчётов» and the dashboard KPIs exactly (one served source, `GET /api/debts/summary`). Create a partner with an opening balance → the strip moves by that amount without a reload.
 Known: REC-3 — the strip once rendered all-zero counts (unreconciled). If reproduced, report KNOWN with exact repro detail (filters, timing, data state), not a new defect.
 
 ### T-PRT-63 · Count-pill arithmetic [reconcile]

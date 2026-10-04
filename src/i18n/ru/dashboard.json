@@ -60,7 +60,7 @@
   "dashboard.aging.bucket.8-30": "8–30 дней",
   "dashboard.aging.bucket.31-60": "31–60 дней",
   "dashboard.aging.bucket.60+": "60+ дней",
-  "dashboard.aging.total": "Всего к получению",
+  "dashboard.aging.total": "Всего нам должны",
 
   "dashboard.topDebtors.title": "Топ должников",
   "dashboard.topDebtors.noCompany": "Без компании",

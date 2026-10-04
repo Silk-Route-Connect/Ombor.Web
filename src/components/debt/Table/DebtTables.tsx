@@ -4,7 +4,7 @@ import { DataTable, DefaultSort } from "components/shared/Table/DataTable/DataTa
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { TableOrder } from "components/shared/Table/tableOrder";
 import { Debt } from "models/debt";
-import { DebtPartnerGroup } from "stores/DebtStore";
+import { DebtPartnerRow } from "stores/DebtStore";
 
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 
@@ -23,14 +23,14 @@ const DebtEmptyState: React.FC<{ anyFilter: boolean }> = ({ anyFilter }) => {
 };
 
 interface PartnerDebtTableProps extends PartnerDebtRowHandlers {
-	groups: DebtPartnerGroup[];
+	rows: DebtPartnerRow[];
 	anyFilter: boolean;
-	onOpen: (group: DebtPartnerGroup) => void;
+	onOpen: (row: DebtPartnerRow) => void;
 }
 
-/** By-partner aggregates; the largest exposure first regardless of direction. */
+/** Served partner positions; the largest exposure first regardless of direction. */
 export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
-	groups,
+	rows,
 	anyFilter,
 	onOpen,
 	onRemind,
@@ -43,8 +43,8 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 	);
 
 	return (
-		<DataTable<DebtPartnerGroup>
-			rows={groups}
+		<DataTable<DebtPartnerRow>
+			rows={rows}
 			columns={columns}
 			defaultSort={{ key: "amount", order: "desc" }}
 			onRowClick={onOpen}
@@ -63,7 +63,7 @@ interface TransactionDebtTableProps {
 	onOpen: (debt: Debt) => void;
 }
 
-/** Flat outstanding documents; a row opens the sale / supply. */
+/** The unpaid documents; a row opens the sale / supply / refund. */
 export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 	rows,
 	anyFilter,

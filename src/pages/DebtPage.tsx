@@ -6,7 +6,6 @@ import DebtSummaryCards from "components/debt/DebtSummaryCards";
 import DebtTabs from "components/debt/DebtTabs";
 import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/DebtTables";
 import {
-	debtDocumentNumber,
 	debtDocumentPath,
 	DebtRow,
 	toDebtRows,
@@ -17,14 +16,14 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableToolbar from "components/shared/Table/TableToolbar";
-import { isReady } from "helpers/Loading";
+import { isLoadError, isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
 import { partnerDebtPath, partnerStatementPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
 import { Box } from "@mui/material";
@@ -39,7 +38,7 @@ const DebtPage: React.FC = observer(() => {
 		debtStore.getAll();
 	}, [debtStore]);
 
-	const allDebts = debtStore.allDebts;
+	const { summary, allDebts } = debtStore;
 
 	const anyFilter =
 		debtStore.searchTerm.trim().length > 0 ||
@@ -48,10 +47,13 @@ const DebtPage: React.FC = observer(() => {
 		debtStore.directionFilter !== "all";
 
 	const handleExport = (): void => {
-		// «По документам» order while that tab is open; the store's order from «По партнёрам».
+		// The unpaid documents in that tab's sort while it is open; served order from «По партнёрам».
 		const rows = tableOrder.apply(toDebtRows(debtStore.transactionRows));
 		const columns: CsvColumn<Debt>[] = [
-			{ header: t("debt.txTable.document"), value: (d) => formatEntityId(debtDocumentNumber(d)) },
+			{
+				header: t("debt.txTable.document"),
+				value: (d) => formatOptionalNumber(d.number, t("common.noNumber")),
+			},
 			{ header: t("debt.txTable.date"), value: (d) => formatDate(d.date) },
 			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
 			{
@@ -84,19 +86,20 @@ const DebtPage: React.FC = observer(() => {
 				}
 			/>
 
-			{!isReady(allDebts) ? (
+			{!isReady(summary) || !isReady(allDebts) ? (
+				// The totals and the unpaid documents load together; either failing is the page's error.
 				<LoadStateView
-					state={allDebts}
+					state={isLoadError(summary) ? summary : isLoadError(allDebts) ? allDebts : "loading"}
 					onRetry={() => void debtStore.getAll()}
 					errorTitle={t("debt.error.getAll")}
 				/>
 			) : (
 				<>
-					<DebtSummaryCards summary={debtStore.summary} onCard={debtStore.applyCard} />
+					<DebtSummaryCards summary={summary} onCard={debtStore.applyCard} />
 
 					<DebtTabs
 						value={debtStore.tab}
-						partnersCount={debtStore.partnerGroups.length}
+						partnersCount={debtStore.partnerRows.length}
 						transactionsCount={debtStore.transactionRows.length}
 						onChange={debtStore.setTab}
 					/>
@@ -109,7 +112,6 @@ const DebtPage: React.FC = observer(() => {
 						}}
 						filters={
 							<DebtFilters
-								tab={debtStore.tab}
 								ageBucket={debtStore.ageBucket}
 								directionFilter={debtStore.directionFilter}
 								onlyOverdue={debtStore.onlyOverdue}
@@ -122,7 +124,7 @@ const DebtPage: React.FC = observer(() => {
 
 					{debtStore.tab === "partners" ? (
 						<PartnerDebtTable
-							groups={debtStore.partnerGroups}
+							rows={debtStore.partnerRows}
 							anyFilter={anyFilter}
 							onOpen={(g) => navigate(partnerDebtPath(g.partnerId))}
 							onRemind={(g) => debtReminderStore.open(g.partnerId)}
