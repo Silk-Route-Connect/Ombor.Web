@@ -96,7 +96,8 @@ const ResetPasswordPage: React.FC = observer(() => {
 		setResending(true);
 		try {
 			challenge.issue(await authStore.requestPasswordReset({ phoneNumber: e164 }));
-			notificationStore.success(t("auth.otp.resent"));
+			// Same answer for an unknown number, so no «отправлен» claim (see codeSubtitle).
+			notificationStore.info(t("auth.reset.resent"));
 		} catch (e) {
 			challenge.holdResend(e);
 			notificationStore.error(describeApiReason(e, "auth.reset.failed"));
