@@ -40,10 +40,14 @@ export type KpiCardSpec = {
 /**
  * A served % change as a badge: the arrow follows the sign, the colour what the
  * change means — `goodWhen: "up"` for revenue and cash, `"down"` for what we owe,
- * `"neutral"` where neither direction is good news by itself.
+ * `"neutral"` where neither direction is good news by itself. A change with no
+ * basis is served as null, which the API leaves out of the JSON — so undefined too.
  */
-export function deltaOf(pct: number | null, goodWhen: "up" | "down" | "neutral"): Delta {
-	if (pct === null) {
+export function deltaOf(
+	pct: number | null | undefined,
+	goodWhen: "up" | "down" | "neutral",
+): Delta {
+	if (pct == null) {
 		return { text: "—", tone: "neutral", direction: "flat" };
 	}
 	const direction = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
