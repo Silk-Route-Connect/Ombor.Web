@@ -31,13 +31,17 @@ export const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
 	const cells = Array.from({ length }, (_, i) => value[i] ?? "");
 	const errored = Boolean(error);
 
+	// A cell's digit is selected on focus, so a typed digit replaces it; more than
+	// one digit at once (the phone's SMS-code autofill) spreads over the next cells.
 	const setAt = (i: number, raw: string) => {
-		const ch = onlyDigits(raw).slice(-1);
-		const next = value.split("");
-		next[i] = ch || "";
-		onChange(next.join("").slice(0, length));
-		if (ch && i < length - 1) refs.current[i + 1]?.focus();
+		const digits = onlyDigits(raw).slice(0, length - i);
+		onChange(
+			(value.slice(0, i) + digits + value.slice(i + Math.max(digits.length, 1))).slice(0, length),
+		);
+		if (digits) refs.current[Math.min(i + digits.length, length - 1)]?.focus();
 	};
+
+	const selectDigit = (e: React.SyntheticEvent<HTMLInputElement>) => e.currentTarget.select();
 
 	const onKey = (i: number, e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && onEnter) onEnter();
@@ -67,12 +71,13 @@ export const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
 						autoComplete={i === 0 ? "one-time-code" : "off"}
 						aria-label={t("auth.code.digit", { index: i + 1, count: length })}
 						aria-invalid={errored || undefined}
-						maxLength={1}
 						autoFocus={autoFocus && i === 0}
 						ref={(el: HTMLInputElement | null) => {
 							refs.current[i] = el;
 						}}
 						value={c}
+						onFocus={selectDigit}
+						onClick={selectDigit}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAt(i, e.target.value)}
 						onKeyDown={(e: React.KeyboardEvent) => onKey(i, e)}
 						sx={{

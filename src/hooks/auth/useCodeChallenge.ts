@@ -18,7 +18,7 @@ export interface CodeChallenge {
 	code: string;
 	/** Typing clears the previous refusal. */
 	setCode: (value: string) => void;
-	/** Why the code was refused, or null. */
+	/** Why the code was refused — or, once it is used up, why (null: it timed out). */
 	error: string | null;
 	/** Digits to ask for — the served `codeLength`. */
 	codeLength: number;
@@ -46,6 +46,9 @@ export interface CodeChallenge {
 export function useCodeChallenge(): CodeChallenge {
 	const [code, setCodeValue] = React.useState("");
 	const [error, setError] = React.useState<string | null>(null);
+	// Kept apart from `error`: typing or a click on a used-up code clears `error`,
+	// but «слишком много неверных попыток» must not turn into «код истёк».
+	const [goneReason, setGoneReason] = React.useState<string | null>(null);
 	const [codeLength, setCodeLength] = React.useState(DEFAULT_CODE_LENGTH);
 	const [issued, setIssued] = React.useState(false);
 	const resend = useCountdown(0);
@@ -63,6 +66,7 @@ export function useCodeChallenge(): CodeChallenge {
 		(response: Partial<CodeIssuedResponse>) => {
 			setCodeValue("");
 			setError(null);
+			setGoneReason(null);
 			setCodeLength(positive(response.codeLength, DEFAULT_CODE_LENGTH));
 			startResend(positive(response.resendAfterSeconds, DEFAULT_RESEND_SECONDS));
 			startExpiry(positive(response.expiresInMinutes, DEFAULT_EXPIRES_MINUTES) * 60);
@@ -87,6 +91,7 @@ export function useCodeChallenge(): CodeChallenge {
 	const refuse = React.useCallback(
 		(cause: unknown) => {
 			if (isCodeGone(cause)) {
+				setGoneReason(codeFailureText(cause));
 				startExpiry(0);
 			}
 			setError(codeFailureText(cause));
@@ -107,7 +112,7 @@ export function useCodeChallenge(): CodeChallenge {
 	return {
 		code,
 		setCode,
-		error,
+		error: expired ? goneReason : error,
 		codeLength,
 		resendSeconds: resend.seconds,
 		expirySeconds: expiry.seconds,
