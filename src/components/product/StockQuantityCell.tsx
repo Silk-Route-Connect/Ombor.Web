@@ -13,11 +13,22 @@ interface StockQuantityCellProps {
 	level: StockLevel;
 }
 
-/** A stock figure with its low-stock pill before it («Мало 3 шт»); the figure stays ink. */
+/**
+ * A stock figure with its low-stock pill before it («Мало 3 шт»); the figure stays
+ * ink. When the column is tight the pill wraps above the figure, so the pill never
+ * widens the Products table past a 1366px screen.
+ */
 const StockQuantityCell: React.FC<StockQuantityCellProps> = ({ quantity, measurement, level }) => (
 	<Box
 		component="span"
-		sx={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}
+		sx={{
+			display: "inline-flex",
+			flexWrap: "wrap",
+			alignItems: "center",
+			justifyContent: "flex-end",
+			columnGap: 1,
+			rowGap: "4px",
+		}}
 	>
 		<StockLevelPill level={level} />
 		<QuantityCell value={quantity} measurement={measurement} />
