@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { numericSx } from "theme";
-import { formatNationalPhone, onlyDigits, PHONE_DIGITS } from "utils/authValidation";
+import { formatUzNational, UZ_COUNTRY_PREFIX, uzNationalPart } from "utils/phoneUtils";
 
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import { Box, InputBase } from "@mui/material";
@@ -18,7 +18,7 @@ interface AuthPhoneFieldProps {
 	onEnter?: () => void;
 }
 
-/** Holds the 9 national digits; «+998» is a fixed prefix in front of them. */
+/** Holds the 9 national digits, grouped «90 123 45 67» like every phone; «+998» is a fixed prefix. */
 export const AuthPhoneField: React.FC<AuthPhoneFieldProps> = ({
 	label,
 	value,
@@ -38,15 +38,15 @@ export const AuthPhoneField: React.FC<AuthPhoneFieldProps> = ({
 					component="span"
 					sx={{ ...numericSx, color: "text.secondary", fontWeight: 600, flex: "0 0 auto" }}
 				>
-					+998
+					{UZ_COUNTRY_PREFIX}
 				</Box>
 				<InputBase
 					inputMode="tel"
 					autoComplete="tel"
 					autoFocus={autoFocus}
-					value={formatNationalPhone(value)}
+					value={formatUzNational(value)}
 					placeholder={t("auth.field.phonePlaceholder")}
-					onChange={(e) => onChange(onlyDigits(e.target.value).slice(0, PHONE_DIGITS))}
+					onChange={(e) => onChange(uzNationalPart(e.target.value))}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" && onEnter) onEnter();
 					}}

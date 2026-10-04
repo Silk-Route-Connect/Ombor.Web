@@ -12,7 +12,7 @@ import { RegisterRequest } from "models/auth";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { describeApiReason } from "utils/apiError";
-import { maskedPhone } from "utils/authValidation";
+import { maskUzPhone } from "utils/phoneUtils";
 
 type Step = "form" | "otp" | "welcome";
 
@@ -32,7 +32,7 @@ const RegisterPage: React.FC = observer(() => {
 	const [registration, setRegistration] = useState<RegisterRequest | null>(null);
 	const [accessToken, setAccessToken] = useState("");
 
-	const phoneMask = maskedPhone(form.values.phone);
+	const phoneMask = maskUzPhone(form.values.phone);
 
 	const submitForm = async () => {
 		if (submitting) {

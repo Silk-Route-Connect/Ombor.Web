@@ -12,26 +12,6 @@ export const TEXT_MAX = 250;
 
 export const onlyDigits = (s: string): string => (s || "").replace(/\D/g, "");
 
-/** Format up to 9 national digits as «90 123-45-67». */
-export function formatNationalPhone(raw: string): string {
-	const d = onlyDigits(raw).slice(0, PHONE_DIGITS);
-	const a = d.slice(0, 2);
-	const b = d.slice(2, 5);
-	const c = d.slice(5, 7);
-	const e = d.slice(7, 9);
-	let out = a;
-	if (b) out += " " + b;
-	if (c) out += "-" + c;
-	if (e) out += "-" + e;
-	return out;
-}
-
-/** Masked phone for code-step copy, e.g. «+998 90 •••-••-67». */
-export function maskedPhone(raw: string): string {
-	const d = onlyDigits(raw).slice(0, PHONE_DIGITS);
-	return `+998 ${d.slice(0, 2)} •••-••-${d.slice(7, 9)}`;
-}
-
 export const isPhoneComplete = (raw: string): boolean => onlyDigits(raw).length === PHONE_DIGITS;
 
 export function phoneError(raw: string): string | null {

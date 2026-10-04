@@ -14,13 +14,8 @@ import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { describeApiReason } from "utils/apiError";
 import { isCodeRefused } from "utils/authErrors";
-import {
-	confirmError,
-	maskedPhone,
-	passwordError,
-	phoneError as phoneErrorOf,
-} from "utils/authValidation";
-import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
+import { confirmError, passwordError, phoneError as phoneErrorOf } from "utils/authValidation";
+import { maskUzPhone, normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
 import { Box, Button, Typography } from "@mui/material";
 
@@ -151,7 +146,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 					title={t("auth.reset.codeTitle")}
 					subtitle={t("auth.reset.codeSubtitle", {
 						count: challenge.codeLength,
-						phone: maskedPhone(phone),
+						phone: maskUzPhone(phone),
 					})}
 					challenge={challenge}
 					submitLabel={t("auth.reset.codeSubmit")}
