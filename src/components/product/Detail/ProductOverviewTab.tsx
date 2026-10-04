@@ -11,6 +11,7 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
+import ProductImage from "../ProductImage";
 import StockLevelPill from "../StockLevelPill";
 import ProductStockTable from "./ProductStockTable";
 
@@ -36,16 +37,14 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 					<Box sx={{ display: "flex", flexWrap: "wrap", gap: "14px", p: "16px 18px" }}>
 						{product.images.map((image) => (
 							<Box key={image.id} sx={{ width: 132 }}>
-								<Box
-									component="img"
+								<ProductImage
 									src={getImageFullUrl(image.thumbnailUrl ?? image.originalUrl)}
 									alt={image.name}
+									size={132}
+									radius={8}
+									muted={product.isArchived}
 									sx={{
-										width: 132,
-										height: 132,
-										objectFit: "cover",
-										display: "block",
-										borderRadius: "8px",
+										display: "grid",
 										border: "1px solid",
 										borderColor: "divider",
 										opacity: product.isArchived ? 0.7 : 1,

@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import ProductImage from "components/product/ProductImage";
 import { designTokens } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -30,19 +31,12 @@ const ImageThumb: React.FC<{
 	removeTitle: string;
 }> = ({ src, alt, disabled, onRemove, removeTitle }) => (
 	<Box sx={{ position: "relative", width: 40, height: 40, flex: "0 0 auto" }}>
-		<Box
-			component="img"
+		<ProductImage
 			src={src}
 			alt={alt}
-			sx={{
-				width: "100%",
-				height: "100%",
-				objectFit: "cover",
-				display: "block",
-				borderRadius: "6px",
-				border: "1px solid",
-				borderColor: "divider",
-			}}
+			size={40}
+			radius={6}
+			sx={{ display: "grid", border: "1px solid", borderColor: "divider" }}
 		/>
 		{!disabled && (
 			<ButtonBase
