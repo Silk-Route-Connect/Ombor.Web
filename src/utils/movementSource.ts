@@ -1,7 +1,11 @@
 import { TFunction } from "i18next";
 import { MovementSourceRef } from "models/product";
 import { TransactionType } from "models/transaction";
-import { transactionDetailPath } from "routing/paths";
+import {
+	stockAdjustmentDetailPath,
+	transactionDetailPath,
+	transferDetailPath,
+} from "routing/paths";
 
 import { formatEntityId, formatOptionalNumber } from "./formatEntityId";
 
@@ -27,11 +31,29 @@ export const movementSourceNumber = (m: MovementSourceRef): string | number | nu
 	return isMovementSourceOpenable(m) ? m.sourceId : null;
 };
 
-/** The routed detail of a sale / supply / refund row; null for modal-only sources. */
-export const movementSourcePath = (m: MovementSourceRef): string | null =>
-	m.sourceType === "Transaction" && TRANSACTION_KINDS.has(m.kind)
-		? transactionDetailPath(m.kind as TransactionType, m.sourceId)
-		: null;
+/** The URL of a row's source document; null for opening stock (no document). */
+export const movementSourcePath = (m: MovementSourceRef): string | null => {
+	switch (m.sourceType) {
+		case "Transaction":
+			return TRANSACTION_KINDS.has(m.kind)
+				? transactionDetailPath(m.kind as TransactionType, m.sourceId)
+				: null;
+		case "Transfer":
+			return transferDetailPath(m.sourceId);
+		case "StockAdjustment":
+			return stockAdjustmentDetailPath(m.sourceId);
+		default:
+			return null;
+	}
+};
+
+/**
+ * A transfer or adjustment opens its modal detail over the movements tab (the
+ * user keeps the tab); its URL still opens in a new tab. A sale / supply / refund
+ * navigates to its page.
+ */
+export const movementSourceOpensInPlace = (m: MovementSourceRef): boolean =>
+	m.sourceType === "Transfer" || m.sourceType === "StockAdjustment";
 
 /** The CSV text of the № column — the same «№N» / «Без номера» / empty the cell shows. */
 export const movementSourceCsv = (m: MovementSourceRef, t: TFunction): string => {

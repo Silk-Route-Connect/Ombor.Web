@@ -8,23 +8,21 @@ import { COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { Transfer, transferUnits } from "models/transfer";
+import { transferDetailPath } from "routing/paths";
 
 /**
  * Transfer list columns in the canonical order (conventions.md → Tables):
- * № · Дата · Откуда · Куда · Автор · Позиций · Единиц. The number (and the row)
- * opens the read-only detail modal.
+ * № · Дата · Откуда · Куда · Автор · Позиций · Единиц. The number links to the
+ * read-only detail (`/transfers/:id`).
  */
-export function buildTransferColumns(
-	t: TFunction,
-	onOpen: (transfer: Transfer) => void,
-): Column<Transfer>[] {
+export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 	return [
 		{
 			key: "number",
 			headerName: t("transfer.table.number"),
 			width: COLUMN_WIDTH.number,
 			sortValue: (tr) => tr.id,
-			renderCell: (tr) => <DocNumberCell number={tr.id} onOpen={() => onOpen(tr)} />,
+			renderCell: (tr) => <DocNumberCell number={tr.id} to={transferDetailPath(tr.id)} />,
 		},
 		{
 			key: "date",

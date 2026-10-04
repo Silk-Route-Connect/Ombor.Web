@@ -34,6 +34,8 @@ export interface IStockAdjustmentStore {
 	dialogMode: AdjustmentDialogMode;
 
 	getAll(): Promise<void>;
+	/** The adjustment `/adjustments/:id` names, from the loaded list; null = not found. */
+	findById(id: number | null): Loadable<StockAdjustment | null>;
 	/** Resolve with the created adjustment, or null on failure (over-stock etc.). */
 	create(request: CreateStockAdjustmentRequest): Promise<StockAdjustment | null>;
 
@@ -95,6 +97,17 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		}
 
 		return rows;
+	}
+
+	// The API has no by-id read for adjustments; the list page loads them all anyway.
+	findById(id: number | null): Loadable<StockAdjustment | null> {
+		if (id === null) {
+			return null;
+		}
+		if (!isReady(this.allAdjustments)) {
+			return this.allAdjustments;
+		}
+		return this.allAdjustments.find((a) => a.id === id) ?? null;
 	}
 
 	async getAll(): Promise<void> {

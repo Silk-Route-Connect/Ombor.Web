@@ -41,15 +41,17 @@ export const ACTIONS_COLUMN_WIDTH = 56;
  * Column widths per column type (padding included) for fixed-layout tables
  * (`DataTable` `fixedLayout`): these columns keep their width and the columns
  * without one (entity names) share the rest, so a search that narrows the rows
- * never re-flows the columns (live-ui-23).
+ * never re-flows the columns (live-ui-23). The steps are as narrow as their
+ * content allows (the № copy button overlays the padding), so Stock adjustments
+ * — the widest event list — fits a 1366px screen without sideways scrolling.
  */
 export const COLUMN_WIDTH = {
-	number: 120,
-	dateTime: 160,
+	number: 104,
+	dateTime: 152,
 	chip: 152,
 	direction: 136,
 	money: 152,
-	quantity: 124,
+	quantity: 112,
 	count: 108,
 	author: 168,
 } as const;

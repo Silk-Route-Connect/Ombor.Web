@@ -9,7 +9,9 @@ export const PATHS = {
 	warehouses: "/warehouses",
 	warehouseDetail: "/warehouses/:id",
 	adjustments: "/adjustments",
+	adjustmentDetail: "/adjustments/:id",
 	transfers: "/transfers",
+	transferDetail: "/transfers/:id",
 	partners: "/partners",
 	partnerDetail: "/partners/:id",
 	partnerStatement: "/partners/:id/statement",
@@ -45,6 +47,12 @@ export const productDetailPath = (id: number): string => `/products/${id}`;
 
 /** Concrete detail route for a warehouse (PATHS.warehouseDetail with the id bound). */
 export const warehouseDetailPath = (id: number): string => `/warehouses/${id}`;
+
+/** A stock adjustment's read-only detail, opened over the adjustments list. */
+export const stockAdjustmentDetailPath = (id: number): string => `/adjustments/${id}`;
+
+/** A stock transfer's read-only detail, opened over the transfers list. */
+export const transferDetailPath = (id: number): string => `/transfers/${id}`;
 
 /** Concrete detail route for a partner (PATHS.partnerDetail with the id bound). */
 export const partnerDetailPath = (id: number): string => `/partners/${id}`;

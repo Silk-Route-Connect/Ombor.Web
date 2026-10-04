@@ -11,26 +11,35 @@ import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { StockAdjustment } from "models/stockAdjustment";
+import { stockAdjustmentDetailPath } from "routing/paths";
 import { adjustmentValue } from "utils/listTotals";
+
+export interface StockAdjustmentColumnOptions {
+	/**
+	 * «Автор» only on wide screens (xl): below it the nine columns cannot fit a
+	 * 1366–1440px laptop without sideways scrolling. The detail and the CSV keep it.
+	 */
+	showAuthor: boolean;
+}
 
 /**
  * Stock-adjustment history columns in the canonical order (conventions.md →
- * Tables): № · Дата · Товар · Склад · Направление · Причина · Создал ·
+ * Tables): № · Дата · Товар · Склад · Направление · Причина · Автор ·
  * Количество (signed by direction) · Сумма (the served value at the average
  * cost — written off on a Списание, restored on a Приход товара). The number
- * opens the read-only detail.
+ * links to the read-only detail (`/adjustments/:id`).
  */
 export function buildStockAdjustmentColumns(
 	t: TFunction,
-	onOpen: (adjustment: StockAdjustment) => void,
+	{ showAuthor }: StockAdjustmentColumnOptions,
 ): Column<StockAdjustment>[] {
-	return [
+	const columns: Column<StockAdjustment>[] = [
 		{
 			key: "number",
 			headerName: t("adjustment.table.number"),
 			width: COLUMN_WIDTH.number,
 			sortValue: (a) => a.id,
-			renderCell: (a) => <DocNumberCell number={a.id} onOpen={() => onOpen(a)} />,
+			renderCell: (a) => <DocNumberCell number={a.id} to={stockAdjustmentDetailPath(a.id)} />,
 		},
 		{
 			key: "date",
@@ -95,4 +104,5 @@ export function buildStockAdjustmentColumns(
 			renderCell: (a) => <MoneyCell value={adjustmentValue(a)} main />,
 		},
 	];
+	return showAuthor ? columns : columns.filter((col) => col.key !== "createdBy");
 }

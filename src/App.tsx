@@ -83,7 +83,9 @@ function App() {
 								<Route path={PATHS.warehouses} element={<WarehousePage />} />
 								<Route path={PATHS.warehouseDetail} element={<WarehouseDetailPage />} />
 								<Route path={PATHS.adjustments} element={<StockAdjustmentPage />} />
+								<Route path={PATHS.adjustmentDetail} element={<StockAdjustmentPage />} />
 								<Route path={PATHS.transfers} element={<TransferPage />} />
+								<Route path={PATHS.transferDetail} element={<TransferPage />} />
 								<Route path={PATHS.partners} element={<PartnerPage />} />
 								<Route path={PATHS.partnerDetail} element={<PartnerDetailPage />} />
 								<Route path={PATHS.partnerStatement} element={<PartnerStatementPage />} />

@@ -13,7 +13,10 @@ interface DocNumberCellProps {
 	number: string | number | null | undefined;
 	/** Detail route of the document. */
 	to?: string;
-	/** Opens a document that has no route (a modal detail). */
+	/**
+	 * Opens the document in place (a modal detail over the page). With `to` it
+	 * takes the plain click and the URL still opens in a new tab.
+	 */
 	onOpen?: () => void;
 }
 
@@ -41,7 +44,11 @@ export const DocNumberCell: React.FC<DocNumberCellProps> = ({ number, to, onOpen
 
 	let content: React.ReactNode = label;
 	if (to) {
-		content = <DetailLink to={to}>{label}</DetailLink>;
+		content = (
+			<DetailLink to={to} onOpen={onOpen}>
+				{label}
+			</DetailLink>
+		);
 	} else if (onOpen) {
 		content = (
 			<Link
@@ -60,14 +67,23 @@ export const DocNumberCell: React.FC<DocNumberCellProps> = ({ number, to, onOpen
 		);
 	}
 
+	// The copy button overlays the space after the number (the cell's padding)
+	// instead of widening the column — a tight detail tab must still fit at 1366px.
 	return (
 		<Box
 			component="span"
 			sx={{
+				position: "relative",
 				display: "inline-flex",
 				alignItems: "center",
-				gap: 0.25,
 				whiteSpace: "nowrap",
+				[`& .${COPY_BUTTON_CLASS}`]: {
+					position: "absolute",
+					left: "100%",
+					top: "50%",
+					transform: "translateY(-50%)",
+					ml: 0.25,
+				},
 				[`tr:hover & .${COPY_BUTTON_CLASS}, &:focus-within .${COPY_BUTTON_CLASS}`]: { opacity: 1 },
 			}}
 		>

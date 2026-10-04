@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { TableOrder } from "components/shared/Table/tableOrder";
-import StockAdjustmentDetailModal from "components/stockAdjustment/Detail/StockAdjustmentDetailModal";
 import { Loadable } from "helpers/Loading";
 import { StockAdjustment } from "models/stockAdjustment";
 
 import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
+import { Theme, useMediaQuery } from "@mui/material";
 
 import { buildStockAdjustmentColumns } from "./stockAdjustmentTableConfigs";
 
@@ -17,6 +17,8 @@ interface StockAdjustmentsTableProps {
 	/** Whether any adjustment exists at all (drives the empty-state copy). */
 	hasAny: boolean;
 	onCreate: () => void;
+	/** Opens the read-only detail (`/adjustments/:id`). */
+	onOpen: (adjustment: StockAdjustment) => void;
 	/** Re-runs the failed list load (the error state's «Повторить»). */
 	onRetry: () => void;
 	/** Error-state title, e.g. «Не удалось загрузить корректировки». */
@@ -29,7 +31,7 @@ interface StockAdjustmentsTableProps {
 
 /**
  * Immutable stock-adjustment history (rule 23 — no edit / delete) on the shared
- * DataTable; a row click (or the №) opens the read-only audited detail modal.
+ * DataTable; a row click (or the № link) opens the read-only audited detail.
  */
 export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	onRetry,
@@ -38,37 +40,35 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 	isFiltering,
 	hasAny,
 	onCreate,
+	onOpen,
 	summary,
 	exportOrder,
 }) => {
 	const { t } = useTranslation();
-	const [selected, setSelected] = useState<StockAdjustment | null>(null);
-	const columns = useMemo(() => buildStockAdjustmentColumns(t, setSelected), [t]);
+	const showAuthor = useMediaQuery((theme: Theme) => theme.breakpoints.up("xl"), { noSsr: true });
+	const columns = useMemo(() => buildStockAdjustmentColumns(t, { showAuthor }), [t, showAuthor]);
 	const firstRun = !hasAny && !isFiltering;
 
 	return (
-		<>
-			<DataTable<StockAdjustment>
-				exportOrder={exportOrder}
-				rows={rows}
-				columns={columns}
-				onRetry={onRetry}
-				errorTitle={errorTitle}
-				defaultSort={{ key: "date", order: "desc" }}
-				onRowClick={setSelected}
-				fixedLayout
-				summary={summary}
-				empty={
-					<TableEmptyState
-						icon={<ScaleOutlinedIcon />}
-						title={firstRun ? t("adjustment.empty.title") : t("adjustment.empty.searchTitle")}
-						hint={firstRun ? t("adjustment.empty.body") : t("adjustment.empty.searchBody")}
-						action={firstRun ? { label: t("adjustment.create"), onClick: onCreate } : undefined}
-					/>
-				}
-			/>
-			<StockAdjustmentDetailModal adjustment={selected} onClose={() => setSelected(null)} />
-		</>
+		<DataTable<StockAdjustment>
+			exportOrder={exportOrder}
+			rows={rows}
+			columns={columns}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
+			defaultSort={{ key: "date", order: "desc" }}
+			onRowClick={onOpen}
+			fixedLayout
+			summary={summary}
+			empty={
+				<TableEmptyState
+					icon={<ScaleOutlinedIcon />}
+					title={firstRun ? t("adjustment.empty.title") : t("adjustment.empty.searchTitle")}
+					hint={firstRun ? t("adjustment.empty.body") : t("adjustment.empty.searchBody")}
+					action={firstRun ? { label: t("adjustment.create"), onClick: onCreate } : undefined}
+				/>
+			}
+		/>
 	);
 };
 

@@ -20,6 +20,7 @@ import { measurementShort } from "utils/productUtils";
 import { directionOf, isRefundType, lineNet } from "utils/transactionUtils";
 
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
+import { Theme, useMediaQuery } from "@mui/material";
 
 interface ProductTransactionsTabProps {
 	productName: string;
@@ -54,8 +55,10 @@ const sourcePath = (row: TransactionRow): string =>
 	transactionDetailPath(row.transactionType, row.transactionId);
 
 /**
- * «Транзакции»: every sale / supply / refund line of the product, newest first;
- * the № (or the whole row) opens its document.
+ * «Продажи и поставки»: every sale / supply / refund line of the product, newest
+ * first; the № (or the whole row) opens its document. «Цена» shows only on wide
+ * screens (xl) — beside the rail at 1366–1440px the seven columns would scroll
+ * sideways; the CSV and the document keep it.
  */
 export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 	productName,
@@ -65,14 +68,15 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<TransactionRow>();
+	const showPrice = useMediaQuery((theme: Theme) => theme.breakpoints.up("xl"), { noSsr: true });
 
 	const rows = useMemo<TransactionRow[]>(
 		() => transactions.map((txn, index) => ({ ...txn, id: index, transactionId: txn.id })),
 		[transactions],
 	);
 
-	const columns = useMemo<Column<TransactionRow>[]>(
-		() => [
+	const columns = useMemo<Column<TransactionRow>[]>(() => {
+		const all: Column<TransactionRow>[] = [
 			{
 				key: "number",
 				headerName: t("product.detail.txns.number"),
@@ -124,9 +128,9 @@ export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
 				sortValue: lineTotal,
 				renderCell: (r) => <MoneyCell value={lineTotal(r)} main />,
 			},
-		],
-		[t, measurement],
-	);
+		];
+		return showPrice ? all : all.filter((col) => col.key !== "price");
+	}, [t, measurement, showPrice]);
 
 	const handleExport = () => {
 		exportToCsv<TransactionRow>(

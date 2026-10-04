@@ -2,16 +2,18 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import NotFoundDialog from "components/shared/LoadState/NotFoundDialog";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
 import TransferHeader from "components/transfer/Header/TransferHeader";
 import TransfersTable from "components/transfer/Table/TransfersTable";
-import { isReady, readyOr } from "helpers/Loading";
+import { isPresent, isReady, readyOr } from "helpers/Loading";
+import { useListDetailRoute } from "hooks/shared/useListDetailRoute";
 import { observer } from "mobx-react-lite";
 import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
-import { PATHS } from "routing/paths";
+import { PATHS, transferDetailPath } from "routing/paths";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
@@ -22,11 +24,13 @@ import { formatEntityId } from "utils/formatEntityId";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
+/** Stock transfers; `/transfers/:id` opens one's read-only detail over the list. */
 const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { transferStore, warehouseStore, productStore } = useStore();
 	const tableOrder = useTableOrder<Transfer>();
+	const detailRoute = useListDetailRoute(PATHS.transfers);
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -76,6 +80,8 @@ const TransferPage: React.FC = observer(() => {
 	const hasAny = (all?.length ?? 0) > 0;
 	const dialogMode = transferStore.dialogMode;
 	const rows = transferStore.filteredTransfers;
+	// Closed: undefined; open: the record, or null when the URL names none (while the list loads, nothing).
+	const opened = detailRoute.isOpen ? transferStore.findById(detailRoute.id) : undefined;
 
 	return (
 		<Box>
@@ -99,7 +105,7 @@ const TransferPage: React.FC = observer(() => {
 				rows={rows}
 				isFiltering={transferStore.isFiltering}
 				hasAny={hasAny}
-				onOpen={transferStore.openDetail}
+				onOpen={(tr) => navigate(transferDetailPath(tr.id))}
 				onCreate={transferStore.openCreate}
 				summary={
 					isReady(rows) && (
@@ -139,8 +145,14 @@ const TransferPage: React.FC = observer(() => {
 			/>
 
 			<TransferDetailModal
-				transfer={dialogMode.kind === "detail" ? dialogMode.transfer : null}
-				onClose={transferStore.closeDialog}
+				transfer={opened !== undefined && isPresent(opened) ? opened : null}
+				onClose={detailRoute.close}
+			/>
+			<NotFoundDialog
+				open={opened === null}
+				title={t("transfer.detail.title")}
+				notFound={{ title: t("transfer.detail.notFound"), backTo: PATHS.transfers }}
+				onClose={detailRoute.close}
 			/>
 		</Box>
 	);

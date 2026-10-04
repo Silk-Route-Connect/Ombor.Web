@@ -5,30 +5,30 @@ import { MovementSourceRef } from "models/product";
 import {
 	isMovementSourceOpenable,
 	movementSourceNumber,
+	movementSourceOpensInPlace,
 	movementSourcePath,
 } from "utils/movementSource";
 
 interface MovementSourceCellProps {
 	movement: MovementSourceRef;
-	/** Opens a modal-only source (transfer, adjustment); routed sources link instead. */
+	/** Opens a transfer / adjustment detail over the page (a plain click on its link). */
 	onOpen: (movement: MovementSourceRef) => void;
 }
 
 /**
- * The № of a stock-movement row: the sale / supply / refund number linking to
- * its page, a transfer or adjustment number opening its detail, «—» for opening
- * stock (no document).
+ * The № of a stock-movement row, a link to its source document: a sale / supply
+ * / refund page, or a transfer / adjustment (`/transfers/:id`, `/adjustments/:id`)
+ * whose plain click opens its detail over the page; «—» for opening stock.
  */
 export const MovementSourceCell: React.FC<MovementSourceCellProps> = ({ movement, onOpen }) => {
 	if (!isMovementSourceOpenable(movement)) {
 		return <NoValue />;
 	}
-	const path = movementSourcePath(movement);
 	return (
 		<DocNumberCell
 			number={movementSourceNumber(movement)}
-			to={path ?? undefined}
-			onOpen={path ? undefined : () => onOpen(movement)}
+			to={movementSourcePath(movement) ?? undefined}
+			onOpen={movementSourceOpensInPlace(movement) ? () => onOpen(movement) : undefined}
 		/>
 	);
 };

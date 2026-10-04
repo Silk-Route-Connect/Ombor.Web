@@ -14,6 +14,7 @@ interface TransfersTableProps {
 	isFiltering: boolean;
 	/** Whether any transfer exists at all (drives the empty-state copy). */
 	hasAny: boolean;
+	/** Opens the read-only detail (`/transfers/:id`). */
 	onOpen: (transfer: Transfer) => void;
 	onCreate: () => void;
 	/** Re-runs the failed list load (the error state's «Повторить»). */
@@ -38,7 +39,7 @@ export const TransfersTable: React.FC<TransfersTableProps> = ({
 	exportOrder,
 }) => {
 	const { t } = useTranslation();
-	const columns = useMemo(() => buildTransferColumns(t, onOpen), [t, onOpen]);
+	const columns = useMemo(() => buildTransferColumns(t), [t]);
 	const firstRun = !hasAny && !isFiltering;
 
 	return (

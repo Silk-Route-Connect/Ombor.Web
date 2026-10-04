@@ -11,10 +11,7 @@ import TransferApi from "../services/api/TransferApi";
 import { analytics } from "../services/telemetry";
 import { NotificationStore } from "./NotificationStore";
 
-export type TransferDialogMode =
-	| { kind: "create" }
-	| { kind: "detail"; transfer: Transfer }
-	| { kind: "none" };
+export type TransferDialogMode = { kind: "create" } | { kind: "none" };
 
 export interface ITransferStore {
 	allTransfers: Loadable<Transfer[]>;
@@ -29,6 +26,8 @@ export interface ITransferStore {
 	dialogMode: TransferDialogMode;
 
 	getAll(): Promise<void>;
+	/** The transfer `/transfers/:id` names, from the loaded list; null = not found. */
+	findById(id: number | null): Loadable<Transfer | null>;
 	create(request: CreateTransferRequest): Promise<Transfer | null>;
 
 	setWarehouseFilter(warehouseId: number | null): void;
@@ -36,7 +35,6 @@ export interface ITransferStore {
 	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
-	openDetail(transfer: Transfer): void;
 	closeDialog(): void;
 }
 
@@ -87,6 +85,17 @@ export class TransferStore implements ITransferStore {
 		}
 
 		return rows;
+	}
+
+	// The list page holds every transfer (lines included), so the detail needs no extra read.
+	findById(id: number | null): Loadable<Transfer | null> {
+		if (id === null) {
+			return null;
+		}
+		if (!isReady(this.allTransfers)) {
+			return this.allTransfers;
+		}
+		return this.allTransfers.find((tr) => tr.id === id) ?? null;
 	}
 
 	async getAll(): Promise<void> {
@@ -141,10 +150,6 @@ export class TransferStore implements ITransferStore {
 
 	openCreate(): void {
 		this.dialogMode = { kind: "create" };
-	}
-
-	openDetail(transfer: Transfer): void {
-		this.dialogMode = { kind: "detail", transfer };
 	}
 
 	closeDialog(): void {
