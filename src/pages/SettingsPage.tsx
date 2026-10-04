@@ -15,6 +15,7 @@ import { isLoadError, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Organization, TenantUser } from "models/settings";
 import { useStore } from "stores/StoreContext";
+import { tenantUserLabel } from "utils/tenantUser";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -217,7 +218,9 @@ const SettingsPage: React.FC = observer(() => {
 				icon={<VisibilityOffOutlinedIcon sx={{ fontSize: 22 }} />}
 				iconTone="warning"
 				title={t("settings.users.deactivateTitle")}
-				content={t("settings.users.deactivateBody", { name: confirmUser?.name ?? "" })}
+				content={t("settings.users.deactivateBody", {
+					name: confirmUser ? tenantUserLabel(confirmUser) : "",
+				})}
 				confirmLabel={t("settings.users.deactivate")}
 				confirmVariant="danger"
 				onCancel={() => setConfirmUser(null)}

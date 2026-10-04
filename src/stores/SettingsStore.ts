@@ -11,6 +11,7 @@ import {
 } from "../models/settings";
 import SettingsApi from "../services/api/SettingsApi";
 import { ServerErrorHandler } from "../utils/formServerErrors";
+import { tenantUserLabel } from "../utils/tenantUser";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ISettingsStore {
@@ -186,7 +187,7 @@ export class SettingsStore implements ISettingsStore {
 		}
 		this.replaceUser(result.data);
 		this.notificationStore.success(
-			i18next.t("settings.users.deactivatedToast", { name: user.name }),
+			i18next.t("settings.users.deactivatedToast", { name: tenantUserLabel(user) }),
 		);
 	}
 
@@ -198,7 +199,7 @@ export class SettingsStore implements ISettingsStore {
 		}
 		this.replaceUser(result.data);
 		this.notificationStore.success(
-			i18next.t("settings.users.reactivatedToast", { name: user.name }),
+			i18next.t("settings.users.reactivatedToast", { name: tenantUserLabel(user) }),
 		);
 	}
 
