@@ -29,6 +29,7 @@
 | Component        | Use for                          | Notes |
 | ---------------- | -------------------------------- | ----- |
 | `DocNumberCell`  | Document number «№N»             | The number is the link that opens the document (`to` or `onOpen`); `CopyIconButton` appears on row hover / focus; missing → «Без номера» |
+| `MovementSourceCell` (+ `MovementSourceDialogs`) | № of a stock-movement row (Product / Warehouse «Движения») | Lives in `components/stockMovement/`. The served source document: a sale / supply / refund number links to its page, a transfer / adjustment number (its id, as its own list shows it) opens its detail modal over the page (`MovementSourceStore`), opening stock «—». Rows open the same target via `useMovementSourceOpener` (`hooks/stockMovement/`) + `isMovementSourceOpenable` (`utils/movementSource`) |
 | `CopyIconButton` | Small copy button in a cell / row | Hidden until the owner reveals `COPY_BUTTON_CLASS` on hover / focus; always shown on touch screens; never lets the click reach the row |
 | `DateCell`       | Dates                            | `dateTime` (events) or `kind="date"`; secondary, tabular, one line |
 | `EntityCell`     | The row's primary entity         | Avatar · `<XLink>` · «Архив» badge · optional second line |

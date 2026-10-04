@@ -44,6 +44,8 @@
   "common.copy": "Копировать",
   "common.copied": "Скопировано",
   "common.noNumber": "Без номера",
+  "common.movementSource.openFailed": "Не удалось открыть документ",
+  "common.movementSource.notFound": "Документ не найден",
   "common.payment": "Оплата",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",

@@ -9,6 +9,7 @@ import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtReminderStore, IDebtReminderStore } from "./DebtReminderStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
 import { IInvoicePrintStore, InvoicePrintStore } from "./InvoicePrintStore";
+import { IMovementSourceStore, MovementSourceStore } from "./MovementSourceStore";
 import { NotificationStore } from "./NotificationStore";
 import { IOnboardingStore, OnboardingStore } from "./OnboardingStore";
 import { OrderStore } from "./OrderStore";
@@ -51,6 +52,7 @@ export class RootStore {
 	selectedWarehouseStore!: ISelectedWarehouseStore;
 	stockAdjustmentStore!: IStockAdjustmentStore;
 	transferStore!: ITransferStore;
+	movementSourceStore!: IMovementSourceStore;
 	orderStore!: OrderStore;
 	authStore: AuthStore;
 	employeeStore!: IEmployeeStore;
@@ -95,6 +97,7 @@ export class RootStore {
 		this.selectedWarehouseStore = new SelectedWarehouseStore(this.notificationStore);
 		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
 		this.transferStore = new TransferStore(this.notificationStore);
+		this.movementSourceStore = new MovementSourceStore(this.notificationStore);
 		this.orderStore = new OrderStore(this.notificationStore);
 		this.employeeStore = new EmployeeStore(this.notificationStore);
 		this.selectedEmployeeStore = new SelectedEmployeeStore(

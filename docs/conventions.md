@@ -77,7 +77,7 @@ i18n/ru/        <module>.json — the module's keys (flat, <module>.-prefixed)
 
 | Column | Cell | Rule |
 | --- | --- | --- |
-| № | `DocNumberCell` | First column of every event table. «№N» via `formatEntityId`; the number is the link that opens the document (`to`, or `onOpen` for modal details), with a copy button that appears on row hover / focus. Missing number → muted «Без номера» — never the id as a stand-in for a served number, never «#» or a bare number (CSV included). |
+| № | `DocNumberCell` | First column of every event table. «№N» via `formatEntityId`; the number is the link that opens the document (`to`, or `onOpen` for modal details), with a copy button that appears on row hover / focus. Missing number → muted «Без номера» — never the id as a stand-in for a served number, never «#» or a bare number (CSV included). A sale / supply / refund routes through `transactionDetailPath(type, id)`. Stock-movement ledgers use `MovementSourceCell` (the served source document; opening stock «—»). |
 | Date | `DateCell` | Events `formatDateTime`, calendar fields `kind="date"` (`formatDate`); `text.secondary`, tabular, one line; second column. |
 | Entity name | the module `<XLink>` (`PartnerLink`, `ProductLink`, `WarehouseLink`, `WalletLink`, `EmployeeLink`) | `DetailLink` owns colour (primary), weight 600, inherits the size and stops the row click. The row's own name is a link too, inside `EntityCell` (avatar · link · «Архив» · optional second line). Archived / terminated → `archived` (`text.secondary`) + `ArchivedBadge`; no strike-through, no dimming. An entity with no detail page (category, template) is plain 600 text. |
 | Avatar | `EntityAvatar` | Initials; `muted` (stone) when archived / terminated / deactivated. |

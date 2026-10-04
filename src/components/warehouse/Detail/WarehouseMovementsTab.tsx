@@ -14,7 +14,10 @@ import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
+import MovementSourceCell from "components/stockMovement/MovementSourceCell";
+import MovementSourceDialogs from "components/stockMovement/MovementSourceDialogs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import { useMovementSourceOpener } from "hooks/stockMovement/useMovementSourceOpener";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
 	WarehouseMovement,
@@ -22,6 +25,12 @@ import {
 } from "models/warehouse";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { entityNumberSortValue } from "utils/formatEntityId";
+import {
+	isMovementSourceOpenable,
+	movementSourceCsv,
+	movementSourceNumber,
+} from "utils/movementSource";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
@@ -54,8 +63,10 @@ const CounterpartyCell: React.FC<{ movement: WarehouseMovement }> = ({ movement:
 };
 
 /**
- * «Движения»: the warehouse stock ledger — Дата · Товар · Событие · Контрагент ·
- * Количество (signed) · Остаток — searchable by product, filterable by event.
+ * «Движения»: the warehouse stock ledger — № · Дата · Товар · Событие ·
+ * Контрагент · Количество (signed) · Остаток — searchable by product,
+ * filterable by event. A row (or its №) opens the source document: a sale /
+ * supply / refund page, or the transfer / adjustment detail in place.
  */
 export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 	warehouseName,
@@ -63,6 +74,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<MovementRow>();
+	const openSource = useMovementSourceOpener();
 	const [query, setQuery] = useState("");
 	const [type, setType] = useState<KindFilter>(ALL_TYPES);
 	const isFiltering = query.trim() !== "" || type !== ALL_TYPES;
@@ -81,6 +93,12 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 
 	const columns = useMemo<Column<MovementRow>[]>(
 		() => [
+			{
+				key: "number",
+				headerName: t("warehouse.movements.number"),
+				sortValue: (m) => entityNumberSortValue(movementSourceNumber(m)),
+				renderCell: (m) => <MovementSourceCell movement={m} onOpen={openSource} />,
+			},
 			{
 				key: "date",
 				headerName: t("warehouse.movements.date"),
@@ -126,13 +144,14 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 				renderCell: (m) => <QuantityCell value={m.balanceAfter} measurement={m.measurement} />,
 			},
 		],
-		[t],
+		[t, openSource],
 	);
 
 	const handleExport = () => {
 		exportToCsv<MovementRow>(
 			`warehouse_${warehouseName}_movements_${csvDateStamp()}`,
 			[
+				{ header: t("warehouse.movements.number"), value: (m) => movementSourceCsv(m, t) },
 				{ header: t("warehouse.movements.date"), value: (m) => formatDate(m.date) },
 				{ header: t("warehouse.movements.product"), value: (m) => m.productName },
 				{ header: t("warehouse.movements.event"), value: (m) => t(movementKindLabelKey(m.kind)) },
@@ -176,6 +195,8 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				onRowClick={openSource}
+				isRowClickable={isMovementSourceOpenable}
 				empty={
 					<TableEmptyState
 						icon={<LayersOutlinedIcon />}
@@ -192,6 +213,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 					/>
 				}
 			/>
+			<MovementSourceDialogs />
 		</DetailTableCard>
 	);
 };

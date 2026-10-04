@@ -1,4 +1,4 @@
-import { Measurement } from "./product";
+import { Measurement, MovementSourceRef } from "./product";
 
 /**
  * Warehouse (the backend's "Inventory") — the redesigned «Склады» resource.
@@ -64,7 +64,8 @@ export const WAREHOUSE_MOVEMENT_KINDS = [
 export type WarehouseMovementKind = (typeof WAREHOUSE_MOVEMENT_KINDS)[number];
 
 /** A single stock event in a warehouse's movements ledger (newest first). */
-export type WarehouseMovement = {
+export type WarehouseMovement = MovementSourceRef & {
+	/** The source line / event id — not routable; `sourceId` opens the document. */
 	id: number;
 	/** ISO date string. */
 	date: string;
