@@ -7,7 +7,14 @@ import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
 import { analytics } from "services/telemetry";
 import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
-import { countByStatus, ORDER_NEXT_STEP, OrderStatusFilter } from "utils/orderUtils";
+import {
+	countByStatus,
+	matchesDeliveryFilter,
+	matchesOrderSearch,
+	ORDER_NEXT_STEP,
+	OrderDeliveryFilter,
+	OrderStatusFilter,
+} from "utils/orderUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -26,6 +33,7 @@ export class OrderStore {
 	searchTerm = "";
 	statusFilter: OrderStatusFilter = "all";
 	dateRange: DateRangeValue = ALL_DATES;
+	deliveryFilter: OrderDeliveryFilter = "all";
 	dialogMode: OrderDialogMode = { kind: "none" };
 	isSaving = false;
 
@@ -40,33 +48,20 @@ export class OrderStore {
 		return countByStatus(filterByDateRange(all, this.dateRange, (o) => o.date));
 	}
 
-	/** The list view: status tab + date range + search (number or customer), newest first. */
+	/** The list view: status tab + date range + delivery + search (number or customer), newest first. */
 	get listOrders(): Loadable<Order[]> {
 		if (!isReady(this.allOrders)) {
 			return this.allOrders;
 		}
 
-		let list = filterByDateRange(this.allOrders, this.dateRange, (o) => o.date);
-
-		if (this.statusFilter !== "all") {
-			list = list.filter((o) => o.status === this.statusFilter);
-		}
-
-		// Numbers display as «№…» but people also type «#…» or the bare number — strip
-		// any leading prefix, then match the order number EXACTLY: DR-21 numbers are
-		// short integers, so a substring «3» would wrongly match 13/30/… Customer name
-		// stays a substring match.
-		const term = this.searchTerm.trim().toLowerCase();
-		const numberTerm = term.replace(/^[№#]/, "");
-		if (term) {
-			list = list.filter(
+		return filterByDateRange(this.allOrders, this.dateRange, (o) => o.date)
+			.filter(
 				(o) =>
-					(numberTerm !== "" && o.orderNumber === numberTerm) ||
-					o.customerName.toLowerCase().includes(term),
-			);
-		}
-
-		return list.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
+					(this.statusFilter === "all" || o.status === this.statusFilter) &&
+					matchesDeliveryFilter(o, this.deliveryFilter) &&
+					matchesOrderSearch(o, this.searchTerm),
+			)
+			.sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
 	}
 
 	/** Whether any list filter is narrowing the view (drives empty-state copy). */
@@ -74,6 +69,7 @@ export class OrderStore {
 		return (
 			this.searchTerm.trim() !== "" ||
 			this.statusFilter !== "all" ||
+			this.deliveryFilter !== "all" ||
 			isDateRangeActive(this.dateRange)
 		);
 	}
@@ -257,6 +253,11 @@ export class OrderStore {
 		this.dateRange = range;
 	}
 
+	setDeliveryFilter(filter: OrderDeliveryFilter): void {
+		this.deliveryFilter = filter;
+	}
+
+	/** The delivery filter is not reset here — it follows the page URL (`?delivery=`). */
 	resetFilters(): void {
 		this.searchTerm = "";
 		this.statusFilter = "all";

@@ -8,6 +8,7 @@ import commonRu from "./ru/common.json";
 import dashboardRu from "./ru/dashboard.json";
 import debtRu from "./ru/debt.json";
 import employeeRu from "./ru/employee.json";
+import notificationsRu from "./ru/notifications.json";
 import onboardingRu from "./ru/onboarding.json";
 import orderRu from "./ru/order.json";
 import partnerRu from "./ru/partner.json";
@@ -16,6 +17,7 @@ import payrollRu from "./ru/payroll.json";
 import printRu from "./ru/print.json";
 import productRu from "./ru/product.json";
 import reportRu from "./ru/report.json";
+import searchRu from "./ru/search.json";
 import settingsRu from "./ru/settings.json";
 import stockAdjustmentRu from "./ru/stockAdjustment.json";
 import supplierRu from "./ru/supplier.json";
@@ -81,6 +83,8 @@ const resources = {
 			...printRu,
 			...reportRu,
 			...activityRu,
+			...searchRu,
+			...notificationsRu,
 		},
 	},
 	uz: {

@@ -4,6 +4,7 @@ import { IPayrollStore, PayrollStore } from "stores/PayrollStore";
 import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEmployeeStore";
 
 import { ActivityLogStore, IActivityLogStore } from "./ActivityLogStore";
+import { AlertStore, IAlertStore } from "./AlertStore";
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
@@ -20,6 +21,7 @@ import { IPartnerStore, PartnerStore } from "./PartnerStore";
 import { IPaymentStore, PaymentStore } from "./PaymentStore";
 import ProductStore, { IProductStore } from "./ProductStore";
 import { IReportStore, ReportStore } from "./ReportStore";
+import { ISearchStore, SearchStore } from "./SearchStore";
 import { ISelectedPaymentStore, SelectedPaymentStore } from "./SelectedPaymentStore";
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
@@ -72,6 +74,8 @@ export class RootStore {
 	entityHistoryStore!: IEntityHistoryStore;
 	invoicePrintStore!: IInvoicePrintStore;
 	debtReminderStore!: IDebtReminderStore;
+	searchStore!: ISearchStore;
+	alertStore!: IAlertStore;
 	connectivityStore: IConnectivityStore;
 
 	constructor() {
@@ -122,6 +126,8 @@ export class RootStore {
 		this.entityHistoryStore = new EntityHistoryStore(this.notificationStore);
 		this.invoicePrintStore = new InvoicePrintStore(this.notificationStore);
 		this.debtReminderStore = new DebtReminderStore(this.settingsStore, this.notificationStore);
+		this.searchStore = new SearchStore();
+		this.alertStore = new AlertStore(this.authStore);
 	}
 }
 

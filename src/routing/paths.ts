@@ -1,4 +1,5 @@
 import type { TransactionType } from "models/transaction";
+import type { OrderDeliveryFilter } from "utils/orderUtils";
 import { REPORT_SLUGS, ReportKind, ReportQuery, reportQueryParams } from "utils/report/reportQuery";
 
 /** Canonical route paths — the only place URL literals are declared. */
@@ -73,6 +74,10 @@ export const walletDetailPath = (id: number): string => `/wallets/${id}`;
 
 /** Concrete detail route for an employee (PATHS.employeeDetail with the id bound). */
 export const employeeDetailPath = (id: number): string => `/employees/${id}`;
+
+/** The Orders list narrowed by «Доставка» (overdue / today) — where the bell's order alerts land. */
+export const ordersDeliveryPath = (filter: Exclude<OrderDeliveryFilter, "all">): string =>
+	`${PATHS.orders}?delivery=${filter}`;
 
 /** Concrete detail route for an order (PATHS.orderDetail with the id bound). */
 export const orderDetailPath = (id: number): string => `/orders/${id}`;

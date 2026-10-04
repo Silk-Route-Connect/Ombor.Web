@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import OrderListHeader from "components/order/List/OrderListHeader";
 import OrderListTotals from "components/order/List/OrderListTotals";
 import OrdersTable from "components/order/List/OrdersTable";
@@ -14,7 +14,7 @@ import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatEntityId } from "utils/formatEntityId";
-import { shortDeliveryTime } from "utils/orderUtils";
+import { OrderDeliveryFilter, parseDeliveryFilter, shortDeliveryTime } from "utils/orderUtils";
 
 import { Box } from "@mui/material";
 
@@ -28,11 +28,22 @@ const OrderPage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const { orderStore } = useStore();
 	const tableOrder = useTableOrder<Order>();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const delivery = parseDeliveryFilter(searchParams.get("delivery"));
 
 	useEffect(() => {
 		orderStore.resetFilters();
 		orderStore.getAll();
 	}, [orderStore]);
+
+	// The URL owns «Доставка», so a bell alert opened again lands on its filter.
+	useEffect(() => {
+		orderStore.setDeliveryFilter(delivery);
+	}, [orderStore, delivery]);
+
+	const changeDelivery = (filter: OrderDeliveryFilter): void => {
+		setSearchParams(filter === "all" ? {} : { delivery: filter }, { replace: true });
+	};
 
 	const columns = useMemo(() => buildOrderColumns(t), [t]);
 
@@ -64,9 +75,11 @@ const OrderPage: React.FC = observer(() => {
 				statusFilter={orderStore.statusFilter}
 				statusCounts={orderStore.statusCounts}
 				dateRange={orderStore.dateRange}
+				deliveryFilter={orderStore.deliveryFilter}
 				onSearch={orderStore.setSearch}
 				onStatusChange={orderStore.setStatusFilter}
 				onDateRangeChange={orderStore.setDateRange}
+				onDeliveryChange={changeDelivery}
 				onCreate={() => navigate(PATHS.newOrder)}
 				onExport={handleExport}
 				exportCount={readyOr(orderStore.listOrders, []).length}

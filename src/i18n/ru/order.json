@@ -4,6 +4,10 @@
   "order.searchPlaceholder": "Поиск по номеру или клиенту…",
 
   "order.filter.all": "Все",
+  "order.filter.delivery.label": "Доставка",
+  "order.filter.delivery.all": "Все",
+  "order.filter.delivery.overdue": "Просрочена",
+  "order.filter.delivery.today": "Сегодня",
 
   "order.col.number": "№",
   "order.col.date": "Дата",

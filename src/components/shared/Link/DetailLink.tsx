@@ -19,7 +19,7 @@ export const detailLinkSx = (archived = false): SxProps<Theme> => ({
 const stopRowClick = (e: React.SyntheticEvent) => e.stopPropagation();
 
 /** A plain left click (or Enter) — not a click meant to open a new tab or window. */
-const isPlainClick = (e: React.MouseEvent) =>
+export const isPlainClick = (e: React.MouseEvent) =>
 	e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
 
 interface DetailLinkProps {

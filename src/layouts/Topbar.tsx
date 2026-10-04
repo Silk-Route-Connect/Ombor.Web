@@ -1,6 +1,8 @@
 import React, { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import NotificationBell from "components/notifications/NotificationBell";
+import GlobalSearch from "components/search/GlobalSearch";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { UI_LANGUAGES } from "i18n/languages";
 import { observer } from "mobx-react-lite";
@@ -9,19 +11,7 @@ import { useStore } from "stores/StoreContext";
 
 import AddIcon from "@mui/icons-material/Add";
 import LanguageIcon from "@mui/icons-material/Language";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import SearchIcon from "@mui/icons-material/Search";
-import {
-	Avatar,
-	Box,
-	IconButton,
-	ListItemText,
-	Menu,
-	MenuItem,
-	Popover,
-	Tooltip,
-	Typography,
-} from "@mui/material";
+import { Avatar, Box, IconButton, ListItemText, Menu, MenuItem, Tooltip } from "@mui/material";
 
 import OfflineIndicator from "./OfflineIndicator";
 
@@ -34,57 +24,12 @@ const CREATE_ACTIONS: Array<{ labelKey: string; to: string }> = [
 	{ labelKey: "topbar.quickActions.payment", to: PATHS.newPayment },
 ];
 
-/** Visual-only global search per design — the feature is a later task. */
-function SearchField() {
-	const { t } = useTranslation();
-
-	return (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: 1.125,
-				width: 300,
-				height: 38, // align with the 38px header controls (buttons / icon buttons)
-				px: 1.625,
-				bgcolor: "background.default",
-				border: 1,
-				borderColor: "divider",
-				borderRadius: 1,
-				color: "text.disabled",
-			}}
-		>
-			<SearchIcon sx={{ fontSize: 17 }} />
-			<Typography sx={{ fontSize: 13.5, color: "inherit", flex: 1 }} noWrap>
-				{t("topbar.search.placeholder")}
-			</Typography>
-			<Box
-				component="kbd"
-				sx={{
-					fontFamily: "inherit",
-					fontSize: 11,
-					px: 0.75,
-					py: 0.125,
-					bgcolor: "background.paper",
-					border: 1,
-					borderColor: "divider",
-					borderRadius: "5px",
-					color: "text.secondary",
-				}}
-			>
-				⌘K
-			</Box>
-		</Box>
-	);
-}
-
 const Topbar: React.FC = observer(() => {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 	const { authStore } = useStore();
 
 	const [createAnchor, setCreateAnchor] = useState<HTMLElement | null>(null);
-	const [bellAnchor, setBellAnchor] = useState<HTMLElement | null>(null);
 	const [langAnchor, setLangAnchor] = useState<HTMLElement | null>(null);
 	const [userAnchor, setUserAnchor] = useState<HTMLElement | null>(null);
 
@@ -130,7 +75,7 @@ const Topbar: React.FC = observer(() => {
 		>
 			<Box sx={{ flex: 1 }} />
 
-			<SearchField />
+			<GlobalSearch />
 
 			{/* Ghost, not filled: each page keeps a single filled primary action of its own. */}
 			<GhostButton icon={<AddIcon />} onClick={openMenu(setCreateAnchor)}>
@@ -152,25 +97,7 @@ const Topbar: React.FC = observer(() => {
 
 			<OfflineIndicator />
 
-			<Tooltip title={t("topbar.notifications")} arrow enterDelay={200}>
-				<IconButton
-					onClick={openMenu(setBellAnchor)}
-					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
-				>
-					<NotificationsNoneOutlinedIcon sx={{ fontSize: 19 }} />
-				</IconButton>
-			</Tooltip>
-			<Popover
-				anchorEl={bellAnchor}
-				open={Boolean(bellAnchor)}
-				onClose={() => setBellAnchor(null)}
-				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-				transformOrigin={{ vertical: "top", horizontal: "right" }}
-			>
-				<Typography sx={{ px: 2.5, py: 2, fontSize: 13.5, color: "text.secondary" }}>
-					{t("topbar.notifications.empty")}
-				</Typography>
-			</Popover>
+			<NotificationBell />
 
 			<Tooltip title={t("topbar.language")} arrow enterDelay={200}>
 				<IconButton

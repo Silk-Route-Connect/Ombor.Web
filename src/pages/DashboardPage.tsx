@@ -23,6 +23,7 @@ import { OnboardingStepKey } from "components/onboarding/onboardingSteps";
 import ChartPanel from "components/shared/Chart/ChartPanel";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import { useOpenLowStock } from "hooks/product/useOpenLowStock";
 import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
 import {
@@ -61,6 +62,7 @@ const DashboardPage: React.FC = observer(() => {
 	const [paymentsType, setPaymentsType] = useState<ChartKind>("bar");
 	const [kassa, setKassa] = useState<KassaSelection>("all");
 	const motion = !usePrefersReducedMotion();
+	const openLowStock = useOpenLowStock();
 
 	useEffect(() => {
 		dashboardStore.load();
@@ -94,16 +96,6 @@ const DashboardPage: React.FC = observer(() => {
 		} else {
 			navigate(target.path);
 		}
-	};
-
-	// «Все» on «Заканчивается»: Products narrowed to exactly that set, every other filter off.
-	const openLowStock = (): void => {
-		productStore.setSearch("");
-		productStore.setCategoryFilter(null);
-		productStore.setTypeFilter("all");
-		productStore.setShowArchived(false);
-		productStore.setStockFilter("low");
-		navigate(PATHS.products);
 	};
 
 	const onRecentRow = (tx: DashboardRecentTransaction): void => {

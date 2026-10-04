@@ -102,6 +102,13 @@
 | `BackButton`       | The ‹ back control left of a page title | 38px bordered square, localized aria-label («Назад»); used by `DetailPageHeader` and the POS create pages |
 | `ExportButton`     | Every CSV export                   | «Экспорт» with the download icon; never disabled — with no rows it explains in an info toast. List pages: title row; detail tabs: card band |
 
+## Keyboard hints (`components/shared/Keyboard/`)
+
+| Component | Use for | Notes |
+| --- | --- | --- |
+| `Kbd` | One keycap («Ctrl», «K», «Enter», «↑») | 20px cap, app font, tabular; the topbar search's «Ctrl K» |
+| `KeyHint` | A shortcut legend entry | Keycaps joined by «+», then the action («↑ ↓ выбрать», «Ctrl + Enter провести»); POS `KeyboardHints` and the search palette footer. Promoted from the POS legend on 2026-10-04 (second consumer) |
+
 ## Links & navigation
 
 | Component    | Use for          | Notes                                                                                                                  |
@@ -132,6 +139,8 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 | Component                             | Use for                          | Notes                                                                          |
 | ------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
 | `OfflineIndicator` + `ConnectivityStore` | Backend / device-outage UX       | Topbar chip fed by the http error interceptor and the browser online state; blocks submits until recovery. Lives in `layouts/` |
+| `GlobalSearch` + `SearchStore`        | The topbar search (Ctrl K palette) | Lives in `components/search/`. Field-look button + `GlobalSearchDialog` over `GET /api/search`; grouped results, keyboard combobox (conventions.md → Topbar search and alerts) |
+| `NotificationBell` + `AlertStore`     | The topbar bell                  | Lives in `components/notifications/`. Badge of alerts grown since «Отметить как прочитанные» (per user, localStorage), popover of plain-language alerts linking to the filtered lists |
 | `ErrorFallback`                       | Root render-crash fallback       | Rendered by the root Sentry.ErrorBoundary; reload is the only recovery         |
 | `AppSplashScreen`                     | Full-viewport boot / auth loading | Spinner + optional message                                                     |
 | `OmborMark`                           | The Ombor brand monogram         | Inline SVG, variants `tile` / `reversed` / `monoTeal` / `monoWhite`; geometry frozen |
@@ -161,4 +170,4 @@ Every pill renders through **`StatusPill`** — never a hand-rolled `Box` with `
 
 ## Promotion candidates (module-local today — promote on a second consumer)
 
-`dropdownSx` (design-system popper styling, `transaction/Create/`) · `KeyboardHints` (POS keyboard legend, `transaction/Create/`).
+`dropdownSx` (design-system popper styling, `transaction/Create/`). (`KeyboardHints`, the POS legend, stays in `transaction/Create/`; its keycap and entry primitives were promoted to `Keyboard/` above.)
