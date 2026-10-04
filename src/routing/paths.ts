@@ -1,4 +1,5 @@
 import type { TransactionType } from "models/transaction";
+import { REPORT_SLUGS, ReportKind, ReportQuery, reportQueryParams } from "utils/report/reportQuery";
 
 /** Canonical route paths — the only place URL literals are declared. */
 export const PATHS = {
@@ -32,6 +33,9 @@ export const PATHS = {
 	employees: "/employees",
 	employeeDetail: "/employees/:id",
 	activityLog: "/activity-log",
+	reports: "/reports",
+	report: "/reports/:kind",
+	reportPrint: "/reports/:kind/print",
 	settings: "/settings",
 	newSale: "/sales/new",
 	newSupply: "/supplies/new",
@@ -103,3 +107,10 @@ export const partnerStatementPath = (id: number, period?: { from: string; to: st
 	period
 		? `${partnerDetailPath(id)}/statement?from=${period.from}&to=${period.to}`
 		: `${partnerDetailPath(id)}/statement`;
+
+/** A report of the «Отчёты» section (`/reports/cash-flow`). */
+export const reportPath = (kind: ReportKind): string => `/reports/${REPORT_SLUGS[kind]}`;
+
+/** Print view of a report with the screen's filters in the URL, so a reload reprints the same. */
+export const reportPrintPath = (kind: ReportKind, query: ReportQuery): string =>
+	`${reportPath(kind)}/print?${new URLSearchParams(reportQueryParams(query)).toString()}`;

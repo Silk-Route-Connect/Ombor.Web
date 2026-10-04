@@ -1,6 +1,7 @@
 import React from "react";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 
-import { Box, TableCell, TableHead, TableRow, TableSortLabel, Tooltip } from "@mui/material";
+import { Box, TableCell, TableHead, TableRow, TableSortLabel } from "@mui/material";
 
 import type { Column, SortOrder } from "./DataTable";
 import { HEADER_CELL_SX, HEADER_CONTAINER_SX } from "./tableConfigs";
@@ -13,7 +14,7 @@ interface DataTableHeadProps<T> {
 	onSort: (col: Column<T>) => void;
 }
 
-/** The sticky header band of `DataTable`: sort labels, header tooltips, column widths. */
+/** The sticky header band of `DataTable`: sort labels, «i» header hints, column widths. */
 export function DataTableHead<T>({
 	columns,
 	sortKey,
@@ -38,12 +39,13 @@ export function DataTableHead<T>({
 			return label;
 		}
 
+		// The «i» sits beside the label (as on DetailTable headers), so the term is
+		// explained by a visible, keyboard-reachable hint, not a hover-only label.
 		return (
-			<Tooltip title={col.headerTooltip} placement="top">
-				<Box component="span" sx={{ display: "inline-flex" }}>
-					{label}
-				</Box>
-			</Tooltip>
+			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+				{label}
+				<InfoHint text={col.headerTooltip} />
+			</Box>
 		);
 	};
 

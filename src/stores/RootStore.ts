@@ -19,6 +19,7 @@ import { IPartnerLedgerStore, PartnerLedgerStore } from "./PartnerLedgerStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
 import { IPaymentStore, PaymentStore } from "./PaymentStore";
 import ProductStore, { IProductStore } from "./ProductStore";
+import { IReportStore, ReportStore } from "./ReportStore";
 import { ISelectedPaymentStore, SelectedPaymentStore } from "./SelectedPaymentStore";
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
@@ -67,6 +68,7 @@ export class RootStore {
 	onboardingStore!: IOnboardingStore;
 	settingsStore!: ISettingsStore;
 	activityLogStore!: IActivityLogStore;
+	reportStore!: IReportStore;
 	entityHistoryStore!: IEntityHistoryStore;
 	invoicePrintStore!: IInvoicePrintStore;
 	debtReminderStore!: IDebtReminderStore;
@@ -116,6 +118,7 @@ export class RootStore {
 		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
 		this.activityLogStore = new ActivityLogStore(this.notificationStore);
+		this.reportStore = new ReportStore(this.notificationStore);
 		this.entityHistoryStore = new EntityHistoryStore(this.notificationStore);
 		this.invoicePrintStore = new InvoicePrintStore(this.notificationStore);
 		this.debtReminderStore = new DebtReminderStore(this.settingsStore, this.notificationStore);

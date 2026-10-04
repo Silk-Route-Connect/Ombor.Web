@@ -11,6 +11,11 @@ import DateRangePopover from "./DateRangePopover";
 interface DateRangeFilterProps {
 	value: DateRangeValue;
 	onChange: (value: DateRangeValue) => void;
+	/**
+	 * Offer «Весь период» (default). Reports pass `false`: the API answers a
+	 * bounded period (at most three years), so «all time» has no honest meaning there.
+	 */
+	withAllTime?: boolean;
 }
 
 type Choice = DatePreset | "custom";
@@ -21,13 +26,17 @@ type Choice = DatePreset | "custom";
  * неделя / Этот месяц / Прошлый месяц / Период…». «Период…» opens two calendar
  * fields; the picked range then reads in the control («Дата: 01.10 – 04.10.2026»).
  */
-const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ value, onChange }) => {
+const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
+	value,
+	onChange,
+	withAllTime = true,
+}) => {
 	const { t } = useTranslation();
 	const anchorRef = useRef<HTMLDivElement>(null);
 	const [editing, setEditing] = useState(false);
 
 	const options = [
-		...DATE_PRESETS.map((preset) => ({
+		...DATE_PRESETS.filter((preset) => withAllTime || preset !== "all").map((preset) => ({
 			value: preset as Choice,
 			label: t(`common.dateRange.${preset}`),
 		})),

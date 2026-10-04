@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import AgingPanel from "components/dashboard/AgingPanel";
-import ChartPanel from "components/dashboard/ChartPanel";
 import DashboardKpiCards from "components/dashboard/DashboardKpiCards";
 import { KassaSelection } from "components/dashboard/KassaFilter";
 import KassaFilter from "components/dashboard/KassaFilter";
 import { DashboardKpiKey } from "components/dashboard/KpiCards/types";
+import LowStockPanel from "components/dashboard/LowStockPanel";
 import {
 	EASE,
 	fadeUp,
@@ -20,6 +20,7 @@ import SalesSuppliesChart from "components/dashboard/SalesSuppliesChart";
 import TopDebtorsPanel from "components/dashboard/TopDebtorsPanel";
 import GettingStartedCard from "components/onboarding/GettingStartedCard";
 import { OnboardingStepKey } from "components/onboarding/onboardingSteps";
+import ChartPanel from "components/shared/Chart/ChartPanel";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { observer } from "mobx-react-lite";
@@ -27,6 +28,7 @@ import { DashboardRecentTransaction } from "models/dashboard";
 import {
 	partnerDetailPath,
 	PATHS,
+	reportPath,
 	transactionDetailPath,
 	warehouseDetailPath,
 } from "routing/paths";
@@ -41,6 +43,7 @@ type ChartKind = "line" | "bar";
 /** Where a KPI card leads: a «Долги» preset or the module page behind the figure. */
 const KPI_TARGETS: Record<DashboardKpiKey, { debts: DebtCard } | { path: string }> = {
 	revenue: { path: PATHS.sales },
+	grossProfit: { path: reportPath("profit") },
 	cash: { path: PATHS.wallets },
 	stockValue: { path: PATHS.warehouses },
 	receivable: { debts: "receivable" },
@@ -52,7 +55,7 @@ const DashboardPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const { dashboardStore, debtStore, onboardingStore } = useStore();
+	const { dashboardStore, debtStore, onboardingStore, productStore } = useStore();
 
 	const [salesType, setSalesType] = useState<ChartKind>("line");
 	const [paymentsType, setPaymentsType] = useState<ChartKind>("bar");
@@ -61,7 +64,8 @@ const DashboardPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		dashboardStore.load();
-	}, [dashboardStore]);
+		void productStore.getAll();
+	}, [dashboardStore, productStore]);
 
 	const { data, isLoading } = dashboardStore;
 
@@ -90,6 +94,16 @@ const DashboardPage: React.FC = observer(() => {
 		} else {
 			navigate(target.path);
 		}
+	};
+
+	// «Все» on «Заканчивается»: Products narrowed to exactly that set, every other filter off.
+	const openLowStock = (): void => {
+		productStore.setSearch("");
+		productStore.setCategoryFilter(null);
+		productStore.setTypeFilter("all");
+		productStore.setShowArchived(false);
+		productStore.setStockFilter("low");
+		navigate(PATHS.products);
 	};
 
 	const onRecentRow = (tx: DashboardRecentTransaction): void => {
@@ -173,12 +187,14 @@ const DashboardPage: React.FC = observer(() => {
 									{ label: t("dashboard.chart.sales"), color: theme.palette.primary.main },
 									{ label: t("dashboard.chart.supplies"), color: theme.palette.secondary.main },
 								]}
-								chartType={salesType}
-								onChartType={setSalesType}
-								typeOptions={[
-									{ value: "line", label: t("dashboard.chart.line") },
-									{ value: "bar", label: t("dashboard.chart.bars") },
-								]}
+								typeToggle={{
+									value: salesType,
+									onChange: setSalesType,
+									options: [
+										{ value: "line", label: t("dashboard.chart.line") },
+										{ value: "bar", label: t("dashboard.chart.bars") },
+									],
+								}}
 							>
 								<SalesSuppliesChart series={data.series} chartType={salesType} />
 							</ChartPanel>
@@ -197,12 +213,14 @@ const DashboardPage: React.FC = observer(() => {
 									{ label: t("dashboard.chart.payin"), color: theme.palette.success.main },
 									{ label: t("dashboard.chart.payout"), color: theme.palette.error.main },
 								]}
-								chartType={paymentsType}
-								onChartType={setPaymentsType}
-								typeOptions={[
-									{ value: "bar", label: t("dashboard.chart.bars") },
-									{ value: "line", label: t("dashboard.chart.netLine") },
-								]}
+								typeToggle={{
+									value: paymentsType,
+									onChange: setPaymentsType,
+									options: [
+										{ value: "bar", label: t("dashboard.chart.bars") },
+										{ value: "line", label: t("dashboard.chart.netLine") },
+									],
+								}}
 								extra={<KassaFilter wallets={data.wallets} value={kassa} onChange={setKassa} />}
 							>
 								<PaymentsChart series={data.series} chartType={paymentsType} kassa={kassa} />
@@ -222,6 +240,11 @@ const DashboardPage: React.FC = observer(() => {
 									: undefined
 							}
 						>
+							<LowStockPanel
+								products={productStore.allProducts}
+								onRetry={() => void productStore.getAll()}
+								onAll={openLowStock}
+							/>
 							<RecentTransactionsTable rows={data.recentTransactions} onOpen={onRecentRow} />
 						</Box>
 					</Box>

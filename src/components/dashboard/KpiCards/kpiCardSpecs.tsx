@@ -1,7 +1,7 @@
 import React from "react";
 import { TFunction } from "i18next";
 import { DashboardData } from "models/dashboard";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatPercent } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -9,20 +9,23 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalAtmOutlinedIcon from "@mui/icons-material/LocalAtmOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 
 import CashBreakdown from "./CashBreakdown";
 import { deltaOf, KpiCardSpec } from "./types";
 
 /**
- * The six «Главное» cards in reading order — what came in and what we hold
- * (Выручка · Деньги в кассах · Стоимость товара), then who owes whom (Нам
- * должны · Мы должны · Долги старше 30 дней). Every figure, change and trend
- * is served (hard rule 8); receivable / payable are the same net partner
- * positions as Partners and «Долги». Aggregates carry colour + label, no sign
- * (pattern 4).
+ * The seven «Главное» cards in reading order — what came in, what it earned and
+ * what we hold (Выручка · Валовая прибыль · Деньги в кассах · Стоимость товара),
+ * then who owes whom (Нам должны · Мы должны · Долги старше 30 дней). Every
+ * figure, change and trend is served (hard rule 8); receivable / payable are the
+ * same net partner positions as Partners and «Долги». Aggregates carry colour +
+ * label, no sign (pattern 4) — only gross profit reads «−…» when goods went out
+ * below their cost.
  */
 export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpec[] {
 	const refunds = data.saleRefunds.value;
+	const profit = data.grossProfit;
 	return [
 		{
 			key: "revenue",
@@ -38,6 +41,28 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 				refunds > 0
 					? t("dashboard.kpi.refundsNetted", { amount: formatCurrency(refunds) })
 					: t("dashboard.kpi.noRefunds"),
+		},
+		{
+			key: "grossProfit",
+			icon: <SavingsOutlinedIcon sx={{ fontSize: 16 }} />,
+			caption: t("dashboard.kpi.grossProfit"),
+			value: profit.value,
+			valueColor: profit.value < 0 ? "error.main" : "text.primary",
+			signed: true,
+			spark: "secondary",
+			trend: profit.trend,
+			delta: deltaOf(profit.deltaPct, "up"),
+			footnote: t("dashboard.kpi.vsPrevPeriod"),
+			detail: [
+				profit.marginPercent != null
+					? t("dashboard.kpi.marginShare", { value: formatPercent(profit.marginPercent) })
+					: null,
+				profit.costIsEstimated ? t("dashboard.kpi.costEstimated") : null,
+			]
+				.filter(Boolean)
+				.join(" · "),
+			hint: true,
+			tooltip: t("dashboard.kpi.grossProfitHint"),
 		},
 		{
 			key: "cash",

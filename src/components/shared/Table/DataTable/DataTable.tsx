@@ -44,7 +44,7 @@ export interface Column<T> {
 	key: string;
 	field?: keyof T;
 	headerName: string;
-	/** Optional tooltip shown on the column header. */
+	/** One plain sentence behind an «i» (`InfoHint`) beside the header. */
 	headerTooltip?: string;
 	width?: number | string;
 	align?: "left" | "right" | "center";

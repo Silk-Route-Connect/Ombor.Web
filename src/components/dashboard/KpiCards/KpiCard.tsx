@@ -1,8 +1,9 @@
 import React from "react";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { designTokens, typeScale } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatCurrencyMinus } from "utils/formatCurrency";
 
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, ButtonBase, Paper, Tooltip, Typography } from "@mui/material";
 
@@ -23,6 +24,7 @@ interface KpiCardProps {
  */
 export const KpiCard: React.FC<KpiCardProps> = ({ spec, onOpen }) => {
 	const animated = useCountUp(spec.value);
+	const format = spec.signed ? formatCurrencyMinus : formatCurrency;
 
 	const card = (
 		<Paper
@@ -79,6 +81,11 @@ export const KpiCard: React.FC<KpiCardProps> = ({ spec, onOpen }) => {
 			>
 				<Box sx={{ display: "inline-flex", color: "text.disabled" }}>{spec.icon}</Box>
 				{spec.caption}
+				{/* The card is the focusable control; its tooltip carries the hint, so the
+				    «i» is a marker only (no second tab stop inside the button). */}
+				{spec.hint && (
+					<InfoOutlinedIcon aria-hidden sx={{ fontSize: 14, color: "text.disabled" }} />
+				)}
 			</Box>
 
 			<Typography
@@ -91,7 +98,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ spec, onOpen }) => {
 			>
 				{/* Count-up frames tick in whole sums; the settled value is the exact
 				    figure, kopecks included («702,01» — never rounded to «702»). */}
-				{formatCurrency(animated === spec.value ? spec.value : Math.trunc(animated))}
+				{format(animated === spec.value ? spec.value : Math.trunc(animated))}
 				<UzsUnit sx={{ fontSize: 13 }} />
 			</Typography>
 

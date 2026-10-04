@@ -24,6 +24,9 @@ import PaymentPage from "pages/PaymentPage";
 import ProductDetailPage from "pages/ProductDetailPage";
 import ProductPage from "pages/ProductPage";
 import RegisterPage from "pages/RegisterPage";
+import ReportPage from "pages/ReportPage";
+import ReportPrintPage from "pages/ReportPrintPage";
+import ReportsPage from "pages/ReportsPage";
 import ResetPasswordPage from "pages/ResetPasswordPage";
 import SettingsPage from "pages/SettingsPage";
 import StockAdjustmentPage from "pages/StockAdjustmentPage";
@@ -123,6 +126,9 @@ function App() {
 								<Route path={PATHS.employees} element={<EmployeePage />} />
 								<Route path={PATHS.employeeDetail} element={<EmployeeDetailPage />} />
 								<Route path={PATHS.activityLog} element={<ActivityLogPage />} />
+								<Route path={PATHS.reports} element={<ReportsPage />} />
+								<Route path={PATHS.report} element={<ReportPage />} />
+								<Route path={PATHS.reportPrint} element={<ReportPrintPage />} />
 								<Route path={PATHS.settings} element={<SettingsPage />} />
 								<Route path="*" element={<NotFoundPage />} />
 							</Route>

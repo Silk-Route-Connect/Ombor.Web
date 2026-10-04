@@ -9,7 +9,7 @@
 
 | Component                              | Use for                                                           | Notes                                                                                                                                        |
 | -------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DataTable`                            | Every list-page table                                             | Canonical DSN-1 chrome via `tableConfigs.ts`; sortable columns by default; 10/25/50 pager on by default; date-desc on event feeds, name-asc on master data. `empty` slot takes the table's `TableEmptyState`. Rows open on click / Enter / Space (a key on an inner link or button stays with it). The body scrolls inside the card so the header band stays sticky. `summary` (a `TableTotals`) sits in the footer band left of the pager; `fixedLayout` + `COLUMN_WIDTH` keeps event-list columns from re-flowing. Header band in `DataTableHead` |
+| `DataTable`                            | Every list-page table                                             | Canonical DSN-1 chrome via `tableConfigs.ts`; sortable columns by default; 10/25/50 pager on by default; date-desc on event feeds, name-asc on master data. `empty` slot takes the table's `TableEmptyState`. Rows open on click / Enter / Space (a key on an inner link or button stays with it). The body scrolls inside the card so the header band stays sticky. `summary` (a `TableTotals`) sits in the footer band left of the pager; `fixedLayout` + `COLUMN_WIDTH` keeps event-list columns from re-flowing. Header band in `DataTableHead` (a column's `headerTooltip` shows an «i» `InfoHint` beside its label) |
 | `ExpandableDataTable`                  | List tables whose rows expand into a detail panel (Templates)     | Same chrome and `Column<T>` API as `DataTable` + expand panel; a row (click, Enter, Space) or the chevron toggles it; `empty` slot          |
 | `useTableSort` / `useTableOrder` (`Table/useTableSort.ts`, `Table/tableOrder.ts`) | The one client-side sort of `DataTable` / `ExpandableDataTable` / `DetailTable`; CSV in the table's order | A page's `useTableOrder()` goes to its table as `exportOrder`; the export writes `tableOrder.apply(rows)` |
 | `TablePager`                           | The footer band of every table                                    | `DataTable`, `ExpandableDataTable`, `DetailTable`; `FOOTER_SX`; ru-localized, 10/25/50 default; optional `summary` on its left             |
@@ -41,6 +41,13 @@
 | `NotesCell`      | Notes, descriptions              | `TruncatedText`, secondary; columns not sortable |
 | `PhoneCell`      | Phones                           | `formatUzPhone` «+998 90 123 45 67» |
 | `NoValue`        | Empty value                      | «—» |
+
+## Charts (`components/shared/Chart/`)
+
+| Component | Use for | Notes |
+| --- | --- | --- |
+| `ChartPanel` | The card around every chart (dashboard, reports) | Title + optional subtitle, colour legend, optional `extra` control and line / bar `typeToggle` (`SegmentedControl`), chart body. Promoted from the dashboard on 2026-10-04 (Reports are the second consumer) |
+| `ChartTooltip` | The hover card of every recharts chart | Dark card: a heading (the bucket or name) over coloured label · value rows; `divider` for a «Разница» row |
 
 ## Detail-page scaffold (pattern 20)
 
@@ -77,7 +84,7 @@
 | `AttachmentPicker`                                                     | File-attachment input on forms                  | `GhostButton` upload (a native button opening a hidden file input — keyboard-operable) + removable chip list |
 | `AttachmentChip`                                                       | Downloadable file chip on detail pages          | MIME-typed icon (image/doc) + name + size; used by transaction & payment detail     |
 | `SearchInput`                                                          | Page / table search                             | —                                                                                   |
-| `DateRangeFilter`                                                      | The date filter of every event list and the wallet «Операции» tab | `components/shared/Date/`. `EntityFilterSelect` look («Дата: …»): Весь период · Сегодня · Вчера · Эта неделя · Этот месяц · Прошлый месяц · Период… (`DateRangePopover`: two calendar fields + «Применить»). Value is a `DateRangeValue`; filter rows with `filterByDateRange` (`utils/dateRange`) |
+| `DateRangeFilter`                                                      | The date filter of every event list and the wallet «Операции» tab | `components/shared/Date/`. `EntityFilterSelect` look («Дата: …»): Весь период · Сегодня · Вчера · Эта неделя · Этот месяц · Прошлый месяц · Период… (`DateRangePopover`: two calendar fields + «Применить»). Value is a `DateRangeValue`; filter rows with `filterByDateRange` (`utils/dateRange`). `withAllTime={false}` drops «Весь период» (Reports — the API answers a bounded period) |
 | `SegmentedControl`                                                     | Segmented toggles                               | Archive «Активные \| Архив» (pattern 13), status filters                            |
 | `EntityFilterSelect`                                                   | Every table filter dropdown (list filter rows, detail-tab bands) | Icon-led `Select` at the 38px control height; «Все …» via `allValue` or the first option; optional `label` prefix («Тип: …»); teal tint while a filter is on (XC-1, tables-19); `valueLabel` overrides the closed text, `onReselect` hears a click on the already-picked option |
 | `PartnerPicker`                                                        | Partner selection with balance as color + label | Lives in `components/transaction/Create/`; reused by New Order. Last row «+ Новый клиент / поставщик» opens `PartnerFormModal` (via `PosPartnerCreate`, `defaults` = type + typed name) over the page and picks the result |

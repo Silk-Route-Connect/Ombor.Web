@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
 import {
 	Area,
@@ -18,7 +19,6 @@ import { formatCurrency, formatShortNumber } from "utils/formatCurrency";
 
 import { useTheme } from "@mui/material";
 
-import ChartTooltip from "./ChartTooltip";
 import { KassaSelection } from "./KassaFilter";
 import { usePrefersReducedMotion } from "./motion";
 import { seriesHeading, seriesTick, seriesTickInterval } from "./seriesLabels";

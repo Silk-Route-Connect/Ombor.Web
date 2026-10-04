@@ -15,6 +15,7 @@ import paymentRu from "./ru/payment.json";
 import payrollRu from "./ru/payroll.json";
 import printRu from "./ru/print.json";
 import productRu from "./ru/product.json";
+import reportRu from "./ru/report.json";
 import settingsRu from "./ru/settings.json";
 import stockAdjustmentRu from "./ru/stockAdjustment.json";
 import supplierRu from "./ru/supplier.json";
@@ -78,6 +79,7 @@ const resources = {
 			...onboardingRu,
 			...settingsRu,
 			...printRu,
+			...reportRu,
 			...activityRu,
 		},
 	},

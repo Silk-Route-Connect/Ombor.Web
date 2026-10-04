@@ -3,6 +3,7 @@ import { formatPercent } from "utils/formatCurrency";
 
 export type DashboardKpiKey =
 	| "revenue"
+	| "grossProfit"
 	| "cash"
 	| "stockValue"
 	| "receivable"
@@ -26,15 +27,19 @@ export type KpiCardSpec = {
 	value: number;
 	valueColor: string;
 	/** Palette family of the sparkline stroke. */
-	spark: "primary" | "success" | "warning" | "error" | "info";
+	spark: "primary" | "secondary" | "success" | "warning" | "error" | "info";
 	/** Served per-bucket points; fewer than two draws no line. */
 	trend: number[];
 	delta?: Delta;
 	footnote: string;
 	/** A second meta line (revenue: the refunds already netted out). */
 	detail?: string;
-	/** Hover / focus breakdown (cash: per wallet). */
+	/** Hover / focus breakdown (cash: per wallet), or the one-line meaning of the term. */
 	tooltip?: React.ReactNode;
+	/** Marks the caption with an «i»: the card's `tooltip` explains the term. */
+	hint?: boolean;
+	/** A figure that can go below zero (gross profit when goods sold below cost): «−…». */
+	signed?: boolean;
 };
 
 /**

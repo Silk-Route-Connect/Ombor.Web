@@ -15,9 +15,13 @@ interface Props {
 	onOpen: (card: DashboardKpiKey) => void;
 }
 
+/** The first row holds the money that came in and what we hold; debts follow. */
+const FIRST_ROW = 4;
+
 /**
- * The «Главное» KPI cards (mvp-plan §2: revenue, cash, stock value, debt
- * totals) — three per row from `lg`, each a navigation target with a served
+ * The «Главное» KPI cards (mvp-plan §2: revenue, gross profit, cash, stock
+ * value, debt totals) — from `lg` four cards on the first row and the three debt
+ * cards, a little wider, on the second; each a navigation target with a served
  * change badge and trend sparkline.
  */
 const DashboardKpiCards: React.FC<Props> = ({ data, onOpen }) => {
@@ -29,14 +33,23 @@ const DashboardKpiCards: React.FC<Props> = ({ data, onOpen }) => {
 		<Box
 			sx={{
 				display: "grid",
-				gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+				gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(12, 1fr)" },
 				gap: "16px",
 				mb: "16px",
 				...staggerChildrenSx(cards.length, motion),
 			}}
 		>
-			{cards.map((spec) => (
-				<KpiCard key={spec.key} spec={spec} onOpen={() => onOpen(spec.key)} />
+			{cards.map((spec, index) => (
+				<Box
+					key={spec.key}
+					sx={{
+						display: "flex",
+						minWidth: 0,
+						gridColumn: { lg: index < FIRST_ROW ? "span 3" : "span 4" },
+					}}
+				>
+					<KpiCard spec={spec} onOpen={() => onOpen(spec.key)} />
+				</Box>
 			))}
 		</Box>
 	);

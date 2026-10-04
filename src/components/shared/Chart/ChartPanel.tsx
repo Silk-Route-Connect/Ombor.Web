@@ -7,32 +7,35 @@ import { Box, Paper, Typography } from "@mui/material";
 
 export type LegendItem = { label: string; color: string };
 
+/** The line / bar toggle of a chart that can switch its look. */
+export interface ChartTypeToggle<T extends string> {
+	value: T;
+	options: SegmentedOption<T>[];
+	onChange: (value: T) => void;
+}
+
 interface ChartPanelProps<T extends string> {
 	title: string;
-	subtitle: string;
+	subtitle?: string;
 	legend: LegendItem[];
-	chartType: T;
-	typeOptions: SegmentedOption<T>[];
-	onChartType: (value: T) => void;
+	/** Optional line / bar toggle on the right of the head row. */
+	typeToggle?: ChartTypeToggle<T>;
 	/** Extra toolbar control to the left of the type toggle (e.g. wallet filter). */
 	extra?: React.ReactNode;
 	children: React.ReactNode;
 }
 
 /**
- * Chart container per the bundle's `.panel` / `.chart-head` / `.chart-legend`:
- * a bordered surface card with a title block, a right-aligned toolbar (optional
- * `extra` + a line/bar type toggle), a colour legend, and the chart body. The
- * download button from the prototype is intentionally omitted — dashboard export
- * is deferred to the Reports module (v2).
+ * Chart container (the bundle's `.panel` / `.chart-head` / `.chart-legend`): a
+ * bordered surface card with a title block, a right-aligned toolbar (optional
+ * `extra` + an optional line/bar toggle), a colour legend and the chart body.
+ * Dashboard charts and every report chart sit in it.
  */
-export function ChartPanel<T extends string>({
+export function ChartPanel<T extends string = string>({
 	title,
 	subtitle,
 	legend,
-	chartType,
-	typeOptions,
-	onChartType,
+	typeToggle,
 	extra,
 	children,
 }: Readonly<ChartPanelProps<T>>) {
@@ -61,17 +64,35 @@ export function ChartPanel<T extends string>({
 					<Typography sx={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
 						{title}
 					</Typography>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "3px" }}>
-						{subtitle}
-					</Typography>
+					{subtitle && (
+						<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "3px" }}>
+							{subtitle}
+						</Typography>
+					)}
 				</Box>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
-					{extra}
-					<SegmentedControl options={typeOptions} value={chartType} onChange={onChartType} />
-				</Box>
+				{(extra || typeToggle) && (
+					<Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "0 0 auto" }}>
+						{extra}
+						{typeToggle && (
+							<SegmentedControl
+								options={typeToggle.options}
+								value={typeToggle.value}
+								onChange={typeToggle.onChange}
+							/>
+						)}
+					</Box>
+				)}
 			</Box>
 
-			<Box sx={{ display: "flex", alignItems: "center", gap: "18px", p: "12px 20px 0" }}>
+			<Box
+				sx={{
+					display: "flex",
+					flexWrap: "wrap",
+					alignItems: "center",
+					gap: "6px 18px",
+					p: "12px 20px 0",
+				}}
+			>
 				{legend.map((l) => (
 					<Box
 						key={l.label}
@@ -79,7 +100,7 @@ export function ChartPanel<T extends string>({
 							display: "inline-flex",
 							alignItems: "center",
 							gap: "8px",
-							fontSize: 12.5,
+							fontSize: 12,
 							color: "text.secondary",
 						}}
 					>

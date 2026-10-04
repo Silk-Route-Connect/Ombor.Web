@@ -1,6 +1,7 @@
 import { ElementType } from "react";
 import { PATHS } from "routing/paths";
 
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -28,10 +29,11 @@ export interface NavItem {
 
 /**
  * Sidebar navigation per locked pattern 10: flat two-tier, no section-label
- * headings, no «Отчёты» (v2). Ordered by how often a shopkeeper uses it: selling
- * and buying first, then the people, money and stock behind it. A group with a
- * single child is a direct link instead (no extra click). «Настройки» / «Выход»
- * are rendered by the Sidebar footer, not listed here.
+ * headings. Ordered by how often a shopkeeper uses it: selling and buying first,
+ * then the people, money and stock behind it, then the look-back pages
+ * («Отчёты», «Журнал действий»). A group with a single child is a direct link
+ * instead (no extra click). «Настройки» / «Выход» are rendered by the Sidebar
+ * footer, not listed here.
  */
 export const navItems: NavItem[] = [
 	{ labelKey: "sidebar.dashboard", icon: SpaceDashboardOutlinedIcon, to: PATHS.dashboard },
@@ -75,5 +77,6 @@ export const navItems: NavItem[] = [
 		],
 	},
 	{ labelKey: "sidebar.employees", icon: BadgeOutlinedIcon, to: PATHS.employees },
+	{ labelKey: "sidebar.reports", icon: AssessmentOutlinedIcon, to: PATHS.reports },
 	{ labelKey: "sidebar.activityLog", icon: HistoryOutlinedIcon, to: PATHS.activityLog },
 ];

@@ -57,6 +57,23 @@ export type DashboardStockValue = {
 	warehouseCount: number;
 };
 
+/**
+ * Gross profit in the period: net revenue − cost of the goods sold, each line at
+ * the cost snapshotted when it was recorded — the same figure as the «Продажи»
+ * report for those days. A null the API serves is left out of the JSON.
+ */
+export type DashboardGrossProfit = {
+	value: number;
+	/** vs the preceding equal period; null when that was 0. */
+	deltaPct?: number | null;
+	/** Gross profit within each `series` bucket (they add up to `value`). */
+	trend: number[];
+	/** value ÷ net revenue × 100; null unless net revenue > 0. */
+	marginPercent?: number | null;
+	/** Any cost behind it is a pre-2026-10-04 estimate. */
+	costIsEstimated: boolean;
+};
+
 /** A wallet and its served balance (the same figure as the wallet page). */
 export type DashboardWalletBalance = {
 	id: number;
@@ -130,4 +147,5 @@ export type DashboardData = {
 	saleRefunds: DashboardKpi;
 	stockValue: DashboardStockValue;
 	cash: DashboardCash;
+	grossProfit: DashboardGrossProfit;
 };
