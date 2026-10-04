@@ -58,10 +58,6 @@ export const discountLabel = (
 		: `−${formatCurrency(line.discount)}`;
 };
 
-/** Effective per-unit price after the line discount (used to seed refund prices). */
-export const effectiveUnitPrice = (line: TransactionLine): number =>
-	line.quantity ? Math.round(lineNet(line) / line.quantity) : line.unitPrice;
-
 export const txSubtotal = (lines: TransactionLine[]): number =>
 	lines.reduce((sum, l) => sum + lineGross(l), 0);
 

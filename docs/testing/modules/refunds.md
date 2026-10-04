@@ -130,6 +130,11 @@ Pre: a sale with something left to refund.
 Steps: open «Оформить возврат»; press Tab until a line's checkbox shows the focus ring; press Space; Tab once; type «1»; Shift+Tab back to the checkbox; press Space.
 Expect: the first Space checks the line and pre-fills its available quantity; the quantity field takes «1»; the second Space unchecks the line and clears it. A screen reader announces the checkbox as «Вернуть «<товар>»» with its checked state.
 
+### T-RFD-40 · Refund prices come from the original, read-only [edge]
+Pre: a sale with one line of 3 × 1 000 and a fixed line discount of 100 (net 2 900), nothing refunded yet.
+Steps: open «Оформить возврат»; hover the «i» next to «Цена за ед.»; tick the line and set «К возврату» 1; then 3; click «Провести возврат» with a reason; open the created refund.
+Expect: the «i» reads «Цена и скидка — из продажи: возврат проводится по ним, изменить их нельзя.»; no price is editable. «Цена за ед.» shows 966,67 (1 000 − 100 / 3) and the line «Сумма» 966,67 for 1, 2 900 for 3 — the fixed discount is shared out by quantity exactly as the server books it (2 decimals, never rounded to whole sums). The refund detail's total equals the modal's «Сумма возврата». The «Причина возврата» field is named by its label (a screen reader reads «Причина возврата»).
+
 ## Reconciliation
 
 Run after all cases above. Event ledger for «QA-<MMDD> Возврат Партнёр»: sale +75 000 unpaid; sale-refunds −45 000, −30 000 unpaid; supply of А 100 000 fully paid (net 0); supply/sale of Б fully paid (net 0); supply-refund +10 000 unpaid.

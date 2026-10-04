@@ -178,6 +178,8 @@
   "transaction.refund.col.available": "Доступно",
   "transaction.refund.col.toRefund": "К возврату",
   "transaction.refund.col.unitPrice": "Цена за ед.",
+  "transaction.refund.priceHint.Sale": "Цена и скидка — из продажи: возврат проводится по ним, изменить их нельзя.",
+  "transaction.refund.priceHint.Supply": "Цена и скидка — из поставки: возврат проводится по ним, изменить их нельзя.",
   "transaction.refund.col.amount": "Сумма",
   "transaction.refund.discountedPrice": "цена со скидкой {{disc}}",
   "transaction.refund.maxError": "Максимум к возврату: {{max}} {{unit}} (уже возвращено {{refunded}} из {{sold}})",

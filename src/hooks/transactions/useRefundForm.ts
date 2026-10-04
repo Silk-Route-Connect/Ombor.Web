@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
 import { CreateRefundRequest, TransactionRecord } from "models/transaction";
 import { parseWholeQuantity } from "utils/quantityInput";
-import { RefundableLine, refundableLines } from "utils/refundUtils";
-import { discountLabel, effectiveUnitPrice } from "utils/transactionUtils";
+import { RefundableLine, refundableLines, RefundPricing, refundPricing } from "utils/refundUtils";
+import { discountLabel } from "utils/transactionUtils";
 
 /** An original line as the refund modal shows it. */
 export interface RefundLine extends RefundableLine {
 	name: string;
 	unit: string;
-	/** Effective unit price after the line discount — what goes back per unit. */
+	/** What one unit refunds after the original discount — shown read-only, the server prices the refund. */
 	price: number;
+	pricing: RefundPricing;
 	/** «−10%» / «−5 000» when the line was discounted. */
 	disc: string | null;
 }
@@ -42,11 +43,13 @@ export function useRefundForm({ transaction, priorRefunds, onSubmit }: UseRefund
 		() =>
 			refundableLines(transaction, priorRefunds).map((line, i) => {
 				const source = transaction.lines[i];
+				const pricing = refundPricing(transaction, source.productId);
 				return {
 					...line,
 					name: source.productName,
 					unit: source.unit ?? "",
-					price: effectiveUnitPrice(source),
+					price: pricing.amountFor(1),
+					pricing,
 					disc: discountLabel(source),
 				};
 			}),
@@ -86,7 +89,7 @@ export function useRefundForm({ transaction, priorRefunds, onSubmit }: UseRefund
 		const notWhole = r.checked && (parsed.kind === "fraction" || parsed.kind === "invalid");
 		const qty = parsed.kind === "whole" ? parsed.value : 0;
 		const over = r.checked && qty > lines[i].available;
-		const amount = r.checked && !over && !notWhole ? qty * lines[i].price : 0;
+		const amount = r.checked && !over && !notWhole ? lines[i].pricing.amountFor(qty) : 0;
 		return { qty, over, notWhole, amount };
 	});
 
@@ -109,7 +112,8 @@ export function useRefundForm({ transaction, priorRefunds, onSubmit }: UseRefund
 				productId: x.line.productId,
 				productName: x.line.name,
 				quantity: x.check.qty,
-				unitPrice: x.line.price,
+				// Ignored on refund lines (the server prices from the original); sent as it will book.
+				unitPrice: x.line.pricing.unitPrice,
 			})),
 		});
 	};

@@ -4,11 +4,13 @@ import MetaDot from "components/shared/Detail/MetaDot";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useRefundForm } from "hooks/transactions/useRefundForm";
 import { CreateRefundRequest, TransactionRecord } from "models/transaction";
-import { designTokens, dialogPaperSx, numericSx } from "theme";
+import { dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
@@ -146,7 +148,8 @@ const RefundModal: React.FC<RefundModalProps> = ({
 										{t("transaction.refund.col.toRefund")}
 									</Box>
 									<Box component="th" sx={refundHeadCellSx}>
-										{t("transaction.refund.col.unitPrice")}
+										{t("transaction.refund.col.unitPrice")}{" "}
+										<InfoHint text={t(`transaction.refund.priceHint.${direction}`)} />
 									</Box>
 									<Box component="th" sx={refundHeadCellSx}>
 										{t("transaction.refund.col.amount")}
@@ -180,15 +183,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 					)}
 
 					<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "7px" }}>
-						<Typography
-							component="label"
-							sx={{ fontSize: 13, fontWeight: 600, color: designTokens.gray700 }}
-						>
-							{t("transaction.refund.reason")}{" "}
-							<Box component="span" sx={{ color: "error.main" }}>
-								*
-							</Box>
-						</Typography>
+						<FormFieldLabel label={t("transaction.refund.reason")} required />
 						<TextField
 							value={form.reason}
 							onChange={(e) => form.setReason(e.target.value)}
