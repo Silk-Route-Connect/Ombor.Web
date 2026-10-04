@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import OmborMark from "components/shared/brand/OmborMark";
+import TruncatedText from "components/shared/Table/TruncatedText";
 import { isPresent } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
@@ -34,6 +35,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 	const logo = isPresent(org) ? getImageFullUrl(org.logoUrl ?? undefined) : undefined;
 
 	useEffect(() => setLogoFailed(false), [logo]);
+	const showLogo = Boolean(logo) && !logoFailed;
 
 	// Hamburger lives inside the sidebar (top-right when expanded, under the mark
 	// when collapsed) — deliberately not in the topbar.
@@ -72,7 +74,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 				<Typography sx={{ fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>Ombor</Typography>
 				{businessName && (
 					<Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: "2px", minWidth: 0 }}>
-						{logo && !logoFailed && (
+						{showLogo && (
 							<Box
 								component="img"
 								src={logo}
@@ -87,9 +89,13 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 								}}
 							/>
 						)}
-						<Typography noWrap sx={{ fontSize: 11, color: "text.disabled" }}>
-							{businessName}
-						</Typography>
+						<TruncatedText
+							// Re-measure the clipping when the logo takes its 22px.
+							key={showLogo ? "with-logo" : "name-only"}
+							text={businessName}
+							maxWidth="100%"
+							sx={{ minWidth: 0, fontSize: 11, lineHeight: "20px", color: "text.disabled" }}
+						/>
 					</Box>
 				)}
 			</Box>
