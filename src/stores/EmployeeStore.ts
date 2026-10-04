@@ -8,9 +8,11 @@ import {
 	CreateEmployeeRequest,
 	Employee,
 	EmployeeStatus,
+	EmployeeWriteResponse,
 	UpdateEmployeeRequest,
 } from "models/employee";
 import EmployeeApi from "services/api/EmployeeApi";
+import { parseApiError } from "utils/apiError";
 import { sort } from "utils/sortUtils";
 
 import { NotificationStore } from "./NotificationStore";
@@ -42,7 +44,8 @@ export interface IEmployeeStore {
 	getAll(): Promise<void>;
 	create(request: CreateEmployeeRequest): Promise<void>;
 	update(request: UpdateEmployeeRequest): Promise<void>;
-	delete(employeeId: number): Promise<void>;
+	/** Hard delete of a never-paid employee; true when it was deleted. */
+	delete(employee: Employee): Promise<boolean>;
 	/** Set status to Terminated («Уволить») — a status change, not a hard delete. */
 	terminate(employee: Employee): Promise<void>;
 	/** Set status back to Active («Восстановить»). */
@@ -132,7 +135,8 @@ export class EmployeeStore implements IEmployeeStore {
 		}
 
 		if (isReady(this.allEmployees)) {
-			this.allEmployees = [result.data, ...this.allEmployees];
+			// A new employee has no payroll yet, so it can still be deleted.
+			this.allEmployees = [{ ...result.data, isDeletable: true }, ...this.allEmployees];
 		}
 
 		this.closeDialog();
@@ -147,34 +151,39 @@ export class EmployeeStore implements IEmployeeStore {
 			return;
 		}
 
-		runInAction(() => {
-			if (isReady(this.allEmployees)) {
-				this.allEmployees = this.allEmployees.map((el) =>
-					el.id === result.data.id ? result.data : el,
-				);
-			}
-		});
-
+		this.applyWrite(result.data);
 		this.closeDialog();
 		this.notificationStore.success(i18next.t("employees.success.update"));
 	}
 
-	async delete(employeeId: number): Promise<void> {
-		const result = await withSaving(this, () => EmployeeApi.delete(employeeId));
+	async delete(employee: Employee): Promise<boolean> {
+		const result = await withSaving(this, () => EmployeeApi.delete(employee.id));
 
 		if (result.status === "fail") {
-			this.notificationStore.notifyApiError(result, "employees.error.delete");
-			return;
+			// Paid since the list loaded: employees have no archive, so the reason
+			// points to the «Уволен» status, and the row stops offering «Удалить».
+			this.notificationStore.notifyApiError(
+				result,
+				"employees.error.delete",
+				{ name: employee.name },
+				{ "entity.referenced": "employee.delete.referenced" },
+			);
+			if (parseApiError(result.cause).code === "entity.referenced") {
+				this.patchEmployee(employee.id, { isDeletable: false });
+				this.closeDialog();
+			}
+			return false;
 		}
 
 		runInAction(() => {
 			if (isReady(this.allEmployees)) {
-				this.allEmployees = this.allEmployees.filter((el) => el.id !== employeeId);
+				this.allEmployees = this.allEmployees.filter((el) => el.id !== employee.id);
 			}
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(i18next.t("employees.success.delete"));
+		this.notificationStore.success(i18next.t("employees.success.delete", { name: employee.name }));
+		return true;
 	}
 
 	async terminate(employee: Employee): Promise<void> {
@@ -206,19 +215,27 @@ export class EmployeeStore implements IEmployeeStore {
 			return;
 		}
 
+		this.applyWrite(result.data);
+		this.closeDialog();
+		this.notificationStore.success(successMessage);
+	}
+
+	/** A create / update answer carries no `isDeletable` — the record keeps the one it had. */
+	private applyWrite(data: EmployeeWriteResponse): void {
+		this.patchEmployee(data.id, data);
+	}
+
+	private patchEmployee(id: number, patch: Partial<Employee>): void {
 		runInAction(() => {
 			if (isReady(this.allEmployees)) {
 				this.allEmployees = this.allEmployees.map((el) =>
-					el.id === result.data.id ? result.data : el,
+					el.id === id ? { ...el, ...patch } : el,
 				);
 			}
-			if (this.selectedEmployee?.id === result.data.id) {
-				this.selectedEmployee = result.data;
+			if (this.selectedEmployee?.id === id) {
+				this.selectedEmployee = { ...this.selectedEmployee, ...patch };
 			}
 		});
-
-		this.closeDialog();
-		this.notificationStore.success(successMessage);
 	}
 
 	setSearch(term: string): void {

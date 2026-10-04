@@ -26,7 +26,7 @@ interface EmployeesTableProps extends EmployeeColumnHandlers {
 /**
  * Employees list on the shared DataTable; each row opens the full-page detail.
  * Row actions: «Выплатить» / «Редактировать» / «Уволить·Восстановить» (a status
- * change, never a hard delete).
+ * change) and «Удалить» for a never-paid employee only.
  */
 export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 	onRetry,
@@ -39,12 +39,13 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 	onEdit,
 	onTerminate,
 	onRestore,
+	onDelete,
 	exportOrder,
 }) => {
 	const { t } = useTranslation();
 	const columns = useMemo(
-		() => buildEmployeeColumns(t, { onPay, onEdit, onTerminate, onRestore }),
-		[t, onPay, onEdit, onTerminate, onRestore],
+		() => buildEmployeeColumns(t, { onPay, onEdit, onTerminate, onRestore, onDelete }),
+		[t, onPay, onEdit, onTerminate, onRestore, onDelete],
 	);
 
 	return (

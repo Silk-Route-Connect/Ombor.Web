@@ -6,7 +6,7 @@ import type {
 	SnackbarKey,
 	SnackbarMessage,
 } from "notistack";
-import { describeApiError, parseApiError } from "utils/apiError";
+import { describeApiError, parseApiError, ReasonOverrides } from "utils/apiError";
 
 type PendingToast = Parameters<EnqueueSnackbar>;
 
@@ -42,9 +42,15 @@ export class NotificationStore {
 	/**
 	 * Error toast for a failed create / update / delete: the caller's action text
 	 * plus the localized reason from the server's error code (never raw server text).
+	 * `reasons` swaps the text of a code for this entity (code → i18n key).
 	 */
-	notifyApiError(failed: FailedCall, fallbackKey: string, params?: Record<string, unknown>) {
-		this.error(describeApiError(failed.cause, fallbackKey, params));
+	notifyApiError(
+		failed: FailedCall,
+		fallbackKey: string,
+		params?: Record<string, unknown>,
+		reasons?: ReasonOverrides,
+	) {
+		this.error(describeApiError(failed.cause, fallbackKey, params, reasons));
 	}
 
 	/**

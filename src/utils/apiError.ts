@@ -239,6 +239,12 @@ export function describeApiReason(cause: unknown, fallbackKey: string): string {
 }
 
 /**
+ * Per-call reason text for a domain code, where the generic one would mislead —
+ * e.g. `entity.referenced` says «архивируйте её», but an employee has no archive.
+ */
+export type ReasonOverrides = Partial<Record<string, string>>;
+
+/**
  * Localized one-line message for a failed call: the caller's action
  * («Не удалось создать товар») plus the reason when one is known
  * («…: такой артикул уже есть»). Never returns server text.
@@ -247,9 +253,12 @@ export function describeApiError(
 	cause: unknown,
 	fallbackKey: string,
 	fallbackParams?: Record<string, unknown>,
+	reasonOverrides?: ReasonOverrides,
 ): string {
 	const action = i18next.t(fallbackKey, fallbackParams);
-	const reason = apiErrorReason(parseApiError(cause));
+	const info = parseApiError(cause);
+	const overrideKey = info.code ? reasonOverrides?.[info.code] : undefined;
+	const reason = overrideKey ? { key: overrideKey, params: info.params } : apiErrorReason(info);
 	if (!reason) {
 		return action;
 	}

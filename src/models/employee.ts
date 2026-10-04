@@ -16,7 +16,12 @@ export type Employee = {
 	salary: number;
 	dateOfEmployment: string;
 	contactInfo?: ContactInfo;
+	/** False once any payroll names the employee — DELETE then answers 409 `entity.referenced`. */
+	isDeletable: boolean;
 };
+
+/** Create / update answer: the employee without `isDeletable` (a new one is always deletable). */
+export type EmployeeWriteResponse = Omit<Employee, "isDeletable">;
 
 export type GetEmployeesRequest = {
 	searchTerm?: string;

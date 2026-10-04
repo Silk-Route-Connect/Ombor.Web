@@ -25,7 +25,9 @@
   "employee.status.Terminated": "Уволен",
   "employee.status.OnVacation": "В отпуске",
 
-  "employee.deleteConfirmation": "Вы уверены, что хотите удалить сотрудника {{employeeName}}?",
+  "employee.delete.title": "Удалить сотрудника «{{name}}»?",
+  "employee.delete.body": "Этому сотруднику ещё не выплачивали зарплату, поэтому его можно удалить. Это действие нельзя отменить. Если сотрудник просто ушёл, лучше поставьте статус «Уволен» — запись сохранится.",
+  "employee.delete.referenced": "ему уже выплачивали зарплату — удалить нельзя, поставьте статус «Уволен»",
 
   "employee.validation.nameRequired": "ФИО обязательно",
   "employee.validation.nameTooLong": "ФИО не должно превышать 250 символов",
@@ -46,11 +48,11 @@
   "employee.detail.notFound": "Сотрудник не найден",
   "employees.error.create": "Ошибка создания сотрудника",
   "employees.error.update": "Ошибка обновления сотрудника",
-  "employees.error.delete": "Ошибка удаления сотрудника",
+  "employees.error.delete": "Не удалось удалить сотрудника «{{name}}»",
 
   "employees.success.create": "Сотрудник успешно создан",
   "employees.success.update": "Сотрудник успешно обновлен",
-  "employees.success.delete": "Сотрудник успешно удален",
+  "employees.success.delete": "Сотрудник «{{name}}» удалён",
 
   "employee.details.title": "Информация о сотруднике",
   "employee.details.employmentInfo": "Информация о работе",

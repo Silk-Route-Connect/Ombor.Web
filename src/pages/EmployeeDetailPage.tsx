@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EmployeePayrollTable from "components/employee/Detail/EmployeePayrollTable";
 import EmployeeSummary from "components/employee/Detail/EmployeeSummary";
+import { employeeManageActions } from "components/employee/employeeActions";
+import EmployeeDialogs from "components/employee/EmployeeDialogs";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
-import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
@@ -20,9 +20,7 @@ import { PATHS, paymentDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { PresetOption } from "utils/dateUtils";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 import { Box, Typography } from "@mui/material";
 
@@ -103,33 +101,13 @@ const EmployeeDetailPage: React.FC = observer(() => {
 
 	const terminated = employee.status === "Terminated";
 
-	// Kebab: edit + the status change (terminate/restore); «Выплатить»/«Восстановить»
-	// is the standalone primary action.
-	const actions: ActionMenuRow[] = [
-		{
-			key: "edit",
-			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" />,
-			onClick: () => employeeStore.openEdit(employee),
-		},
-		terminated
-			? {
-					key: "restore",
-					label: t("employee.action.restore"),
-					icon: <RestartAltOutlinedIcon fontSize="small" />,
-					tone: "restore",
-					dividerBefore: true,
-					onClick: () => employeeStore.openRestore(employee),
-				}
-			: {
-					key: "terminate",
-					label: t("employee.action.terminate"),
-					icon: <PersonOffOutlinedIcon fontSize="small" />,
-					tone: "danger",
-					dividerBefore: true,
-					onClick: () => employeeStore.openTerminate(employee),
-				},
-	];
+	// «Выплатить» / «Восстановить» is the standalone primary action; the kebab holds the rest.
+	const actions = employeeManageActions(t, employee, {
+		onEdit: () => employeeStore.openEdit(employee),
+		onTerminate: () => employeeStore.openTerminate(employee),
+		onRestore: () => employeeStore.openRestore(employee),
+		onDelete: () => employeeStore.openDelete(employee),
+	});
 
 	return (
 		<Box>
@@ -204,43 +182,7 @@ const EmployeeDetailPage: React.FC = observer(() => {
 				onSave={handlePayrollSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogKind === "terminate"}
-				icon={<PersonOffOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("employee.terminate.title", {
-					name: dialogKind === "terminate" ? dialogMode.employee.name : "",
-				})}
-				content={t("employee.terminate.body")}
-				confirmLabel={t("employee.action.terminate")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="danger"
-				onCancel={employeeStore.closeDialog}
-				onConfirm={() => {
-					if (dialogKind === "terminate") {
-						void employeeStore.terminate(dialogMode.employee);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogKind === "restore"}
-				icon={<RestartAltOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("employee.restore.title", {
-					name: dialogKind === "restore" ? dialogMode.employee.name : "",
-				})}
-				content={t("employee.restore.body")}
-				confirmLabel={t("employee.action.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={employeeStore.closeDialog}
-				onConfirm={() => {
-					if (dialogKind === "restore") {
-						void employeeStore.restore(dialogMode.employee);
-					}
-				}}
-			/>
+			<EmployeeDialogs onDeleted={() => navigate(PATHS.employees)} />
 		</Box>
 	);
 });

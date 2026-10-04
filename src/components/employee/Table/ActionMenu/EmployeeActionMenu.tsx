@@ -3,37 +3,25 @@ import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import { Employee } from "models/employee";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
-import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 
-interface EmployeeActionMenuProps {
+import { employeeManageActions, EmployeeManageHandlers } from "../../employeeActions";
+
+interface EmployeeActionMenuProps extends EmployeeManageHandlers {
 	employee: Employee;
 	onPay: () => void;
-	onEdit: () => void;
-	onTerminate: () => void;
-	onRestore: () => void;
 }
 
-/**
- * Row actions for an employee: «Выплатить» (active only), «Редактировать», and
- * «Уволить» / «Восстановить» (a status change, never a hard delete — employees
- * carry a Terminated status, business-rules Employee section).
- */
+/** Row actions for an employee: «Выплатить» (not terminated), then the shared manage rows. */
 const EmployeeActionMenu: React.FC<EmployeeActionMenuProps> = ({
 	employee,
 	onPay,
-	onEdit,
-	onTerminate,
-	onRestore,
+	...handlers
 }) => {
 	const { t } = useTranslation();
-	const terminated = employee.status === "Terminated";
 
 	const actions: ActionMenuRow[] = [];
-
-	if (!terminated) {
+	if (employee.status !== "Terminated") {
 		actions.push({
 			key: "pay",
 			label: t("employee.action.pay"),
@@ -41,31 +29,7 @@ const EmployeeActionMenu: React.FC<EmployeeActionMenuProps> = ({
 			onClick: onPay,
 		});
 	}
-	actions.push({
-		key: "edit",
-		label: t("common.edit"),
-		icon: <EditOutlinedIcon fontSize="small" />,
-		onClick: onEdit,
-	});
-	actions.push(
-		terminated
-			? {
-					key: "restore",
-					label: t("employee.action.restore"),
-					tone: "restore",
-					dividerBefore: true,
-					icon: <RestartAltOutlinedIcon fontSize="small" />,
-					onClick: onRestore,
-				}
-			: {
-					key: "terminate",
-					label: t("employee.action.terminate"),
-					tone: "danger",
-					dividerBefore: true,
-					icon: <PersonOffOutlinedIcon fontSize="small" />,
-					onClick: onTerminate,
-				},
-	);
+	actions.push(...employeeManageActions(t, employee, handlers));
 
 	return <ActionMenu actions={actions} />;
 };

@@ -17,6 +17,7 @@ export interface EmployeeColumnHandlers {
 	onEdit: (employee: Employee) => void;
 	onTerminate: (employee: Employee) => void;
 	onRestore: (employee: Employee) => void;
+	onDelete: (employee: Employee) => void;
 }
 
 /**
@@ -79,6 +80,7 @@ export function buildEmployeeColumns(
 					onEdit={() => handlers.onEdit(e)}
 					onTerminate={() => handlers.onTerminate(e)}
 					onRestore={() => handlers.onRestore(e)}
+					onDelete={() => handlers.onDelete(e)}
 				/>
 			),
 		},
