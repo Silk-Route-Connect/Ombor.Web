@@ -65,7 +65,10 @@ const SettingsPage: React.FC = observer(() => {
 					current = key;
 				}
 			}
-			setActive(current);
+			// The last section is too short to reach the top; scrolled to the end, it is the one in view.
+			const atEnd =
+				root.scrollTop > 0 && root.scrollTop + root.clientHeight >= root.scrollHeight - 2;
+			setActive(atEnd ? SECTION_KEYS[SECTION_KEYS.length - 1] : current);
 		};
 		root.addEventListener("scroll", onScroll, { passive: true });
 		onScroll();
