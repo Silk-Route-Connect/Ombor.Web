@@ -47,7 +47,11 @@ export function linkLabelToControl(label: HTMLElement): string | undefined {
 		return undefined;
 	}
 	if (LABELABLE_TAGS.has(control.tagName) && control.id) {
-		return control.id;
+		// A field with a label of its own (a MUI `label`) is named already; a second
+		// label would make a screen reader read «Партнёр * Партнёр».
+		const labels = (control as HTMLInputElement).labels;
+		const namedElsewhere = !!labels && Array.from(labels).some((other) => other !== label);
+		return namedElsewhere ? undefined : control.id;
 	}
 	if (!control.hasAttribute("aria-label")) {
 		const ids = (control.getAttribute("aria-labelledby") ?? "").split(/\s+/).filter(Boolean);
