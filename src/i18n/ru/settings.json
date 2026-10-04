@@ -44,6 +44,7 @@
   "settings.users.you": "вы",
   "settings.users.admin": "Администратор",
   "settings.users.deactivated": "Деактивирован",
+  "settings.users.pendingFirstLogin": "Ждёт первого входа",
   "settings.users.deactivatedSince": "с {{date}}",
   "settings.users.onlineNow": "Активен сейчас",
   "settings.users.active": "Активен",

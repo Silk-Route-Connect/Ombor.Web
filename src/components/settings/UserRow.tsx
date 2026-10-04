@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import StatusPill from "components/shared/Chip/StatusPill";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import { TenantUser } from "models/settings";
 import { designTokens } from "theme";
 import { formatDate } from "utils/dateUtils";
@@ -47,9 +48,10 @@ const UserRow: React.FC<UserRowProps> = ({ user, last, onDeactivate, onReactivat
 		if (user.online) {
 			return { text: t("settings.users.onlineNow"), online: true };
 		}
-		// An active user with no recorded activity reads as «Активен» — the backend
-		// returns active:true with no separate pending/invite status, so we never
-		// mislabel a registered account (e.g. the owner) as «Приглашён» (F-005).
+		// The «Ждёт первого входа» pill says it all; «Активен» would read as signed in.
+		if (user.pendingFirstLogin) {
+			return { text: "", online: false };
+		}
 		return {
 			text: user.lastActiveAt ? formatDate(user.lastActiveAt) : t("settings.users.active"),
 			online: false,
@@ -101,6 +103,12 @@ const UserRow: React.FC<UserRowProps> = ({ user, last, onDeactivate, onReactivat
 
 			<StatusPill token={user.active ? "teal" : "neutral"} label={t("settings.users.admin")} />
 			{!user.active && <StatusPill token="neutral" label={t("settings.users.deactivated")} />}
+			{user.active && user.pendingFirstLogin && (
+				<Box sx={{ display: "inline-flex", alignItems: "center", gap: "6px", flex: "0 0 auto" }}>
+					<StatusPill token="info" label={t("settings.users.pendingFirstLogin")} />
+					<InfoHint text={t("settings.invite.signInSteps")} />
+				</Box>
+			)}
 
 			<Typography
 				sx={{

@@ -38,6 +38,8 @@ export type TenantUser = {
 	online: boolean;
 	/** ISO timestamp of last activity (deactivation date when inactive); null if never. */
 	lastActiveAt: string | null;
+	/** Invited and not signed in yet — sets a password through «Забыли пароль или входите впервые?». */
+	pendingFirstLogin: boolean;
 };
 
 /**
