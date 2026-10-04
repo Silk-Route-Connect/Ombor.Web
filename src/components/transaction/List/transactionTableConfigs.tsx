@@ -34,6 +34,10 @@ export const transactionTypeLabel = (t: TFunction, tx: TransactionRecord): strin
 			: `transaction.badge.base.${directionOf(tx.type)}`,
 	);
 
+// The fixed № column is narrower than «Возвращено полностью» on one line, so the
+// notes wrap inside the cell instead of running into the date column.
+const numberNoteSx = { fontSize: 12, lineHeight: 1.35, color: "text.secondary" } as const;
+
 export interface TransactionRowHandlers {
 	/** Nothing is left to refund — the row says «Возвращено полностью» and offers no refund. */
 	isFullyRefunded: (tx: TransactionRecord) => boolean;
@@ -61,16 +65,14 @@ export function buildTransactionColumns(
 				<Box>
 					<DocNumberCell number={transactionDisplayNumber(tx)} to={transactionDetailPath(tx)} />
 					{isRefundType(tx.type) && tx.originalTransactionNumber && (
-						<Box sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}>
+						<Box sx={numberNoteSx}>
 							{t("transaction.list.refundOf", {
 								number: formatEntityId(tx.originalTransactionNumber),
 							})}
 						</Box>
 					)}
 					{handlers.isFullyRefunded(tx) && (
-						<Box sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}>
-							{t("transaction.refund.fullyRefunded")}
-						</Box>
+						<Box sx={numberNoteSx}>{t("transaction.refund.fullyRefunded")}</Box>
 					)}
 				</Box>
 			),
