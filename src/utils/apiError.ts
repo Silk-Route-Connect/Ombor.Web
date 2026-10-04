@@ -51,6 +51,7 @@ const KNOWN_CODES = new Set([
 	"file.too_large",
 	"entity.referenced",
 	"conflict.duplicate",
+	"conflict.busy",
 	"entity.not_found",
 	"validation.failed",
 ]);

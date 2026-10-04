@@ -141,6 +141,7 @@
   "common.apiError.file.invalid": "файл не подходит — загрузите изображение (PNG, JPG, GIF) или PDF; для фото товара и логотипа — только изображение",
   "common.apiError.file.too_large": "файл слишком большой — не больше {{maxMegabytes}} МБ",
   "common.apiError.conflict.duplicate": "такая запись уже есть — проверьте название или номер",
+  "common.apiError.conflict.busy": "в эту минуту проводится другая операция — ничего не сохранено, повторите ещё раз",
   "common.apiError.entity.referenced": "запись используется в документах — её нельзя удалить, архивируйте её",
   "common.apiError.entity.not_found": "запись не найдена — возможно, её уже удалили",
   "common.apiError.validation.failed": "проверьте введённые данные",
