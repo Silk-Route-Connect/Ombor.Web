@@ -115,15 +115,23 @@ const PartnerBalanceBlock: React.FC<PartnerBalanceBlockProps> = ({
 						<NorthEastIcon sx={{ fontSize: 14, color: "text.disabled" }} />
 						{t(`transaction.new.balance.after.${direction}`)}
 					</Box>
-					<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: afterTone.color }}>
-						{formatCurrency(Math.abs(balanceAfter))}
-						<Box
-							component="span"
-							sx={{ ml: "6px", fontSize: 12, fontWeight: 600, color: "text.secondary" }}
+					{balanceAfter === 0 ? (
+						<Typography sx={{ fontSize: 13, fontWeight: 600, color: "text.secondary" }}>
+							{t(afterTone.labelKey)}
+						</Typography>
+					) : (
+						<Typography
+							sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: afterTone.color }}
 						>
-							{t(afterTone.shortKey)}
-						</Box>
-					</Typography>
+							{formatCurrency(Math.abs(balanceAfter))}
+							<Box
+								component="span"
+								sx={{ ml: "6px", fontSize: 12, fontWeight: 600, color: "text.secondary" }}
+							>
+								{t(afterTone.shortKey)}
+							</Box>
+						</Typography>
+					)}
 				</Box>
 			)}
 		</Box>
