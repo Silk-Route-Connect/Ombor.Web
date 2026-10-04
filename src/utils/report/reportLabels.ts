@@ -6,13 +6,19 @@ import { formatPeriod } from "utils/payrollUtils";
 
 /**
  * A served calendar bucket in words: a day «04.10.2026», a week (served as its
- * Monday) «28.09 – 04.10.2026», a month «Октябрь 2026».
+ * Monday) «28.09 – 04.10.2026» — «29.12.2025 – 04.01.2026» across a new year —
+ * a month «Октябрь 2026».
  */
 export function bucketLabel(groupBy: ReportTimeGroupBy, key: string, t: TFunction): string {
 	switch (groupBy) {
 		case "Week": {
 			const monday = parseISO(key);
-			return `${format(monday, "dd.MM")} – ${formatDate(addDays(monday, 6))}`;
+			const sunday = addDays(monday, 6);
+			const start =
+				monday.getFullYear() === sunday.getFullYear()
+					? format(monday, "dd.MM")
+					: formatDate(monday);
+			return `${start} – ${formatDate(sunday)}`;
 		}
 		case "Month":
 			return formatPeriod(t, key);

@@ -40,10 +40,13 @@ const StockReport: React.FC<{ mode: ReportMode }> = observer(({ mode }) => {
 
 	const data = reportStore.stock.data;
 	const rows = reportStore.filteredStockRows;
+	const { stockSearch: search, stockLevel: level } = reportStore;
 	const view = useMemo(
 		() =>
-			mapLoadable(data, (report) => buildStockView(report, readyOr(rows, []), warehouseLabel, t)),
-		[data, rows, warehouseLabel, t],
+			mapLoadable(data, (report) =>
+				buildStockView(report, readyOr(rows, []), { warehouseLabel, search, level }, t),
+			),
+		[data, rows, warehouseLabel, search, level, t],
 	);
 
 	const filters = (

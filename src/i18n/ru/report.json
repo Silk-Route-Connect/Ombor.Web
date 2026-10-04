@@ -171,6 +171,8 @@
   "report.stock.allWarehouses": "Все склады",
   "report.stock.archivedWarehouse": "{{name}} (архив)",
   "report.stock.print.warehouse": "Склад: {{name}}",
+  "report.stock.print.level": "Остаток: {{level}}",
+  "report.stock.print.search": "Поиск: «{{query}}»",
 
   "report.cashFlow.col.wallet": "Касса",
   "report.cashFlow.col.opening": "На начало периода",

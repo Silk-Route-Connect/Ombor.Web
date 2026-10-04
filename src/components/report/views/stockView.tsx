@@ -6,11 +6,19 @@ import SkuCell from "components/shared/Table/cells/SkuCell";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { StockReport, StockReportRow } from "models/report";
+import { StockFilter } from "utils/productFilters";
 import { stockRowLevel } from "utils/report/reportStock";
 
 import { ReportView } from "../View/types";
 
 export type StockViewRow = StockReportRow & { id: string };
+
+/** The screen's stock filters, named on paper so a narrowed «Итого» reads right. */
+export interface StockViewFilters {
+	warehouseLabel: string;
+	search: string;
+	level: StockFilter;
+}
 
 /**
  * «Остатки и стоимость склада»: today's stock per product per warehouse, valued
@@ -21,7 +29,7 @@ export type StockViewRow = StockReportRow & { id: string };
 export function buildStockView(
 	report: StockReport,
 	rows: StockReportRow[],
-	warehouseLabel: string,
+	filters: StockViewFilters,
 	t: TFunction,
 ): ReportView<StockViewRow> {
 	const { totals } = report;
@@ -151,7 +159,19 @@ export function buildStockView(
 			: { value: totals.value, saleValue: totals.saleValue },
 		countLabel: (count) => t("report.count.position", { count }),
 		costIsEstimated: false,
-		details: [t("report.stock.print.warehouse", { name: warehouseLabel })],
+		details: stockDetails(filters, t),
 		empty: { title: t("report.empty.title"), hint: t("report.stock.empty") },
 	};
+}
+
+/** Lines under the printed title: the warehouse, then the «Остаток» filter and the search when set. */
+function stockDetails({ warehouseLabel, search, level }: StockViewFilters, t: TFunction): string[] {
+	const query = search.trim();
+	return [
+		t("report.stock.print.warehouse", { name: warehouseLabel }),
+		...(level === "all"
+			? []
+			: [t("report.stock.print.level", { level: t(`product.filter.stock.${level}`) })]),
+		...(query ? [t("report.stock.print.search", { query })] : []),
+	];
 }

@@ -2,7 +2,7 @@ import React from "react";
 import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { typeScale } from "theme";
-import { formatCurrency, formatCurrencyMinus, formatQuantity } from "utils/formatCurrency";
+import { formatCurrencyMinus, formatQuantity } from "utils/formatCurrency";
 
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -25,7 +25,7 @@ function kpiText(kpi: ReportKpi): string {
 	if (kpi.format === "count") {
 		return formatQuantity(kpi.value);
 	}
-	return kpi.signed ? formatCurrencyMinus(kpi.value) : formatCurrency(kpi.value);
+	return formatCurrencyMinus(kpi.value);
 }
 
 /**
@@ -56,6 +56,7 @@ const ReportKpiRow: React.FC<{ kpis: ReportKpi[] }> = ({ kpis }) => (
 					borderRadius: "12px",
 					p: "16px 18px",
 					minWidth: 0,
+					containerType: "inline-size",
 				}}
 			>
 				<Box
@@ -71,7 +72,15 @@ const ReportKpiRow: React.FC<{ kpis: ReportKpi[] }> = ({ kpis }) => (
 					{kpi.hint && <InfoHint text={kpi.hint} />}
 				</Box>
 				<Typography
-					sx={{ ...typeScale.numStrong, mt: "8px", lineHeight: 1.1, color: kpiColor(kpi) }}
+					sx={{
+						...typeScale.numStrong,
+						mt: "8px",
+						lineHeight: 1.1,
+						color: kpiColor(kpi),
+						// A year's revenue with kopecks («7 549 210 702,01 UZS») is wider than a
+						// quarter-row card on a 1366px laptop; a narrow card steps the figure down.
+						"@container (max-width: 300px)": { fontSize: 20 },
+					}}
 				>
 					{kpiText(kpi)}
 					{kpi.format === "money" && <UzsUnit sx={{ fontSize: 13 }} />}

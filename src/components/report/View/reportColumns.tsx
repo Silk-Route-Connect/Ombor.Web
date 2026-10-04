@@ -24,8 +24,17 @@ function defaultCell<Row>(column: ReportColumn<Row>, row: Row): React.ReactNode 
 	const value = asNumber(raw);
 	switch (column.kind) {
 		case "money":
-			if (value !== null && value < 0 && column.signed) {
-				return <MoneyCell value={-value} negative tone="expense" main={column.main} />;
+			// Any figure below zero reads «−…» (a week with more refunds than sales has a
+			// negative Выручка); only a `signed` profit turns red.
+			if (value !== null && value < 0) {
+				return (
+					<MoneyCell
+						value={-value}
+						negative
+						tone={column.signed ? "expense" : column.tone}
+						main={column.main}
+					/>
+				);
 			}
 			return <MoneyCell value={value} main={column.main} tone={column.tone} />;
 		case "count":

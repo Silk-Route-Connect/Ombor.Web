@@ -7,7 +7,7 @@ import PrintOrganizationGate from "components/shared/Print/PrintOrganizationGate
 import PrintTable from "components/shared/Print/PrintTable";
 import PrintTotals from "components/shared/Print/PrintTotals";
 import { isReady, Loadable } from "helpers/Loading";
-import { formatCurrency, formatCurrencyMinus, formatQuantity } from "utils/formatCurrency";
+import { formatCurrencyMinus, formatQuantity } from "utils/formatCurrency";
 
 import { toPrintColumns, toPrintTotalsRow } from "../View/reportColumns";
 import { ReportKpi, ReportView } from "../View/types";
@@ -26,7 +26,7 @@ const kpiValue = (kpi: ReportKpi, uzs: string): string => {
 	if (kpi.format === "count") {
 		return formatQuantity(kpi.value);
 	}
-	return `${kpi.signed ? formatCurrencyMinus(kpi.value) : formatCurrency(kpi.value)} ${uzs}`;
+	return `${formatCurrencyMinus(kpi.value)} ${uzs}`;
 };
 
 /**

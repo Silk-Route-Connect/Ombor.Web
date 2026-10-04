@@ -61,7 +61,10 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				display: "flex",
 				alignItems: "flex-start",
 				justifyContent: "space-between",
-				gap: "20px",
+				// On a phone the actions drop below the title instead of squeezing it to
+				// nothing (a report's «Печать» + «Экспорт» are wider than the free space).
+				flexWrap: { xs: "wrap", sm: "nowrap" },
+				gap: { xs: "12px 20px", sm: "20px" },
 				mb: "20px",
 			}}
 		>

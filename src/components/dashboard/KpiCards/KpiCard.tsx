@@ -134,7 +134,9 @@ export const KpiCard: React.FC<KpiCardProps> = ({ spec, onOpen }) => {
 		return card;
 	}
 	return (
-		<Tooltip title={spec.tooltip} placement="bottom-start" enterTouchDelay={0}>
+		// describeChild: the hint describes the card; as an aria-label it would
+		// replace the card's own name («Валовая прибыль 0 UZS»).
+		<Tooltip title={spec.tooltip} describeChild placement="bottom-start" enterTouchDelay={0}>
 			{card}
 		</Tooltip>
 	);

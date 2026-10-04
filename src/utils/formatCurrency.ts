@@ -1,15 +1,15 @@
 import i18next from "i18n/config";
 
 /**
- * Abbreviate a large integer with translated suffixes:
+ * Abbreviate a large integer with translated suffixes (chart axis ticks):
  *   1 000      → "1 тыс"
- *   10 000     → "10 тыс"
- *   1 250 000  → "1.25 млн"
+ *   9 500      → "9,5 тыс" (ru decimal comma)
  *   12 000 000 → "12 млн"
+ *   −16 000    → "−16 тыс" (a true minus, as money reads)
  */
 export function formatShortNumber(input: number): string {
 	const abs = Math.abs(input);
-	const sign = input < 0 ? "-" : "";
+	const sign = input < 0 ? "−" : "";
 
 	const units: Array<{ value: number; key: string }> = [
 		{ value: 1_000_000_000, key: "common.number.billionShort" },
@@ -20,7 +20,8 @@ export function formatShortNumber(input: number): string {
 	for (const { value, key } of units) {
 		if (abs >= value) {
 			const num = abs / value;
-			const formatted = num < 10 && num % 1 !== 0 ? num.toFixed(1) : Math.round(num).toString();
+			const formatted =
+				num < 10 && num % 1 !== 0 ? num.toFixed(1).replace(".", ",") : Math.round(num).toString();
 			return `${sign}${formatted} ${i18next.t(key)}`;
 		}
 	}
@@ -54,17 +55,23 @@ export function formatCurrency(value: number): string {
 /**
  * Space-grouped formatter for non-money quantities (stock counts, units). Same
  * grouping as money, but named for intent so quantity displays don't read as
- * currency. 340 → "340", 1500 → "1 500".
+ * currency. 340 → "340", 1500 → "1 500", −4 → "−4" (a true minus: a report row
+ * whose returns outnumber its sales).
  */
 export function formatQuantity(value: number): string {
-	return quantityFormatter.format(value);
+	const text = quantityFormatter.format(Math.abs(value));
+	return value < 0 && text !== "0" ? `−${text}` : text;
 }
 
 const percentFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 1 });
 
-/** A percentage with the ru decimal comma: 33.33 → «33,3», 50 → «50» (no «%» sign). */
+/**
+ * A percentage with the ru decimal comma: 33.33 → «33,3», 50 → «50», −2.2 → «−2,2»
+ * (a true minus, as money reads; no «%» sign).
+ */
 export function formatPercent(value: number): string {
-	return percentFormatter.format(value);
+	const text = percentFormatter.format(Math.abs(value));
+	return value < 0 && text !== "0" ? `−${text}` : text;
 }
 
 /**

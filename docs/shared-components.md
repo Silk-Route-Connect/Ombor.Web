@@ -53,7 +53,7 @@
 
 | Component                       | Use for                                        | Notes                                                                                                                          |
 | ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `DetailPageHeader`              | Every detail page header                       | back → name-only title → kebab → optional `primaryAction` (one child-event creation per pattern 2) (pattern 20a)               |
+| `DetailPageHeader`              | Every detail page header                       | back → name-only title → kebab → optional `primaryAction` (one child-event creation per pattern 2) (pattern 20a); under `sm` the actions wrap below the title instead of squeezing it |
 | `DetailTabs`                    | Detail tab bars                                | Underline tabs + count pills                                                                                                   |
 | `DetailCard`                    | Summary / rail cards                           | The card primitive for detail summaries; `detailCardIconSx` styles its title icon                                              |
 | `DetailTable`                   | Every detail tab, line table and dashboard table | Same `Column<T>` API and cells as `DataTable` on the `detailTableChrome` look; `footer` total band, `pagination`, `summary` (`TableTotals` in the pager band), `onRowClick` (+ `isRowClickable`, `rowSx`), `empty`; keyboard rows and sort headers (pattern 20d) |

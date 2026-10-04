@@ -100,33 +100,35 @@ const ReportChart: React.FC<{ spec: ReportChartSpec }> = ({ spec }) => {
 								horizontal={!ranking}
 								stroke={theme.palette.divider}
 							/>
+							{/* Axes stay direct children of the chart: recharts 2 reads them through
+							    react-is 18, which does not see a React 19 fragment, so an axis
+							    wrapped in <></> is silently dropped. */}
 							{ranking ? (
-								<>
-									<XAxis type="number" {...valueAxis} />
-									<YAxis
-										type="category"
-										dataKey="key"
-										width={170}
-										interval={0}
-										tickLine={false}
-										axisLine={false}
-										tick={AXIS_TICK}
-										tickFormatter={tickOf}
-									/>
-								</>
+								<XAxis type="number" {...valueAxis} />
 							) : (
-								<>
-									<XAxis
-										dataKey="key"
-										interval={Math.max(0, Math.ceil(spec.points.length / 12) - 1)}
-										tickLine={false}
-										axisLine={false}
-										tick={AXIS_TICK}
-										tickMargin={8}
-										tickFormatter={tickOf}
-									/>
-									<YAxis width={60} {...valueAxis} />
-								</>
+								<XAxis
+									dataKey="key"
+									interval={Math.max(0, Math.ceil(spec.points.length / 12) - 1)}
+									tickLine={false}
+									axisLine={false}
+									tick={AXIS_TICK}
+									tickMargin={8}
+									tickFormatter={tickOf}
+								/>
+							)}
+							{ranking ? (
+								<YAxis
+									type="category"
+									dataKey="key"
+									width={170}
+									interval={0}
+									tickLine={false}
+									axisLine={false}
+									tick={AXIS_TICK}
+									tickFormatter={tickOf}
+								/>
+							) : (
+								<YAxis width={60} {...valueAxis} />
 							)}
 							{hasNegative && (
 								<ReferenceLine {...(ranking ? { x: 0 } : { y: 0 })} stroke={designTokens.gray400} />
