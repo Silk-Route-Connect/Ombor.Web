@@ -258,7 +258,7 @@
   "partner.reminder.copied": "Текст скопирован",
   "partner.reminder.copyFailed": "Не удалось скопировать — выделите текст и скопируйте вручную",
   "partner.reminder.pasteHint": "Текст также скопирован — если он не подставился, вставьте его в сообщение",
-  "partner.reminder.nothingOwed": "{{name}} сейчас ничего не должен — напоминать не о чем.",
+  "partner.reminder.nothingOwed": "Партнёр {{name}} сейчас ничего не должен — напоминать не о чем.",
   "partner.reminder.error.load": "Не удалось подготовить напоминание",
   "partner.reminder.text.greeting": "Здравствуйте, {{name}}!",
   "partner.reminder.text.debt": "Напоминаем: ваш долг перед {{org}} — {{amount}}.",
