@@ -42,10 +42,10 @@ export class OrderStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	/** Status counts for the toolbar tabs: the picked period, before the status tab and search. */
+	/** Status counts for the toolbar tabs: the period and «Доставка», before the status tab and search. */
 	get statusCounts(): Record<OrderStatusFilter, number> {
-		const all = readyOr(this.allOrders, []);
-		return countByStatus(filterByDateRange(all, this.dateRange, (o) => o.date));
+		const inPeriod = filterByDateRange(readyOr(this.allOrders, []), this.dateRange, (o) => o.date);
+		return countByStatus(inPeriod.filter((o) => matchesDeliveryFilter(o, this.deliveryFilter)));
 	}
 
 	/** The list view: status tab + date range + delivery + search (number or customer), newest first. */

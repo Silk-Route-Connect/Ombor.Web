@@ -88,11 +88,12 @@ const AlertBlock: React.FC<AlertBlockProps> = ({ alert, unseen, onOpenAlert, onO
 				{shown.map((item) => {
 					const path = activityRecordPath({ entityKind: item.entityKind, entityId: item.id });
 					const title = alertItemTitle(t, item);
+					// Wraps between parts rather than truncating: the line ends with the point
+					// of the alert («86 дней просрочки», «нет в наличии»).
 					return (
 						<Typography
 							component="li"
 							key={`${item.entityKind}-${item.id}`}
-							noWrap
 							sx={{ fontSize: 13, color: "text.secondary", py: "2px" }}
 						>
 							{path ? (
@@ -102,9 +103,14 @@ const AlertBlock: React.FC<AlertBlockProps> = ({ alert, unseen, onOpenAlert, onO
 							) : (
 								title
 							)}
-							{alertItemDetails(t, alert.kind, item)
-								.map((part) => ` · ${part}`)
-								.join("")}
+							{alertItemDetails(t, alert.kind, item).map((part, i) => (
+								<React.Fragment key={i}>
+									{" · "}
+									<Box component="span" sx={{ whiteSpace: "nowrap" }}>
+										{part}
+									</Box>
+								</React.Fragment>
+							))}
 						</Typography>
 					);
 				})}

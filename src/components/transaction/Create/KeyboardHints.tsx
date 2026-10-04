@@ -26,7 +26,7 @@ export const KeyboardHints: React.FC<{ direction: TransactionDirection }> = ({ d
 				color: "text.secondary",
 			}}
 		>
-			<KeyHint keys={["↑", "↓"]} label={t("transaction.new.kbd.qty")} />
+			<KeyHint keys={["↑", "↓"]} either label={t("transaction.new.kbd.qty")} />
 			<KeyHint keys={["Enter"]} label={t("transaction.new.kbd.next")} />
 			<KeyHint keys={[MOD, "Enter"]} label={t("transaction.new.kbd.submit")} />
 			<KeyHint keys={["Alt", "P"]} label={t(`transaction.new.kbd.partner.${direction}`)} />

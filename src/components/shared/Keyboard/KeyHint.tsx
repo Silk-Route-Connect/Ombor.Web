@@ -8,14 +8,16 @@ interface KeyHintProps {
 	/** Keys pressed together («Ctrl» + «Enter»); a single key is a one-item list. */
 	keys: React.ReactNode[];
 	label: string;
+	/** Each key does it on its own («↑» or «↓»): the caps stand side by side, without «+». */
+	either?: boolean;
 }
 
 /** A shortcut legend entry: the keycaps joined by «+», then what they do. */
-export const KeyHint: React.FC<KeyHintProps> = ({ keys, label }) => (
+export const KeyHint: React.FC<KeyHintProps> = ({ keys, label, either = false }) => (
 	<Box sx={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
 		{keys.map((key, i) => (
 			<React.Fragment key={i}>
-				{i > 0 && (
+				{i > 0 && !either && (
 					<Box component="span" sx={{ color: "text.disabled", fontSize: 11 }}>
 						+
 					</Box>

@@ -28,9 +28,10 @@ function stockLeft(t: TFunction, item: NotificationItem): string {
 		return t("notifications.item.outOfStock");
 	}
 	const unit = item.measurement ? measurementShort(t, item.measurement) : "";
+	const withUnit = (value: number) => `${formatQuantity(value)} ${unit}`.trim();
 	return t("notifications.item.stockLeft", {
-		qty: `${formatQuantity(quantity)} ${unit}`.trim(),
-		min: formatQuantity(item.threshold ?? 0),
+		qty: withUnit(quantity),
+		min: withUnit(item.threshold ?? 0),
 	});
 }
 

@@ -107,7 +107,7 @@
 | Component | Use for | Notes |
 | --- | --- | --- |
 | `Kbd` | One keycap («Ctrl», «K», «Enter», «↑») | 20px cap, app font, tabular; the topbar search's «Ctrl K» |
-| `KeyHint` | A shortcut legend entry | Keycaps joined by «+», then the action («↑ ↓ выбрать», «Ctrl + Enter провести»); POS `KeyboardHints` and the search palette footer. Promoted from the POS legend on 2026-10-04 (second consumer) |
+| `KeyHint` | A shortcut legend entry | Keycaps joined by «+», then the action («Ctrl + Enter провести»); `either` for keys that each do it alone — side by side, no «+» («↑ ↓ выбрать»). POS `KeyboardHints` and the search palette footer. Promoted from the POS legend on 2026-10-04 (second consumer) |
 
 ## Links & navigation
 

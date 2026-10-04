@@ -35,6 +35,7 @@ const GlobalSearch: React.FC = observer(() => {
 					gap: 1.125,
 					width: { xs: 38, md: 300 },
 					height: 38,
+					flexShrink: 0,
 					px: { xs: 0, md: 1.625 },
 					bgcolor: "background.default",
 					border: 1,

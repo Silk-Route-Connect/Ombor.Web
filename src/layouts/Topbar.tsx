@@ -64,9 +64,10 @@ const Topbar: React.FC = observer(() => {
 			sx={{
 				display: "flex",
 				alignItems: "center",
-				gap: 2,
+				// Tighter on a phone, so the icon-only search, «Создать», the bell and the avatar fit.
+				gap: { xs: 1, sm: 2 },
 				height: TOPBAR_HEIGHT,
-				px: 3.25,
+				px: { xs: 1.5, sm: 3.25 },
 				bgcolor: "background.paper",
 				borderBottom: 1,
 				borderColor: "divider",
