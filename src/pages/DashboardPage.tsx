@@ -6,6 +6,7 @@ import ChartPanel from "components/dashboard/ChartPanel";
 import DashboardKpiCards from "components/dashboard/DashboardKpiCards";
 import { KassaSelection } from "components/dashboard/KassaFilter";
 import KassaFilter from "components/dashboard/KassaFilter";
+import { DashboardKpiKey } from "components/dashboard/KpiCards/types";
 import {
 	EASE,
 	fadeUp,
@@ -36,6 +37,16 @@ import { designTokens } from "theme";
 import { Box, CircularProgress, useTheme } from "@mui/material";
 
 type ChartKind = "line" | "bar";
+
+/** Where a KPI card leads: a «Долги» preset or the module page behind the figure. */
+const KPI_TARGETS: Record<DashboardKpiKey, { debts: DebtCard } | { path: string }> = {
+	revenue: { path: PATHS.sales },
+	cash: { path: PATHS.wallets },
+	stockValue: { path: PATHS.warehouses },
+	receivable: { debts: "receivable" },
+	payable: { debts: "payable" },
+	overdue: { debts: "aged" },
+};
 
 const DashboardPage: React.FC = observer(() => {
 	const { t } = useTranslation();
@@ -70,6 +81,15 @@ const DashboardPage: React.FC = observer(() => {
 	const goDebts = (card: DebtCard): void => {
 		debtStore.applyCard(card);
 		navigate(PATHS.debts);
+	};
+
+	const onKpi = (card: DashboardKpiKey): void => {
+		const target = KPI_TARGETS[card];
+		if ("debts" in target) {
+			goDebts(target.debts);
+		} else {
+			navigate(target.path);
+		}
 	};
 
 	const onRecentRow = (tx: DashboardRecentTransaction): void => {
@@ -135,13 +155,7 @@ const DashboardPage: React.FC = observer(() => {
 							/>
 						)}
 
-						<DashboardKpiCards
-							data={data}
-							onRevenue={() => navigate(PATHS.sales)}
-							onReceivable={() => goDebts("receivable")}
-							onPayable={() => goDebts("payable")}
-							onOverdue={() => goDebts("aged")}
-						/>
+						<DashboardKpiCards data={data} onOpen={onKpi} />
 
 						<Box
 							sx={{
