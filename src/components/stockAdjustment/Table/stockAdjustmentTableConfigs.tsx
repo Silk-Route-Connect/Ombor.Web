@@ -2,6 +2,7 @@ import React from "react";
 import ProductLink from "components/product/Links/ProductLink";
 import DateCell from "components/shared/Table/cells/DateCell";
 import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
@@ -10,11 +11,14 @@ import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
 import { StockAdjustment } from "models/stockAdjustment";
+import { adjustmentValue } from "utils/listTotals";
 
 /**
  * Stock-adjustment history columns in the canonical order (conventions.md →
  * Tables): № · Дата · Товар · Склад · Направление · Причина · Создал ·
- * Количество (signed by direction). The number opens the read-only detail.
+ * Количество (signed by direction) · Сумма (the served value at the average
+ * cost — written off on a Списание, restored on a Приход товара). The number
+ * opens the read-only detail.
  */
 export function buildStockAdjustmentColumns(
 	t: TFunction,
@@ -80,6 +84,15 @@ export function buildStockAdjustmentColumns(
 					direction={a.direction === "Decrease" ? "out" : "in"}
 				/>
 			),
+		},
+		{
+			key: "value",
+			headerName: t("adjustment.table.value"),
+			headerTooltip: t("adjustment.table.valueHint"),
+			width: COLUMN_WIDTH.money,
+			align: "right",
+			sortValue: (a) => adjustmentValue(a) ?? -1,
+			renderCell: (a) => <MoneyCell value={adjustmentValue(a)} main />,
 		},
 	];
 }

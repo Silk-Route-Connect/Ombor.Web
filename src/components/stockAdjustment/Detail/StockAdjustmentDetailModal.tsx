@@ -3,13 +3,15 @@ import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { StockAdjustment } from "models/stockAdjustment";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
-import { formatQuantity } from "utils/formatCurrency";
+import { formatCurrency, formatQuantity } from "utils/formatCurrency";
+import { adjustmentValue } from "utils/listTotals";
 import { measurementShort } from "utils/productUtils";
 
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -37,6 +39,17 @@ const Field: React.FC<{ label: string; children: React.ReactNode; mono?: boolean
 	</Box>
 );
 
+/** A served sum with its unit, or «—» where no cost was recorded. */
+const MoneyFigure: React.FC<{ value: number | null }> = ({ value }) =>
+	value === null ? (
+		<>—</>
+	) : (
+		<>
+			{formatCurrency(value)}
+			<UzsUnit />
+		</>
+	);
+
 /**
  * Read-only stock-adjustment detail (rule 23 — immutable, no edit / delete):
  * a product · direction · signed-quantity summary, the audited fields, and the
@@ -55,6 +68,7 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 
 	const unit = measurementShort(t, adjustment.measurement);
 	const isDown = adjustment.direction === "Decrease";
+	const value = adjustmentValue(adjustment);
 
 	return (
 		<Dialog
@@ -134,6 +148,12 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 					</Field>
 					<Field label={t("adjustment.detail.balanceAfter")} mono>
 						{formatQuantity(adjustment.balanceAfter)} {unit}
+					</Field>
+					<Field label={t("adjustment.detail.unitCost")} mono>
+						<MoneyFigure value={value === null ? null : adjustment.unitCost} />
+					</Field>
+					<Field label={t(`adjustment.detail.value.${adjustment.direction}`)} mono>
+						<MoneyFigure value={value} />
 					</Field>
 					<Field label={t("adjustment.detail.createdBy")}>
 						<Box sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>

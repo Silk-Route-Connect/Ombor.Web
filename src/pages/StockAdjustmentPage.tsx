@@ -18,6 +18,7 @@ import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatQuantity } from "utils/formatCurrency";
 import { formatEntityId } from "utils/formatEntityId";
+import { adjustmentTotals, adjustmentValue } from "utils/listTotals";
 import { measurementShort } from "utils/productUtils";
 
 import { Box } from "@mui/material";
@@ -69,6 +70,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 				value: (a) => (a.direction === "Decrease" ? -a.quantity : a.quantity),
 			},
 			{ header: t("adjustment.table.unit"), value: (a) => measurementShort(t, a.measurement) },
+			{ header: t("adjustment.table.value"), value: (a) => adjustmentValue(a) ?? "" },
 			{ header: t("adjustment.table.note"), value: (a) => a.note ?? "" },
 		];
 
@@ -80,6 +82,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 		: stockAdjustmentStore.allAdjustments;
 	const hasAny = (all?.length ?? 0) > 0;
 	const rows = stockAdjustmentStore.filteredAdjustments;
+	const totals = isReady(rows) ? adjustmentTotals(rows) : null;
 
 	return (
 		<Box>
@@ -107,12 +110,16 @@ const StockAdjustmentPage: React.FC = observer(() => {
 				hasAny={hasAny}
 				onCreate={stockAdjustmentStore.openCreate}
 				summary={
-					isReady(rows) && (
+					totals && (
 						<TableTotals
 							count={t("adjustment.totals.count", {
-								count: rows.length,
-								formatted: formatQuantity(rows.length),
+								count: totals.count,
+								formatted: formatQuantity(totals.count),
 							})}
+							items={[
+								{ label: t("adjustment.totals.writtenOff"), value: totals.writtenOff },
+								{ label: t("adjustment.totals.restored"), value: totals.restored },
+							]}
 						/>
 					)
 				}

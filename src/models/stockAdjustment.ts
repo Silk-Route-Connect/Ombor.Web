@@ -46,6 +46,14 @@ export type StockAdjustment = {
 	createdBy: string;
 	/** Served stock of this product in this warehouse right after the event. */
 	balanceAfter: number;
+	/**
+	 * Average unit cost snapshotted at the event: the loss cost of a Decrease, the
+	 * carrying cost restored on an Increase (0 on Increase rows recorded before
+	 * 2026-10-04, which did not snapshot it).
+	 */
+	unitCost: number;
+	/** quantity × unitCost (served): written off on a Decrease, restored on an Increase. */
+	value: number;
 };
 
 export type CreateStockAdjustmentRequest = {

@@ -1,3 +1,4 @@
+import { StockAdjustment } from "models/stockAdjustment";
 import { TransactionRecord } from "models/transaction";
 
 import { isRefundType } from "./transactionUtils";
@@ -50,5 +51,27 @@ export function directionTotals<T>(
 		count: rows.length,
 		income: sumBy(rows, (row) => (isIncome(row) ? amountOf(row) : 0)),
 		expense: sumBy(rows, (row) => (isIncome(row) ? 0 : amountOf(row))),
+	};
+}
+
+/**
+ * The served value of an adjustment, or null where none was recorded: an
+ * Increase from before 2026-10-04 carries no cost snapshot (served as 0).
+ */
+export const adjustmentValue = (a: StockAdjustment): number | null =>
+	a.direction === "Increase" && a.unitCost === 0 && a.quantity > 0 ? null : a.value;
+
+/** Stock adjustments footer: what was written off and what was restored, at the served cost. */
+export interface AdjustmentTotals {
+	count: number;
+	writtenOff: number;
+	restored: number;
+}
+
+export function adjustmentTotals(rows: readonly StockAdjustment[]): AdjustmentTotals {
+	return {
+		count: rows.length,
+		writtenOff: sumBy(rows, (a) => (a.direction === "Decrease" ? a.value : 0)),
+		restored: sumBy(rows, (a) => (a.direction === "Increase" ? a.value : 0)),
 	};
 }
