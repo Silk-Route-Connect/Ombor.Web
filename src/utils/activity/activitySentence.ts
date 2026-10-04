@@ -15,6 +15,7 @@ import {
 	ARCHIVE_FIELD,
 	formatActivityValue,
 	inlineFieldLabel,
+	isHiddenActivityField,
 	PASSWORD_FIELD,
 } from "./activityFields";
 import { activityRecordPath } from "./activityLinks";
@@ -144,9 +145,14 @@ function statusChange(t: TFunction, item: ActivityItem, order: ActivityChange | 
 
 /** «: цена продажи 12 000 → 13 000 и ещё 2 поля» — the headline field of an edit (a document's status first). */
 function changeSummary(t: TFunction, change: ActivityChange | undefined): string {
-	const fields = change?.fields.filter((f) => f.field !== ARCHIVE_FIELD) ?? [];
+	if (!change) {
+		return "";
+	}
+	const fields = change.fields.filter(
+		(f) => f.field !== ARCHIVE_FIELD && !isHiddenActivityField(change.entityKind, f.field),
+	);
 	const lead = fields.find((f) => f.field === "status") ?? fields[0];
-	if (!change || !lead) {
+	if (!lead) {
 		return "";
 	}
 	const head =

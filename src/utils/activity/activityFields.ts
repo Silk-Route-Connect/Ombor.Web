@@ -28,6 +28,15 @@ const FIELD_GROUP: Partial<Record<ActivityEntityKind, string>> = {
 
 const groupOf = (kind: ActivityEntityKind): string => FIELD_GROUP[kind] ?? kind;
 
+// A legacy column the server still records but no screen shows or edits — «Розничная цена 0» would only confuse.
+const HIDDEN_FIELDS = new Set(["Product.retailPrice"]);
+// 0 is «not set» here, as the product page reads it («—»): no minimum, no packaging.
+const ZERO_IS_EMPTY_FIELDS = new Set(["Product.lowStockThreshold", "Product.packaging.size"]);
+
+/** A recorded field the log leaves out of the tables and the edit summary. */
+export const isHiddenActivityField = (kind: ActivityEntityKind, field: string): boolean =>
+	HIDDEN_FIELDS.has(`${groupOf(kind)}.${field}`);
+
 const MONEY_FIELDS = new Set([
 	"totalDue",
 	"totalPaid",
@@ -35,7 +44,6 @@ const MONEY_FIELDS = new Set([
 	"amount",
 	"salePrice",
 	"supplyPrice",
-	"retailPrice",
 	"unitPrice",
 	"unitCost",
 	"averageCost",
@@ -181,6 +189,9 @@ export function formatActivityValue(
 	value: ActivityValue | undefined,
 ): string | null {
 	if (value === undefined || value === null || value === "") {
+		return null;
+	}
+	if (value === 0 && ZERO_IS_EMPTY_FIELDS.has(`${groupOf(kind)}.${field}`)) {
 		return null;
 	}
 	if (Array.isArray(value)) {

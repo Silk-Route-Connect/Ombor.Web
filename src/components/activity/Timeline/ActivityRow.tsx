@@ -38,9 +38,11 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 				onClick={toggle}
 				sx={{
 					display: "grid",
-					gridTemplateColumns: "44px minmax(0, 1fr) auto 32px",
+					// On a phone the time, the sentence and the amount stack, so the sentence keeps the width.
+					gridTemplateColumns: { xs: "minmax(0, 1fr) 32px", sm: "44px minmax(0, 1fr) auto 32px" },
 					alignItems: "center",
 					columnGap: "12px",
+					rowGap: { xs: "2px", sm: 0 },
 					p: "10px 12px 10px 18px",
 					cursor: "pointer",
 					bgcolor: open ? "background.default" : undefined,
@@ -91,6 +93,7 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 				</Box>
 				<IconButton
 					size="small"
+					sx={{ gridColumn: { xs: 2, sm: "auto" }, gridRow: { xs: "1 / span 3", sm: "auto" } }}
 					aria-expanded={open}
 					aria-controls={open ? panelId : undefined}
 					aria-label={t(open ? "common.collapse" : "common.expand")}

@@ -22,6 +22,8 @@ The audit trail read back (mvp-plan §17, R26–R28): the «Журнал дей�
 | A payment's amount is green / red, a sale's is ink; a new partner's opening balance is signed («+150 000» green = we owe them) | Direction amounts only (conventions → Money); partner balances partner-side (DR-27) |
 | «Кто» lists deactivated users as «Имя (деактивирован)» | R41 — they stay attributed |
 | «Действие: Изменение» does not list sales and payments that only settled a document | Contract: without «Что», a settlement update is not an edit |
+| A product's card has no «Розничная цена», and «Минимальный остаток» / «Штук в упаковке» at 0 read «—» (a new product without them shows no such rows) | `retailPrice` is a legacy column no screen shows or edits; 0 means «not set» there, as on the product page |
+| On a phone the row stacks: time, then actor and sentence, then the amount | The sentence keeps the card's width instead of wrapping word by word |
 | «История» of a product, partner, wallet, warehouse or employee created before 2026-10-04 reads «Изменений пока нет» | Master data has been audited only since 2026-10-04; a record's history lists changes to the record itself, not the documents that use it |
 
 ## Happy path
