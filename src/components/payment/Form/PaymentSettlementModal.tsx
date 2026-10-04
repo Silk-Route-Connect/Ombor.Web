@@ -229,11 +229,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 												{formatOptionalNumber(r.number, t("common.noNumber"))}
 											</Box>{" "}
 											<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
-												{t(
-													r.type === "Sale"
-														? "payment.settlement.sale"
-														: "payment.settlement.supply",
-												)}
+												{t(`common.movementKind.${r.type}`)}
 											</Box>
 										</Box>
 										<Box component="td" sx={{ ...cellSx, textAlign: "right", ...numericSx }}>

@@ -202,8 +202,8 @@ export type OutstandingTransaction = {
 	id: number;
 	/** ISO date string. */
 	date: string;
-	/** «Продажа» / «Поставка» (the transaction type, localized server-side label key). */
-	type: "Sale" | "Supply";
+	/** The document type — refunds included (an unpaid refund is owed too). */
+	type: TransactionType;
 	total: number;
 	paid: number;
 	remaining: number;

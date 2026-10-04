@@ -172,8 +172,6 @@
   "payment.settlement.paid": "Оплачено",
   "payment.settlement.remaining": "Остаток",
   "payment.settlement.allocate": "Закрыть",
-  "payment.settlement.sale": "Продажа",
-  "payment.settlement.supply": "Поставка",
   "payment.settlement.toDistribute": "Сумма платежа",
   "payment.settlement.distributed": "Закрыто долгов",
   "payment.settlement.toAdvance": "В аванс",
