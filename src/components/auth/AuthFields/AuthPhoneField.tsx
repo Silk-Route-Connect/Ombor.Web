@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { numericSx } from "theme";
 import { formatUzNational, UZ_COUNTRY_PREFIX, uzNationalPart } from "utils/phoneUtils";
@@ -28,8 +28,9 @@ export const AuthPhoneField: React.FC<AuthPhoneFieldProps> = ({
 	onEnter,
 }) => {
 	const { t } = useTranslation();
+	const inputId = useId();
 	return (
-		<FieldShell label={label} error={error}>
+		<FieldShell label={label} inputId={inputId} error={error}>
 			<Box sx={shellSx(Boolean(error))}>
 				<Box sx={leadingIconSx}>
 					<PhoneOutlinedIcon sx={{ fontSize: 18 }} />
@@ -41,6 +42,7 @@ export const AuthPhoneField: React.FC<AuthPhoneFieldProps> = ({
 					{UZ_COUNTRY_PREFIX}
 				</Box>
 				<InputBase
+					id={inputId}
 					inputMode="tel"
 					autoComplete="tel"
 					autoFocus={autoFocus}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
 
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -32,13 +32,15 @@ export const AuthPasswordField: React.FC<AuthPasswordFieldProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const [show, setShow] = React.useState(false);
+	const inputId = useId();
 	return (
-		<FieldShell label={label} error={error}>
+		<FieldShell label={label} inputId={inputId} error={error}>
 			<Box sx={shellSx(Boolean(error))}>
 				<Box sx={leadingIconSx}>
 					<LockOutlinedIcon sx={{ fontSize: 18 }} />
 				</Box>
 				<InputBase
+					id={inputId}
 					type={show ? "text" : "password"}
 					value={value}
 					placeholder={placeholder ?? t("auth.field.passwordPlaceholder")}

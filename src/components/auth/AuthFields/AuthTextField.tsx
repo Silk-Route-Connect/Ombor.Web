@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 import { Box, InputBase } from "@mui/material";
 
@@ -31,24 +31,28 @@ export const AuthTextField: React.FC<AuthTextFieldProps> = ({
 	autoFocus,
 	autoComplete,
 	onEnter,
-}) => (
-	<FieldShell label={label} optional={optional} error={error}>
-		<Box sx={shellSx(Boolean(error))}>
-			{icon && <Box sx={leadingIconSx}>{icon}</Box>}
-			<InputBase
-				type={type}
-				value={value}
-				placeholder={placeholder}
-				autoFocus={autoFocus}
-				autoComplete={autoComplete}
-				onChange={(e) => onChange(e.target.value)}
-				onKeyDown={(e) => {
-					if (e.key === "Enter" && onEnter) onEnter();
-				}}
-				sx={inputSx}
-			/>
-		</Box>
-	</FieldShell>
-);
+}) => {
+	const inputId = useId();
+	return (
+		<FieldShell label={label} inputId={inputId} optional={optional} error={error}>
+			<Box sx={shellSx(Boolean(error))}>
+				{icon && <Box sx={leadingIconSx}>{icon}</Box>}
+				<InputBase
+					id={inputId}
+					type={type}
+					value={value}
+					placeholder={placeholder}
+					autoFocus={autoFocus}
+					autoComplete={autoComplete}
+					onChange={(e) => onChange(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" && onEnter) onEnter();
+					}}
+					sx={inputSx}
+				/>
+			</Box>
+		</FieldShell>
+	);
+};
 
 export default AuthTextField;

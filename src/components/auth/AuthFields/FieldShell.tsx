@@ -24,15 +24,23 @@ export const FieldError: React.FC<{ message: string }> = ({ message }) => (
 
 interface FieldShellProps {
 	label: string;
+	/** The input's id: the label names it and a click on the label focuses it. */
+	inputId: string;
 	optional?: string;
 	error?: string;
 	children: React.ReactNode;
 }
 
 /** Label (with an optional «— необязательно» note) above the input, error below. */
-export const FieldShell: React.FC<FieldShellProps> = ({ label, optional, error, children }) => (
+export const FieldShell: React.FC<FieldShellProps> = ({
+	label,
+	inputId,
+	optional,
+	error,
+	children,
+}) => (
 	<Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-		<Typography component="span" sx={labelSx}>
+		<Typography component="label" htmlFor={inputId} sx={labelSx}>
 			{label}
 			{optional && (
 				<Box component="span" sx={{ color: "text.disabled", fontWeight: 500 }}>
