@@ -19,6 +19,8 @@ export interface QtyStepperProps {
 	onEnter?: () => void;
 	/** Accessible name where no label above names the field. */
 	ariaLabel?: string;
+	/** Only while the form's save is in flight — never to gate a value (hard rule 5). */
+	disabled?: boolean;
 	sx?: SxProps<Theme>;
 }
 
@@ -54,6 +56,7 @@ export const QtyStepper: React.FC<QtyStepperProps> = ({
 	inputRef,
 	onEnter,
 	ariaLabel,
+	disabled = false,
 	sx,
 }) => {
 	const { t } = useTranslation();
@@ -120,6 +123,7 @@ export const QtyStepper: React.FC<QtyStepperProps> = ({
 				inputRef={inputRef}
 				value={text ?? String(value)}
 				error={invalid}
+				disabled={disabled}
 				onChange={(e) => handleChange(e.target.value)}
 				onFocus={(e) => e.target.select()}
 				onBlur={() => {
@@ -137,6 +141,7 @@ export const QtyStepper: React.FC<QtyStepperProps> = ({
 					<IconButton
 						size="small"
 						aria-label={t("common.quantity.decrease")}
+						disabled={disabled}
 						onClick={() => step(-1)}
 						// The «не меньше» note answers this press; leaving the button retires it,
 						// as leaving the field does.
@@ -150,6 +155,7 @@ export const QtyStepper: React.FC<QtyStepperProps> = ({
 					<IconButton
 						size="small"
 						aria-label={t("common.quantity.increase")}
+						disabled={disabled}
 						onClick={() => step(1)}
 						sx={stepButtonSx}
 					>
