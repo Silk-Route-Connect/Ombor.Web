@@ -54,6 +54,7 @@
   "debt.position.settled": "закрыто авансом",
   "debt.position.partnerAdvance": "с учётом аванса партнёра {{amount}}",
   "debt.position.companyAdvance": "с учётом нашего аванса {{amount}}",
+  "debt.position.advances": "с учётом авансов",
 
   "debt.txTable.document": "№",
   "debt.txTable.date": "Дата",

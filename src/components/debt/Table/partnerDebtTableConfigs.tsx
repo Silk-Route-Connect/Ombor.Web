@@ -5,6 +5,7 @@ import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import ActionMenu from "components/shared/ActionMenuCell/MenuActionCell";
 import StatusPill from "components/shared/Chip/StatusPill";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import NoValue from "components/shared/Table/cells/NoValue";
@@ -43,21 +44,33 @@ function positionNotes(p: DebtPartnerRow, t: TFunction): string[] {
 	return notes;
 }
 
+/**
+ * The amount over one muted note — a row never grows past two lines (a 52px
+ * row). Two advances fold into «с учётом авансов» with both named in its «i».
+ */
 const AmountCell: React.FC<{ row: DebtPartnerRow; t: TFunction }> = ({ row, t }) => {
 	const tone =
 		row.direction === "Receivable" ? "income" : row.direction === "Payable" ? "expense" : "ink";
+	const notes = positionNotes(row, t);
 	return (
 		<Box sx={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-end" }}>
 			<MoneyCell value={row.amount} main tone={tone} />
-			{positionNotes(row, t).map((note) => (
+			{notes.length > 0 && (
 				<Box
-					key={note}
 					component="span"
-					sx={{ fontSize: 12, color: "text.secondary", whiteSpace: "nowrap" }}
+					sx={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 0.5,
+						typography: "caption",
+						color: "text.secondary",
+						whiteSpace: "nowrap",
+					}}
 				>
-					{note}
+					{notes.length === 1 ? notes[0] : t("debt.position.advances")}
+					{notes.length > 1 && <InfoHint text={notes.join(" · ")} />}
 				</Box>
-			))}
+			)}
 		</Box>
 	);
 };

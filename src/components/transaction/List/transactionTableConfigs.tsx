@@ -38,9 +38,13 @@ export const transactionTypeLabel = (t: TFunction, tx: TransactionRecord): strin
 			: `transaction.badge.base.${directionOf(tx.type)}`,
 	);
 
-// The fixed № column is narrower than «Возвращено полностью» on one line, so the
-// notes wrap inside the cell instead of running into the date column.
-const numberNoteSx = { fontSize: 12, lineHeight: 1.35, color: "text.secondary" } as const;
+// One 12px note line under the № — the column is sized so «Возвращено полностью»
+// fits on it, keeping the row at two lines (a 52px row).
+const numberNoteSx = {
+	typography: "caption",
+	color: "text.secondary",
+	whiteSpace: "nowrap",
+} as const;
 
 export interface TransactionRowHandlers {
 	/** Nothing is left to refund — the row says «Возвращено полностью» and offers no refund. */
@@ -62,8 +66,9 @@ export function buildTransactionColumns(
 		{
 			key: "number",
 			headerName: t("transaction.col.number"),
-			// Wider than a plain № — a refund carries «Возврат к №…» under its number.
-			width: 140,
+			// Wider than a plain № — a refund carries «Возврат к №…» under its number,
+			// a returned sale «Возвращено полностью»; the list still fits 1366px.
+			width: 168,
 			sortValue: (tx) => entityNumberSortValue(transactionDisplayNumber(tx)),
 			renderCell: (tx) => (
 				<Box>

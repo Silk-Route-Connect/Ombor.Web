@@ -46,12 +46,12 @@ export const ACTIONS_COLUMN_WIDTH = 56;
  */
 export const COLUMN_WIDTH = {
 	number: 104,
-	dateTime: 152,
+	dateTime: 140, // «05.10.2026 17:24» in proportional figures + padding
 	chip: 152,
 	direction: 136,
 	money: 152,
 	quantity: 112,
-	count: 108,
+	count: 100,
 	author: 168,
 } as const;
 
