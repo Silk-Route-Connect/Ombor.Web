@@ -1,9 +1,18 @@
-import { Loadable } from "helpers/Loading";
+import {
+	isLoadError,
+	isPresent,
+	isReady,
+	Loadable,
+	LoadError,
+	toDetailLoadable,
+	toLoadable,
+} from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { TransactionRecord } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
+import { isFullyRefunded } from "utils/refundUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -14,6 +23,10 @@ export interface ISelectedTransactionStore {
 	refundsOfCurrent: TransactionRecord[];
 	/** The original transaction a refund references (refund detail). */
 	originalOfCurrent: TransactionRecord | null;
+	/** Set when the collection behind the refund relationships failed to load. */
+	relationsError: LoadError | null;
+	/** Every line of the open sale / supply already went back — nothing is left to refund. */
+	isFullyRefunded: boolean;
 
 	load(id: number): Promise<void>;
 	clear(): void;
@@ -29,6 +42,7 @@ export interface ISelectedTransactionStore {
  */
 export class SelectedTransactionStore implements ISelectedTransactionStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	/** The open transaction, from the rich detail endpoint. */
 	private detail: Loadable<TransactionRecord | null> = "loading";
@@ -46,7 +60,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 	}
 
 	get refundsOfCurrent(): TransactionRecord[] {
-		if (this.all === "loading" || this.currentId === null) {
+		if (!isReady(this.all) || this.currentId === null) {
 			return [];
 		}
 		return this.all.filter((t) => t.originalTransactionId === this.currentId);
@@ -54,13 +68,27 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 
 	get originalOfCurrent(): TransactionRecord | null {
 		const current = this.detail;
-		if (current === "loading" || !current?.originalTransactionId || this.all === "loading") {
+		if (!isReady(current) || !current?.originalTransactionId || !isReady(this.all)) {
 			return null;
 		}
 		return this.all.find((t) => t.id === current.originalTransactionId) ?? null;
 	}
 
+	/** False while the refund relationships are unknown (loading or failed) — the backend still caps a refund. */
+	get isFullyRefunded(): boolean {
+		return (
+			isPresent(this.detail) &&
+			isReady(this.all) &&
+			isFullyRefunded(this.detail, this.refundsOfCurrent)
+		);
+	}
+
+	get relationsError(): LoadError | null {
+		return isLoadError(this.all) ? this.all : null;
+	}
+
 	async load(id: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		runInAction(() => {
 			this.currentId = id;
 			this.detail = "loading";
@@ -71,18 +99,22 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 			tryRun(() => TransactionApi.getById(id)),
 			tryRun(() => TransactionApi.getAll()),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		if (detailResult.status === "fail") {
-			this.notificationStore.error(i18next.t("transactions.errors.getById"));
+			this.notificationStore.notifyLoadError(detailResult, "transactions.errors.getById");
 		}
 
 		runInAction(() => {
-			this.detail = detailResult.status === "success" ? detailResult.data : null;
-			this.all = allResult.status === "success" ? allResult.data : [];
+			this.detail = toDetailLoadable(detailResult);
+			this.all = toLoadable(allResult);
 		});
 	}
 
 	clear(): void {
+		this.loads.invalidate();
 		this.detail = "loading";
 		this.all = "loading";
 		this.currentId = null;

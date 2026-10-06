@@ -1,14 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { detailTableSx } from "components/product/Detail/detailTableSx";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { CopyableCell } from "components/shared/Table/CopyableCell";
-import { Transfer, transferUnits } from "models/transfer";
-import { designTokens, numericSx } from "theme";
+import TransferLinesTable from "components/transfer/Detail/TransferLinesTable";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import { Transfer } from "models/transfer";
+import { designTokens, dialogPaperSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
-import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
@@ -20,11 +18,12 @@ interface TransferDetailModalProps {
 	onClose: () => void;
 }
 
-const RouteNode: React.FC<{ label: string; name: string; align?: "left" | "right" }> = ({
-	label,
-	name,
-	align = "left",
-}) => (
+const RouteNode: React.FC<{
+	label: string;
+	id: number;
+	name: string;
+	align?: "left" | "right";
+}> = ({ label, id, name, align = "left" }) => (
 	<Box sx={{ flex: 1, minWidth: 0, textAlign: align }}>
 		<Typography sx={{ fontSize: 11.5, color: "text.secondary", mb: "4px" }}>{label}</Typography>
 		<Typography
@@ -38,7 +37,7 @@ const RouteNode: React.FC<{ label: string; name: string; align?: "left" | "right
 			}}
 		>
 			<WarehouseOutlinedIcon sx={{ fontSize: 17, color: "primary.main" }} />
-			{name}
+			<WarehouseLink id={id} name={name} />
 		</Typography>
 	</Box>
 );
@@ -60,7 +59,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 640, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("transfer.detail.title")}
@@ -70,7 +69,6 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 			/>
 
 			<DialogContent dividers sx={{ pt: 2 }}>
-				{/* from → to route */}
 				<Box
 					sx={{
 						display: "flex",
@@ -86,6 +84,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 				>
 					<RouteNode
 						label={t("transfer.detail.from")}
+						id={transfer.fromWarehouseId}
 						name={transfer.fromWarehouseName}
 						align="right"
 					/>
@@ -103,74 +102,14 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 					>
 						<ChevronRightIcon sx={{ fontSize: 20 }} />
 					</Box>
-					<RouteNode label={t("transfer.detail.to")} name={transfer.toWarehouseName} />
+					<RouteNode
+						label={t("transfer.detail.to")}
+						id={transfer.toWarehouseId}
+						name={transfer.toWarehouseName}
+					/>
 				</Box>
 
-				{/* lines */}
-				<Box
-					sx={{
-						border: "1px solid",
-						borderColor: "divider",
-						borderRadius: "8px",
-						overflow: "hidden",
-					}}
-				>
-					<Box component="table" sx={detailTableSx}>
-						<thead>
-							<tr>
-								<Box component="th">{t("transfer.table.product")}</Box>
-								<Box component="th">{t("transfer.table.sku")}</Box>
-								<Box component="th" className="r">
-									{t("transfer.table.quantity")}
-								</Box>
-								<Box component="th">{t("transfer.table.unit")}</Box>
-							</tr>
-						</thead>
-						<tbody>
-							{transfer.lines.map((line) => (
-								<tr key={line.productId}>
-									<td>
-										<Box component="span" sx={{ fontWeight: 600 }}>
-											{line.productName}
-										</Box>
-									</td>
-									<td>
-										<CopyableCell
-											value={line.sku}
-											sx={{ ...numericSx, fontSize: 12, color: "text.disabled" }}
-										>
-											{line.sku}
-										</CopyableCell>
-									</td>
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx }}>
-											{formatQuantity(line.quantity)}
-										</Box>
-									</td>
-									<td>
-										<Box component="span" sx={{ color: "text.secondary" }}>
-											{MEASUREMENT_SHORT[line.measurement]}
-										</Box>
-									</td>
-								</tr>
-							))}
-							<tr className="total">
-								<td>{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}</td>
-								<td />
-								<td className="r">
-									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-										{formatQuantity(transferUnits(transfer))}
-									</Box>
-								</td>
-								<td>
-									<Box component="span" sx={{ color: "text.secondary" }}>
-										{t("transfer.unitFallback")}
-									</Box>
-								</td>
-							</tr>
-						</tbody>
-					</Box>
-				</Box>
+				<TransferLinesTable transfer={transfer} />
 
 				{transfer.note && (
 					<Box

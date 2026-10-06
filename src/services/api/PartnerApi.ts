@@ -8,11 +8,9 @@ import BaseApi from "./BaseApi";
 import http from "./http";
 
 /**
- * Partners API over the target v1 contract (`/api/partners`). The resource is
- * fully mocked (docs/mocking.md) — the live backend has no server-computed
- * balance, no opening-balance event, no archive/restore, and no ledger, all of
- * which this designed module needs (tech-change-list: not started). List ops are
- * client-side, so the collection endpoint takes no query params.
+ * Partners API (`/api/partners`): server-computed balances, opening balance,
+ * archive/restore and the running-balance ledger. List ops are client-side, so
+ * the collection endpoint takes no query params.
  */
 class PartnerApi extends BaseApi {
 	constructor() {
@@ -68,7 +66,7 @@ class PartnerApi extends BaseApi {
 		await http.post(`${this.getUrlWithId(id)}/restore`);
 	}
 
-	/** Hard-delete — allowed by the mock only when the partner is unreferenced (409 otherwise). */
+	/** Hard-delete — allowed only while the partner is unreferenced (409 `entity.referenced` otherwise). */
 	async delete(id: number): Promise<void> {
 		await http.delete(this.getUrlWithId(id));
 	}

@@ -3,17 +3,25 @@ import { EmployeeStore, IEmployeeStore } from "stores/EmployeeStore";
 import { IPayrollStore, PayrollStore } from "stores/PayrollStore";
 import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEmployeeStore";
 
+import { ActivityLogStore, IActivityLogStore } from "./ActivityLogStore";
+import { AlertStore, IAlertStore } from "./AlertStore";
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
 import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
+import { DebtReminderStore, IDebtReminderStore } from "./DebtReminderStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
+import { EntityHistoryStore, IEntityHistoryStore } from "./EntityHistoryStore";
+import { IInvoicePrintStore, InvoicePrintStore } from "./InvoicePrintStore";
+import { IMovementSourceStore, MovementSourceStore } from "./MovementSourceStore";
 import { NotificationStore } from "./NotificationStore";
+import { IOnboardingStore, OnboardingStore } from "./OnboardingStore";
 import { OrderStore } from "./OrderStore";
 import { IPartnerLedgerStore, PartnerLedgerStore } from "./PartnerLedgerStore";
 import { IPartnerStore, PartnerStore } from "./PartnerStore";
 import { IPaymentStore, PaymentStore } from "./PaymentStore";
 import ProductStore, { IProductStore } from "./ProductStore";
-import { ISaleStore, SaleStore } from "./SaleStore";
+import { IReportStore, ReportStore } from "./ReportStore";
+import { ISearchStore, SearchStore } from "./SearchStore";
 import { ISelectedPaymentStore, SelectedPaymentStore } from "./SelectedPaymentStore";
 import { ISelectedProductStore, SelectedProductStore } from "./SelectedProductStore";
 import { ISelectedTransactionStore, SelectedTransactionStore } from "./SelectedTransactionStore";
@@ -27,42 +35,68 @@ import { ITransferStore, TransferStore } from "./TransferStore";
 import { IWalletStore, WalletStore } from "./WalletStore";
 import { IWarehouseStore, WarehouseStore } from "./WarehouseStore";
 
+/**
+ * Composes every store. Notification, auth and connectivity live for the whole
+ * tab; everything holding business data is per-session and rebuilt by `reset()`
+ * on logout, so the next sign-in in the same tab never sees the previous
+ * user's or business's data (frontend-4).
+ */
 export class RootStore {
 	notificationStore: NotificationStore;
-	categoryStore: ICategoryStore;
-	productStore: IProductStore;
-	partnerStore: IPartnerStore;
-	partnerLedgerStore: IPartnerLedgerStore;
-	saleStore: ISaleStore;
-	templateStore: TemplateStore;
-	transactionStore: ITransactionStore;
-	selectedTransactionStore: ISelectedTransactionStore;
-	selectedProductStore: ISelectedProductStore;
-	paymentStore: IPaymentStore;
-	selectedPaymentStore: ISelectedPaymentStore;
-	warehouseStore: IWarehouseStore;
-	selectedWarehouseStore: ISelectedWarehouseStore;
-	stockAdjustmentStore: IStockAdjustmentStore;
-	transferStore: ITransferStore;
-	orderStore: OrderStore;
+	categoryStore!: ICategoryStore;
+	productStore!: IProductStore;
+	partnerStore!: IPartnerStore;
+	partnerLedgerStore!: IPartnerLedgerStore;
+	templateStore!: TemplateStore;
+	transactionStore!: ITransactionStore;
+	selectedTransactionStore!: ISelectedTransactionStore;
+	selectedProductStore!: ISelectedProductStore;
+	paymentStore!: IPaymentStore;
+	selectedPaymentStore!: ISelectedPaymentStore;
+	warehouseStore!: IWarehouseStore;
+	selectedWarehouseStore!: ISelectedWarehouseStore;
+	stockAdjustmentStore!: IStockAdjustmentStore;
+	transferStore!: ITransferStore;
+	movementSourceStore!: IMovementSourceStore;
+	orderStore!: OrderStore;
 	authStore: AuthStore;
-	employeeStore: IEmployeeStore;
-	selectedEmployeeStore: ISelectedEmployeeStore;
-	payrollStore: IPayrollStore;
-	walletStore: IWalletStore;
-	selectedWalletStore: ISelectedWalletStore;
-	debtStore: IDebtStore;
-	dashboardStore: IDashboardStore;
-	settingsStore: ISettingsStore;
+	employeeStore!: IEmployeeStore;
+	selectedEmployeeStore!: ISelectedEmployeeStore;
+	payrollStore!: IPayrollStore;
+	walletStore!: IWalletStore;
+	selectedWalletStore!: ISelectedWalletStore;
+	debtStore!: IDebtStore;
+	dashboardStore!: IDashboardStore;
+	onboardingStore!: IOnboardingStore;
+	settingsStore!: ISettingsStore;
+	activityLogStore!: IActivityLogStore;
+	reportStore!: IReportStore;
+	entityHistoryStore!: IEntityHistoryStore;
+	invoicePrintStore!: IInvoicePrintStore;
+	debtReminderStore!: IDebtReminderStore;
+	searchStore!: ISearchStore;
+	alertStore!: IAlertStore;
 	connectivityStore: IConnectivityStore;
 
 	constructor() {
 		this.notificationStore = new NotificationStore();
+		this.authStore = new AuthStore();
+		// Registers the ConnectivityBridge reporters used by the http error
+		// interceptor — construct it so the wiring exists before any request.
+		this.connectivityStore = new ConnectivityStore(this.notificationStore);
+		this.createDataStores();
+	}
+
+	/** Drops every per-session store (logout) — see the class note. */
+	reset(): void {
+		this.createDataStores();
+	}
+
+	private createDataStores(): void {
 		this.categoryStore = new CategoryStore(this.notificationStore);
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
 		this.partnerLedgerStore = new PartnerLedgerStore(this.notificationStore);
-		this.saleStore = new SaleStore();
 		this.templateStore = new TemplateStore(this.notificationStore);
 		this.transactionStore = new TransactionStore(this.notificationStore);
 		this.selectedTransactionStore = new SelectedTransactionStore(this.notificationStore);
@@ -73,8 +107,8 @@ export class RootStore {
 		this.selectedWarehouseStore = new SelectedWarehouseStore(this.notificationStore);
 		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
 		this.transferStore = new TransferStore(this.notificationStore);
+		this.movementSourceStore = new MovementSourceStore(this.notificationStore);
 		this.orderStore = new OrderStore(this.notificationStore);
-		this.authStore = new AuthStore();
 		this.employeeStore = new EmployeeStore(this.notificationStore);
 		this.selectedEmployeeStore = new SelectedEmployeeStore(
 			this.employeeStore,
@@ -85,10 +119,15 @@ export class RootStore {
 		this.selectedWalletStore = new SelectedWalletStore(this.notificationStore);
 		this.debtStore = new DebtStore(this.notificationStore);
 		this.dashboardStore = new DashboardStore(this.notificationStore);
+		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
-		// Registers the ConnectivityBridge reporters used by the http error
-		// interceptor — construct it so the wiring exists before any request.
-		this.connectivityStore = new ConnectivityStore(this.notificationStore);
+		this.activityLogStore = new ActivityLogStore(this.notificationStore);
+		this.reportStore = new ReportStore(this.notificationStore);
+		this.entityHistoryStore = new EntityHistoryStore(this.notificationStore);
+		this.invoicePrintStore = new InvoicePrintStore(this.notificationStore);
+		this.debtReminderStore = new DebtReminderStore(this.settingsStore, this.notificationStore);
+		this.searchStore = new SearchStore();
+		this.alertStore = new AlertStore(this.authStore);
 	}
 }
 

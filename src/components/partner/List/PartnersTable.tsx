@@ -1,14 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 
-import AddIcon from "@mui/icons-material/Add";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import SearchIcon from "@mui/icons-material/Search";
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 
 interface PartnersTableProps {
 	rows: Loadable<Partner[]>;
@@ -20,63 +18,18 @@ interface PartnersTableProps {
 	showArchived: boolean;
 	onOpen: (partner: Partner) => void;
 	onCreate: () => void;
+	/** Re-runs the failed list load (the error state's «Повторить»). */
+	onRetry: () => void;
+	/** Error-state title, e.g. «Не удалось загрузить партнёров». */
+	errorTitle: string;
+	/** The page's `useTableOrder()` — its CSV export follows this table's sort. */
+	exportOrder?: TableOrder<Partner>;
 }
 
-const EmptyState: React.FC<{ variant: "empty" | "filtering"; onCreate: () => void }> = ({
-	variant,
-	onCreate,
-}) => {
-	const { t } = useTranslation();
-	const copy =
-		variant === "empty"
-			? { title: t("partner.empty.title"), body: t("partner.empty.body") }
-			: { title: t("partner.empty.searchTitle"), body: t("partner.empty.searchBody") };
-
-	return (
-		<Box sx={{ p: "56px 24px 60px", textAlign: "center" }}>
-			<Box
-				sx={{
-					width: 56,
-					height: 56,
-					borderRadius: "14px",
-					mx: "auto",
-					mb: 2,
-					display: "grid",
-					placeItems: "center",
-					bgcolor: "grey.50",
-					border: 1,
-					borderColor: "divider",
-					color: "text.disabled",
-				}}
-			>
-				{variant === "empty" ? (
-					<PeopleOutlineIcon sx={{ fontSize: 26 }} />
-				) : (
-					<SearchIcon sx={{ fontSize: 26 }} />
-				)}
-			</Box>
-			<Typography variant="h2" sx={{ mb: 0.75 }}>
-				{copy.title}
-			</Typography>
-			<Typography
-				variant="body2"
-				sx={{ color: "text.secondary", maxWidth: 360, mx: "auto", lineHeight: 1.6 }}
-			>
-				{copy.body}
-			</Typography>
-			{variant === "empty" && (
-				<Box sx={{ mt: 2.25 }}>
-					<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
-						{t("partner.list.create")}
-					</PrimaryButton>
-				</Box>
-			)}
-		</Box>
-	);
-};
-
-/** Partner list table: shared DataTable with pagination, plus first-run / filtered empty states. */
+/** Partner list table: shared DataTable with first-run / filtered empty states. */
 export const PartnersTable: React.FC<PartnersTableProps> = ({
+	onRetry,
+	errorTitle,
 	rows,
 	columns,
 	isFiltering,
@@ -84,35 +37,28 @@ export const PartnersTable: React.FC<PartnersTableProps> = ({
 	showArchived,
 	onOpen,
 	onCreate,
+	exportOrder,
 }) => {
-	if (rows === "loading") {
-		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (rows.length === 0) {
-		const variant = !isFiltering && !hasActive && !showArchived ? "empty" : "filtering";
-		return (
-			<Paper
-				elevation={1}
-				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-			>
-				<EmptyState variant={variant} onCreate={onCreate} />
-			</Paper>
-		);
-	}
+	const { t } = useTranslation();
+	const firstRun = !isFiltering && !hasActive && !showArchived;
 
 	return (
 		<DataTable<Partner>
+			exportOrder={exportOrder}
 			rows={rows}
 			columns={columns}
-			pagination
-			rowsPerPageOptions={[10, 25, 50]}
+			onRetry={onRetry}
+			errorTitle={errorTitle}
 			defaultSort={{ key: "name", order: "asc" }}
 			onRowClick={onOpen}
+			empty={
+				<TableEmptyState
+					icon={<PeopleOutlineIcon />}
+					title={firstRun ? t("partner.empty.title") : t("partner.empty.searchTitle")}
+					hint={firstRun ? t("partner.empty.body") : t("partner.empty.searchBody")}
+					action={firstRun ? { label: t("partner.list.create"), onClick: onCreate } : undefined}
+				/>
+			}
 		/>
 	);
 };

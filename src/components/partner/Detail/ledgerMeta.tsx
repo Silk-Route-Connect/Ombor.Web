@@ -1,50 +1,33 @@
 import React from "react";
+import { kindPresentation } from "components/shared/Chip/movementKind";
 import { PartnerLedgerEventType } from "models/partner";
-import { designTokens } from "theme";
+import { ChipTokenKey, chipTokens, radius } from "theme";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SaveAltOutlinedIcon from "@mui/icons-material/SaveAltOutlined";
-import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import UploadOutlinedIcon from "@mui/icons-material/UploadOutlined";
-import { alpha, Box, Theme, Typography, useTheme } from "@mui/material";
+import { Box, SvgIconProps, Typography } from "@mui/material";
 
-const ICONS: Record<PartnerLedgerEventType, React.ReactNode> = {
-	opening: <FlagOutlinedIcon sx={{ fontSize: 16 }} />,
-	sale: <ReceiptLongOutlinedIcon sx={{ fontSize: 16 }} />,
-	supply: <LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />,
-	"refund-sale": <UndoOutlinedIcon sx={{ fontSize: 16 }} />,
-	"refund-supply": <UndoOutlinedIcon sx={{ fontSize: 16 }} />,
-	payment: <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />,
-	deposit: <SaveAltOutlinedIcon sx={{ fontSize: 16 }} />,
-	withdraw: <UploadOutlinedIcon sx={{ fontSize: 16 }} />,
+/**
+ * Ledger event → tile colour + icon. Documents reuse the shared kind
+ * presentation (Sale teal, Supply saffron, refunds outlined); payment events
+ * follow the payment-type hues (Оплата teal, Аванс blue, Возврат аванса
+ * saffron); the opening balance is neutral. Never green/red — those mark money.
+ */
+const EVENT: Record<
+	PartnerLedgerEventType,
+	{ token: ChipTokenKey; icon: React.ComponentType<SvgIconProps> }
+> = {
+	sale: kindPresentation("Sale"),
+	supply: kindPresentation("Supply"),
+	"refund-sale": kindPresentation("SaleRefund"),
+	"refund-supply": kindPresentation("SupplyRefund"),
+	payment: { token: "teal", icon: AccountBalanceWalletOutlinedIcon },
+	deposit: { token: "info", icon: SaveAltOutlinedIcon },
+	withdraw: { token: "saffron", icon: UploadOutlinedIcon },
+	opening: { token: "neutral", icon: FlagOutlinedIcon },
 };
-
-/** Tile bg/color per the bundle's `.ev-ic` variants. */
-function tileStyle(type: PartnerLedgerEventType, theme: Theme): { bgcolor: string; color: string } {
-	switch (type) {
-		case "sale":
-			return {
-				bgcolor: alpha(theme.palette.success.main, 0.12),
-				color: theme.palette.success.main,
-			};
-		case "supply":
-			return { bgcolor: alpha(theme.palette.error.main, 0.12), color: theme.palette.error.main };
-		case "payment":
-		case "deposit":
-			return { bgcolor: theme.palette.primary.light, color: theme.palette.primary.main };
-		case "withdraw":
-			return { bgcolor: designTokens.accentSoft, color: designTokens.saffron700 };
-		case "refund-sale":
-		case "refund-supply":
-			return { bgcolor: designTokens.gray100, color: designTokens.gray600 };
-		case "opening":
-		default:
-			return { bgcolor: alpha(theme.palette.info.main, 0.12), color: theme.palette.info.main };
-	}
-}
 
 export const eventLabelKey = (type: PartnerLedgerEventType): string => `partner.event.${type}`;
 
@@ -53,21 +36,25 @@ export const EventCell: React.FC<{ type: PartnerLedgerEventType; label: string }
 	type,
 	label,
 }) => {
-	const theme = useTheme();
+	const { token, icon: Icon } = EVENT[type] ?? EVENT.opening;
+	const tk = chipTokens[token];
 	return (
 		<Box sx={{ display: "flex", alignItems: "center", gap: "11px" }}>
 			<Box
 				sx={{
 					width: 30,
 					height: 30,
-					borderRadius: "8px",
+					borderRadius: `${radius.md}px`,
 					display: "grid",
 					placeItems: "center",
 					flex: "0 0 auto",
-					...tileStyle(type, theme),
+					bgcolor: tk.bg,
+					color: tk.color,
+					border: "1px solid",
+					borderColor: tk.variant === "outline" ? tk.border : "transparent",
 				}}
 			>
-				{ICONS[type]}
+				<Icon sx={{ fontSize: 16 }} />
 			</Box>
 			<Typography component="span" sx={{ fontWeight: 600, fontSize: 14 }}>
 				{label}

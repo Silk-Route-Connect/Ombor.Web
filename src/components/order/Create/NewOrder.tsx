@@ -3,13 +3,16 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import OrderLineRow from "components/order/Create/OrderLineRow";
 import OrderSourcePicker from "components/order/Create/OrderSourcePicker";
+import BackButton from "components/shared/Buttons/BackButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
 import ProductSearchBar from "components/transaction/Create/ProductSearchBar";
 import { balancePresentation, initialsOf } from "components/transaction/Create/saleBalance";
 import WarehousePicker from "components/transaction/Create/WarehousePicker";
+import { readyOr } from "helpers/Loading";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
 import { observer } from "mobx-react-lite";
 import { CreateOrderRequest, OrderSource } from "models/order";
@@ -19,12 +22,13 @@ import { orderDetailPath, PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
 import { designTokens, numericSx } from "theme";
+import { addToCart } from "utils/cartUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { toApiDeliveryTime } from "utils/orderUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import CheckIcon from "@mui/icons-material/Check";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -32,8 +36,6 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Avatar, Box, ButtonBase, InputBase, Typography } from "@mui/material";
-
-const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
 /** Net discount amount of a cart line (percent of gross, or fixed capped at gross). */
 const lineDiscountOf = (it: CartItem): number => {
@@ -80,9 +82,9 @@ export const NewOrder: React.FC = observer(() => {
 		void warehouseStore.getAll();
 	}, [productStore, partnerStore, warehouseStore]);
 
-	const products = loaded(productStore.saleProducts);
-	const customers = loaded(partnerStore.customers);
-	const warehouses = loaded(warehouseStore.filteredWarehouses);
+	const products = readyOr(productStore.saleProducts, []);
+	const customers = readyOr(partnerStore.customers, []);
+	const warehouses = readyOr(warehouseStore.activeWarehouses, []);
 
 	// Seed the warehouse default once the list arrives (matches New Sale).
 	useEffect(() => {
@@ -97,22 +99,9 @@ export const NewOrder: React.FC = observer(() => {
 	const discTotal = items.reduce((s, l) => s + lineDiscountOf(l), 0);
 	const total = Math.max(0, subtotal - discTotal);
 
-	const addProduct = (product: Product) => {
-		setItems((its) =>
-			its.some((x) => x.product.id === product.id)
-				? its.map((x) => (x.product.id === product.id ? { ...x, quantity: x.quantity + 1 } : x))
-				: [
-						...its,
-						{
-							product,
-							quantity: 1,
-							unitPrice: product.salePrice,
-							discountValue: 0,
-							discountType: "Percentage",
-						},
-					],
-		);
-	};
+	// Order lines count in base units — a scanned package adds its size.
+	const addProduct = (product: Product, asPackage = false) =>
+		setItems((its) => addToCart(its, product, { unitPrice: product.salePrice, asPackage }));
 	const updateItem = (index: number, patch: Partial<CartItem>) =>
 		setItems((its) => its.map((it, i) => (i === index ? { ...it, ...patch } : it)));
 	const removeItem = (index: number) => setItems((its) => its.filter((_, i) => i !== index));
@@ -165,7 +154,7 @@ export const NewOrder: React.FC = observer(() => {
 			warehouseId,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
-			deliveryTime: deliveryTime || null,
+			deliveryTime: toApiDeliveryTime(deliveryTime),
 			notes: note.trim() || null,
 			lines: items.map((it) => ({
 				productId: it.product.id,
@@ -195,27 +184,8 @@ export const NewOrder: React.FC = observer(() => {
 				}}
 			>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "14px" }}>
-					<ButtonBase
-						onClick={tryLeave}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							bgcolor: "background.paper",
-							color: designTokens.gray600,
-							"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</ButtonBase>
-					<Typography
-						component="h1"
-						sx={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}
-					>
-						{t("order.new.title")}
-					</Typography>
+					<BackButton onClick={tryLeave} />
+					<Typography variant="h1">{t("order.new.title")}</Typography>
 				</Box>
 				<GhostButton onClick={tryLeave}>{t("order.new.cancel")}</GhostButton>
 			</Box>
@@ -316,10 +286,12 @@ export const NewOrder: React.FC = observer(() => {
 					<ProductSearchBar
 						direction="Sale"
 						products={products}
+						catalogue={readyOr(productStore.allProducts, [])}
 						warehouseId={warehouseId}
 						inCart={inCart}
 						inputRef={searchRef}
 						onAdd={addProduct}
+						onScan={addProduct}
 					/>
 
 					{/* cart */}
@@ -471,18 +443,13 @@ export const NewOrder: React.FC = observer(() => {
 									sx={{
 										...numericSx,
 										fontSize: 23,
-										fontWeight: 800,
+										fontWeight: 700,
 										color: tone.color,
 										lineHeight: 1.05,
 									}}
 								>
 									{formatCurrency(Math.abs(client.balance))}
-									<Box
-										component="span"
-										sx={{ fontSize: 13, fontWeight: 600, color: "text.disabled", ml: "6px" }}
-									>
-										UZS
-									</Box>
+									<UzsUnit />
 								</Typography>
 							</Box>
 						</Box>
@@ -535,18 +502,13 @@ export const NewOrder: React.FC = observer(() => {
 								sx={{
 									...numericSx,
 									fontSize: 22,
-									fontWeight: 800,
+									fontWeight: 700,
 									color: "primary.main",
 									letterSpacing: "-0.02em",
 								}}
 							>
 								{formatCurrency(total)}
-								<Box
-									component="span"
-									sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled", ml: "5px" }}
-								>
-									UZS
-								</Box>
+								<UzsUnit />
 							</Typography>
 						</Box>
 					</Box>

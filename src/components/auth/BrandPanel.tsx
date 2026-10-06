@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import OmborMark from "components/shared/brand/OmborMark";
+import { designTokens } from "theme";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
@@ -17,7 +18,7 @@ export const BrandLockup: React.FC<{ dark?: boolean }> = ({ dark }) => (
 				fontSize: 21,
 				fontWeight: 700,
 				letterSpacing: "-0.02em",
-				color: dark ? "text.primary" : "#fff",
+				color: dark ? "text.primary" : "common.white",
 			}}
 		>
 			Ombor
@@ -43,17 +44,16 @@ const BrandPanel: React.FC = () => {
 				flexDirection: "column",
 				p: "40px 38px",
 				bgcolor: "primary.main",
-				color: "#fff",
+				color: "common.white",
 				overflow: "hidden",
 				"&::before": {
 					content: '""',
 					position: "absolute",
 					inset: 0,
-					backgroundImage:
-						"linear-gradient(rgba(255,255,255,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.10) 1px, transparent 1px)",
+					backgroundImage: `linear-gradient(${designTokens.onDarkGrid} 1px, transparent 1px), linear-gradient(90deg, ${designTokens.onDarkGrid} 1px, transparent 1px)`,
 					backgroundSize: "26px 26px",
-					maskImage: "radial-gradient(ellipse 90% 70% at 28% 18%, #000 0%, transparent 78%)",
-					WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 28% 18%, #000 0%, transparent 78%)",
+					maskImage: "radial-gradient(ellipse 90% 70% at 28% 18%, black 0%, transparent 78%)",
+					WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 28% 18%, black 0%, transparent 78%)",
 					pointerEvents: "none",
 				},
 				"& > *": { position: "relative" },
@@ -94,7 +94,7 @@ const BrandPanel: React.FC = () => {
 							alignItems: "center",
 							gap: "12px",
 							fontSize: 14,
-							color: "rgba(255,255,255,.92)",
+							color: "common.white",
 						}}
 					>
 						<Box
@@ -103,10 +103,10 @@ const BrandPanel: React.FC = () => {
 								height: 30,
 								flex: "0 0 auto",
 								borderRadius: "8px",
-								bgcolor: "rgba(255,255,255,.13)",
+								bgcolor: designTokens.onDarkFill,
 								display: "grid",
 								placeItems: "center",
-								color: "#fff",
+								color: "common.white",
 							}}
 						>
 							<Icon sx={{ fontSize: 17 }} />
@@ -116,7 +116,7 @@ const BrandPanel: React.FC = () => {
 				))}
 			</Box>
 
-			<Typography sx={{ mt: "28px", fontSize: 12, color: "rgba(255,255,255,.62)" }}>
+			<Typography sx={{ mt: "28px", fontSize: 12, color: designTokens.onDarkMuted }}>
 				{t("auth.brand.foot")}
 			</Typography>
 		</Box>

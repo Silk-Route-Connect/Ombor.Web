@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Warehouse } from "models/warehouse";
-import { numericSx } from "theme";
+import { typeScale } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -38,10 +39,7 @@ const Kpi: React.FC<{
 		</Box>
 		<Typography
 			sx={{
-				...numericSx,
-				fontSize: 30,
-				fontWeight: 800,
-				letterSpacing: "-0.025em",
+				...typeScale.numStrong,
 				lineHeight: 1,
 				mt: "10px",
 				color: accent ? "primary.main" : "text.primary",
@@ -51,15 +49,6 @@ const Kpi: React.FC<{
 		</Typography>
 		<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "8px" }}>{sub}</Typography>
 	</Paper>
-);
-
-const Unit: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-	<Box
-		component="span"
-		sx={{ fontSize: 14, fontWeight: 600, color: "text.disabled", ml: "7px", letterSpacing: 0 }}
-	>
-		{children}
-	</Box>
 );
 
 /** Three summary KPI cards per the bundle: products, units, stock value (WAC). */
@@ -79,7 +68,7 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 				icon={<Inventory2OutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
 				caption={t("warehouse.kpi.products")}
 				value={formatQuantity(warehouse.productCount)}
-				sub={t("warehouse.kpi.productsSub")}
+				sub={t("warehouse.kpi.productsSub", { count: warehouse.productCount })}
 			/>
 			<Kpi
 				icon={<LayersOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />}
@@ -94,7 +83,7 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse }) => {
 				value={
 					<>
 						{formatCurrency(warehouse.stockValue)}
-						<Unit>UZS</Unit>
+						<UzsUnit />
 					</>
 				}
 				sub={t("warehouse.kpi.valueSub")}

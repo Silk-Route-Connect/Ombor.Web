@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
 import DetailCard from "components/shared/Detail/DetailCard";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { Order } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -56,12 +57,7 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 						}}
 					>
 						{formatCurrency(total)}
-						<Box
-							component="span"
-							sx={{ fontSize: 14, fontWeight: 600, color: "text.disabled", ml: "7px" }}
-						>
-							UZS
-						</Box>
+						<UzsUnit sx={{ fontSize: 14 }} />
 					</Typography>
 
 					<Box

@@ -41,7 +41,7 @@
   "template.field.partnerLower": "партнёр",
   "template.field.linesLower": "хотя бы одна позиция",
 
-  "template.form.subtitle": "Корзина товаров для партнёра — загружается в транзакцию одним нажатием",
+  "template.form.subtitle": "Корзина товаров для партнёра — загружается в продажу или поставку одним нажатием",
   "template.form.errorBanner": "Заполните обязательные поля: {{fields}}.",
   "template.form.namePlaceholder": "Напр. Еженедельная поставка Виктории",
   "template.form.productPlaceholder": "Добавить товар — поиск по названию или артикулу…",
@@ -93,7 +93,7 @@
   "template.validation.itemsRequired": "Добавьте хотя бы одну позицию",
   "template.validation.productIdInvalid": "Выберите товар",
   "template.validation.quantityInvalid": "Количество должно быть больше 0",
-  "template.validation.unitPriceInvalid": "Цена должна быть больше 0",
+  "template.validation.unitPriceInvalid": "Цена не может быть отрицательной",
   "template.validation.discountMin": "Скидка не может быть меньше 0%",
   "template.validation.discountMax": "Скидка не может быть больше 100%",
   "template.validation.duplicateProduct": "Товар уже добавлен в список"

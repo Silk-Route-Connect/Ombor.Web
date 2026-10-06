@@ -1,26 +1,28 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import NoValue from "components/shared/Table/cells/NoValue";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { PartnerLedgerEntry } from "models/partner";
-import { numericSx } from "theme";
-import { formatDate, formatDateTime } from "utils/dateUtils";
+import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
+import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { Box } from "@mui/material";
 
-import { bodyCellSx, EmptyRecords, headCellSx } from "./detailTable";
-import DetailTableCard from "./DetailTableCard";
-import FilterDropdown from "./FilterDropdown";
-import { DETAIL_ROWS_PER_PAGE_OPTIONS, useDetailTablePage } from "./ledgerHelpers";
+import { ledgerSourcePath } from "./ledgerHelpers";
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type TypeFilter = "all" | "payment" | "deposit" | "withdraw";
-type SortCol = "date" | "type" | "amount" | "wallet";
 
 interface PaymentsTabProps {
 	payments: PartnerLedgerEntry[];
@@ -28,12 +30,21 @@ interface PaymentsTabProps {
 	onOpen: (entry: PartnerLedgerEntry) => void;
 }
 
+/**
+ * A payment that lowers what the partner owes us is money in (green); one that
+ * raises it — we paid them — is money out (red). Amounts stay unsigned.
+ */
+const isIncome = (p: PartnerLedgerEntry) => p.delta < 0;
+
+/**
+ * The partner's payments in the canonical column order (conventions.md →
+ * Tables): № · Дата · Тип · Касса · Сумма.
+ */
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName, onOpen }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [type, setType] = useState<TypeFilter>("all");
 	const [search, setSearch] = useState("");
-	const [sortCol, setSortCol] = useState<SortCol>("date");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const filtered = useMemo(() => {
 		const ql = search.trim().toLowerCase();
@@ -54,52 +65,68 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				.toLowerCase();
 			return haystack.includes(ql);
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [payments, type, search, t]);
 
-	const sorted = useMemo(() => {
-		const accessor = (p: PartnerLedgerEntry): string | number => {
-			switch (sortCol) {
-				case "date":
-					return p.date;
-				case "type":
-					return t(eventLabelKey(p.type));
-				case "amount":
-					return Math.abs(p.delta);
-				case "wallet":
-					return p.walletName ?? "";
-				default:
-					return "";
-			}
-		};
-		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? s.reverse() : s;
-	}, [filtered, sortCol, sortDir, t]);
-
-	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${type}|${search}|${sortCol}|${sortDir}`,
+	const columns = useMemo<Column<PartnerLedgerEntry>[]>(
+		() => [
+			{
+				key: "number",
+				headerName: t("partner.pays.col.number"),
+				sortValue: (p) => entityNumberSortValue(p.reference),
+				renderCell: (p) => (
+					<DocNumberCell number={p.reference} to={ledgerSourcePath(p) ?? undefined} />
+				),
+			},
+			{
+				key: "date",
+				headerName: t("partner.pays.col.date"),
+				sortValue: (p) => Date.parse(p.date),
+				renderCell: (p) => <DateCell value={p.date} />,
+			},
+			{
+				key: "type",
+				headerName: t("partner.pays.col.type"),
+				sortValue: (p) => t(eventLabelKey(p.type)),
+				renderCell: (p) => <EventCell type={p.type} label={t(eventLabelKey(p.type))} />,
+			},
+			{
+				key: "wallet",
+				headerName: t("partner.pays.col.wallet"),
+				sortValue: (p) => p.walletName ?? "",
+				renderCell: (p) =>
+					p.walletId && p.walletName ? (
+						<WalletLink id={p.walletId} name={p.walletName} />
+					) : (
+						(p.walletName ?? <NoValue />)
+					),
+			},
+			{
+				key: "amount",
+				headerName: t("partner.pays.col.amount"),
+				align: "right",
+				sortValue: (p) => Math.abs(p.delta),
+				renderCell: (p) => (
+					<MoneyCell value={Math.abs(p.delta)} main tone={isIncome(p) ? "income" : "expense"} />
+				),
+			},
+		],
+		[t],
 	);
-	const rows = paginate(sorted);
-
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
-	};
 
 	const handleExport = () => {
 		exportToCsv<PartnerLedgerEntry>(
 			`partner_${partnerName}_payments_${csvDateStamp()}`,
 			[
+				{
+					header: t("partner.pays.col.number"),
+					value: (p) => formatOptionalNumber(p.reference, t("common.noNumber")),
+				},
 				{ header: t("partner.pays.col.date"), value: (p) => formatDate(p.date) },
 				{ header: t("partner.pays.col.type"), value: (p) => t(eventLabelKey(p.type)) },
 				{ header: t("partner.pays.col.wallet"), value: (p) => p.walletName ?? "" },
 				{ header: t("partner.pays.col.amount"), value: (p) => Math.abs(p.delta) },
 			],
-			filtered,
+			tableOrder.apply(filtered),
 		);
 	};
 
@@ -107,9 +134,9 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 		<DetailTableCard
 			search={{ value: search, onChange: setSearch, placeholder: t("partner.pays.search") }}
 			filters={
-				<FilterDropdown<TypeFilter>
+				<EntityFilterSelect<TypeFilter>
 					label={t("partner.pays.typeFilter")}
-					icon={<FilterListIcon sx={{ fontSize: 15 }} />}
+					icon={<FilterListIcon />}
 					value={type}
 					onChange={setType}
 					options={[
@@ -120,112 +147,23 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 					]}
 				/>
 			}
-			onExport={handleExport}
-			exportDisabled={filtered.length === 0}
-			pagination={{
-				count: filtered.length,
-				page,
-				rowsPerPage,
-				rowsPerPageOptions: DETAIL_ROWS_PER_PAGE_OPTIONS,
-				onPageChange: setPage,
-				onRowsPerPageChange: changeRowsPerPage,
-			}}
+			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}
 		>
-			{rows.length === 0 ? (
-				<EmptyRecords
-					icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 22 }} />}
-					title={t("partner.pays.empty.title")}
-					body={t("partner.pays.empty.body")}
-				/>
-			) : (
-				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-					<thead>
-						<tr>
-							<DetailSortHeader
-								col="date"
-								label={t("partner.pays.col.date")}
-								active={sortCol === "date"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="type"
-								label={t("partner.pays.col.type")}
-								active={sortCol === "type"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="wallet"
-								label={t("partner.pays.col.wallet")}
-								active={sortCol === "wallet"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="amount"
-								label={t("partner.pays.col.amount")}
-								active={sortCol === "amount"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-								sx={{ ...headCellSx, textAlign: "right" }}
-							/>
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((p) => (
-							<Box
-								component="tr"
-								key={p.id}
-								onClick={() => onOpen(p)}
-								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
-							>
-								<Box
-									component="td"
-									sx={{
-										...bodyCellSx,
-										...numericSx,
-										color: "text.secondary",
-										whiteSpace: "nowrap",
-									}}
-								>
-									{formatDateTime(p.date)}
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
-									<EventCell type={p.type} label={t(eventLabelKey(p.type))} />
-								</Box>
-								<Box component="td" sx={{ ...bodyCellSx, fontSize: 13, color: "text.primary" }}>
-									{p.walletId && p.walletName ? (
-										<WalletLink id={p.walletId} name={p.walletName} />
-									) : (
-										(p.walletName ?? (
-											<Box component="span" sx={{ color: "text.secondary" }}>
-												{t("common.dash")}
-											</Box>
-										))
-									)}
-								</Box>
-								<Box
-									component="td"
-									sx={{
-										...bodyCellSx,
-										textAlign: "right",
-										...numericSx,
-										fontWeight: 600,
-										color: partnerBalanceColor(p.delta),
-									}}
-								>
-									{formatPartnerBalance(p.delta)}
-								</Box>
-							</Box>
-						))}
-					</tbody>
-				</Box>
-			)}
+			<DetailTable<PartnerLedgerEntry>
+				exportOrder={tableOrder}
+				rows={filtered}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				onRowClick={onOpen}
+				empty={
+					<TableEmptyState
+						icon={<AccountBalanceWalletOutlinedIcon />}
+						title={t("partner.pays.empty.title")}
+						hint={t("partner.pays.empty.body")}
+					/>
+				}
+			/>
 		</DetailTableCard>
 	);
 };

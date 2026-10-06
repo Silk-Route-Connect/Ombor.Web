@@ -3,16 +3,19 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import PaymentSettlementModal from "components/payment/Form/PaymentSettlementModal";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
+import BackButton from "components/shared/Buttons/BackButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import CartLineRow from "components/transaction/Create/CartLineRow";
 import KeyboardHints from "components/transaction/Create/KeyboardHints";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
+import PosProductCreate from "components/transaction/Create/PosProductCreate";
 import ProductSearchBar from "components/transaction/Create/ProductSearchBar";
 import SaveTemplateModal from "components/transaction/Create/SaveTemplateModal";
 import TemplateLoadMenu from "components/transaction/Create/TemplateLoadMenu";
 import TransactionSummaryCard from "components/transaction/Create/TransactionSummaryCard";
 import WarehousePicker from "components/transaction/Create/WarehousePicker";
+import { readyOr } from "helpers/Loading";
 import { CartItem, useTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { observer } from "mobx-react-lite";
 import { SettlementInput } from "models/payment";
@@ -26,7 +29,6 @@ import { formatCurrency } from "utils/formatCurrency";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -34,8 +36,6 @@ import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, Button, ButtonBase, InputBase, Typography } from "@mui/material";
-
-const loaded = <T,>(value: T[] | "loading"): T[] => (value === "loading" ? [] : value);
 
 type DialogKind = "none" | "unsaved" | "noPay" | "settle" | "saveTemplate";
 
@@ -74,6 +74,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 	const [bulkApplied, setBulkApplied] = useState(0);
 	/** Product id whose just-added line should grab + select its quantity field. */
 	const [focusQtyId, setFocusQtyId] = useState<number | null>(null);
+	/** What was typed in the search when «Создать товар» opened the product form. */
+	const [creatingProduct, setCreatingProduct] = useState<string | null>(null);
 	/** Analytics: a template was loaded into this entry (see sale/supply_created). */
 	const [fromTemplate, setFromTemplate] = useState(false);
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -90,11 +92,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		void templateStore.getAll();
 	}, [productStore, partnerStore, warehouseStore, walletStore, templateStore]);
 
-	const products = loaded(isSale ? productStore.saleProducts : productStore.supplyProducts);
-	const partners = loaded(isSale ? partnerStore.customers : partnerStore.suppliers);
-	const warehouses = loaded(warehouseStore.filteredWarehouses);
-	const wallets = loaded(walletStore.filteredWallets);
-	const allTemplates = loaded(templateStore.allTemplates);
+	const products = readyOr(isSale ? productStore.saleProducts : productStore.supplyProducts, []);
+	const partners = readyOr(isSale ? partnerStore.customers : partnerStore.suppliers, []);
+	const warehouses = readyOr(warehouseStore.activeWarehouses, []);
+	const wallets = readyOr(walletStore.activeWallets, []);
+	const allTemplates = readyOr(templateStore.allTemplates, []);
 
 	// Hard-block a Supply tender that exceeds the paying wallet's balance. A Sale
 	// is money-in and its change is self-covered, so only Supply outflows are guarded.
@@ -263,8 +265,9 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		entry.setSettleAlloc(settlements);
 		setDialog("none");
 		const distributed = settlements.reduce((s, a) => s + a.amount, 0);
-		notificationStore.success(
-			t("transaction.new.settled", { amount: formatCurrency(distributed) }),
+		// Nothing is saved yet — the split rides along with the sale / supply.
+		notificationStore.info(
+			t(`transaction.new.settled.${direction}`, { amount: formatCurrency(distributed) }),
 		);
 	};
 
@@ -289,6 +292,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 		const focus = (selector: string) =>
 			(document.querySelector(selector) as HTMLElement | null)?.focus();
 		const handler = (e: KeyboardEvent) => {
+			// Keys inside a modal (the product form opened from the search) belong to it —
+			// its Ctrl+Enter saves the product, never the sale underneath.
+			if ((e.target as HTMLElement | null)?.closest?.('[role="dialog"]')) {
+				return;
+			}
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
 				submitRef.current();
@@ -328,27 +336,8 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 				}}
 			>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "14px" }}>
-					<ButtonBase
-						onClick={tryLeave}
-						sx={{
-							width: 38,
-							height: 38,
-							borderRadius: "8px",
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							bgcolor: "background.paper",
-							color: designTokens.gray600,
-							"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-						}}
-					>
-						<ChevronLeftIcon sx={{ fontSize: 20 }} />
-					</ButtonBase>
-					<Typography
-						component="h1"
-						sx={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}
-					>
-						{t(`transaction.new.title.${direction}`)}
-					</Typography>
+					<BackButton onClick={tryLeave} />
+					<Typography variant="h1">{t(`transaction.new.title.${direction}`)}</Typography>
 				</Box>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
 					<Button
@@ -414,6 +403,11 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 									{t(`transaction.new.partner.required.${direction}`)}
 								</Box>
 							)}
+							{direction === "Sale" && !entry.partner && !triedNoPartner && (
+								<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.4 }}>
+									{t("transaction.new.partner.walkInHint")}
+								</Typography>
+							)}
 						</Box>
 						<Box
 							data-ns="warehouse"
@@ -432,10 +426,24 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 					<ProductSearchBar
 						direction={direction}
 						products={products}
+						catalogue={readyOr(productStore.allProducts, [])}
 						warehouseId={entry.warehouseId}
 						inCart={entry.inCart}
 						inputRef={searchRef}
 						onAdd={handleAddProduct}
+						onScan={entry.addProduct}
+						onCreateProduct={setCreatingProduct}
+					/>
+					<PosProductCreate
+						typed={creatingProduct}
+						onClose={() => setCreatingProduct(null)}
+						onCreated={(product) => {
+							setCreatingProduct(null);
+							// A product of the other trade type can't join this cart.
+							if (product.type === "All" || product.type === direction) {
+								handleAddProduct(product);
+							}
+						}}
 					/>
 
 					<KeyboardHints direction={direction} />
@@ -730,6 +738,7 @@ export const NewTransactionEntry: React.FC<NewTransactionEntryProps> = observer(
 					amount={entry.overExcess}
 					walletName={walletName}
 					direction={isSale ? "Income" : "Expense"}
+					mode="apply"
 					outstanding={entry.outstanding}
 					onBack={() => setDialog("none")}
 					onConfirm={confirmSettlement}

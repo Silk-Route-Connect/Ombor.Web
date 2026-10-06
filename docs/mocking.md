@@ -1,9 +1,9 @@
 # Mocking policy — MSW, contract-first
 
 **Status:** frontend craft doc. Premise updated 2026-07-13 after the backend M0–M7 redesign completed (2026-06-22).
-**Last updated:** 2026-07-13
+**Last updated:** 2026-10-04
 
-The backend redesign (M0–M7) plus the 2026-07-05 contract-alignment pass closed the gap this policy was written for: **the app now runs on the real backend — `VITE_ENABLE_MOCKS=false` — and the `src/mocks/` handlers are dead code pending deletion** (several already diverge from the real contract; see `frontend-gaps.md`, «Found during recon» #4). This doc now governs two things: **re-enabling a targeted mock** only if a genuine new gap appears (same contract-first rules below), and **deleting handlers + seed data** as each module's divergences are fixed. The mechanics are unchanged: any gap is mocked with **MSW (Mock Service Worker)** at the network layer — stores and Api classes stay production-shaped and never know they're talking to mocks. The entire `src/mocks/` folder is wholesale-deletable.
+The backend redesign (M0–M7) plus the 2026-07-05 contract-alignment pass closed the gap this policy was written for: **the app runs on the real backend — `VITE_ENABLE_MOCKS=false` — and every handler + seed file was deleted on 2026-10-04** (auth-15: with mocks on, the stale handlers shadowed real endpoints — a reset-password or invite mock «succeeded» without doing anything). Only the mechanism remains: `src/mocks/browser.ts` and an empty `handlers/index.ts`. This doc now governs **adding a targeted mock** only if a genuine new gap appears (same contract-first rules below). The mechanics are unchanged: any gap is mocked with **MSW (Mock Service Worker)** at the network layer — stores and Api classes stay production-shaped and never know they're talking to mocks. The entire `src/mocks/` folder is wholesale-deletable.
 
 **The contract-first rule:** every handler's request/response shape is written as if it were the real backend contract. Mocks are not throwaway fakes — they are the API spec the backend round will implement. Sloppy mock shapes become sloppy backend endpoints.
 
@@ -72,5 +72,5 @@ src/mocks/
 ## Lifecycle
 
 - When the backend implements an endpoint: delete its handler and seed data, retest against the real API, and confirm the CONTRACT block against the actual implementation in the backend round.
-- **Mocks are globally off** (`VITE_ENABLE_MOCKS=false`) since the 2026-07-05 alignment; the remaining lifecycle work is deleting dead handlers and seed data as each module's divergences (`frontend-gaps.md`) are fixed. Do not flip the flag back on casually — several stale handlers would misbehave against today's contract.
+- **Mocks are globally off** (`VITE_ENABLE_MOCKS=false`) and the handler list is empty (2026-10-04). Turning the flag on changes nothing until a handler is added for a real gap.
 - Never let a mock and a real endpoint coexist for the same route; the handler's existence is the single switch.

@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import DetailCard from "components/shared/Detail/DetailCard";
-import { detailTableSx } from "components/shared/Detail/detailTableChrome";
-import { CopyableCell } from "components/shared/Table/CopyableCell";
-import { Order } from "models/order";
+import ProductLink from "components/product/Links/ProductLink";
+import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
+import DetailTable from "components/shared/Detail/DetailTable";
+import UzsUnit from "components/shared/Money/UzsUnit";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import NoValue from "components/shared/Table/cells/NoValue";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import SkuCell from "components/shared/Table/cells/SkuCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import { Order, OrderLine } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import {
@@ -14,15 +20,14 @@ import {
 	orderSubtotal,
 	orderTotal,
 } from "utils/orderUtils";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 const FootRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
 	<Box
-		sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13.5 }}
+		sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13 }}
 	>
 		<Box component="span" sx={{ color: "text.secondary" }}>
 			{label}
@@ -33,16 +38,73 @@ const FootRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label
 	</Box>
 );
 
+/**
+ * The order's lines — Товар · Артикул · Кол-во · Цена · Скидка · Сумма — with
+ * the subtotal / discount / total summary.
+ */
 export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 	const { t } = useTranslation();
-	const subtotal = orderSubtotal(order.lines);
 	const discount = orderDiscountTotal(order.lines);
-	const total = orderTotal(order.lines);
+
+	const columns = useMemo<Column<OrderLine>[]>(
+		() => [
+			{
+				key: "product",
+				headerName: t("order.detail.col.product"),
+				sortValue: (l) => l.productName,
+				renderCell: (l) => <ProductLink id={l.productId} name={l.productName} />,
+			},
+			{
+				key: "sku",
+				headerName: t("order.detail.col.sku"),
+				sortValue: (l) => l.sku,
+				renderCell: (l) => <SkuCell sku={l.sku} />,
+			},
+			{
+				key: "quantity",
+				headerName: t("order.detail.col.qty"),
+				align: "right",
+				sortValue: (l) => l.quantity,
+				renderCell: (l) => <QuantityCell value={l.quantity} measurement={l.measurement} />,
+			},
+			{
+				key: "unitPrice",
+				headerName: t("order.detail.col.unitPrice"),
+				align: "right",
+				sortValue: (l) => l.unitPrice,
+				renderCell: (l) => <MoneyCell value={l.unitPrice} />,
+			},
+			{
+				key: "discount",
+				headerName: t("order.detail.col.discount"),
+				align: "right",
+				sortValue: (l) => l.discount,
+				renderCell: (l) => {
+					const label = discountShortLabel(l);
+					return label ? (
+						<Box component="span" sx={{ color: designTokens.saffron700, fontWeight: 600 }}>
+							{label}
+						</Box>
+					) : (
+						<NoValue />
+					);
+				},
+			},
+			{
+				key: "total",
+				headerName: t("order.detail.col.lineTotal"),
+				align: "right",
+				sortValue: lineNet,
+				renderCell: (l) => <MoneyCell value={lineNet(l)} main />,
+			},
+		],
+		[t],
+	);
 
 	return (
 		<DetailCard
 			title={t("order.detail.positions")}
-			icon={<Inventory2OutlinedIcon sx={{ fontSize: 18, color: "text.secondary" }} />}
+			icon={<Inventory2OutlinedIcon sx={detailCardIconSx} />}
 			count={order.lines.length}
 			headerExtra={
 				isOrderEditable(order.status) ? (
@@ -62,69 +124,7 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 				) : undefined
 			}
 		>
-			<Box component="table" sx={detailTableSx}>
-				<thead>
-					<tr>
-						<th>{t("order.detail.col.product")}</th>
-						<th className="r">{t("order.detail.col.qty")}</th>
-						<th className="r">{t("order.detail.col.unitPrice")}</th>
-						<th className="r">{t("order.detail.col.discount")}</th>
-						<th className="r">{t("order.detail.col.lineTotal")}</th>
-					</tr>
-				</thead>
-				<tbody>
-					{order.lines.map((l) => {
-						const disc = discountShortLabel(l);
-						return (
-							<tr key={l.id}>
-								<td>
-									<Typography component="span" sx={{ fontSize: 13.5, fontWeight: 600 }}>
-										{l.productName}
-									</Typography>
-									<CopyableCell
-										sx={{ ...numericSx, fontSize: 12, color: "text.secondary", mt: "2px" }}
-										value={l.sku}
-									>
-										{l.sku}
-									</CopyableCell>
-								</td>
-								<td className="r">
-									<Box component="span" sx={numericSx}>
-										{l.quantity}{" "}
-										<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
-											{MEASUREMENT_SHORT[l.measurement]}
-										</Box>
-									</Box>
-								</td>
-								<td className="r">
-									<Box component="span" sx={numericSx}>
-										{formatCurrency(l.unitPrice)}
-									</Box>
-								</td>
-								<td className="r">
-									{disc ? (
-										<Box
-											component="span"
-											sx={{ ...numericSx, color: designTokens.saffron700, fontWeight: 600 }}
-										>
-											{disc}
-										</Box>
-									) : (
-										<Box component="span" sx={{ color: "text.disabled" }}>
-											—
-										</Box>
-									)}
-								</td>
-								<td className="r">
-									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-										{formatCurrency(lineNet(l))}
-									</Box>
-								</td>
-							</tr>
-						);
-					})}
-				</tbody>
-			</Box>
+			<DetailTable<OrderLine> rows={order.lines} columns={columns} />
 
 			<Box
 				sx={{
@@ -132,21 +132,23 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 					display: "flex",
 					flexDirection: "column",
 					gap: "10px",
-					borderTop: "1px solid",
+					borderTop: 1,
 					borderColor: "divider",
 					bgcolor: designTokens.gray25,
 				}}
 			>
-				<FootRow label={t("order.detail.subtotal")}>{formatCurrency(subtotal)} UZS</FootRow>
+				<FootRow label={t("order.detail.subtotal")}>
+					{formatCurrency(orderSubtotal(order.lines))}
+					<UzsUnit />
+				</FootRow>
 				<FootRow label={t("order.detail.discountByLines")}>
 					{discount ? (
 						<Box component="span" sx={{ color: designTokens.saffron700 }}>
-							−{formatCurrency(discount)} UZS
+							{formatCurrency(discount)}
+							<UzsUnit />
 						</Box>
 					) : (
-						<Box component="span" sx={{ color: "text.disabled" }}>
-							—
-						</Box>
+						<NoValue />
 					)}
 				</FootRow>
 				<Box sx={{ height: "1px", bgcolor: "divider", my: "2px" }} />
@@ -156,12 +158,10 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 					</Box>
 					<Box
 						component="span"
-						sx={{ ...numericSx, fontSize: 22, fontWeight: 700, color: "primary.main" }}
+						sx={{ ...numericSx, fontSize: 20, fontWeight: 700, color: "primary.main" }}
 					>
-						{formatCurrency(total)}{" "}
-						<Box component="span" sx={{ fontSize: 13, color: "text.disabled", fontWeight: 600 }}>
-							UZS
-						</Box>
+						{formatCurrency(orderTotal(order.lines))}
+						<UzsUnit />
 					</Box>
 				</Box>
 			</Box>

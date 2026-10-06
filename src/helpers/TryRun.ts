@@ -1,4 +1,11 @@
-export type ActionResult<T> = { status: "success"; data: T } | { status: "fail"; error: string };
+/**
+ * Outcome of an async call. A failure keeps the original thrown value in `cause`
+ * (the axios error with the server's ProblemDetails), so callers can map its
+ * error code to localized text (`utils/apiError`) instead of a fixed message.
+ */
+export type ActionResult<T> =
+	| { status: "success"; data: T }
+	| { status: "fail"; error: string; cause?: unknown };
 
 export async function tryRun<T>(action: () => T | Promise<T>): Promise<ActionResult<T>> {
 	try {
@@ -16,6 +23,6 @@ export async function tryRun<T>(action: () => T | Promise<T>): Promise<ActionRes
 			message = JSON.stringify(err);
 		}
 
-		return { status: "fail", error: message };
+		return { status: "fail", error: message, cause: err };
 	}
 }

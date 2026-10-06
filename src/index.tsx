@@ -32,8 +32,8 @@ async function enableMocking(): Promise<void> {
 	}
 
 	const { worker } = await import("./mocks/browser");
-	// `bypass`: only registered endpoints are mocked; everything else passes
-	// through to the real backend (hybrid mode — see docs/mocking.md).
+	// `bypass`: only registered endpoints are mocked (none today); everything else
+	// passes through to the real backend (hybrid mode — see docs/mocking.md).
 	await worker.start({ onUnhandledRequest: "bypass" });
 }
 

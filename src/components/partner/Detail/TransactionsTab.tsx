@@ -1,34 +1,31 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
-import { PartnerLedgerEntry, PartnerLedgerStatus } from "models/partner";
-import { numericSx } from "theme";
-import { formatDate, formatDateTime } from "utils/dateUtils";
+import PaymentStatusChip from "components/shared/Chip/PaymentStatusChip";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import NoValue from "components/shared/Table/cells/NoValue";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
+import { PartnerLedgerEntry } from "models/partner";
+import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box } from "@mui/material";
 
-import { bodyCellSx, EmptyRecords, headCellSx, SoftChip } from "./detailTable";
-import DetailTableCard from "./DetailTableCard";
-import FilterDropdown from "./FilterDropdown";
-import { DETAIL_ROWS_PER_PAGE_OPTIONS, useDetailTablePage } from "./ledgerHelpers";
+import { ledgerSourcePath } from "./ledgerHelpers";
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type TypeFilter = "all" | "sale" | "supply" | "refund";
 type StatusFilter = "all" | "open" | "paid" | "partial" | "unpaid";
-type SortCol = "date" | "type" | "number" | "positions" | "amount" | "status";
-
-const STATUS_TONE: Record<"paid" | "partial" | "unpaid", "success" | "warning" | "error"> = {
-	paid: "success",
-	partial: "warning",
-	unpaid: "error",
-};
 
 interface TransactionsTabProps {
 	transactions: PartnerLedgerEntry[];
@@ -39,6 +36,13 @@ interface TransactionsTabProps {
 
 const isRefund = (e: PartnerLedgerEntry) => e.type === "refund-sale" || e.type === "refund-supply";
 
+/** A status chip only for a document that carries one (refunds and done rows do not). */
+const hasStatus = (e: PartnerLedgerEntry) => !isRefund(e) && !!e.status && e.status !== "done";
+
+/**
+ * The partner's sales, supplies and refunds in the canonical column order
+ * (conventions.md → Tables): № · Дата · Тип · Статус · Позиций · Сумма.
+ */
 export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 	transactions,
 	partnerName,
@@ -46,11 +50,10 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 	onOpen,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [type, setType] = useState<TypeFilter>("all");
 	const [status, setStatus] = useState<StatusFilter>(initialStatus ?? "all");
 	const [search, setSearch] = useState("");
-	const [sortCol, setSortCol] = useState<SortCol>("date");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
 
 	const filtered = useMemo(() => {
 		const ql = search.trim().toLowerCase();
@@ -76,75 +79,77 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				.toLowerCase();
 			return haystack.includes(ql);
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [transactions, type, status, search, t]);
 
-	const sorted = useMemo(() => {
-		const accessor = (tx: PartnerLedgerEntry): string | number => {
-			switch (sortCol) {
-				case "date":
-					return tx.date;
-				case "type":
-					return t(eventLabelKey(tx.type));
-				case "number":
-					return tx.reference ?? "";
-				case "positions":
-					return tx.itemCount ?? 0;
-				case "amount":
-					return Math.abs(tx.delta);
-				case "status":
-					return tx.status ?? "";
-				default:
-					return "";
-			}
-		};
-		const s = [...filtered].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? s.reverse() : s;
-	}, [filtered, sortCol, sortDir, t]);
-
-	const { page, rowsPerPage, setPage, changeRowsPerPage, paginate } = useDetailTablePage(
-		`${type}|${status}|${search}|${sortCol}|${sortDir}`,
+	const columns = useMemo<Column<PartnerLedgerEntry>[]>(
+		() => [
+			{
+				key: "number",
+				headerName: t("partner.txns.col.number"),
+				sortValue: (tx) => entityNumberSortValue(tx.reference),
+				renderCell: (tx) => (
+					<DocNumberCell number={tx.reference} to={ledgerSourcePath(tx) ?? undefined} />
+				),
+			},
+			{
+				key: "date",
+				headerName: t("partner.txns.col.date"),
+				sortValue: (tx) => Date.parse(tx.date),
+				renderCell: (tx) => <DateCell value={tx.date} />,
+			},
+			{
+				key: "type",
+				headerName: t("partner.txns.col.type"),
+				sortValue: (tx) => t(eventLabelKey(tx.type)),
+				renderCell: (tx) => <EventCell type={tx.type} label={t(eventLabelKey(tx.type))} />,
+			},
+			{
+				key: "status",
+				headerName: t("partner.txns.col.status"),
+				sortValue: (tx) => (hasStatus(tx) ? t(`partner.txns.status.${tx.status}`) : null),
+				renderCell: (tx) =>
+					hasStatus(tx) && tx.status && tx.status !== "done" ? (
+						<PaymentStatusChip status={tx.status} />
+					) : (
+						<NoValue />
+					),
+			},
+			{
+				key: "positions",
+				headerName: t("partner.txns.col.positions"),
+				align: "right",
+				sortValue: (tx) => tx.itemCount ?? null,
+				renderCell: (tx) => <QuantityCell value={tx.itemCount} />,
+			},
+			{
+				key: "amount",
+				headerName: t("partner.txns.col.amount"),
+				align: "right",
+				sortValue: (tx) => Math.abs(tx.delta),
+				renderCell: (tx) => <MoneyCell value={Math.abs(tx.delta)} main />,
+			},
+		],
+		[t],
 	);
-	const rows = paginate(sorted);
-
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
-	};
-
-	const statusChip = (s?: PartnerLedgerStatus) => {
-		if (!s || s === "done") {
-			return (
-				<Box component="span" sx={{ color: "text.secondary" }}>
-					—
-				</Box>
-			);
-		}
-		return <SoftChip tone={STATUS_TONE[s]} label={t(`partner.txns.status.${s}`)} />;
-	};
 
 	const handleExport = () => {
 		exportToCsv<PartnerLedgerEntry>(
 			`partner_${partnerName}_transactions_${csvDateStamp()}`,
 			[
-				{ header: t("partner.txns.col.number"), value: (tx) => tx.reference ?? "" },
+				{
+					header: t("partner.txns.col.number"),
+					value: (tx) => formatOptionalNumber(tx.reference, ""),
+				},
 				{ header: t("partner.txns.col.date"), value: (tx) => formatDate(tx.date) },
 				{ header: t("partner.txns.col.type"), value: (tx) => t(eventLabelKey(tx.type)) },
-				{ header: t("partner.txns.col.positions"), value: (tx) => tx.itemCount ?? "" },
-				{ header: t("partner.txns.col.amount"), value: (tx) => Math.abs(tx.delta) },
 				{
 					header: t("partner.txns.col.status"),
-					value: (tx) =>
-						isRefund(tx) || !tx.status || tx.status === "done"
-							? ""
-							: t(`partner.txns.status.${tx.status}`),
+					value: (tx) => (hasStatus(tx) ? t(`partner.txns.status.${tx.status}`) : ""),
 				},
+				{ header: t("partner.txns.col.positions"), value: (tx) => tx.itemCount ?? "" },
+				{ header: t("partner.txns.col.amount"), value: (tx) => Math.abs(tx.delta) },
 			],
-			filtered,
+			tableOrder.apply(filtered),
 		);
 	};
 
@@ -153,9 +158,9 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 			search={{ value: search, onChange: setSearch, placeholder: t("partner.txns.search") }}
 			filters={
 				<>
-					<FilterDropdown<TypeFilter>
+					<EntityFilterSelect<TypeFilter>
 						label={t("partner.txns.typeFilter")}
-						icon={<FilterListIcon sx={{ fontSize: 15 }} />}
+						icon={<FilterListIcon />}
 						value={type}
 						onChange={setType}
 						options={[
@@ -165,9 +170,9 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 							{ value: "refund", label: t("partner.txns.type.refund") },
 						]}
 					/>
-					<FilterDropdown<StatusFilter>
+					<EntityFilterSelect<StatusFilter>
 						label={t("partner.txns.statusFilter")}
-						icon={<CheckCircleOutlineIcon sx={{ fontSize: 15 }} />}
+						icon={<CheckCircleOutlineIcon />}
 						value={status}
 						onChange={setStatus}
 						options={[
@@ -180,129 +185,23 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 					/>
 				</>
 			}
-			onExport={handleExport}
-			exportDisabled={filtered.length === 0}
-			pagination={{
-				count: filtered.length,
-				page,
-				rowsPerPage,
-				rowsPerPageOptions: DETAIL_ROWS_PER_PAGE_OPTIONS,
-				onPageChange: setPage,
-				onRowsPerPageChange: changeRowsPerPage,
-			}}
+			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}
 		>
-			{rows.length === 0 ? (
-				<EmptyRecords
-					icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 22 }} />}
-					title={t("partner.txns.empty.title")}
-					body={t("partner.txns.empty.body")}
-				/>
-			) : (
-				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-					<thead>
-						<tr>
-							<DetailSortHeader
-								col="number"
-								label={t("partner.txns.col.number")}
-								active={sortCol === "number"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="date"
-								label={t("partner.txns.col.date")}
-								active={sortCol === "date"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="type"
-								label={t("partner.txns.col.type")}
-								active={sortCol === "type"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-							<DetailSortHeader
-								col="positions"
-								label={t("partner.txns.col.positions")}
-								active={sortCol === "positions"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-								sx={{ ...headCellSx, textAlign: "right" }}
-							/>
-							<DetailSortHeader
-								col="amount"
-								label={t("partner.txns.col.amount")}
-								active={sortCol === "amount"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-								sx={{ ...headCellSx, textAlign: "right" }}
-							/>
-							<DetailSortHeader
-								col="status"
-								label={t("partner.txns.col.status")}
-								active={sortCol === "status"}
-								dir={sortDir}
-								onSort={onSort}
-								sx={headCellSx}
-							/>
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((tx) => (
-							<Box
-								component="tr"
-								key={tx.id}
-								onClick={() => onOpen(tx)}
-								sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.50" } }}
-							>
-								<Box component="td" sx={{ ...bodyCellSx, ...numericSx, fontWeight: 600 }}>
-									{tx.reference ? formatEntityId(tx.reference) : "—"}
-								</Box>
-								<Box
-									component="td"
-									sx={{
-										...bodyCellSx,
-										...numericSx,
-										color: "text.secondary",
-										whiteSpace: "nowrap",
-									}}
-								>
-									{formatDateTime(tx.date)}
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
-									<EventCell type={tx.type} label={t(eventLabelKey(tx.type))} />
-								</Box>
-								<Box
-									component="td"
-									sx={{
-										...bodyCellSx,
-										textAlign: "right",
-										...numericSx,
-										color: "text.secondary",
-									}}
-								>
-									{tx.itemCount ?? "—"}
-								</Box>
-								<Box
-									component="td"
-									sx={{ ...bodyCellSx, textAlign: "right", ...numericSx, fontWeight: 600 }}
-								>
-									{formatCurrency(Math.abs(tx.delta))}
-								</Box>
-								<Box component="td" sx={bodyCellSx}>
-									{statusChip(tx.status)}
-								</Box>
-							</Box>
-						))}
-					</tbody>
-				</Box>
-			)}
+			<DetailTable<PartnerLedgerEntry>
+				exportOrder={tableOrder}
+				rows={filtered}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				onRowClick={onOpen}
+				empty={
+					<TableEmptyState
+						icon={<ReceiptLongOutlinedIcon />}
+						title={t("partner.txns.empty.title")}
+						hint={t("partner.txns.empty.body")}
+					/>
+				}
+			/>
 		</DetailTableCard>
 	);
 };

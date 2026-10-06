@@ -3,64 +3,89 @@ import { designTokens } from "theme";
 
 import { Box, MenuItem, SxProps, TextField, Theme } from "@mui/material";
 
-export interface EntityFilterOption {
+export interface FilterOption<T extends string = string> {
 	/** MUI Select value — always a string; callers map ids/names to/from it. */
-	value: string;
+	value: T;
 	label: string;
 }
 
-export interface EntityFilterSelectProps {
-	/** Current selection; use `allValue` for the «Все …» state. */
-	value: string;
-	/** Sentinel value for the «all» option (rendered first). */
-	allValue: string;
-	allLabel: string;
-	options: EntityFilterOption[];
-	onChange: (value: string) => void;
+/** @deprecated name kept for existing imports — use `FilterOption`. */
+export type EntityFilterOption = FilterOption;
+
+export interface EntityFilterSelectProps<T extends string = string> {
+	value: T;
+	/** The choices. Without `allValue`, the first option is the unfiltered default. */
+	options: FilterOption<T>[];
+	onChange: (value: T) => void;
+	/** «Все …» first option (the unfiltered state) for entity lists (warehouses, categories). */
+	allValue?: T;
+	allLabel?: string;
+	/** Short name shown before the value («Тип: Продажи») where the value alone is ambiguous. */
+	label?: string;
 	/** Leading glyph (e.g. a warehouse/category icon); styled by the component. */
 	icon?: React.ReactNode;
+	/** Shown in the closed control instead of the option label (a picked custom period). */
+	valueLabel?: string;
+	/** Picking the already-selected option again (a select fires no change for it). */
+	onReselect?: (value: T) => void;
 	width?: number;
 	sx?: SxProps<Theme>;
 }
 
 /**
- * Compact filter dropdown (XC-1) — a small icon-led `Select` with an «Все …»
- * first option. The compact pill-dropdown style is defined **once here** and
- * reused by the table filters (warehouse, category) instead of re-inlining the
- * same ~20-line `TextField select` per module (hard rule 9). Small option sets
- * read better as a compact dropdown than a full typeahead (owner preference).
+ * The one table filter dropdown (XC-1, tables-19) — list filter rows and
+ * detail-tab bands alike: an icon-led `Select` at the standard control height
+ * (theme `controlSize.md`, 38px). A filter that is on (value ≠ the default)
+ * reads with the teal tint so a narrowed table is never mistaken for the whole.
  */
-const EntityFilterSelect: React.FC<EntityFilterSelectProps> = ({
+export function EntityFilterSelect<T extends string = string>({
 	value,
-	allValue,
-	allLabel,
 	options,
 	onChange,
+	allValue,
+	allLabel,
+	label,
 	icon,
-	width = 200,
+	valueLabel,
+	onReselect,
+	width,
 	sx,
-}) => (
-	<TextField
-		select
-		size="small"
-		value={value}
-		onChange={(e) => onChange(e.target.value)}
-		sx={{
-			width,
-			"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-			"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
-			...sx,
-		}}
-		slotProps={
-			icon
-				? {
-						input: {
+}: Readonly<EntityFilterSelectProps<T>>) {
+	const choices: FilterOption<T>[] =
+		allValue !== undefined ? [{ value: allValue, label: allLabel ?? "" }, ...options] : options;
+	const isActive = value !== choices[0]?.value;
+
+	const renderValue = (selected: unknown) => {
+		const current = valueLabel ?? choices.find((o) => o.value === selected)?.label ?? "";
+		return label ? `${label}: ${current}` : current;
+	};
+
+	return (
+		<TextField
+			select
+			size="small"
+			value={value}
+			onChange={(e) => onChange(e.target.value as T)}
+			sx={{
+				width,
+				minWidth: width ? undefined : 150,
+				"& .MuiOutlinedInput-root": {
+					bgcolor: isActive ? designTokens.primarySoft : "background.paper",
+					color: isActive ? "primary.main" : "text.primary",
+					fontWeight: isActive ? 600 : 400,
+				},
+				...sx,
+			}}
+			slotProps={{
+				select: { renderValue },
+				input: icon
+					? {
 							startAdornment: (
 								<Box
 									component="span"
 									sx={{
 										display: "inline-flex",
-										color: "text.disabled",
+										color: isActive ? "primary.main" : "text.disabled",
 										mr: "6px",
 										"& svg": { fontSize: 16 },
 									}}
@@ -68,18 +93,21 @@ const EntityFilterSelect: React.FC<EntityFilterSelectProps> = ({
 									{icon}
 								</Box>
 							),
-						},
-					}
-				: undefined
-		}
-	>
-		<MenuItem value={allValue}>{allLabel}</MenuItem>
-		{options.map((option) => (
-			<MenuItem key={option.value} value={option.value}>
-				{option.label}
-			</MenuItem>
-		))}
-	</TextField>
-);
+						}
+					: undefined,
+			}}
+		>
+			{choices.map((option) => (
+				<MenuItem
+					key={option.value}
+					value={option.value}
+					onClick={onReselect && option.value === value ? () => onReselect(value) : undefined}
+				>
+					{option.label}
+				</MenuItem>
+			))}
+		</TextField>
+	);
+}
 
 export default EntityFilterSelect;

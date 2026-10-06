@@ -9,10 +9,8 @@ import {
 import http from "./http";
 
 /**
- * Warehouses API over the target v1 contract (`/api/warehouses`). The resource
- * is fully mocked (docs/mocking.md) — the real backend exposes a stale
- * `/api/inventories` with no served aggregates, no archive and no movements.
- * JSON throughout (no file upload), mirroring CategoryApi.
+ * Warehouses API (`/api/warehouses`): served aggregates, archive/restore, stock
+ * and movements. JSON throughout (no file upload), mirroring CategoryApi.
  */
 class WarehouseApi {
 	private readonly baseUrl: string = "/api/warehouses";
@@ -76,8 +74,8 @@ class WarehouseApi {
 	}
 
 	/**
-	 * Hard-delete — allowed by the mock only when the warehouse is unreferenced
-	 * (204); a referenced warehouse returns 409 and must be archived instead
+	 * Hard-delete — allowed only when the warehouse is unreferenced (204); a
+	 * referenced warehouse returns 409 and must be archived instead
 	 * (business-rules rule 32). Mirrors PartnerApi.delete.
 	 */
 	async delete(id: number): Promise<void> {

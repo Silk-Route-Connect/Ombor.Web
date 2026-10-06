@@ -3,14 +3,16 @@ import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import DirectionChip from "components/stockAdjustment/DirectionChip";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { StockAdjustment } from "models/stockAdjustment";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
-import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { formatCurrency, formatQuantity } from "utils/formatCurrency";
+import { adjustmentValue } from "utils/listTotals";
+import { measurementShort } from "utils/productUtils";
 
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { Avatar, Box, Dialog, DialogActions, DialogContent, Typography } from "@mui/material";
@@ -37,6 +39,17 @@ const Field: React.FC<{ label: string; children: React.ReactNode; mono?: boolean
 	</Box>
 );
 
+/** A served sum with its unit, or «—» where no cost was recorded. */
+const MoneyFigure: React.FC<{ value: number | null }> = ({ value }) =>
+	value === null ? (
+		<>—</>
+	) : (
+		<>
+			{formatCurrency(value)}
+			<UzsUnit />
+		</>
+	);
+
 /**
  * Read-only stock-adjustment detail (rule 23 — immutable, no edit / delete):
  * a product · direction · signed-quantity summary, the audited fields, and the
@@ -53,15 +66,16 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 		return null;
 	}
 
-	const unit = MEASUREMENT_SHORT[adjustment.measurement];
+	const unit = measurementShort(t, adjustment.measurement);
 	const isDown = adjustment.direction === "Decrease";
+	const value = adjustmentValue(adjustment);
 
 	return (
 		<Dialog
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("adjustment.detail.title")}
@@ -103,12 +117,11 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 								...numericSx,
 								fontSize: 18,
 								fontWeight: 700,
-								color: isDown ? "error.main" : "success.main",
 							}}
 						>
 							{isDown ? "−" : "+"}
 							{formatQuantity(adjustment.quantity)}{" "}
-							<Box component="span" sx={{ fontSize: 13, color: "text.disabled", fontWeight: 600 }}>
+							<Box component="span" sx={{ fontSize: 13, color: "text.secondary", fontWeight: 600 }}>
 								{unit}
 							</Box>
 						</Box>
@@ -136,6 +149,12 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 					<Field label={t("adjustment.detail.balanceAfter")} mono>
 						{formatQuantity(adjustment.balanceAfter)} {unit}
 					</Field>
+					<Field label={t("adjustment.detail.unitCost")} mono>
+						<MoneyFigure value={value === null ? null : adjustment.unitCost} />
+					</Field>
+					<Field label={t(`adjustment.detail.value.${adjustment.direction}`)} mono>
+						<MoneyFigure value={value} />
+					</Field>
 					<Field label={t("adjustment.detail.createdBy")}>
 						<Box sx={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
 							<Avatar
@@ -150,7 +169,7 @@ export const StockAdjustmentDetailModal: React.FC<StockAdjustmentDetailModalProp
 							>
 								{adjustment.createdBy.trim().charAt(0)}
 							</Avatar>
-							<Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+							<Box component="span" sx={{ fontWeight: 600 }}>
 								{adjustment.createdBy}
 							</Box>
 						</Box>

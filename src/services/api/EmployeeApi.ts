@@ -1,6 +1,7 @@
 import {
 	CreateEmployeeRequest,
 	Employee,
+	EmployeeWriteResponse,
 	GetEmployeeByIdRequest,
 	GetEmployeesRequest,
 	UpdateEmployeeRequest,
@@ -28,19 +29,20 @@ class EmployeeApi extends BaseApi {
 		return response.data;
 	}
 
-	async create(request: CreateEmployeeRequest): Promise<Employee> {
-		const response = await http.post<Employee>(this.baseUrl, request);
+	async create(request: CreateEmployeeRequest): Promise<EmployeeWriteResponse> {
+		const response = await http.post<EmployeeWriteResponse>(this.baseUrl, request);
 
 		return response.data;
 	}
 
-	async update(request: UpdateEmployeeRequest): Promise<Employee> {
+	async update(request: UpdateEmployeeRequest): Promise<EmployeeWriteResponse> {
 		const url = this.getUrlWithId(request.id);
-		const response = await http.put<Employee>(url, request);
+		const response = await http.put<EmployeeWriteResponse>(url, request);
 
 		return response.data;
 	}
 
+	/** Hard-delete — allowed only while no payroll names the employee (409 `entity.referenced` otherwise). */
 	async delete(id: number): Promise<void> {
 		const url = this.getUrlWithId(id);
 		await http.delete(url);

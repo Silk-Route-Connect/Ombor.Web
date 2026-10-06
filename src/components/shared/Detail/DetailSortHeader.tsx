@@ -1,9 +1,9 @@
 import React from "react";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, SxProps, Theme, Tooltip } from "@mui/material";
+import { Box, ButtonBase, SxProps, Theme } from "@mui/material";
 
 export type SortDir = "asc" | "desc";
 
@@ -16,17 +16,14 @@ interface DetailSortHeaderProps<K extends string> {
 	align?: "left" | "right";
 	/** Optional plain-language tooltip (e.g. the WAC explanation, D8) — no formula. */
 	tooltip?: string;
-	/** Extra cell styling — e.g. the per-cell `headCellSx` used by tables that
-	 *  don't get their `th` styling from a parent `detailTableSx`. */
+	/** Cell styling — the detail head-cell chrome. */
 	sx?: SxProps<Theme>;
 }
 
 /**
- * Clickable sort header for the bespoke detail tables (`detailTableChrome`) that
- * can't use the shared DataTable's TableSortLabel — they carry a totals row or a
- * ledger layout. Renders the active column in primary with an up/down arrow;
- * shared by the warehouse Остатки / Движения tabs so the sort affordance is
- * identical across detail tables.
+ * Sort header for the detail tables (`detailTableChrome`): a keyboard-operable
+ * button inside the `th` (which carries `aria-sort`); the active column reads in
+ * primary with an up/down arrow.
  */
 export function DetailSortHeader<K extends string>({
 	col,
@@ -38,15 +35,13 @@ export function DetailSortHeader<K extends string>({
 	tooltip,
 	sx,
 }: DetailSortHeaderProps<K>) {
+	const ariaSort = active ? (dir === "asc" ? "ascending" : "descending") : undefined;
 	return (
 		<Box
 			component="th"
+			aria-sort={ariaSort}
 			className={align === "right" ? "r" : undefined}
-			onClick={() => onSort(col)}
-			sx={[
-				{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" },
-				...(Array.isArray(sx) ? sx : [sx]),
-			]}
+			sx={[{ whiteSpace: "nowrap", textAlign: align }, ...(Array.isArray(sx) ? sx : [sx])]}
 		>
 			<Box
 				component="span"
@@ -54,24 +49,28 @@ export function DetailSortHeader<K extends string>({
 					display: "inline-flex",
 					alignItems: "center",
 					gap: "4px",
-					color: active ? "primary.main" : "inherit",
+					flexDirection: align === "right" ? "row-reverse" : "row",
 				}}
 			>
-				{label}
-				{tooltip && (
-					<Tooltip title={tooltip} placement="top" arrow>
-						<InfoOutlinedIcon
-							onClick={(e) => e.stopPropagation()}
-							sx={{ fontSize: 14, color: "text.disabled", cursor: "help" }}
-						/>
-					</Tooltip>
-				)}
-				{active &&
-					(dir === "asc" ? (
-						<ArrowUpwardIcon sx={{ fontSize: 13 }} />
-					) : (
-						<ArrowDownwardIcon sx={{ fontSize: 13 }} />
-					))}
+				<ButtonBase
+					onClick={() => onSort(col)}
+					sx={{
+						gap: "4px",
+						font: "inherit",
+						color: active ? "primary.main" : "inherit",
+						borderRadius: "4px",
+						"&:hover": { color: "primary.dark" },
+					}}
+				>
+					{label}
+					{active &&
+						(dir === "asc" ? (
+							<ArrowUpwardIcon sx={{ fontSize: 13 }} />
+						) : (
+							<ArrowDownwardIcon sx={{ fontSize: 13 }} />
+						))}
+				</ButtonBase>
+				{tooltip && <InfoHint text={tooltip} />}
 			</Box>
 		</Box>
 	);

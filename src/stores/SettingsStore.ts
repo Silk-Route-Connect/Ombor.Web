@@ -1,9 +1,17 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { Loadable, tryRun } from "../helpers/helpers";
 import i18next from "../i18n/config";
-import { InviteUserRequest, Organization, TenantUser } from "../models/settings";
+import {
+	ChangePasswordRequest,
+	InviteUserRequest,
+	Organization,
+	TenantUser,
+} from "../models/settings";
 import SettingsApi from "../services/api/SettingsApi";
+import { ServerErrorHandler } from "../utils/formServerErrors";
+import { tenantUserLabel } from "../utils/tenantUser";
 import { NotificationStore } from "./NotificationStore";
 
 export interface ISettingsStore {
@@ -12,16 +20,29 @@ export interface ISettingsStore {
 	saving: boolean;
 
 	load(): Promise<void>;
+	/** The business profile for documents (print header, debt reminder) — loaded once, kept current by saves. */
+	/** `quiet`: a background load (the sidebar logo) that must not toast when it fails. */
+	ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>>;
 	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
 	updateLanguage(code: string): Promise<void>;
-	inviteUser(request: InviteUserRequest): Promise<boolean>;
+	inviting: boolean;
+	changingPassword: boolean;
+	/** The new user on success (the modal then explains how they sign in), null on failure. */
+	inviteUser(
+		request: InviteUserRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<TenantUser | null>;
+	changePassword(
+		request: ChangePasswordRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<boolean>;
 	deactivateUser(user: TenantUser): Promise<void>;
 	reactivateUser(user: TenantUser): Promise<void>;
 }
 
 /**
  * «Настройки» store — the organization profile and tenant users (mvp-plan §18).
- * Both are mocked at the target v1 contract (no backend yet). Interface language
+ * Both are served by `/api/settings`. Interface language
  * is a client-side i18n preference and is handled in the page, not here. Users
  * are never deleted (rule 41) — they are deactivated / reactivated.
  */
@@ -31,6 +52,8 @@ export class SettingsStore implements ISettingsStore {
 	organization: Loadable<Organization | null> = "loading";
 	users: Loadable<TenantUser[]> = "loading";
 	saving = false;
+	inviting = false;
+	changingPassword = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -48,14 +71,31 @@ export class SettingsStore implements ISettingsStore {
 			tryRun(() => SettingsApi.getUsers()),
 		]);
 
-		if (org.status === "fail" || users.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.error.load"));
+		if (org.status === "fail") {
+			this.notificationStore.notifyLoadError(org, "settings.error.load");
+		} else if (users.status === "fail") {
+			this.notificationStore.notifyLoadError(users, "settings.error.load");
 		}
 
 		runInAction(() => {
-			this.organization = org.status === "success" ? org.data : null;
-			this.users = users.status === "success" ? users.data : [];
+			this.organization = toLoadable(org);
+			this.users = toLoadable(users);
 		});
+	}
+
+	async ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>> {
+		if (isReady(this.organization)) {
+			return this.organization;
+		}
+		runInAction(() => (this.organization = "loading"));
+
+		const result = await tryRun(() => SettingsApi.getOrganization());
+		if (result.status === "fail" && !options?.quiet) {
+			this.notificationStore.notifyLoadError(result, "settings.error.loadOrganization");
+		}
+
+		runInAction(() => (this.organization = toLoadable(result)));
+		return this.organization;
 	}
 
 	async saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean> {
@@ -71,7 +111,7 @@ export class SettingsStore implements ISettingsStore {
 		});
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.error.save"));
+			this.notificationStore.notifyApiError(result, "settings.error.save");
 			return false;
 		}
 		this.notificationStore.success(i18next.t("settings.saved"));
@@ -87,54 +127,85 @@ export class SettingsStore implements ISettingsStore {
 		const language = code === "uz" ? "uz-Latn" : code;
 		const result = await tryRun(() => SettingsApi.updateLanguage(language));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.lang.saveError"));
+			this.notificationStore.notifyApiError(result, "settings.lang.saveError");
 		}
 	}
 
-	async inviteUser(request: InviteUserRequest): Promise<boolean> {
+	async inviteUser(
+		request: InviteUserRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<TenantUser | null> {
+		if (this.inviting) {
+			return null;
+		}
+		runInAction(() => (this.inviting = true));
 		const result = await tryRun(() => SettingsApi.inviteUser(request));
+		runInAction(() => (this.inviting = false));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.inviteError"));
-			return false;
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "settings.users.inviteError");
+			}
+			return null;
 		}
 
 		runInAction(() => {
-			if (this.users !== "loading") {
+			if (isReady(this.users)) {
 				this.users = [...this.users, result.data];
 			}
 		});
-		this.notificationStore.success(i18next.t("settings.users.inviteSent"));
+		return result.data;
+	}
+
+	/** On success every other device is signed out at its next refresh; this one stays in. */
+	async changePassword(
+		request: ChangePasswordRequest,
+		applyServerErrors?: ServerErrorHandler,
+	): Promise<boolean> {
+		if (this.changingPassword) {
+			return false;
+		}
+		runInAction(() => (this.changingPassword = true));
+		const result = await tryRun(() => SettingsApi.changePassword(request));
+		runInAction(() => (this.changingPassword = false));
+
+		if (result.status === "fail") {
+			if (!applyServerErrors?.(result.cause)) {
+				this.notificationStore.notifyApiError(result, "settings.security.error");
+			}
+			return false;
+		}
+		this.notificationStore.success(i18next.t("settings.security.changed"));
 		return true;
 	}
 
 	async deactivateUser(user: TenantUser): Promise<void> {
 		const result = await tryRun(() => SettingsApi.deactivateUser(user.id));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.statusError"));
+			this.notificationStore.notifyApiError(result, "settings.users.statusError");
 			return;
 		}
 		this.replaceUser(result.data);
 		this.notificationStore.success(
-			i18next.t("settings.users.deactivatedToast", { name: user.name }),
+			i18next.t("settings.users.deactivatedToast", { name: tenantUserLabel(user) }),
 		);
 	}
 
 	async reactivateUser(user: TenantUser): Promise<void> {
 		const result = await tryRun(() => SettingsApi.reactivateUser(user.id));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("settings.users.statusError"));
+			this.notificationStore.notifyApiError(result, "settings.users.statusError");
 			return;
 		}
 		this.replaceUser(result.data);
 		this.notificationStore.success(
-			i18next.t("settings.users.reactivatedToast", { name: user.name }),
+			i18next.t("settings.users.reactivatedToast", { name: tenantUserLabel(user) }),
 		);
 	}
 
 	private replaceUser(updated: TenantUser): void {
 		runInAction(() => {
-			if (this.users !== "loading") {
+			if (isReady(this.users)) {
 				this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
 			}
 		});

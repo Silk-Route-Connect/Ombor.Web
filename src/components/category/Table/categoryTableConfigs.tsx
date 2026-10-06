@@ -1,102 +1,80 @@
+import React from "react";
 import { CategoryActionMenu } from "components/category/Table/ActionMenu/CategoryActionMenu";
+import EntityCell from "components/shared/Table/cells/EntityCell";
+import NotesCell from "components/shared/Table/cells/NotesCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
+import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import { TFunction } from "i18next";
 import { Category } from "models/category";
-import { numericSx } from "theme";
+import { radius } from "theme";
 
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
-interface BuildColumnsOptions {
-	t: TFunction;
+export interface CategoryColumnHandlers {
 	onEdit: (category: Category) => void;
 	onDelete: (category: Category) => void;
 }
 
+const CategoryIcon: React.FC = () => (
+	<Box
+		sx={{
+			width: 32,
+			height: 32,
+			flex: "0 0 auto",
+			borderRadius: `${radius.md}px`,
+			bgcolor: "primary.light",
+			color: "primary.main",
+			display: "grid",
+			placeItems: "center",
+		}}
+	>
+		<LocalOfferOutlinedIcon sx={{ fontSize: 18 }} />
+	</Box>
+);
+
 /**
- * Columns are built at render time so labels resolve through the live `t`
- * (docs/conventions.md — no `t()` at module scope). Sorting is client-side via
- * the shared DataTable.
+ * Category list columns (conventions.md → Tables): Категория · Описание ·
+ * Товаров · ⋮. Categories have no detail page, so the name is plain 600 text.
  */
-export function buildCategoryColumns({
-	t,
-	onEdit,
-	onDelete,
-}: BuildColumnsOptions): Column<Category>[] {
+export function buildCategoryColumns(
+	t: TFunction,
+	{ onEdit, onDelete }: CategoryColumnHandlers,
+): Column<Category>[] {
 	return [
 		{
 			key: "name",
-			field: "name",
 			headerName: t("category.table.name"),
-			width: "32%",
-			sortable: true,
-			renderCell: (category) => (
-				<Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-					<Box
-						sx={{
-							width: 32,
-							height: 32,
-							flex: "0 0 auto",
-							borderRadius: 1,
-							bgcolor: "primary.light",
-							color: "primary.main",
-							display: "grid",
-							placeItems: "center",
-						}}
-					>
-						<LocalOfferOutlinedIcon sx={{ fontSize: 18 }} />
+			sortValue: (c) => c.name,
+			renderCell: (c) => (
+				<EntityCell avatar={<CategoryIcon />}>
+					<Box component="span" sx={{ fontWeight: 600 }}>
+						{c.name}
 					</Box>
-					<Typography component="span" sx={{ fontWeight: 600 }}>
-						{category.name}
-					</Typography>
-				</Box>
+				</EntityCell>
 			),
 		},
 		{
 			key: "description",
-			field: "description",
 			headerName: t("category.table.description"),
-			width: "48%",
-			// Free-text column — non-sortable per the table convention.
 			sortable: false,
-			renderCell: (category) =>
-				category.description ? (
-					<Typography
-						component="span"
-						sx={{ color: "text.secondary", display: "block", maxWidth: 460 }}
-					>
-						{category.description}
-					</Typography>
-				) : (
-					<Typography component="span" sx={{ color: "text.disabled" }}>
-						—
-					</Typography>
-				),
+			renderCell: (c) => <NotesCell text={c.description} maxWidth={460} />,
 		},
 		{
 			key: "productCount",
-			field: "productCount",
 			headerName: t("category.table.productCount"),
-			width: "12%",
 			align: "right",
-			renderCell: (category) =>
-				category.productCount > 0 ? (
-					<Typography component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-						{category.productCount}
-					</Typography>
-				) : (
-					<Typography component="span" sx={{ ...numericSx, color: "text.disabled" }}>
-						0
-					</Typography>
-				),
+			sortValue: (c) => c.productCount,
+			renderCell: (c) => <QuantityCell value={c.productCount} />,
 		},
 		{
 			key: "actions",
 			headerName: "",
-			width: 56,
+			width: ACTIONS_COLUMN_WIDTH,
 			align: "right",
-			renderCell: (category) => (
-				<CategoryActionMenu onEdit={() => onEdit(category)} onDelete={() => onDelete(category)} />
+			renderCell: (c) => (
+				<CategoryActionMenu onEdit={() => onEdit(c)} onDelete={() => onDelete(c)} />
 			),
 		},
 	];

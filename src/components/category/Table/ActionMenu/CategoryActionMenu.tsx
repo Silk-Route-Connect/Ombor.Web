@@ -22,13 +22,15 @@ export const CategoryActionMenu: React.FC<CategoryActionMenuProps> = ({ onEdit, 
 		{
 			key: "edit",
 			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" color="warning" />,
+			icon: <EditOutlinedIcon fontSize="small" />,
 			onClick: onEdit,
 		},
 		{
 			key: "delete",
 			label: t("common.delete"),
-			icon: <DeleteOutlineIcon fontSize="small" color="error" />,
+			icon: <DeleteOutlineIcon fontSize="small" />,
+			tone: "danger",
+			dividerBefore: true,
 			onClick: onDelete,
 		},
 	];

@@ -1,34 +1,7 @@
-import { useEffect, useState } from "react";
 import { PartnerLedgerEntry } from "models/partner";
+import { paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
 
 export type LedgerPeriod = "all" | "90" | "30";
-
-/** Page-size options for the in-widget detail-tab pagers. */
-export const DETAIL_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
-/**
- * Page state for an in-widget detail table. Resets to the first page whenever
- * the filter/search signature (`resetKey`) changes so a narrowed result set
- * never lands the user on an out-of-range page.
- */
-export function useDetailTablePage(resetKey: unknown) {
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(DETAIL_ROWS_PER_PAGE_OPTIONS[0]);
-
-	useEffect(() => {
-		setPage(0);
-	}, [resetKey]);
-
-	const changeRowsPerPage = (next: number) => {
-		setRowsPerPage(next);
-		setPage(0);
-	};
-
-	const paginate = <T>(rows: T[]): T[] =>
-		rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-	return { page, rowsPerPage, setPage, changeRowsPerPage, paginate };
-}
 
 const MS_PER_DAY = 86_400_000;
 
@@ -54,3 +27,24 @@ export const deriveTransactions = (ledger: PartnerLedgerEntry[]): PartnerLedgerE
 
 export const derivePayments = (ledger: PartnerLedgerEntry[]): PartnerLedgerEntry[] =>
 	ledger.filter((e) => PAYMENT_TYPES.has(e.type));
+
+/** Detail route of the document behind a ledger row; null for the opening balance. */
+export function ledgerSourcePath(entry: PartnerLedgerEntry): string | null {
+	if (!entry.sourceId) {
+		return null;
+	}
+	switch (entry.type) {
+		case "sale":
+		case "refund-sale":
+			return saleDetailPath(entry.sourceId);
+		case "supply":
+		case "refund-supply":
+			return supplyDetailPath(entry.sourceId);
+		case "payment":
+		case "deposit":
+		case "withdraw":
+			return paymentDetailPath(entry.sourceId);
+		default:
+			return null;
+	}
+}

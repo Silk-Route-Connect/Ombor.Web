@@ -1,5 +1,9 @@
+import { isReady, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
+import { formatQuantity } from "utils/formatCurrency";
+import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -24,16 +28,21 @@ export interface IStockAdjustmentStore {
 	searchTerm: string;
 	warehouseFilter: number | null;
 	directionFilter: DirectionFilter;
+	dateRange: DateRangeValue;
+	isFiltering: boolean;
 	isSaving: boolean;
 	dialogMode: AdjustmentDialogMode;
 
 	getAll(): Promise<void>;
+	/** The adjustment `/adjustments/:id` names, from the loaded list; null = not found. */
+	findById(id: number | null): Loadable<StockAdjustment | null>;
 	/** Resolve with the created adjustment, or null on failure (over-stock etc.). */
 	create(request: CreateStockAdjustmentRequest): Promise<StockAdjustment | null>;
 
 	setSearch(term: string): void;
 	setWarehouseFilter(warehouseId: number | null): void;
 	setDirectionFilter(filter: DirectionFilter): void;
+	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
 	closeDialog(): void;
@@ -46,6 +55,7 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 	searchTerm = "";
 	warehouseFilter: number | null = null;
 	directionFilter: DirectionFilter = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	dialogMode: AdjustmentDialogMode = { kind: "none" };
 
@@ -54,12 +64,22 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
+	/** Whether search, a filter or the period narrows the list (drives the empty-state copy). */
+	get isFiltering(): boolean {
+		return (
+			this.searchTerm.trim().length > 0 ||
+			this.warehouseFilter != null ||
+			this.directionFilter !== "all" ||
+			isDateRangeActive(this.dateRange)
+		);
+	}
+
 	get filteredAdjustments(): Loadable<StockAdjustment[]> {
-		if (this.allAdjustments === "loading") {
-			return "loading";
+		if (!isReady(this.allAdjustments)) {
+			return this.allAdjustments;
 		}
 
-		let rows = this.allAdjustments;
+		let rows = filterByDateRange(this.allAdjustments, this.dateRange, (a) => a.date);
 
 		if (this.warehouseFilter != null) {
 			rows = rows.filter((a) => a.warehouseId === this.warehouseFilter);
@@ -79,34 +99,51 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 		return rows;
 	}
 
+	// The API has no by-id read for adjustments; the list page loads them all anyway.
+	findById(id: number | null): Loadable<StockAdjustment | null> {
+		if (id === null) {
+			return null;
+		}
+		if (!isReady(this.allAdjustments)) {
+			return this.allAdjustments;
+		}
+		return this.allAdjustments.find((a) => a.id === id) ?? null;
+	}
+
 	async getAll(): Promise<void> {
 		runInAction(() => (this.allAdjustments = "loading"));
 
 		const result = await tryRun(() => StockAdjustmentApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("adjustment.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "adjustment.error.getAll");
 		}
 
-		runInAction(() => (this.allAdjustments = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allAdjustments = toLoadable(result)));
 	}
 
 	async create(request: CreateStockAdjustmentRequest): Promise<StockAdjustment | null> {
 		const result = await withSaving(this, () => StockAdjustmentApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("adjustment.error.create"));
+			this.notificationStore.notifyApiError(result, "adjustment.error.create");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allAdjustments !== "loading") {
+			if (isReady(this.allAdjustments)) {
 				this.allAdjustments = [result.data, ...this.allAdjustments];
 			}
 		});
 
 		this.closeDialog();
-		this.notificationStore.success(i18next.t("adjustment.success.create"));
+		this.notificationStore.success(
+			i18next.t(`adjustment.success.create.${result.data.direction}`, {
+				product: result.data.productName,
+				quantity: formatQuantity(result.data.quantity),
+				unit: measurementShort(i18next.t, result.data.measurement),
+			}),
+		);
 		analytics.capture("stock_adjustment_created", {
 			direction: request.direction,
 			reason: request.reason,
@@ -124,6 +161,10 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 
 	setDirectionFilter(filter: DirectionFilter): void {
 		this.directionFilter = filter;
+	}
+
+	setDateRange(range: DateRangeValue): void {
+		this.dateRange = range;
 	}
 
 	openCreate(): void {

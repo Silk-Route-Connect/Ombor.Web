@@ -4,9 +4,10 @@ One direction-parameterized module: the `/sales` · `/supplies` feeds, transacti
 
 ## Surfaces
 
-- `/sales`, `/supplies` — one `TransactionPage` (mode-parameterized): title «Продажи»/«Поставки», «Новая продажа»/«Новая поставка», «Экспорт CSV»; search «Поиск по номеру или партнёру…»/«…или поставщику…», payment-status filter, period filter («Весь период / Последние 7 / 30 / 90 дней»); columns Дата · Номер · Тип · Партнёр · Позиций · Сумма · Статус оплаты; badges «Продажа»/«Поставка» (refund badges per refunds.md); status chips «Не оплачено» (Open) / «Частично» (PartiallyPaid) / «Оплачено» (Closed) / «Просрочено» (Overdue).
-- `/sales/:id`, `/supplies/:id` — one `TransactionDetailPage` (right rail, #20g): «Позиции» table + «Подытог / Скидка по позициям / Итого» footer; rail: financial card («Сумма продажи»/«Сумма поставки», «Оплачено», «Остаток», «Статус оплаты»), «Информация» (Создано, «Склад отгрузки»/«Склад приёмки», partner), «Платежи», «Примечание и вложения».
-- `/sales/new`, `/supplies/new` — one `NewTransactionEntry` POS page: product search («Найдите товар по названию или артикулу…»), cart «Позиции», partner picker + projected «Баланс после продажи/поставки» card, warehouse «Склад»/«Склад приёмки», bulk-discount row, notes/attachments toggle, `TransactionSummaryCard` (totals → payment «Оплата» with wallet + amount + «Вся сумма» → overpayment disposition → immutability note → «Провести продажу»/«Провести поставку»), «Сохранить как шаблон», «Загрузить шаблон», keyboard hints.
+- `/sales`, `/supplies` — one `TransactionPage` (mode-parameterized): title «Продажи»/«Поставки», «Новая продажа»/«Новая поставка», «Экспорт»; search «Поиск по номеру или партнёру…»/«…или поставщику…», payment-status filter, the shared date filter («Дата: Весь период / Сегодня / Вчера / Эта неделя / Этот месяц / Прошлый месяц / Период…»); a totals band left of the pager («N документов · Сумма · Оплачено · Осталось оплатить», UZS; with a refund in view «Сумма с учётом возвратов» · «Возвраты −…») over the filtered rows; columns № · Дата · Партнёр · Тип · Статус оплаты · Позиций · Сумма · ⋮ (the № opens the document; a copy button appears on row hover; a refund's amount reads negative «−18 000» (D12; the CSV writes the negative number) and sorts below zero; ⋮ «Оформить возврат» on a sale / supply with something left to refund — none on refund rows; a fully refunded document reads «Возвращено полностью» under its № and has no ⋮); badges «Продажа»/«Поставка» (refund badges per refunds.md); status chips «Не оплачено» (Open) / «Частично» (PartiallyPaid) / «Оплачено» (Closed) / «Просрочено» (Overdue).
+- `/sales/:id`, `/supplies/:id` — one `TransactionDetailPage` (right rail, #20g): «Позиции» table + «Подытог / Скидка по позициям / Итого» footer; rail: financial card («Сумма продажи»/«Сумма поставки», «Оплачено», «Остаток», «Статус оплаты»), «Информация» («Проведено», «Склад отгрузки»/«Склад приёмки», partner). Header title names the type — «Продажа №N» / «Поставка №N» / «Возврат продажи №N» — with «Оформить возврат» as the visible action and «Печать накладной» in ⋮ (refund details keep «Печать накладной» visible), «Платежи», «Примечание и вложения».
+- `/sales/:id/print`, `/supplies/:id/print` — the printable «Накладная» (`InvoicePrintPage` on the shared print layout): screen toolbar (back, title, «Печать», PDF hint) above an A4 sheet; the browser's print dialog prints / saves only the sheet.
+- `/sales/new`, `/supplies/new` — one `NewTransactionEntry` POS page: product search («Найдите товар по названию, артикулу или штрих-коду…» — also matches the packaging barcode; Enter on a code that is exactly one product's barcode adds it and clears the field; no match → «Товар не найден · Создать товар (Enter)»), cart «Позиции», partner picker (labelled «Клиент» on a sale with the hint «Покупатель без имени? Выберите «Розничный покупатель»…» while empty; «Поставщик» on a supply; the last row of the partner dropdown is «+ Новый клиент» / «+ Новый поставщик», which opens the partner form over the page and picks the new partner; product dropdown lists in-stock items first) + projected «Баланс после продажи/поставки» card, warehouse «Склад»/«Склад приёмки», bulk-discount row, notes/attachments toggle, `TransactionSummaryCard` (totals → payment «Оплата» with wallet + amount + «Вся сумма» → overpayment disposition → «Провести …» button with the lock line «После проведения изменить нельзя — ошибку исправляют возвратом.» under it (Ctrl/⌘+Enter also commits) → «Провести продажу»/«Провести поставку»), «Сохранить как шаблон», «Загрузить шаблон», keyboard hints.
 
 ## Traps
 
@@ -20,7 +21,7 @@ Module-specific; shared-checklist §6 still applies.
 | Sale submit with zero payment interrupts with a dialog «Провести без оплаты?» → «Провести в долг» | deliberate friction before creating debt, not a validation failure |
 | Wallet options render «{тип} · баланс N UZS» exposing balances in the picker | designed tender affordance |
 | Cart-line «Цена за ед», «Скидка» and «Оплата» amount fields space-group digits as you type («1 500 000») and show blank + placeholder «0» at zero | `MoneyInputBase` live thousands grouping; the raw whole-number UZS is stored, not the formatted string |
-| «Скачать» on detail → toast «… — раздел в разработке» | dev stub |
+| «Скачать» (in ⋮ on a sale/supply, visible on a refund) → toast «… — раздел в разработке» | dev stub until the print feature |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
 | Line totals and stock hints stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count now **is** persisted (F21 resolved 2026-07-19 — FE sends `packageQuantity`, server snapshots `packageSize`) and the detail line shows "N упак / <base>" |
@@ -39,7 +40,7 @@ Expect: products created with **no quantity/cost inputs** on the form (R22); pro
 
 Pre: T-POS-01.
 Steps: 1. `/supplies/new`: partner «QA-<MMDD> Поставщик П», «Склад приёмки» = «QA Склад А». 2. Add П1, qty 10, «Цена поставки за шт» 100. 3. Add П2, qty 10, «Цена поставки за шт» 100. 4. «Оплата»: wallet «QA Касса», «Вся сумма» (2 000). 5. «Провести поставку».
-Expect: success toast cites the document number — per DR-21/F19 it must render «№N»; the current string is «Поставка #{{number}} проведена» — if «#N» renders, report a Cosmetic defect (convention violation), the supply itself is fine. «QA Склад А» → Остатки: П1 qty 10, «Сред. себест.» 100; П2 qty 10, «Сред. себест.» 100 (#16); П1 product detail totalStock 10.
+Expect: success toast «Поставка №N проведена» (DR-21/F19 — «#N» is a defect). «QA Склад А» → Остатки: П1 qty 10, «Сред. себест.» 100; П2 qty 10, «Сред. себест.» 100 (#16); П1 product detail totalStock 10.
 
 ### T-POS-03 · Second supply at a new price — WAC oracle [happy] ✍
 
@@ -69,8 +70,8 @@ Expect: sale created; status «Частично» (PartiallyPaid); detail «Оп
 ### T-POS-07 · Overpayment: change default; settle-debts opt-in; advance gated [happy] ✍
 
 Pre: T-POS-06 — partner has open debt (8 700 + 2 000). П1 stock 10.
-Steps: 1. `/sales/new`: same partner, П1 × 2 @ 1 000 (2 000). 2. Pay 3 000 from «QA Касса» — leftover 1 000 appears. 3. Inspect the disposition controls. 4. Open «Погасить долги» → modal «Распределение платежа»: verify the partner's open transactions are listed with «Остаток» and an «Авто (по порядку)» auto-allocation button; allocate the 1 000 to the oldest (T-POS-04 sale). 5. «Провести платёж» → toast «Распределено по долгам · 1 000 UZS»; summary now shows a «Погашение долгов» row of −1 000 with a «№N» sub-row. 6. Submit.
-Expect: default disposition is «Сдача» (#5, R40); an «Аванс» toggle is **not** offered while other debt remains (R40, #6); settling is opt-in via the modal. After submit: the T-POS-04 sale's «Остаток» drops by 1 000 (8 700 → 7 700), its chip «Частично»; the new sale «Оплачено». П1 stock 8.
+Steps: 1. `/sales/new`: same partner, П1 × 2 @ 1 000 (2 000). 2. Pay 3 000 from «QA Касса» — leftover 1 000 appears. 3. Inspect the disposition controls. 4. Open «Погасить долги» → modal «Какие долги закрыть»: the subtitle says the rest goes to change or an advance; the partner's open transactions are listed with «Остаток» and an «Авто (сначала старые)» button; the third total reads «Останется»; allocate the 1 000 to the oldest (T-POS-04 sale). 5. The confirm button reads «Применить» with «Сохранится вместе с документом, когда вы его проведёте» on its left and no lock note → click it → info toast «1 000 UZS пойдут на долги — сохранится, когда вы проведёте продажу»; summary now shows «Из них на погашение долгов · изменить» 1 000 with a «№N» sub-row. 6. Submit.
+Expect: the breakdown under «Оплата 3 000 UZS» reads «Из них за эту продажу 2 000» and «Сдача клиенту 1 000» — no amount carries a «−» (only «Скидка» keeps its minus). Default disposition is «Сдача» (#5, R40); an «Аванс» toggle is **not** offered while other debt remains (R40, #6); settling is opt-in via the modal, and «изменить» is reachable with Tab and opens it on Enter. Nothing is saved at step 5 (no `POST /api/payments`). After submit: the T-POS-04 sale's «Остаток» drops by 1 000 (8 700 → 7 700), its chip «Частично»; the new sale «Оплачено». П1 stock 8.
 
 ### T-POS-08 · Package-unit entry [happy] ✍
 
@@ -88,8 +89,18 @@ Known: price-change proof is blocked by F1 (product edit crash) — assert curre
 ### T-POS-10 · List filters, search, export [happy]
 
 Pre: T-POS-02…07 data.
-Steps: 1. `/sales`: status filter «Частично». 2. Reset; search the T-POS-04 document number (bare digits). 3. Search «Покупатель». 4. Period «Последние 7 дней». 5. «Экспорт CSV» with search active.
+Steps: 1. `/sales`: status filter «Частично». 2. Reset; search the T-POS-04 document number (bare digits). 3. Search «Покупатель». 4. Period «Последние 7 дней». 5. «Экспорт» with search active.
 Expect: each filter narrows correctly; number search finds the sale; CSV contains exactly the filtered rows (#11); empty combination → «Ничего не найдено» + mode-specific hint text.
+
+### T-POS-11 · Printable «Накладная» of a sale and a supply [happy]
+Pre: the T-POS-04 credit sale (with a discount), the T-POS-08 package sale, the T-POS-02 supply.
+Steps: 1. Sale detail ⋮ → «Печать накладной». 2. Read the sheet. 3. «Печать» → «Сохранить как PDF» preview; cancel. 4. Repeat on the package sale and the supply. 5. Back.
+Expect: 1→ `/sales/<id>/print`; no «Скачать» / «раздел в разработке» anywhere. 2→ business header (Настройки → Организация), «Накладная на продажу №N», «от DD.MM.YYYY», «Склад: …»; «Отправитель» = the business, «Получатель» = the client (company, phones, address); lines № · Товар · Кол-во · Цена · Скидка · Сумма equal the detail's lines; «Всего наименований», «Сумма без скидки» / «Скидка» (only with a discount), «Итого» = the detail total, «Оплачено» / «Осталось оплатить» = the detail's; signatures «Отпустил» (business) / «Получил» (client) with «М.П.». 3→ only the sheet prints on A4. 4→ the pack line shows the base quantity with «N упак» under it; the supply reads «Накладная на поставку №N» with the supplier as «Отправитель» and the business as «Получатель». 5→ back returns to the detail.
+
+### T-POS-12 · New client from the partner picker keeps the cart [happy] ✍
+Pre: `/sales/new` with two lines in the cart and a payment amount typed.
+Steps: 1. In «Клиент» type «QA-<MMDD> Новый клиент» (no match). 2. Choose the last row «Новый клиент «QA-<MMDD> Новый клиент»» (mouse, or ↓ + Enter). 3. The partner form opens: check the name and the type, add phone `901112233`, save. 4. Repeat on `/supplies/new` with «QA-<MMDD> Новый поставщик», but switch the type to «Клиент» before saving.
+Expect: 2→ «Новый партнёр» form over the POS, name = the typed text, type «Клиент»; Enter in the form never posts the sale. 3→ toast «Партнёр … создан», the form closes, «Клиент» shows the new partner with a zero balance, the cart lines and the typed payment are untouched. 4→ the partner is created but the supplier picker stays empty and a toast says «Партнёр «…» сохранён как клиент — для поставки выберите поставщика». The row «+ Новый клиент» is also the last row on an empty search and in New Order's client picker.
 
 ## Edge & negative
 
@@ -147,6 +158,38 @@ Expect: 1 → no unit toggle on a product without packaging (base behavior uncha
 
 Steps: 1. `/supplies/new`: partner «QA-<MMDD> Поставщик П», «Склад приёмки» = «QA Склад А», add «QA Товар Упаковка» → «упак», qty 3. 2. Read the line. 3. Leave without submitting (discard dialog).
 Expect: same toggle/hint mechanics as Sale (hint «= 36 шт»; price label «Цена поставки за шт» stays per base unit); no stock hints or warnings in either unit mode (stock-in, R20). Display-only — T-POS-08's fallback supply already proves pack-mode stock-in math end-to-end.
+
+### T-POS-40 · Decimal quantity is refused, never merged [negative]
+
+Steps: 1. `/sales/new`: add П1, set qty 1. 2. Type «1,5» (then «1.5») into the qty field. 3. Read the line total, then click outside the field.
+Expect: while «1,5» is in the field the box turns red with «Количество — только целое число» under it, and the line keeps qty 1 (line total = 1 × price — never 15, R21); blur restores «1». Refund modal «К возврату» qty: type «1,5» key by key → the field keeps «1,5», the row turns red with «Количество — только целое число», the line is not counted (sum «—») and «Провести возврат» does not post until it is a whole number — never 15; letters are not accepted.
+
+### T-POS-41 · Open debts fail to load → error with retry, never «no debts» [negative]
+
+Steps: 1. `/sales/new`: pick a partner with open debt. 2. In DevTools block `/api/payments/outstanding`, re-pick the partner. 3. Add a line and pay more than the total. 4. Unblock and click «Повторить».
+Expect: 3 → the overpayment block shows «Не удалось загрузить долги партнёра — излишек пока уйдёт сдачей.» with «Повторить»; no «Погасить долги» button and no «Сдача | Аванс» toggle (the excess stays change — an advance is never offered on unknown debt, R40). 4 → the error clears and «Погасить долги» appears.
+
+### T-POS-42 · Date filter and totals band [edge]
+
+Steps: 1. `/sales`: open «Дата: Весь период» → pick «Этот месяц». 2. Read the band left of the pager. 3. Pick «Период…», set С = the 1st of last month, По = today, «Применить». 4. Type a partner name into search. 5. Pick «Весь период».
+Expect: 1 → only this month's documents (from the 1st, not the last 30 days); the control reads «Дата: Этот месяц» with the teal tint. 2 → «N документов · Сумма … UZS · Оплачено … · Осталось оплатить …»; with a refund in view the first sum reads «Сумма с учётом возвратов» and equals the sum of the shown «Сумма» cells (refunds counted negative), followed by «Возвраты −…» (the refunded part); without one it reads «Сумма». 3 → the control reads «Дата: 01.MM.YYYY – DD.MM.YYYY». 4 → the band and the pager follow the search; column widths do not shift as rows narrow. 5 → back to every document; empty filters show «Ничего не найдено» copy without the create button.
+
+### T-POS-43 · Barcode scan adds the line [edge]
+
+Pre: «QA Товар Упаковка» with a product barcode and a packaging barcode (set them in the product form if empty).
+Steps: 1. `/sales/new`: pick a client and a warehouse. 2. Type (or scan) the product barcode, press Enter. 3. Press Enter again on the same code (scan again). 4. Type the packaging barcode, Enter. 5. Type an unknown code «999000111222», Enter; cancel the form.
+Expect: 2 → the line is added with qty 1, the search field is empty and keeps the focus (a scanner can go on). 3 → the same line goes to 2. 4 → the line grows by one package (the pack size); on a new product the line opens in «упак» mode. 5 → the product form opens with the code filled into «Штрих-код»; cancelling returns to the sale with the cart unchanged. Ctrl+Enter inside that form never posts the sale. While a scanned code's product is already a cart line, the dropdown reads «Уже в позициях — измените количество в строке», never «Товар не найден».
+
+### T-POS-44 · A code another product carries is never offered as a new product [edge]
+
+Pre: a sale-only product with a barcode (any «Продажа» product of the seed).
+Steps: 1. `/supplies/new`: type (or scan) that product's barcode. 2. Press Enter.
+Expect: 1 → the dropdown names the product and says it is only for sales («…только для продаж. Чтобы оформить поставку, смените тип товара»); no «Создать товар». 2 → nothing is added and no form opens. An archived product's code reads «…из архива — верните товар из архива…» the same way.
+
+### T-POS-45 · «История изменений» card on a sale [edge]
+Pre: the T-POS-04 credit sale with a later payment.
+Steps: open the sale detail, scroll to «История изменений».
+Expect: «Продажа №N проведена — <клиент>» with the time and the user, then «Расчёты по продаже №N обновлены: статус оплаты Не оплачено → Частично …» for the payment that settled it; opening a row shows «Поле · Было · Стало». No edit or delete affordance anywhere in the card (#8). Details in [activity-log.md](activity-log.md).
 
 ## Reconciliation
 

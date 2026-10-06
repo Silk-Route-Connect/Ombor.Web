@@ -1,29 +1,30 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import FilterDropdown from "components/partner/Detail/FilterDropdown";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
-import { DateRangeFilter, StatusFilter } from "stores/TransactionStore";
+import { StatusFilter } from "stores/TransactionStore";
+import { DateRangeValue } from "utils/dateRange";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box } from "@mui/material";
 
 interface TransactionListHeaderProps {
 	direction: TransactionDirection;
 	searchValue: string;
 	statusFilter: StatusFilter;
-	dateRange: DateRangeFilter;
+	dateRange: DateRangeValue;
 	onSearch: (value: string) => void;
 	onStatusChange: (status: StatusFilter) => void;
-	onDateRangeChange: (range: DateRangeFilter) => void;
+	onDateRangeChange: (range: DateRangeValue) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered feed). */
+	exportCount: number;
 }
 
 export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
@@ -36,6 +37,7 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 	onDateRangeChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -45,12 +47,7 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 				title={t(`transaction.list.title.${direction}`)}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-							onClick={onExport}
-						>
-							{t("transaction.list.exportCsv")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t(`transaction.list.new.${direction}`)}
 						</PrimaryButton>
@@ -76,18 +73,7 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 					]}
 				/>
 				<Box sx={{ flexGrow: 1 }} />
-				<FilterDropdown<DateRangeFilter>
-					label={t("transaction.col.date")}
-					icon={<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />}
-					value={dateRange}
-					onChange={onDateRangeChange}
-					options={[
-						{ value: "all", label: t("transaction.range.all") },
-						{ value: "7", label: t("transaction.range.7") },
-						{ value: "30", label: t("transaction.range.30") },
-						{ value: "90", label: t("transaction.range.90") },
-					]}
-				/>
+				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />
 			</Box>
 		</>
 	);

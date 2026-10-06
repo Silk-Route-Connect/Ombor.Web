@@ -1,8 +1,7 @@
 /**
  * «Настройки» (Settings) — mvp-plan §18. Two server-backed concerns: the
- * organization profile and the tenant's users. There is no backend endpoint for
- * either yet (only /api/auth/*), so both are mocked at the target v1 contract
- * (docs/mocking.md). Interface language is a per-user client preference handled
+ * organization profile and the tenant's users, served by `/api/settings`
+ * (backend-contracts/settings.md). Interface language is a per-user client preference handled
  * by i18n (not part of this contract); currency is a static read-only UZS section.
  */
 
@@ -12,7 +11,10 @@ export type Organization = {
 	address: string;
 	phone: string;
 	email: string;
-	/** Logo as a data URL (mock); null when none set. */
+	/**
+	 * Hosted logo path, relative to the API's image base — resolve it with
+	 * `getImageFullUrl` (a data URL while a new upload is previewed); null when none.
+	 */
 	logoUrl: string | null;
 };
 
@@ -36,10 +38,27 @@ export type TenantUser = {
 	online: boolean;
 	/** ISO timestamp of last activity (deactivation date when inactive); null if never. */
 	lastActiveAt: string | null;
+	/** Invited and not signed in yet — sets a password through «Забыли пароль или входите впервые?». */
+	pendingFirstLogin: boolean;
 };
 
-/** Invite by email or phone. */
+/**
+ * Invite a colleague by phone (`InviteUserRequest`; v1 accepts only `Phone`, the
+ * `ContactType` enum name). No SMS is sent: the colleague signs in the first time
+ * through «Забыли пароль или входите впервые?» with this number.
+ */
 export type InviteUserRequest = {
-	method: ContactType;
+	method: "Phone";
+	/** `+998XXXXXXXXX`. */
 	value: string;
+	/** The phone is shown as the name when omitted. */
+	firstName?: string | null;
+	lastName?: string | null;
+};
+
+/** `PUT /api/settings/password` — the session that sends it stays signed in, every other one ends. */
+export type ChangePasswordRequest = {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
 };

@@ -1,48 +1,54 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
+import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { Warehouse } from "models/warehouse";
-import { designTokens } from "theme";
+import { DateRangeValue } from "utils/dateRange";
 
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Box, MenuItem, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface TransferHeaderProps {
-	totalCount: number | null;
 	warehouses: Warehouse[];
 	warehouseFilter: number | null;
 	onWarehouseChange: (warehouseId: number | null) => void;
 	search: string;
 	onSearchChange: (value: string) => void;
+	dateRange: DateRangeValue;
+	onDateRangeChange: (range: DateRangeValue) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 const ALL_WAREHOUSES = "__all__";
 
 /**
  * Transfers page header. Dataset-level actions (create, «Экспорт») on the title
- * row; the view-shaping warehouse filter on the row below (locked pattern 11).
- * The filter matches a warehouse appearing as source OR destination.
+ * row; search, the warehouse filter and the period on the row below (locked
+ * pattern 11). The warehouse filter matches a source OR a destination.
  */
 const TransferHeader: React.FC<TransferHeaderProps> = ({
-	totalCount,
 	warehouses,
 	warehouseFilter,
 	onWarehouseChange,
 	search,
 	onSearchChange,
+	dateRange,
+	onDateRangeChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
-	const title = totalCount == null ? t("transfer.title") : `${t("transfer.title")} (${totalCount})`;
+	const title = t("transfer.title");
 
 	return (
 		<>
@@ -50,12 +56,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 				title={title}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-							onClick={onExport}
-						>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("transfer.create")}
 						</PrimaryButton>
@@ -69,35 +70,20 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 					onChange={onSearchChange}
 					placeholder={t("transfer.searchPlaceholder")}
 				/>
-				<TextField
-					select
-					size="small"
+				<EntityFilterSelect
 					value={warehouseFilter == null ? ALL_WAREHOUSES : String(warehouseFilter)}
-					onChange={(e) =>
-						onWarehouseChange(e.target.value === ALL_WAREHOUSES ? null : Number(e.target.value))
-					}
-					sx={{
-						width: 220,
-						"& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
-						"& .MuiOutlinedInput-notchedOutline": { borderColor: designTokens.gray300 },
-					}}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<WarehouseOutlinedIcon sx={{ fontSize: 16, color: "text.disabled", mr: "6px" }} />
-							),
-						},
-					}}
-				>
-					<MenuItem value={ALL_WAREHOUSES}>{t("transfer.filter.allWarehouses")}</MenuItem>
-					{warehouses.map((warehouse) => (
-						<MenuItem key={warehouse.id} value={String(warehouse.id)}>
-							{warehouse.name}
-						</MenuItem>
-					))}
-				</TextField>
+					allValue={ALL_WAREHOUSES}
+					allLabel={t("transfer.filter.allWarehouses")}
+					options={warehouses.map((warehouse) => ({
+						value: String(warehouse.id),
+						label: warehouse.name,
+					}))}
+					onChange={(v) => onWarehouseChange(v === ALL_WAREHOUSES ? null : Number(v))}
+					icon={<WarehouseOutlinedIcon />}
+				/>
 
 				<Box sx={{ flexGrow: 1 }} />
+				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />
 			</Box>
 		</>
 	);

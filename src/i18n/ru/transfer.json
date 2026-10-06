@@ -12,7 +12,12 @@
   "transfer.title.create": "Новое перемещение",
 
   "transfer.filter.allWarehouses": "Все склады",
+  "transfer.totals.count_one": "{{formatted}} перемещение",
+  "transfer.totals.count_few": "{{formatted}} перемещения",
+  "transfer.totals.count_many": "{{formatted}} перемещений",
+  "transfer.totals.count_other": "{{formatted}} перемещения",
 
+  "transfer.table.number": "№",
   "transfer.table.date": "Дата",
   "transfer.table.from": "Откуда",
   "transfer.table.to": "Куда",
@@ -22,14 +27,14 @@
   "transfer.table.product": "Товар",
   "transfer.table.sku": "Артикул",
   "transfer.table.quantity": "Кол-во",
-  "transfer.table.unit": "Ед.",
 
   "transfer.empty.title": "Пока нет перемещений",
   "transfer.empty.body": "Перемещения переносят товар между складами. Оба склада обновляются сразу — без статусов и подтверждений. Создайте первое перемещение.",
   "transfer.empty.searchTitle": "Ничего не найдено",
-  "transfer.empty.searchBody": "По выбранному складу перемещений нет. Измените фильтр.",
+  "transfer.empty.searchBody": "По заданным условиям перемещений нет. Измените поиск, склад или период.",
 
   "transfer.detail.title": "Перемещение",
+  "transfer.detail.notFound": "Перемещение не найдено",
   "transfer.detail.from": "Откуда",
   "transfer.detail.to": "Куда",
   "transfer.detail.totalPositions": "Итого позиций: {{positions}}",
@@ -52,6 +57,11 @@
   "transfer.form.notePlaceholder": "Например: Пополнение филиала",
   "transfer.form.positionsCount": "Позиций:",
   "transfer.form.submit": "Провести перемещение",
+  "transfer.form.commitNote": "После проведения изменить нельзя — ошибку исправляют обратным перемещением.",
+  "transfer.needsSecond.title": "Нужен второй склад",
+  "transfer.needsSecond.body": "Перемещение переносит товар с одного склада на другой. Сейчас у вас один склад — «{{name}}». Создайте второй, чтобы перемещать товар.",
+  "transfer.needsSecond.bodyNone": "Перемещение переносит товар с одного склада на другой. Сначала создайте два склада.",
+  "transfer.needsSecond.create": "Создать склад",
 
   "transfer.validation.fromRequired": "Выберите склад-источник",
   "transfer.validation.toRequired": "Выберите склад-получатель",

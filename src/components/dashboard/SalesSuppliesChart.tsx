@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
 import {
 	Area,
@@ -17,8 +18,8 @@ import { formatCurrency, formatShortNumber } from "utils/formatCurrency";
 
 import { useTheme } from "@mui/material";
 
-import ChartTooltip from "./ChartTooltip";
 import { usePrefersReducedMotion } from "./motion";
+import { seriesHeading, seriesTick, seriesTickInterval } from "./seriesLabels";
 
 const HEIGHT = 230;
 const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
@@ -51,7 +52,7 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 		if (!point) return null;
 		return (
 			<ChartTooltip
-				heading={point.label}
+				heading={seriesHeading(point.label)}
 				rows={[
 					{ label: t("dashboard.chart.sales"), color: sales, value: formatCurrency(point.sales) },
 					{
@@ -71,6 +72,8 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 					<CartesianGrid vertical={false} stroke={theme.palette.divider} />
 					<XAxis
 						dataKey="label"
+						tickFormatter={seriesTick}
+						interval={seriesTickInterval(series.length)}
 						tickLine={false}
 						axisLine={false}
 						tick={AXIS_TICK}
@@ -112,6 +115,8 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 					<CartesianGrid vertical={false} stroke={theme.palette.divider} />
 					<XAxis
 						dataKey="label"
+						tickFormatter={seriesTick}
+						interval={seriesTickInterval(series.length)}
 						tickLine={false}
 						axisLine={false}
 						tick={AXIS_TICK}
@@ -124,7 +129,7 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						tick={AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
-					<Tooltip content={renderTooltip} cursor={{ fill: "rgba(18,103,107,0.05)" }} />
+					<Tooltip content={renderTooltip} cursor={{ fill: designTokens.primaryWash }} />
 					<Bar dataKey="sales" fill={sales} radius={[3, 3, 0, 0]} maxBarSize={16} {...anim} />
 					<Bar
 						dataKey="supplies"

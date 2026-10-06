@@ -1,45 +1,65 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import DetailCard from "components/shared/Detail/DetailCard";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
+import { movementKindLabelKey } from "components/shared/Chip/movementKind";
+import MovementKindChip from "components/shared/Chip/MovementKindChip";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import DateCell from "components/shared/Table/cells/DateCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
+import MovementSourceCell from "components/stockMovement/MovementSourceCell";
+import MovementSourceDialogs from "components/stockMovement/MovementSourceDialogs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
-import { ProductMovement } from "models/product";
+import { useMovementSourceOpener } from "hooks/stockMovement/useMovementSourceOpener";
+import { Measurement, ProductMovement } from "models/product";
 import { numericSx } from "theme";
-import { formatDateTime } from "utils/dateUtils";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatQuantity } from "utils/formatCurrency";
+import { entityNumberSortValue } from "utils/formatEntityId";
+import {
+	isMovementSourceOpenable,
+	movementSourceCsv,
+	movementSourceNumber,
+} from "utils/movementSource";
+import { measurementShort } from "utils/productUtils";
 
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { Box } from "@mui/material";
 
-import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
-import HistoryEmptyState from "./HistoryEmptyState";
-import TransactionKindChip from "./TransactionKindChip";
-
 interface ProductMovementsTabProps {
+	productName: string;
 	/** Newest first, as served. */
 	movements: ProductMovement[];
+	measurement: Measurement;
 }
 
-type SortCol = "date" | "type" | "warehouse" | "in" | "out" | "balance";
-
-const Dash: React.FC = () => (
-	<Box component="span" sx={{ color: "text.disabled" }}>
-		—
-	</Box>
-);
+/** A transfer is served as two movements sharing the line id — rows key by position. */
+type MovementRow = ProductMovement & { eventId: number };
 
 /**
- * «Движения» per the bundle: the warehouse ledger with the served running
- * balance and the opening-stock summary row. Sortable on every column
- * (defaults to date, newest first). The opening figure is the remainder before
- * the chronologically oldest movement (balanceAfter − delta) — derived by date
- * so it stays correct regardless of the display sort.
+ * «Движения»: the product's stock ledger across warehouses — one signed
+ * quantity column and the served running balance, with the opening-stock band.
+ * A row (or its №) opens the source document: a sale / supply / refund page, or
+ * the transfer / adjustment detail in place. The opening figure is the
+ * remainder before the chronologically oldest movement (balanceAfter − delta),
+ * so it holds under any display sort.
  */
-export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ movements }) => {
+export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
+	productName,
+	movements,
+	measurement,
+}) => {
 	const { t } = useTranslation();
-	const [sortCol, setSortCol] = useState<SortCol>("date");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
+	const tableOrder = useTableOrder<MovementRow>();
+	const openSource = useMovementSourceOpener();
+
+	const rows = useMemo<MovementRow[]>(
+		() => movements.map((m, index) => ({ ...m, id: index, eventId: m.id })),
+		[movements],
+	);
 
 	const oldest =
 		movements.length > 0
@@ -47,158 +67,100 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({ moveme
 			: null;
 	const openingBalance = oldest ? oldest.balanceAfter - oldest.quantity : 0;
 
-	const rows = useMemo(() => {
-		const accessor = (m: ProductMovement): string | number => {
-			switch (sortCol) {
-				case "date":
-					return m.date;
-				case "type":
-					return m.kind;
-				case "warehouse":
-					return m.warehouseName;
-				case "in":
-					return m.quantity > 0 ? m.quantity : 0;
-				case "out":
-					return m.quantity < 0 ? -m.quantity : 0;
-				case "balance":
-					return m.balanceAfter;
-				default:
-					return "";
-			}
-		};
-		const sorted = [...movements].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? sorted.reverse() : sorted;
-	}, [movements, sortCol, sortDir]);
+	const columns = useMemo<Column<MovementRow>[]>(
+		() => [
+			{
+				key: "number",
+				headerName: t("product.detail.moves.number"),
+				sortValue: (m) => entityNumberSortValue(movementSourceNumber(m)),
+				renderCell: (m) => <MovementSourceCell movement={m} onOpen={openSource} />,
+			},
+			{
+				key: "date",
+				headerName: t("product.detail.txns.date"),
+				sortValue: (m) => Date.parse(m.date),
+				renderCell: (m) => <DateCell value={m.date} />,
+			},
+			{
+				key: "warehouse",
+				headerName: t("product.detail.table.warehouse"),
+				sortValue: (m) => m.warehouseName,
+				renderCell: (m) => <WarehouseLink id={m.warehouseId} name={m.warehouseName} />,
+			},
+			{
+				key: "type",
+				headerName: t("product.detail.txns.type"),
+				sortValue: (m) => t(movementKindLabelKey(m.kind)),
+				renderCell: (m) => <MovementKindChip kind={m.kind} />,
+			},
+			{
+				key: "quantity",
+				headerName: t("product.detail.table.quantity"),
+				align: "right",
+				sortValue: (m) => m.quantity,
+				renderCell: (m) => (
+					<QuantityCell
+						value={m.quantity}
+						measurement={measurement}
+						direction={m.quantity >= 0 ? "in" : "out"}
+					/>
+				),
+			},
+			{
+				key: "balance",
+				headerName: t("product.detail.moves.balance"),
+				align: "right",
+				sortValue: (m) => m.balanceAfter,
+				renderCell: (m) => <QuantityCell value={m.balanceAfter} measurement={measurement} />,
+			},
+		],
+		[t, measurement, openSource],
+	);
 
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
+	const handleExport = () => {
+		exportToCsv<MovementRow>(
+			`product_${productName}_movements_${csvDateStamp()}`,
+			[
+				{ header: t("product.detail.moves.number"), value: (m) => movementSourceCsv(m, t) },
+				{ header: t("product.detail.txns.date"), value: (m) => formatDate(m.date) },
+				{ header: t("product.detail.table.warehouse"), value: (m) => m.warehouseName },
+				{ header: t("product.detail.txns.type"), value: (m) => t(movementKindLabelKey(m.kind)) },
+				{ header: t("product.detail.table.quantity"), value: (m) => m.quantity },
+				{ header: t("product.detail.moves.balance"), value: (m) => m.balanceAfter },
+				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },
+			],
+			tableOrder.apply(rows),
+		);
 	};
 
 	return (
-		<DetailCard
-			title={t("product.detail.moves.title")}
-			icon={<LayersOutlinedIcon sx={cardIconSx} />}
-		>
-			{movements.length === 0 ? (
-				<HistoryEmptyState
-					icon={<LayersOutlinedIcon sx={{ fontSize: 22 }} />}
-					title={t("product.detail.moves.emptyTitle")}
-					body={t("product.detail.moves.emptyBody")}
-				/>
-			) : (
-				<Box component="table" sx={detailTableSx}>
-					<thead>
-						<tr>
-							<DetailSortHeader
-								col="date"
-								label={t("product.detail.txns.date")}
-								active={sortCol === "date"}
-								dir={sortDir}
-								onSort={onSort}
-							/>
-							<DetailSortHeader
-								col="type"
-								label={t("product.detail.txns.type")}
-								active={sortCol === "type"}
-								dir={sortDir}
-								onSort={onSort}
-							/>
-							<DetailSortHeader
-								col="warehouse"
-								label={t("product.detail.table.warehouse")}
-								active={sortCol === "warehouse"}
-								dir={sortDir}
-								onSort={onSort}
-							/>
-							<DetailSortHeader
-								col="in"
-								label={t("product.detail.moves.in")}
-								active={sortCol === "in"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-							/>
-							<DetailSortHeader
-								col="out"
-								label={t("product.detail.moves.out")}
-								active={sortCol === "out"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-							/>
-							<DetailSortHeader
-								col="balance"
-								label={t("product.detail.moves.balance")}
-								active={sortCol === "balance"}
-								dir={sortDir}
-								onSort={onSort}
-								align="right"
-							/>
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((movement) => (
-							<tr key={movement.id}>
-								<td>
-									<Box component="span" sx={{ ...numericSx, color: "text.secondary" }}>
-										{formatDateTime(movement.date)}
-									</Box>
-								</td>
-								<td>
-									<TransactionKindChip kind={movement.kind} />
-								</td>
-								<td>
-									<WarehouseLink id={movement.warehouseId} name={movement.warehouseName} />
-								</td>
-								<td className="r">
-									{movement.quantity > 0 ? (
-										<Box component="span" sx={quantityInSx}>
-											{formatQuantity(movement.quantity)}
-										</Box>
-									) : (
-										<Dash />
-									)}
-								</td>
-								<td className="r">
-									{movement.quantity < 0 ? (
-										<Box component="span" sx={quantityOutSx}>
-											{formatQuantity(Math.abs(movement.quantity))}
-										</Box>
-									) : (
-										<Dash />
-									)}
-								</td>
-								<td className="r">
-									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-										{formatQuantity(movement.balanceAfter)}
-									</Box>
-								</td>
-							</tr>
-						))}
-						<tr className="total">
-							<td colSpan={2}>
-								<Box component="span" sx={{ color: "text.secondary", fontWeight: 600 }}>
-									{t("product.detail.moves.opening")}
-								</Box>
-							</td>
-							<td></td>
-							<td className="r"></td>
-							<td className="r"></td>
-							<td className="r">
-								<Box component="span" sx={{ ...numericSx, fontWeight: 800 }}>
-									{formatQuantity(openingBalance)}
-								</Box>
-							</td>
-						</tr>
-					</tbody>
-				</Box>
-			)}
-		</DetailCard>
+		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
+			<DetailTable<MovementRow>
+				exportOrder={tableOrder}
+				rows={rows}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				onRowClick={openSource}
+				isRowClickable={isMovementSourceOpenable}
+				empty={
+					<TableEmptyState
+						icon={<LayersOutlinedIcon />}
+						title={t("product.detail.moves.emptyTitle")}
+						hint={t("product.detail.moves.emptyBody")}
+					/>
+				}
+				footer={
+					<tr className="total">
+						<td colSpan={5}>{t("product.detail.moves.opening")}</td>
+						<Box component="td" className="r" sx={numericSx}>
+							{formatQuantity(openingBalance)}
+						</Box>
+					</tr>
+				}
+			/>
+			<MovementSourceDialogs />
+		</DetailTableCard>
 	);
 };
 

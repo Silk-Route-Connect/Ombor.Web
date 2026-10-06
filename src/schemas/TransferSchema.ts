@@ -10,7 +10,10 @@ import { z } from "zod";
  */
 export const TransferLineSchema = z.object({
 	productId: z.number().int().positive(i18next.t("transfer.validation.lineProductRequired")),
-	quantity: z.number().positive(i18next.t("transfer.validation.lineQuantityPositive")),
+	// NaN is a typed «1,5» (NumericField).
+	quantity: z
+		.number({ error: i18next.t("common.quantity.wholeOnly") })
+		.positive(i18next.t("transfer.validation.lineQuantityPositive")),
 });
 
 export const TransferSchema = z

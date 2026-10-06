@@ -26,11 +26,6 @@ export interface ProductFormPackagingProps {
 	disablePackaging: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
 /** Bundle `.switch`: 42×24 pill, gray-300 track (primary when on), 20px knob. */
 const switchSx = {
 	width: 42,
@@ -40,14 +35,14 @@ const switchSx = {
 		p: "2px",
 		"&.Mui-checked": {
 			transform: "translateX(18px)",
-			color: "#fff",
+			color: "common.white",
 			"& + .MuiSwitch-track": { bgcolor: "primary.main", opacity: 1 },
 		},
 	},
 	"& .MuiSwitch-thumb": {
 		width: 20,
 		height: 20,
-		bgcolor: "#fff",
+		bgcolor: "common.white",
 		boxShadow: (theme: { shadows: string[] }) => theme.shadows[1],
 	},
 	"& .MuiSwitch-track": { borderRadius: 999, bgcolor: designTokens.gray300, opacity: 1 },
@@ -120,15 +115,10 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 							render={({ field, fieldState }) => (
 								<NumericField
 									{...field}
-									value={field.value}
 									size="small"
-									min={2}
-									step={1}
-									selectOnFocus
 									disabled={disabled}
 									error={!!fieldState.error}
 									helperText={fieldState.error?.message}
-									onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 								/>
 							)}
 						/>

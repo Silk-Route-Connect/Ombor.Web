@@ -96,7 +96,7 @@ export const WarehouseSummaryStrip: React.FC<WarehouseSummaryStripProps> = ({ to
 					label={t("warehouse.summary.products")}
 				/>
 				<Value>{formatQuantity(totals.productCount)}</Value>
-				<Sub text={t("warehouse.summary.productsSub")} />
+				<Sub text={t("warehouse.summary.productsSub", { count: totals.productCount })} />
 			</Box>
 
 			<Box sx={CARD_SX}>

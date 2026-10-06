@@ -38,7 +38,7 @@ const OfflineIndicator: React.FC = observer(() => {
 					borderRadius: 1,
 					bgcolor: designTokens.errorBg,
 					color: "error.main",
-					fontSize: 12.5,
+					fontSize: 12,
 					fontWeight: 600,
 					whiteSpace: "nowrap",
 				}}

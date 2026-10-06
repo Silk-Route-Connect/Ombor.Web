@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import { TFunction } from "i18next";
 import { Partner } from "models/partner";
-import { designTokens } from "theme";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -31,24 +30,24 @@ export function buildPartnerActionRows(
 		{
 			key: "edit",
 			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
+			icon: <EditOutlinedIcon fontSize="small" />,
 			onClick: onEdit,
 		},
 		partner.isArchived
 			? {
 					key: "restore",
 					label: t("common.restore"),
-					labelColor: "success.main",
+					tone: "restore",
 					dividerBefore: true,
-					icon: <UnarchiveOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
+					icon: <UnarchiveOutlinedIcon fontSize="small" />,
 					onClick: onRestore,
 				}
 			: {
 					key: "archive",
 					label: t("common.archive"),
-					labelColor: designTokens.saffron700,
+					tone: "archive",
 					dividerBefore: true,
-					icon: <ArchiveOutlinedIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />,
+					icon: <ArchiveOutlinedIcon fontSize="small" />,
 					onClick: onArchive,
 				},
 		{
@@ -56,7 +55,7 @@ export function buildPartnerActionRows(
 			label: t("common.delete"),
 			tone: "danger",
 			dividerBefore: true,
-			icon: <DeleteOutlineIcon fontSize="small" sx={{ color: "error.main" }} />,
+			icon: <DeleteOutlineIcon fontSize="small" />,
 			onClick: onDelete,
 		},
 	];

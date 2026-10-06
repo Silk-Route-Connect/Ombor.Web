@@ -1,11 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
+import BalanceCell from "components/shared/Table/cells/BalanceCell";
 import { DashboardDebtor } from "models/dashboard";
-import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { designTokens } from "theme";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 
 interface Props {
 	debtors: DashboardDebtor[];
@@ -13,29 +14,11 @@ interface Props {
 	onAllPartners: () => void;
 }
 
-const Avatar: React.FC<{ name: string }> = ({ name }) => (
-	<Box
-		sx={{
-			width: 36,
-			height: 36,
-			flex: "0 0 auto",
-			borderRadius: "50%",
-			display: "grid",
-			placeItems: "center",
-			bgcolor: "primary.light",
-			color: "primary.main",
-			fontSize: 14,
-			fontWeight: 700,
-		}}
-	>
-		{name.trim().charAt(0).toUpperCase()}
-	</Box>
-);
-
 /**
  * «Топ должников» — the five partners with the largest outstanding receivable.
  * Rows deep-link to the partner detail; a footer links to the full partner list.
- * Amounts are red (we are owed) — colour only, no signs (locked pattern 4).
+ * Each row is about one partner, so the amount reads from the partner's side
+ * (DR-27): a debtor shows «−…» in red, via the shared partner-balance helpers.
  */
 const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners }) => {
 	const { t } = useTranslation();
@@ -60,10 +43,14 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 
 			<Box sx={{ p: "4px 0" }}>
 				{debtors.map((d) => (
-					<Box
+					<ButtonBase
 						key={d.partnerId}
 						onClick={() => onOpenDebtor(d.partnerId)}
 						sx={{
+							width: "100%",
+							justifyContent: "flex-start",
+							textAlign: "left",
+							fontFamily: "inherit",
 							display: "flex",
 							alignItems: "center",
 							gap: "12px",
@@ -72,7 +59,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 							"&:hover": { bgcolor: designTokens.gray25 },
 						}}
 					>
-						<Avatar name={d.name} />
+						<EntityAvatar name={d.name} />
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Typography
 								sx={{ fontWeight: 600, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis" }}
@@ -82,7 +69,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 							<Typography
 								sx={{
 									fontSize: 12,
-									color: "text.disabled",
+									color: "text.secondary",
 									overflow: "hidden",
 									textOverflow: "ellipsis",
 								}}
@@ -90,19 +77,17 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 								{d.company ?? t("dashboard.topDebtors.noCompany")}
 							</Typography>
 						</Box>
-						<Box
-							component="span"
-							sx={{ ...numericSx, fontWeight: 700, fontSize: 14.5, color: "error.main" }}
-						>
-							{formatCurrency(d.amount)}
-						</Box>
-					</Box>
+						<BalanceCell balance={d.amount} main />
+					</ButtonBase>
 				))}
 			</Box>
 
-			<Box
+			<ButtonBase
 				onClick={onAllPartners}
 				sx={{
+					width: "100%",
+					fontFamily: "inherit",
+					borderRadius: "0 0 12px 12px",
 					mt: "auto",
 					display: "flex",
 					alignItems: "center",
@@ -120,7 +105,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 			>
 				{t("dashboard.topDebtors.allPartners")}
 				<ChevronRightIcon sx={{ fontSize: 15 }} />
-			</Box>
+			</ButtonBase>
 		</Paper>
 	);
 };

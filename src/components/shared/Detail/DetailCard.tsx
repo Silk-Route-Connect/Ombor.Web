@@ -2,6 +2,9 @@ import React from "react";
 
 import { Box, Paper, Typography } from "@mui/material";
 
+/** Leading icon of a card title (`.sd-card-title` icon). */
+export const detailCardIconSx = { fontSize: 17, color: "text.secondary" } as const;
+
 export interface DetailCardProps {
 	/** Card title with its leading icon; omit for chrome-less cards. */
 	title?: string;

@@ -3,32 +3,42 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DebtFilters from "components/debt/DebtFilters";
 import DebtSummaryCards from "components/debt/DebtSummaryCards";
-import { PartnerDebtTable, TransactionDebtTable } from "components/debt/DebtTables";
 import DebtTabs from "components/debt/DebtTabs";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/DebtTables";
+import {
+	debtDocumentPath,
+	DebtRow,
+	toDebtRows,
+} from "components/debt/Table/transactionDebtTableConfigs";
+import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
+import ExportButton from "components/shared/Buttons/ExportButton";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableToolbar from "components/shared/Table/TableToolbar";
+import { isLoadError, isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
-import { partnerDebtPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { partnerDebtPath, partnerStatementPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
+import { directionOf, isRefundType } from "utils/transactionUtils";
 
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 
 const DebtPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { debtStore } = useStore();
+	const { debtStore, debtReminderStore } = useStore();
+	const tableOrder = useTableOrder<DebtRow>();
 
 	useEffect(() => {
 		debtStore.getAll();
 	}, [debtStore]);
 
-	const loading = debtStore.allDebts === "loading";
+	const { summary, allDebts } = debtStore;
 
 	const anyFilter =
 		debtStore.searchTerm.trim().length > 0 ||
@@ -37,50 +47,59 @@ const DebtPage: React.FC = observer(() => {
 		debtStore.directionFilter !== "all";
 
 	const handleExport = (): void => {
-		const rows = debtStore.transactionRows;
+		// The unpaid documents in that tab's sort while it is open; served order from «По партнёрам».
+		const rows = tableOrder.apply(toDebtRows(debtStore.transactionRows));
 		const columns: CsvColumn<Debt>[] = [
 			{
 				header: t("debt.txTable.document"),
-				value: (d) => formatEntityId(d.number ?? d.transactionId),
+				value: (d) => formatOptionalNumber(d.number, t("common.noNumber")),
 			},
 			{ header: t("debt.txTable.date"), value: (d) => formatDate(d.date) },
+			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
 			{
 				header: t("debt.txTable.type"),
 				value: (d) =>
-					t(`transaction.badge.base.${d.direction === "Receivable" ? "Sale" : "Supply"}`),
+					t(
+						isRefundType(d.transactionType)
+							? `transaction.badge.refund.${directionOf(d.transactionType)}`
+							: `transaction.badge.base.${directionOf(d.transactionType)}`,
+					),
 			},
-			{ header: t("debt.txTable.partner"), value: (d) => d.partnerName },
+			{ header: t("debt.txTable.ageCsv"), value: (d) => d.ageDays },
 			{ header: t("debt.txTable.total"), value: (d) => d.total },
 			{ header: t("debt.txTable.paid"), value: (d) => d.paid },
 			{ header: t("debt.txTable.remaining"), value: (d) => d.remaining },
-			{ header: t("debt.txTable.ageCsv"), value: (d) => d.ageDays },
 		];
 		exportToCsv(`debts_${csvDateStamp()}`, columns, rows);
 	};
 
 	const openTransaction = (d: Debt): void => {
-		const path =
-			d.transactionType === "Supply" || d.transactionType === "SupplyRefund"
-				? supplyDetailPath(d.transactionId)
-				: saleDetailPath(d.transactionId);
-		navigate(path);
+		void navigate(debtDocumentPath(d));
 	};
 
 	return (
 		<Box>
-			<PageHeader title={t("debt.title")} />
+			<PageHeader
+				title={t("debt.title")}
+				actions={
+					<ExportButton onExport={handleExport} rowCount={debtStore.transactionRows.length} />
+				}
+			/>
 
-			{loading ? (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-					<CircularProgress />
-				</Box>
+			{!isReady(summary) || !isReady(allDebts) ? (
+				// The totals and the unpaid documents load together; either failing is the page's error.
+				<LoadStateView
+					state={isLoadError(summary) ? summary : isLoadError(allDebts) ? allDebts : "loading"}
+					onRetry={() => void debtStore.getAll()}
+					errorTitle={t("debt.error.getAll")}
+				/>
 			) : (
 				<>
-					<DebtSummaryCards summary={debtStore.summary} onCard={debtStore.applyCard} />
+					<DebtSummaryCards summary={summary} onCard={debtStore.applyCard} />
 
 					<DebtTabs
 						value={debtStore.tab}
-						partnersCount={debtStore.partnerGroups.length}
+						partnersCount={debtStore.partnerRows.length}
 						transactionsCount={debtStore.transactionRows.length}
 						onChange={debtStore.setTab}
 					/>
@@ -93,7 +112,6 @@ const DebtPage: React.FC = observer(() => {
 						}}
 						filters={
 							<DebtFilters
-								tab={debtStore.tab}
 								ageBucket={debtStore.ageBucket}
 								directionFilter={debtStore.directionFilter}
 								onlyOverdue={debtStore.onlyOverdue}
@@ -102,21 +120,15 @@ const DebtPage: React.FC = observer(() => {
 								onClearOverdue={() => debtStore.setOnlyOverdue(false)}
 							/>
 						}
-						actions={
-							<GhostButton
-								icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-								onClick={handleExport}
-							>
-								{t("debt.exportCsv")}
-							</GhostButton>
-						}
 					/>
 
 					{debtStore.tab === "partners" ? (
 						<PartnerDebtTable
-							groups={debtStore.partnerGroups}
+							rows={debtStore.partnerRows}
 							anyFilter={anyFilter}
 							onOpen={(g) => navigate(partnerDebtPath(g.partnerId))}
+							onRemind={(g) => debtReminderStore.open(g.partnerId)}
+							onStatement={(g) => navigate(partnerStatementPath(g.partnerId))}
 						/>
 					) : (
 						// Keyed by the preset nonce so any summary-card click re-seeds the
@@ -126,6 +138,7 @@ const DebtPage: React.FC = observer(() => {
 						<TransactionDebtTable
 							key={debtStore.txPresetNonce}
 							rows={debtStore.transactionRows}
+							exportOrder={tableOrder}
 							anyFilter={anyFilter}
 							defaultSort={{ key: debtStore.txPresetSort, order: "desc" }}
 							onOpen={openTransaction}
@@ -133,6 +146,8 @@ const DebtPage: React.FC = observer(() => {
 					)}
 				</>
 			)}
+
+			<DebtReminderDialog />
 		</Box>
 	);
 });

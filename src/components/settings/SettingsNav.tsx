@@ -1,7 +1,7 @@
 import React from "react";
 import { designTokens } from "theme";
 
-import { Box } from "@mui/material";
+import { Box, ButtonBase } from "@mui/material";
 
 export type SettingsSectionDef = {
 	key: string;
@@ -34,10 +34,13 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 		{sections.map((s) => {
 			const on = s.key === activeKey;
 			return (
-				<Box
+				<ButtonBase
 					key={s.key}
 					onClick={() => onJump(s.key)}
+					aria-current={on ? "true" : undefined}
 					sx={{
+						justifyContent: "flex-start",
+						fontFamily: "inherit",
 						display: "flex",
 						alignItems: "center",
 						gap: "11px",
@@ -58,7 +61,7 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 				>
 					<Box className="set-nav-ic">{s.icon}</Box>
 					{s.label}
-				</Box>
+				</ButtonBase>
 			);
 		})}
 	</Box>

@@ -93,7 +93,7 @@ export const AuthSuccessBadge: React.FC = () => (
 				height: 52,
 				borderRadius: "50%",
 				bgcolor: "success.main",
-				color: "#fff",
+				color: "common.white",
 				display: "grid",
 				placeItems: "center",
 			}}

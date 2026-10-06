@@ -1,181 +1,161 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { AuthBackLink, AuthHead, AuthLink, AuthSuccessBadge } from "components/auth/AuthChrome";
-import { AuthCodeInput, AuthPasswordField, AuthPhoneField } from "components/auth/AuthFields";
-import { useCountdown } from "hooks/auth/useCountdown";
+import { AuthBackLink, AuthHead, AuthSuccessBadge } from "components/auth/AuthChrome";
+import AuthCodeStep from "components/auth/AuthCodeStep";
+import { AuthBanner } from "components/auth/AuthFields/AuthBanner";
+import { AuthPasswordField } from "components/auth/AuthFields/AuthPasswordField";
+import { AuthPhoneField } from "components/auth/AuthFields/AuthPhoneField";
+import { useCodeChallenge } from "hooks/auth/useCodeChallenge";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
+import { LoginPrefill } from "routing/navigationState";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import {
-	confirmError,
-	maskedPhone,
-	passwordError,
-	phoneError as phoneErrorOf,
-} from "utils/authValidation";
-import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
+import { describeApiReason } from "utils/apiError";
+import { isCodeRefused } from "utils/authErrors";
+import { confirmError, passwordError, phoneError as phoneErrorOf } from "utils/authValidation";
+import { maskUzPhone, normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
 import { Box, Button, Typography } from "@mui/material";
 
 type Step = "phone" | "code" | "newpass" | "success";
-const RESEND_SECONDS = 60;
-const CODE_LENGTH = 4;
 
+const submitSx = { height: 46, fontSize: 15, borderRadius: "10px" } as const;
+
+/**
+ * «Забыли пароль или входите впервые?» — phone → SMS code → new password. It is
+ * also how an invited colleague signs in the first time: the code proves the
+ * phone and the password they set here becomes their login (settings.md → invite).
+ */
 const ResetPasswordPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { authStore, notificationStore } = useStore();
+	const challenge = useCodeChallenge();
 
 	const [step, setStep] = useState<Step>("phone");
 	const [phone, setPhone] = useState("");
 	const [e164, setE164] = useState("");
-	const [code, setCode] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirm, setConfirm] = useState("");
 	const [tried, setTried] = useState(false);
-	const [codeInvalid, setCodeInvalid] = useState(false);
+	const [banner, setBanner] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
-	const { seconds, start } = useCountdown(RESEND_SECONDS);
+	const [resending, setResending] = useState(false);
 
-	const resetTried = () => setTried(false);
+	const goTo = (next: Step) => {
+		setTried(false);
+		setBanner(null);
+		setStep(next);
+	};
 
-	/* ── step: phone ── */
 	const sendCode = async () => {
 		setTried(true);
-		if (phoneErrorOf(phone)) {
+		setBanner(null);
+		if (busy || phoneErrorOf(phone)) {
 			return;
 		}
 		const phoneE164 = normalizeUzPhoneToE164(phone);
 		setBusy(true);
 		try {
-			await authStore.requestPasswordReset({ phoneNumber: phoneE164 });
+			challenge.issue(await authStore.requestPasswordReset({ phoneNumber: phoneE164 }));
 			setE164(phoneE164);
-			setCode("");
-			resetTried();
-			setStep("code");
-			start(RESEND_SECONDS);
-			notificationStore.success(t("auth.reset.sent", { phone: maskedPhone(phone) }));
-		} catch {
-			notificationStore.error(t("auth.reset.failed"));
+			goTo("code");
+		} catch (e) {
+			setBanner(describeApiReason(e, "auth.reset.failed"));
 		} finally {
 			setBusy(false);
 		}
 	};
 
-	/* ── step: code ── */
 	const verifyCode = async () => {
-		setTried(true);
-		setCodeInvalid(false);
-		if (code.length < CODE_LENGTH) {
+		if (busy || !challenge.readyToSend()) {
 			return;
 		}
 		setBusy(true);
 		try {
-			await authStore.verifyResetCode({ phoneNumber: e164, code });
-			resetTried();
-			setStep("newpass");
-		} catch {
-			// Keep the entered code and flag it as invalid so the user sees
-			// «Неверный код», not the length-based «code incomplete» message.
-			setCodeInvalid(true);
+			await authStore.verifyResetCode({ phoneNumber: e164, code: challenge.code });
+			goTo("newpass");
+		} catch (e) {
+			challenge.refuse(e);
 		} finally {
 			setBusy(false);
 		}
 	};
 
 	const resend = async () => {
-		if (seconds > 0 || busy) {
+		if (resending) {
 			return;
 		}
-		setBusy(true);
-		setCodeInvalid(false);
+		setResending(true);
 		try {
-			await authStore.requestPasswordReset({ phoneNumber: e164 });
-			start(RESEND_SECONDS);
-			notificationStore.success(t("auth.reset.sent", { phone: maskedPhone(phone) }));
-		} catch {
-			notificationStore.error(t("auth.reset.failed"));
+			challenge.issue(await authStore.requestPasswordReset({ phoneNumber: e164 }));
+			// Same answer for an unknown number, so no «отправлен» claim (see codeSubtitle).
+			notificationStore.info(t("auth.reset.resent"));
+		} catch (e) {
+			challenge.holdResend(e);
+			notificationStore.error(describeApiReason(e, "auth.reset.failed"));
 		} finally {
-			setBusy(false);
+			setResending(false);
 		}
 	};
 
-	/* ── step: newpass ── */
-	const changePassword = async () => {
+	const savePassword = async () => {
 		setTried(true);
-		if (passwordError(password) || confirmError(password, confirm)) {
+		setBanner(null);
+		if (busy || passwordError(password) || confirmError(password, confirm)) {
 			return;
 		}
 		setBusy(true);
 		try {
 			await authStore.resetPassword({
 				phoneNumber: e164,
-				code,
+				code: challenge.code,
 				newPassword: password,
 				confirmPassword: confirm,
 			});
-			setStep("success");
-		} catch {
-			notificationStore.error(t("auth.reset.changeFailed"));
+			goTo("success");
+		} catch (e) {
+			// The code ran out (or was burned) while the password was being typed:
+			// back to the code step, which says why and offers a new code.
+			if (isCodeRefused(e)) {
+				goTo("code");
+				challenge.refuse(e);
+			} else {
+				setBanner(describeApiReason(e, "auth.reset.changeFailed"));
+			}
 		} finally {
 			setBusy(false);
 		}
 	};
 
+	const toLogin = () => navigate(PATHS.login, { state: { phone } satisfies LoginPrefill });
+	const passwordErr = tried ? passwordError(password) : null;
+	const confirmErr = tried ? confirmError(password, confirm) : null;
+	const bannerBox = banner && (
+		<Box sx={{ mb: "18px" }}>
+			<AuthBanner>{banner}</AuthBanner>
+		</Box>
+	);
+
 	if (step === "code") {
-		const codeErr = codeInvalid
-			? t("auth.errors.codeInvalid")
-			: tried && code.length < CODE_LENGTH
-				? t("auth.errors.codeIncomplete")
-				: undefined;
 		return (
 			<AuthLayout>
-				<AuthHead
+				<AuthCodeStep
 					title={t("auth.reset.codeTitle")}
-					subtitle={t("auth.reset.codeSubtitle", { phone: maskedPhone(phone) })}
+					subtitle={t("auth.reset.codeSubtitle", {
+						count: challenge.codeLength,
+						phone: maskUzPhone(phone),
+					})}
+					challenge={challenge}
+					submitLabel={t("auth.reset.codeSubmit")}
+					busy={busy}
+					onSubmit={() => void verifyCode()}
+					onResend={() => void resend()}
+					backLabel={t("auth.reset.changePhone")}
+					onBack={() => goTo("phone")}
 				/>
-				<AuthCodeInput
-					value={code}
-					onChange={(v) => {
-						setCode(v);
-						setCodeInvalid(false);
-					}}
-					length={CODE_LENGTH}
-					autoFocus
-					error={codeErr}
-				/>
-				<Typography sx={{ textAlign: "center", fontSize: 13, color: "text.secondary", mt: "14px" }}>
-					{t("auth.otp.resendPrompt")}{" "}
-					{seconds > 0 ? (
-						<Box component="span" sx={{ color: "text.disabled" }}>
-							{t("auth.otp.resendIn", { seconds })}
-						</Box>
-					) : (
-						<AuthLink onClick={() => void resend()}>{t("auth.otp.resend")}</AuthLink>
-					)}
-				</Typography>
-				<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
-					<Button
-						variant="contained"
-						fullWidth
-						disabled={busy}
-						onClick={() => void verifyCode()}
-						sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
-					>
-						{t("auth.reset.codeSubmit")}
-					</Button>
-					<AuthBackLink
-						onClick={() => {
-							setCode("");
-							setCodeInvalid(false);
-							resetTried();
-							setStep("phone");
-						}}
-					>
-						{t("auth.reset.changePhone")}
-					</AuthBackLink>
-				</Box>
 			</AuthLayout>
 		);
 	}
@@ -184,6 +164,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 		return (
 			<AuthLayout>
 				<AuthHead title={t("auth.reset.newTitle")} subtitle={t("auth.reset.newSubtitle")} />
+				{bannerBox}
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "15px" }}>
 					<AuthPasswordField
 						label={t("auth.field.newPassword")}
@@ -191,7 +172,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 						autoFocus
 						placeholder={t("auth.field.passwordMin")}
 						autoComplete="new-password"
-						error={tried && passwordError(password) ? t(passwordError(password)!) : undefined}
+						error={passwordErr ? t(passwordErr) : undefined}
 						onChange={setPassword}
 					/>
 					<AuthPasswordField
@@ -199,13 +180,9 @@ const ResetPasswordPage: React.FC = observer(() => {
 						value={confirm}
 						placeholder={t("auth.field.confirmPlaceholder")}
 						autoComplete="new-password"
-						error={
-							tried && confirmError(password, confirm)
-								? t(confirmError(password, confirm)!)
-								: undefined
-						}
+						error={confirmErr ? t(confirmErr) : undefined}
 						onChange={setConfirm}
-						onEnter={() => void changePassword()}
+						onEnter={() => void savePassword()}
 					/>
 				</Box>
 				<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -213,14 +190,12 @@ const ResetPasswordPage: React.FC = observer(() => {
 						variant="contained"
 						fullWidth
 						disabled={busy}
-						onClick={() => void changePassword()}
-						sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+						onClick={() => void savePassword()}
+						sx={submitSx}
 					>
 						{t("auth.reset.changeSubmit")}
 					</Button>
-					<AuthBackLink onClick={() => navigate(PATHS.login)}>
-						{t("auth.reset.backToLogin")}
-					</AuthBackLink>
+					<AuthBackLink onClick={toLogin}>{t("auth.reset.backToLogin")}</AuthBackLink>
 				</Box>
 			</AuthLayout>
 		);
@@ -239,12 +214,7 @@ const ResetPasswordPage: React.FC = observer(() => {
 					</Typography>
 				</Box>
 				<Box sx={{ mt: "26px" }}>
-					<Button
-						variant="contained"
-						fullWidth
-						onClick={() => navigate(PATHS.login)}
-						sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
-					>
+					<Button variant="contained" fullWidth onClick={toLogin} sx={submitSx}>
 						{t("auth.reset.successLogin")}
 					</Button>
 				</Box>
@@ -252,33 +222,32 @@ const ResetPasswordPage: React.FC = observer(() => {
 		);
 	}
 
-	// step === "phone"
 	return (
 		<AuthLayout>
 			<AuthHead title={t("auth.reset.title")} subtitle={t("auth.reset.subtitle")} />
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-				<AuthPhoneField
-					label={t("auth.field.phone")}
-					value={phone}
-					autoFocus
-					error={tried && phoneErrorOf(phone) ? t(phoneErrorOf(phone)!) : undefined}
-					onChange={setPhone}
-					onEnter={() => void sendCode()}
-				/>
-			</Box>
+			{bannerBox}
+			<AuthPhoneField
+				label={t("auth.field.phone")}
+				value={phone}
+				autoFocus
+				error={tried && phoneErrorOf(phone) ? t(phoneErrorOf(phone)!) : undefined}
+				onChange={(v) => {
+					setPhone(v);
+					setBanner(null);
+				}}
+				onEnter={() => void sendCode()}
+			/>
 			<Box sx={{ mt: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
 				<Button
 					variant="contained"
 					fullWidth
 					disabled={busy}
 					onClick={() => void sendCode()}
-					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+					sx={submitSx}
 				>
 					{t("auth.reset.sendCode")}
 				</Button>
-				<AuthBackLink onClick={() => navigate(PATHS.login)}>
-					{t("auth.reset.backToLogin")}
-				</AuthBackLink>
+				<AuthBackLink onClick={toLogin}>{t("auth.reset.backToLogin")}</AuthBackLink>
 			</Box>
 		</AuthLayout>
 	);

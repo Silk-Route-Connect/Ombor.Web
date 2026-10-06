@@ -85,6 +85,7 @@ New confirmed FE↔backend gaps discovered by a run are recorded as F-items in [
 | `modules/debts.md`              | T-DBT     | ✅ Wave 1                                |
 | `modules/wallets.md`            | T-WAL     | ✅ Wave 1                                |
 | `modules/partners.md`           | T-PRT     | ✅ Wave 1                                |
+| `modules/activity-log.md`       | T-ACT     | ✅ 2026-10-04                            |
 | `modules/warehouses.md`         | T-WHS     | Wave 2 (planned)                        |
 | `modules/stock-adjustments.md`  | T-ADJ     | Wave 2 (planned)                        |
 | `modules/transfers.md`          | T-TRF     | Wave 2 (planned)                        |
@@ -97,7 +98,7 @@ New confirmed FE↔backend gaps discovered by a run are recorded as F-items in [
 | `modules/auth.md`               | T-AUTH    | Wave 3 (planned; registration/OTP flows are owner-executed) |
 | `modules/dashboard.md`          | T-DSH     | Wave 3 (planned; reconciliation-heavy)  |
 
-Excluded until built: Activity Log (U1 — smoke checks the placeholder), Акт сверки (U2), Reports (v2 — absence from nav is asserted in smoke).
+Excluded until built: Акт сверки (U2), Reports (v2 — absence from nav is asserted in smoke).
 
 ## One-time setup still pending
 

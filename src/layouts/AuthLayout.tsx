@@ -27,8 +27,8 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 				inset: 0,
 				backgroundImage: `linear-gradient(${designTokens.gray200} 1px, transparent 1px), linear-gradient(90deg, ${designTokens.gray200} 1px, transparent 1px)`,
 				backgroundSize: "24px 24px",
-				maskImage: "radial-gradient(ellipse 72% 64% at 50% 46%, #000 0%, transparent 80%)",
-				WebkitMaskImage: "radial-gradient(ellipse 72% 64% at 50% 46%, #000 0%, transparent 80%)",
+				maskImage: "radial-gradient(ellipse 72% 64% at 50% 46%, black 0%, transparent 80%)",
+				WebkitMaskImage: "radial-gradient(ellipse 72% 64% at 50% 46%, black 0%, transparent 80%)",
 				opacity: 0.8,
 				pointerEvents: "none",
 			},
@@ -45,10 +45,10 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 				borderRadius: "16px",
 				border: "1px solid",
 				borderColor: "divider",
-				bgcolor: "rgba(255,255,255,0.72)",
+				bgcolor: designTokens.scrim,
 				backdropFilter: "blur(10px)",
 				WebkitBackdropFilter: "blur(10px)",
-				boxShadow: "0 24px 60px -16px rgba(20,40,40,.28)",
+				boxShadow: 16,
 				overflow: "hidden",
 			}}
 		>

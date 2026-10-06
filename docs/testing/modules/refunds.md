@@ -4,7 +4,7 @@ SaleRefund / SupplyRefund counter-events: creation from the original, caps, effe
 
 ## Surfaces
 
-- **No standalone route.** Refund create = `RefundModal`, opened only from the original's detail (`/sales/:id`, `/supplies/:id`) via ⋮ kebab → «Создать возврат» — the kebab's only row («Скачать» is the separate visible header button).
+- **No standalone route.** Refund create = `RefundModal`, opened on the original's detail (`/sales/:id`, `/supplies/:id`) via the visible header button «Оформить возврат» (the `primaryAction`, ux-9), or from a `/sales` / `/supplies` row's ⋮ «Оформить возврат», which opens that detail with the modal already open. A fully refunded original shows a grey «Возвращено полностью» pill in place of the button, «Возвращено полностью» under its № in the list, and no row ⋮. The modal footer reads «Провести возврат» with the lock line «После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.»
 - **Refund rows** live inside the `/sales` feed (SaleRefund) and `/supplies` feed (SupplyRefund).
 - **Refund detail** = the same `TransactionDetailPage` route, rendering refund-specific parts: clickable «Возврат к продаже/поставке» banner, «Причина возврата» card, «Сумма возврата» financial card. No kebab at all on a refund detail.
 - **Wire:** refunds POST through the shared multipart `POST /api/transactions` with `Type=SaleRefund|SupplyRefund` + `OriginalTransactionId` + `RefundReason` — no dedicated refund route.
@@ -16,11 +16,11 @@ Module-specific designed behavior — never report these (shared-checklist §6 t
 | Observation | Why it's correct |
 | --- | --- |
 | Refund rows show «—» in «Статус» and vanish entirely when any status filter is active | refunds carry no payment status (`TransactionStore.feedFor`, design parity) |
-| Refund amount «−…» renders muted gray, not red | green/red reserved for money-direction figures (#4) |
+| Refund amount «−…» renders in ink, not red | green/red reserved for money-direction figures (#4); the minus is owner decision D12 |
 | Success toast «Возврат к №N проведён» cites the ORIGINAL's number, not the new refund's | by design (`transaction.refund.success`) |
 | Checking a line in the modal pre-fills the full available quantity | convenience default, editable |
 | Refund detail has no payments card and no status chip | an unpaid refund's debt surfaces on /debts and the partner ledger, not on its own detail |
-| «Скачать» on any transaction detail → toast «… — раздел в разработке» | dev stub, not a defect |
+| A refund detail's only header button is «Печать накладной» (no ⋮, no refund action) | Designed — a refund is not refundable (R4); the button opens the printable «Накладная» |
 | Warehouse «Движения» filter «Возврат» matches zero rows | Known F8 — verify refund movements in the unfiltered list |
 
 ## Happy path
@@ -38,7 +38,7 @@ Expect: sale №S detail — «Итого» 75 000, «Оплачено» 0, «О
 ### T-RFD-02 · First SaleRefund: 3 of 5, mandatory reason [happy] ✍
 Pre: T-RFD-01.
 Steps:
-1. On `/sales/:id` of №S: ⋮ → «Создать возврат».
+1. On `/sales/:id` of №S (title «Продажа №S»): click «Оформить возврат».
 2. Verify modal title «Возврат к продаже №S»; meta row shows partner, warehouse, date; line А: «Продано» 5, «Возвращено» «—», «Доступно» 5 (R5).
 3. Check the line — qty pre-fills 5; change to 3. Footer reads «Позиций к возврату: 1» · «Сумма возврата: −45 000 UZS» (3 × 15 000).
 4. Verify «Причина возврата» label carries a red asterisk (R7 — visibly marked) and the info banner «Возврат необратим…» is present (R1).
@@ -48,7 +48,7 @@ Expect: toast «Возврат к №S проведён»; modal closes; detail 
 ### T-RFD-03 · Refund row rendering in /sales [happy]
 Pre: T-RFD-02. Record the refund's number №R1.
 Steps: open `/sales`, default sort; locate the refund row.
-Expect: sits directly ABOVE sale №S (date-desc tie handling by design); outlined chip «Возврат» with undo icon; amount «−45 000» muted; «Статус» «—»; № cell shows №R1 with sublabel «Возврат к №S» (DR-21 — «№» prefix, no Latin prefixes).
+Expect: sits directly ABOVE sale №S (date-desc tie handling by design); outlined chip «Возврат» with undo icon; amount «−45 000» (ink, D12); «Статус» «—»; № cell shows №R1 with sublabel «Возврат к №S» (DR-21 — «№» prefix, no Latin prefixes).
 Known: F19 resolved F6 — a blank «Возврат к №N» sublabel is a REGRESSION; report as a new defect, not F6.
 
 ### T-RFD-04 · Refund detail: content, links, no refund-of-refund [happy]
@@ -58,7 +58,7 @@ Expect: title «№R1» only (#20e); banner «Возврат к продаже»
 
 ### T-RFD-05 · Original reflects refunded quantities [happy]
 Pre: T-RFD-04.
-Steps: on №S's detail scroll to «Возвраты по этой продаже»; then reopen ⋮ → «Создать возврат» (don't submit — close it).
+Steps: on №S's detail scroll to «Возвраты по этой продаже»; then reopen «Оформить возврат» (don't submit — close it).
 Expect: refund-history card count pill 1; row = date · «№R1» · positions 1 · reason · −45 000; row click opens №R1. Reopened modal line А: «Возвращено» 3, «Доступно» 2 (R5 — remaining = 5 − 3). Original's own figures unchanged: «Итого» still 75 000 (R1 — counter-event, not mutation).
 
 ### T-RFD-06 · SaleRefund returned stock to the warehouse [happy]
@@ -66,6 +66,11 @@ Pre: T-RFD-02.
 Steps: open «QA Склад А» detail → Остатки; find product А.
 Expect: qty = 8 (5 + 3 — SaleRefund is a stock-in, R18); unit cost/WAC for А still 10 000 (single-cost history). An unfiltered «Движения» list shows the refund movement.
 Known: F8 — the «Возврат» kind filter matches nothing; do not use it.
+
+### T-RFD-07 · Refund «Накладная» prints from the visible header button [happy]
+Pre: T-RFD-04 (refund №R1 of sale №S).
+Steps: on №R1's detail click the header button «Печать накладной».
+Expect: `/sales/<R1 id>/print`: «Накладная на возврат продажи №R1», «Возврат по продаже №S», «Отправитель» = the client, «Получатель» = the business; lines = the refunded lines; «Итого» = the refund sum (unsigned); NO «Оплачено» / «Осталось оплатить» (a refund moves no money); «Причина возврата: QA возврат — брак».
 
 ## Edge & negative
 
@@ -109,6 +114,26 @@ Expect: toast «Возврат к №P проведён»; `/supplies` row: outl
 Pre: T-RFD-32.
 Steps: on `/sales` — 1. set the status filter to «Не оплачено» (the Open option); 2. reset to all, then search the bare number of №S.
 Expect: step 1 — №R1/№R2 disappear, sale №S stays (trap — designed, do not report); step 2 — results include №S AND both its refunds (search matches `originalTransactionNumber`).
+
+### T-RFD-38 · Refund from the list row ⋮ [happy]
+Pre: a sale with something left to refund (e.g. №S before T-RFD-32).
+Steps: on `/sales` open the row's ⋮ → «Оформить возврат». Close the modal with «Отмена»; reload the page; then press Back.
+Expect: the sale's detail opens with the refund modal already open, lines and «Возвращено» filled in. After closing, neither the reload nor Back reopens the modal. Refund rows have no ⋮.
+
+### T-RFD-39 · Fully refunded document explains instead of offering a refund [edge]
+Pre: T-RFD-32 for a one-line №S (or any sale whose every line was refunded in full).
+Steps: 1. `/sales`: find №S. 2. Open №S.
+Expect: 1 — «Возвращено полностью» under the number, no ⋮ on that row. 2 — the header shows a grey «Возвращено полностью» pill instead of «Оформить возврат»; «Возвраты по этой продаже» lists the refunds. A document arriving from a stale list ⋮ after it was fully refunded opens without the modal and toasts «Продажа №S уже возвращена полностью — возвращать нечего».
+
+### T-RFD-37 · Refund lines are picked with the keyboard [edge]
+Pre: a sale with something left to refund.
+Steps: open «Оформить возврат»; press Tab until a line's checkbox shows the focus ring; press Space; Tab once; type «1»; Shift+Tab back to the checkbox; press Space.
+Expect: the first Space checks the line and pre-fills its available quantity; the quantity field takes «1»; the second Space unchecks the line and clears it. A screen reader announces the checkbox as «Вернуть «<товар>»» with its checked state.
+
+### T-RFD-40 · Refund prices come from the original, read-only [edge]
+Pre: a sale with one line of 3 × 1 000 and a fixed line discount of 100 (net 2 900), nothing refunded yet.
+Steps: open «Оформить возврат»; hover the «i» next to «Цена за ед.»; tick the line and set «К возврату» 1; then 3; click «Провести возврат» with a reason; open the created refund.
+Expect: the «i» reads «Цена и скидка — из продажи: возврат проводится по ним, изменить их нельзя.»; no price is editable. «Цена за ед.» shows 966,67 (1 000 − 100 / 3) and the line «Сумма» 966,67 for 1, 2 900 for 3 — the fixed discount is shared out by quantity exactly as the server books it (2 decimals, never rounded to whole sums). The refund detail's total equals the modal's «Сумма возврата». The «Причина возврата» field is named by its label (a screen reader reads «Причина возврата»).
 
 ## Reconciliation
 

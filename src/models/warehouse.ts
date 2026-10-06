@@ -1,12 +1,9 @@
-import { Measurement } from "./product";
+import { Measurement, MovementSourceRef } from "./product";
 
 /**
  * Warehouse (the backend's "Inventory") — the redesigned «Склады» resource.
- * The stale `/api/inventories` contract carries only name/location/isActive and
- * hard-deletes; the redesigned pages need served aggregates, archive/restore and
- * a movements ledger, so the whole resource is mocked at this target v1 contract
- * under `/api/warehouses` (docs/mocking.md). The legacy `/api/inventories`
- * consumers (sale/supply stock pickers) are left untouched.
+ * Served by `/api/warehouses` (backend-contracts/inventory.md) with aggregates,
+ * archive/restore and a movements ledger.
  */
 export type Warehouse = {
 	id: number;
@@ -67,7 +64,8 @@ export const WAREHOUSE_MOVEMENT_KINDS = [
 export type WarehouseMovementKind = (typeof WAREHOUSE_MOVEMENT_KINDS)[number];
 
 /** A single stock event in a warehouse's movements ledger (newest first). */
-export type WarehouseMovement = {
+export type WarehouseMovement = MovementSourceRef & {
+	/** The source line / event id — not routable; `sourceId` opens the document. */
 	id: number;
 	/** ISO date string. */
 	date: string;

@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import { designTokens } from "theme";
+import { designTokens, dialogPaperSx } from "theme";
 
 import { Box, Button, Dialog, Typography } from "@mui/material";
 
@@ -26,7 +26,7 @@ interface ConfirmDialogProps {
 }
 
 const ICON_TILE_SX: Record<ConfirmIconTone, object> = {
-	warning: { bgcolor: designTokens.warningBg, color: "warning.main" },
+	warning: { bgcolor: designTokens.warningBg, color: "warning.dark" },
 	info: { bgcolor: designTokens.primarySoft, color: "primary.main" },
 };
 
@@ -39,14 +39,15 @@ const CONFIRM_SX: Record<ConfirmVariant, object> = {
 		borderColor: designTokens.errorBorder,
 		"&:hover": { bgcolor: designTokens.errorBg, borderColor: designTokens.errorBorder },
 	},
+	// Saffron 700 keeps the white label at 5.8:1 (the 500 fill was 2.8:1).
 	warning: {
-		bgcolor: "secondary.main",
-		color: "#fff",
-		"&:hover": { bgcolor: designTokens.saffron600 },
+		bgcolor: "secondary.dark",
+		color: "common.white",
+		"&:hover": { bgcolor: designTokens.warningFg },
 	},
 	primary: {
 		bgcolor: "primary.main",
-		color: "#fff",
+		color: "primary.contrastText",
 		"&:hover": { bgcolor: "primary.dark" },
 	},
 };
@@ -77,7 +78,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			disableRestoreFocus
 			disableEscapeKeyDown
 			slotProps={{
-				paper: { sx: { width: 440, maxWidth: "94%", borderRadius: "12px" } },
+				paper: { sx: dialogPaperSx("sm") },
 			}}
 		>
 			<Box sx={{ p: "24px 24px 4px", display: "flex", alignItems: "flex-start", gap: "16px" }}>
@@ -98,12 +99,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 				)}
 
 				<Box sx={{ minWidth: 0, pt: "1px" }}>
-					<Typography sx={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", mb: "8px" }}>
+					<Typography variant="h6" component="h2" sx={{ mb: 1 }}>
 						{title}
 					</Typography>
 
 					{content && (
-						<Box sx={{ fontSize: 13.5, color: "text.secondary", lineHeight: 1.62 }}>{content}</Box>
+						<Box sx={{ fontSize: 14, color: "text.secondary", lineHeight: 1.6 }}>{content}</Box>
 					)}
 				</Box>
 			</Box>

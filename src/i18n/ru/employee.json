@@ -25,7 +25,9 @@
   "employee.status.Terminated": "Уволен",
   "employee.status.OnVacation": "В отпуске",
 
-  "employee.deleteConfirmation": "Вы уверены, что хотите удалить сотрудника {{employeeName}}?",
+  "employee.delete.title": "Удалить сотрудника «{{name}}»?",
+  "employee.delete.body": "Этому сотруднику ещё не выплачивали зарплату, поэтому его можно удалить. Это действие нельзя отменить. Если сотрудник просто ушёл, лучше поставьте статус «Уволен» — запись сохранится.",
+  "employee.delete.referenced": "ему уже выплачивали зарплату — удалить нельзя, поставьте статус «Уволен»",
 
   "employee.validation.nameRequired": "ФИО обязательно",
   "employee.validation.nameTooLong": "ФИО не должно превышать 250 символов",
@@ -41,34 +43,16 @@
   "employee.validation.addressTooLong": "Адрес не должен превышать 250 символов",
   "employee.validation.telegramTooLong": "Telegram не должен превышать 250 символов",
 
-  "employees.error.getAll": "Ошибка загрузки сотрудников",
-  "employees.error.getById": "Ошибка загрузки сотрудника",
+  "employees.error.getAll": "Не удалось загрузить сотрудников",
+  "employees.error.getById": "Не удалось загрузить сотрудника",
+  "employee.detail.notFound": "Сотрудник не найден",
   "employees.error.create": "Ошибка создания сотрудника",
   "employees.error.update": "Ошибка обновления сотрудника",
-  "employees.error.delete": "Ошибка удаления сотрудника",
+  "employees.error.delete": "Не удалось удалить сотрудника «{{name}}»",
 
   "employees.success.create": "Сотрудник успешно создан",
   "employees.success.update": "Сотрудник успешно обновлен",
-  "employees.success.delete": "Сотрудник успешно удален",
-
-  "payment.amount": "Сумма",
-  "payment.date": "Дата",
-  "payment.currency": "Валюта",
-  "payment.method": "Способ оплаты",
-  "payment.exchangeRate": "Курс обмена",
-  "payment.notes": "Примечания",
-
-  "payment.method.Cash": "Наличные",
-  "payment.method.Card": "Карта",
-  "payment.method.BankTransfer": "Банковский перевод",
-
-  "payment.validation.amountPositive": "Сумма должна быть положительной",
-  "payment.validation.dateRequired": "Дата обязательна",
-  "payment.validation.currencyInvalid": "Недопустимая валюта",
-  "payment.validation.methodInvalid": "Недопустимый способ оплаты",
-  "payment.validation.exchangeRatePositive": "Курс обмена должен быть положительным",
-  "payment.validation.notesTooLong": "Примечания не должны превышать 500 символов",
-  "payment.validation.employeeRequired": "Выберите сотрудника",
+  "employees.success.delete": "Сотрудник «{{name}}» удалён",
 
   "employee.details.title": "Информация о сотруднике",
   "employee.details.employmentInfo": "Информация о работе",
@@ -86,6 +70,9 @@
 
   "employee.create": "Новый сотрудник",
   "employee.filter.all": "Все",
+  "employee.filter.Active": "Активные",
+  "employee.filter.OnVacation": "В отпуске",
+  "employee.filter.Terminated": "Уволенные",
 
   "employee.action.pay": "Выплатить",
   "employee.action.terminate": "Уволить",
@@ -110,12 +97,11 @@
   "employee.payrollEmptyTitle": "Нет выплат",
   "employee.payrollEmptyBody": "За выбранный период выплат не было.",
 
+  "employee.payroll.number": "№",
   "employee.payroll.date": "Дата",
-  "employee.payroll.type": "Тип",
   "employee.payroll.period": "Период",
   "employee.payroll.amount": "Сумма",
   "employee.payroll.wallet": "Касса",
-  "employee.payroll.salary": "Зарплата",
 
   "employee.terminate.title": "Уволить сотрудника «{{name}}»?",
   "employee.terminate.body": "Сотрудник будет помечен как уволенный и скрыт из активного списка. История его выплат сохранится. Сотрудника можно восстановить позже.",

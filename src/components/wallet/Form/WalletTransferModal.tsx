@@ -3,10 +3,12 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -14,7 +16,7 @@ import { useWalletTransferForm } from "hooks/wallet/useWalletTransferForm";
 import { observer } from "mobx-react-lite";
 import { Wallet } from "models/wallet";
 import { TransferFormValues } from "schemas/WalletSchema";
-import { designTokens, numericSx } from "theme";
+import { dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -24,9 +26,7 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import {
 	Box,
 	Dialog,
-	DialogActions,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	Select,
@@ -91,7 +91,8 @@ const WalletPicker: React.FC<{
 						{wallet.name}
 					</Box>
 					<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
-						{formatCurrency(wallet.balance)} UZS
+						{formatCurrency(wallet.balance)}
+						<UzsUnit />
 					</Box>
 				</Box>
 			</MenuItem>
@@ -117,7 +118,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const fromId = watch("fromWalletId");
 	const toId = watch("toWalletId");
@@ -153,7 +154,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("wallet.transfer.title")}
@@ -242,7 +243,8 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 											component="b"
 											sx={{ ...numericSx, fontWeight: 700, color: "text.primary" }}
 										>
-											{formatCurrency(available)} UZS
+											{formatCurrency(available)}
+											<UzsUnit />
 										</Box>
 									</Box>
 								)}
@@ -274,7 +276,7 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 												}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 													},
 												}}
 											/>
@@ -318,23 +320,15 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 					</Stack>
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "10px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-					}}
-				>
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton icon={<SwapHorizIcon />} onClick={submit} disabled={!canSave}>
-						{t("wallet.transfer.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={canSave}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={t("wallet.transfer.submit")}
+					submitIcon={<SwapHorizIcon />}
+					commitNote={t("wallet.transfer.commitNote")}
+				/>
 			</Dialog>
 
 			<ConfirmDialog

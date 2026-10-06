@@ -8,6 +8,7 @@ export type PresetOption = "week" | "month" | "alltime";
  */
 export const DATE_FORMAT = "dd.MM.yyyy";
 export const DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
+export const TIME_FORMAT = "HH:mm";
 
 export type DateFilter =
 	| { type: "preset"; preset: PresetOption }
@@ -90,6 +91,12 @@ export const formatDate = (value: Date | string): string => {
 export const formatDateTime = (value: Date | string): string => {
 	const date = toDate(value);
 	return isValid(date) ? formatDateFns(date, DATETIME_FORMAT) : "";
+};
+
+/** Time of day (HH:mm, 24-hour) where the date is shown apart (a day-grouped timeline). */
+export const formatTime = (value: Date | string): string => {
+	const date = toDate(value);
+	return isValid(date) ? formatDateFns(date, TIME_FORMAT) : "";
 };
 
 /**

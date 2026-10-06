@@ -8,13 +8,18 @@ import CheckIcon from "@mui/icons-material/Check";
 import { Box, Typography } from "@mui/material";
 
 /**
- * Status stepper across the happy path (Pending → Delivered). Progress is
- * derived from the order's own history so a halted branch (cancelled/rejected)
- * still shows how far it got, with the remaining dots drawn dashed.
+ * Status stepper across the happy path (Pending → Delivered). Progress is the
+ * furthest of the current status and the history, so the current step is always
+ * lit even when no history was recorded (live-ui-6); for a halted branch
+ * (cancelled/rejected) the history shows how far it got, and every order has at
+ * least been Pending. Remaining dots on a halted branch are drawn dashed.
  */
 export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 	const { t } = useTranslation();
-	const reached = order.history.reduce((max, h) => Math.max(max, ORDER_FLOW.indexOf(h.to)), -1);
+	const reached = order.history.reduce(
+		(max, h) => Math.max(max, ORDER_FLOW.indexOf(h.to)),
+		Math.max(0, ORDER_FLOW.indexOf(order.status)),
+	);
 	const completed = order.status === "Delivered" || order.status === "Returned";
 	const branchStop = order.status === "Cancelled" || order.status === "Rejected";
 
@@ -70,7 +75,7 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 										: {
 												bgcolor: "background.paper",
 												borderColor: designTokens.gray300,
-												color: designTokens.gray400,
+												color: designTokens.fg3,
 											}),
 									...(current ? { boxShadow: `0 0 0 4px ${designTokens.primarySoft}` } : null),
 								}}

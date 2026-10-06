@@ -1,6 +1,6 @@
-import { Loadable } from "helpers/Loading";
+import { Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Product, ProductMovement, ProductTransaction } from "models/product";
 import ProductApi from "services/api/ProductApi";
@@ -25,6 +25,7 @@ export interface ISelectedProductStore {
  */
 export class SelectedProductStore implements ISelectedProductStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	product: Loadable<Product | null> = "loading";
 	transactions: Loadable<ProductTransaction[]> = "loading";
@@ -36,6 +37,7 @@ export class SelectedProductStore implements ISelectedProductStore {
 	}
 
 	async load(productId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		runInAction(() => {
 			this.product = "loading";
 			this.transactions = "loading";
@@ -47,17 +49,22 @@ export class SelectedProductStore implements ISelectedProductStore {
 			tryRun(() => ProductApi.getTransactions(productId)),
 			tryRun(() => ProductApi.getMovements(productId)),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		if (product.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.getById"));
-		} else if (transactions.status === "fail" || movements.status === "fail") {
-			this.notificationStore.error(i18next.t("product.error.getTransactions"));
+			this.notificationStore.notifyLoadError(product, "product.error.getById");
+		} else if (transactions.status === "fail") {
+			this.notificationStore.notifyLoadError(transactions, "product.error.getTransactions");
+		} else if (movements.status === "fail") {
+			this.notificationStore.notifyLoadError(movements, "product.error.getTransactions");
 		}
 
 		runInAction(() => {
-			this.product = product.status === "success" ? product.data : null;
-			this.transactions = transactions.status === "success" ? transactions.data : [];
-			this.movements = movements.status === "success" ? movements.data : [];
+			this.product = toDetailLoadable(product);
+			this.transactions = toLoadable(transactions);
+			this.movements = toLoadable(movements);
 		});
 	}
 
@@ -66,6 +73,7 @@ export class SelectedProductStore implements ISelectedProductStore {
 	}
 
 	clear(): void {
+		this.loads.invalidate();
 		this.product = "loading";
 		this.transactions = "loading";
 		this.movements = "loading";

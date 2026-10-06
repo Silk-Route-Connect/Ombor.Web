@@ -6,29 +6,11 @@
  */
 
 export const PHONE_DIGITS = 9;
+/** Password and text limits mirror the backend validators (Register / ResetPassword / ChangePassword). */
 export const PASSWORD_MIN = 8;
+export const TEXT_MAX = 250;
 
 export const onlyDigits = (s: string): string => (s || "").replace(/\D/g, "");
-
-/** Format up to 9 national digits as «90 123-45-67». */
-export function formatNationalPhone(raw: string): string {
-	const d = onlyDigits(raw).slice(0, PHONE_DIGITS);
-	const a = d.slice(0, 2);
-	const b = d.slice(2, 5);
-	const c = d.slice(5, 7);
-	const e = d.slice(7, 9);
-	let out = a;
-	if (b) out += " " + b;
-	if (c) out += "-" + c;
-	if (e) out += "-" + e;
-	return out;
-}
-
-/** Masked phone for code-step copy, e.g. «+998 90 •••-••-67». */
-export function maskedPhone(raw: string): string {
-	const d = onlyDigits(raw).slice(0, PHONE_DIGITS);
-	return `+998 ${d.slice(0, 2)} •••-••-${d.slice(7, 9)}`;
-}
 
 export const isPhoneComplete = (raw: string): boolean => onlyDigits(raw).length === PHONE_DIGITS;
 
@@ -40,12 +22,15 @@ export function phoneError(raw: string): string | null {
 }
 
 export function requiredError(value: string): string | null {
-	return value.trim() ? null : "auth.errors.required";
+	if (!value.trim()) return "auth.errors.required";
+	if (value.trim().length > TEXT_MAX) return "auth.errors.tooLong";
+	return null;
 }
 
 export function passwordError(value: string): string | null {
 	if (!value) return "auth.errors.required";
 	if (value.length < PASSWORD_MIN) return "auth.errors.passwordMin";
+	if (value.length > TEXT_MAX) return "auth.errors.passwordMax";
 	return null;
 }
 

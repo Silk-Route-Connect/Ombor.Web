@@ -10,6 +10,8 @@ interface UsePartnerFormParams {
 	isOpen: boolean;
 	isSaving: boolean;
 	partner?: Partner | null;
+	/** Create only: values the empty form starts from. */
+	defaults?: Partial<PartnerFormInputs>;
 	onSave: (values: PartnerFormValues) => void;
 	onClose: () => void;
 }
@@ -32,12 +34,15 @@ export function usePartnerForm({
 	isOpen,
 	isSaving,
 	partner,
+	defaults,
 	onSave,
 	onClose,
 }: UsePartnerFormParams): UsePartnerFormResult {
 	const form = useForm<PartnerFormInputs>({
 		resolver: zodResolver(PartnerSchema),
-		mode: "onBlur",
+		// Errors appear on submit, then follow every change. A blur-time error pushed the
+		// fields below down under the pointer, so the click aimed at «Добавить номер» missed.
+		mode: "onSubmit",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
 		defaultValues: emptyPartnerFormDefaults,
@@ -47,7 +52,10 @@ export function usePartnerForm({
 		if (!isOpen) {
 			return;
 		}
-		form.reset(partner ? mapPartnerToFormPayload(partner) : { ...emptyPartnerFormDefaults });
+		form.reset(
+			partner ? mapPartnerToFormPayload(partner) : { ...emptyPartnerFormDefaults, ...defaults },
+		);
+		// Defaults apply when the form opens, not on every change of the object.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [partner, isOpen]);
 

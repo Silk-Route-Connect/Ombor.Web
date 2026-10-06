@@ -1,14 +1,16 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useOpeningStockForm } from "hooks/warehouse/useOpeningStockForm";
@@ -17,9 +19,9 @@ import { Product } from "models/product";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { OpeningStockFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -29,7 +31,6 @@ import {
 	Box,
 	Button,
 	Dialog,
-	DialogActions,
 	DialogContent,
 	InputAdornment,
 	LinearProgress,
@@ -47,11 +48,6 @@ export interface OpeningStockModalProps {
 	onSave: (payload: OpeningStockFormValues) => void;
 	onClose: () => void;
 }
-
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
 
 const LINE_GRID = "1fr 108px 150px 132px 38px";
 
@@ -82,7 +78,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, formState, watch, setValue } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 	const watchedItems = watch("items");
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
@@ -99,7 +95,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
@@ -125,6 +121,16 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	// A new row is only useful while un-stocked, un-picked products remain.
 	const pickedIds = new Set((watchedItems ?? []).map((l) => l.productId).filter(Boolean));
 	const canAddRow = activeProducts.some((p) => !stockedIds.has(p.id) && !pickedIds.has(p.id));
+	// The add button stays enabled (hard rule 5); a click with nothing left explains why.
+	const [noMoreProducts, setNoMoreProducts] = useState(false);
+	const addRow = () => {
+		if (!canAddRow) {
+			setNoMoreProducts(true);
+			return;
+		}
+		setNoMoreProducts(false);
+		lines.append(emptyLine());
+	};
 
 	return (
 		<>
@@ -134,7 +140,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={t("warehouse.opening.title")}
@@ -171,7 +177,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							const unitCost = line?.unitCost ?? 0;
 							const product = productById.get(productId) ?? null;
 							const unit = product
-								? MEASUREMENT_SHORT[product.measurement]
+								? measurementShort(t, product.measurement)
 								: t("warehouse.opening.unitFallback");
 
 							const pickedElsewhere = (watchedItems ?? [])
@@ -183,10 +189,13 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							);
 
 							const rowError = formState.errors.items?.[index];
-							const rowErrorMsg =
-								rowError?.productId?.message ??
-								rowError?.quantity?.message ??
-								rowError?.unitCost?.message;
+							// The row line is this field's only message (inlineHint off), so a typed
+							// «3,5» says why at once, ahead of the row's submit errors.
+							const rowErrorMsg = Number.isNaN(quantity)
+								? t("common.quantity.wholeOnly")
+								: (rowError?.productId?.message ??
+									rowError?.quantity?.message ??
+									rowError?.unitCost?.message);
 							const lineValue = productId > 0 && quantity > 0 ? quantity * unitCost : 0;
 							const onlyLine = lines.fields.length === 1;
 
@@ -231,12 +240,10 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 											render={({ field, fieldState }) => (
 												<NumericField
 													{...field}
-													value={field.value || ""}
 													size="small"
-													min={0}
 													disabled={isSaving}
 													error={!!fieldState.error}
-													onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
+													inlineHint={false}
 													slotProps={{
 														input: {
 															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
@@ -258,7 +265,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 													error={!!fieldState.error}
 													slotProps={{
 														input: {
-															endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+															endAdornment: <UzsAdornment />,
 														},
 													}}
 												/>
@@ -313,13 +320,18 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					)}
 
 					<Button
-						onClick={() => lines.append(emptyLine())}
-						disabled={!canAddRow}
+						onClick={addRow}
+						disabled={isSaving}
 						startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
 						sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
 					>
 						{t("warehouse.opening.addLine")}
 					</Button>
+					{noMoreProducts && !canAddRow && (
+						<Typography role="status" sx={{ fontSize: 12, color: "text.secondary", ml: 1 }}>
+							{t("warehouse.opening.noMoreProducts")}
+						</Typography>
+					)}
 
 					<Box
 						sx={{
@@ -365,12 +377,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 								}}
 							>
 								{formatCurrency(batchValue)}
-								<Box
-									component="span"
-									sx={{ fontSize: 11.5, fontWeight: 600, color: "text.disabled", ml: "5px" }}
-								>
-									UZS
-								</Box>
+								<UzsUnit />
 							</Typography>
 						</Box>
 					</Box>
@@ -398,25 +405,15 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					</Stack>
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "14px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-						flexWrap: "wrap",
-					}}
-				>
-					<Box sx={{ flexGrow: 1 }} />
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton icon={<CheckIcon />} onClick={submit} disabled={!canSave}>
-						{t("warehouse.opening.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={canSave}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={t("warehouse.opening.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("warehouse.opening.commitNote")}
+				/>
 			</Dialog>
 
 			<ConfirmDialog

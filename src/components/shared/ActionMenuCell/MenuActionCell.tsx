@@ -6,12 +6,15 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 
 /**
- * DSN-1 row-menu item tone:
- * - `normal` (default): secondary-coloured icon + primary label
- * - `warn`: saffron icon (e.g. edit) + primary label
- * - `danger`: red icon + red label (e.g. delete)
+ * DSN-1 row-menu item tone — the only way a menu row gets colour (icons are
+ * passed uncoloured):
+ * - `normal` (default): secondary icon + ink label
+ * - `warn`: saffron icon + ink label (a reversible but notable step, e.g. reject)
+ * - `archive`: saffron icon + saffron label
+ * - `restore`: green icon + green label
+ * - `danger`: red icon + red label (delete, terminate)
  */
-export type ActionTone = "normal" | "warn" | "danger";
+export type ActionTone = "normal" | "warn" | "archive" | "restore" | "danger";
 
 export interface ActionMenuRow {
 	key: string;
@@ -19,8 +22,6 @@ export interface ActionMenuRow {
 	icon: React.ReactNode;
 	/** Semantic tone for the DSN-1 menu treatment (see {@link ActionTone}). */
 	tone?: ActionTone;
-	/** Explicit label colour — overrides the tone's label colour when set. */
-	labelColor?: string;
 	/** Render a separator line above this row. */
 	dividerBefore?: boolean;
 	onClick: () => void;
@@ -32,11 +33,13 @@ interface ActionMenuProps {
 	bordered?: boolean;
 }
 
-const iconColorFor = (tone: ActionTone): string =>
-	tone === "danger" ? "error.main" : tone === "warn" ? "warning.main" : "text.secondary";
-
-const labelColorFor = (tone: ActionTone): string =>
-	tone === "danger" ? "error.main" : "text.primary";
+const TONE_COLORS: Record<ActionTone, { icon: string; label: string }> = {
+	normal: { icon: "text.secondary", label: "text.primary" },
+	warn: { icon: designTokens.saffron600, label: "text.primary" },
+	archive: { icon: designTokens.saffron600, label: designTokens.saffron700 },
+	restore: { icon: "success.main", label: "success.main" },
+	danger: { icon: "error.main", label: "error.main" },
+};
 
 const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) => {
 	const { t } = useTranslation();
@@ -102,9 +105,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) =>
 				}}
 			>
 				{actions.map((action) => {
-					const tone = action.tone ?? "normal";
-					const iconColor = iconColorFor(tone);
-					const labelColor = action.labelColor ?? labelColorFor(tone);
+					const { icon: iconColor, label: labelColor } = TONE_COLORS[action.tone ?? "normal"];
 					return [
 						action.dividerBefore && <Divider key={`${action.key}-divider`} sx={{ my: 0.25 }} />,
 						<MenuItem

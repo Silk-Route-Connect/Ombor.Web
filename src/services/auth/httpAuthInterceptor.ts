@@ -81,35 +81,40 @@ function toAxiosHeaders(input: unknown): AxiosHeaders {
 	return headers;
 }
 
-let isRefreshing = false;
-let refreshWaiters: Array<(token: string) => void> = [];
-let refreshRejecters: Array<(err: Error) => void> = [];
+/**
+ * The one refresh every concurrent 401 awaits (auth-12). A 401 arriving while it
+ * is in flight joins it instead of queueing a waiter that a flushed queue would
+ * never resolve; it is cleared when settled, so the next expiry refreshes again.
+ */
+let refreshInFlight: Promise<string> | null = null;
+/** The failed refresh that already ended the session — logout fires once per failure. */
+let sessionEndedBy: Promise<string> | null = null;
 
-function enqueueRefresh(): Promise<string> {
-	return new Promise<string>((resolve, reject) => {
-		refreshWaiters.push(resolve);
-		refreshRejecters.push(reject);
-	});
+function refreshOnce(): Promise<string> {
+	if (!refreshInFlight) {
+		const refresh = AuthTokenBridge.refreshAccessToken();
+		refreshInFlight = refresh;
+		const clear = () => {
+			if (refreshInFlight === refresh) {
+				refreshInFlight = null;
+			}
+		};
+		refresh.then(clear, clear);
+	}
+	return refreshInFlight;
 }
 
-function resolveRefreshQueue(token: string): void {
-	for (const resolve of refreshWaiters) {
-		resolve(token);
+function endSessionOnce(failedRefresh: Promise<string>): void {
+	if (sessionEndedBy === failedRefresh) {
+		return;
 	}
-
-	refreshWaiters = [];
-	refreshRejecters = [];
-	isRefreshing = false;
+	sessionEndedBy = failedRefresh;
+	AuthTokenBridge.onLogout("refresh_failed");
 }
 
-function rejectRefreshQueue(err: Error): void {
-	for (const reject of refreshRejecters) {
-		reject(err);
-	}
-
-	refreshWaiters = [];
-	refreshRejecters = [];
-	isRefreshing = false;
+function bearerOf(request: InternalAxiosRequestConfig): string | null {
+	const value = toAxiosHeaders(request.headers).get("Authorization");
+	return typeof value === "string" && value.startsWith("Bearer ") ? value.slice(7) : null;
 }
 
 function toError(e: unknown, fallbackMessage: string): Error {
@@ -118,16 +123,6 @@ function toError(e: unknown, fallbackMessage: string): Error {
 
 function isUnauthorized(err: AxiosError): boolean {
 	return err.response?.status === 401;
-}
-
-function shouldBypassRefreshFor(request: InternalAxiosRequestConfig): boolean {
-	if (request._retry === true) {
-		return true;
-	}
-	if (isAuthEndpoint(request.url)) {
-		return true;
-	}
-	return false;
 }
 
 function applyBearerHeader(request: InternalAxiosRequestConfig, token: string | null): void {
@@ -142,15 +137,23 @@ async function performRefreshAndReplay(
 	instance: AxiosInstance,
 	request: InternalAxiosRequestConfig,
 ): Promise<AxiosResponse> {
-	if (!isRefreshing) {
-		isRefreshing = true;
-		const newToken = await AuthTokenBridge.refreshAccessToken();
-		resolveRefreshQueue(newToken);
+	const sentToken = bearerOf(request);
+	const refresh = refreshOnce();
+
+	let token: string;
+	try {
+		token = await refresh;
+	} catch (e: unknown) {
+		// A sign-in that completed while this request was out owns the session now —
+		// only a refresh failure for the token this request used ends the session.
+		const current = AuthTokenBridge.getAccessToken();
+		if (!current || current === sentToken) {
+			endSessionOnce(refresh);
+		}
+		throw toError(e, "Token refresh failed");
 	}
 
-	const token = isRefreshing ? await enqueueRefresh() : (AuthTokenBridge.getAccessToken() ?? "");
 	applyBearerHeader(request, token);
-
 	return instance(request);
 }
 
@@ -210,20 +213,7 @@ export function attachHttpAuthInterceptors(instance: AxiosInstance): void {
 
 			request._retry = true;
 
-			try {
-				return await performRefreshAndReplay(instance, request);
-			} catch (e: unknown) {
-				const error = toError(e, "Token refresh failed");
-				rejectRefreshQueue(error);
-
-				// If refresh fails but we *do* have an access token (just logged in),
-				// don't force-logout here; let the original request fail and UI decide.
-				if (!AuthTokenBridge.getAccessToken()) {
-					AuthTokenBridge.onLogout("refresh_failed");
-				}
-
-				throw error;
-			}
+			return performRefreshAndReplay(instance, request);
 		},
 	);
 }

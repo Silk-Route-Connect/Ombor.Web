@@ -1,6 +1,6 @@
-import { Loadable } from "helpers/Loading";
+import { Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Warehouse, WarehouseMovement, WarehouseStockItem } from "models/warehouse";
 import WarehouseApi from "services/api/WarehouseApi";
@@ -27,6 +27,7 @@ export interface ISelectedWarehouseStore {
  */
 export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	warehouse: Loadable<Warehouse | null> = "loading";
 	stock: Loadable<WarehouseStockItem[]> = "loading";
@@ -38,6 +39,7 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 	}
 
 	async load(warehouseId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		runInAction(() => {
 			this.warehouse = "loading";
 			this.stock = "loading";
@@ -49,17 +51,22 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 			tryRun(() => WarehouseApi.getStock(warehouseId)),
 			tryRun(() => WarehouseApi.getMovements(warehouseId)),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		if (warehouse.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.getById"));
-		} else if (stock.status === "fail" || movements.status === "fail") {
-			this.notificationStore.error(i18next.t("warehouse.error.getStock"));
+			this.notificationStore.notifyLoadError(warehouse, "warehouse.error.getById");
+		} else if (stock.status === "fail") {
+			this.notificationStore.notifyLoadError(stock, "warehouse.error.getStock");
+		} else if (movements.status === "fail") {
+			this.notificationStore.notifyLoadError(movements, "warehouse.error.getStock");
 		}
 
 		runInAction(() => {
-			this.warehouse = warehouse.status === "success" ? warehouse.data : null;
-			this.stock = stock.status === "success" ? stock.data : [];
-			this.movements = movements.status === "success" ? movements.data : [];
+			this.warehouse = toDetailLoadable(warehouse);
+			this.stock = toLoadable(stock);
+			this.movements = toLoadable(movements);
 		});
 	}
 
@@ -68,10 +75,14 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 	}
 
 	async reloadLedgers(warehouseId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		const [stock, movements] = await Promise.all([
 			tryRun(() => WarehouseApi.getStock(warehouseId)),
 			tryRun(() => WarehouseApi.getMovements(warehouseId)),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		runInAction(() => {
 			if (stock.status === "success") {
@@ -84,6 +95,7 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 	}
 
 	clear(): void {
+		this.loads.invalidate();
 		this.warehouse = "loading";
 		this.stock = "loading";
 		this.movements = "loading";

@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthAltLine, AuthHead, AuthLink } from "components/auth/AuthChrome";
-import { AuthBanner, AuthPasswordField, AuthPhoneField } from "components/auth/AuthFields";
+import { AuthBanner } from "components/auth/AuthFields/AuthBanner";
+import { AuthPasswordField } from "components/auth/AuthFields/AuthPasswordField";
+import { AuthPhoneField } from "components/auth/AuthFields/AuthPhoneField";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
+import { readLoginPrefill } from "routing/navigationState";
 import { PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
+import { loginFailureText } from "utils/authErrors";
 import { phoneError as phoneErrorOf } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
 
@@ -16,9 +20,11 @@ import { Box, Button } from "@mui/material";
 const LoginPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { authStore } = useStore();
 
-	const [phone, setPhone] = useState("");
+	// After a password reset the number is already known — don't make them retype it.
+	const [phone, setPhone] = useState(() => readLoginPrefill(location.state));
 	const [password, setPassword] = useState("");
 	const [tried, setTried] = useState(false);
 	const [banner, setBanner] = useState<string | null>(null);
@@ -26,10 +32,14 @@ const LoginPage: React.FC = observer(() => {
 
 	const phoneErr = tried ? phoneErrorOf(phone) : null;
 	const passwordErr = tried && !password ? "auth.errors.required" : null;
+	const notice = authStore.signOutNotice;
 
 	const submit = async () => {
 		setTried(true);
 		setBanner(null);
+		if (submitting) {
+			return;
+		}
 		if (phoneErrorOf(phone) || !password) {
 			const failed = [phoneErrorOf(phone) ? "phone" : null, !password ? "password" : null].filter(
 				(f): f is string => f !== null,
@@ -48,8 +58,8 @@ const LoginPage: React.FC = observer(() => {
 				password,
 			});
 			// On success the store sets auth + redirects to the app.
-		} catch {
-			setBanner(t("auth.login.failed"));
+		} catch (e) {
+			setBanner(loginFailureText(e));
 		} finally {
 			setSubmitting(false);
 		}
@@ -59,9 +69,13 @@ const LoginPage: React.FC = observer(() => {
 		<AuthLayout>
 			<AuthHead title={t("auth.login.title")} subtitle={t("auth.login.subtitle")} />
 
-			{banner && (
+			{(banner || notice) && (
 				<Box sx={{ mb: "18px" }}>
-					<AuthBanner>{banner}</AuthBanner>
+					{banner ? (
+						<AuthBanner>{banner}</AuthBanner>
+					) : (
+						<AuthBanner tone="info">{t(`auth.login.signedOut.${notice}`)}</AuthBanner>
+					)}
 				</Box>
 			)}
 

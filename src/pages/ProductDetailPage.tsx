@@ -1,65 +1,63 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
 import ProductOverviewTab from "components/product/Detail/ProductOverviewTab";
 import ProductTransactionsTab from "components/product/Detail/ProductTransactionsTab";
 import ProductFormModal from "components/product/Form/ProductFormModal";
-import { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import ProductDialogs from "components/product/ProductDialogs";
+import { buildProductActionRows } from "components/product/Table/ActionMenu/ProductActionMenu";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isPresent, isReady } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { CreateProductRequest, Product } from "models/product";
+import { Product } from "models/product";
 import { PATHS } from "routing/paths";
 import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens } from "theme";
-import { mapFormPackagingToPackaging } from "utils/productUtils";
+import { ServerErrorHandler } from "utils/formServerErrors";
+import { toProductRequest } from "utils/productUtils";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
-type ProductDetailTab = "overview" | "transactions" | "movements";
+type ProductDetailTab = "overview" | "transactions" | "movements" | "history";
 
 const ProductDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
-	const productId = Number(id);
+	const navigate = useNavigate();
+	const productId = useRouteEntityId();
 	const { productStore, selectedProductStore } = useStore();
 
 	const [tab, setTab] = useState<ProductDetailTab>("overview");
 
 	useEffect(() => {
-		if (Number.isFinite(productId)) {
-			selectedProductStore.load(productId);
+		if (productId !== null) {
+			void selectedProductStore.load(productId);
 		}
 		// The same route instance serves every product id — reset the tab too.
 		setTab("overview");
 		return () => selectedProductStore.clear();
 	}, [productId, selectedProductStore]);
 
-	const product = selectedProductStore.product;
+	const product = productId === null ? null : selectedProductStore.product;
 	const dialogMode = productStore.dialogMode;
 	const editingProduct = dialogMode.kind === "form" ? (dialogMode.product ?? null) : null;
+	const retry = () => productId !== null && void selectedProductStore.load(productId);
 
-	if (product === "loading") {
+	if (!isPresent(product)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (product === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("product.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={product}
+				onRetry={retry}
+				errorTitle={t("product.error.getById")}
+				notFound={{ title: t("product.detail.notFound"), backTo: PATHS.products }}
+			/>
 		);
 	}
 
@@ -68,88 +66,43 @@ const ProductDetailPage: React.FC = observer(() => {
 	const handleFormSave = async (
 		payload: ProductFormValues,
 		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
 	): Promise<void> => {
-		const request: CreateProductRequest = {
-			categoryId: payload.categoryId,
-			name: payload.name,
-			sku: payload.sku,
-			description: payload.description,
-			barcode: payload.barcode,
-			salePrice: payload.salePrice,
-			supplyPrice: payload.supplyPrice,
-			measurement: payload.measurement,
-			type: payload.type,
-			lowStockThreshold: payload.lowStockThreshold ?? null,
-			packaging: mapFormPackagingToPackaging(payload.packaging),
-			attachments: payload.attachments,
-		};
-
-		const updated = await productStore.update({
-			...request,
-			id: product.id,
-			imagesToDelete: imagesToRemove,
-		});
+		const updated = await productStore.update(
+			{ ...toProductRequest(payload), id: product.id, imagesToDelete: imagesToRemove },
+			applyServerErrors,
+		);
 		if (updated) {
 			selectedProductStore.applyProduct(updated);
 		}
 	};
 
-	const handleArchiveConfirmed = async (target: Product): Promise<void> => {
-		const updated = await productStore.archive(target);
-		if (updated) {
-			selectedProductStore.applyProduct(updated);
-		}
-	};
-
-	const handleRestoreConfirmed = async (target: Product): Promise<void> => {
-		const updated = await productStore.restore(target);
-		if (updated) {
-			selectedProductStore.applyProduct(updated);
-		}
-	};
+	const reflect = (updated: Product): void => selectedProductStore.applyProduct(updated);
 
 	const transactions = selectedProductStore.transactions;
 	const movements = selectedProductStore.movements;
 
-	// Edit + Archive/Restore — no delete for products (immutable stock history).
-	const actions: ActionMenuRow[] = [
-		{
-			key: "edit",
-			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
-			onClick: () => productStore.openEdit(product),
-		},
-		product.isArchived
-			? {
-					key: "restore",
-					label: t("common.restore"),
-					labelColor: "success.main",
-					dividerBefore: true,
-					icon: <UnarchiveOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
-					onClick: () => productStore.openRestore(product),
-				}
-			: {
-					key: "archive",
-					label: t("common.archive"),
-					labelColor: designTokens.saffron700,
-					dividerBefore: true,
-					icon: <ArchiveOutlinedIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />,
-					onClick: () => productStore.openArchive(product),
-				},
-	];
+	const actions = buildProductActionRows(t, {
+		product,
+		onEdit: () => productStore.openEdit(product),
+		onArchive: () => productStore.openArchive(product),
+		onRestore: () => productStore.openRestore(product),
+		onDelete: () => productStore.openDelete(product),
+	});
 
 	const tabs: DetailTabSpec<ProductDetailTab>[] = [
 		{ key: "overview", label: t("product.detail.tabs.overview") },
 		{
 			key: "transactions",
 			label: t("product.detail.tabs.transactions"),
-			count: transactions === "loading" ? undefined : transactions.length,
+			count: isReady(transactions) ? transactions.length : undefined,
 		},
 		{
 			key: "movements",
 			label: t("product.detail.tabs.movements"),
-			count: movements === "loading" ? undefined : movements.length,
+			count: isReady(movements) ? movements.length : undefined,
 		},
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	return (
@@ -167,7 +120,7 @@ const ProductDetailPage: React.FC = observer(() => {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 					gap: "20px",
 					alignItems: "start",
 				}}
@@ -177,24 +130,39 @@ const ProductDetailPage: React.FC = observer(() => {
 
 					{tab === "overview" && <ProductOverviewTab product={product} />}
 					{tab === "transactions" &&
-						(transactions === "loading" ? (
-							<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-								<CircularProgress size={28} />
-							</Box>
+						(!isReady(transactions) ? (
+							<LoadStateView
+								state={transactions}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("product.error.getTransactions")}
+							/>
 						) : (
 							<ProductTransactionsTab
+								productName={product.name}
 								transactions={transactions}
 								measurement={product.measurement}
+								onOpen={(path) => navigate(path)}
 							/>
 						))}
 					{tab === "movements" &&
-						(movements === "loading" ? (
-							<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-								<CircularProgress size={28} />
-							</Box>
+						(!isReady(movements) ? (
+							<LoadStateView
+								state={movements}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("product.error.getTransactions")}
+							/>
 						) : (
-							<ProductMovementsTab movements={movements} />
+							<ProductMovementsTab
+								productName={product.name}
+								movements={movements}
+								measurement={product.measurement}
+							/>
 						))}
+					{tab === "history" && (
+						<EntityHistory kind="Product" id={product.id} refreshKey={product} />
+					)}
 				</Box>
 
 				<Box sx={{ position: "sticky", top: 0 }}>
@@ -210,42 +178,10 @@ const ProductDetailPage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("product.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.product.name : "",
-				})}
-				content={t("product.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						void handleArchiveConfirmed(dialogMode.product);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("product.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.product.name : "",
-				})}
-				content={t("product.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={productStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						void handleRestoreConfirmed(dialogMode.product);
-					}
-				}}
+			<ProductDialogs
+				onArchived={reflect}
+				onRestored={reflect}
+				onDeleted={() => navigate(PATHS.products)}
 			/>
 		</Box>
 	);

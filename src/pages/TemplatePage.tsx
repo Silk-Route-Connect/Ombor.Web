@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import TemplateHeader from "components/template/Header/TemplateHeader";
 import TemplateFormModal from "components/template/Modal/TemplateFormModal";
 import TemplatesTable from "components/template/Table/TemplatesTable";
+import { templateTotal } from "components/template/Table/templateTableConfigs";
+import { isReady, readyOr } from "helpers/Loading";
 import { TemplateFormPayload } from "hooks/templates/useTemplateForm";
 import { observer } from "mobx-react-lite";
-import { CreateTemplateRequest, UpdateTemplateRequest } from "models/template";
+import { CreateTemplateRequest, Template, UpdateTemplateRequest } from "models/template";
 import { useStore } from "stores/StoreContext";
+import { formatDate } from "utils/dateUtils";
+import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/material";
@@ -21,6 +26,7 @@ import { Box } from "@mui/material";
 const TemplatePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const { templateStore, partnerStore, productStore } = useStore();
+	const tableOrder = useTableOrder<Template>();
 
 	useEffect(() => {
 		templateStore.resetFilters();
@@ -81,9 +87,26 @@ const TemplatePage: React.FC = observer(() => {
 		}
 	};
 
-	const all = templateStore.allTemplates === "loading" ? null : templateStore.allTemplates;
-	const totalCount =
-		templateStore.listTemplates === "loading" ? null : templateStore.listTemplates.length;
+	const handleExport = (): void => {
+		const columns: CsvColumn<Template>[] = [
+			{ header: t("template.table.name"), value: (tp) => tp.name },
+			{ header: t("template.table.type"), value: (tp) => t(`template.type.${tp.type}`) },
+			{ header: t("template.table.partner"), value: (tp) => tp.partnerName },
+			{ header: t("template.table.positions"), value: (tp) => tp.items.length },
+			{
+				header: t("template.table.lastUsed"),
+				value: (tp) => (tp.lastUsedAt ? formatDate(tp.lastUsedAt) : ""),
+			},
+			{ header: t("template.table.total"), value: templateTotal },
+		];
+		exportToCsv(
+			`templates_${csvDateStamp()}`,
+			columns,
+			tableOrder.apply(readyOr(templateStore.listTemplates, [])),
+		);
+	};
+
+	const all = !isReady(templateStore.allTemplates) ? null : templateStore.allTemplates;
 	const hasAny = (all?.length ?? 0) > 0;
 	const isFiltering = templateStore.searchTerm.trim() !== "" || templateStore.typeFilter !== "all";
 	const dialogMode = templateStore.dialogMode;
@@ -91,15 +114,19 @@ const TemplatePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<TemplateHeader
-				totalCount={totalCount}
 				searchValue={templateStore.searchTerm}
 				typeFilter={templateStore.typeFilter}
 				onSearch={templateStore.setSearch}
 				onTypeChange={templateStore.setTypeFilter}
 				onCreate={templateStore.openCreate}
+				onExport={handleExport}
+				exportCount={readyOr(templateStore.listTemplates, []).length}
 			/>
 
 			<TemplatesTable
+				exportOrder={tableOrder}
+				onRetry={() => void templateStore.getAll()}
+				errorTitle={t("template.error.getAll")}
 				rows={templateStore.listTemplates}
 				isFiltering={isFiltering}
 				hasAny={hasAny}

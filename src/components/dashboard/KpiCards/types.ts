@@ -1,0 +1,65 @@
+import React from "react";
+import { formatPercent } from "utils/formatCurrency";
+
+export type DashboardKpiKey =
+	| "revenue"
+	| "grossProfit"
+	| "cash"
+	| "stockValue"
+	| "receivable"
+	| "payable"
+	| "overdue";
+
+/** good / bad colour the change by what it means for the owner; warn is the aging axis. */
+export type DeltaTone = "good" | "bad" | "neutral" | "warn";
+
+export type Delta = {
+	text: string;
+	tone: DeltaTone;
+	direction: "up" | "down" | "flat";
+};
+
+export type KpiCardSpec = {
+	key: DashboardKpiKey;
+	icon: React.ReactNode;
+	caption: string;
+	/** Money amount — counted up on mount / period change. */
+	value: number;
+	valueColor: string;
+	/** Palette family of the sparkline stroke. */
+	spark: "primary" | "secondary" | "success" | "warning" | "error" | "info";
+	/** Served per-bucket points; fewer than two draws no line. */
+	trend: number[];
+	delta?: Delta;
+	footnote: string;
+	/** A second meta line (revenue: the refunds already netted out). */
+	detail?: string;
+	/** Hover / focus breakdown (cash: per wallet), or the one-line meaning of the term. */
+	tooltip?: React.ReactNode;
+	/** Marks the caption with an «i»: the card's `tooltip` explains the term. */
+	hint?: boolean;
+	/** A figure that can go below zero (gross profit when goods sold below cost): «−…». */
+	signed?: boolean;
+};
+
+/**
+ * A served % change as a badge: the arrow follows the sign, the colour what the
+ * change means — `goodWhen: "up"` for revenue and cash, `"down"` for what we owe,
+ * `"neutral"` where neither direction is good news by itself. A change with no
+ * basis is served as null, which the API leaves out of the JSON — so undefined too.
+ */
+export function deltaOf(
+	pct: number | null | undefined,
+	goodWhen: "up" | "down" | "neutral",
+): Delta {
+	if (pct == null) {
+		return { text: "—", tone: "neutral", direction: "flat" };
+	}
+	const direction = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
+	const sign = pct > 0 ? "+" : pct < 0 ? "−" : "";
+	const text = `${sign}${formatPercent(Math.abs(pct))}%`;
+	if (direction === "flat" || goodWhen === "neutral") {
+		return { text, tone: "neutral", direction };
+	}
+	return { text, tone: direction === goodWhen ? "good" : "bad", direction };
+}
