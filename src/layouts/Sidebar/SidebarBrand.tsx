@@ -5,6 +5,7 @@ import TruncatedText from "components/shared/Table/TruncatedText";
 import { isPresent } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+import { designTokens } from "theme";
 import { getImageFullUrl } from "utils/productUtils";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -48,9 +49,10 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 					width: 38,
 					height: 38,
 					borderRadius: 1,
-					color: "text.secondary",
+					color: designTokens.onDarkMuted,
 					flexShrink: 0,
-					"&:hover": { bgcolor: "action.hover", color: "text.primary" },
+					"&:hover": { bgcolor: designTokens.onDarkHover, color: "common.white" },
+					"&.Mui-focusVisible": { outlineColor: "common.white" },
 				}}
 			>
 				<MenuIcon sx={{ fontSize: 20 }} />
@@ -61,7 +63,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 	if (!expanded) {
 		return (
 			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, pb: 1.5 }}>
-				<OmborMark size={34} />
+				<OmborMark size={34} variant="reversed" />
 				{toggle}
 			</Box>
 		);
@@ -69,9 +71,11 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 
 	return (
 		<Box sx={{ display: "flex", alignItems: "center", gap: 1.25, px: 1, pt: 0.75, pb: 1.75 }}>
-			<OmborMark size={34} />
+			<OmborMark size={34} variant="reversed" />
 			<Box sx={{ minWidth: 0, flex: 1 }}>
-				<Typography sx={{ fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>Ombor</Typography>
+				<Typography sx={{ fontSize: 18, fontWeight: 700, lineHeight: 1.2, color: "common.white" }}>
+					Ombor
+				</Typography>
 				{businessName && (
 					<Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: "2px", minWidth: 0 }}>
 						{showLogo && (
@@ -94,7 +98,12 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 							key={showLogo ? "with-logo" : "name-only"}
 							text={businessName}
 							maxWidth="100%"
-							sx={{ minWidth: 0, fontSize: 11, lineHeight: "20px", color: "text.disabled" }}
+							sx={{
+								minWidth: 0,
+								fontSize: 11,
+								lineHeight: "20px",
+								color: designTokens.onDarkMuted,
+							}}
 						/>
 					</Box>
 				)}
