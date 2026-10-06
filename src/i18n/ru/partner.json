@@ -145,6 +145,7 @@
   "partner.pays.col.amount": "Сумма",
   "partner.pays.col.allocation": "Куда пошли деньги",
   "partner.pays.col.wallet": "Касса",
+  "partner.pays.col.direction": "Направление",
   "partner.pays.advance": "Аванс",
   "partner.pays.empty.title": "Нет записей",
   "partner.pays.empty.body": "С этим партнёром ещё не проводились платежи.",

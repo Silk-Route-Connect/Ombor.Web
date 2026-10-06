@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PaymentDirectionBadge } from "components/payment/PaymentPresentation";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
@@ -10,11 +11,14 @@ import NoValue from "components/shared/Table/cells/NoValue";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
+import TableTotals from "components/shared/Table/TableTotals";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { PartnerLedgerEntry } from "models/partner";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatQuantity } from "utils/formatCurrency";
 import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
+import { directionTotals } from "utils/listTotals";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -38,7 +42,8 @@ const isIncome = (p: PartnerLedgerEntry) => p.delta < 0;
 
 /**
  * The partner's payments in the canonical column order (conventions.md →
- * Tables): № · Дата · Тип · Касса · Сумма.
+ * Tables): № · Дата · Тип · Направление · Касса · Сумма, totalled «Приход · Расход»
+ * like the Payments list.
  */
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName, onOpen }) => {
 	const { t } = useTranslation();
@@ -66,6 +71,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 			return haystack.includes(ql);
 		});
 	}, [payments, type, search, t]);
+	const totals = directionTotals(filtered, (p) => Math.abs(p.delta), isIncome);
 
 	const columns = useMemo<Column<PartnerLedgerEntry>[]>(
 		() => [
@@ -88,6 +94,13 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				headerName: t("partner.pays.col.type"),
 				sortValue: (p) => t(eventLabelKey(p.type)),
 				renderCell: (p) => <EventCell type={p.type} label={t(eventLabelKey(p.type))} />,
+			},
+			{
+				key: "direction",
+				headerName: t("partner.pays.col.direction"),
+				sortValue: (p) => (isIncome(p) ? 0 : 1),
+				// Direction is a chip, not colour alone (as on /payments and wallet «Операции»).
+				renderCell: (p) => <PaymentDirectionBadge direction={isIncome(p) ? "Income" : "Expense"} />,
 			},
 			{
 				key: "wallet",
@@ -123,6 +136,10 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				},
 				{ header: t("partner.pays.col.date"), value: (p) => formatDate(p.date) },
 				{ header: t("partner.pays.col.type"), value: (p) => t(eventLabelKey(p.type)) },
+				{
+					header: t("partner.pays.col.direction"),
+					value: (p) => t(isIncome(p) ? "payment.direction.income" : "payment.direction.expense"),
+				},
 				{ header: t("partner.pays.col.wallet"), value: (p) => p.walletName ?? "" },
 				{ header: t("partner.pays.col.amount"), value: (p) => Math.abs(p.delta) },
 			],
@@ -156,6 +173,18 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
 				onRowClick={onOpen}
+				summary={
+					<TableTotals
+						count={t("payment.totals.count", {
+							count: totals.count,
+							formatted: formatQuantity(totals.count),
+						})}
+						items={[
+							{ label: t("common.totals.income"), value: totals.income, tone: "income" },
+							{ label: t("common.totals.expense"), value: totals.expense, tone: "expense" },
+						]}
+					/>
+				}
 				empty={
 					<TableEmptyState
 						icon={<AccountBalanceWalletOutlinedIcon />}
