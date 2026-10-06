@@ -1,7 +1,7 @@
 # Design tokens — Ombor
 
 **Status:** token sheet — a readable mirror of `src/theme/`, which is the **single source** (there is no `tokens.css`; the Design-project tokens were folded into the theme). When the two disagree, the theme wins and this sheet is corrected in the same change.
-**Last updated:** 2026-10-03 (visual-design pass: contrast-checked text / chip / control tokens, one neutral ramp, type scale, focus ring, dialog sizes)
+**Last updated:** 2026-10-06 (UI refresh: warm-stone surfaces → one cool ink-grey ramp, teal navigation panel, ink-tinted modal scrim, success / warning tints separated from the Sale / Supply chips, `figuresSx`, `layout.contentMax`, identity tints)
 
 Contrast figures are WCAG ratios on white unless stated. Text needs 4.5:1 (all app text is below the 18px/24px "large" threshold except page titles); control edges and focus indicators need 3:1.
 
@@ -12,7 +12,8 @@ Contrast figures are WCAG ratios on white unless stated. Text needs 4.5:1 (all a
 | `src/theme/palette.ts` | core hues, on-tint text shades, the neutral ramp, `designTokens` (tints, overlays, semantic aliases) |
 | `src/theme/chipTokens.ts` | every chip colour (`chipTokens`), keyed by meaning |
 | `src/theme/typography.ts` | the type scale (all MUI variants defined) |
-| `src/theme/tokens.ts` | `radius`, `controlSize`, `dialogWidth` + `dialogPaperSx`, `typeScale` (numeric), `numericSx` |
+| `src/theme/tokens.ts` | `radius`, `controlSize`, `dialogWidth` + `dialogPaperSx`, `typeScale` (numeric), `numericSx`, `figuresSx`, `layout` |
+| `src/theme/identityPalette.ts` | `identityTone(name)` — the 8 avatar / placeholder tints |
 | `src/theme/components.ts` | MUI overrides: focus ring, input borders, tooltip, dialog paper, button / table / input sizing |
 | `src/theme/index.ts` | `createTheme` (palette slots, shadows) + re-exports — import everything `from "theme"` |
 
@@ -26,35 +27,36 @@ Contrast figures are WCAG ratios on white unless stated. Text needs 4.5:1 (all a
 | `primaryLine` | `#C3DEDE` | hairline on teal tints |
 | secondary (saffron) | `#D88A1E` | accent fills and icons only — never small text; text on it is ink (5.6:1) |
 | secondary.dark (`saffron700`) | `#8F5A0C` | saffron text, filled warning/accent button with white text (5.8:1) |
+| `TEAL_700` (`navBg`) | `#0E4448` | the navigation panel — the one large brand surface (white text 10.8:1) |
 | `saffron600` / `saffron100` / `accentSoft` | `#B5710F` / `#F6DEAE` / `#FBF0DC` | archive action icon / Supply chip border / Supply chip fill |
-| success | `#17835A` (dark `#1C5C40`) | money in, positive figures (4.7:1) |
+| success | `#157A54` (dark `#1C5C40`) | money in, positive figures (5.3:1; 4.8:1 on the canvas) |
 | warning | `#C57E14` (dark `#8A5A0E`) | icons and fills only (3.3:1); amber **text** uses warning.dark |
 | error | `#C53D31` (dark `#8F2A1F`) | money out, overdue, destructive (5.1:1) |
 | info | `#2A6F97` (dark `#245F82`) | informational (Open status, Deposit, Bank) |
 | ink (`fg1`, text.primary) | `#1C2625` | primary text |
 | `logoKeystone` | `#B8860B` | the monogram keystone only |
 
-`palette.<family>.dark` is the on-tint text shade of each family: success `#1C5C40` (6.9:1 on its tint), error `#8F2A1F` (7.2:1), warning `#8A5A0E` (5.2:1), info `#245F82` (6.0:1). Also exposed as `designTokens.successFg / dangerFg / warningFg / infoFg`.
+`palette.<family>.dark` is the on-tint text shade of each family: success `#1C5C40` (6.9:1 on its tint), error `#8F2A1F` (7.2:1), warning `#6D5706` (6.2:1), info `#245F82` (6.0:1). Also exposed as `designTokens.successFg / dangerFg / warningFg / infoFg`.
 
 ## Neutral ramp (one ramp)
 
-`designTokens.grayN` and MUI `palette.grey[N]` resolve from the same `NEUTRAL` constant — a step name always means the same colour. Surfaces and borders are warm stone; text steps are the cool ink family.
+`designTokens.grayN` and MUI `palette.grey[N]` resolve from the same `NEUTRAL` constant — a step name always means the same colour. Surfaces, borders and text are **one cool ink-grey family** (hue ≈ 199°, the hue of the ink and the teal). The earlier warm-stone surfaces (`#F4F1EA` canvas, h≈42°) read as a yellowish, tiring field under cool text (owner feedback 2026-10-06); warmth now lives only in the saffron accent and the Supply chip.
 
 | Step | Value | Alias | Use |
 | --- | --- | --- | --- |
 | 0 | `#FFFFFF` | — | surface (background.paper) |
-| 25 | `#FAF8F4` | `bgSubtle` | zebra rows, table header/footer band, subtle fill (designTokens only — MUI grey has no 25) |
-| 50 | `#F4F1EA` | `bgCanvas` | page canvas (background.default) |
-| 100 | `#ECE8DF` | — | dividers inside panes, sunken fills, neutral chip fill, segmented-control track |
-| 200 | `#E4DFD5` | `border` | card / table hairlines (palette.divider) — decorative only |
-| 300 | `#D4CDBF` | `borderStrong` | ghost-button outline, dividers on tints — decorative only |
-| 400 | `#B8AF9F` | `decoration` | icons, dots, chart reference lines. **Never text** (2.2:1) |
-| 500 | `#6B7473` | `fg3` | tertiary / meta / placeholder text — `text.disabled` (4.8:1; 4.5:1 on bgSubtle; on the canvas use fg2) |
+| 25 | `#F7F9F9` | `bgSubtle` | table header / footer / total bands, quiet fills (designTokens only — MUI grey has no 25) |
+| 50 | `#F1F4F4` | `bgCanvas` | page canvas (background.default) — the page only, never a hover or inset fill |
+| 100 | `#E9EDED` | — | dividers inside panes, sunken fills, neutral chip fill, segmented-control track |
+| 200 | `#DDE2E2` | `border` | card / table hairlines (palette.divider) — decorative only |
+| 300 | `#C8CFCF` | `borderStrong` | ghost-button outline, dividers on tints — decorative only |
+| 400 | `#A6B0B0` | `decoration` | icons, dots, chart reference lines. **Never text** (2.2:1) |
+| 500 | `#646C6B` | `fg3` | tertiary / meta / placeholder text — `text.disabled` (5.4:1; 4.9:1 on the canvas) |
 | 600 | `#565F5E` | `fg2` | secondary data text — `text.secondary` (6.4:1) |
 | 700 | `#3E4A4A` | — | strong secondary text, neutral chip text |
 | 800 | `#28302F` | — | — |
 | 900 | `#1C2625` | `fg1` | ink |
-| — | `#8C8576` | `borderControl` | input / select / control outline (3.7:1, WCAG 1.4.11) |
+| — | `#7D8787` | `borderControl` | input / select / control outline (3.7:1; 3.3:1 on the canvas — WCAG 1.4.11) |
 
 Buttons are never disabled in this app (hard rule 5), so `text.disabled` doubles as the AA-safe tertiary tone.
 
@@ -62,16 +64,18 @@ Buttons are never disabled in this app (hard rule 5), so `text.disabled` doubles
 
 | Family | Fill | Border | Text |
 | --- | --- | --- | --- |
-| success | `successBg #E5F2EC` | `successBorder #C2E0D2` | `#1C5C40` |
+| success | `successBg #E6F3E6` | `successBorder #C4DEC5` | `#1C5C40` — leans yellow-green so «Оплачено» separates from the teal «Продажа» |
 | danger | `errorBg #FBEAE8` | `errorBorder #EFC9C4` | `#8F2A1F` |
-| warning | `warningBg #FBF0DC` | `warningBorder #EDD3A4` | `#8A5A0E` |
+| warning | `warningBg #FFF2C8` | `warningBorder #ECD388` | `#6D5706` — butter yellow, apart from the saffron «Поставка» |
 | info | `infoBg #E7F0F6` | `infoBorder #C5DBEA` | `#245F82` |
 | teal | `primarySoft #E1EEEE` | `primaryLine #C3DEDE` | `#12676B` |
 | saffron | `accentSoft #FBF0DC` | `saffron100 #F6DEAE` | `#8F5A0C` |
 | purple (payroll) | `purpleBg #ECE7F7` | `purpleBorder #D6CBEE` | `purpleText #6A4BB0` |
-| neutral | gray100 `#ECE8DF` | gray300 `#D4CDBF` | gray700 `#3E4A4A` |
+| neutral | gray100 `#E9EDED` | gray300 `#C8CFCF` | gray700 `#3E4A4A` |
 
-Overlays (`designTokens`): `onDarkMuted` rgba(255,255,255,.82) secondary text on teal/ink · `onDarkLine` .14 hairline · `onDarkFill` .13 chip fill on teal · `onDarkGrid` .10 brand-panel grid · `scrim` rgba(255,255,255,.72) frosted auth card · `primaryWash` rgba(18,103,107,.05) chart hover · `loadingVeil` rgba(244,241,234,.55) reload veil. `palette.action.hover` rgba(18,103,107,.04).
+Overlays (`designTokens`): `onDarkMuted` rgba(255,255,255,.82) secondary text on teal/ink · `onDarkLine` .14 hairline · `onDarkFill` .13 chip fill on teal · `onDarkGrid` .10 brand-panel grid · `onDarkHover` .08 hover wash on teal · `scrim` rgba(255,255,255,.72) frosted auth card · `scrimModal` rgba(28,38,37,.42) ink-tinted modal backdrop · `primaryWash` rgba(18,103,107,.05) chart hover · `loadingVeil` rgba(241,244,244,.6) reload veil. `palette.action.hover` rgba(18,103,107,.06).
+
+Identity tints (`identityTone(name)`, `identityPalette.ts`): 8 bg / fg pairs — teal, saffron, blue, plum, rose, olive, slate, clay, every fg ≥5.2:1 on its bg — picked by a stable hash of the name, so the same partner, employee or product always gets the same avatar / placeholder colour. Archived / muted rows stay neutral gray100.
 
 ## Chip tokens (`chipTokens`)
 
@@ -92,7 +96,7 @@ Rendered only through the shared `StatusPill`. Keys by meaning: `sale` / `supply
 | caption | 12 / 16 | 400 | meta, chips, table headers |
 | overline | 11 / 16, +0.08em, uppercase | 700 | group labels |
 
-Numeric steps (`typeScale`, tabular lining figures): `display` 34/40 700 · `numHero` 32 700 · `numStrong` 26 700 (KPI values) · `numTable` 15 600 (headline money cell). Apply `numericSx` (tabular-nums lining-nums) to every money / quantity / tabular value.
+Numeric steps (`typeScale`, tabular lining figures): `display` 34/40 700 · `numHero` 32 700 · `numStrong` 26 700 (KPI values) · `numTable` 15 600 (headline money cell). Apply `numericSx` (tabular-nums lining-nums) to money / quantity values that line up in columns. Identifiers and dates (№, SKU, phone, date / time) use `figuresSx` (proportional lining figures): Onest's tabular «1» is ~85% wider than its proportional one, so a tabular date looks set in a different font from the text beside it.
 
 ## Shape, spacing, sizing
 
@@ -100,8 +104,8 @@ Numeric steps (`typeScale`, tabular lining figures): `display` 34/40 700 · `num
 - Spacing: MUI 8px unit (`theme.spacing`); prefer multiples of 4px.
 - Control height (`controlSize`): md 38px (buttons, inputs, selects, search, segmented) · sm 31px (dense inline only).
 - Dialog widths (`dialogWidth`): sm 480 · md 640 · lg 880; `dialogPaperSx(size)` adds `maxWidth: calc(100% − 32px)`.
-- Table: 52px rows, 16px cell padding, body 14px, header 12px/600 — list `DataTable` and detail-embedded tables alike.
-- Layout: sidebar 248px expanded / 72px rail (auto-collapsed below 1280px viewport and on POS pages) · topbar 60px · page padding 24px.
+- Table (`Table/tableChrome.ts`): 42px header band on bgSubtle, 52px rows, 16px cell padding, body 14px, header 12px/600, no zebra striping (hairlines separate rows), hover wash only on rows that open something — list `DataTable`, `ExpandableDataTable` and `DetailTable` alike.
+- Layout: sidebar 248px expanded / 72px rail (auto-collapsed below 1280px viewport and on POS pages) · topbar 60px · page padding 24px · content max width `layout.contentMax` 1600px (wide monitors keep a readable measure).
 
 ## Elevation
 
