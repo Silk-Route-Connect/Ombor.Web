@@ -1,102 +1,49 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import StatCard from "components/shared/StatCard/StatCard";
+import StatCardGrid from "components/shared/StatCard/StatCardGrid";
 import { Wallet } from "models/wallet";
-import { designTokens, typeScale } from "theme";
+import { designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-import { Box, Paper, Typography } from "@mui/material";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
+import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 
 interface WalletDetailStatsProps {
 	wallet: Wallet;
 }
-
-const Stat: React.FC<{
-	/** Palette path of the left accent bar and caption dot. */
-	accent: string;
-	caption: string;
-	value: string;
-	valueColor: string;
-}> = ({ accent, caption, value, valueColor }) => (
-	<Paper
-		elevation={1}
-		sx={{
-			position: "relative",
-			overflow: "hidden",
-			border: "1px solid",
-			borderColor: "divider",
-			borderRadius: "12px",
-			p: "17px 20px",
-			"&::before": {
-				content: '""',
-				position: "absolute",
-				left: 0,
-				top: 0,
-				bottom: 0,
-				width: "3px",
-				bgcolor: accent,
-			},
-		}}
-	>
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "8px",
-				fontSize: 13,
-				fontWeight: 600,
-				color: "text.secondary",
-			}}
-		>
-			<Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: accent }} />
-			{caption}
-		</Box>
-		<Typography
-			sx={{
-				...typeScale.numStrong,
-				lineHeight: 1,
-				mt: "10px",
-				color: valueColor,
-			}}
-		>
-			{value}
-			<UzsUnit />
-		</Typography>
-	</Paper>
-);
 
 /** Three detail stat cards per the bundle's `.wd-stats`: balance, our money, advances. */
 export const WalletDetailStats: React.FC<WalletDetailStatsProps> = ({ wallet }) => {
 	const { t } = useTranslation();
 
 	return (
-		<Box
-			sx={{
-				display: "grid",
-				gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-				gap: "16px",
-				mb: "22px",
-			}}
-		>
-			<Stat
-				accent="primary.main"
+		<StatCardGrid columns={3}>
+			<StatCard
+				icon={<AccountBalanceWalletOutlinedIcon />}
+				tone="primary"
 				caption={t("wallet.detail.stats.balance")}
 				value={formatCurrency(wallet.balance)}
-				valueColor="primary.main"
+				unit="uzs"
 			/>
-			<Stat
-				accent="success.main"
+			<StatCard
+				icon={<SavingsOutlinedIcon />}
+				tone="success"
 				caption={t("wallet.detail.stats.ourMoney")}
 				value={formatCurrency(wallet.ourMoney)}
-				valueColor="success.main"
+				valueColor={wallet.ourMoney < 0 ? "error.main" : "success.main"}
+				unit="uzs"
 			/>
-			<Stat
-				accent="secondary.main"
+			<StatCard
+				icon={<HandshakeOutlinedIcon />}
+				tone="accent"
 				caption={t("wallet.detail.stats.advances")}
 				value={formatCurrency(wallet.advancesHeld)}
 				valueColor={designTokens.saffron700}
+				unit="uzs"
 			/>
-		</Box>
+		</StatCardGrid>
 	);
 };
 
