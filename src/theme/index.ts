@@ -79,7 +79,8 @@ const theme = createTheme({
 			paper: NEUTRAL[0],
 		},
 		action: {
-			hover: "rgba(18,103,107,0.04)",
+			// 6% teal wash: 4% sat at the edge of perception on white rows and nav.
+			hover: "rgba(18,103,107,0.06)",
 			selected: designTokens.primarySoft,
 		},
 	},

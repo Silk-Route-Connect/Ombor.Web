@@ -10,7 +10,6 @@ import { SxProps, Theme } from "@mui/material";
  *
  * Token mapping (DSN-1 → theme):
  * - header / footer band background  --bg-subtle → designTokens.gray25
- * - zebra (even rows)                --bg-subtle → designTokens.gray25
  * - band separators (header/footer)  --border    → palette.divider (gray-200)
  * - in-body row dividers (lighter)   --divider   → designTokens.gray100
  * - container radius                 --radius-xl → radius.xl (16px)
@@ -132,12 +131,11 @@ export const BODY_CELL_SX: SxProps<Theme> = {
 };
 
 /**
- * Row chrome: zebra on even rows, teal hover, and a borderless last row — the
- * DSN-1 table body. `ExpandableDataTable` applies zebra by data index instead of
- * `nth-of-type`, since its collapse rows interleave with the data rows.
+ * Row chrome: hairline-separated rows (no zebra — owner feedback 2026-10-06: the
+ * stripes plus dividers plus bands read as noise and blended into the canvas),
+ * teal hover, and a borderless last row. The same body look as `DetailTable`.
  */
 export const ROW_SX: SxProps<Theme> = {
-	"&:nth-of-type(even)": { bgcolor: designTokens.gray25 }, // DSN zebra
 	"&:hover": { bgcolor: "action.hover" }, // teal wash
 	"&:last-of-type td": { borderBottom: 0 }, // DSN last row carries no divider
 };

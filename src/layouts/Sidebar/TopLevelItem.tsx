@@ -24,17 +24,22 @@ export default function TopLevelItem({
 }: Readonly<TopLevelItemProps>) {
 	const { t } = useTranslation();
 	const Icon = item.icon;
-	// An open or active parent turns white and bold; the child row carries the fill.
-	const emphasized = active || Boolean(expanded);
+	// A leaf that is the open page is selected; a group only turns white while it
+	// holds the open page — being expanded alone does not make it look current.
+	const selected = active && !item.children;
 
 	return (
-		<ListItemButton onClick={onClick} sx={topLevelItemSx(emphasized)}>
+		<ListItemButton
+			onClick={onClick}
+			aria-current={selected ? "page" : undefined}
+			sx={topLevelItemSx(selected, active)}
+		>
 			<ListItemIcon sx={{ minWidth: 0, color: "inherit" }}>
 				<Icon sx={{ fontSize: NAV_ICON }} />
 			</ListItemIcon>
 			<ListItemText
 				primary={t(item.labelKey)}
-				slotProps={{ primary: { sx: navLabelSx(emphasized) } }}
+				slotProps={{ primary: { sx: navLabelSx(active) } }}
 			/>
 			{item.children &&
 				(expanded ? (

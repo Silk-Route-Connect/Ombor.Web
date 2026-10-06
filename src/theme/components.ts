@@ -107,4 +107,9 @@ export const components: Components<Omit<Theme, "components">> = {
 			paper: { borderRadius: radius.lg },
 		},
 	},
+	MuiBackdrop: {
+		styleOverrides: {
+			root: { "&:not(.MuiBackdrop-invisible)": { backgroundColor: designTokens.scrimModal } },
+		},
+	},
 };

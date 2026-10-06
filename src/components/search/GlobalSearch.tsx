@@ -37,7 +37,7 @@ const GlobalSearch: React.FC = observer(() => {
 					height: 38,
 					flexShrink: 0,
 					px: { xs: 0, md: 1.625 },
-					bgcolor: "background.default",
+					bgcolor: "background.paper",
 					border: 1,
 					borderColor: designTokens.borderControl,
 					borderRadius: `${radius.md}px`,

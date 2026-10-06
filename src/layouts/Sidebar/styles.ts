@@ -15,53 +15,67 @@ const NAV_FOCUS = {
 	"&.Mui-focusVisible": { outline: "2px solid", outlineColor: "common.white", outlineOffset: -2 },
 } as const;
 
-/** Text colour of a nav entry: white when it is the current place, muted otherwise. */
+/** Text colour of a nav entry: white when it is (or holds) the current page, muted otherwise. */
 const navColor = (emphasized: boolean) => (emphasized ? "common.white" : designTokens.onDarkMuted);
 
-/** A top-level row (with icon) on the expanded panel; also the footer rows. */
-export const topLevelItemSx = (emphasized: boolean): SxProps<Theme> => ({
+/**
+ * The one «you are here» look — the open page's row, at any level: a lighter
+ * fill, white text and the saffron keystone bar inside the row's left edge
+ * (inside — a group's `Collapse` clips anything drawn beyond the row).
+ */
+const selectedSx = {
+	bgcolor: designTokens.onDarkFill,
+	"&::before": {
+		content: '""',
+		position: "absolute",
+		left: 4,
+		top: 10,
+		bottom: 10,
+		width: 3,
+		borderRadius: `${radius.pill}px`,
+		bgcolor: "secondary.main",
+	},
+};
+
+/**
+ * A top-level row (with icon) on the expanded panel; also the footer rows.
+ * `selected` — this row IS the open page; `emphasized` — a group holding it.
+ * A group that is merely expanded stays muted, so only one place reads as current.
+ */
+export const topLevelItemSx = (selected: boolean, emphasized = selected): SxProps<Theme> => ({
+	position: "relative",
 	borderRadius: `${radius.md}px`,
 	px: 1.25,
 	py: 1.125,
 	gap: 1.375,
 	color: navColor(emphasized),
-	"&:hover": { bgcolor: designTokens.onDarkHover, color: "common.white" },
+	...(selected && selectedSx),
+	"&:hover": {
+		bgcolor: selected ? designTokens.onDarkFill : designTokens.onDarkHover,
+		color: "common.white",
+	},
 	...NAV_FOCUS,
 });
 
-/**
- * A child row: the active page gets the white text, a lighter fill and the
- * saffron keystone bar — the brand accent marks «you are here».
- */
-export const subItemSx = (active: boolean): SxProps<Theme> => ({
+/** A child row under an expanded group. */
+export const subItemSx = (selected: boolean): SxProps<Theme> => ({
 	position: "relative",
 	borderRadius: `${radius.md}px`,
 	py: 1,
 	pr: 1.25,
 	pl: 4.125,
-	color: navColor(active),
-	bgcolor: active ? designTokens.onDarkFill : "transparent",
-	"&::before": active
-		? {
-				content: '""',
-				position: "absolute",
-				left: 14,
-				top: 10,
-				bottom: 10,
-				width: 3,
-				borderRadius: `${radius.pill}px`,
-				bgcolor: "secondary.main",
-			}
-		: undefined,
+	color: navColor(selected),
+	...(selected && selectedSx),
 	"&:hover": {
-		bgcolor: active ? designTokens.onDarkFill : designTokens.onDarkHover,
+		bgcolor: selected ? designTokens.onDarkFill : designTokens.onDarkHover,
 		color: "common.white",
 	},
 	...NAV_FOCUS,
 });
 
 /** Icon-only rail button (collapsed panel). */
-export const railButtonSx = (active: boolean): SxProps<Theme> => ({
+export const railButtonSx = (selected: boolean): SxProps<Theme> => ({
+	position: "relative",
 	width: 44,
 	height: 42,
 	minWidth: 0,
@@ -69,10 +83,10 @@ export const railButtonSx = (active: boolean): SxProps<Theme> => ({
 	p: 0,
 	borderRadius: `${radius.md}px`,
 	justifyContent: "center",
-	color: navColor(active),
-	bgcolor: active ? designTokens.onDarkFill : "transparent",
+	color: navColor(selected),
+	...(selected && selectedSx),
 	"&:hover": {
-		bgcolor: active ? designTokens.onDarkFill : designTokens.onDarkHover,
+		bgcolor: selected ? designTokens.onDarkFill : designTokens.onDarkHover,
 		color: "common.white",
 	},
 	...NAV_FOCUS,

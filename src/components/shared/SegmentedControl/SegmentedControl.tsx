@@ -40,6 +40,9 @@ export function SegmentedControl<T extends string>({
 				height: controlSize.md.height,
 				width: fullWidth ? "100%" : "auto",
 				bgcolor: designTokens.gray100,
+				// The track is the only filter control without an outline; a hairline
+				// keeps it readable on the canvas, a card and a modal alike.
+				boxShadow: `inset 0 0 0 1px ${designTokens.border}`,
 				borderRadius: `${radius.md}px`,
 				p: "3px",
 				gap: "2px",

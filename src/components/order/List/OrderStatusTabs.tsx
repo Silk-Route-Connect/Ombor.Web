@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { sidewaysFadeMask, useSidewaysScroll } from "hooks/shared/useSidewaysScroll";
-import { chipTokens, controlSize, designTokens, numericSx } from "theme";
+import { chipTokens, controlSize, designTokens, numericSx, radius } from "theme";
 import { ORDER_STATUS_META, ORDER_STATUS_TABS, OrderStatusFilter } from "utils/orderUtils";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -44,7 +44,8 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 				minWidth: 0,
 				height: controlSize.md.height,
 				bgcolor: designTokens.gray100,
-				borderRadius: "8px",
+				boxShadow: `inset 0 0 0 1px ${designTokens.border}`,
+				borderRadius: `${radius.md}px`,
 			}}
 		>
 			<Box

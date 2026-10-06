@@ -4,7 +4,7 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import TablePager from "components/shared/Table/TablePager";
 import { isReady, Loadable } from "helpers/Loading";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -172,7 +172,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 					</TableHead>
 
 					<TableBody>
-						{displayedRows.map((row, index) => {
+						{displayedRows.map((row) => {
 							const isExpandable = canExpand ? canExpand(row) : true;
 							const isOpen = isExpandable && expandedRows.has(row.id);
 
@@ -193,12 +193,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 											}
 										}}
 										sx={{
-											// Zebra by data index — the collapse rows interleave with the data rows.
-											bgcolor: isOpen
-												? "action.selected"
-												: index % 2 === 1
-													? designTokens.gray25
-													: "inherit",
+											bgcolor: isOpen ? "action.selected" : "inherit",
 											"&:hover": { bgcolor: "action.hover" },
 											cursor: isExpandable ? "pointer" : "default",
 										}}
