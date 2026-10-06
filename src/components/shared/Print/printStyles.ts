@@ -43,3 +43,10 @@ export const printSheetSx = {
 		boxShadow: "none",
 	},
 } as const;
+
+/** A landscape A4 sheet (laid over {@link printSheetSx}) for a table too wide for portrait. */
+export const printSheetLandscapeSx = {
+	width: "297mm",
+	minHeight: "210mm",
+	"@media print": { width: "auto", minHeight: 0 },
+} as const;
