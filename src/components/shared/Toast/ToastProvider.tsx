@@ -2,7 +2,7 @@ import React from "react";
 import { SnackbarProvider } from "notistack";
 import { layout } from "theme";
 
-import { GlobalStyles } from "@mui/material";
+import { Fade, GlobalStyles } from "@mui/material";
 
 import ToastContent from "./ToastContent";
 
@@ -23,6 +23,8 @@ const COMPONENTS = {
  * bottom-left of the content — past the sidebar (its width comes from the
  * `layout.sidebarWidthVar` the sidebar publishes), so a toast never covers
  * «Настройки» / «Выход»; without a sidebar (sign-in pages) it keeps the gutter.
+ * Toasts fade in place: notistack's default slide enters from the viewport's
+ * left edge and would sweep across the sidebar on every toast.
  */
 const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 	<SnackbarProvider
@@ -31,6 +33,7 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 		anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
 		Components={COMPONENTS}
 		classes={{ containerAnchorOriginBottomLeft: CONTAINER_CLASS }}
+		TransitionComponent={Fade}
 	>
 		<GlobalStyles
 			styles={{
@@ -38,6 +41,9 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 					left: `calc(var(${layout.sidebarWidthVar}, 0px) + ${GUTTER}px)`,
 					maxWidth: `calc(100% - var(${layout.sidebarWidthVar}, 0px) - ${GUTTER * 2}px)`,
 				},
+				// notistack's 288px floor overflows the column beside the rail on a phone;
+				// the toast card sets its own minimum from `sm` up.
+				[`.${CONTAINER_CLASS} .notistack-Snackbar`]: { minWidth: 0 },
 			}}
 		/>
 		{children}
