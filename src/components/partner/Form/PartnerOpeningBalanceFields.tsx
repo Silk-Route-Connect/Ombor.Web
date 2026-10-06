@@ -2,14 +2,14 @@ import React from "react";
 import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FormField from "components/shared/Forms/FormField";
-import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { PartnerFormInputs } from "schemas/PartnerSchema";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface PartnerOpeningBalanceFieldsProps {
 	form: UseFormReturn<PartnerFormInputs>;
@@ -59,54 +59,20 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 					name="openingAmount"
 					control={control}
 					render={({ field }) => (
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: "10px",
-								px: "14px",
-								py: "9px",
-								minHeight: 44,
-								border: "1px solid",
-								borderColor: designTokens.borderControl,
-								borderRadius: "8px",
-								bgcolor: "background.paper",
-								"&:focus-within": { borderColor: "primary.main" },
-							}}
-						>
-							<Box
-								component="span"
-								sx={{
-									...numericSx,
-									fontWeight: 700,
-									fontSize: 20,
-									color: partnerBalanceColor(signedOpening),
-								}}
-							>
-								{openingType === "receivable" ? "−" : "+"}
-							</Box>
-							<MoneyInputBase
-								value={field.value ?? 0}
-								onChange={field.onChange}
-								onBlur={field.onBlur}
-								placeholder="0"
-								disabled={isSaving}
-								sx={{
-									...numericSx,
-									flex: 1,
-									minWidth: 0,
-									fontWeight: 700,
-									fontSize: 20,
-									letterSpacing: "-0.01em",
-								}}
-							/>
-							<UzsUnit />
-						</Box>
+						<MoneyField
+							value={field.value ?? 0}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							name={field.name}
+							inputRef={field.ref}
+							placeholder="0"
+							disabled={isSaving}
+							error={!!amountError}
+							helperText={amountError}
+							sign={openingType === "receivable" ? "−" : "+"}
+						/>
 					)}
 				/>
-				{amountError && (
-					<Typography sx={{ fontSize: 12, color: "error.main" }}>{amountError}</Typography>
-				)}
 			</FormField>
 
 			{openingAmount > 0 && (

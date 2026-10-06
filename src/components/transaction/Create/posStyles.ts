@@ -36,6 +36,9 @@ export const posSummaryCardSx = {
 	overflow: "hidden",
 } as const;
 
+/** A line's unit-price field: «× 12 500 000 UZS» fits without scrolling the figure. */
+export const LINE_PRICE_WIDTH = 172;
+
 /** Where a line's controls start below their 16px caption + 6px gap — for the caption-less remove button. */
 export const LINE_CONTROL_OFFSET = "22px";
 

@@ -1,6 +1,5 @@
 import React from "react";
 import MoneyField from "components/shared/Inputs/MoneyField";
-import { numericSx } from "theme";
 
 import { InputAdornment } from "@mui/material";
 
@@ -11,17 +10,23 @@ interface LineMoneyInputProps {
 	width: number;
 	/** A leading sign inside the field — the «×» of a unit price. */
 	prefix?: string;
+	/** The «UZS» after the figure; off beside the discount's «% | UZS» toggle. */
+	unit?: boolean;
+	/** Only while a modal's save is in flight. */
+	disabled?: boolean;
 	/** Enter → continue to the next product (the POS entry loop). */
 	onEnter?: () => void;
 }
 
-/** A line's money input (unit price, discount) on the theme's 38px field, figures right-aligned. */
+/** A line's money input (unit price, fixed discount): the shared `MoneyField` at a fixed width. */
 export const LineMoneyInput: React.FC<LineMoneyInputProps> = ({
 	id,
 	value,
 	onChange,
 	width,
 	prefix,
+	unit,
+	disabled,
 	onEnter,
 }) => (
 	<MoneyField
@@ -30,6 +35,8 @@ export const LineMoneyInput: React.FC<LineMoneyInputProps> = ({
 		onChange={onChange}
 		placeholder="0"
 		fullWidth={false}
+		unit={unit}
+		disabled={disabled}
 		onKeyDown={
 			onEnter
 				? (e) => {
@@ -40,10 +47,7 @@ export const LineMoneyInput: React.FC<LineMoneyInputProps> = ({
 					}
 				: undefined
 		}
-		sx={{
-			width,
-			"& .MuiOutlinedInput-input": { textAlign: "right", fontWeight: 600, ...numericSx },
-		}}
+		sx={{ width }}
 		slotProps={
 			prefix
 				? { input: { startAdornment: <InputAdornment position="start">{prefix}</InputAdornment> } }

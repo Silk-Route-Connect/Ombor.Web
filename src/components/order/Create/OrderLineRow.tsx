@@ -6,7 +6,7 @@ import LineDiscountField from "components/transaction/Create/LineDiscountField";
 import LineMoneyInput from "components/transaction/Create/LineMoneyInput";
 import LineRemoveButton from "components/transaction/Create/LineRemoveButton";
 import LineRowHead from "components/transaction/Create/LineRowHead";
-import { POS_CARD_PADDING } from "components/transaction/Create/posStyles";
+import { LINE_PRICE_WIDTH, POS_CARD_PADDING } from "components/transaction/Create/posStyles";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { measurementShort, measurementShortLabel } from "utils/productUtils";
 
@@ -103,7 +103,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 						value={item.unitPrice}
 						onChange={(unitPrice) => onChange({ unitPrice })}
 						prefix="×"
-						width={152}
+						width={LINE_PRICE_WIDTH}
 					/>
 				</FormField>
 				<FormField

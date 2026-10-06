@@ -2,10 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
-import UzsAdornment from "components/shared/Money/UzsAdornment";
 import { TenderPayment } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
-import { numericSx } from "theme";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import { Box, ButtonBase } from "@mui/material";
@@ -61,17 +59,9 @@ const PaymentTender: React.FC<PaymentTenderProps> = ({
 						minWidth: 0,
 						// Tight side padding: a seven-figure tender has to fit beside «UZS» in the rail.
 						"& .MuiOutlinedInput-root": { px: "10px" },
-						"& .MuiOutlinedInput-input": {
-							px: 0,
-							textAlign: "right",
-							fontWeight: 600,
-							...numericSx,
-						},
+						"& .MuiOutlinedInput-input": { px: 0 },
 					}}
-					slotProps={{
-						input: { endAdornment: <UzsAdornment /> },
-						htmlInput: { "aria-label": label },
-					}}
+					slotProps={{ htmlInput: { "aria-label": label } }}
 				/>
 			</Box>
 			<Box sx={{ display: "flex", justifyContent: "flex-end" }}>

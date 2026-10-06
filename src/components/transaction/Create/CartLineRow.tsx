@@ -16,7 +16,7 @@ import LineDiscountField from "./LineDiscountField";
 import LineMoneyInput from "./LineMoneyInput";
 import LineRemoveButton from "./LineRemoveButton";
 import LineRowHead, { LineStatus } from "./LineRowHead";
-import { POS_CARD_PADDING } from "./posStyles";
+import { LINE_PRICE_WIDTH, POS_CARD_PADDING } from "./posStyles";
 
 interface CartLineRowProps {
 	direction: TransactionDirection;
@@ -118,7 +118,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						onChange={(unitPrice) => onChange({ unitPrice })}
 						onEnter={onContinue}
 						prefix="×"
-						width={152}
+						width={LINE_PRICE_WIDTH}
 					/>
 				</FormField>
 				<FormField

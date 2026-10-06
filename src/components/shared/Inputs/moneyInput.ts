@@ -1,10 +1,9 @@
 import { formatCurrency } from "utils/formatCurrency";
 
 /**
- * Shared format/parse logic for money inputs — the single source of truth behind
- * both `MoneyField` (TextField) and `MoneyInputBase` (bare InputBase), so the two
- * never drift. UZS-only: whole numbers, no decimals (F-024). All grouping routes
- * through `formatCurrency` — never hand-assemble separators.
+ * Format/parse logic behind `MoneyField`, the one money input. UZS-only: whole
+ * numbers, no decimals (F-024). All grouping routes through `formatCurrency` —
+ * never hand-assemble separators.
  */
 
 /** Strip every non-digit; tolerates the space group separators `formatCurrency` emits. */
