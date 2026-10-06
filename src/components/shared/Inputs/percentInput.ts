@@ -1,3 +1,5 @@
+import { formatExactPercent } from "utils/formatCurrency";
+
 /**
  * Format/parse for percent inputs (line discount, bulk discount). A percent may
  * be fractional — rule 37 computes `gross × discount / 100` and the server
@@ -5,14 +7,9 @@
  * never stripped (that booked 15 %).
  */
 
-const percentFormatter = new Intl.NumberFormat("ru-RU", {
-	maximumFractionDigits: 2,
-	useGrouping: false,
-});
-
 /** 1.5 → «1,5» (the ru decimal comma); 0 renders blank so the placeholder shows. */
 export const formatPercentInput = (value: number): string =>
-	value > 0 ? percentFormatter.format(value) : "";
+	value > 0 ? formatExactPercent(value) : "";
 
 /** Text a percent field may hold while typing: digits and one «,» / «.» with up to two decimals. */
 export const isPercentDraft = (raw: string): boolean => /^\d*(?:[.,]\d{0,2})?$/.test(raw);

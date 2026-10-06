@@ -1,6 +1,6 @@
 ﻿import { Order, OrderLine, OrderStatus } from "models/order";
 import { ChipTokenKey, chipTokens, designTokens } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatExactPercent } from "utils/formatCurrency";
 
 export interface OrderStatusMeta {
 	/** Chip colour semantics (`chipTokens` key). */
@@ -133,7 +133,7 @@ export function discountShortLabel(
 		return null;
 	}
 	return line.discountType === "Percentage"
-		? `−${line.discount}%`
+		? `−${formatExactPercent(line.discount)}%`
 		: `−${formatCurrency(line.discount)}`;
 }
 

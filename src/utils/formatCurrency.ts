@@ -76,6 +76,20 @@ export function formatPercent(value: number): string {
 	return value < 0 && text !== "0" ? `−${text}` : text;
 }
 
+const exactPercentFormatter = new Intl.NumberFormat("ru-RU", {
+	maximumFractionDigits: 2,
+	useGrouping: false,
+});
+
+/**
+ * A percent as booked — a line discount, stored at two decimals (rule 37) — with
+ * the ru decimal comma and nothing rounded away: 1.5 → «1,5», 12.25 → «12,25»
+ * (no «%» sign). `formatPercent` keeps one place, for derived shares.
+ */
+export function formatExactPercent(value: number): string {
+	return exactPercentFormatter.format(value);
+}
+
 /**
  * Money that may be negative, with a true minus: «−18 000» (a refund row and
  * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned. Same output
