@@ -20,42 +20,45 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 
 ## 2. Every list page
 
-- `PageHeader`: h1 title; dataset actions on the title row (primary create, «Экспорт»); view-shaping controls (search, filters, tabs, archive toggle) on the row below (#11).
-- `DataTable` chrome: header/footer bands, zebra rows, 52px height, tabular numerals; column order № → date → primary entity → type/status chip → descriptive → money (right-aligned) → `⋮` (#21).
+- `PageHeader`: module icon tile + h1 title + one-line purpose; dataset actions on the title row (primary create, «Экспорт»); the summary strip (where the page has one) right under the title row; view-shaping controls (search, filters, tabs, archive toggle) on the row below (#11). The browser tab reads «<title> · Ombor».
+- Filters always name themselves: «Тип: Все», «Склад: Все», «Дата: Весь период» — teal-tinted while on; the search placeholder says what it searches («Поиск по номеру или партнёру…»).
+- One table chrome on every table (list, expandable, detail): 42px header band, 52px rows separated by hairlines — **no zebra striping** — tabular money / quantities, proportional № / dates; the hover wash, pointer and a 2px focus ring appear only on rows that open something (a report or category row never looks clickable). Column order № → date → primary entity → type/status chip → descriptive → money (right-aligned) → `⋮` (#21). The № and the row's own entity are teal links; supporting entities (Склад, Касса, Откуда / Куда) are ink and turn teal on hover. A long name clamps to two lines with the full name on hover.
 - Sorting: columns sortable by default (not actions/long-text); default sort date-desc on event feeds, name-asc on master data (#21).
-- Pager 10/25/50, ru-localized (#21). All lists fetch-all and page client-side — sluggishness on large data is **F14 (known)**.
+- Pager 10/25/50, ru-localized, «1–10 из 1 181» (#21); no pager when the rows fit one page. The page size you pick is remembered per table — it survives navigation and reload (another table keeps its own). Counts everywhere are space-grouped («1 181»). All lists fetch-all and page client-side — sluggishness on large data is **F14 (known)**.
 - Row actions only inside the `⋮` `ActionMenu` — inline icon buttons are a defect (#21). Archived rows carry the «Архив» badge.
 - Archive control (Products, Partners, Wallets, Warehouses only): segmented «Активные | Архив» that **swaps** the dataset — archived rows never mixed into the active list (#13).
 - «Экспорт» downloads a client-side CSV of the **current filtered view**, rows in the order the table shows them — re-sort a column (e.g. partners by name, then by balance) and the next CSV follows it.
-- Empty table shows hardcoded «Нет записей» — **F16 (known)**, not a new find.
-- A failed list load (backend stopped / 500) shows «Не удалось загрузить …» + reason + «Повторить» in the table area — never the first-run empty state, never «0» in the summary cards (they read «—»). «Повторить» reloads in place.
+- An empty list shows its empty state with the page's own module icon (the same glyph as its header), a title and a hint; first-run copy carries the create button, a filtered empty state («Ничего не найдено…») doesn't.
+- A failed list load (backend stopped / 500) shows «Не удалось загрузить …» + reason + «Повторить» in the table area — never the first-run empty state, never «0» in the summary cards (they read «—»), and **no error toast** for that load (the inline state is the one message; a picker elsewhere fed by the same list may still toast). «Повторить» reloads in place.
 - A 500 from one endpoint is that call's error only: the topbar «Нет соединения» chip stays off and submit buttons elsewhere stay active. Only no response (stopped backend, timeout) or a 502 / 503 / 504 turns the chip on and blocks submits until a request succeeds.
 
 ## 3. Every detail page
 
 - Routed URL; deep-link and browser refresh both work (#1). Back button returns to the list (history-back with list fallback); no breadcrumb (#20a/20f).
 - Title = entity name only, or «№N» for numbered events — no chips, no meta line in the title (#20e). Edit/archive/restore only in the `⋮` kebab (#2); at most one `primaryAction` header button (child-event creation).
-- Tabs are underline-style with count pills (#20b).
+- Tabs are underline-style with count pills (#20b), `role="tab"` — Tab reaches them, Enter / Space switches.
+- Rail (where present): the money hero first (the figure, its status chip under it, the breakdown), then «Информация», then related records. Empty facts read «—», zero money «0 UZS» in ink; entity facts are links.
 - Layout: right-rail **only** on Product, Order, Transaction, Payment; stacked everywhere else (#20g, DR-01) — a missing rail on Partner/Wallet/Warehouse/Employee is correct.
-- Detail-embedded tables use the warm `detailTableChrome` (header band + total band or pager), not the list `DataTable` (#20d); sortable via `DetailSortHeader`; tab-level filters live **inside** the table widget (#14).
-- A missing record (`/payments/999999`) or malformed link (`/payments/abc`) shows «… не найден» with «К списку» and no error toast; a failed load shows the error with «Повторить», never «не найден» and never an endless spinner. Opening record B right after A never shows A's data.
+- Detail-embedded tables look exactly like list tables (same header band, rows, sort headers and focus ring) with a total band or a pager (#20d); tab-level filters live **inside** the table widget (#14). A document total appears once — in the rail hero, never again in a positions footer.
+- A missing record (`/payments/999999`) or malformed link (`/payments/abc`) shows «… не найден» with «К списку» and no error toast (tab title «… не найден · Ombor»; an unknown route `/nope` looks the same); a failed load shows the error with «Повторить», never «не найден» and never an endless spinner. Opening record B right after A never shows A's data.
 
 ## 4. Every form (modal)
 
-- Centered modal, never a drawer (#3).
+- Centered modal, never a drawer (#3), on the one shell: a record icon tile before the title, ✕, labels **above** every field (never floating inside it), a grey footer band. Submit wording: «Создать <что>» on create, «Сохранить» on edit, «Провести …» — or the act itself («Выплатить зарплату», «Перевести») — on an immutable event (with the lock line under it); a read-only detail has a single «Закрыть».
 - Submit always enabled; invalid submit → inline per-field errors with autofocus to the first error; **no top-of-form error banner** (DR-24, #18). Server/submit failure → notistack toast; a silent failure is a defect.
-- Closing a dirty form asks to confirm discarding (useDirtyClose). Enter / Ctrl+Enter submits (XC-11).
-- Money inputs group thousands live while typing (`MoneyField`); phone inputs render «+998 XX XXX XX XX» with a fixed prefix.
+- Closing a dirty form asks «Закрыть форму?» («Продолжить» / «Закрыть»). Enter / Ctrl+Enter submits (XC-11); an immutable event commits only on Ctrl+Enter or a click.
+- Money inputs group thousands live while typing, right-aligned with «UZS» after the figure (`MoneyField`); a «%» discount accepts «1,5» as 1,5 %; a quantity typed «1,5» stays visible with «Количество — только целое число» and never becomes 15; a stepper's «−» at the minimum stays enabled and explains; phone inputs render «+998 XX XXX XX XX» with a fixed prefix.
+- Notices inside a form or page are one look (a tinted box with an icon and an optional «Повторить») — never a bare red text banner at the top (DR-24).
 - Required-field labels carry an error-colored asterisk.
 
 ## 5. Formats & display (any screen)
 
 - Money: «1 250 000» — space-grouped, no symbol, tabular figures (`formatCurrency`).
 - Dates: `DD.MM.YYYY`; event timestamps «07.07.2026 16:33» (space separator).
-- Document/entity numbers: «№N» via `formatEntityId`. Transactions share **one** number series across Sale/Supply/refunds (DR-21) — a Sale «№5» followed by a Supply «№6» is correct.
+- Document/entity numbers: «№N» via `formatEntityId`; a missing number reads «Без номера» («без номера» mid-sentence, «Продажа без номера · Ombor» in the tab) — never the database id. Transactions share **one** number series across Sale/Supply/refunds (DR-21) — a Sale «№5» followed by a Supply «№6» is correct.
 - Balances: color + a direction **word**, never a bare signed number (#4). Implemented vocabulary: owner-POV buckets «Нам должны» / «Мы должны» on Debts, Dashboard, and the POS balance card («Без долга» at zero); partner surfaces render partner-POV **signed** figures — a documented divergence from #4, see `modules/partners.md` Traps before judging signs/colors there. The literal canon strings «Вам должны…»/«Нет долга» exist nowhere in the app — do not assert them.
 - PaymentType labels: Оплата · Депозит · Вывод · Зарплата · Общий (#17). PartnerType `Both` → «Клиент + Поставщик» (#15).
-- Toasts: bottom-left, never over the top bar, at most three, an identical message once. An error toast names the action + the reason («Не удалось удалить склад: запись используется в документах — …»), never English server text.
+- Toasts: white cards with a tinted icon tile and ✕ («Закрыть уведомление»), fading in at the bottom-left of the content — past the sidebar, never over «Настройки» / «Выход»; while a dialog is open they sit at the screen's left edge instead, clear of the dialog's buttons. At most three, an identical message once. An error toast names the action + the reason («Не удалось удалить склад: запись используется в документах — …»), never English server text.
 - Chips: Sale=teal, Supply=saffron, refunds outlined; status Open=info, PartiallyPaid=warning, Overdue=error, Closed=success; Приход=green / Расход=red pills with unsigned amounts. Green/red on a *number* is reserved for money figures (#4); chips may use the full semantic palette.
 
 ## 6. Traps — designed behavior that looks like a bug (never report these)

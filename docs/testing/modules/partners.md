@@ -4,11 +4,11 @@ Partner master data: list + summary strip, detail (balance, dispute-grade ledger
 
 ## Surfaces
 
-- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт»), `PartnerSummaryStrip` (3 cards «Нам должны» / «Мы должны» / «Итог расчётов» — the served `GET /api/debts/summary` totals, the same figures as /debts and the dashboard; «—» until they load), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
-- `/partners/:id` — detail: `DetailPageHeader` (name; type chip + company as titleExtra), sticky 372px right rail (balance hero + «Обороты» + «Контакты»), `DetailTabs` Журнал / Транзакции / Платежи with count pills. Deep-link params: `?tab=transactions|payments&status=open|paid|partial|unpaid`. ⋮ starts with «Напомнить о долге» (only while the partner owes us) and «Акт сверки», then edit / archive / delete.
+- `/partners` — list: `PageHeader` («Партнёры», «Новый партнёр», «Экспорт»), `PartnerSummaryStrip` under the title row (3 cards «Нам должны» / «Мы должны» / «Итог расчётов» — the served `GET /api/debts/summary` totals, the same figures as /debts and the dashboard; «—» until they load), search + type segmented («Все | Клиенты | Поставщики») + archive segmented «Активные | Архив», `PartnersTable`.
+- `/partners/:id` — detail: `DetailPageHeader` (name; type chip + company as titleExtra), sticky 360px right rail (balance hero «Баланс» — the signed figure, a one-line reading under it and the fact row «Начальный баланс · DD.MM.YYYY … UZS»; then «Обороты» with icons in the document-type hues; then «Контакты»), `DetailTabs` Журнал / Транзакции / Платежи with count pills. Deep-link params: `?tab=transactions|payments&status=open|paid|partial|unpaid`. ⋮ starts with «Напомнить о долге» (only while the partner owes us) and «Акт сверки», then edit / archive / delete.
 - `/partners/:id/statement?from&to` — the printable «Акт сверки» (`PartnerStatementPage` on the shared print layout): toolbar «С» / «По» + «Печать»; default period 01.01 of this year → today.
 - `DebtReminderDialog` — «Напомнить о долге»: ready editable text + «Копировать» / «SMS» / «Отправить в Telegram» (the owner's own apps; Ombor sends nothing).
-- `PartnerFormModal` (create/edit — shared by list and detail) · `PartnerDialogs` (archive / restore / delete / cannot-delete confirms).
+- `PartnerFormModal` (create/edit — shared by list and detail; the shared modal shell, labels above the fields, a «Начальный баланс» section with «Тип остатка» as a segmented control and the amount field writing the sign into the figure) · `PartnerDialogs` (archive / restore / delete / cannot-delete confirms).
 - Entry points: sidebar «Партнёры»; `PartnerLink` from Debts, transaction/order rows and details.
 
 ## Traps
@@ -34,13 +34,13 @@ Run-scoped entities: «QA-<MMDD> Партнёр А» (T-PRT-01), «QA-<MMDD> П�
 
 ### T-PRT-01 · Create partner with opening balance [happy]
 Pre: /partners, QA org.
-Steps: 1) «Новый партнёр». 2) Name «QA-<MMDD> Партнёр А», type «Поставщик», phone national part `901234567`. 3) Opening: «Партнёр должен нам», amount 50 000 — note the red «−» sign preview and «Стартовая запись в книге: −50 000 UZS». 4) Submit «Создать партнёра».
-Expect: toast «Партнёр «QA-<MMDD> Партнёр А» создан»; row appears with balance «−50 000» red (partner-POV — see Traps); phone renders with fixed «+998» prefix. Opening is a signed immutable event; `openingDate` is server-set to today — visible on the detail rail as «Начальный баланс: <today DD.MM.YYYY> — −50 000 UZS» (contract: create; R12).
+Steps: 1) «Новый партнёр». 2) Name «QA-<MMDD> Партнёр А», type «Поставщик», phone national part `901234567`. 3) Opening: «Партнёр должен нам», amount 50 000 — the amount field reads «−50 000 UZS» (the sign is written into the figure, ink) and the preview «Стартовая запись в книге: −50 000 UZS» is red. 4) Submit «Создать партнёра».
+Expect: toast «Партнёр «QA-<MMDD> Партнёр А» создан»; row appears with balance «−50 000» red (partner-POV — see Traps); phone renders with fixed «+998» prefix. Opening is a signed immutable event; `openingDate` is server-set to today — visible on the detail rail as the fact row «Начальный баланс · <today DD.MM.YYYY>» — «−50 000 UZS» (contract: create; R12).
 
 ### T-PRT-02 · Detail page structure, rail, count pills [happy]
 Pre: partner А (T-PRT-01).
 Steps: 1) Open А from the list. 2) Inspect header, rail, tabs.
-Expect: header = name + type chip «Поставщик» + no meta beyond titleExtra (#20e, Traps); rail balance hero «−50 000» red + hint «Партнёр должен нам»; opening strip per T-PRT-01; «Обороты» rows Продажи/Поставки/Платежи all «—» (zero); «Контакты» lists the phone. Tabs «Журнал 1 · Транзакции 0 · Платежи 0» (#20b). Транзакции tab shows empty state «Партнёр только создан — пока есть только начальный баланс…».
+Expect: header = name + type chip «Поставщик» + no meta beyond titleExtra (#20e, Traps); rail balance hero «−50 000» red + hint «Партнёр должен нам»; under it the fact row «Начальный баланс · <today>» «−50 000 UZS» (red); «Обороты» rows Продажи/Поставки/Платежи all «0 UZS» in ink (a zero is not «—» and never coloured); «Контакты» lists the phone. Tabs «Журнал 1 · Транзакции 0 · Платежи 0» (#20b). Транзакции tab shows empty state «Партнёр только создан — пока есть только начальный баланс…».
 
 ### T-PRT-03 · Ledger opening row semantics [happy]
 Pre: partner А.
@@ -49,7 +49,7 @@ Expect: exactly one row — «Номер» = «—», date **without** time, eve
 
 ### T-PRT-04 · Edit preserves served balance (F2 regression watch) [happy]
 Pre: partner А.
-Steps: 1) Detail ⋮ → edit. 2) Set company «QA Компания». 3) «Сохранить изменения».
+Steps: 1) Detail ⋮ → edit. 2) Set company «QA Компания». 3) «Сохранить».
 Expect: toast «Изменения сохранены»; balance still «−50 000» immediately, **without reload** (update re-reads by id). F2 is FIXED — a «—»/«не число»/NaN/0 balance after edit is a **NEW regression**: report FAIL, not KNOWN.
 
 ### T-PRT-05 · Supply creates a signed ledger row with running balance [happy] ✍

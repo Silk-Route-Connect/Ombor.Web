@@ -17,7 +17,7 @@ Expect exactly, top to bottom: Главное · Финансы (Платежи,
 
 ### T-SMK-03 · Auth guards [happy]
 
-Logged in, navigate to `/login` → redirected to `/`. Unknown URL (e.g. `/nope`) → NotFoundPage inside the app layout.
+Logged in, navigate to `/login` → redirected to `/`. Unknown URL (e.g. `/nope`) → NotFoundPage inside the app layout, the same not-found card as a missing record (`/sales/999999`): icon tile, «Страница не найдена», one line and the ghost button «На главную» (a record shows «К списку»); tab «Страница не найдена · Ombor».
 
 ### T-SMK-04 · Activity Log and stubs render, don't crash [happy]
 
@@ -41,7 +41,7 @@ List renders; legacy module — layout deviations from shared checklist §2 are 
 
 ### T-SMK-13 · `/warehouses` and `/warehouses/:id` [happy]
 
-Summary strip; detail with Остатки/Движения tabs, warm table chrome (#20d), stacked layout (no rail).
+Summary strip; detail with Остатки/Движения tabs on the shared table chrome (same look as the list tables, #20d), stacked layout (no rail). «Движения» names an adjustment by its reason («Кража/утеря»), never a raw enum.
 
 ### T-SMK-14 · `/adjustments` [happy]
 
@@ -57,7 +57,7 @@ Summary strip; detail: balance card + Журнал/Транзакции/Плат
 
 ### T-SMK-17 · `/orders` and `/orders/:id` [happy]
 
-Status tabs with live counts; detail: stepper, positions card, right rail. Order detail of a Delivered order links to its Sale.
+Status tabs with live counts; source chips read «Ombor» / «Telegram» (never «OmborWeb»); detail: stepper, positions card (no totals footer), right rail whose total is the served order total. Order detail of a Delivered order links to its Sale.
 
 ### T-SMK-18 · `/sales`, `/sales/:id`, `/supplies`, `/supplies/:id` [happy]
 
@@ -77,7 +77,7 @@ Summary strip; type column «Тип операции» with real localized types
 
 ### T-SMK-22 · `/debts` [happy]
 
-4 summary cards (3 clickable), По партнёрам/По транзакциям tabs, aging buckets; row drill-down navigates to partner detail debt view.
+4 summary cards (3 clickable), «По партнёрам» / «Неоплаченные документы» tabs (shared detail tabs — Tab + Enter / Space switch them; the «нам должны / мы должны» legend sits right of the tabs), aging buckets; row drill-down navigates to partner detail debt view.
 
 ### T-SMK-23 · `/wallets` and `/wallets/:id` [happy]
 
@@ -89,13 +89,34 @@ List; detail with payroll history (empty state acceptable); terminate/restore af
 
 ### T-SMK-25 · `/settings` [happy]
 
-Sections: Организация, Язык, Валюта (locked UZS, read-only — correct), Пользователи (invite/deactivate/reactivate; no delete — R41). Cosmetic «Администратор» chips are known-correct (no roles, DR-07).
+Sections: Организация, Язык, Валюта (locked UZS, read-only — correct), Пользователи (invite/deactivate/reactivate; no delete — R41), Безопасность. Организация saves from its own card's footer band — «Есть несохранённые изменения» / «Все изменения сохранены», «Отмена», «Сохранить»; Безопасность has «Сменить пароль» in its band; clicking a section in the side menu lights that section. Cosmetic «Администратор» chips are known-correct (no roles, DR-07).
 
 ## Cross-screen spot checks
 
 ### T-SMK-30 · Format sampling [happy]
 
 On any three money-bearing screens: amounts «1 250 000», dates `DD.MM.YYYY`, timestamps «07.07.2026 16:33», numbers «№N», no «Сумма, UZS» headers (shared checklist §5).
+
+### T-SMK-32 · Browser tab titles [happy]
+
+Steps: visit a list, a detail, a print view and an unknown record; go back each time.
+Expect: «Продажи · Ombor», «Продажа №N · Ombor» (a legacy row «Продажа без номера · Ombor», never the id), «Документ не найден · Ombor» style for a missing record; a print view's tab is the document's PDF name («Накладная на продажу №N»); reports read «Продажи — отчёт · Ombor». Going back restores the previous page's title — no title sticks from an earlier page.
+
+### T-SMK-33 · Page size is remembered per table [happy]
+
+Steps: 1. `/sales` → pager 25. 2. Open a sale, go back; reload. 3. Open `/supplies`.
+Expect: 2 → `/sales` still shows 25 rows per page. 3 → `/supplies` keeps its own size (10 by default). A private window (no storage) still pages normally at 10.
+
+### T-SMK-34 · Toast look and position [happy]
+
+Steps: 1. `/sales`: search «zzz», click «Экспорт». 2. Collapse the sidebar to its rail; click «Экспорт» again. 3. Whenever a toast happens to appear over an open dialog during the run, note where it sits.
+Expect: 1 → an info toast «Нечего экспортировать — в таблице нет строк»: a white card with a blue icon tile and ✕, bottom-left of the content, starting past the sidebar (never over «Настройки» / «Выход»); it fades in place, never slides across the sidebar. 2 → it starts past the 72px rail. 3 → while a dialog is open a toast sits at the screen's left edge, clear of the dialog's own buttons.
+
+### T-SMK-35 · Register page fits a laptop screen (logged out) [happy]
+
+Pre: logged out (end of the run, or a private window).
+Steps: open `/register` and `/login` at 1366×650 and 1280×720; scroll to the bottom.
+Expect: the card grows with its form and the page scrolls — the register submit button and the «Войти» link are fully reachable; nothing is clipped inside the card (no inner scrollbar).
 
 ### T-SMK-31 · Hygiene sweep [happy]
 

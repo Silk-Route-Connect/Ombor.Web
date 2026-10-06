@@ -6,7 +6,7 @@ SaleRefund / SupplyRefund counter-events: creation from the original, caps, effe
 
 - **No standalone route.** Refund create = `RefundModal`, opened on the original's detail (`/sales/:id`, `/supplies/:id`) via the visible header button «Оформить возврат» (the `primaryAction`, ux-9), or from a `/sales` / `/supplies` row's ⋮ «Оформить возврат», which opens that detail with the modal already open. A fully refunded original shows a grey «Возвращено полностью» pill in place of the button, «Возвращено полностью» under its № in the list, and no row ⋮. The modal footer reads «Провести возврат» with the lock line «После проведения изменить нельзя — ошибку исправляют новой продажей или поставкой.»
 - **Refund rows** live inside the `/sales` feed (SaleRefund) and `/supplies` feed (SupplyRefund).
-- **Refund detail** = the same `TransactionDetailPage` route, rendering refund-specific parts: clickable «Возврат к продаже/поставке» banner, «Причина возврата» card, «Сумма возврата» financial card. No kebab at all on a refund detail.
+- **Refund detail** = the same `TransactionDetailPage` route, rendering refund-specific parts: clickable «Возврат к продаже/поставке» banner, «Причина возврата» card, and the rail's money hero «Сумма возврата» (the amount, then «Исходная продажа/поставка» «№S» as a link and «Позиций возвращено», closed by the note «Возврат проведён и не подлежит изменению»); the positions card has no totals footer. No kebab at all on a refund detail.
 - **Wire:** refunds POST through the shared multipart `POST /api/transactions` with `Type=SaleRefund|SupplyRefund` + `OriginalTransactionId` + `RefundReason` — no dedicated refund route.
 
 ## Traps
@@ -54,7 +54,7 @@ Known: F19 resolved F6 — a blank «Возврат к №N» sublabel is a REGR
 ### T-RFD-04 · Refund detail: content, links, no refund-of-refund [happy]
 Pre: T-RFD-03.
 Steps: click the refund row → its detail page.
-Expect: title «№R1» only (#20e); banner «Возврат к продаже» + «№S», click navigates to №S's detail; «Причина возврата» card shows the entered text; financial card «Сумма возврата» = −45 000 UZS, «Исходная продажа» = «№S» (clickable), «Позиций возвращено» 1; header has NO kebab and no refund affordance anywhere on the page (R1, R4).
+Expect: title «№R1» only (#20e); banner «Возврат к продаже» + «№S», click navigates to №S's detail; «Причина возврата» card shows the entered text; rail hero «Сумма возврата» 45 000 UZS (the hero shows the amount unsigned; the list row reads «−45 000», D12), «Исходная продажа» = «№S» (clickable), «Позиций возвращено» 1, note «Возврат проведён и не подлежит изменению»; header has NO kebab and no refund affordance anywhere on the page (R1, R4).
 
 ### T-RFD-05 · Original reflects refunded quantities [happy]
 Pre: T-RFD-04.

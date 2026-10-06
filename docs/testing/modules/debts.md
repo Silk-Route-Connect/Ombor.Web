@@ -7,8 +7,8 @@ Read with: [../README.md](../README.md) · [../shared-checklist.md](../shared-ch
 
 - `/debts` (sidebar «Долги»). Read-only: no create button. The only row actions are the «По партнёрам» ⋮ — «Напомнить о долге» (rows where they owe us) and «Акт сверки»; «Неоплаченные документы» rows have none.
 - `DebtSummaryCards` — 4 served cards: «Нам должны» (green) and «Мы должны» (red) are **net partner positions** (opening + unpaid documents ± advances, archived partners included) with pills «N партнёров должны нам» / «мы должны N партнёрам»; «Просрочено» (red when > 0) = unpaid documents past their due date, both directions, pill «N документов»; «Итог расчётов» (color by sign) = the difference, pill «N партнёров». First three clickable (hover arrow), net card is not. Small «UZS» suffix on each.
-- `DebtTabs` — underline tabs «По партнёрам» / «Неоплаченные документы» with count pills; right-aligned legend swatches «нам должны» (green) / «мы должны» (red).
-- Toolbar — search «Поиск по партнёру или номеру…» (partner name and company on both tabs; document-number substring on the documents tab); direction segmented «Все | Нам должны | Мы должны» (both tabs); «Срок:» dropdown («Все сроки / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней» — on «По партнёрам» it reads the age of what the partner owes us); clearable «Только просроченные» chip (appears only via the «Просрочено» card, or the topbar bell's «Просрочено N долгов клиентов» alert — which also sets «Нам должны» on «Неоплаченные документы»). «Экспорт» sits on the title row (pattern 11).
+- The shared `DetailTabs` — underline tabs «По партнёрам» / «Неоплаченные документы» (`role="tab"` with `aria-selected`; Tab reaches each tab, Enter or Space switches) with the shared count pills (space-grouped); the legend swatches «нам должны» (green) / «мы должны» (red) sit right of the tabs, outside the tablist.
+- Toolbar — search «Поиск по партнёру или номеру…» (partner name and company on both tabs; document-number substring on the documents tab); direction segmented «Все | Нам должны | Мы должны» (both tabs); «Срок» dropdown («Срок: Все» / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней — on «По партнёрам» it reads the age of what the partner owes us); clearable «Только просроченные» chip (appears only via the «Просрочено» card, or the topbar bell's «Просрочено N долгов клиентов» alert — which also sets «Нам должны» on «Неоплаченные документы»). «Экспорт» sits on the title row (pattern 11).
 - Exits: partner-tab row → `/partners/:id?tab=transactions&status=open`; transaction-tab row → `/supplies/:id` for Supply/SupplyRefund, `/sales/:id` otherwise; partner name inside a row → partner detail (does not open the transaction).
 
 ## Traps
@@ -21,7 +21,7 @@ Module-specific designed-behavior-looks-like-bug items (shared-checklist §6 sti
 | A row with «Возраст» 200 дн and no «просрочка» chip; «Просрочено» card stays 0 | blank `dueDate` = due on receipt, never overdue (contract `overdueDays` = 0 without due date). No UI collects a due date today — a QA run can never create an overdue debt |
 | Dashboard «Долги старше 30 дней» ≠ /debts «Просрочено» card | deliberate: dashboard = receivables aged 31+ days; /debts = due-date overdue, both directions. Only the due-date measure is called «Просрочено» (ui-patterns Display conventions) |
 | Cards don't move when searching/filtering/switching tabs | the cards are the served totals, never the filtered view |
-| «Нам должны» ≠ Σ «Остаток» of the green unpaid documents | the cards are net partner positions: an advance the partner holds, an opening balance, or documents in both directions are netted per partner. The document list's sums are document totals, never called debt (business-rules «Debt totals») |
+| «Нам должны» ≠ Σ «Осталось оплатить» of the green unpaid documents | the cards are net partner positions: an advance the partner holds, an opening balance, or documents in both directions are netted per partner. The document list's sums are document totals, never called debt (business-rules «Debt totals») |
 | A partner row's «Сумма долга» ≠ the sum of its documents; a row with 0 «закрыто авансом» | the row is the served position (= the partner page balance); the notes under the amount name every netted advance («с учётом аванса партнёра …», «с учётом нашего аванса …» — both lines when the partner holds both). A partner whose advance covers its unpaid documents owes nothing |
 | A partner with 0 documents on «По партнёрам» | its opening balance alone makes it owe / be owed |
 | Red 70 000 sorts above green 60 000 in «Сумма долга» | column sorts by absolute exposure regardless of direction; direction is color-only, no ± signs (#4) |
@@ -40,7 +40,7 @@ Expect: «Нам должны» +60 000, pill +1 partner (Дебитор); «М�
 ### T-DBT-02 · Transaction row anatomy — fresh debt, age 0, direction colors [happy]
 Pre: T-DBT-01.
 Steps: 1. Tab «Неоплаченные документы»; search «QA-<MMDD>».
-Expect: three rows. Each: «№N» via formatEntityId (DR-21) + copyable, timestamp «DD.MM.YYYY HH:MM»; «Возраст» = «0 дн», no «просрочка» chip; badges «Поставка» (D1) / «Продажа» (D2, D3); Сумма/Оплачено/Остаток = 100 000/0/100 000, 60 000/0/60 000, 30 000/0/30 000 — remaining = total − paid (contract DebtDto, R12); «Остаток» green on receivable rows, red on the payable row, no ± signs (#4); leading icon box differs by direction (green ↗ receivable vs orange truck payable).
+Expect: three rows. Each: «№N» via formatEntityId (DR-21) + copyable, timestamp «DD.MM.YYYY HH:MM»; «Возраст» = «0 дн», no «просрочка» chip; badges «Поставка» (D1) / «Продажа» (D2, D3); Сумма/Оплачено/Осталось оплатить = 100 000/0/100 000, 60 000/0/60 000, 30 000/0/30 000 — remaining = total − paid (contract DebtDto, R12); «Осталось оплатить» green on receivable rows, red on the payable row, no ± signs (#4); leading icon box differs by direction (green ↗ receivable vs orange truck payable).
 
 ### T-DBT-03 · Partial payment updates paid/remaining and the receivable card [happy] ✍
 Pre: T-DBT-01; record «Нам должны» and «Чистая позиция».
@@ -70,7 +70,7 @@ Expect: 1→ URL `/partners/<id>?tab=transactions&status=open`; partner detail o
 ### T-DBT-08 · CSV exports the current filtered transactions view [happy]
 Pre: T-DBT-01+.
 Steps: 1. Transactions tab; direction «Нам должны»; search «QA-<MMDD>». 2. «Экспорт» (title row). 3. Switch to «По партнёрам», export again.
-Expect: file `debts_<datestamp>.csv`; headers №/Дата/Партнёр/Тип/Возраст (дней)/Сумма/Оплачено/Остаток — the table's column order; rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
+Expect: file `debts_<datestamp>.csv`; headers №/Дата/Партнёр/Тип/Возраст (дней)/Сумма/Оплачено/Осталось оплатить — the table's column order; rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
 
 ### T-DBT-09 · By-partner row ⋮: reminder and Акт сверки [happy]
 Pre: T-DBT-01+ («QA-<MMDD> Дебитор» owes us; a partner we owe exists).
@@ -81,13 +81,13 @@ Expect: 1→ the menu opens without opening the partner (row click suppressed); 
 
 ### T-DBT-30 · Age-bucket boundaries; a fresh debt lands in «0–7 дней» [edge]
 Pre: T-DBT-01+ (all run debts ageDays 0).
-Steps: 1. Transactions tab; search «QA-<MMDD>». 2. «Срок: 0–7 дней». 3. «Срок: 8–30 дней». 4. «Срок: Все сроки». 5. Partners tab with «0–7 дней» still set.
+Steps: 1. Transactions tab; search «QA-<MMDD>». 2. «Срок: 0–7 дней». 3. «Срок: 8–30 дней». 4. «Срок: Все». 5. Partners tab with «0–7 дней» still set.
 Expect: 2→ every run row present (buckets partition on served ageDays: ≤7 / 8–30 / 31–60 / >60; contract: ageDays = days since transaction date); 3→ zero run rows, «Ничего не найдено»; 5→ partners who owe us something 0–7 days old stay (Дебитор), partners we owe drop out (Универсал — no owed age); dropdown shows active styling when non-default.
 
 ### T-DBT-31 · Blank due date is never overdue, at any age [edge]
 Pre: any org data; run rows from T-DBT-01.
-Steps: 1. Transactions tab, «Все сроки», empty search. 2. Scan for rows with large «Возраст» and no chip. 3. Compare the «Просрочено» card against the set of rows carrying a red «просрочка N дн» chip.
-Expect: rows without a due date show only «N дн» — no chip regardless of age (contract: overdueDays = 0 when no due date; Traps); «Просрочено» card value = Σ «Остаток» over chip-carrying rows only, both directions counted; since no UI collects a due date, if zero chips exist anywhere the card must read 0 with «0 документов».
+Steps: 1. Transactions tab, «Срок: Все», empty search. 2. Scan for rows with large «Возраст» and no chip. 3. Compare the «Просрочено» card against the set of rows carrying a red «просрочка N дн» chip.
+Expect: rows without a due date show only «N дн» — no chip regardless of age (contract: overdueDays = 0 when no due date; Traps); «Просрочено» card value = Σ «Осталось оплатить» over chip-carrying rows only, both directions counted; since no UI collects a due date, if zero chips exist anywhere the card must read 0 with «0 документов».
 
 ### T-DBT-32 · Unpaid SupplyRefund appears as a receivable [edge] ✍
 Pre: T-DBT-01 (D1 open, 100 000); record cards.
@@ -114,11 +114,11 @@ Steps: 1. /debts: record «Нам должны» / «Мы должны» values 
 Expect: dashboard «Нам должны» / «Мы должны» = the /debts cards = the /partners strip, exactly (one served definition, `GET /api/debts/summary`; `period` moves only the trend and the change badge). The KPI footnotes («N партнёров должны нам» / «мы должны N партнёрам») equal the card pills.
 
 ### T-DBT-61 · Dashboard «Долги старше 30 дней» = 31+-day receivable aging, NOT /debts overdue [reconcile]
-Steps: 1. /debts transactions tab: direction «Нам должны», «Срок: Старше 30 дней» → sum «Остаток» = S. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the «Долги старше 30 дней» KPI V; click it.
+Steps: 1. /debts transactions tab: direction «Нам должны», «Срок: Старше 30 дней» → sum «Осталось оплатить» = S. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the «Долги старше 30 дней» KPI V; click it.
 Expect: V = the dashboard aging panel's 31–60 + 60+ buckets; V = S only for partners with no advance, opening balance or payable documents (the served figure nets those per partner, oldest first). The click lands on /debts «По партнёрам» with «Нам должны» + «Срок: Старше 30 дней» preset — never the «Только просроченные» chip. Do **not** assert V = C — C is due-date overdue across both directions; V ≠ C is designed (Traps). With a young QA org S, C, V may all be 0 — note it.
 
 ### T-DBT-62 · Dashboard aging panel ↔ /debts bucket sums [reconcile]
-Steps: for each bucket 0-7 / 8-30 / 31-60 / 60+: /debts direction «Нам должны» + matching «Срок» filter → sum «Остаток»; compare with the dashboard aging panel amount for that bucket.
+Steps: for each bucket 0-7 / 8-30 / 31-60 / 60+: /debts direction «Нам должны» + matching «Срок» filter → sum «Осталось оплатить»; compare with the dashboard aging panel amount for that bucket.
 Expect: the panel buckets add up to «Нам должны»; each bucket equals the /debts sum only where no partner nets an advance, opening balance or payable document (the served aging attributes each partner's net receivable to its newest unpaid documents). Payable rows never enter the panel.
 
 ### T-DBT-63 · Partner row ↔ partner detail balance card (POV flip) [reconcile]
@@ -128,4 +128,4 @@ Expect: Универсал balance card magnitude 60 000, Дебитор 15 000 
 
 ### T-DBT-64 · Partner rows add up to the cards [reconcile]
 Steps: 1. Clear all filters. 2. Partners tab: R = Σ green «Сумма долга», P = Σ red. 3. Cards.
-Expect: R = «Нам должны», P = «Мы должны», R − P = «Итог расчётов» (magnitude + color by sign); the «Нам должны» pill = the number of green rows, «Мы должны» = red rows. The documents tab sums (Σ «Остаток») equal R / P only when no partner holds an advance, has an opening balance or documents in both directions — a difference there is the designed netting, not drift.
+Expect: R = «Нам должны», P = «Мы должны», R − P = «Итог расчётов» (magnitude + color by sign); the «Нам должны» pill = the number of green rows, «Мы должны» = red rows. The documents tab sums (Σ «Осталось оплатить») equal R / P only when no partner holds an advance, has an opening balance or documents in both directions — a difference there is the designed netting, not drift.
