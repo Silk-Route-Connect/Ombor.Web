@@ -35,13 +35,17 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			key: "from",
 			headerName: t("transfer.table.from"),
 			sortValue: (tr) => tr.fromWarehouseName,
-			renderCell: (tr) => <WarehouseLink id={tr.fromWarehouseId} name={tr.fromWarehouseName} />,
+			renderCell: (tr) => (
+				<WarehouseLink id={tr.fromWarehouseId} name={tr.fromWarehouseName} variant="secondary" />
+			),
 		},
 		{
 			key: "to",
 			headerName: t("transfer.table.to"),
 			sortValue: (tr) => tr.toWarehouseName,
-			renderCell: (tr) => <WarehouseLink id={tr.toWarehouseId} name={tr.toWarehouseName} />,
+			renderCell: (tr) => (
+				<WarehouseLink id={tr.toWarehouseId} name={tr.toWarehouseName} variant="secondary" />
+			),
 		},
 		{
 			key: "createdBy",

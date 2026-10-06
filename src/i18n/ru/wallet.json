@@ -97,7 +97,7 @@
   "wallet.operations.payment": "№",
   "wallet.operations.type": "Тип",
   "wallet.operations.direction": "Направление",
-  "wallet.operations.party": "Партнёр / получатель",
+  "wallet.operations.party": "Партнёр / сотрудник",
   "wallet.operations.amount": "Сумма",
   "wallet.operations.balanceAfter": "Баланс после",
   "wallet.operations.emptyTitle": "Нет операций",

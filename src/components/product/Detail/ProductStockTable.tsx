@@ -36,7 +36,7 @@ export const ProductStockTable: React.FC<{ product: Product }> = ({ product }) =
 			},
 			{
 				key: "quantity",
-				headerName: t("product.detail.table.quantity"),
+				headerName: t("product.table.stock"),
 				align: "right",
 				sortValue: (i) => i.quantity,
 				renderCell: (i) => <QuantityCell value={i.quantity} measurement={product.measurement} />,

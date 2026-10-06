@@ -82,7 +82,7 @@
   "payment.table.date": "Дата",
   "payment.table.type": "Тип операции",
   "payment.table.direction": "Направление",
-  "payment.table.party": "Партнёр / Сотрудник",
+  "payment.table.party": "Партнёр / сотрудник",
   "payment.table.wallet": "Касса",
   "payment.table.amount": "Сумма",
 

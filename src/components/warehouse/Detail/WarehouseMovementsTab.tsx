@@ -50,22 +50,33 @@ type MovementRow = WarehouseMovement & { eventId: number };
 const ALL_TYPES = "__all__";
 
 /**
- * An adjustment's counterparty is its served reason enum («Theft») — shown
- * through the reason labels the Adjustments list uses, never raw.
+ * An adjustment's counterparty is its reason enum («Theft») — shown through the
+ * reason labels the Adjustments list uses, never raw. The API serves an
+ * adjustment's `note ?? reason` in `note`, so a `note` that is no reason enum is
+ * the user's own note (the cell falls back to it).
  */
-const counterpartyText = (t: TFunction, m: WarehouseMovement): string | null =>
-	m.kind === "Adjustment" && m.counterparty
-		? t(`adjustment.reason.${m.counterparty}`, { defaultValue: m.counterparty })
-		: (m.counterparty ?? null);
+const counterpartyText = (t: TFunction, m: WarehouseMovement): string | null => {
+	if (m.kind !== "Adjustment") {
+		return m.counterparty ?? null;
+	}
+	const reason = m.counterparty ?? m.note;
+	return (reason && t(`adjustment.reason.${reason}`, { defaultValue: "" })) || null;
+};
 
 /** The other side of a movement: the other warehouse, the partner, the reason, or the note. */
 const CounterpartyCell: React.FC<{ movement: WarehouseMovement }> = ({ movement: m }) => {
 	const { t } = useTranslation();
 	if (m.kind === "Transfer" && m.counterpartyWarehouseId) {
-		return <WarehouseLink id={m.counterpartyWarehouseId} name={m.counterparty ?? ""} />;
+		return (
+			<WarehouseLink
+				id={m.counterpartyWarehouseId}
+				name={m.counterparty ?? ""}
+				variant="secondary"
+			/>
+		);
 	}
 	if (m.counterpartyPartnerId && m.counterparty) {
-		return <PartnerLink id={m.counterpartyPartnerId} name={m.counterparty} />;
+		return <PartnerLink id={m.counterpartyPartnerId} name={m.counterparty} variant="secondary" />;
 	}
 	const text = counterpartyText(t, m);
 	if (text) {

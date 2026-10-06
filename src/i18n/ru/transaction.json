@@ -133,7 +133,7 @@
   "transaction.detail.refundsTitle.Sale": "Возвраты по этой продаже",
   "transaction.detail.refundsTitle.Supply": "Возвраты по этой поставке",
   "transaction.detail.refundCol.date": "Дата",
-  "transaction.detail.refundCol.number": "Номер",
+  "transaction.detail.refundCol.number": "№",
   "transaction.detail.refundCol.positions": "Позиций",
   "transaction.detail.refundCol.reason": "Причина",
   "transaction.detail.refundCol.amount": "Сумма",

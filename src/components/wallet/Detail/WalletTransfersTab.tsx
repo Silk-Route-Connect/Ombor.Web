@@ -70,13 +70,17 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				key: "from",
 				headerName: t("wallet.transfers.from"),
 				sortValue: (tr) => tr.fromWalletName,
-				renderCell: (tr) => <WalletLink id={tr.fromWalletId} name={tr.fromWalletName} />,
+				renderCell: (tr) => (
+					<WalletLink id={tr.fromWalletId} name={tr.fromWalletName} variant="secondary" />
+				),
 			},
 			{
 				key: "to",
 				headerName: t("wallet.transfers.to"),
 				sortValue: (tr) => tr.toWalletName,
-				renderCell: (tr) => <WalletLink id={tr.toWalletId} name={tr.toWalletName} />,
+				renderCell: (tr) => (
+					<WalletLink id={tr.toWalletId} name={tr.toWalletName} variant="secondary" />
+				),
 			},
 			{
 				key: "createdBy",

@@ -108,7 +108,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				sortValue: (p) => p.walletName ?? "",
 				renderCell: (p) =>
 					p.walletId && p.walletName ? (
-						<WalletLink id={p.walletId} name={p.walletName} />
+						<WalletLink id={p.walletId} name={p.walletName} variant="secondary" />
 					) : (
 						(p.walletName ?? <NoValue />)
 					),

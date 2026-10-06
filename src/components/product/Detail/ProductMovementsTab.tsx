@@ -89,7 +89,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 			},
 			{
 				key: "type",
-				headerName: t("product.detail.txns.type"),
+				headerName: t("product.detail.moves.event"),
 				sortValue: (m) => t(movementKindLabelKey(m.kind)),
 				renderCell: (m) => <MovementKindChip kind={m.kind} />,
 			},
@@ -124,7 +124,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 				{ header: t("product.detail.moves.number"), value: (m) => movementSourceCsv(m, t) },
 				{ header: t("product.detail.txns.date"), value: (m) => formatDate(m.date) },
 				{ header: t("product.detail.table.warehouse"), value: (m) => m.warehouseName },
-				{ header: t("product.detail.txns.type"), value: (m) => t(movementKindLabelKey(m.kind)) },
+				{ header: t("product.detail.moves.event"), value: (m) => t(movementKindLabelKey(m.kind)) },
 				{ header: t("product.detail.table.quantity"), value: (m) => m.quantity },
 				{ header: t("product.detail.moves.balance"), value: (m) => m.balanceAfter },
 				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },

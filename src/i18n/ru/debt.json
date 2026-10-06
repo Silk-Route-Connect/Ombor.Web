@@ -62,7 +62,7 @@
   "debt.txTable.partner": "Партнёр",
   "debt.txTable.total": "Сумма",
   "debt.txTable.paid": "Оплачено",
-  "debt.txTable.remaining": "Остаток",
+  "debt.txTable.remaining": "Осталось оплатить",
   "debt.txTable.age": "Возраст",
   "debt.txTable.ageCsv": "Возраст (дней)",
 

@@ -18,7 +18,7 @@ import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import { Alert } from "@mui/material";
 
 import ReportChart from "../Chart/ReportChart";
-import { toCsv, toTableColumns } from "../View/reportColumns";
+import { toCsv, toTableColumns, toTableTotalsRow } from "../View/reportColumns";
 import { ReportView } from "../View/types";
 import ReportKpiRow from "./ReportKpiRow";
 
@@ -55,6 +55,10 @@ export function ReportScreen<Row extends { id: string }>({
 	const tableOrder = useTableOrder<Row>();
 	const ready = isReady(view) ? view : null;
 	const columns = useMemo(() => (ready ? toTableColumns(ready.columns) : []), [ready]);
+	const totalRow = useMemo(
+		() => (ready ? toTableTotalsRow(ready.columns, ready.totals, t) : undefined),
+		[ready, t],
+	);
 
 	const handleExport = () => {
 		if (!ready) {
@@ -101,6 +105,7 @@ export function ReportScreen<Row extends { id: string }>({
 						columns={columns}
 						exportOrder={tableOrder}
 						summary={<TableTotals count={ready.countLabel(ready.rows.length)} />}
+						totalRow={totalRow}
 						empty={
 							<TableEmptyState
 								icon={<AssessmentOutlinedIcon />}

@@ -103,7 +103,7 @@
   "warehouse.stock.sku": "Артикул",
   "warehouse.stock.category": "Категория",
   "warehouse.stock.unit": "Ед.",
-  "warehouse.stock.quantity": "Кол-во",
+  "warehouse.stock.quantity": "Остаток",
   "warehouse.stock.wac": "Сред. себест.",
   "warehouse.stock.value": "Стоимость",
   "warehouse.stock.total": "Итого по складу",

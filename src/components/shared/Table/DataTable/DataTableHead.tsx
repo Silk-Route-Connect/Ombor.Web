@@ -3,8 +3,11 @@ import InfoHint from "components/shared/InfoHint/InfoHint";
 
 import { Box, TableCell, TableHead, TableRow, TableSortLabel } from "@mui/material";
 
+import { HEAD_CELL_SX, HEADER_CONTAINER_SX } from "../tableChrome";
 import type { Column, SortOrder } from "./DataTable";
-import { HEADER_CELL_SX, HEADER_CONTAINER_SX } from "./tableConfigs";
+
+/** Width of a leading control column (the expand chevron of `ExpandableDataTable`). */
+export const LEADING_COLUMN_WIDTH = 56;
 
 interface DataTableHeadProps<T> {
 	columns: Column<T>[];
@@ -12,15 +15,21 @@ interface DataTableHeadProps<T> {
 	order: SortOrder;
 	isSortable: (col: Column<T>) => boolean;
 	onSort: (col: Column<T>) => void;
+	/** Reserves an empty header cell above a leading control column (expand chevrons). */
+	leadingColumn?: boolean;
 }
 
-/** The sticky header band of `DataTable`: sort labels, «i» header hints, column widths. */
+/**
+ * The header band of every table — `DataTable`, `ExpandableDataTable` and
+ * `DetailTable`: sort labels, «i» header hints after the label, column widths.
+ */
 export function DataTableHead<T>({
 	columns,
 	sortKey,
 	order,
 	isSortable,
 	onSort,
+	leadingColumn = false,
 }: Readonly<DataTableHeadProps<T>>) {
 	const renderLabel = (col: Column<T>) => {
 		const label = !isSortable(col) ? (
@@ -39,8 +48,7 @@ export function DataTableHead<T>({
 			return label;
 		}
 
-		// The «i» sits beside the label (as on DetailTable headers), so the term is
-		// explained by a visible, keyboard-reachable hint, not a hover-only label.
+		// A visible, keyboard-reachable «i» explains the term, never a hover-only label.
 		return (
 			<Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
 				{label}
@@ -52,11 +60,12 @@ export function DataTableHead<T>({
 	return (
 		<TableHead sx={HEADER_CONTAINER_SX}>
 			<TableRow>
+				{leadingColumn && <TableCell sx={{ ...HEAD_CELL_SX, width: LEADING_COLUMN_WIDTH }} />}
 				{columns.map((col) => (
 					<TableCell
 						key={col.key}
 						sortDirection={isSortable(col) && sortKey === col.key ? order : false}
-						sx={{ ...HEADER_CELL_SX, width: col.width }}
+						sx={{ ...HEAD_CELL_SX, width: col.width }}
 						align={col.align ?? "left"}
 					>
 						{renderLabel(col)}

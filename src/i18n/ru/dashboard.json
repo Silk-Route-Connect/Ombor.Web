@@ -84,5 +84,5 @@
   "dashboard.recent.type": "Тип",
   "dashboard.recent.total": "Сумма",
   "dashboard.recent.paid": "Оплачено",
-  "dashboard.recent.statusCol": "Статус"
+  "dashboard.recent.statusCol": "Статус оплаты"
 }

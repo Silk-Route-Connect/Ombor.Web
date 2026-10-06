@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Box, TablePagination } from "@mui/material";
 
-import { FOOTER_SX } from "./DataTable/tableConfigs";
+import { FOOTER_SX } from "./tableChrome";
 
 interface TablePagerProps {
 	count: number;
