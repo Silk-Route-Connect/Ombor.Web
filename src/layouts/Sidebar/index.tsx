@@ -19,7 +19,7 @@ import RailButton from "./RailButton";
 import RailGroup from "./RailGroup";
 import SidebarBrand from "./SidebarBrand";
 import SidebarFooter from "./SidebarFooter";
-import { asideSx, navListSx } from "./styles";
+import { asideSx, navListSx, navScrollSx, subListSx } from "./styles";
 import SubItem from "./SubItem";
 import TopLevelItem from "./TopLevelItem";
 
@@ -84,7 +84,14 @@ const Sidebar: React.FC = observer(() => {
 
 			<List
 				disablePadding
-				sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", pt: 1.25, ...navListSx }}
+				sx={{
+					flex: 1,
+					overflowY: "auto",
+					overflowX: "hidden",
+					pt: 1.25,
+					...navListSx,
+					...navScrollSx,
+				}}
 			>
 				{navItems.map((item) => {
 					const childActive =
@@ -125,7 +132,7 @@ const Sidebar: React.FC = observer(() => {
 							/>
 							{item.children && (
 								<Collapse in={groupOpen} timeout="auto">
-									<List disablePadding sx={{ pl: 1 }}>
+									<List disablePadding sx={subListSx}>
 										{item.children.map((child) => (
 											<SubItem
 												key={child.labelKey}

@@ -46,7 +46,8 @@ export const topLevelItemSx = (selected: boolean, emphasized = selected): SxProp
 	position: "relative",
 	borderRadius: `${radius.md}px`,
 	px: 1.25,
-	py: 1.125,
+	// 36px rows: all nine entries plus an open group fit a 1366×768 laptop.
+	py: 0.75,
 	gap: 1.375,
 	color: navColor(emphasized),
 	...(selected && selectedSx),
@@ -61,9 +62,9 @@ export const topLevelItemSx = (selected: boolean, emphasized = selected): SxProp
 export const subItemSx = (selected: boolean): SxProps<Theme> => ({
 	position: "relative",
 	borderRadius: `${radius.md}px`,
-	py: 1,
+	py: 0.625,
 	pr: 1.25,
-	pl: 4.125,
+	pl: 1.5,
 	color: navColor(selected),
 	...(selected && selectedSx),
 	"&:hover": {
@@ -118,3 +119,20 @@ export const asideSx = (expanded: boolean): SxProps<Theme> => ({
 
 /** Spacing between nav rows (the bundle's .nav/.nav-sub 1px rhythm). */
 export const navListSx = { "& .MuiListItemButton-root": { mb: "1px" } } as const;
+
+/**
+ * A group's children hang off a 1px guide line under the parent's icon instead
+ * of a deep blank indent.
+ */
+export const subListSx = {
+	ml: "21px",
+	pl: 1,
+	borderLeft: "1px solid",
+	borderColor: designTokens.onDarkLine,
+} as const;
+
+/** The scrolling nav fades out at its foot, so a cut-off entry reads as «more below». */
+export const navScrollSx = {
+	// A mask reads only alpha: «black» means fully shown, not a colour.
+	maskImage: "linear-gradient(to bottom, black calc(100% - 20px), transparent)",
+} as const;
