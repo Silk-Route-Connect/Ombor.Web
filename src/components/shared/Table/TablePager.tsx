@@ -20,7 +20,9 @@ const DEFAULT_OPTIONS = [10, 25, 50];
 
 /**
  * The footer band of every table: the 10/25/50 pager (ru-localized via common
- * keys), with an optional totals summary on its left.
+ * keys), with an optional totals summary on its left. A list that fits on one
+ * page shows no pager — only its totals band, if it has one — instead of dead
+ * «1–1 из 1 ‹ ›» controls under a short table.
  */
 export const TablePager: React.FC<TablePagerProps> = ({
 	count,
@@ -32,6 +34,10 @@ export const TablePager: React.FC<TablePagerProps> = ({
 	summary,
 }) => {
 	const { t } = useTranslation();
+
+	if (count <= Math.min(...rowsPerPageOptions)) {
+		return summary ? <Box sx={FOOTER_SX}>{summary}</Box> : null;
+	}
 
 	const pager = (
 		<TablePagination

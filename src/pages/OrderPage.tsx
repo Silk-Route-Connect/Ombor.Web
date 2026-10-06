@@ -58,7 +58,6 @@ const OrderPage: React.FC = observer(() => {
 			{ header: t("order.col.customer"), value: (o) => o.customerName },
 			{ header: t("order.col.status"), value: (o) => t(`order.status.${o.status}`) },
 			{ header: t("order.col.source"), value: (o) => t(`order.source.${o.source}`) },
-			{ header: t("order.col.positions"), value: (o) => o.lines.length },
 			{
 				header: t("order.col.delivery"),
 				value: (o) =>
@@ -66,6 +65,7 @@ const OrderPage: React.FC = observer(() => {
 						? `${formatDate(o.deliveryDate)}${o.deliveryTime ? ` ${shortDeliveryTime(o.deliveryTime)}` : ""}`
 						: "—",
 			},
+			{ header: t("order.col.positions"), value: (o) => o.lines.length },
 			{ header: t("order.col.total"), value: (o) => o.total },
 		];
 		exportToCsv(`orders_${csvDateStamp()}`, csvColumns, tableOrder.apply(rows));

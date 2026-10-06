@@ -12,7 +12,7 @@ import { SxProps, Theme } from "@mui/material";
  * - header / footer band background  --bg-subtle → designTokens.gray25
  * - band separators (header/footer)  --border    → palette.divider (gray-200)
  * - in-body row dividers (lighter)   --divider   → designTokens.gray100
- * - container radius                 --radius-xl → radius.xl (16px)
+ * - container radius                 card radius → radius.lg (12px)
  * - container elevation              --shadow-sm → Paper elevation={1} (--e-1)
  * - row hover                        teal wash   → palette.action.hover
  * - open / selected row              --primary-soft → palette.action.selected
@@ -74,7 +74,7 @@ export function fixedTableSx(widths: ReadonlyArray<number | string | undefined>)
 export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 	border: 1,
 	borderColor: "divider", // DSN --border
-	borderRadius: `${radius.xl}px`, // DSN --radius-xl (16px)
+	borderRadius: `${radius.lg}px`, // the card radius — list and detail tables alike
 	overflow: "hidden",
 };
 

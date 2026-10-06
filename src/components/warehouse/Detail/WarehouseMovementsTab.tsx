@@ -18,6 +18,7 @@ import MovementSourceCell from "components/stockMovement/MovementSourceCell";
 import MovementSourceDialogs from "components/stockMovement/MovementSourceDialogs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { useMovementSourceOpener } from "hooks/stockMovement/useMovementSourceOpener";
+import { TFunction } from "i18next";
 import {
 	WAREHOUSE_MOVEMENT_KINDS,
 	WarehouseMovement,
@@ -48,16 +49,27 @@ type MovementRow = WarehouseMovement & { eventId: number };
 
 const ALL_TYPES = "__all__";
 
-/** The other side of a movement: the other warehouse, the partner, or the note. */
+/**
+ * An adjustment's counterparty is its served reason enum («Theft») — shown
+ * through the reason labels the Adjustments list uses, never raw.
+ */
+const counterpartyText = (t: TFunction, m: WarehouseMovement): string | null =>
+	m.kind === "Adjustment" && m.counterparty
+		? t(`adjustment.reason.${m.counterparty}`, { defaultValue: m.counterparty })
+		: (m.counterparty ?? null);
+
+/** The other side of a movement: the other warehouse, the partner, the reason, or the note. */
 const CounterpartyCell: React.FC<{ movement: WarehouseMovement }> = ({ movement: m }) => {
+	const { t } = useTranslation();
 	if (m.kind === "Transfer" && m.counterpartyWarehouseId) {
 		return <WarehouseLink id={m.counterpartyWarehouseId} name={m.counterparty ?? ""} />;
 	}
 	if (m.counterpartyPartnerId && m.counterparty) {
 		return <PartnerLink id={m.counterpartyPartnerId} name={m.counterparty} />;
 	}
-	if (m.counterparty) {
-		return <MutedTextCell text={m.counterparty} />;
+	const text = counterpartyText(t, m);
+	if (text) {
+		return <MutedTextCell text={text} />;
 	}
 	return <NotesCell text={m.note} maxWidth={220} />;
 };
@@ -120,7 +132,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 			{
 				key: "counterparty",
 				headerName: t("warehouse.movements.counterparty"),
-				sortValue: (m) => m.counterparty ?? "",
+				sortValue: (m) => counterpartyText(t, m) ?? "",
 				renderCell: (m) => <CounterpartyCell movement={m} />,
 			},
 			{
@@ -157,7 +169,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 				{ header: t("warehouse.movements.event"), value: (m) => t(movementKindLabelKey(m.kind)) },
 				{
 					header: t("warehouse.movements.counterparty"),
-					value: (m) => m.counterparty ?? m.note ?? "",
+					value: (m) => counterpartyText(t, m) ?? m.note ?? "",
 				},
 				{ header: t("warehouse.movements.quantity"), value: (m) => m.quantity },
 				{ header: t("warehouse.movements.balance"), value: (m) => m.balanceAfter },
