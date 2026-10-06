@@ -27,16 +27,6 @@ export function measurementShortLabel(t: TFunction, measurement: Measurement): s
 }
 
 /**
- * Inline unit for a quantity value (e.g. «5 Килограмм») — the FULL localized
- * term, or empty for `None` so a unit-less quantity reads «5» (never a bare
- * trailing dash). For a dedicated unit column/field use {@link measurementLabel}.
- * For a short code next to a number use {@link measurementShort}.
- */
-export function unitInline(t: TFunction, measurement: Measurement): string {
-	return measurement === "None" ? "" : t(`product.measurement.${measurement}`);
-}
-
-/**
  * Localized unit label for a dedicated unit column/field — the full term, or a
  * bare «—» when unset (`None`). Never «Без единицы (—)» / «кор»; "—" means "not
  * set" (matching the packaging field's convention).

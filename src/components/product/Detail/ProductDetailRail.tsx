@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { FactList, FactRow } from "components/shared/Detail/FactRow";
 import UzsUnit from "components/shared/Money/UzsUnit";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { CopyableCell } from "components/shared/Table/CopyableCell";
 import { Product } from "models/product";
-import { formatCurrency, formatPercent, formatQuantity } from "utils/formatCurrency";
-import { measurementLabel, unitInline } from "utils/productUtils";
+import { formatCurrency, formatPercent } from "utils/formatCurrency";
+import { measurementLabel } from "utils/productUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -27,8 +28,6 @@ const priceOrNull = (value: number | null | undefined) =>
  */
 export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const unit = unitInline(t, product.measurement);
-	const withUnit = (qty: string) => `${qty}${unit ? ` ${unit}` : ""}`;
 
 	const costBasis = product.averageCost ?? (product.supplyPrice > 0 ? product.supplyPrice : null);
 	const margin =
@@ -89,10 +88,14 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 					</FactRow>
 					<FactRow label={t("product.packaging")}>
 						{product.packaging &&
-							(product.packaging.label ?? withUnit(String(product.packaging.size)))}
+							(product.packaging.label ?? (
+								<QuantityCell value={product.packaging.size} measurement={product.measurement} />
+							))}
 					</FactRow>
 					<FactRow label={t("product.form.lowStockLabel")} figures="tabular">
-						{product.lowStockThreshold ? withUnit(formatQuantity(product.lowStockThreshold)) : null}
+						{product.lowStockThreshold ? (
+							<QuantityCell value={product.lowStockThreshold} measurement={product.measurement} />
+						) : null}
 					</FactRow>
 				</FactList>
 			</DetailCard>
