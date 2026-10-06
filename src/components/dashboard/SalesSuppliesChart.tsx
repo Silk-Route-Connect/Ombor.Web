@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
+import { CHART_AXIS_TICK, valueAxisWidth } from "components/shared/Chart/chartAxis";
 import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
 import {
@@ -22,7 +23,6 @@ import { usePrefersReducedMotion } from "./motion";
 import { seriesHeading, seriesTick, seriesTickInterval } from "./seriesLabels";
 
 const HEIGHT = 230;
-const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
 
 interface Props {
 	series: DashboardSeriesPoint[];
@@ -43,6 +43,7 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 	const supplies = theme.palette.secondary.main;
 	const reduced = usePrefersReducedMotion();
 	const salesFillId = `sales-fill-${useId().replace(/:/g, "")}`;
+	const axisWidth = valueAxisWidth(series.flatMap((p) => [p.sales, p.supplies]));
 	const anim = {
 		isAnimationActive: !reduced,
 		animationDuration: 850,
@@ -79,14 +80,14 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						interval={seriesTickInterval(series.length)}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickMargin={8}
 					/>
 					<YAxis
-						width={56}
+						width={axisWidth}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
 					<Tooltip
@@ -129,14 +130,14 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						interval={seriesTickInterval(series.length)}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickMargin={8}
 					/>
 					<YAxis
-						width={56}
+						width={axisWidth}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
 					<Tooltip content={renderTooltip} cursor={{ fill: designTokens.primaryWash }} />

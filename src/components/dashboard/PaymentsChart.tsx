@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { CHART_AXIS_TICK, valueAxisWidth } from "components/shared/Chart/chartAxis";
 import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
 import {
@@ -24,7 +25,6 @@ import { usePrefersReducedMotion } from "./motion";
 import { seriesHeading, seriesTick, seriesTickInterval } from "./seriesLabels";
 
 const HEIGHT = 230;
-const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
 
 type Row = { label: string; payin: number; payout: number; payoutNeg: number; net: number };
 
@@ -58,6 +58,7 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 		const payout = kassa === "all" ? p.payout : (p.walletPayout[kassa] ?? 0);
 		return { label: p.label, payin, payout, payoutNeg: -payout, net: payin - payout };
 	});
+	const axisWidth = valueAxisWidth(rows.flatMap((r) => [r.payin, r.payoutNeg, r.net]));
 
 	const renderTooltip = ({ active, label }: { active?: boolean; label?: string }) => {
 		if (!active) return null;
@@ -91,14 +92,14 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						interval={seriesTickInterval(rows.length)}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickMargin={8}
 					/>
 					<YAxis
-						width={56}
+						width={axisWidth}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(Math.abs(v as number))}
 					/>
 					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
@@ -122,14 +123,14 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						interval={seriesTickInterval(rows.length)}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickMargin={8}
 					/>
 					<YAxis
-						width={56}
+						width={axisWidth}
 						tickLine={false}
 						axisLine={false}
-						tick={AXIS_TICK}
+						tick={CHART_AXIS_TICK}
 						tickFormatter={(v) => formatShortNumber(v as number)}
 					/>
 					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
