@@ -298,7 +298,7 @@
   "transaction.new.totals.subtotal": "Подытог",
   "transaction.new.totals.discount": "Скидка",
   "transaction.new.totals.total": "Итого",
-  "transaction.new.totals.payment": "Оплата",
+  "transaction.new.totals.payment": "Оплачено",
   "transaction.new.totals.remaining.Sale": "Долг",
   "transaction.new.totals.remaining.Supply": "Мы должны",
   "transaction.new.totals.forThis.Sale": "Из них за эту продажу",
