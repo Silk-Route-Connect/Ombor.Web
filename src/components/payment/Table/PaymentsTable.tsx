@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { PaymentRecord } from "models/payment";
 
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 
 import { buildPaymentColumns } from "./paymentTableConfigs";
 
@@ -50,7 +50,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
 			summary={summary}
 			empty={
 				<TableEmptyState
-					icon={<ReceiptLongOutlinedIcon />}
+					icon={<PaymentsOutlinedIcon />}
 					title={isFiltering ? t("payment.empty.searchTitle") : t("payment.empty.title")}
 					hint={isFiltering ? t("payment.empty.searchBody") : t("payment.empty.body")}
 				/>

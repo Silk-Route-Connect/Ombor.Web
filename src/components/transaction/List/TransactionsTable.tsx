@@ -7,7 +7,8 @@ import { Loadable } from "helpers/Loading";
 import { TransactionRecord } from "models/transaction";
 import { TransactionDirection } from "utils/transactionUtils";
 
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 
 interface TransactionsTableProps {
 	rows: Loadable<TransactionRecord[]>;
@@ -53,7 +54,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 			summary={summary}
 			empty={
 				<TableEmptyState
-					icon={<ReceiptLongOutlinedIcon />}
+					icon={direction === "Sale" ? <LocalOfferOutlinedIcon /> : <LocalShippingOutlinedIcon />}
 					title={
 						isFiltering
 							? t("transaction.empty.searchTitle")

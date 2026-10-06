@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Order } from "models/order";
 
-import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 
 interface OrdersTableProps {
 	rows: Loadable<Order[]>;
@@ -49,7 +49,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 			summary={summary}
 			empty={
 				<TableEmptyState
-					icon={<SwapHorizOutlinedIcon />}
+					icon={<AssignmentOutlinedIcon />}
 					title={isFiltering ? t("order.empty.searchTitle") : t("order.empty.title")}
 					hint={isFiltering ? t("order.empty.searchBody") : t("order.empty.body")}
 					action={isFiltering ? undefined : { label: t("order.create"), onClick: onCreate }}
