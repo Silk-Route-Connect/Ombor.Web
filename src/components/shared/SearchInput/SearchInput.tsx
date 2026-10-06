@@ -31,7 +31,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 	// hint such as «Поиск по названию, артикулу или штрих-коду…» is never cut.
 	const widthSx = sx ?? {
 		width: { xs: "100%", sm: dense ? 280 : "auto" },
-		...(!dense && { flex: { sm: "1 1 340px" }, minWidth: { sm: 260 }, maxWidth: { sm: 420 } }),
+		...(!dense && { flex: { sm: "1 1 280px" }, minWidth: { sm: 240 }, maxWidth: { sm: 420 } }),
 	};
 	return (
 		<TextField
