@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { menuItemSx, menuSlotProps } from "components/shared/ActionMenuCell/menuPaper";
 import { Template } from "models/template";
 import { TransactionDirection } from "utils/transactionUtils";
 
@@ -29,9 +30,9 @@ export const TemplateLoadMenu: React.FC<TemplateLoadMenuProps> = ({
 		<>
 			<Button
 				variant="text"
-				startIcon={<LayersOutlinedIcon sx={{ fontSize: "18px !important" }} />}
+				size="small"
+				startIcon={<LayersOutlinedIcon />}
 				onClick={(e) => setAnchor(e.currentTarget)}
-				sx={{ fontSize: 13 }}
 			>
 				{t("transaction.new.template.load")}
 			</Button>
@@ -39,14 +40,17 @@ export const TemplateLoadMenu: React.FC<TemplateLoadMenuProps> = ({
 				anchorEl={anchor}
 				open={Boolean(anchor)}
 				onClose={() => setAnchor(null)}
-				slotProps={{ paper: { sx: { width: 264 } } }}
+				slotProps={{
+					...menuSlotProps,
+					paper: { sx: { ...menuSlotProps.paper.sx, width: 264 } },
+				}}
 			>
 				{templates.length === 0 ? (
 					<Box
 						sx={{
 							px: "16px",
-							py: "14px",
-							color: "text.disabled",
+							py: "12px",
+							color: "text.secondary",
 							fontSize: 13,
 							textAlign: "center",
 						}}
@@ -57,13 +61,14 @@ export const TemplateLoadMenu: React.FC<TemplateLoadMenuProps> = ({
 					templates.map((tpl) => (
 						<MenuItem
 							key={tpl.id}
+							sx={menuItemSx}
 							onClick={() => {
 								onLoad(tpl);
 								setAnchor(null);
 							}}
 						>
-							<ListItemIcon>
-								<LayersOutlinedIcon fontSize="small" sx={{ color: "primary.main" }} />
+							<ListItemIcon sx={{ color: "primary.main" }}>
+								<LayersOutlinedIcon fontSize="small" />
 							</ListItemIcon>
 							<ListItemText
 								primary={tpl.name}

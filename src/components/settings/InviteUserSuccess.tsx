@@ -1,11 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import Callout from "components/shared/Callout/Callout";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import { TenantUser } from "models/settings";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { formatUzPhone } from "utils/phoneUtils";
 
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
 interface InviteUserSuccessProps {
@@ -30,8 +30,8 @@ const InviteUserSuccess: React.FC<InviteUserSuccessProps> = ({ user }) => {
 					p: "12px 14px",
 					border: "1px solid",
 					borderColor: "divider",
-					borderRadius: "8px",
-					bgcolor: designTokens.gray25,
+					borderRadius: `${radius.md}px`,
+					bgcolor: designTokens.bgSubtle,
 				}}
 			>
 				<EntityAvatar name={user.name} size={38} />
@@ -52,24 +52,7 @@ const InviteUserSuccess: React.FC<InviteUserSuccessProps> = ({ user }) => {
 				</Typography>
 			</Box>
 
-			<Box
-				sx={{
-					display: "flex",
-					alignItems: "flex-start",
-					gap: "8px",
-					p: "10px 12px",
-					borderRadius: "8px",
-					border: "1px solid",
-					borderColor: designTokens.infoBorder,
-					bgcolor: designTokens.infoBg,
-					color: "info.dark",
-					fontSize: 13,
-					lineHeight: 1.45,
-				}}
-			>
-				<InfoOutlinedIcon sx={{ fontSize: 16, mt: "1px", flex: "0 0 auto" }} />
-				{t("settings.invite.noSms")}
-			</Box>
+			<Callout tone="info">{t("settings.invite.noSms")}</Callout>
 		</Stack>
 	);
 };

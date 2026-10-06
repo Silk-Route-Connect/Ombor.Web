@@ -10,6 +10,8 @@ export interface SegmentedOption<T extends string> {
 	label: string;
 	/** A 16px glyph before the label (wallet type, template type…). */
 	icon?: React.ReactNode;
+	/** Tooltip for a terse label («%», «упак»). */
+	title?: string;
 }
 
 /**
@@ -103,6 +105,7 @@ export function SegmentedControl<T extends string>({
 						onClick={() => onChange(option.value)}
 						disabled={disabled}
 						aria-pressed={selected}
+						title={option.title}
 						sx={[
 							{
 								flex: fullWidth ? 1 : "0 0 auto",

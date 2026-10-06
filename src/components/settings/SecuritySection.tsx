@@ -13,6 +13,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Box, Typography } from "@mui/material";
 
 import SettingsSectionCard from "./SettingsSectionCard";
+import { settingsFieldSx, settingsFormSx } from "./styles";
 
 interface Props {
 	saving: boolean;
@@ -48,21 +49,20 @@ const SecuritySection: React.FC<Props> = ({ saving, onChangePassword }) => {
 	return (
 		<SettingsSectionCard
 			id="security"
-			icon={<LockOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<LockOutlinedIcon />}
 			title={t("settings.security.title")}
 			subtitle={t("settings.security.subtitle")}
+			onSubmit={() => void submit()}
+			footer={
+				<PrimaryButton type="submit" loading={saving} sx={{ ml: "auto", whiteSpace: "nowrap" }}>
+					{t("settings.security.submit")}
+				</PrimaryButton>
+			}
 		>
-			<Box
-				component="form"
-				noValidate
-				onSubmit={(e: React.FormEvent) => {
-					e.preventDefault();
-					void submit();
-				}}
-				sx={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: 380 }}
-			>
+			{/* Each password field reserves its own helper line (caps lock, error) — that line is the gap. */}
+			<Box sx={{ ...settingsFormSx, gap: "4px" }}>
 				{FIELDS.map(({ name, labelKey, autoComplete }) => (
-					<Box key={name} sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+					<Box key={name} sx={settingsFieldSx}>
 						<FormFieldLabel label={t(labelKey)} required htmlFor={`security-${name}`} />
 						<Controller
 							name={name}
@@ -85,14 +85,9 @@ const SecuritySection: React.FC<Props> = ({ saving, onChangePassword }) => {
 						/>
 					</Box>
 				))}
-				<Typography sx={{ fontSize: 13, color: "text.secondary", lineHeight: 1.5 }}>
+				<Typography variant="body2" sx={{ color: "text.secondary" }}>
 					{t("settings.security.note")}
 				</Typography>
-				<Box sx={{ mt: "10px" }}>
-					<PrimaryButton type="submit" loading={saving}>
-						{t("settings.security.submit")}
-					</PrimaryButton>
-				</Box>
 			</Box>
 		</SettingsSectionCard>
 	);

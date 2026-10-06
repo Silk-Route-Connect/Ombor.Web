@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import Callout from "components/shared/Callout/Callout";
 import { UI_LANGUAGES } from "i18n/languages";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -25,7 +26,7 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 	return (
 		<SettingsSectionCard
 			id="lang"
-			icon={<LanguageIcon sx={{ fontSize: 17 }} />}
+			icon={<LanguageIcon />}
 			title={t("settings.lang.title")}
 			subtitle={t("settings.lang.subtitle")}
 		>
@@ -44,11 +45,12 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 								fontFamily: "inherit",
 								display: "flex",
 								alignItems: "center",
-								gap: "14px",
-								p: "15px 18px",
-								border: "1.5px solid",
+								gap: "12px",
+								p: "14px 16px",
+								border: "1px solid",
 								borderColor: on ? "primary.main" : designTokens.borderControl,
-								borderRadius: "8px",
+								boxShadow: on ? `inset 0 0 0 1px ${designTokens.primaryLine}` : "none",
+								borderRadius: `${radius.md}px`,
 								cursor: "pointer",
 								bgcolor: on ? designTokens.primarySoft : "transparent",
 								transition: "border-color .14s, background .14s",
@@ -62,7 +64,7 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 									flex: "0 0 auto",
 									borderRadius: "50%",
 									border: "2px solid",
-									borderColor: on ? "primary.main" : designTokens.gray300,
+									borderColor: on ? "primary.main" : designTokens.borderControl,
 									bgcolor: on ? "primary.main" : "transparent",
 									color: "common.white",
 									display: "grid",
@@ -72,8 +74,8 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 								{on && <CheckIcon sx={{ fontSize: 13 }} />}
 							</Box>
 							<Box sx={{ flex: 1, minWidth: 0 }}>
-								<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{lang.label}</Typography>
-								<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "2px" }}>
+								<Typography variant="subtitle1">{lang.label}</Typography>
+								<Typography variant="body2" sx={{ color: "text.secondary", mt: "2px" }}>
 									{t(`settings.lang.desc.${lang.code}`)}
 								</Typography>
 							</Box>
@@ -82,21 +84,9 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 					);
 				})}
 			</Box>
-			<Box
-				sx={{
-					mt: "16px",
-					p: "12px 14px",
-					fontSize: 12.5,
-					lineHeight: 1.5,
-					color: "text.secondary",
-					bgcolor: designTokens.gray25,
-					border: "1px solid",
-					borderColor: "divider",
-					borderRadius: "8px",
-				}}
-			>
+			<Callout tone="neutral" sx={{ mt: "16px" }}>
 				{t("settings.lang.note")}
-			</Box>
+			</Callout>
 		</SettingsSectionCard>
 	);
 };

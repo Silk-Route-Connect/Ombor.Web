@@ -11,13 +11,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import UploadOutlinedIcon from "@mui/icons-material/UploadOutlined";
 import { Box, TextField, Typography } from "@mui/material";
 
+import SettingsSaveBar from "./SettingsSaveBar";
 import SettingsSectionCard from "./SettingsSectionCard";
+import { settingsFieldSx, settingsFormSx } from "./styles";
 
 interface Props {
 	org: Organization;
 	onChange: (patch: Partial<Organization>) => void;
 	/** The newly-selected logo file (null when removed) — uploaded on save (multipart). */
 	onLogoFile: (file: File | null) => void;
+	/** The draft differs from the saved organization. */
+	dirty: boolean;
+	saving: boolean;
+	onSave: () => void;
+	onReset: () => void;
 }
 
 const LabeledField: React.FC<{
@@ -27,25 +34,31 @@ const LabeledField: React.FC<{
 }> = ({ label, optional, children }) => {
 	const { t } = useTranslation();
 	return (
-		<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+		<Box sx={settingsFieldSx}>
 			<FormFieldLabel
 				label={label}
 				required={!optional}
-				hint={optional ? t("settings.org.optional") : undefined}
+				hint={optional ? t("common.optional") : undefined}
 			/>
 			{children}
 		</Box>
 	);
 };
 
-const fieldSx = { "& .MuiInputBase-root": { fontSize: 14 } } as const;
-
 /** Max logo size, enforced client-side before upload (matches the «до 2 МБ» hint). */
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg"];
 
 /** Организация — editable company profile + logo (mvp-plan §18). */
-const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => {
+const OrganizationSection: React.FC<Props> = ({
+	org,
+	onChange,
+	onLogoFile,
+	dirty,
+	saving,
+	onSave,
+	onReset,
+}) => {
 	const { t } = useTranslation();
 	const { notificationStore } = useStore();
 	const fileRef = useRef<HTMLInputElement>(null);
@@ -83,16 +96,16 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 	return (
 		<SettingsSectionCard
 			id="org"
-			icon={<BusinessOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<BusinessOutlinedIcon />}
 			title={t("settings.org.title")}
 			subtitle={t("settings.org.subtitle")}
+			footer={<SettingsSaveBar dirty={dirty} saving={saving} onSave={onSave} onReset={onReset} />}
 		>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "18px", maxWidth: 600 }}>
+			<Box sx={settingsFormSx}>
 				<LabeledField label={t("settings.org.name")}>
 					<TextField
 						size="small"
 						fullWidth
-						sx={fieldSx}
 						value={org.name}
 						onChange={(e) => onChange({ name: e.target.value })}
 					/>
@@ -101,7 +114,6 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 					<TextField
 						size="small"
 						fullWidth
-						sx={fieldSx}
 						value={org.address}
 						placeholder={t("settings.org.addressPlaceholder")}
 						onChange={(e) => onChange({ address: e.target.value })}
@@ -111,7 +123,6 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 					<TextField
 						size="small"
 						fullWidth
-						sx={fieldSx}
 						value={org.phone}
 						placeholder={t("settings.org.phonePlaceholder")}
 						onChange={(e) => onChange({ phone: e.target.value })}
@@ -122,15 +133,14 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 						size="small"
 						fullWidth
 						type="email"
-						sx={fieldSx}
 						value={org.email}
-						placeholder="info@company.uz"
+						placeholder={t("settings.org.emailPlaceholder")}
 						onChange={(e) => onChange({ email: e.target.value })}
 					/>
 				</LabeledField>
 
 				<LabeledField label={t("settings.org.logo")} optional>
-					<Box sx={{ display: "flex", alignItems: "center", gap: "18px" }}>
+					<Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
 						<Box
 							sx={{
 								width: 72,
@@ -155,7 +165,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 						>
 							{initials}
 						</Box>
-						<Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+						<Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
 							<Box sx={{ display: "flex", gap: "8px" }}>
 								<input
 									ref={fileRef}
@@ -166,7 +176,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 								/>
 								<GhostButton
 									size="small"
-									icon={<UploadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
+									icon={<UploadOutlinedIcon />}
 									onClick={() => fileRef.current?.click()}
 								>
 									{t("settings.org.uploadLogo")}
@@ -174,7 +184,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 								{org.logoUrl && (
 									<GhostButton
 										size="small"
-										icon={<CloseIcon sx={{ fontSize: "17px !important" }} />}
+										icon={<CloseIcon />}
 										onClick={() => {
 											onChange({ logoUrl: null });
 											onLogoFile(null);
@@ -184,7 +194,7 @@ const OrganizationSection: React.FC<Props> = ({ org, onChange, onLogoFile }) => 
 									</GhostButton>
 								)}
 							</Box>
-							<Typography sx={{ fontSize: 12, color: "text.disabled" }}>
+							<Typography variant="caption" sx={{ color: "text.secondary" }}>
 								{t("settings.org.logoHint")}
 							</Typography>
 						</Box>

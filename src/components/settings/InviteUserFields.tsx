@@ -4,20 +4,19 @@ import { useTranslation } from "react-i18next";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import UzPhonePrefix from "components/shared/Inputs/PhoneListField/UzPhonePrefix";
 import { InviteUserFormInputs, InviteUserFormValues } from "schemas/InviteUserSchema";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { formatUzNational, uzNationalPart } from "utils/phoneUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Box, TextField } from "@mui/material";
 
+import { settingsFieldSx } from "./styles";
+
 interface InviteUserFieldsProps {
 	form: UseFormReturn<InviteUserFormInputs, unknown, InviteUserFormValues>;
 	disabled: boolean;
 }
-
-const fieldSx = { "& .MuiInputBase-root": { fontSize: 14 } } as const;
-const columnSx = { display: "flex", flexDirection: "column", gap: "7px" } as const;
 
 /** Имя · Фамилия (optional) · phone, and the locked «Администратор» role. */
 const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) => {
@@ -31,7 +30,7 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 	return (
 		<>
 			<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: "12px" }}>
-				<Box sx={columnSx}>
+				<Box sx={settingsFieldSx}>
 					<FormFieldLabel label={t("settings.invite.firstName")} required htmlFor="invite-first" />
 					<TextField
 						id="invite-first"
@@ -42,12 +41,15 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 						placeholder={t("auth.field.firstNamePlaceholder")}
 						error={!!errors.firstName}
 						helperText={errors.firstName?.message}
-						sx={fieldSx}
 						{...register("firstName")}
 					/>
 				</Box>
-				<Box sx={columnSx}>
-					<FormFieldLabel label={t("settings.invite.lastName")} htmlFor="invite-last" />
+				<Box sx={settingsFieldSx}>
+					<FormFieldLabel
+						label={t("settings.invite.lastName")}
+						hint={t("common.optional")}
+						htmlFor="invite-last"
+					/>
 					<TextField
 						id="invite-last"
 						size="small"
@@ -56,13 +58,12 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 						placeholder={t("auth.field.lastNamePlaceholder")}
 						error={!!errors.lastName}
 						helperText={errors.lastName?.message}
-						sx={fieldSx}
 						{...register("lastName")}
 					/>
 				</Box>
 			</Box>
 
-			<Box sx={columnSx}>
+			<Box sx={settingsFieldSx}>
 				<FormFieldLabel label={t("settings.invite.phone")} required htmlFor="invite-phone" />
 				<Controller
 					name="phone"
@@ -81,7 +82,6 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 							placeholder={t("auth.field.phonePlaceholder")}
 							error={!!errors.phone}
 							helperText={errors.phone?.message ?? t("settings.invite.phoneHint")}
-							sx={fieldSx}
 							slotProps={{
 								input: {
 									inputMode: "numeric",
@@ -93,7 +93,7 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 				/>
 			</Box>
 
-			<Box sx={columnSx}>
+			<Box sx={settingsFieldSx}>
 				<FormFieldLabel label={t("settings.invite.role")} />
 				<Box
 					sx={{
@@ -103,9 +103,9 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 						p: "10px 13px",
 						minHeight: 40,
 						border: "1px dashed",
-						borderColor: designTokens.gray300,
-						borderRadius: "8px",
-						bgcolor: designTokens.gray25,
+						borderColor: designTokens.borderStrong,
+						borderRadius: `${radius.md}px`,
+						bgcolor: designTokens.bgSubtle,
 						fontSize: 14,
 						color: "text.secondary",
 					}}
@@ -121,12 +121,12 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 							display: "inline-flex",
 							alignItems: "center",
 							gap: "4px",
-							fontSize: 11,
+							fontSize: 12,
 							fontWeight: 600,
-							color: "text.disabled",
+							color: "text.secondary",
 						}}
 					>
-						<InfoOutlinedIcon sx={{ fontSize: 13 }} />
+						<InfoOutlinedIcon sx={{ fontSize: 14 }} />
 						{t("settings.invite.rolesLater")}
 					</Box>
 				</Box>

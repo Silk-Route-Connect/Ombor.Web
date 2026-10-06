@@ -272,7 +272,7 @@
   "transaction.new.line.over": "Превышает остаток · доступно {{count}} {{unit}}",
   "transaction.new.line.remove": "Удалить позицию",
   "transaction.new.line.errOver": "Недостаточно товара: доступно {{count}} {{unit}}. Оформите поставку или начальный остаток.",
-  "transaction.new.line.fixedHint": "Фиксированная сумма за единицу",
+  "transaction.new.line.fixedHint": "Фиксированная сумма скидки на всю позицию",
   "transaction.new.line.packShort": "упак",
   "transaction.new.line.packTotal": "= {{count}} {{unit}}",
   "transaction.new.line.packTooltip": "Упаковка · {{size}} {{unit}}",
@@ -282,6 +282,7 @@
   "transaction.new.bulk.apply": "Применить",
 
   "transaction.new.notes.toggle": "Примечание и вложения",
+  "transaction.new.notes.label": "Примечание",
   "transaction.new.notes.placeholder.Sale": "Примечание к продаже — условия доставки, договорённости…",
   "transaction.new.notes.placeholder.Supply": "Примечание к поставке — условия приёмки, договорённости…",
 

@@ -1,24 +1,18 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import { Partner, PartnerType } from "models/partner";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import {
-	Autocomplete,
-	Avatar,
-	Box,
-	createFilterOptions,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Autocomplete, Box, createFilterOptions, TextField, Typography } from "@mui/material";
 
 import { dropdownSlotProps } from "./dropdownSx";
 import PosPartnerCreate from "./PosPartnerCreate";
-import { balancePresentation, initialsOf } from "./saleBalance";
+import { balancePresentation } from "./saleBalance";
 
 interface PartnerPickerProps {
 	direction: TransactionDirection;
@@ -138,18 +132,7 @@ export const PartnerPicker: React.FC<PartnerPickerProps> = ({
 					const tone = balancePresentation(o.balance);
 					return (
 						<Box component="li" {...props} key={o.id} sx={{ gap: "12px" }}>
-							<Avatar
-								sx={{
-									width: 34,
-									height: 34,
-									fontSize: 13,
-									fontWeight: 700,
-									bgcolor: designTokens.primarySoft,
-									color: "primary.main",
-								}}
-							>
-								{initialsOf(o.name)}
-							</Avatar>
+							<EntityAvatar name={o.name} size={34} />
 							<Box sx={{ flex: 1, minWidth: 0 }}>
 								<Typography sx={{ fontSize: 14, fontWeight: 600, color: "text.primary" }} noWrap>
 									{o.name}

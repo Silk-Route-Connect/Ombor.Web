@@ -11,7 +11,7 @@ interface WarehousePickerProps {
 	onChange: (id: number) => void;
 }
 
-/** Warehouse selector for the New Sale header — stock is read per this warehouse. */
+/** Warehouse selector for the New Sale / Supply / Order header — stock is read per this warehouse. */
 export const WarehousePicker: React.FC<WarehousePickerProps> = ({
 	value,
 	warehouses,
@@ -22,17 +22,12 @@ export const WarehousePicker: React.FC<WarehousePickerProps> = ({
 		onChange={(e) => onChange(Number(e.target.value))}
 		displayEmpty
 		fullWidth
-		sx={{
-			// Match the partner Autocomplete's height (38px) — the Select's default
-			// padding otherwise makes it taller than the field beside it.
-			"&.MuiOutlinedInput-root": { height: 38 },
-			"& .MuiSelect-select": { display: "flex", alignItems: "center" },
-		}}
+		sx={{ "& .MuiSelect-select": { display: "flex", alignItems: "center" } }}
 		renderValue={(v) => {
 			const wh = warehouses.find((w) => String(w.id) === v);
 			return (
-				<Box sx={{ display: "flex", alignItems: "center", gap: "9px" }}>
-					<WarehouseOutlinedIcon sx={{ fontSize: 17, color: "text.disabled" }} />
+				<Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+					<WarehouseOutlinedIcon sx={{ fontSize: 18, color: "text.disabled" }} />
 					<Box component="span" sx={{ color: wh ? "text.primary" : "text.disabled" }}>
 						{wh?.name ?? ""}
 					</Box>

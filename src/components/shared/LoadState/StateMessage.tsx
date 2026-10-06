@@ -3,7 +3,7 @@ import { designTokens, radius } from "theme";
 
 import { alpha, Box, Paper, Typography } from "@mui/material";
 
-export type StateSize = "page" | "section";
+export type StateSize = "page" | "section" | "inline";
 
 interface StateMessageProps {
 	icon: React.ReactNode;
@@ -15,10 +15,18 @@ interface StateMessageProps {
 	role?: string;
 }
 
+/** Tile, halo and title per size — "inline" is the compact empty state of a line editor. */
+const METRICS = {
+	page: { py: 8, tile: 56, halo: 8, glyph: 28, gap: 2.5, title: "h3" },
+	section: { py: 5, tile: 56, halo: 8, glyph: 28, gap: 2.5, title: "h3" },
+	inline: { py: 4, tile: 44, halo: 6, glyph: 22, gap: 2, title: "subtitle1" },
+} as const;
+
 /**
  * Icon tile + title + one line + one action — the body of every non-data state
- * (load error, not found). "page" sits in its own outlined card; "section" is
- * frameless so it fills a table body, tab or dashboard card.
+ * (load error, not found, an empty line editor). "page" sits in its own
+ * outlined card; "section" is frameless so it fills a table body, tab or
+ * dashboard card; "inline" is the same look, smaller, inside a form card.
  */
 export const StateMessage: React.FC<StateMessageProps> = ({
 	icon,
@@ -30,29 +38,35 @@ export const StateMessage: React.FC<StateMessageProps> = ({
 	role,
 }) => {
 	const tint = tone === "error" ? designTokens.errorBg : designTokens.primarySoft;
+	const m = METRICS[size];
 	const content = (
-		<Box role={role} sx={{ textAlign: "center", py: size === "page" ? 8 : 5, px: 3 }}>
+		<Box role={role} sx={{ textAlign: "center", py: m.py, px: 3 }}>
 			{/* The brand tint (error tint for a failure) with a soft halo: an empty
 			    screen still looks like Ombor, not like something broke. */}
 			<Box
 				aria-hidden
 				sx={{
-					width: 56,
-					height: 56,
+					width: m.tile,
+					height: m.tile,
 					borderRadius: `${radius.lg}px`,
 					mx: "auto",
-					mb: 2.5,
+					mb: m.gap,
 					display: "grid",
 					placeItems: "center",
 					bgcolor: tint,
 					color: tone === "error" ? "error.main" : "primary.main",
-					boxShadow: `0 0 0 8px ${alpha(tint, 0.45)}`,
-					"& .MuiSvgIcon-root": { fontSize: 28 },
+					boxShadow: `0 0 0 ${m.halo}px ${alpha(tint, 0.45)}`,
+					"& .MuiSvgIcon-root": { fontSize: m.glyph },
 				}}
 			>
 				{icon}
 			</Box>
-			<Typography variant="h3" sx={{ mb: 0.75 }}>
+			<Typography
+				variant={m.title}
+				// A line editor's empty state sits inside a card under its own title — not a heading.
+				{...(size === "inline" && { component: "p" })}
+				sx={{ mb: 0.75 }}
+			>
 				{title}
 			</Typography>
 			{body && (
@@ -67,7 +81,7 @@ export const StateMessage: React.FC<StateMessageProps> = ({
 		</Box>
 	);
 
-	if (size === "section") {
+	if (size !== "page") {
 		return content;
 	}
 

@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EntityHistory from "components/activity/History/EntityHistory";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import Callout from "components/shared/Callout/Callout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
-import WarehouseArchivedBanner from "components/warehouse/Detail/WarehouseArchivedBanner";
 import WarehouseEmptyStock from "components/warehouse/Detail/WarehouseEmptyStock";
 import WarehouseKpis from "components/warehouse/Detail/WarehouseKpis";
 import WarehouseMovementsTab from "components/warehouse/Detail/WarehouseMovementsTab";
@@ -171,7 +171,11 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				archivedLabel={t("warehouse.table.archivedBadge")}
 			/>
 
-			{warehouse.isArchived && <WarehouseArchivedBanner />}
+			{warehouse.isArchived && (
+				<Callout tone="archived" title={t("warehouse.detail.archived.title")} sx={{ mb: 2 }}>
+					{t("warehouse.detail.archived.body")}
+				</Callout>
+			)}
 
 			<WarehouseKpis warehouse={warehouse} />
 

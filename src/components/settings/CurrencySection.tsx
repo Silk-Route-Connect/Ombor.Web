@@ -1,8 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens } from "theme";
+import Callout from "components/shared/Callout/Callout";
+import { designTokens, radius } from "theme";
 
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Box } from "@mui/material";
 
@@ -18,7 +19,7 @@ const CurrencySection: React.FC = () => {
 	return (
 		<SettingsSectionCard
 			id="currency"
-			icon={<PaymentsOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<PaymentsOutlinedIcon />}
 			title={t("settings.currency.title")}
 			subtitle={t("settings.currency.subtitle")}
 		>
@@ -26,37 +27,22 @@ const CurrencySection: React.FC = () => {
 				sx={{
 					display: "flex",
 					alignItems: "center",
-					gap: "10px",
-					p: "11px 14px",
+					gap: "12px",
+					p: "10px 14px",
 					border: "1px solid",
 					borderColor: "divider",
-					borderRadius: "8px",
-					bgcolor: designTokens.gray25,
+					borderRadius: `${radius.md}px`,
+					bgcolor: designTokens.bgSubtle,
 					fontSize: 14,
 					fontWeight: 600,
 				}}
 			>
 				{t("settings.currency.locked")}
-				<InfoOutlinedIcon sx={{ fontSize: 16, color: "text.disabled", ml: "auto" }} />
+				<LockOutlinedIcon sx={{ fontSize: 16, color: "text.disabled", ml: "auto" }} />
 			</Box>
-			<Box
-				sx={{
-					mt: "12px",
-					display: "flex",
-					gap: "9px",
-					p: "12px 14px",
-					fontSize: 12.5,
-					lineHeight: 1.55,
-					color: "text.secondary",
-					bgcolor: designTokens.infoBg,
-					border: "1px solid",
-					borderColor: designTokens.infoBorder,
-					borderRadius: "8px",
-				}}
-			>
-				<InfoOutlinedIcon sx={{ fontSize: 15, color: "info.main", flex: "0 0 auto", mt: "1px" }} />
+			<Callout tone="info" sx={{ mt: "12px" }}>
 				{t("settings.currency.note")}
-			</Box>
+			</Callout>
 		</SettingsSectionCard>
 	);
 };

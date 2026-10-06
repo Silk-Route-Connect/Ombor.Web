@@ -1,9 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens } from "theme";
+import Callout from "components/shared/Callout/Callout";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { Box, ButtonBase, Typography } from "@mui/material";
+import { ButtonBase } from "@mui/material";
+
+import { summaryTextButtonSx } from "./Summary/styles";
 
 /**
  * Inline notice in the POS overpayment block when the partner's open debts could
@@ -14,39 +15,17 @@ export const OutstandingDebtsError: React.FC<{ onRetry: () => void }> = ({ onRet
 	const { t } = useTranslation();
 
 	return (
-		<Box
+		<Callout
+			tone="danger"
 			role="alert"
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "8px",
-				mt: "3px",
-				p: "8px 10px",
-				border: "1px solid",
-				borderColor: "error.main",
-				borderRadius: "8px",
-				bgcolor: designTokens.errorBg,
-			}}
+			action={
+				<ButtonBase onClick={onRetry} sx={{ ...summaryTextButtonSx, color: "inherit" }}>
+					{t("common.retry")}
+				</ButtonBase>
+			}
 		>
-			<ErrorOutlineIcon sx={{ fontSize: 16, color: "error.main", flex: "0 0 auto" }} />
-			<Typography sx={{ flex: 1, fontSize: 12.5, color: "error.main", lineHeight: 1.4 }}>
-				{t("transaction.new.totals.debtsLoadFailed")}
-			</Typography>
-			<ButtonBase
-				onClick={onRetry}
-				sx={{
-					px: "8px",
-					py: "4px",
-					borderRadius: "6px",
-					fontSize: 12.5,
-					fontWeight: 600,
-					color: "error.main",
-					"&:hover": { textDecoration: "underline" },
-				}}
-			>
-				{t("common.retry")}
-			</ButtonBase>
-		</Box>
+			{t("transaction.new.totals.debtsLoadFailed")}
+		</Callout>
 	);
 };
 

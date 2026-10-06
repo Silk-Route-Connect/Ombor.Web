@@ -1,14 +1,16 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
 import { TenderPayment } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { TransactionDirection } from "utils/transactionUtils";
 
-import { Box, ButtonBase, Typography } from "@mui/material";
+import { Box, ButtonBase } from "@mui/material";
 
+import { POS_CARD_PADDING } from "../posStyles";
 import WalletPicker from "../WalletPicker";
 import { summaryTextButtonSx } from "./styles";
 
@@ -29,49 +31,48 @@ const PaymentTender: React.FC<PaymentTenderProps> = ({
 	setPay,
 }) => {
 	const { t } = useTranslation();
+	const label = t(`transaction.new.pay.label.${direction}`);
 
 	return (
-		<Box sx={{ p: "0 18px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-			<Typography sx={{ fontSize: 13, fontWeight: 700, color: designTokens.gray700 }}>
-				{t(`transaction.new.pay.label.${direction}`)}
-			</Typography>
-			<Box sx={{ display: "flex", gap: "8px", alignItems: "stretch" }}>
-				<Box sx={{ flex: 3, minWidth: 0 }}>
+		<Box
+			sx={{
+				p: POS_CARD_PADDING,
+				pt: 0,
+				display: "flex",
+				flexDirection: "column",
+				gap: "6px",
+			}}
+		>
+			<FormFieldLabel label={label} />
+			<Box sx={{ display: "flex", gap: "8px" }}>
+				<Box sx={{ flex: 1, minWidth: 0 }}>
 					<WalletPicker
 						value={pay.walletId}
 						wallets={wallets}
 						onChange={(id) => setPay({ ...pay, walletId: id })}
 					/>
 				</Box>
-				<Box
+				<MoneyField
+					value={pay.amount}
+					onChange={(amount) => setPay({ ...pay, amount })}
+					placeholder="0"
 					sx={{
-						flex: 2,
+						flex: 1,
 						minWidth: 0,
-						display: "flex",
-						alignItems: "center",
-						gap: "6px",
-						px: "12px",
-						border: "1px solid",
-						borderColor: designTokens.gray300,
-						borderRadius: "8px",
-						bgcolor: "background.paper",
-						"&:focus-within": { borderColor: "primary.main" },
-					}}
-				>
-					<MoneyInputBase
-						value={pay.amount}
-						onChange={(amount) => setPay({ ...pay, amount })}
-						placeholder="0"
-						inputProps={{ "aria-label": t(`transaction.new.pay.label.${direction}`) }}
-						sx={{
-							flex: 1,
+						// Tight side padding: a seven-figure tender has to fit beside «UZS» in the rail.
+						"& .MuiOutlinedInput-root": { px: "10px" },
+						"& .MuiOutlinedInput-input": {
+							px: 0,
+							textAlign: "right",
+							fontWeight: 600,
 							...numericSx,
-							fontWeight: 700,
-							"& input": { textAlign: "right", p: 0 },
-						}}
-					/>
-					<UzsUnit />
-				</Box>
+						},
+					}}
+					slotProps={{
+						input: { endAdornment: <UzsAdornment /> },
+						htmlInput: { "aria-label": label },
+					}}
+				/>
 			</Box>
 			<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
 				<ButtonBase

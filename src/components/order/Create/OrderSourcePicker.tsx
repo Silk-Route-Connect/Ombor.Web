@@ -20,14 +20,10 @@ export const OrderSourcePicker: React.FC<OrderSourcePickerProps> = ({ value, onC
 			value={value}
 			onChange={(e) => onChange(e.target.value as OrderSource)}
 			fullWidth
-			sx={{
-				// Match the partner Autocomplete / warehouse Select height beside it.
-				"&.MuiOutlinedInput-root": { height: 45 },
-				"& .MuiSelect-select": { display: "flex", alignItems: "center" },
-			}}
+			sx={{ "& .MuiSelect-select": { display: "flex", alignItems: "center" } }}
 			renderValue={(v) => (
-				<Box sx={{ display: "flex", alignItems: "center", gap: "9px" }}>
-					<PublicOutlinedIcon sx={{ fontSize: 17, color: "text.disabled" }} />
+				<Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+					<PublicOutlinedIcon sx={{ fontSize: 18, color: "text.disabled" }} />
 					<Box component="span">{t(`order.source.${v as OrderSource}`)}</Box>
 				</Box>
 			)}

@@ -3,6 +3,7 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
+import Callout from "components/shared/Callout/Callout";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
@@ -582,24 +583,9 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 					</Box>
 
 					{hasOpenDebts && (
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: "9px",
-								mt: "16px",
-								p: "11px 14px",
-								borderRadius: "8px",
-								bgcolor: designTokens.infoBg,
-								border: "1px solid",
-								borderColor: designTokens.infoBorder,
-								fontSize: 13,
-								color: "info.main",
-							}}
-						>
-							<BalanceOutlinedIcon sx={{ fontSize: 16, flex: "0 0 auto" }} />
+						<Callout tone="info" icon={<BalanceOutlinedIcon />} sx={{ mt: "16px" }}>
 							{t("payment.form.debtsBanner")}
-						</Box>
+						</Callout>
 					)}
 				</DialogContent>
 

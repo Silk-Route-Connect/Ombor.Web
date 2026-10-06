@@ -41,10 +41,6 @@
   "order.source.Telegram": "Telegram",
   "order.source.OmborWeb": "Ombor",
 
-  "order.partnerType.Customer": "Клиент",
-  "order.partnerType.Supplier": "Поставщик",
-  "order.partnerType.Both": "Клиент + Поставщик",
-
   "order.action.process": "Взять в обработку",
   "order.action.ship": "Отправить",
   "order.action.deliver": "Подтвердить доставку",
@@ -148,9 +144,7 @@
 
   "order.new.title": "Новый заказ",
   "order.new.cancel": "Отмена",
-  "order.new.optional": "необязательно",
   "order.new.field.warehouse": "Склад",
-  "order.new.pickClient": "Выберите клиента, чтобы увидеть баланс",
   "order.new.editableNote": "Заказ можно изменить или отменить до доставки. Деньги и склад не затрагиваются.",
   "order.new.submit": "Создать заказ",
 
@@ -173,7 +167,6 @@
   "order.new.line.qty": "Кол-во · {{unit}}",
   "order.new.line.price": "Цена за {{unit}}",
   "order.new.line.discount": "Скидка",
-  "order.new.line.fixedHint": "Фиксированная сумма скидки на позицию",
   "order.new.line.remove": "Удалить позицию",
   "order.new.line.inStock": "На складе: {{count}} {{unit}}",
   "order.new.line.noWarehouse": "Выберите склад, чтобы увидеть остаток",

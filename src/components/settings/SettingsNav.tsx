@@ -43,8 +43,8 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 						fontFamily: "inherit",
 						display: "flex",
 						alignItems: "center",
-						gap: "11px",
-						p: "10px 13px",
+						gap: "12px",
+						p: "10px 12px",
 						borderRadius: "8px",
 						fontSize: 14,
 						fontWeight: on ? 600 : 500,
@@ -56,6 +56,7 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 						"& .set-nav-ic": {
 							color: on ? "primary.main" : "text.disabled",
 							display: "inline-flex",
+							"& .MuiSvgIcon-root": { fontSize: 18 },
 						},
 					}}
 				>

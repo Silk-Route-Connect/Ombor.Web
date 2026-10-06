@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EntityHistory from "components/activity/History/EntityHistory";
+import Callout from "components/shared/Callout/Callout";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
-import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
 import WalletDetailStats from "components/wallet/Detail/WalletDetailStats";
 import WalletOperationsTab from "components/wallet/Detail/WalletOperationsTab";
@@ -132,7 +132,11 @@ const WalletDetailPage: React.FC = observer(() => {
 				onDelete={() => walletStore.openDelete(wallet)}
 			/>
 
-			{wallet.isArchived && <WalletArchivedBanner />}
+			{wallet.isArchived && (
+				<Callout tone="archived" title={t("wallet.detail.archived.title")} sx={{ mb: 2 }}>
+					{t("wallet.detail.archived.body")}
+				</Callout>
+			)}
 
 			<WalletDetailStats wallet={wallet} />
 
