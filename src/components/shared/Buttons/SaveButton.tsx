@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import SaveIcon from "@mui/icons-material/Save";
+import CheckIcon from "@mui/icons-material/Check";
 import { Box, Button, Tooltip } from "@mui/material";
 
 interface SaveButtonProps {
@@ -31,7 +31,9 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 			<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
 				<Button
 					variant="contained"
-					startIcon={icon ?? <SaveIcon />}
+					// The commit tick every submit shares (the filled floppy disk was the one
+					// filled glyph among outlined icons, and «Провести …» already used ✓).
+					startIcon={icon ?? <CheckIcon />}
 					color="primary"
 					disabled={disabled}
 					loading={loading}

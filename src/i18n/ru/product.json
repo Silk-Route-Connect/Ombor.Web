@@ -26,6 +26,8 @@
   "product.filter.active": "Активные",
   "product.filter.archive": "Архив",
   "product.filter.archiveTooltip": "Показать архивные товары",
+  "product.filter.category": "Категория",
+  "product.filter.type.label": "Тип",
   "product.filter.type.all": "Все",
   "product.filter.type.sale": "Продажа",
   "product.filter.type.supply": "Поставка",

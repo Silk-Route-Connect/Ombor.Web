@@ -23,7 +23,7 @@
   "common.phone.maxReached_other": "Можно указать не больше {{count}} номеров",
   "common.phone.fillEmptyFirst": "Сначала заполните пустой номер",
   "partnerAutocomplete.partner": "Партнёр",
-  "partnerAutocomplete.search": "Поиск партнёров...",
+  "partnerAutocomplete.search": "Поиск партнёров…",
   "noRecords": "Нет записей",
   "noOptionsTitle": "Нет записей",
   "reportRangeAll": "Весь период",
@@ -64,6 +64,7 @@
   "common.form.completeRequired": "Заполните необходимые поля",
 
   "common.dash": "—",
+  "common.all": "Все",
 
   "common.movementKind.Sale": "Продажа",
   "common.movementKind.Supply": "Поставка",

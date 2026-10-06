@@ -17,7 +17,7 @@
   "nameRequired": "Название обязательно",
   "fieldTemplate": "Выбрать шаблон",
   "fieldProduct": "Выбрать продукт",
-  "searchProductsPlaceholder": "Поиск продуктов...",
+  "searchProductsPlaceholder": "Поиск товаров…",
   "saveAsTemplate": "Сохранить как шаблон",
   "payment": "Оплата"
 }

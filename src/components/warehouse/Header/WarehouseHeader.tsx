@@ -13,6 +13,8 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface WarehouseHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	showArchived: boolean;
 	archivedCount: number;
@@ -30,6 +32,7 @@ interface WarehouseHeaderProps {
  * segmented control sit on the filter row below (mirrors PartnerListHeader).
  */
 const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
+	summary,
 	searchValue,
 	showArchived,
 	archivedCount,
@@ -56,6 +59,8 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput

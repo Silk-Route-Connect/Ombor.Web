@@ -39,7 +39,7 @@
   "payroll.form.salaryLine": "оклад {{amount}} UZS в месяц",
 
   "employeeAutocomplete.employee": "Сотрудник",
-  "employeeAutocomplete.search": "Поиск сотрудника...",
+  "employeeAutocomplete.search": "Поиск сотрудника…",
 
   "payroll.paymentId": "Номер платежа"
 }

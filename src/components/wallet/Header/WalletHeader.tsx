@@ -13,6 +13,8 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface WalletHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	showArchived: boolean;
 	archivedCount: number;
@@ -30,6 +32,7 @@ interface WalletHeaderProps {
  * Архив» segmented control sit on the filter row below (archived-only, D1).
  */
 const WalletHeader: React.FC<WalletHeaderProps> = ({
+	summary,
 	searchValue,
 	showArchived,
 	archivedCount,
@@ -54,6 +57,8 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput

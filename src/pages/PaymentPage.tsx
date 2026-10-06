@@ -84,6 +84,13 @@ const PaymentPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<PaymentHeader
+				summary={
+					<PaymentSummaryStrip
+						summary={isReady(paymentStore.filteredPayments) ? paymentStore.summary : null}
+						directionFilter={paymentStore.directionFilter}
+						onToggle={paymentStore.setDirectionFilter}
+					/>
+				}
 				searchValue={paymentStore.searchTerm}
 				typeFilter={paymentStore.typeFilter}
 				walletFilter={paymentStore.walletFilter}
@@ -96,12 +103,6 @@ const PaymentPage: React.FC = observer(() => {
 				onCreate={paymentStore.openCreate}
 				onExport={handleExport}
 				exportCount={readyOr(paymentStore.filteredPayments, []).length}
-			/>
-
-			<PaymentSummaryStrip
-				summary={isReady(paymentStore.filteredPayments) ? paymentStore.summary : null}
-				directionFilter={paymentStore.directionFilter}
-				onToggle={paymentStore.setDirectionFilter}
 			/>
 
 			<PaymentsTable

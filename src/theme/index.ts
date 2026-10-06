@@ -89,6 +89,8 @@ const theme = createTheme({
 		action: {
 			// 6% teal wash: 4% sat at the edge of perception on white rows and nav.
 			hover: "rgba(18,103,107,0.06)",
+			// Default icon buttons (pager, expanders) in the ink-grey ramp, not 54% black.
+			active: designTokens.fg2,
 			selected: designTokens.primarySoft,
 		},
 	},

@@ -65,7 +65,11 @@ export const components: Components<Omit<Theme, "components">> = {
 	// Inputs / search / selects use MUI size="small"; map it to md (38px) so it
 	// aligns with the default (md) buttons across a filter row.
 	MuiTextField: { defaultProps: { size: "small" } },
-	MuiSelect: { defaultProps: { size: "small" } },
+	MuiSelect: {
+		defaultProps: { size: "small" },
+		// Dropdown arrows in the meta tone, not MUI's 54% black.
+		styleOverrides: { icon: { color: designTokens.fg3, fontSize: 20 } },
+	},
 	MuiInputBase: {
 		styleOverrides: {
 			input: {

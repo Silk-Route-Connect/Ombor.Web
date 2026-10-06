@@ -20,6 +20,8 @@ import { Box } from "@mui/material";
 import { PAYMENT_TYPE_META } from "../PaymentPresentation";
 
 interface PaymentHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
@@ -41,6 +43,7 @@ interface PaymentHeaderProps {
  * filters and the shared period filter sit on the filter row below.
  */
 const PaymentHeader: React.FC<PaymentHeaderProps> = ({
+	summary,
 	searchValue,
 	typeFilter,
 	walletFilter,
@@ -82,6 +85,8 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput

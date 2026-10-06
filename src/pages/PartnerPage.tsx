@@ -102,6 +102,14 @@ const PartnerPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<PartnerListHeader
+				summary={
+					partnerStore.activeCount > 0 && (
+						<PartnerSummaryStrip
+							summary={debtStore.summary}
+							activeCount={partnerStore.activeCount}
+						/>
+					)
+				}
 				searchValue={partnerStore.searchTerm}
 				typeFilter={partnerStore.typeFilter}
 				showArchived={partnerStore.showArchived}
@@ -113,10 +121,6 @@ const PartnerPage: React.FC = observer(() => {
 				onExport={handleExport}
 				exportCount={readyOr(partnerStore.filteredPartners, []).length}
 			/>
-
-			{partnerStore.activeCount > 0 && (
-				<PartnerSummaryStrip summary={debtStore.summary} activeCount={partnerStore.activeCount} />
-			)}
 
 			<PartnersTable
 				exportOrder={tableOrder}

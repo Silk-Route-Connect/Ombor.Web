@@ -71,6 +71,7 @@ const WalletPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WalletHeader
+				summary={all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
 				searchValue={walletStore.searchTerm}
 				showArchived={walletStore.showArchived}
 				archivedCount={walletStore.archivedCount}
@@ -80,8 +81,6 @@ const WalletPage: React.FC = observer(() => {
 				onExport={handleExport}
 				exportCount={readyOr(walletStore.filteredWallets, []).length}
 			/>
-
-			{all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
 
 			<WalletsTable
 				exportOrder={tableOrder}

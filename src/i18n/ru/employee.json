@@ -1,6 +1,6 @@
 {
   "employeesTitle": "Сотрудники",
-  "searchEmployeesPlaceholder": "Поиск сотрудников...",
+  "searchEmployeesPlaceholder": "Поиск по имени или должности…",
 
   "employee.name": "Ф.И.О",
   "employee.position": "Должность",

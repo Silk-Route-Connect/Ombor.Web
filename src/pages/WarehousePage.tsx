@@ -88,6 +88,7 @@ const WarehousePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WarehouseHeader
+				summary={hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
 				searchValue={warehouseStore.searchTerm}
 				showArchived={warehouseStore.showArchived}
 				archivedCount={warehouseStore.archivedCount}
@@ -97,8 +98,6 @@ const WarehousePage: React.FC = observer(() => {
 				onExport={handleExport}
 				exportCount={readyOr(warehouseStore.filteredWarehouses, []).length}
 			/>
-
-			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
 
 			<WarehousesTable
 				exportOrder={tableOrder}

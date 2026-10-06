@@ -14,6 +14,8 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface PartnerListHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	typeFilter: PartnerTypeFilter;
 	showArchived: boolean;
@@ -29,6 +31,7 @@ interface PartnerListHeaderProps {
 
 /** Partners list header (locked pattern 11): create/export on the title row, search/type/archive below. */
 export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
+	summary,
 	searchValue,
 	typeFilter,
 	showArchived,
@@ -55,6 +58,8 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
