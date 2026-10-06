@@ -66,7 +66,7 @@ const DashboardPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		dashboardStore.load();
-		void productStore.getAll();
+		void productStore.getAll({ quiet: true });
 	}, [dashboardStore, productStore]);
 
 	const { data, isLoading } = dashboardStore;
@@ -233,7 +233,7 @@ const DashboardPage: React.FC = observer(() => {
 						>
 							<LowStockPanel
 								products={productStore.allProducts}
-								onRetry={() => void productStore.getAll()}
+								onRetry={() => void productStore.getAll({ quiet: true })}
 								onAll={openLowStock}
 							/>
 							<RecentTransactionsTable rows={data.recentTransactions} onOpen={onRecentRow} />

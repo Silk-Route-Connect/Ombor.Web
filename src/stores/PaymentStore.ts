@@ -170,10 +170,6 @@ export class PaymentStore implements IPaymentStore {
 
 		const result = await tryRun(() => PaymentApi.getAll());
 
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "payment.error.getAll");
-		}
-
 		runInAction(() => (this.allPayments = toLoadable(result)));
 	}
 
@@ -184,10 +180,6 @@ export class PaymentStore implements IPaymentStore {
 		const result = await tryRun(() => PaymentApi.getFormData());
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "payment.error.formData");
 		}
 
 		runInAction(() => (this.formData = toLoadable(result)));

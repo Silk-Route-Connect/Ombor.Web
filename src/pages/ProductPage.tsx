@@ -27,7 +27,7 @@ const ProductPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		categoryStore.getAll();
-		productStore.getAll();
+		productStore.getAll({ quiet: true });
 	}, [categoryStore, productStore]);
 
 	const dialogMode = productStore.dialogMode;
@@ -113,7 +113,7 @@ const ProductPage: React.FC = observer(() => {
 
 			<ProductsTable
 				exportOrder={tableOrder}
-				onRetry={() => void productStore.getAll()}
+				onRetry={() => void productStore.getAll({ quiet: true })}
 				errorTitle={t("product.error.getAll")}
 				data={productStore.filteredProducts}
 				isFiltering={isFiltering}

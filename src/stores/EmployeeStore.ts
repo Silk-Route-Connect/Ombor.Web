@@ -1,5 +1,5 @@
 import { SortOrder } from "components/shared/Table/ExpandableDataTable/ExpandableDataTable";
-import { isReady, Loadable, toLoadable } from "helpers/Loading";
+import { isReady, Loadable, LoadOptions, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -41,7 +41,7 @@ export interface IEmployeeStore {
 	filterStatus: EmployeeStatus | null;
 
 	// actions
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	create(request: CreateEmployeeRequest): Promise<void>;
 	update(request: UpdateEmployeeRequest): Promise<void>;
 	/** Hard delete of a never-paid employee; true when it was deleted. */
@@ -116,12 +116,12 @@ export class EmployeeStore implements IEmployeeStore {
 		return [...employees];
 	}
 
-	async getAll() {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allEmployees = "loading"));
 
 		const result = await tryRun(() => EmployeeApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "employees.error.getAll");
 		}
 

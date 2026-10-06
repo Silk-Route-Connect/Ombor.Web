@@ -5,8 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Product, ProductMovement, ProductTransaction } from "models/product";
 import ProductApi from "services/api/ProductApi";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface ISelectedProductStore {
 	product: Loadable<Product | null>;
 	transactions: Loadable<ProductTransaction[]>;
@@ -24,15 +22,13 @@ export interface ISelectedProductStore {
  * loaded explicitly by id when the route mounts.
  */
 export class SelectedProductStore implements ISelectedProductStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	product: Loadable<Product | null> = "loading";
 	transactions: Loadable<ProductTransaction[]> = "loading";
 	movements: Loadable<ProductMovement[]> = "loading";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -51,14 +47,6 @@ export class SelectedProductStore implements ISelectedProductStore {
 		]);
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (product.status === "fail") {
-			this.notificationStore.notifyLoadError(product, "product.error.getById");
-		} else if (transactions.status === "fail") {
-			this.notificationStore.notifyLoadError(transactions, "product.error.getTransactions");
-		} else if (movements.status === "fail") {
-			this.notificationStore.notifyLoadError(movements, "product.error.getTransactions");
 		}
 
 		runInAction(() => {

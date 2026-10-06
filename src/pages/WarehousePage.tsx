@@ -25,7 +25,7 @@ const WarehousePage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Warehouse>();
 
 	useEffect(() => {
-		warehouseStore.getAll();
+		warehouseStore.getAll({ quiet: true });
 	}, [warehouseStore]);
 
 	const dialogMode = warehouseStore.dialogMode;
@@ -101,7 +101,7 @@ const WarehousePage: React.FC = observer(() => {
 
 			<WarehousesTable
 				exportOrder={tableOrder}
-				onRetry={() => void warehouseStore.getAll()}
+				onRetry={() => void warehouseStore.getAll({ quiet: true })}
 				errorTitle={t("warehouse.error.getAll")}
 				rows={warehouseStore.filteredWarehouses}
 				columns={columns}

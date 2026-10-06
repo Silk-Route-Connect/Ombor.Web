@@ -12,8 +12,6 @@ import {
 	InvoiceSource,
 } from "utils/invoiceDocument";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface IInvoicePrintStore {
 	/** The document on the print view; `null` when it (or its partner) does not exist. */
 	invoice: Loadable<InvoiceDocument | null>;
@@ -28,13 +26,11 @@ export interface IInvoicePrintStore {
  * paper), mapped into one {@link InvoiceDocument} the sheet renders.
  */
 export class InvoicePrintStore implements IInvoicePrintStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	invoice: Loadable<InvoiceDocument | null> = "loading";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -47,9 +43,6 @@ export class InvoicePrintStore implements IInvoicePrintStore {
 		);
 		if (!isCurrent()) {
 			return;
-		}
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "print.error.invoice");
 		}
 		runInAction(() => (this.invoice = toDetailLoadable(result)));
 	}

@@ -5,8 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Warehouse, WarehouseMovement, WarehouseStockItem } from "models/warehouse";
 import WarehouseApi from "services/api/WarehouseApi";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface ISelectedWarehouseStore {
 	warehouse: Loadable<Warehouse | null>;
 	stock: Loadable<WarehouseStockItem[]>;
@@ -26,15 +24,13 @@ export interface ISelectedWarehouseStore {
  * id when the route mounts.
  */
 export class SelectedWarehouseStore implements ISelectedWarehouseStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	warehouse: Loadable<Warehouse | null> = "loading";
 	stock: Loadable<WarehouseStockItem[]> = "loading";
 	movements: Loadable<WarehouseMovement[]> = "loading";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -53,14 +49,6 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 		]);
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (warehouse.status === "fail") {
-			this.notificationStore.notifyLoadError(warehouse, "warehouse.error.getById");
-		} else if (stock.status === "fail") {
-			this.notificationStore.notifyLoadError(stock, "warehouse.error.getStock");
-		} else if (movements.status === "fail") {
-			this.notificationStore.notifyLoadError(movements, "warehouse.error.getStock");
 		}
 
 		runInAction(() => {

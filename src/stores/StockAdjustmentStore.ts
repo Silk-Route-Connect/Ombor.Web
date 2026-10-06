@@ -115,10 +115,6 @@ export class StockAdjustmentStore implements IStockAdjustmentStore {
 
 		const result = await tryRun(() => StockAdjustmentApi.getAll());
 
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "adjustment.error.getAll");
-		}
-
 		runInAction(() => (this.allAdjustments = toLoadable(result)));
 	}
 

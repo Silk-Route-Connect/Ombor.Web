@@ -97,11 +97,6 @@ export class DebtStore implements IDebtStore {
 			tryRun(() => DebtApi.getSummary()),
 		]);
 
-		const failed = debts.status === "fail" ? debts : summary.status === "fail" ? summary : null;
-		if (failed) {
-			this.notificationStore.notifyLoadError(failed, "debt.error.getAll");
-		}
-
 		runInAction(() => {
 			this.allDebts = toLoadable(debts);
 			if (isCurrent()) {

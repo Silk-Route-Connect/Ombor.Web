@@ -26,7 +26,7 @@ const EmployeePage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Employee>();
 
 	useEffect(() => {
-		employeeStore.getAll();
+		employeeStore.getAll({ quiet: true });
 	}, [employeeStore]);
 
 	const { dialogMode } = employeeStore;
@@ -75,7 +75,7 @@ const EmployeePage: React.FC = observer(() => {
 
 			<EmployeesTable
 				exportOrder={tableOrder}
-				onRetry={() => void employeeStore.getAll()}
+				onRetry={() => void employeeStore.getAll({ quiet: true })}
 				errorTitle={t("employees.error.getAll")}
 				rows={employeeStore.filteredEmployees}
 				isFiltering={isFiltering && all.length > 0}

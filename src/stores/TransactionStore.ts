@@ -129,10 +129,6 @@ export class TransactionStore implements ITransactionStore {
 
 		const result = await tryRun(() => TransactionApi.getAll());
 
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "transactions.errors.getAll");
-		}
-
 		runInAction(() => (this.allTransactions = toLoadable(result)));
 	}
 

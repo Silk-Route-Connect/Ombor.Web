@@ -1,4 +1,4 @@
-import { isReady, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
@@ -43,7 +43,7 @@ export interface IProductStore {
 	isSaving: boolean;
 	dialogMode: DialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	/** Resolve with the created product, or null on failure. */
 	create(
 		request: CreateProductRequest,
@@ -144,12 +144,12 @@ export class ProductStore implements IProductStore {
 		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Sale");
 	}
 
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allProducts = "loading"));
 
 		const result = await tryRun(() => ProductApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "product.error.getAll");
 		}
 

@@ -5,8 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { PaymentRecord } from "models/payment";
 import PaymentApi from "services/api/PaymentApi";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface ISelectedPaymentStore {
 	payment: Loadable<PaymentRecord | null>;
 	load(paymentId: number): Promise<void>;
@@ -15,13 +13,11 @@ export interface ISelectedPaymentStore {
 
 /** State for the routed payment detail page — the open payment loaded by id. */
 export class SelectedPaymentStore implements ISelectedPaymentStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	payment: Loadable<PaymentRecord | null> = "loading";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -32,10 +28,6 @@ export class SelectedPaymentStore implements ISelectedPaymentStore {
 		const result = await tryRun(() => PaymentApi.getById(paymentId));
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "payment.error.getById");
 		}
 
 		runInAction(() => (this.payment = toDetailLoadable(result)));

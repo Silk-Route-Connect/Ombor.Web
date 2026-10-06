@@ -1,4 +1,4 @@
-import { isReady, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { matchesSearch } from "utils/stringUtils";
@@ -42,7 +42,7 @@ export interface IWarehouseStore {
 	isSaving: boolean;
 	dialogMode: WarehouseDialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	create(request: CreateWarehouseRequest): Promise<void>;
 	update(request: UpdateWarehouseRequest): Promise<Warehouse | null>;
 	archive(warehouse: Warehouse): Promise<Warehouse | null>;
@@ -138,12 +138,12 @@ export class WarehouseStore implements IWarehouseStore {
 		);
 	}
 
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allWarehouses = "loading"));
 
 		const result = await tryRun(() => WarehouseApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "warehouse.error.getAll");
 		}
 

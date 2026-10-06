@@ -25,7 +25,7 @@ const WalletPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Wallet>();
 
 	useEffect(() => {
-		walletStore.getAll();
+		walletStore.getAll({ quiet: true });
 	}, [walletStore]);
 
 	const dialogMode = walletStore.dialogMode;
@@ -84,7 +84,7 @@ const WalletPage: React.FC = observer(() => {
 
 			<WalletsTable
 				exportOrder={tableOrder}
-				onRetry={() => void walletStore.getAll()}
+				onRetry={() => void walletStore.getAll({ quiet: true })}
 				errorTitle={t("wallet.error.getAll")}
 				rows={walletStore.filteredWallets}
 				showArchived={walletStore.showArchived}

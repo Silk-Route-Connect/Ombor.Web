@@ -30,7 +30,7 @@ const TemplatePage: React.FC = observer(() => {
 
 	useEffect(() => {
 		templateStore.resetFilters();
-		templateStore.getAll();
+		templateStore.getAll({ quiet: true });
 		partnerStore.getAll();
 		productStore.getAll();
 	}, [templateStore, partnerStore, productStore]);
@@ -125,7 +125,7 @@ const TemplatePage: React.FC = observer(() => {
 
 			<TemplatesTable
 				exportOrder={tableOrder}
-				onRetry={() => void templateStore.getAll()}
+				onRetry={() => void templateStore.getAll({ quiet: true })}
 				errorTitle={t("template.error.getAll")}
 				rows={templateStore.listTemplates}
 				isFiltering={isFiltering}

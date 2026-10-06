@@ -97,15 +97,13 @@ export class ReportStore implements IReportStore {
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-		const resource = <T>(kind: ReportKind) =>
-			new ReportResource<T>(notificationStore, `report.error.load.${kind}`);
-		this.sales = resource("sales");
-		this.profit = resource("profit");
-		this.purchases = resource("purchases");
-		this.stock = resource("stock");
-		this.cashFlow = resource("cashFlow");
-		this.expenses = resource("expenses");
-		this.losses = resource("losses");
+		this.sales = new ReportResource<SalesReport>();
+		this.profit = new ReportResource<ProfitReport>();
+		this.purchases = new ReportResource<PurchasesReport>();
+		this.stock = new ReportResource<StockReport>();
+		this.cashFlow = new ReportResource<CashFlowReport>();
+		this.expenses = new ReportResource<ExpensesReport>();
+		this.losses = new ReportResource<LossesReport>();
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 

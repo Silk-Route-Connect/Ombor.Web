@@ -5,8 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Wallet, WalletOperation, WalletTransfer } from "models/wallet";
 import WalletApi from "services/api/WalletApi";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface ISelectedWalletStore {
 	wallet: Loadable<Wallet | null>;
 	operations: Loadable<WalletOperation[]>;
@@ -26,15 +24,13 @@ export interface ISelectedWalletStore {
  * explicitly by id when the route mounts.
  */
 export class SelectedWalletStore implements ISelectedWalletStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	wallet: Loadable<Wallet | null> = "loading";
 	operations: Loadable<WalletOperation[]> = "loading";
 	transfers: Loadable<WalletTransfer[]> = "loading";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -53,14 +49,6 @@ export class SelectedWalletStore implements ISelectedWalletStore {
 		]);
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (wallet.status === "fail") {
-			this.notificationStore.notifyLoadError(wallet, "wallet.error.getById");
-		} else if (operations.status === "fail") {
-			this.notificationStore.notifyLoadError(operations, "wallet.error.getOperations");
-		} else if (transfers.status === "fail") {
-			this.notificationStore.notifyLoadError(transfers, "wallet.error.getOperations");
 		}
 
 		runInAction(() => {

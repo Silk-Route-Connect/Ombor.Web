@@ -86,9 +86,6 @@ export class OrderStore {
 		runInAction(() => (this.allOrders = "loading"));
 
 		const result = await tryRun(() => OrderApi.getAll());
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "order.error.getAll");
-		}
 
 		runInAction(() => (this.allOrders = toLoadable(result)));
 	}

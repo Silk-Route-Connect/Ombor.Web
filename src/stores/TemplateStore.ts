@@ -1,4 +1,4 @@
-import { isReady, Loadable, toLoadable } from "helpers/Loading";
+import { isReady, Loadable, LoadOptions, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -38,7 +38,7 @@ export interface ITemplateStore {
 	isSaving: boolean;
 
 	// actions
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	getById(templateId: number): Promise<void>;
 	create(request: CreateTemplateRequest): Promise<void>;
 	update(request: UpdateTemplateRequest): Promise<void>;
@@ -96,12 +96,12 @@ export class TemplateStore implements ITemplateStore {
 		return [...templates];
 	}
 
-	async getAll() {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allTemplates = "loading"));
 
 		const result = await tryRun(() => TemplateApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "template.error.getAll");
 		}
 

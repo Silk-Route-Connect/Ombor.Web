@@ -22,7 +22,7 @@ const CategoryPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Category>();
 
 	useEffect(() => {
-		categoryStore.getAll();
+		categoryStore.getAll({ quiet: true });
 	}, [categoryStore]);
 
 	const handleFormSave = (payload: CategoryFormPayload) => {
@@ -66,7 +66,7 @@ const CategoryPage: React.FC = observer(() => {
 
 			<CategoryTable
 				exportOrder={tableOrder}
-				onRetry={() => void categoryStore.getAll()}
+				onRetry={() => void categoryStore.getAll({ quiet: true })}
 				errorTitle={t("category.error.load")}
 				data={categoryStore.filteredCategories}
 				searchTerm={categoryStore.searchTerm}

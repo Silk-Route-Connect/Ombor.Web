@@ -18,9 +18,8 @@ interface SidebarBrandProps {
 
 /**
  * Ombor mark + the business it serves: the organization's own logo (Настройки →
- * Организация) beside its current name. The profile loads quietly — a missing
- * logo is not worth an error toast — and the name falls back to the one in the
- * session until it arrives.
+ * Организация) beside its current name. The name falls back to the one in the
+ * session until the profile arrives; a failed load just keeps that fallback.
  */
 const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle }) => {
 	const { t } = useTranslation();
@@ -28,7 +27,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 	const [logoFailed, setLogoFailed] = useState(false);
 
 	useEffect(() => {
-		void settingsStore.ensureOrganization({ quiet: true });
+		void settingsStore.ensureOrganization();
 	}, [settingsStore]);
 
 	const org = settingsStore.organization;

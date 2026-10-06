@@ -57,10 +57,6 @@ export class ActivityFeed {
 		if (!isCurrent()) {
 			return;
 		}
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "activity.error.load");
-		}
-
 		runInAction(() => {
 			if (result.status === "success") {
 				this.items = result.data.items;
@@ -121,9 +117,6 @@ export class ActivityFeed {
 		this.fullOperations.set(operationId, "loading");
 
 		const result = await tryRun(() => ActivityApi.getOperation(operationId));
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "activity.error.loadOperation");
-		}
 		runInAction(() => this.fullOperations.set(operationId, toLoadable(result)));
 	}
 

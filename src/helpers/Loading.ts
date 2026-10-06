@@ -22,6 +22,15 @@ export class LoadError {
  */
 export type Loadable<T> = T | "loading" | LoadError;
 
+/**
+ * How a caller asks for a load. `quiet`: the caller shows a failure itself — a
+ * list page's inline `LoadStateView` — so the store raises no error toast (one
+ * message per failure). Pickers fed by the same list load without it and toast.
+ */
+export interface LoadOptions {
+	quiet?: boolean;
+}
+
 export function isLoading(...elements: Loadable<unknown>[]): boolean {
 	return elements.some((el) => el === "loading");
 }
