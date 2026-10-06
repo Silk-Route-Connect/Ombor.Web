@@ -25,7 +25,15 @@ export type { ChipToken, ChipTokenKey } from "./chipTokens";
 export { chipTokens } from "./chipTokens";
 export { designTokens } from "./palette";
 export type { DialogSize } from "./tokens";
-export { controlSize, dialogPaperSx, dialogWidth, numericSx, radius, typeScale } from "./tokens";
+export {
+	controlSize,
+	dialogPaperSx,
+	dialogWidth,
+	figuresSx,
+	numericSx,
+	radius,
+	typeScale,
+} from "./tokens";
 
 // Elevation (border-first, restrained).
 const ELEVATION_1 = "0 1px 2px rgba(22,42,43,.05), 0 1px 3px rgba(22,42,43,.06)";

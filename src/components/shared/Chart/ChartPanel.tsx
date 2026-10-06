@@ -61,7 +61,7 @@ export function ChartPanel<T extends string = string>({
 				}}
 			>
 				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
+					<Typography variant="h3" component="div">
 						{title}
 					</Typography>
 					{subtitle && (

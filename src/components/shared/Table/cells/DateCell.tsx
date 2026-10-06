@@ -1,5 +1,5 @@
 import React from "react";
-import { numericSx } from "theme";
+import { figuresSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 
 import { Box } from "@mui/material";
@@ -18,7 +18,7 @@ export const DateCell: React.FC<DateCellProps> = ({ value, kind = "dateTime" }) 
 		return <NoValue />;
 	}
 	return (
-		<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
+		<Box component="span" sx={{ ...figuresSx, color: "text.secondary", whiteSpace: "nowrap" }}>
 			{kind === "dateTime" ? formatDateTime(value) : formatDate(value)}
 		</Box>
 	);

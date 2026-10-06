@@ -55,7 +55,7 @@ const SettingsSectionCard: React.FC<Props> = ({ id, icon, title, subtitle, actio
 				{icon}
 			</Box>
 			<Box sx={{ minWidth: 0 }}>
-				<Typography sx={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em" }}>
+				<Typography variant="h3" component="div">
 					{title}
 				</Typography>
 				{subtitle && (

@@ -45,9 +45,8 @@ export const DetailCard: React.FC<DetailCardProps> = ({
 			>
 				<Typography
 					component="span"
+					variant="h3"
 					sx={{
-						fontSize: 15,
-						fontWeight: 600,
 						display: "inline-flex",
 						alignItems: "center",
 						gap: "9px",

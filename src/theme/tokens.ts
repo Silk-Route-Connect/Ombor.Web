@@ -1,9 +1,19 @@
 /**
  * Tabular lining figures on the theme font (Onest — numerics are not monospace).
- * Spread into the `sx` of any money / quantity / tabular cell or value.
+ * Only for figures read in a column or compared by size: money, quantities,
+ * totals, KPI and hero values. Identifiers and dates use `figuresSx`.
  */
 export const numericSx = {
 	fontVariantNumeric: "tabular-nums lining-nums",
+} as const;
+
+/**
+ * Proportional lining figures — dates, times, document numbers, phones and SKUs.
+ * Onest's tabular «1» is 85% wider than its proportional one, so tabular figures
+ * opened gaps in «11.07.2026 21:20» and «№411» that read as a different font.
+ */
+export const figuresSx = {
+	fontVariantNumeric: "proportional-nums lining-nums",
 } as const;
 
 /** Radius scale. `md` is also `shape.borderRadius`. */
