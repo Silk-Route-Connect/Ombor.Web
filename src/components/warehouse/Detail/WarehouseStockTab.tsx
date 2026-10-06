@@ -188,6 +188,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "value", order: "desc" }}
 				pagination
+				storageKey="stock"
 				empty={
 					isFiltering ? (
 						<TableEmptyState

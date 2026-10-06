@@ -172,6 +172,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ payments, partnerName,
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="payments"
 				onRowClick={onOpen}
 				summary={
 					<TableTotals

@@ -10,6 +10,7 @@ import { Box, Paper, TableContainer } from "@mui/material";
 import { FOOTER_SX } from "../tableChrome";
 import { TableOrder } from "../tableOrder";
 import TablePager from "../TablePager";
+import { useRowsPerPage } from "../useRowsPerPage";
 import { useTableSort } from "../useTableSort";
 import DataTableGrid from "./DataTableGrid";
 import { DataTableTotalRow } from "./DataTableRow";
@@ -95,6 +96,11 @@ export interface DataTableProps<T extends { id: string | number }> {
 	 * rest): a search or filter that narrows the rows never re-flows the columns.
 	 */
 	fixedLayout?: boolean;
+	/**
+	 * Names this table among several on one page, so each remembers its own page
+	 * size (`useRowsPerPage`); a page with one table leaves it out.
+	 */
+	storageKey?: string;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -113,11 +119,15 @@ export function DataTable<T extends { id: string | number }>({
 	summary,
 	totalRow,
 	fixedLayout = false,
+	storageKey,
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
+		"list",
 		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
+		rowsPerPageOptions,
+		storageKey,
 	);
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 

@@ -197,6 +197,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="transactions"
 				onRowClick={onOpen}
 				empty={
 					<TableEmptyState

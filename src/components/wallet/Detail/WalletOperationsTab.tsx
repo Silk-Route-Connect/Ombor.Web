@@ -227,6 +227,7 @@ export const WalletOperationsTab: React.FC<WalletOperationsTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="operations"
 				onRowClick={handleRowClick}
 				summary={
 					<TableTotals

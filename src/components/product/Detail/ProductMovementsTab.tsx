@@ -141,6 +141,7 @@ export const ProductMovementsTab: React.FC<ProductMovementsTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="movements"
 				onRowClick={openSource}
 				isRowClickable={isMovementSourceOpenable}
 				empty={

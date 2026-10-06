@@ -10,6 +10,7 @@ import { FOOTER_SX } from "components/shared/Table/tableChrome";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { TableOrder } from "components/shared/Table/tableOrder";
 import TablePager from "components/shared/Table/TablePager";
+import { useRowsPerPage } from "components/shared/Table/useRowsPerPage";
 import { useTableSort } from "components/shared/Table/useTableSort";
 
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
@@ -38,6 +39,11 @@ interface DetailTableProps<T extends { id: string | number }> {
 	empty?: React.ReactNode;
 	/** Totals of the shown rows (`TableTotals`) in the footer band, left of the pager. */
 	summary?: React.ReactNode;
+	/**
+	 * Names this table among the tabs of its page, so each remembers its own page
+	 * size (`useRowsPerPage`); a page with one paged table leaves it out.
+	 */
+	storageKey?: string;
 }
 
 /**
@@ -59,11 +65,17 @@ export function DetailTable<T extends { id: string | number }>({
 	footer,
 	empty,
 	summary,
+	storageKey,
 }: Readonly<DetailTableProps<T>>) {
 	const { t } = useTranslation();
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0] ?? DEFAULT_ROWS_PER_PAGE);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
+		"detail",
+		ROWS_PER_PAGE_OPTIONS[0] ?? DEFAULT_ROWS_PER_PAGE,
+		ROWS_PER_PAGE_OPTIONS,
+		storageKey,
+	);
 
 	const sorted = useMemo(() => sortRows(rows), [rows, sortRows]);
 

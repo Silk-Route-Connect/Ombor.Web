@@ -162,6 +162,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="ledger"
 				onRowClick={onOpenSource}
 				isRowClickable={(e) => !isOpening(e)}
 				rowSx={(e) => (isOpening(e) ? { bgcolor: designTokens.primarySoft } : undefined)}

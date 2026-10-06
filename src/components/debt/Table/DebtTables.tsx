@@ -44,6 +44,7 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 
 	return (
 		<DataTable<DebtPartnerRow>
+			storageKey="partners"
 			rows={rows}
 			columns={columns}
 			defaultSort={{ key: "amount", order: "desc" }}
@@ -77,6 +78,7 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 
 	return (
 		<DataTable<DebtRow>
+			storageKey="transactions"
 			rows={dataRows}
 			exportOrder={exportOrder}
 			columns={columns}

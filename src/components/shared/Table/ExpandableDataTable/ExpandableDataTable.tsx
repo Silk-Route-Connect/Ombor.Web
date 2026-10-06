@@ -31,6 +31,7 @@ import {
 } from "../DataTable/tableConfigs";
 import { BODY_CELL_SX, FOOTER_SX, rowChromeSx } from "../tableChrome";
 import { TableOrder } from "../tableOrder";
+import { useRowsPerPage } from "../useRowsPerPage";
 import { isSortableColumn, useTableSort } from "../useTableSort";
 
 export type { Column, DefaultSort, SortOrder };
@@ -84,7 +85,11 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
+		"list",
+		rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
+		rowsPerPageOptions,
+	);
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
 

@@ -135,6 +135,7 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="transfers"
 				onRowClick={(tr) => onOpenTransfer(tr.id)}
 				empty={
 					<TableEmptyState
