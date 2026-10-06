@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Callout from "components/shared/Callout/Callout";
 import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormField from "components/shared/Forms/FormField";
@@ -13,10 +14,9 @@ import { designTokens, radius } from "theme";
 import { formatOptionalNumber } from "utils/formatEntityId";
 
 import CheckIcon from "@mui/icons-material/Check";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
-import { Alert, Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
 
 import DeliveryStockCheck, { DeliveryLineCheck } from "./DeliveryStockCheck";
 
@@ -148,12 +148,12 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 				<DeliveryStockCheck checks={checks} shortCount={shortCount} />
 
 				{tried && !allOk && (
-					<Alert severity="error" icon={<ErrorOutlineIcon />} variant="outlined">
+					<Callout tone="danger" role="alert">
 						{t("order.deliver.blocked", {
 							count: shortCount,
 							warehouse: warehouses.find((w) => w.id === warehouseId)?.name ?? "",
 						})}
-					</Alert>
+					</Callout>
 				)}
 
 				{allOk && (

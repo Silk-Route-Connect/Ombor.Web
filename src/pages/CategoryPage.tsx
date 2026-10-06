@@ -4,6 +4,7 @@ import CategoryDeleteBlockedDialog from "components/category/Form/CategoryDelete
 import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
+import Callout from "components/shared/Callout/Callout";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import { readyOr } from "helpers/Loading";
@@ -12,7 +13,7 @@ import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
-import { Alert, Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 import { useStore } from "../stores/StoreContext";
 
@@ -92,9 +93,9 @@ const CategoryPage: React.FC = observer(() => {
 							{t("category.delete.body")}
 						</Typography>
 						{categoryStore.deleteError && (
-							<Alert severity="error" variant="outlined">
+							<Callout tone="danger" role="alert">
 								{categoryStore.deleteError}
-							</Alert>
+							</Callout>
 						)}
 					</Stack>
 				}

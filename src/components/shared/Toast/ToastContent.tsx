@@ -24,8 +24,7 @@ const VARIANT_TILE: Record<VariantType, { token: ChipTokenKey; icon: React.Eleme
 /**
  * The body of every toast: a paper card with the variant's tinted icon tile,
  * the message in ink and a close button — the app's own surface instead of
- * notistack's coloured bars. Errors and warnings interrupt (`alert`); success
- * and info are announced politely (`status`).
+ * notistack's coloured bars. Every variant is an `alert` (see the role below).
  */
 export const ToastContent = forwardRef<HTMLDivElement, CustomContentProps>(function ToastContent(
 	{ id, message, variant, action, style, className },

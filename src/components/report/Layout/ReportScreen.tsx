@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ExportButton from "components/shared/Buttons/ExportButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import Callout from "components/shared/Callout/Callout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
@@ -15,7 +16,6 @@ import { exportToCsv } from "utils/exportToCsv";
 
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
-import { Alert } from "@mui/material";
 
 import ReportChart from "../Chart/ReportChart";
 import { toCsv, toTableColumns, toTableTotalsRow } from "../View/reportColumns";
@@ -95,9 +95,9 @@ export function ReportScreen<Row extends { id: string }>({
 			) : (
 				<>
 					{ready.costIsEstimated && (
-						<Alert severity="info" sx={{ mb: "16px" }}>
+						<Callout tone="info" sx={{ mb: 2 }}>
 							{t("report.estimatedCost")}
-						</Alert>
+						</Callout>
 					)}
 					<ReportKpiRow kpis={ready.kpis} />
 					{ready.chart && <ReportChart spec={ready.chart} />}

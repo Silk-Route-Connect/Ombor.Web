@@ -12,7 +12,7 @@ interface DateCellProps {
 	kind?: "dateTime" | "date";
 }
 
-/** Date column cell: secondary, tabular, never wraps. */
+/** Date column cell: secondary, proportional lining figures (`figuresSx`), never wraps. */
 export const DateCell: React.FC<DateCellProps> = ({ value, kind = "dateTime" }) => {
 	if (value == null || value === "") {
 		return <NoValue />;

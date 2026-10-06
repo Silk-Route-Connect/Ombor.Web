@@ -18,11 +18,11 @@ export const figuresSx = {
 
 /** Radius scale. `md` is also `shape.borderRadius`. */
 export const radius = {
-	xs: 4, // chips inside dense cells
-	sm: 6, // small buttons, tooltips
+	xs: 4, // keycaps, legend swatches, checkboxes
+	sm: 6, // segmented-control items, stepper buttons, tooltips
 	md: 8, // DEFAULT — buttons / inputs / menus
 	lg: 12, // cards / modals
-	xl: 16, // large cards / data-table container
+	xl: 16, // large hero surfaces (auth card)
 	pill: 999, // chips / pills
 } as const;
 
