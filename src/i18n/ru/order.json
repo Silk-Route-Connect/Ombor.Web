@@ -39,7 +39,7 @@
   "order.status.Returned": "Возвращён",
 
   "order.source.Telegram": "Telegram",
-  "order.source.OmborWeb": "OmborWeb",
+  "order.source.OmborWeb": "Ombor",
 
   "order.partnerType.Customer": "Клиент",
   "order.partnerType.Supplier": "Поставщик",
