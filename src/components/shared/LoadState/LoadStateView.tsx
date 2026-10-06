@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { LoadError } from "helpers/Loading";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -48,6 +49,8 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const notFoundTitle = notFound?.title ?? t("common.loadState.notFound");
+	useDocumentTitle(state === null && size === "page" ? notFoundTitle : null);
 
 	if (state === "loading") {
 		return (
@@ -69,7 +72,7 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 			<StateMessage
 				size={size}
 				icon={<SearchOffOutlinedIcon />}
-				title={notFound?.title ?? t("common.loadState.notFound")}
+				title={notFoundTitle}
 				body={notFound?.body ?? t("common.loadState.notFoundBody")}
 				action={
 					notFound && (

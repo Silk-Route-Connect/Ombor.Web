@@ -1,7 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
-import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import { PATHS } from "routing/paths";
 
 /**
@@ -11,7 +10,6 @@ import { PATHS } from "routing/paths";
  */
 export default function NotFoundPage() {
 	const { t } = useTranslation();
-	useDocumentTitle(t("page.notFound.title"));
 
 	return (
 		<LoadStateView
