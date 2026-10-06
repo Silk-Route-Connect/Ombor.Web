@@ -6,6 +6,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { PartnerTypeFilter } from "stores/PartnerStore";
+import { formatQuantity } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
 import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
@@ -89,7 +90,7 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("partner.filter.archive")} (${archivedCount})`
+									? `${t("partner.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("partner.filter.archive"),
 						},
 					]}

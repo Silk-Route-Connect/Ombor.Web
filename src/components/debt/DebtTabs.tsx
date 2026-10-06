@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { DebtTab } from "stores/DebtStore";
 import { numericSx } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -87,7 +88,7 @@ export const DebtTabs: React.FC<DebtTabsProps> = ({
 								color: selected ? "primary.main" : "text.secondary",
 							}}
 						>
-							{tab.count}
+							{formatQuantity(tab.count)}
 						</Box>
 					</ButtonBase>
 				);

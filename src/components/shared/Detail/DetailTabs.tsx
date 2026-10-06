@@ -1,4 +1,5 @@
 import { designTokens, numericSx, radius } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -66,7 +67,7 @@ export function DetailTabs<K extends string>({ tabs, active, onChange }: DetailT
 									bgcolor: selected ? designTokens.primarySoft : designTokens.gray100,
 								}}
 							>
-								{tab.count}
+								{formatQuantity(tab.count)}
 							</Box>
 						)}
 					</ButtonBase>

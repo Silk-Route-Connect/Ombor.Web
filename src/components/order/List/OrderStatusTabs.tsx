@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { sidewaysFadeMask, useSidewaysScroll } from "hooks/shared/useSidewaysScroll";
 import { chipTokens, controlSize, designTokens, numericSx, radius } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 import { ORDER_STATUS_META, ORDER_STATUS_TABS, OrderStatusFilter } from "utils/orderUtils";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -102,7 +103,7 @@ export const OrderStatusTabs: React.FC<OrderStatusTabsProps> = ({ value, counts,
 										color: countColor(tab),
 									}}
 								>
-									{count}
+									{formatQuantity(count)}
 								</Box>
 							)}
 						</ButtonBase>

@@ -5,6 +5,7 @@ import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
+import { formatQuantity } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
@@ -81,7 +82,7 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("wallet.filter.archive")} (${archivedCount})`
+									? `${t("wallet.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("wallet.filter.archive"),
 						},
 					]}

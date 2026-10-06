@@ -5,6 +5,7 @@ import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
+import { formatQuantity } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -83,7 +84,7 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("warehouse.filter.archive")} (${archivedCount})`
+									? `${t("warehouse.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("warehouse.filter.archive"),
 						},
 					]}

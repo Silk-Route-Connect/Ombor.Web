@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { ProductTypeFilter, StockFilter } from "stores/ProductStore";
 import { useStore } from "stores/StoreContext";
+import { formatQuantity } from "utils/formatCurrency";
 import { byLabel } from "utils/sortUtils";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -145,7 +146,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = observer(
 								value: "archived",
 								label:
 									archivedCount > 0
-										? `${t("product.filter.archive")} (${archivedCount})`
+										? `${t("product.filter.archive")} (${formatQuantity(archivedCount)})`
 										: t("product.filter.archive"),
 							},
 						]}

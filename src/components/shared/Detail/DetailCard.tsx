@@ -1,4 +1,5 @@
 import React from "react";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -57,7 +58,7 @@ export const DetailCard: React.FC<DetailCardProps> = ({
 					{title}
 					{count != null && (
 						<Box component="span" sx={{ color: "text.disabled", fontWeight: 500 }}>
-							· {count}
+							· {formatQuantity(count)}
 						</Box>
 					)}
 				</Typography>

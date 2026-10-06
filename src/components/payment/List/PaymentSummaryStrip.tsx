@@ -4,7 +4,7 @@ import StatCard from "components/shared/StatCard/StatCard";
 import StatCardGrid from "components/shared/StatCard/StatCardGrid";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -61,7 +61,7 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				icon={<ReceiptLongOutlinedIcon />}
 				tone="primary"
 				caption={t("payment.summary.count")}
-				value={summary ? summary.count : t("common.dash")}
+				value={summary ? formatQuantity(summary.count) : t("common.dash")}
 			/>
 		</StatCardGrid>
 	);

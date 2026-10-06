@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, TablePagination } from "@mui/material";
 
@@ -50,7 +51,11 @@ export const TablePager: React.FC<TablePagerProps> = ({
 			onRowsPerPageChange={(e) => onRowsPerPageChange(parseInt(e.target.value, 10))}
 			labelRowsPerPage={t("common.table.rowsPerPage")}
 			labelDisplayedRows={({ from, to, count: total }) =>
-				t("common.table.displayedRows", { from, to, total })
+				t("common.table.displayedRows", {
+					from: formatQuantity(from),
+					to: formatQuantity(to),
+					total: formatQuantity(total),
+				})
 			}
 			sx={summary ? { ml: "auto" } : FOOTER_SX}
 		/>
