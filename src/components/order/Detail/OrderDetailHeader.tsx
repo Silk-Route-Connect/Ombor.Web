@@ -8,6 +8,7 @@ import { Order } from "models/order";
 import { PATHS, saleDetailPath } from "routing/paths";
 import { designTokens, numericSx } from "theme";
 import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { isOrderEditable, ORDER_NEXT_STEP, PRE_DELIVERY } from "utils/orderUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -170,7 +171,9 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	return (
 		<DetailPageHeader
 			backTo={PATHS.orders}
-			title={t("order.detail.title", { number: formatEntityId(order.orderNumber) })}
+			title={t("order.detail.title", {
+				number: formatOptionalNumber(order.orderNumber, t("common.noNumberInline")),
+			})}
 			primaryAction={
 				<>
 					{step && (

@@ -19,6 +19,7 @@ import { Measurement, Product } from "models/product";
 import { useStore } from "stores/StoreContext";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { lineNet, shortDeliveryTime, toApiDeliveryTime } from "utils/orderUtils";
 
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -261,7 +262,13 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
-					title={order ? t("order.edit.title", { number: order.orderNumber }) : ""}
+					title={
+						order
+							? t("order.edit.title", {
+									number: formatOptionalNumber(order.orderNumber, t("common.noNumberInline")),
+								})
+							: ""
+					}
 					subtitle={t("order.edit.subtitle")}
 					disabled={isSaving}
 					onClose={requestClose}

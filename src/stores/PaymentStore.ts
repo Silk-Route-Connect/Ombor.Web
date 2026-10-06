@@ -228,7 +228,7 @@ export class PaymentStore implements IPaymentStore {
 		this.closeCreate();
 		this.notificationStore.success(
 			i18next.t("payment.success.create", {
-				number: formatOptionalNumber(result.data.number, i18next.t("common.noNumber")),
+				number: formatOptionalNumber(result.data.number, i18next.t("common.noNumberInline")),
 				amount: formatCurrency(result.data.amount),
 			}),
 		);

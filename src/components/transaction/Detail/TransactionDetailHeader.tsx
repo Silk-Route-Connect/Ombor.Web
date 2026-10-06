@@ -79,7 +79,7 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 		<DetailPageHeader
 			backTo={direction === "Sale" ? PATHS.sales : PATHS.supplies}
 			title={t(`transaction.detail.title.${tx.type}`, {
-				number: formatOptionalNumber(tx.transactionNumber, t("common.noNumber")),
+				number: formatOptionalNumber(tx.transactionNumber, t("common.noNumberInline")),
 			})}
 			primaryAction={primaryAction}
 			actions={actions}

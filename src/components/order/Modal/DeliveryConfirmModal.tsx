@@ -10,6 +10,7 @@ import { Product } from "models/product";
 import { useStore } from "stores/StoreContext";
 import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { measurementShort } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -111,7 +112,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 			<FormDialogHeader
 				title={t("order.deliver.title")}
 				subtitle={t("order.deliver.subtitle", {
-					number: order.orderNumber,
+					number: formatOptionalNumber(order.orderNumber, t("common.noNumberInline")),
 					customer: order.customerName,
 				})}
 				disabled={isSaving}

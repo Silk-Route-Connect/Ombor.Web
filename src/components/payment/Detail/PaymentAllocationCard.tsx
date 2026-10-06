@@ -39,7 +39,7 @@ const AllocationTarget: React.FC<{ allocation: PaymentAllocationEntry; t: TFunct
 	if (a.transactionId == null) {
 		return <>{t("payment.alloc.settlement")}</>;
 	}
-	const number = formatOptionalNumber(a.transactionNumber, t("common.noNumber"));
+	const number = formatOptionalNumber(a.transactionNumber, t("common.noNumberInline"));
 	if (a.transactionType == null) {
 		return <>{t("payment.alloc.txRef", { number })}</>;
 	}

@@ -13,7 +13,7 @@ import { CreateRefundRequest, TransactionRecord } from "models/transaction";
 import { dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { directionOf } from "utils/transactionUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -64,7 +64,7 @@ const RefundModal: React.FC<RefundModalProps> = ({
 			>
 				<FormDialogHeader
 					title={t(`transaction.refund.title.${direction}`, {
-						number: formatEntityId(transaction.transactionNumber ?? transaction.id),
+						number: formatOptionalNumber(transaction.transactionNumber, t("common.noNumberInline")),
 					})}
 					disabled={isSaving}
 					onClose={requestClose}
