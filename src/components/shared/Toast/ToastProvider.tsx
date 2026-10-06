@@ -8,6 +8,7 @@ import ToastContent from "./ToastContent";
 
 const CONTAINER_CLASS = "ombor-toasts";
 const GUTTER = 24;
+const DIALOG_TOAST_WIDTH = 320;
 
 /** Every variant renders the app's own toast body. */
 const COMPONENTS = {
@@ -43,9 +44,11 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 					left: `calc(var(${layout.sidebarWidthVar}, 0px) + ${GUTTER}px)`,
 					maxWidth: `calc(100% - var(${layout.sidebarWidthVar}, 0px) - ${GUTTER * 2}px)`,
 				},
+				// …and narrow to the card's minimum, which fits the gutter beside a
+				// 640px dialog on a 1366px laptop.
 				[`body:has(.MuiDialog-root) .notistack-SnackbarContainer.${CONTAINER_CLASS}`]: {
 					left: GUTTER,
-					maxWidth: `calc(100% - ${GUTTER * 2}px)`,
+					maxWidth: `min(${DIALOG_TOAST_WIDTH}px, calc(100% - ${GUTTER * 2}px))`,
 				},
 				// notistack's 288px floor overflows the column beside the rail on a phone;
 				// the toast card sets its own minimum from `sm` up.
