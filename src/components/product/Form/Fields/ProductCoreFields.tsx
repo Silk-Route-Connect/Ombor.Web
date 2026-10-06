@@ -2,7 +2,7 @@ import React from "react";
 import { Control, Controller, UseFormSetValue, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsAdornment from "components/shared/Money/UzsAdornment";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
@@ -36,18 +36,6 @@ const TYPES: ProductType[] = ["Sale", "Supply", "All"];
 const uzsSuffix = {
 	input: { endAdornment: <UzsAdornment /> },
 };
-
-/** Label-above-input row per the bundle's `.frow` (7px gap). */
-const Field: React.FC<{ label: string; required?: boolean; children: React.ReactNode }> = ({
-	label,
-	required,
-	children,
-}) => (
-	<Stack sx={{ gap: "7px" }}>
-		<FormFieldLabel label={label} required={required} />
-		{children}
-	</Stack>
-);
 
 /**
  * Core fields laid out per the bundle's dialog: a 196px/1fr top grid (images
@@ -85,7 +73,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 
 				{/* prod-fields: column, gap 14 */}
 				<Stack sx={{ gap: "14px" }}>
-					<Field label={t("product.name")} required>
+					<FormField label={t("product.name")} required>
 						<Controller
 							name="name"
 							control={control}
@@ -101,10 +89,10 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								/>
 							)}
 						/>
-					</Field>
+					</FormField>
 
 					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-						<Field label={t("product.category")} required>
+						<FormField label={t("product.category")} required>
 							<Controller
 								name="categoryId"
 								control={control}
@@ -124,8 +112,8 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									/>
 								)}
 							/>
-						</Field>
-						<Field label={t("product.measurement")}>
+						</FormField>
+						<FormField label={t("product.measurement")}>
 							<Controller
 								name="measurement"
 								control={control}
@@ -148,14 +136,14 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									</TextField>
 								)}
 							/>
-						</Field>
+						</FormField>
 					</Box>
 				</Stack>
 			</Box>
 
 			{/* артикул + штрих-код, gap 16, mb 16 */}
 			<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", mb: "16px" }}>
-				<Field label={t("product.form.skuLabel")} required>
+				<FormField label={t("product.form.skuLabel")} required>
 					<Controller
 						name="sku"
 						control={control}
@@ -190,8 +178,8 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							/>
 						)}
 					/>
-				</Field>
-				<Field label={t("product.barcode")}>
+				</FormField>
+				<FormField label={t("product.barcode")}>
 					<Controller
 						name="barcode"
 						control={control}
@@ -208,13 +196,12 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							/>
 						)}
 					/>
-				</Field>
+				</FormField>
 			</Box>
 
 			{/* тип товара: flabel + seg-full, mb 16 */}
 			<Box sx={{ mb: "16px" }}>
-				<Stack sx={{ gap: "7px" }}>
-					<FormFieldLabel label={t("product.type")} />
+				<FormField label={t("product.type")}>
 					<Controller
 						name="type"
 						control={control}
@@ -227,6 +214,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								value={field.value as ProductType}
 								onChange={field.onChange}
 								fullWidth
+								variant="form"
 								disabled={disabled}
 							/>
 						)}
@@ -236,7 +224,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
 						{t(`product.form.typeHint.${type}`)}
 					</Typography>
-				</Stack>
+				</FormField>
 			</Box>
 
 			{/* prices (conditional by type), gap 14, mb 4 */}
@@ -250,7 +238,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					}}
 				>
 					{showSale && (
-						<Field label={t("product.salePrice")}>
+						<FormField label={t("product.salePrice")} required>
 							<Controller
 								name="salePrice"
 								control={control}
@@ -269,10 +257,10 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									/>
 								)}
 							/>
-						</Field>
+						</FormField>
 					)}
 					{showSupply && (
-						<Field label={t("product.supplyPrice")}>
+						<FormField label={t("product.supplyPrice")} required>
 							<Controller
 								name="supplyPrice"
 								control={control}
@@ -291,7 +279,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									/>
 								)}
 							/>
-						</Field>
+						</FormField>
 					)}
 				</Box>
 			)}

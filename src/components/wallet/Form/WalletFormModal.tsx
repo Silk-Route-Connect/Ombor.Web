@@ -1,13 +1,14 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsAdornment from "components/shared/Money/UzsAdornment";
 import UzsUnit from "components/shared/Money/UzsUnit";
+import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -15,21 +16,11 @@ import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
 import { WalletFormValues } from "schemas/WalletSchema";
-import { designTokens, dialogPaperSx, numericSx } from "theme";
+import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import {
-	Box,
-	ButtonBase,
-	Dialog,
-	DialogContent,
-	LinearProgress,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Stack, TextField, Typography } from "@mui/material";
 
 export interface WalletFormModalProps {
 	isOpen: boolean;
@@ -38,58 +29,6 @@ export interface WalletFormModalProps {
 	onSave: (payload: WalletFormValues) => void;
 	onClose: () => void;
 }
-
-/** Full-width type segmented control with an icon per option (bundle `.seg-type`). */
-const TypeSelector: React.FC<{
-	value: WalletType;
-	disabled: boolean;
-	onChange: (type: WalletType) => void;
-}> = ({ value, disabled, onChange }) => {
-	const { t } = useTranslation();
-	return (
-		<Box
-			sx={{
-				display: "flex",
-				width: "100%",
-				bgcolor: designTokens.gray100,
-				borderRadius: "8px",
-				p: "3px",
-				gap: "2px",
-			}}
-		>
-			{WALLET_TYPES.map((type) => {
-				const meta = WALLET_TYPE_META[type];
-				const Icon = meta.Icon;
-				const selected = type === value;
-				return (
-					<ButtonBase
-						key={type}
-						disabled={disabled}
-						onClick={() => onChange(type)}
-						sx={{
-							flex: 1,
-							display: "inline-flex",
-							alignItems: "center",
-							justifyContent: "center",
-							gap: "7px",
-							py: "9px",
-							fontSize: 13,
-							fontWeight: selected ? 600 : 500,
-							fontFamily: "inherit",
-							color: selected ? "text.primary" : "text.secondary",
-							borderRadius: "6px",
-							bgcolor: selected ? "background.paper" : "transparent",
-							boxShadow: selected ? 1 : "none",
-						}}
-					>
-						<Icon sx={{ fontSize: 16 }} />
-						{t(meta.labelKey)}
-					</ButtonBase>
-				);
-			})}
-		</Box>
-	);
-};
 
 /** Read-only locked field (bundle `.locked-field`) for immutable values on edit. */
 const LockedField: React.FC<{ icon: React.ReactNode; value: React.ReactNode; tag: string }> = ({
@@ -152,140 +91,122 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 	);
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
-			>
-				<FormDialogHeader
-					title={editing ? t("wallet.form.editTitle") : t("wallet.form.createTitle")}
-					subtitle={editing ? t("wallet.form.editSubtitle") : t("wallet.form.createSubtitle")}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					<Stack sx={{ gap: "16px" }}>
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("wallet.field.name")} required />
-							<Controller
-								name="name"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										autoFocus
-										size="small"
-										fullWidth
-										placeholder={t("wallet.form.namePlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									/>
-								)}
-							/>
-						</Stack>
-
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("wallet.field.type")} />
-							{editing && wallet ? (
-								<LockedField
-									icon={(() => {
-										const Icon = WALLET_TYPE_META[wallet.type].Icon;
-										return <Icon sx={{ fontSize: 16 }} />;
-									})()}
-									value={t(WALLET_TYPE_META[wallet.type].labelKey)}
-									tag={t("wallet.form.lockedType")}
-								/>
-							) : (
-								<Controller
-									name="type"
-									control={control}
-									render={({ field }) => (
-										<TypeSelector
-											value={field.value}
-											disabled={isSaving}
-											onChange={field.onChange}
-										/>
-									)}
-								/>
-							)}
-						</Stack>
-
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("wallet.field.openingBalance")} />
-							{editing && wallet ? (
-								<LockedField
-									icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
-									value={
-										<Box component="span" sx={numericSx}>
-											{formatCurrency(wallet.openingBalance)}
-											<UzsUnit />
-										</Box>
-									}
-									tag={t("wallet.form.lockedOpening")}
-								/>
-							) : (
-								<>
-									<Controller
-										name="openingBalance"
-										control={control}
-										render={({ field, fieldState }) => (
-											<MoneyField
-												value={field.value}
-												onChange={field.onChange}
-												onBlur={field.onBlur}
-												name={field.name}
-												inputRef={field.ref}
-												size="small"
-												placeholder="0"
-												disabled={isSaving}
-												error={!!fieldState.error}
-												helperText={fieldState.error?.message}
-												slotProps={{
-													input: {
-														endAdornment: <UzsAdornment />,
-													},
-												}}
-											/>
-										)}
-									/>
-									<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-										{t("wallet.form.openingHint")}
-									</Typography>
-								</>
-							)}
-						</Stack>
-					</Stack>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="sm"
+			title={editing ? t("wallet.form.editTitle") : t("wallet.form.createTitle")}
+			subtitle={editing ? t("wallet.form.editSubtitle") : t("wallet.form.createSubtitle")}
+			tile={recordTile("Wallet")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={submit}
 					canSave={canSave}
 					loading={isSaving}
+					submitLabel={editing ? undefined : t("wallet.form.submitCreate")}
 				/>
-			</Dialog>
+			}
+		>
+			<Stack sx={{ gap: "16px" }}>
+				<FormField label={t("wallet.field.name")} required>
+					<Controller
+						name="name"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								autoFocus
+								size="small"
+								fullWidth
+								placeholder={t("wallet.form.namePlaceholder")}
+								disabled={isSaving}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+							/>
+						)}
+					/>
+				</FormField>
 
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+				<FormField label={t("wallet.field.type")}>
+					{editing && wallet ? (
+						<LockedField
+							icon={(() => {
+								const Icon = WALLET_TYPE_META[wallet.type].Icon;
+								return <Icon sx={{ fontSize: 16 }} />;
+							})()}
+							value={t(WALLET_TYPE_META[wallet.type].labelKey)}
+							tag={t("wallet.form.lockedType")}
+						/>
+					) : (
+						<Controller
+							name="type"
+							control={control}
+							render={({ field }) => (
+								<SegmentedControl<WalletType>
+									variant="form"
+									fullWidth
+									value={field.value}
+									onChange={field.onChange}
+									disabled={isSaving}
+									options={WALLET_TYPES.map((type) => {
+										const { Icon, labelKey } = WALLET_TYPE_META[type];
+										return { value: type, label: t(labelKey), icon: <Icon /> };
+									})}
+								/>
+							)}
+						/>
+					)}
+				</FormField>
+
+				<FormField label={t("wallet.field.openingBalance")}>
+					{editing && wallet ? (
+						<LockedField
+							icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
+							value={
+								<Box component="span" sx={numericSx}>
+									{formatCurrency(wallet.openingBalance)}
+									<UzsUnit />
+								</Box>
+							}
+							tag={t("wallet.form.lockedOpening")}
+						/>
+					) : (
+						<>
+							<Controller
+								name="openingBalance"
+								control={control}
+								render={({ field, fieldState }) => (
+									<MoneyField
+										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										name={field.name}
+										inputRef={field.ref}
+										size="small"
+										placeholder="0"
+										disabled={isSaving}
+										error={!!fieldState.error}
+										helperText={fieldState.error?.message}
+										slotProps={{
+											input: {
+												endAdornment: <UzsAdornment />,
+											},
+										}}
+									/>
+								)}
+							/>
+							<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+								{t("wallet.form.openingHint")}
+							</Typography>
+						</>
+					)}
+				</FormField>
+			</Stack>
+		</FormDialog>
 	);
 };
 

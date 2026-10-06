@@ -346,6 +346,5 @@
   "transaction.new.tpl.partnerRequired.Sale": "Сначала выберите партнёра",
   "transaction.new.tpl.partnerRequired.Supply": "Сначала выберите поставщика",
   "transaction.new.tpl.linesRequired": "Добавьте хотя бы одну позицию",
-  "transaction.new.tpl.save": "Сохранить шаблон",
-  "transaction.new.tpl.cancel": "Отмена"
+  "transaction.new.tpl.save": "Сохранить шаблон"
 }

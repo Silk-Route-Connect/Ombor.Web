@@ -1,4 +1,5 @@
 import React from "react";
+import IconTile from "components/shared/IconTile/IconTile";
 import { AdjustmentDirection } from "models/stockAdjustment";
 import { chipTokens, designTokens, radius } from "theme";
 
@@ -27,7 +28,8 @@ export const DirectionCard: React.FC<DirectionCardProps> = ({
 	onSelect,
 }) => {
 	const out = direction === "Decrease";
-	const tk = chipTokens[out ? "stockOut" : "stockIn"];
+	const token = out ? "stockOut" : "stockIn";
+	const tk = chipTokens[token];
 	const Icon = out ? ArrowUpwardIcon : ArrowDownwardIcon;
 
 	return (
@@ -38,7 +40,6 @@ export const DirectionCard: React.FC<DirectionCardProps> = ({
 			sx={{
 				justifyContent: "flex-start",
 				textAlign: "left",
-				fontFamily: "inherit",
 				display: "flex",
 				alignItems: "center",
 				gap: "12px",
@@ -51,20 +52,7 @@ export const DirectionCard: React.FC<DirectionCardProps> = ({
 				"&:hover": { borderColor: active ? tk.color : "text.primary" },
 			}}
 		>
-			<Box
-				sx={{
-					width: 34,
-					height: 34,
-					flex: "0 0 auto",
-					borderRadius: `${radius.md}px`,
-					display: "grid",
-					placeItems: "center",
-					bgcolor: tk.bg,
-					color: tk.color,
-				}}
-			>
-				<Icon sx={{ fontSize: 18 }} />
-			</Box>
+			<IconTile icon={<Icon />} token={token} size={34} />
 			<Box>
 				<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{title}</Typography>
 				<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "1px" }}>

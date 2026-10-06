@@ -8,6 +8,9 @@ const CONTROL_SELECTOR = [
 	"select",
 	"[role=combobox]",
 	"[role=radiogroup]",
+	// A non-native control that names itself through `aria-labelledby` — the form
+	// SegmentedControl's group.
+	"[data-labelled-control]",
 ].join(", ");
 
 const LABELABLE_TAGS = new Set(["INPUT", "TEXTAREA", "SELECT"]);

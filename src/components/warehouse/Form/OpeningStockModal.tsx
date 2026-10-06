@@ -1,15 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormField from "components/shared/Forms/FormField";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import MoneyField from "components/shared/Inputs/MoneyField";
-import NumericField from "components/shared/Inputs/NumericField";
-import UzsAdornment from "components/shared/Money/UzsAdornment";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -19,25 +15,14 @@ import { Product } from "models/product";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { OpeningStockFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, dialogPaperSx, numericSx } from "theme";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import {
-	Box,
-	Button,
-	Dialog,
-	DialogContent,
-	InputAdornment,
-	LinearProgress,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+
+import OpeningStockLineRow, { OPENING_LINE_GRID } from "./OpeningStockLineRow";
+import OpeningStockSummary from "./OpeningStockSummary";
 
 export interface OpeningStockModalProps {
 	isOpen: boolean;
@@ -48,8 +33,6 @@ export interface OpeningStockModalProps {
 	onSave: (payload: OpeningStockFormValues) => void;
 	onClose: () => void;
 }
-
-const LINE_GRID = "1fr 108px 150px 132px 38px";
 
 const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	isOpen,
@@ -133,278 +116,17 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	};
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
-			>
-				<FormDialogHeader
-					title={t("warehouse.opening.title")}
-					subtitle={t("warehouse.opening.subtitle")}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					{/* column labels */}
-					<Box
-						sx={{
-							display: "grid",
-							gridTemplateColumns: LINE_GRID,
-							gap: "10px",
-							px: "2px",
-							mb: "8px",
-						}}
-					>
-						<FormFieldLabel label={t("warehouse.opening.product")} required />
-						<FormFieldLabel label={t("warehouse.opening.quantity")} required />
-						<FormFieldLabel label={t("warehouse.opening.unitCost")} />
-						<FormFieldLabel label={t("warehouse.opening.colValue")} />
-						<Box />
-					</Box>
-
-					<Stack sx={{ gap: "10px" }}>
-						{lines.fields.map((fieldRow, index) => {
-							const line = watchedItems?.[index];
-							const productId = line?.productId ?? 0;
-							const quantity = line?.quantity ?? 0;
-							const unitCost = line?.unitCost ?? 0;
-							const product = productById.get(productId) ?? null;
-							const unit = product
-								? measurementShort(t, product.measurement)
-								: t("warehouse.opening.unitFallback");
-
-							const pickedElsewhere = (watchedItems ?? [])
-								.filter((_, i) => i !== index)
-								.map((l) => l.productId);
-							const options = activeProducts.filter(
-								(p) =>
-									p.id === productId || (!stockedIds.has(p.id) && !pickedElsewhere.includes(p.id)),
-							);
-
-							const rowError = formState.errors.items?.[index];
-							// The row line is this field's only message (inlineHint off), so a typed
-							// «3,5» says why at once, ahead of the row's submit errors.
-							const rowErrorMsg = Number.isNaN(quantity)
-								? t("common.quantity.wholeOnly")
-								: (rowError?.productId?.message ??
-									rowError?.quantity?.message ??
-									rowError?.unitCost?.message);
-							const lineValue = productId > 0 && quantity > 0 ? quantity * unitCost : 0;
-							const onlyLine = lines.fields.length === 1;
-
-							return (
-								<Box key={fieldRow.key}>
-									<Box
-										sx={{
-											display: "grid",
-											gridTemplateColumns: LINE_GRID,
-											gap: "10px",
-											alignItems: "center",
-										}}
-									>
-										<Controller
-											name={`items.${index}.productId` as const}
-											control={control}
-											render={({ field, fieldState }) => (
-												<EntityAutocomplete<Product>
-													label=""
-													placeholder={t("warehouse.opening.productPlaceholder")}
-													size="small"
-													options={options}
-													value={product}
-													error={!!fieldState.error}
-													additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
-													onChange={(p) => {
-														field.onChange(p?.id ?? 0);
-														// Prefill the unit cost from the product's supply price
-														// (design parity) — only if the user hasn't entered one.
-														if (p && !((watchedItems?.[index]?.unitCost ?? 0) > 0)) {
-															setValue(`items.${index}.unitCost` as const, p.supplyPrice ?? 0, {
-																shouldDirty: true,
-															});
-														}
-													}}
-												/>
-											)}
-										/>
-										<Controller
-											name={`items.${index}.quantity` as const}
-											control={control}
-											render={({ field, fieldState }) => (
-												<NumericField
-													{...field}
-													size="small"
-													disabled={isSaving}
-													error={!!fieldState.error}
-													inlineHint={false}
-													slotProps={{
-														input: {
-															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
-														},
-													}}
-												/>
-											)}
-										/>
-										<Controller
-											name={`items.${index}.unitCost` as const}
-											control={control}
-											render={({ field, fieldState }) => (
-												<MoneyField
-													value={field.value || 0}
-													onChange={(v) => field.onChange(v)}
-													size="small"
-													placeholder="0"
-													disabled={isSaving}
-													error={!!fieldState.error}
-													slotProps={{
-														input: {
-															endAdornment: <UzsAdornment />,
-														},
-													}}
-												/>
-											)}
-										/>
-										<Typography
-											sx={{
-												...numericSx,
-												fontWeight: 700,
-												textAlign: "right",
-												color: lineValue > 0 ? "text.primary" : "text.disabled",
-											}}
-										>
-											{lineValue > 0 ? formatCurrency(lineValue) : "—"}
-										</Typography>
-										<Button
-											onClick={() => !onlyLine && lines.remove(index)}
-											disabled={onlyLine}
-											aria-label={t("common.delete")}
-											sx={{
-												minWidth: 0,
-												width: 38,
-												height: 40,
-												p: 0,
-												border: "1px solid",
-												borderColor: designTokens.gray300,
-												color: "text.disabled",
-												"&:hover": {
-													color: "error.main",
-													borderColor: designTokens.errorBorder,
-													bgcolor: designTokens.errorBg,
-												},
-											}}
-										>
-											<DeleteOutlineIcon sx={{ fontSize: 18 }} />
-										</Button>
-									</Box>
-									{rowErrorMsg && (
-										<Typography sx={{ fontSize: 12, color: "error.main", mt: "6px" }}>
-											{rowErrorMsg}
-										</Typography>
-									)}
-								</Box>
-							);
-						})}
-					</Stack>
-
-					{showNoLinesError && (
-						<Typography sx={{ mt: "8px", color: "error.main", fontSize: 12.5 }}>
-							{t("warehouse.opening.noLinesBanner")}
-						</Typography>
-					)}
-
-					<Button
-						onClick={addRow}
-						disabled={isSaving}
-						startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-						sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
-					>
-						{t("warehouse.opening.addLine")}
-					</Button>
-					{noMoreProducts && !canAddRow && (
-						<Typography role="status" sx={{ fontSize: 12, color: "text.secondary", ml: 1 }}>
-							{t("warehouse.opening.noMoreProducts")}
-						</Typography>
-					)}
-
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "22px",
-							mt: "18px",
-							p: "14px 18px",
-							bgcolor: designTokens.gray25,
-							border: "1px solid",
-							borderColor: "divider",
-							borderRadius: "8px",
-						}}
-					>
-						<Box>
-							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
-								{t("warehouse.opening.summaryPositions")}
-							</Typography>
-							<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, mt: "2px" }}>
-								{completeLines.length}
-							</Typography>
-						</Box>
-						<Box>
-							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
-								{t("warehouse.opening.summaryUnits")}
-							</Typography>
-							<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, mt: "2px" }}>
-								{formatQuantity(totalUnits)}
-							</Typography>
-						</Box>
-						<Box sx={{ flexGrow: 1 }} />
-						<Box sx={{ textAlign: "right" }}>
-							<Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
-								{t("warehouse.opening.summaryValue")}
-							</Typography>
-							<Typography
-								sx={{
-									...numericSx,
-									fontWeight: 700,
-									fontSize: 16,
-									mt: "2px",
-									color: "primary.main",
-								}}
-							>
-								{formatCurrency(batchValue)}
-								<UzsUnit />
-							</Typography>
-						</Box>
-					</Box>
-
-					<Stack sx={{ gap: "7px", mt: "20px" }}>
-						<FormFieldLabel label={t("warehouse.opening.note")} />
-						<Controller
-							name="note"
-							control={control}
-							render={({ field, fieldState }) => (
-								<TextField
-									{...field}
-									value={field.value ?? ""}
-									size="small"
-									fullWidth
-									multiline
-									minRows={2}
-									placeholder={t("warehouse.opening.notePlaceholder")}
-									disabled={isSaving}
-									error={!!fieldState.error}
-									helperText={fieldState.error?.message}
-								/>
-							)}
-						/>
-					</Stack>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="lg"
+			title={t("warehouse.opening.title")}
+			subtitle={t("warehouse.opening.subtitle")}
+			tile={recordTile("OpeningStock")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					canSave={canSave}
 					loading={isSaving}
@@ -414,21 +136,121 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					submitIcon={<CheckIcon />}
 					commitNote={t("warehouse.opening.commitNote")}
 				/>
-			</Dialog>
+			}
+		>
+			{/* column labels */}
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: OPENING_LINE_GRID,
+					gap: "10px",
+					px: "2px",
+					mb: "8px",
+				}}
+			>
+				<FormFieldLabel variant="caption" label={t("warehouse.opening.product")} required />
+				<FormFieldLabel variant="caption" label={t("warehouse.opening.quantity")} required />
+				<FormFieldLabel variant="caption" label={t("warehouse.opening.unitCost")} />
+				<FormFieldLabel variant="caption" label={t("warehouse.opening.colValue")} />
+				<Box />
+			</Box>
 
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
+			<Stack sx={{ gap: "10px" }}>
+				{lines.fields.map((fieldRow, index) => {
+					const line = watchedItems?.[index];
+					const productId = line?.productId ?? 0;
+					const quantity = line?.quantity ?? 0;
+					const unitCost = line?.unitCost ?? 0;
+					const product = productById.get(productId) ?? null;
+					const unit = product
+						? measurementShort(t, product.measurement)
+						: t("warehouse.opening.unitFallback");
+
+					const pickedElsewhere = (watchedItems ?? [])
+						.filter((_, i) => i !== index)
+						.map((l) => l.productId);
+					const options = activeProducts.filter(
+						(p) => p.id === productId || (!stockedIds.has(p.id) && !pickedElsewhere.includes(p.id)),
+					);
+
+					const rowError = formState.errors.items?.[index];
+					// The row line is this field's only message (inlineHint off), so a typed
+					// «3,5» says why at once, ahead of the row's submit errors.
+					const rowErrorMsg = Number.isNaN(quantity)
+						? t("common.quantity.wholeOnly")
+						: (rowError?.productId?.message ??
+							rowError?.quantity?.message ??
+							rowError?.unitCost?.message);
+					const lineValue = productId > 0 && quantity > 0 ? quantity * unitCost : 0;
+					const onlyLine = lines.fields.length === 1;
+
+					return (
+						<OpeningStockLineRow
+							key={fieldRow.key}
+							index={index}
+							control={control}
+							setValue={setValue}
+							product={product}
+							options={options}
+							unit={unit}
+							unitCost={unitCost}
+							lineValue={lineValue}
+							errorMessage={rowErrorMsg}
+							onlyLine={onlyLine}
+							disabled={isSaving}
+							onRemove={() => lines.remove(index)}
+						/>
+					);
+				})}
+			</Stack>
+
+			{showNoLinesError && (
+				<Typography sx={{ mt: "8px", color: "error.main", fontSize: 12 }}>
+					{t("warehouse.opening.noLinesBanner")}
+				</Typography>
+			)}
+
+			<Button
+				onClick={addRow}
+				disabled={isSaving}
+				startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
+				sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
+			>
+				{t("warehouse.opening.addLine")}
+			</Button>
+			{noMoreProducts && !canAddRow && (
+				<Typography role="status" sx={{ fontSize: 12, color: "text.secondary", ml: 1 }}>
+					{t("warehouse.opening.noMoreProducts")}
+				</Typography>
+			)}
+
+			<OpeningStockSummary
+				positions={completeLines.length}
+				totalUnits={totalUnits}
+				batchValue={batchValue}
 			/>
-		</>
+
+			<FormField label={t("warehouse.opening.note")} sx={{ mt: "20px" }}>
+				<Controller
+					name="note"
+					control={control}
+					render={({ field, fieldState }) => (
+						<TextField
+							{...field}
+							value={field.value ?? ""}
+							size="small"
+							fullWidth
+							multiline
+							minRows={2}
+							placeholder={t("warehouse.opening.notePlaceholder")}
+							disabled={isSaving}
+							error={!!fieldState.error}
+							helperText={fieldState.error?.message}
+						/>
+					)}
+				/>
+			</FormField>
+		</FormDialog>
 	);
 };
 

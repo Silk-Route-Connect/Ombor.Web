@@ -35,6 +35,7 @@
   "transfer.empty.searchBody": "По заданным условиям перемещений нет. Измените поиск, склад или период.",
 
   "transfer.detail.title": "Перемещение",
+  "transfer.detail.numberedTitle": "Перемещение {{number}}",
   "transfer.detail.notFound": "Перемещение не найдено",
   "transfer.detail.from": "Откуда",
   "transfer.detail.to": "Куда",

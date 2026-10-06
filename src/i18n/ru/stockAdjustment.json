@@ -50,6 +50,7 @@
   "adjustment.table.valueHint": "Количество × средняя себестоимость товара на момент корректировки: у списания — сколько денег потеряно, у прихода — сколько вернулось в товар.",
 
   "adjustment.detail.title": "Корректировка запаса",
+  "adjustment.detail.numberedTitle": "Корректировка {{number}}",
   "adjustment.detail.notFound": "Корректировка не найдена",
   "adjustment.detail.dateTime": "Дата и время",
   "adjustment.detail.balanceAfter": "Остаток после операции",

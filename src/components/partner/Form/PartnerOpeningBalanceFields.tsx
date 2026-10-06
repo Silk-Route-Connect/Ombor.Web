@@ -1,7 +1,7 @@
 import React from "react";
 import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
 import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
@@ -34,13 +34,13 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 
 	return (
 		<Box>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "7px", mb: "14px" }}>
-				<FormFieldLabel label={t("partner.form.openingType")} />
+			<FormField label={t("partner.form.openingType")} sx={{ mb: "16px" }}>
 				<Controller
 					name="openingType"
 					control={control}
 					render={({ field }) => (
 						<SegmentedControl<"receivable" | "payable">
+							variant="form"
 							fullWidth
 							value={field.value}
 							onChange={field.onChange}
@@ -52,10 +52,9 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 						/>
 					)}
 				/>
-			</Box>
+			</FormField>
 
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-				<FormFieldLabel label={t("partner.form.openingAmount")} />
+			<FormField label={t("partner.form.openingAmount")}>
 				<Controller
 					name="openingAmount"
 					control={control}
@@ -108,7 +107,7 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 				{amountError && (
 					<Typography sx={{ fontSize: 12, color: "error.main" }}>{amountError}</Typography>
 				)}
-			</Box>
+			</FormField>
 
 			{openingAmount > 0 && (
 				<Box

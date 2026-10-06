@@ -7,6 +7,7 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import PeriodSelect from "components/shared/Inputs/PeriodSelect";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
@@ -80,6 +81,7 @@ const DirectionChoice: React.FC<{
 	const { t } = useTranslation();
 	return (
 		<SegmentedControl
+			variant="form"
 			fullWidth
 			value={value}
 			onChange={onChange}
@@ -224,6 +226,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				<FormDialogHeader
 					title={t("payment.form.title")}
 					subtitle={t("payment.form.subtitle")}
+					tile={recordTile("Payment")}
 					disabled={isSaving}
 					onClose={requestClose}
 				/>
@@ -247,6 +250,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							control={control}
 							render={({ field }) => (
 								<SegmentedControl
+									variant="form"
 									fullWidth
 									value={field.value}
 									onChange={(v) => {

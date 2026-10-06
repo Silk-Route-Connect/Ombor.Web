@@ -2,13 +2,14 @@ import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import UzPhonePrefix from "components/shared/Inputs/PhoneListField/UzPhonePrefix";
 import { InviteUserFormInputs, InviteUserFormValues } from "schemas/InviteUserSchema";
 import { designTokens } from "theme";
-import { formatUzNational, UZ_COUNTRY_PREFIX, uzNationalPart } from "utils/phoneUtils";
+import { formatUzNational, uzNationalPart } from "utils/phoneUtils";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { Box, InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 
 interface InviteUserFieldsProps {
 	form: UseFormReturn<InviteUserFormInputs, unknown, InviteUserFormValues>;
@@ -84,13 +85,7 @@ const InviteUserFields: React.FC<InviteUserFieldsProps> = ({ form, disabled }) =
 							slotProps={{
 								input: {
 									inputMode: "numeric",
-									startAdornment: (
-										<InputAdornment position="start">
-											<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
-												{UZ_COUNTRY_PREFIX}
-											</Typography>
-										</InputAdornment>
-									),
+									startAdornment: <UzPhonePrefix />,
 								},
 							}}
 						/>

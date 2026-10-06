@@ -115,5 +115,6 @@
   "employee.form.positionPlaceholder": "Например: Продавец-кассир",
   "employee.form.emailPlaceholder": "name@example.com",
   "employee.form.telegramPlaceholder": "@username",
-  "employee.form.addressPlaceholder": "Город, улица, дом"
+  "employee.form.addressPlaceholder": "Город, улица, дом",
+  "employee.form.submitCreate": "Создать сотрудника"
 }

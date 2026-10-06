@@ -76,7 +76,5 @@
   "validationRequired": "{0} to‘ldirilishi shart",
   "validationNonNegative": "Manfiy qiymat bo‘lmaydi",
   "validationSaleGteSupply": "Sotish narxi ≥ sotib olish narxi",
-  "validationRetailGteSupply": "Chakana narxi ≥ sotib olish narxi",
-
-  "close": "Yopish"
+  "validationRetailGteSupply": "Chakana narxi ≥ sotib olish narxi"
 }

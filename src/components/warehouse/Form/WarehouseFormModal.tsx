@@ -1,20 +1,18 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWarehouseForm } from "hooks/warehouse/useWarehouseForm";
 import { observer } from "mobx-react-lite";
 import { Warehouse } from "models/warehouse";
 import { WarehouseFormValues } from "schemas/WarehouseSchema";
-import { dialogPaperSx } from "theme";
 
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import { Dialog, DialogContent, LinearProgress, Stack, TextField } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 
 export interface WarehouseFormModalProps {
 	isOpen: boolean;
@@ -53,90 +51,67 @@ const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 	};
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
-			>
-				<FormDialogHeader
-					title={warehouse ? t("warehouse.title.edit") : t("warehouse.title.create")}
-					subtitle={warehouse?.name}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					<Stack sx={{ gap: "16px" }}>
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("warehouse.field.name")} required />
-							<Controller
-								name="name"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										size="small"
-										fullWidth
-										placeholder={t("warehouse.form.namePlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									/>
-								)}
-							/>
-						</Stack>
-
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("warehouse.field.address")} />
-							<Controller
-								name="location"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										value={field.value ?? ""}
-										size="small"
-										fullWidth
-										multiline
-										minRows={2}
-										placeholder={t("warehouse.form.addressPlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									/>
-								)}
-							/>
-						</Stack>
-					</Stack>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="sm"
+			title={warehouse ? t("warehouse.title.edit") : t("warehouse.title.create")}
+			subtitle={warehouse?.name}
+			tile={recordTile("Warehouse")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={handleSave}
 					canSave={canSave}
 					loading={isSaving}
+					submitLabel={warehouse ? undefined : t("warehouse.form.submitCreate")}
 				/>
-			</Dialog>
+			}
+		>
+			<Stack sx={{ gap: "16px" }}>
+				<FormField label={t("warehouse.field.name")} required>
+					<Controller
+						name="name"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								size="small"
+								fullWidth
+								placeholder={t("warehouse.form.namePlaceholder")}
+								disabled={isSaving}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+							/>
+						)}
+					/>
+				</FormField>
 
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+				<FormField label={t("warehouse.field.address")}>
+					<Controller
+						name="location"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								value={field.value ?? ""}
+								size="small"
+								fullWidth
+								multiline
+								minRows={2}
+								placeholder={t("warehouse.form.addressPlaceholder")}
+								disabled={isSaving}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+							/>
+						)}
+					/>
+				</FormField>
+			</Stack>
+		</FormDialog>
 	);
 };
 

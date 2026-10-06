@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
 import { ProductFormInputs } from "schemas/ProductSchema";
 import { isQuantityDraft, parseWholeQuantity } from "utils/quantityInput";
 
-import { Stack, TextField, Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 
 interface ProductStockAlertFieldProps {
 	control: Control<ProductFormInputs>;
@@ -49,8 +49,7 @@ const ProductStockAlertField: React.FC<ProductStockAlertFieldProps> = ({ control
 	};
 
 	return (
-		<Stack sx={{ gap: "7px", mt: "20px" }}>
-			<FormFieldLabel label={t("product.form.lowStockLabel")} />
+		<FormField label={t("product.form.lowStockLabel")}>
 			<TextField
 				name={field.name}
 				inputRef={field.ref}
@@ -69,7 +68,7 @@ const ProductStockAlertField: React.FC<ProductStockAlertFieldProps> = ({ control
 			<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
 				{t("product.form.lowStockHelper")}
 			</Typography>
-		</Stack>
+		</FormField>
 	);
 };
 

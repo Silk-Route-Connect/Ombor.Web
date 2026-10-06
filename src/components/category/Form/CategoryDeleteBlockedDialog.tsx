@@ -1,17 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import { Category } from "models/category";
-import { dialogPaperSx } from "theme";
 
-import {
-	Alert,
-	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	Typography,
-} from "@mui/material";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { Box } from "@mui/material";
 
 interface CategoryDeleteBlockedDialogProps {
 	isOpen: boolean;
@@ -21,7 +14,8 @@ interface CategoryDeleteBlockedDialogProps {
 
 /**
  * Shown when a delete is attempted on a category that still has referencing
- * products. The delete action is never disabled; this dialog carries the inline
+ * products — the same acknowledgement dialog as the other «нельзя удалить»
+ * cases. The delete action is never disabled; this dialog carries the inline
  * explanation instead (CLAUDE.md hard rule 5; business-rules rule 32). The
  * message mirrors the 409 the backend returns for the same case.
  */
@@ -32,32 +26,26 @@ const CategoryDeleteBlockedDialog: React.FC<CategoryDeleteBlockedDialogProps> = 
 }) => {
 	const { t } = useTranslation();
 
-	if (!category) {
-		return null;
-	}
-
 	return (
-		<Dialog
-			open={isOpen}
-			onClose={onClose}
-			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
-			disableRestoreFocus
-		>
-			<DialogTitle>{t("category.delete.blocked.title", { name: category.name })}</DialogTitle>
-			<DialogContent>
-				<Alert severity="error" variant="outlined" sx={{ mb: 1.5, fontWeight: 600 }}>
-					{t("category.delete.blocked.referenced", { count: category.productCount })}
-				</Alert>
-				<Typography variant="body2" sx={{ color: "text.secondary", lineHeight: 1.6 }}>
+		<ConfirmDialog
+			isOpen={isOpen && category !== null}
+			icon={<ErrorOutlineIcon />}
+			iconTone="warning"
+			title={t("category.delete.blocked.title", { name: category?.name ?? "" })}
+			content={
+				<>
+					<Box component="span" sx={{ color: "text.primary", fontWeight: 600 }}>
+						{t("category.delete.blocked.referenced", { count: category?.productCount ?? 0 })}
+					</Box>{" "}
 					{t("category.delete.blocked.referencedBody")}
-				</Typography>
-			</DialogContent>
-			<DialogActions>
-				<Button variant="contained" onClick={onClose}>
-					{t("common.understood")}
-				</Button>
-			</DialogActions>
-		</Dialog>
+				</>
+			}
+			confirmLabel={t("common.understood")}
+			confirmVariant="primary"
+			hideCancel
+			onConfirm={onClose}
+			onCancel={onClose}
+		/>
 	);
 };
 

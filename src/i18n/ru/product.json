@@ -131,6 +131,8 @@
   "product.form.lowStockHelper": "Когда остаток на всех складах опустится до этого числа, товар отметится «Мало» в списках. Пусто — отметка появится, только когда товар закончится.",
   "product.form.descriptionPlaceholder": "Описание товара…",
   "product.form.packLabelPlaceholder": "Например: Коробка 24 шт",
+  "product.form.moreSection": "Дополнительно",
+  "product.form.submitCreate": "Создать товар",
 
   "action.generateSku": "Сгенерировать",
 

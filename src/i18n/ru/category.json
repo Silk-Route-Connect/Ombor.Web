@@ -16,6 +16,7 @@
   "category.form.namePlaceholder": "Введите название категории",
   "category.form.descriptionLabel": "Описание",
   "category.form.descriptionPlaceholder": "Краткое описание категории…",
+  "category.form.submitCreate": "Создать категорию",
 
   "category.validation.name.required": "Укажите название категории",
   "category.validation.name.tooLong": "Название не должно превышать 100 символов",
@@ -29,9 +30,9 @@
   "category.delete.title": "Удалить категорию «{{name}}»?",
   "category.delete.body": "Категория будет удалена без возможности восстановления. Это действие нельзя отменить.",
   "category.delete.blocked.title": "Нельзя удалить «{{name}}»",
-  "category.delete.blocked.referenced_one": "Невозможно удалить: категория содержит {{count}} товар",
-  "category.delete.blocked.referenced_few": "Невозможно удалить: категория содержит {{count}} товара",
-  "category.delete.blocked.referenced_many": "Невозможно удалить: категория содержит {{count}} товаров",
+  "category.delete.blocked.referenced_one": "В категории {{count}} товар.",
+  "category.delete.blocked.referenced_few": "В категории {{count}} товара.",
+  "category.delete.blocked.referenced_many": "В категории {{count}} товаров.",
   "category.delete.blocked.referencedBody": "Сначала переместите товары в другую категорию или удалите их. Категории без товаров можно удалить сразу.",
 
   "category.error.load": "Не удалось загрузить категории",

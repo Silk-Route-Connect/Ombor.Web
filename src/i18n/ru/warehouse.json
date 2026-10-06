@@ -58,6 +58,7 @@
   "warehouse.form.errorBanner": "Проверьте отмеченные поля ниже.",
   "warehouse.form.namePlaceholder": "Например: Центральный склад",
   "warehouse.form.addressPlaceholder": "Например: ул. Навои 42, Ташкент",
+  "warehouse.form.submitCreate": "Создать склад",
 
   "warehouse.validation.nameMin": "Введите название склада (минимум 2 символа).",
   "warehouse.validation.nameMax": "Название не должно превышать 250 символов.",

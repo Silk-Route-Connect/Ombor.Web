@@ -1,6 +1,7 @@
 import type { Components, Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 
-import { BORDER_CONTROL, designTokens, INK, TEAL_500 } from "./palette";
+import { BORDER_CONTROL, designTokens, INK, NEUTRAL, TEAL_500 } from "./palette";
 import { controlSize, radius } from "./tokens";
 
 /** The single keyboard-focus indicator: 2px teal outline, offset so it reads on teal fills too. */
@@ -8,6 +9,22 @@ const FOCUS_OUTLINE = { outline: `2px solid ${TEAL_500}`, outlineOffset: 2 } as 
 
 /** Inset variant for list-like items whose outline would overlap neighbours or be clipped. */
 const FOCUS_OUTLINE_INSET = { outline: `2px solid ${TEAL_500}`, outlineOffset: -2 } as const;
+
+const SURFACE = NEUTRAL[0];
+const SCROLL_SHADOW = alpha(INK, 0.14);
+
+/**
+ * Scroll shadows on a modal body: an ink fade at whichever edge still hides
+ * content. The two surface-coloured covers scroll with the content (`local`) and
+ * sit over the shadows (`scroll`) once an edge is reached, so a form that fits
+ * shows none — a field cut by the footer is never the only cue that more follows.
+ */
+const DIALOG_SCROLL_SHADOWS = [
+	`linear-gradient(${SURFACE} 30%, ${alpha(SURFACE, 0)}) center top / 100% 40px no-repeat local`,
+	`linear-gradient(${alpha(SURFACE, 0)}, ${SURFACE} 70%) center bottom / 100% 40px no-repeat local`,
+	`radial-gradient(farthest-side at 50% 0, ${SCROLL_SHADOW}, ${alpha(INK, 0)}) center top / 100% 12px no-repeat scroll`,
+	`radial-gradient(farthest-side at 50% 100%, ${SCROLL_SHADOW}, ${alpha(INK, 0)}) center bottom / 100% 12px no-repeat scroll`,
+].join(", ");
 
 export const components: Components<Omit<Theme, "components">> = {
 	MuiCssBaseline: {
@@ -20,7 +37,9 @@ export const components: Components<Omit<Theme, "components">> = {
 	},
 	MuiButtonBase: {
 		styleOverrides: {
-			root: { "&.Mui-focusVisible": FOCUS_OUTLINE },
+			// A <button> does not inherit the page font; without this every bare
+			// ButtonBase (tiles, segments, toggles) rendered in the UA font (Arial).
+			root: { fontFamily: "inherit", "&.Mui-focusVisible": FOCUS_OUTLINE },
 		},
 	},
 	MuiMenuItem: {
@@ -70,6 +89,23 @@ export const components: Components<Omit<Theme, "components">> = {
 		// Dropdown arrows in the meta tone, not MUI's 54% black.
 		styleOverrides: { icon: { color: designTokens.fg3, fontSize: 20 } },
 	},
+	// Helper / error text flush with the field edge (MUI indents it 14px), so a
+	// hand-placed error and a TextField's own line start at the same x.
+	MuiFormHelperText: {
+		styleOverrides: {
+			root: { marginLeft: 0, marginRight: 0, marginTop: 6, fontSize: 12, lineHeight: "16px" },
+		},
+	},
+	// A unit after the value («UZS», «%») in the muted meta tone, a step smaller
+	// than the figure; a leading prefix («+998») is part of the value and keeps its size.
+	MuiInputAdornment: {
+		styleOverrides: {
+			root: ({ theme }) => ({ color: theme.palette.text.secondary }),
+			positionEnd: {
+				"& .MuiTypography-root": { fontSize: 13, fontWeight: 500, color: "inherit" },
+			},
+		},
+	},
 	MuiInputBase: {
 		styleOverrides: {
 			input: {
@@ -109,6 +145,20 @@ export const components: Components<Omit<Theme, "components">> = {
 	MuiDialog: {
 		styleOverrides: {
 			paper: { borderRadius: radius.lg },
+		},
+	},
+	// The modal anatomy (FormDialog): a divided, scroll-shadowed body and a
+	// surface-subtle footer band. The body's bottom divider is the band's hairline.
+	MuiDialogContent: {
+		defaultProps: { dividers: true },
+		styleOverrides: {
+			root: { padding: "16px 24px 20px", background: DIALOG_SCROLL_SHADOWS },
+		},
+	},
+	MuiDialogActions: {
+		defaultProps: { disableSpacing: true },
+		styleOverrides: {
+			root: { padding: "14px 24px", gap: 10, backgroundColor: designTokens.bgSubtle },
 		},
 	},
 	MuiBackdrop: {

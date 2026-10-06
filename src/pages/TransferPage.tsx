@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import NotFoundDialog from "components/shared/LoadState/NotFoundDialog";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
@@ -151,6 +152,7 @@ const TransferPage: React.FC = observer(() => {
 			<NotFoundDialog
 				open={opened === null}
 				title={t("transfer.detail.title")}
+				tile={recordTile("Transfer")}
 				notFound={{ title: t("transfer.detail.notFound"), backTo: PATHS.transfers }}
 				onClose={detailRoute.close}
 			/>

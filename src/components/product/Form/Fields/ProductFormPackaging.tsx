@@ -1,21 +1,14 @@
 import React from "react";
 import { Control, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
+import FormSection from "components/shared/Forms/FormSection";
 import NumericField from "components/shared/Inputs/NumericField";
 import { ProductFormInputs } from "schemas/ProductSchema";
 import { designTokens } from "theme";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import {
-	Box,
-	Collapse,
-	FormControlLabel,
-	Stack,
-	Switch,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Collapse, FormControlLabel, Switch, TextField } from "@mui/material";
 
 export interface ProductFormPackagingProps {
 	control: Control<ProductFormInputs>;
@@ -48,18 +41,10 @@ const switchSx = {
 	"& .MuiSwitch-track": { borderRadius: 999, bgcolor: designTokens.gray300, opacity: 1 },
 } as const;
 
-/** Label-above-input row per the bundle's `.frow` (7px gap). */
-const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-	<Stack sx={{ gap: "7px" }}>
-		<FormFieldLabel label={label} />
-		{children}
-	</Stack>
-);
-
 /**
- * «Фасовка» per the bundle: pack-head title (box icon + 14px/700 text) with
- * the 42×24 switch on the right; when enabled, the fields sit in a tinted
- * bordered card (surface-sub, r-md, 16px padding, two-column 14px grid).
+ * «Фасовка»: a `FormSection` heading with the 42×24 switch on the right; when
+ * enabled, the fields sit in a tinted bordered card (surface-sub, r-md, 16px
+ * padding, two-column 14px grid).
  */
 const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 	control,
@@ -73,26 +58,25 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 
 	return (
 		<Box>
-			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-				<Box sx={{ display: "inline-flex", alignItems: "center", gap: "9px" }}>
-					<Inventory2OutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
-					<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{t("product.packaging")}</Typography>
-				</Box>
-
-				<FormControlLabel
-					label={t("common.enable")}
-					labelPlacement="start"
-					sx={{ mr: 0, gap: "10px", "& .MuiFormControlLabel-label": { fontSize: 13.5 } }}
-					control={
-						<Switch
-							sx={switchSx}
-							checked={hasPackaging}
-							onChange={(_, checked) => (checked ? enablePackaging() : disablePackaging())}
-							disabled={disabled}
-						/>
-					}
-				/>
-			</Box>
+			<FormSection
+				title={t("product.packaging")}
+				icon={<Inventory2OutlinedIcon />}
+				action={
+					<FormControlLabel
+						label={t("common.enable")}
+						labelPlacement="start"
+						sx={{ mr: 0, gap: "10px", "& .MuiFormControlLabel-label": { fontSize: 13 } }}
+						control={
+							<Switch
+								sx={switchSx}
+								checked={hasPackaging}
+								onChange={(_, checked) => (checked ? enablePackaging() : disablePackaging())}
+								disabled={disabled}
+							/>
+						}
+					/>
+				}
+			/>
 
 			<Collapse in={hasPackaging} unmountOnExit>
 				<Box
@@ -108,7 +92,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 						gap: "14px",
 					}}
 				>
-					<Field label={t("product.packaging.size")}>
+					<FormField label={t("product.packaging.size")}>
 						<Controller
 							name="packaging.size"
 							control={control}
@@ -122,9 +106,9 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 								/>
 							)}
 						/>
-					</Field>
+					</FormField>
 
-					<Field label={t("product.packaging.label")}>
+					<FormField label={t("product.packaging.label")}>
 						<Controller
 							name="packaging.label"
 							control={control}
@@ -141,9 +125,9 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 								/>
 							)}
 						/>
-					</Field>
+					</FormField>
 
-					<Field label={t("product.packaging.barcode")}>
+					<FormField label={t("product.packaging.barcode")}>
 						<Controller
 							name="packaging.barcode"
 							control={control}
@@ -160,9 +144,9 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 								/>
 							)}
 						/>
-					</Field>
+					</FormField>
 
-					<Field label={t("product.packaging.price")}>
+					<FormField label={t("product.packaging.price")}>
 						<TextField
 							value={packPrice ?? "0"}
 							size="small"
@@ -170,7 +154,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 							aria-readonly
 							slotProps={{ input: { readOnly: true } }}
 						/>
-					</Field>
+					</FormField>
 				</Box>
 			</Collapse>
 		</Box>

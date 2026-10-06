@@ -2,38 +2,29 @@ import React from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormField from "components/shared/Forms/FormField";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsAdornment from "components/shared/Money/UzsAdornment";
 import UzsUnit from "components/shared/Money/UzsUnit";
-import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useWalletTransferForm } from "hooks/wallet/useWalletTransferForm";
 import { observer } from "mobx-react-lite";
 import { Wallet } from "models/wallet";
 import { TransferFormValues } from "schemas/WalletSchema";
-import { dialogPaperSx, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import {
-	Box,
-	Dialog,
-	DialogContent,
-	LinearProgress,
-	MenuItem,
-	Select,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Stack, TextField, Typography } from "@mui/material";
+
+import WalletPicker from "./WalletPicker";
 
 export interface WalletTransferModalProps {
 	isOpen: boolean;
@@ -44,61 +35,6 @@ export interface WalletTransferModalProps {
 	onSave: (payload: TransferFormValues) => void;
 	onClose: () => void;
 }
-
-/** Wallet dropdown showing the icon + name + balance (bundle `.wpick`). */
-const WalletPicker: React.FC<{
-	value: number;
-	wallets: Wallet[];
-	excludeId: number;
-	disabled: boolean;
-	error?: boolean;
-	onChange: (id: number) => void;
-}> = ({ value, wallets, excludeId, disabled, error, onChange }) => (
-	<Select
-		size="small"
-		fullWidth
-		displayEmpty
-		value={value ? String(value) : ""}
-		disabled={disabled}
-		error={error}
-		onChange={(e) => onChange(Number(e.target.value))}
-		renderValue={(raw) => {
-			const wallet = wallets.find((w) => String(w.id) === raw);
-			if (!wallet) {
-				return (
-					<Box component="span" sx={{ color: "text.disabled" }}>
-						—
-					</Box>
-				);
-			}
-			// The selected value shows name + type only; the balance lives in the
-			// menu items + the «Доступно» hint (WAL-16 — no third copy here).
-			return (
-				<Box sx={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
-					<WalletTypeAvatar type={wallet.type} size={26} iconSize={14} />
-					<Box component="span" sx={{ flex: 1, fontSize: 14 }}>
-						{wallet.name}
-					</Box>
-				</Box>
-			);
-		}}
-	>
-		{wallets.map((wallet) => (
-			<MenuItem key={wallet.id} value={String(wallet.id)} disabled={wallet.id === excludeId}>
-				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
-					<WalletTypeAvatar type={wallet.type} size={28} iconSize={15} />
-					<Box component="span" sx={{ flex: 1 }}>
-						{wallet.name}
-					</Box>
-					<Box component="span" sx={{ ...numericSx, fontSize: 12.5, color: "text.disabled" }}>
-						{formatCurrency(wallet.balance)}
-						<UzsUnit />
-					</Box>
-				</Box>
-			</MenuItem>
-		))}
-	</Select>
-);
 
 const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 	isOpen,
@@ -147,179 +83,17 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 	);
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
-			>
-				<FormDialogHeader
-					title={t("wallet.transfer.title")}
-					subtitle={t("wallet.transfer.subtitle")}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					<Stack sx={{ gap: "16px" }}>
-						{/* Source → destination on one row (WAL-17). */}
-						<Box
-							sx={{
-								display: "grid",
-								gridTemplateColumns: "1fr 36px 1fr",
-								gap: "10px",
-								alignItems: "end",
-							}}
-						>
-							<Stack sx={{ gap: "7px" }}>
-								<FormFieldLabel label={t("wallet.transfer.from")} required />
-								<Controller
-									name="fromWalletId"
-									control={control}
-									render={({ field, fieldState }) => (
-										<WalletPicker
-											value={field.value}
-											wallets={wallets}
-											excludeId={toId}
-											disabled={isSaving}
-											error={!!fieldState.error}
-											onChange={field.onChange}
-										/>
-									)}
-								/>
-							</Stack>
-							<Box
-								sx={{ height: 38, display: "grid", placeItems: "center", color: "primary.main" }}
-							>
-								<ChevronRightIcon sx={{ fontSize: 20 }} />
-							</Box>
-							<Stack sx={{ gap: "7px" }}>
-								<FormFieldLabel label={t("wallet.transfer.to")} required />
-								<Controller
-									name="toWalletId"
-									control={control}
-									render={({ field, fieldState }) => (
-										<WalletPicker
-											value={field.value}
-											wallets={wallets}
-											excludeId={fromId}
-											disabled={isSaving}
-											error={!!fieldState.error}
-											onChange={field.onChange}
-										/>
-									)}
-								/>
-							</Stack>
-						</Box>
-						{formState.errors.toWalletId && (
-							<Typography sx={{ fontSize: 12, color: "error.main", mt: "-8px" }}>
-								{formState.errors.toWalletId.message}
-							</Typography>
-						)}
-
-						<Stack sx={{ gap: "7px" }}>
-							<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-								<FormFieldLabel label={t("wallet.transfer.amount")} required />
-								{fromWallet && (
-									<Box
-										sx={{
-											display: "flex",
-											alignItems: "center",
-											gap: "5px",
-											fontSize: 12.5,
-											color: "text.secondary",
-										}}
-									>
-										<AccountBalanceWalletOutlinedIcon
-											sx={{ fontSize: 14, color: "text.disabled" }}
-										/>
-										{t("wallet.transfer.available")}{" "}
-										<Box
-											component="b"
-											sx={{ ...numericSx, fontWeight: 700, color: "text.primary" }}
-										>
-											{formatCurrency(available)}
-											<UzsUnit />
-										</Box>
-									</Box>
-								)}
-							</Box>
-							{/* «Перевести всё» sits beside the amount input (WAL-18). */}
-							<Box sx={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-								<Box sx={{ flex: 1, minWidth: 0 }}>
-									<Controller
-										name="amount"
-										control={control}
-										render={({ field, fieldState }) => (
-											<MoneyField
-												value={field.value}
-												onChange={field.onChange}
-												onBlur={field.onBlur}
-												name={field.name}
-												inputRef={field.ref}
-												size="small"
-												fullWidth
-												placeholder="0"
-												disabled={isSaving}
-												error={!!fieldState.error || over}
-												helperText={
-													over
-														? t("wallet.transfer.overBalance", {
-																available: formatCurrency(available),
-															})
-														: fieldState.error?.message
-												}
-												slotProps={{
-													input: {
-														endAdornment: <UzsAdornment />,
-													},
-												}}
-											/>
-										)}
-									/>
-								</Box>
-								{fromWallet && (
-									<GhostButton
-										disabled={isSaving}
-										onClick={() =>
-											setValue("amount", available, { shouldDirty: true, shouldValidate: true })
-										}
-									>
-										{t("wallet.transfer.transferAll")}
-									</GhostButton>
-								)}
-							</Box>
-						</Stack>
-
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("wallet.transfer.note")} />
-							<Controller
-								name="note"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										{...field}
-										value={field.value ?? ""}
-										size="small"
-										fullWidth
-										multiline
-										minRows={2}
-										placeholder={t("wallet.transfer.notePlaceholder")}
-										disabled={isSaving}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									/>
-								)}
-							/>
-						</Stack>
-					</Stack>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="md"
+			title={t("wallet.transfer.title")}
+			subtitle={t("wallet.transfer.subtitle")}
+			tile={recordTile("WalletTransfer")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					canSave={canSave}
 					loading={isSaving}
@@ -329,21 +103,151 @@ const WalletTransferModal: React.FC<WalletTransferModalProps> = ({
 					submitIcon={<SwapHorizIcon />}
 					commitNote={t("wallet.transfer.commitNote")}
 				/>
-			</Dialog>
+			}
+		>
+			<Stack sx={{ gap: "16px" }}>
+				{/* Source → destination on one row (WAL-17). */}
+				<Box
+					sx={{
+						display: "grid",
+						gridTemplateColumns: "1fr 36px 1fr",
+						gap: "10px",
+						alignItems: "end",
+					}}
+				>
+					<FormField label={t("wallet.transfer.from")} required>
+						<Controller
+							name="fromWalletId"
+							control={control}
+							render={({ field, fieldState }) => (
+								<WalletPicker
+									value={field.value}
+									wallets={wallets}
+									excludeId={toId}
+									disabled={isSaving}
+									error={!!fieldState.error}
+									onChange={field.onChange}
+								/>
+							)}
+						/>
+					</FormField>
+					<Box sx={{ height: 38, display: "grid", placeItems: "center", color: "primary.main" }}>
+						<ChevronRightIcon sx={{ fontSize: 20 }} />
+					</Box>
+					<FormField label={t("wallet.transfer.to")} required>
+						<Controller
+							name="toWalletId"
+							control={control}
+							render={({ field, fieldState }) => (
+								<WalletPicker
+									value={field.value}
+									wallets={wallets}
+									excludeId={fromId}
+									disabled={isSaving}
+									error={!!fieldState.error}
+									onChange={field.onChange}
+								/>
+							)}
+						/>
+					</FormField>
+				</Box>
+				{formState.errors.toWalletId && (
+					<Typography sx={{ fontSize: 12, color: "error.main", mt: "-8px" }}>
+						{formState.errors.toWalletId.message}
+					</Typography>
+				)}
 
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+				<Stack sx={{ gap: "6px" }}>
+					<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+						<FormFieldLabel label={t("wallet.transfer.amount")} required />
+						{fromWallet && (
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									gap: "5px",
+									fontSize: 13,
+									color: "text.secondary",
+								}}
+							>
+								<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 14, color: "text.disabled" }} />
+								{t("wallet.transfer.available")}{" "}
+								<Box component="b" sx={{ ...numericSx, fontWeight: 700, color: "text.primary" }}>
+									{formatCurrency(available)}
+									<UzsUnit />
+								</Box>
+							</Box>
+						)}
+					</Box>
+					{/* «Перевести всё» sits beside the amount input (WAL-18). */}
+					<Box sx={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+						<Box sx={{ flex: 1, minWidth: 0 }}>
+							<Controller
+								name="amount"
+								control={control}
+								render={({ field, fieldState }) => (
+									<MoneyField
+										value={field.value}
+										onChange={field.onChange}
+										onBlur={field.onBlur}
+										name={field.name}
+										inputRef={field.ref}
+										size="small"
+										fullWidth
+										placeholder="0"
+										disabled={isSaving}
+										error={!!fieldState.error || over}
+										helperText={
+											over
+												? t("wallet.transfer.overBalance", {
+														available: formatCurrency(available),
+													})
+												: fieldState.error?.message
+										}
+										slotProps={{
+											input: {
+												endAdornment: <UzsAdornment />,
+											},
+										}}
+									/>
+								)}
+							/>
+						</Box>
+						{fromWallet && (
+							<GhostButton
+								disabled={isSaving}
+								onClick={() =>
+									setValue("amount", available, { shouldDirty: true, shouldValidate: true })
+								}
+							>
+								{t("wallet.transfer.transferAll")}
+							</GhostButton>
+						)}
+					</Box>
+				</Stack>
+
+				<FormField label={t("wallet.transfer.note")}>
+					<Controller
+						name="note"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								value={field.value ?? ""}
+								size="small"
+								fullWidth
+								multiline
+								minRows={2}
+								placeholder={t("wallet.transfer.notePlaceholder")}
+								disabled={isSaving}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+							/>
+						)}
+					/>
+				</FormField>
+			</Stack>
+		</FormDialog>
 	);
 };
 

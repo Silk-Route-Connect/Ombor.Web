@@ -38,7 +38,6 @@ const EmployeeAutocomplete: React.FC<EmployeeAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Employee>
-			label={t("employeeAutocomplete.employee")}
 			placeholder={t("employeeAutocomplete.search")}
 			options={options}
 			value={value}

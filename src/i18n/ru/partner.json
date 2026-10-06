@@ -172,11 +172,9 @@
   "partner.form.openingPayable": "Мы должны партнёру",
   "partner.form.openingAmount": "Сумма",
   "partner.form.openingPreview": "Стартовая запись в книге:",
-  "partner.form.openingLockedTitle": "Начальный баланс",
   "partner.form.openingLockedSub": "Записан {{date}} — изменить нельзя",
   "partner.form.openingLockedHelper": "Начальный баланс — первая запись в книге расчётов, её нельзя изменить. Текущий баланс {{balance}} UZS меняется только продажами, поставками и платежами.",
   "partner.form.submitCreate": "Создать партнёра",
-  "partner.form.submitEdit": "Сохранить изменения",
 
   "partner.archive.title": "Архивировать {{name}}?",
   "partner.archive.body": "Партнёр будет скрыт из списка и недоступен для новых продаж и поставок. Книга расчётов сохранится — вы сможете восстановить партнёра позже.",

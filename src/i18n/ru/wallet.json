@@ -62,6 +62,7 @@
   "wallet.form.openingHint": "Записывается один раз — после создания кассы изменить нельзя.",
   "wallet.form.lockedType": "нельзя изменить",
   "wallet.form.lockedOpening": "записан при создании",
+  "wallet.form.submitCreate": "Создать кассу",
 
   "wallet.validation.nameMin": "Введите название кассы (минимум 2 символа).",
   "wallet.validation.nameMax": "Название не должно превышать 250 символов.",
@@ -128,7 +129,7 @@
   "wallet.transfer.action": "Новый перевод",
   "wallet.transfer.title": "Новый перевод",
   "wallet.transfer.subtitle": "Перемещение денег между кассами",
-  "wallet.transfer.detailTitle": "Перевод между кассами",
+  "wallet.transfer.numberedTitle": "Перевод {{number}}",
   "wallet.transfer.from": "Из кассы",
   "wallet.transfer.to": "В кассу",
   "wallet.transfer.amount": "Сумма",

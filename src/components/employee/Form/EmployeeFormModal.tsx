@@ -1,16 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import EmployeeFormFields from "components/employee/Form/EmployeeFormFields";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { EmployeeFormPayload, useEmployeeForm } from "hooks/employee/useEmployeeForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Employee } from "models/employee";
-import { dialogPaperSx } from "theme";
-import { dialogTranslation } from "utils/translationUtils";
-
-import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
 
 interface EmployeeFormModalProps {
 	isOpen: boolean;
@@ -39,48 +35,29 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
 	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 
-	const title = employee ? t("employee.editTitle") : t("employee.createTitle");
-
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-			>
-				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
-
-				{isSaving && (
-					<Box sx={{ position: "relative", height: 4 }}>
-						<LinearProgress sx={{ position: "absolute", inset: 0 }} />
-					</Box>
-				)}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					<EmployeeFormFields form={form} disabled={isSaving} />
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="md"
+			title={employee ? t("employee.editTitle") : t("employee.createTitle")}
+			subtitle={employee?.name}
+			tile={recordTile("Employee")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={submit}
 					canSave={canSave}
 					loading={isSaving}
+					submitLabel={employee ? undefined : t("employee.form.submitCreate")}
 				/>
-			</Dialog>
-
-			<ConfirmDialog
-				isOpen={discardOpen}
-				title={dialogTranslation("title")}
-				content={dialogTranslation("body")}
-				confirmLabel={dialogTranslation("confirm")}
-				cancelLabel={dialogTranslation("cancel")}
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+			}
+		>
+			<EmployeeFormFields form={form} disabled={isSaving} />
+		</FormDialog>
 	);
 };
 

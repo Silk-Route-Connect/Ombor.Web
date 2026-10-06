@@ -16,7 +16,8 @@ export interface EntityWithIdName {
 }
 
 export interface EntityAutocompleteProps<T extends EntityWithIdName> {
-	label: string;
+	/** Floating label — omit under a `FormFieldLabel` (forms never float a label). */
+	label?: string;
 	placeholder: string;
 	options: T[];
 	value: T | null;
