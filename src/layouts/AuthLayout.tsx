@@ -10,6 +10,8 @@ import { Box } from "@mui/material";
  * form panel) centered on a masked blueprint grid, outside the app shell. Each
  * auth page renders its own head/fields/actions as `children`; this shell adds
  * the brand panel, the mobile wordmark and the shared language footer.
+ * The card grows with its form and the page scrolls: a viewport-height cap
+ * clipped the register form's submit button on laptop screens.
  */
 const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 	<Box
@@ -38,7 +40,6 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 			sx={{
 				position: "relative",
 				width: { xs: "min(440px, 100%)", md: "min(960px, 100%)" },
-				maxHeight: { xs: "none", md: "94vh" },
 				display: "grid",
 				gridTemplateColumns: { xs: "1fr", md: "0.92fr 1.08fr" },
 				minHeight: { md: 588 },
@@ -60,7 +61,6 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 					p: { xs: "30px 28px 26px", md: "38px 44px 30px" },
 					display: "flex",
 					flexDirection: "column",
-					overflowY: "auto",
 				}}
 			>
 				<Box sx={{ width: "100%", maxWidth: 372, mx: "auto", my: "auto" }}>
