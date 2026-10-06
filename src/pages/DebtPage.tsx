@@ -26,6 +26,7 @@ import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatOptionalNumber } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
+import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import { Box } from "@mui/material";
 
 const DebtPage: React.FC = observer(() => {
@@ -81,6 +82,8 @@ const DebtPage: React.FC = observer(() => {
 		<Box>
 			<PageHeader
 				title={t("debt.title")}
+				icon={RequestQuoteOutlinedIcon}
+				subtitle={t("page.intro.debts")}
 				actions={
 					<ExportButton onExport={handleExport} rowCount={debtStore.transactionRows.length} />
 				}

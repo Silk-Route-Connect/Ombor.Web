@@ -6,6 +6,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 
 import AddIcon from "@mui/icons-material/Add";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import { Box } from "@mui/material";
 
 interface CategoryHeaderProps {
@@ -30,6 +31,8 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("category.title")}
+				icon={CategoryOutlinedIcon}
+				subtitle={t("page.intro.categories")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

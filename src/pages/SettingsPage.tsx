@@ -22,6 +22,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { Box } from "@mui/material";
 
@@ -144,7 +145,11 @@ const SettingsPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PageHeader title={t("settings.title")} />
+			<PageHeader
+				title={t("settings.title")}
+				icon={SettingsOutlinedIcon}
+				subtitle={t("page.intro.settings")}
+			/>
 
 			{loading || !draft ? (
 				<LoadStateView

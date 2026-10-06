@@ -8,6 +8,7 @@ import SegmentedControl from "components/shared/SegmentedControl/SegmentedContro
 import { PartnerTypeFilter } from "stores/PartnerStore";
 
 import AddIcon from "@mui/icons-material/Add";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
 import { Box } from "@mui/material";
 
 /** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
@@ -49,6 +50,8 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("partner.title")}
+				icon={HandshakeOutlinedIcon}
+				subtitle={t("page.intro.partners")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

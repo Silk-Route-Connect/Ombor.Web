@@ -8,6 +8,7 @@ import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedCo
 import { EmployeeStatus } from "models/employee";
 
 import AddIcon from "@mui/icons-material/Add";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { Box } from "@mui/material";
 
 type StatusFilter = EmployeeStatus | "all";
@@ -50,6 +51,8 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("employeesTitle")}
+				icon={BadgeOutlinedIcon}
+				subtitle={t("page.intro.employees")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

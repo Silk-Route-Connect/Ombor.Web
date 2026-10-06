@@ -81,6 +81,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = observer(
 			<>
 				<PageHeader
 					title={title}
+					icon={Inventory2OutlinedIcon}
+					subtitle={t("page.intro.products")}
 					actions={
 						<>
 							<ExportButton onExport={onExport} rowCount={exportCount} />

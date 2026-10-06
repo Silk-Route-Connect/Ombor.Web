@@ -6,6 +6,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import { Box } from "@mui/material";
 
@@ -48,6 +49,8 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("wallet.title")}
+				icon={AccountBalanceWalletOutlinedIcon}
+				subtitle={t("page.intro.wallets")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

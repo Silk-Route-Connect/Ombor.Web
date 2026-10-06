@@ -11,6 +11,8 @@ import { DateRangeValue } from "utils/dateRange";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import AddIcon from "@mui/icons-material/Add";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import { Box } from "@mui/material";
 
 interface TransactionListHeaderProps {
@@ -45,6 +47,8 @@ export const TransactionListHeader: React.FC<TransactionListHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t(`transaction.list.title.${direction}`)}
+				icon={direction === "Sale" ? LocalOfferOutlinedIcon : LocalShippingOutlinedIcon}
+				subtitle={t(direction === "Sale" ? "page.intro.sales" : "page.intro.supplies")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

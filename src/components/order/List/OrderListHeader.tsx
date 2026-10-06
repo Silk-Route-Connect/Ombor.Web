@@ -11,6 +11,7 @@ import { DateRangeValue } from "utils/dateRange";
 import { ORDER_DELIVERY_FILTERS, OrderDeliveryFilter, OrderStatusFilter } from "utils/orderUtils";
 
 import AddIcon from "@mui/icons-material/Add";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import { Box } from "@mui/material";
 
@@ -57,6 +58,8 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("order.title")}
+				icon={AssignmentOutlinedIcon}
+				subtitle={t("page.intro.orders")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

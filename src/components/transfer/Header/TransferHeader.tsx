@@ -10,6 +10,7 @@ import { Warehouse } from "models/warehouse";
 import { DateRangeValue } from "utils/dateRange";
 
 import AddIcon from "@mui/icons-material/Add";
+import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
@@ -54,6 +55,8 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
+				icon={SwapHorizOutlinedIcon}
+				subtitle={t("page.intro.transfers")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

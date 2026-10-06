@@ -7,6 +7,7 @@ import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 
 import AddIcon from "@mui/icons-material/Add";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
 /** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
@@ -50,6 +51,8 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
+				icon={WarehouseOutlinedIcon}
+				subtitle={t("page.intro.warehouses")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

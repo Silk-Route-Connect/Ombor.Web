@@ -17,6 +17,7 @@ import { DateRangeValue } from "utils/dateRange";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Box } from "@mui/material";
 
 import { PAYMENT_TYPE_META } from "../PaymentPresentation";
@@ -82,6 +83,8 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("payment.title")}
+				icon={PaymentsOutlinedIcon}
+				subtitle={t("page.intro.payments")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
