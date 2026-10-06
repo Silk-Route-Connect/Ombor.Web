@@ -19,9 +19,13 @@ import { directionOf, isRefundType } from "utils/transactionUtils";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box } from "@mui/material";
 
-/** The served document number; the lean list DTO may omit it — the id is its display number (DR-14). */
-export const transactionDisplayNumber = (tx: TransactionRecord): string | number =>
-	tx.transactionNumber ?? tx.id;
+/**
+ * The served document number (DR-21), or null for a legacy row without one —
+ * shown «Без номера» like the detail page. Never the database id: it can
+ * collide with a real number once the sequence reaches it (live-ui-17).
+ */
+export const transactionDisplayNumber = (tx: TransactionRecord): string | null =>
+	tx.transactionNumber ?? null;
 
 export const transactionDetailPath = (tx: TransactionRecord): string =>
 	directionOf(tx.type) === "Supply" ? supplyDetailPath(tx.id) : saleDetailPath(tx.id);
