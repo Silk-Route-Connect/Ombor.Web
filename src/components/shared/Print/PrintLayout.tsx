@@ -60,6 +60,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 				<DetailPageHeader
 					backTo={backTo}
 					title={title}
+					documentTitle={null}
 					meta={t("print.pdfHint")}
 					primaryAction={
 						<>

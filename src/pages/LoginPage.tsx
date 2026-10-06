@@ -5,6 +5,7 @@ import { AuthAltLine, AuthHead, AuthLink } from "components/auth/AuthChrome";
 import { AuthBanner } from "components/auth/AuthFields/AuthBanner";
 import { AuthPasswordField } from "components/auth/AuthFields/AuthPasswordField";
 import { AuthPhoneField } from "components/auth/AuthFields/AuthPhoneField";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { readLoginPrefill } from "routing/navigationState";
@@ -19,6 +20,7 @@ import { Box, Button } from "@mui/material";
 
 const LoginPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	useDocumentTitle(t("auth.login.title"));
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { authStore } = useStore();

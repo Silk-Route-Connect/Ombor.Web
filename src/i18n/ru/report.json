@@ -1,5 +1,6 @@
 {
   "report.hub.title": "Отчёты",
+  "report.documentTitle": "{{title}} — отчёт",
   "report.hub.subtitle": "Цифры вашего бизнеса за любой период — с экспортом и печатью",
   "report.notFound": "Отчёт не найден",
   "report.toHub": "К отчётам",

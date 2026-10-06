@@ -1,4 +1,5 @@
 import React from "react";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import { designTokens, radius } from "theme";
 
 import { Box, SvgIconProps, Typography } from "@mui/material";
@@ -17,7 +18,7 @@ interface PageHeaderProps {
  * Page header per the Ombor Design System (`.page-head`): module icon tile ·
  * title · purpose line on the left, action toolbar on the right. On narrow
  * widths the toolbar wraps below the title instead of overflowing, and a title
- * that still does not fit ellipsizes.
+ * that still does not fit ellipsizes. The title also names the browser tab.
  */
 export default function PageHeader({
 	title,
@@ -25,6 +26,8 @@ export default function PageHeader({
 	icon: Icon,
 	actions,
 }: Readonly<PageHeaderProps>) {
+	useDocumentTitle(title);
+
 	return (
 		<Box
 			sx={{

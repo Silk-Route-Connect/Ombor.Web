@@ -7,6 +7,7 @@ import { AuthBanner } from "components/auth/AuthFields/AuthBanner";
 import { AuthPasswordField } from "components/auth/AuthFields/AuthPasswordField";
 import { AuthPhoneField } from "components/auth/AuthFields/AuthPhoneField";
 import { useCodeChallenge } from "hooks/auth/useCodeChallenge";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { LoginPrefill } from "routing/navigationState";
@@ -30,6 +31,7 @@ const submitSx = { height: 46, fontSize: 15, borderRadius: "10px" } as const;
  */
 const ResetPasswordPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	useDocumentTitle(t("auth.reset.documentTitle"));
 	const navigate = useNavigate();
 	const { authStore, notificationStore } = useStore();
 	const challenge = useCodeChallenge();

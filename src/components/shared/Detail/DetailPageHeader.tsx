@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import BackButton from "components/shared/Buttons/BackButton";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import { controlSize } from "theme";
 
 import { Box, Typography } from "@mui/material";
@@ -14,6 +15,9 @@ interface DetailPageHeaderProps {
 	backTo: string;
 	/** The entity name — the title shows the name only (other fields live in the summary). */
 	title: string;
+	/** The browser tab's name («… · Ombor»); defaults to `title`. `null` leaves the
+	 *  tab title to the page (a print view names it after its PDF file). */
+	documentTitle?: string | null;
 	/** Kebab menu rows (DSN-1 ActionMenu). The page builds the status-aware set;
 	 *  omit / pass an empty array for an action-less detail (e.g. immutable records). */
 	actions?: ActionMenuRow[];
@@ -42,6 +46,7 @@ interface DetailPageHeaderProps {
 export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 	backTo,
 	title,
+	documentTitle = title,
 	actions,
 	primaryAction,
 	titleExtra,
@@ -55,6 +60,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 	// Back returns to the previous page; on a direct load / deep link (no in-app
 	// history, so `key` is the router default) it falls back to the list route.
 	const goBack = () => (location.key === "default" ? navigate(backTo) : navigate(-1));
+	useDocumentTitle(documentTitle);
 
 	return (
 		<Box

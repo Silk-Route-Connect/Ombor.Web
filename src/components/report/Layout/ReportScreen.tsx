@@ -73,6 +73,7 @@ export function ReportScreen<Row extends { id: string }>({
 			<DetailPageHeader
 				backTo={PATHS.reports}
 				title={title}
+				documentTitle={t("report.documentTitle", { title })}
 				meta={periodLabel ?? undefined}
 				primaryAction={
 					<>

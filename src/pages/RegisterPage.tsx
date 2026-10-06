@@ -6,6 +6,7 @@ import RegisterFormStep from "components/auth/RegisterFormStep";
 import RegisterWelcome from "components/auth/RegisterWelcome";
 import { useCodeChallenge } from "hooks/auth/useCodeChallenge";
 import { useRegisterForm } from "hooks/auth/useRegisterForm";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { RegisterRequest } from "models/auth";
@@ -18,6 +19,7 @@ type Step = "form" | "otp" | "welcome";
 
 const RegisterPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	useDocumentTitle(t("auth.register.title"));
 	const navigate = useNavigate();
 	const { authStore, notificationStore } = useStore();
 
