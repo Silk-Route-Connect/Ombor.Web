@@ -1,22 +1,38 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import {
+	RefundFinancialCard,
+	SaleFinancialCard,
+} from "components/transaction/Detail/FinancialCards";
 import {
 	AuditCard,
 	NoteAttachmentsCard,
-	PaymentsCard,
-	PositionsCard,
 	ReasonCard,
-	RefundFinancialCard,
-	RefundFooter,
-	RefundHistoryCard,
 	RefundReferenceBanner,
-	SaleFinancialCard,
-} from "components/transaction/Detail/cards";
+} from "components/transaction/Detail/InfoCards";
+import PaymentsCard from "components/transaction/Detail/PaymentsCard";
+import PositionsCard from "components/transaction/Detail/PositionsCard";
+import RefundFooter from "components/transaction/Detail/PositionsFooter";
+import RefundHistoryCard from "components/transaction/Detail/RefundHistoryCard";
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
+import { transactionDetailPath } from "components/transaction/List/transactionTableConfigs";
 import RefundModal from "components/transaction/Refund/RefundModal";
+import { isPresent } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
+import { useOpenRefundOnArrival } from "hooks/transactions/useOpenRefundOnArrival";
 import { observer } from "mobx-react-lite";
-import { paymentDetailPath } from "routing/paths";
+import {
+	PATHS,
+	paymentDetailPath,
+	saleDetailPath,
+	saleInvoicePath,
+	supplyDetailPath,
+	supplyInvoicePath,
+} from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import {
 	isRefundType,
@@ -25,7 +41,7 @@ import {
 	txSubtotal,
 } from "utils/transactionUtils";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
 
 interface TransactionDetailPageProps {
 	direction: TransactionDirection;
@@ -34,46 +50,45 @@ interface TransactionDetailPageProps {
 const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ direction }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const txId = Number(id);
-	const { transactionStore, selectedTransactionStore, notificationStore } = useStore();
+	const txId = useRouteEntityId();
+	const { transactionStore, selectedTransactionStore } = useStore();
 
 	useEffect(() => {
-		if (Number.isFinite(txId)) {
+		if (txId !== null) {
 			void selectedTransactionStore.load(txId);
 		}
 		return () => selectedTransactionStore.clear();
 	}, [txId, selectedTransactionStore]);
 
-	const tx = selectedTransactionStore.transaction;
-	const detailBase = direction === "Sale" ? "/sales" : "/supplies";
-	const openTransaction = (otherId: number) => navigate(`${detailBase}/${otherId}`);
-	const devToast = (name: string) =>
-		notificationStore.info(t("transaction.detail.devToast", { name }));
+	const tx = txId === null ? null : selectedTransactionStore.transaction;
+	useOpenRefundOnArrival();
+	const retry = () => txId !== null && void selectedTransactionStore.load(txId);
+	const detailPath = direction === "Sale" ? saleDetailPath : supplyDetailPath;
+	const invoicePath = direction === "Sale" ? saleInvoicePath : supplyInvoicePath;
+	const openTransaction = (otherId: number) => navigate(detailPath(otherId));
 
-	if (tx === "loading") {
+	if (!isPresent(tx)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (tx === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("transaction.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={tx}
+				onRetry={retry}
+				errorTitle={t("transactions.errors.getById")}
+				notFound={{
+					title: t("transaction.detail.notFound"),
+					backTo: direction === "Sale" ? PATHS.sales : PATHS.supplies,
+				}}
+			/>
 		);
 	}
 
 	const refund = isRefundType(tx.type);
 	const refundsOf = selectedTransactionStore.refundsOfCurrent;
 	const original = selectedTransactionStore.originalOfCurrent;
+	const relationsError = selectedTransactionStore.relationsError;
 
 	const twoColSx = {
 		display: "grid",
-		gridTemplateColumns: { xs: "1fr", md: "1fr 372px" },
+		gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 		gap: "20px",
 		alignItems: "start",
 	} as const;
@@ -85,7 +100,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 				tx={tx}
 				direction={direction}
 				onCreateRefund={() => transactionStore.openRefund(tx)}
-				onDownload={() => devToast(t("transaction.detail.download"))}
+				fullyRefunded={selectedTransactionStore.isFullyRefunded}
+				onPrint={() => navigate(invoicePath(tx.id))}
 			/>
 
 			{refund && original && (
@@ -106,6 +122,17 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 						footer={refund ? <RefundFooter lines={tx.lines} /> : undefined}
 					/>
 
+					{relationsError && (
+						<Paper variant="outlined" sx={{ borderRadius: 1.5 }}>
+							<LoadStateView
+								state={relationsError}
+								size="section"
+								onRetry={retry}
+								errorTitle={t("transaction.detail.relationsLoadFailed")}
+							/>
+						</Paper>
+					)}
+
 					{!refund && refundsOf.length > 0 && (
 						<RefundHistoryCard direction={direction} refunds={refundsOf} onOpen={openTransaction} />
 					)}
@@ -113,6 +140,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					{!refund && (tx.notes || (tx.attachments?.length ?? 0) > 0) && (
 						<NoteAttachmentsCard tx={tx} />
 					)}
+
+					<EntityHistory kind={tx.type} id={tx.id} refreshKey={tx} variant="card" />
 				</Stack>
 
 				<Box sx={sideSx}>
@@ -124,7 +153,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							total={tx.totalDue}
 							positions={tx.lines.length}
 							originalNumber={tx.originalTransactionNumber}
-							onOpenOriginal={() => original && openTransaction(original.id)}
+							originalPath={original ? transactionDetailPath(original) : ""}
 						/>
 					) : (
 						<SaleFinancialCard
@@ -160,7 +189,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 								: tx,
 							payload,
 						);
-						if (created) {
+						if (created && txId !== null) {
 							await selectedTransactionStore.load(txId);
 						}
 					}}

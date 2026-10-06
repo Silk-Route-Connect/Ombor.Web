@@ -1,6 +1,6 @@
-import { Loadable } from "helpers/Loading";
+import { Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import PartnerApi from "services/api/PartnerApi";
@@ -29,8 +29,8 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 	partner: Loadable<Partner | null> = "loading";
 	ledger: Loadable<PartnerLedgerEntry[]> = "loading";
 
-	/** Monotonic load counter — guards against partner A's response landing on partner B's page. */
-	private loadSeq = 0;
+	/** Guards against partner A's response landing on partner B's page. */
+	private readonly loads = new LoadSequence();
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -38,7 +38,7 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 	}
 
 	async load(partnerId: number): Promise<void> {
-		const seq = ++this.loadSeq;
+		const isCurrent = this.loads.begin();
 		runInAction(() => {
 			this.partner = "loading";
 			this.ledger = "loading";
@@ -49,21 +49,19 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 			tryRun(() => PartnerApi.getLedger(partnerId)),
 		]);
 
-		// Superseded by a newer load (navigated to another partner) — drop this
-		// response so partner A's ledger can't render on partner B's page.
-		if (seq !== this.loadSeq) {
+		if (!isCurrent()) {
 			return;
 		}
 
 		if (partner.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.getById"));
+			this.notificationStore.notifyLoadError(partner, "partner.error.getById");
 		} else if (ledger.status === "fail") {
-			this.notificationStore.error(i18next.t("partner.error.getLedger"));
+			this.notificationStore.notifyLoadError(ledger, "partner.error.getLedger");
 		}
 
 		runInAction(() => {
-			this.partner = partner.status === "success" ? partner.data : null;
-			this.ledger = ledger.status === "success" ? ledger.data : [];
+			this.partner = toDetailLoadable(partner);
+			this.ledger = toLoadable(ledger);
 		});
 	}
 
@@ -72,8 +70,7 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 	}
 
 	clear(): void {
-		// Invalidate any in-flight load so a late response can't repopulate after unmount.
-		this.loadSeq++;
+		this.loads.invalidate();
 		this.partner = "loading";
 		this.ledger = "loading";
 	}

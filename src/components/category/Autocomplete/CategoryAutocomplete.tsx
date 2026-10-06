@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { isLoading, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
 import { useStore } from "stores/StoreContext";
@@ -50,11 +51,11 @@ const CategoryAutocomplete: React.FC<CategoryAutocompleteProps> = ({
 	const { categoryStore } = useStore();
 
 	const options: Category[] = useMemo(
-		() => (categoryStore.allCategories === "loading" ? [] : categoryStore.allCategories),
+		() => readyOr(categoryStore.allCategories, []),
 		[categoryStore.allCategories],
 	);
 
-	const loading = categoryStore.allCategories === "loading";
+	const loading = isLoading(categoryStore.allCategories);
 	const isDisabled = Boolean(disabled) || loading;
 
 	const selectedValue = useMemo(() => {

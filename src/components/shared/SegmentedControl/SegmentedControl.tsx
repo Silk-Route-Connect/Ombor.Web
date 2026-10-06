@@ -1,5 +1,5 @@
 import React from "react";
-import { controlSize, designTokens } from "theme";
+import { controlSize, designTokens, radius } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -40,7 +40,7 @@ export function SegmentedControl<T extends string>({
 				height: controlSize.md.height,
 				width: fullWidth ? "100%" : "auto",
 				bgcolor: designTokens.gray100,
-				borderRadius: "8px",
+				borderRadius: `${radius.md}px`,
 				p: "3px",
 				gap: "2px",
 			}}
@@ -52,6 +52,7 @@ export function SegmentedControl<T extends string>({
 						key={option.value}
 						onClick={() => onChange(option.value)}
 						disabled={disabled}
+						aria-pressed={selected}
 						sx={{
 							flex: fullWidth ? 1 : "0 0 auto",
 							justifyContent: "center",
@@ -60,7 +61,7 @@ export function SegmentedControl<T extends string>({
 							fontWeight: selected ? 600 : 500,
 							fontFamily: "inherit",
 							color: selected ? "text.primary" : "text.secondary",
-							borderRadius: "6px",
+							borderRadius: `${radius.sm}px`,
 							bgcolor: selected ? "background.paper" : "transparent",
 							boxShadow: selected ? 1 : "none",
 						}}

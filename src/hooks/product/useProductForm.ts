@@ -3,13 +3,26 @@ import { useForm, UseFormReturn, UseFormStateReturn, useWatch } from "react-hook
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Product, ProductImage } from "models/product";
 import { ProductFormInputs, ProductFormValues, ProductSchema } from "schemas/ProductSchema";
+import { applyServerFieldErrors, ServerErrorHandler, ServerFieldMap } from "utils/formServerErrors";
 import { mapProductToFormPayload } from "utils/productUtils";
+
+/** Server-only rules land on their field: a duplicate SKU, a category deleted meanwhile. */
+const SERVER_FIELDS: ServerFieldMap<ProductFormInputs> = {
+	SKU: { field: "sku", messageKey: "product.validation.skuTaken" },
+	CategoryId: { field: "categoryId", messageKey: "product.validation.categoryRequired" },
+};
 
 export interface UseProductFormOptions {
 	isOpen: boolean;
 	isSaving: boolean;
 	product?: Product | null;
-	onSave: (payload: ProductFormValues, imagesToRemove: number[]) => void;
+	/** Create only: values to start from (e.g. the name or barcode typed in the POS search). */
+	defaults?: Partial<ProductFormInputs>;
+	onSave: (
+		payload: ProductFormValues,
+		imagesToRemove: number[],
+		applyServerErrors: ServerErrorHandler,
+	) => void;
 }
 
 export interface UseProductFormResult {
@@ -73,6 +86,7 @@ export const useProductForm = ({
 	isOpen,
 	isSaving,
 	product,
+	defaults,
 	onSave,
 }: UseProductFormOptions): UseProductFormResult => {
 	const form = useForm<ProductFormInputs>({
@@ -83,7 +97,7 @@ export const useProductForm = ({
 		defaultValues: DEFAULT_VALUES,
 	});
 
-	const { control, formState, setValue, handleSubmit, reset, clearErrors } = form;
+	const { control, formState, setValue, handleSubmit, reset, clearErrors, setError } = form;
 
 	const [initialImages, setInitialImages] = useState<ProductImage[]>([]);
 	const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
@@ -94,7 +108,9 @@ export const useProductForm = ({
 	>(null);
 
 	useEffect(() => {
-		const initialValues = product ? mapProductToFormPayload(product) : { ...DEFAULT_VALUES };
+		const initialValues = product
+			? mapProductToFormPayload(product)
+			: { ...DEFAULT_VALUES, ...defaults };
 		reset(initialValues);
 		setInitialImages(product?.images ?? []);
 		setImagesToRemove([]);
@@ -104,6 +120,8 @@ export const useProductForm = ({
 		} else {
 			setMainSelection(null);
 		}
+		// `defaults` apply when the form opens; a later change must not wipe what was typed.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen, product, reset]);
 
 	const existingImages = useMemo(
@@ -227,7 +245,9 @@ export const useProductForm = ({
 	// Thread the tracked image removals through to the save callback — RHF's
 	// handleSubmit only forwards validated form values, so the deletions
 	// (tracked outside the form) must be passed explicitly.
-	const submit = handleSubmit((values) => onSave(values, imagesToRemove));
+	const applyServerErrors: ServerErrorHandler = (cause) =>
+		applyServerFieldErrors(cause, setError, SERVER_FIELDS);
+	const submit = handleSubmit((values) => onSave(values, imagesToRemove, applyServerErrors));
 	// Save stays enabled (hard rule 5): validation runs on submit and reports
 	// inline; the button is only inert while a save is in flight.
 	const canSave = !isSaving;

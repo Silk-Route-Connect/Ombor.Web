@@ -7,16 +7,19 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { observer } from "mobx-react-lite";
 import { Order, OrderLineDiscountType, OrderSource, UpdateOrderRequest } from "models/order";
 import { Partner } from "models/partner";
 import { Measurement, Product } from "models/product";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { lineNet } from "utils/orderUtils";
+import { lineNet, shortDeliveryTime, toApiDeliveryTime } from "utils/orderUtils";
 
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CheckIcon from "@mui/icons-material/Check";
@@ -31,7 +34,6 @@ import {
 	DialogActions,
 	DialogContent,
 	IconButton,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	TextField,
@@ -140,16 +142,15 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 
 	const activeProducts = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
 	);
-	const allPartners = partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
+	const allPartners = readyOr(partnerStore.allPartners, []);
 	const warehouses = useMemo(
-		() =>
-			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses,
-		[warehouseStore.filteredWarehouses],
+		() => readyOr(warehouseStore.activeWarehouses, []),
+		[warehouseStore.activeWarehouses],
 	);
 
 	// Reset the form from the order whenever the modal (re)opens.
@@ -164,7 +165,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			setLines(order.lines.map((l) => ({ ...l })));
 			setAddress(order.deliveryAddress ?? "");
 			setDeliveryDate(order.deliveryDate ?? "");
-			setDeliveryTime(order.deliveryTime ?? "");
+			setDeliveryTime(order.deliveryTime ? shortDeliveryTime(order.deliveryTime) : "");
 			setNote(order.notes ?? "");
 			setSubmitted(false);
 			setDirty(false);
@@ -230,7 +231,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			warehouseId: warehouseId === "" ? null : warehouseId,
 			deliveryAddress: address.trim() || null,
 			deliveryDate: deliveryDate || null,
-			deliveryTime: deliveryTime || null,
+			deliveryTime: toApiDeliveryTime(deliveryTime),
 			notes: note.trim() || null,
 			lines: lines.map((l) => ({
 				productId: l.productId,
@@ -257,7 +258,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 				onClose={requestClose}
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
-				slotProps={{ paper: { sx: { width: 860, maxWidth: "95%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={order ? t("order.edit.title", { number: order.orderNumber }) : ""}
@@ -426,8 +427,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 									{t("order.edit.total")}:{" "}
 									<Box component="b" sx={{ ...numericSx, color: "text.primary", fontWeight: 700 }}>
 										{formatCurrency(total)}
-									</Box>{" "}
-									UZS
+									</Box>
+									<UzsUnit />
 								</Typography>
 							)}
 						</Box>
@@ -515,7 +516,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 														sx: { ...numericSx, fontWeight: 600 },
 													},
 												}}

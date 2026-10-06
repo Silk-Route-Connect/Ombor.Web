@@ -5,7 +5,7 @@ import { designTokens } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import LanguageIcon from "@mui/icons-material/Language";
-import { Box, Typography } from "@mui/material";
+import { Box, ButtonBase, Typography } from "@mui/material";
 
 import SettingsSectionCard from "./SettingsSectionCard";
 
@@ -29,25 +29,30 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 			title={t("settings.lang.title")}
 			subtitle={t("settings.lang.subtitle")}
 		>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+			<Box role="radiogroup" sx={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 				{UI_LANGUAGES.map((lang) => {
 					const on = lang.code === currentCode;
 					return (
-						<Box
+						<ButtonBase
 							key={lang.code}
+							role="radio"
+							aria-checked={on}
 							onClick={() => onSelect(lang.code)}
 							sx={{
+								justifyContent: "flex-start",
+								textAlign: "left",
+								fontFamily: "inherit",
 								display: "flex",
 								alignItems: "center",
 								gap: "14px",
 								p: "15px 18px",
 								border: "1.5px solid",
-								borderColor: on ? "primary.main" : designTokens.gray300,
+								borderColor: on ? "primary.main" : designTokens.borderControl,
 								borderRadius: "8px",
 								cursor: "pointer",
 								bgcolor: on ? designTokens.primarySoft : "transparent",
 								transition: "border-color .14s, background .14s",
-								"&:hover": on ? {} : { borderColor: designTokens.gray400 },
+								"&:hover": on ? {} : { borderColor: "text.primary" },
 							}}
 						>
 							<Box
@@ -59,7 +64,7 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 									border: "2px solid",
 									borderColor: on ? "primary.main" : designTokens.gray300,
 									bgcolor: on ? "primary.main" : "transparent",
-									color: "#fff",
+									color: "common.white",
 									display: "grid",
 									placeItems: "center",
 								}}
@@ -67,13 +72,13 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 								{on && <CheckIcon sx={{ fontSize: 13 }} />}
 							</Box>
 							<Box sx={{ flex: 1, minWidth: 0 }}>
-								<Typography sx={{ fontSize: 14.5, fontWeight: 700 }}>{lang.label}</Typography>
-								<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "2px" }}>
+								<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{lang.label}</Typography>
+								<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "2px" }}>
 									{t(`settings.lang.desc.${lang.code}`)}
 								</Typography>
 							</Box>
 							{on && <CheckIcon sx={{ fontSize: 20, color: "primary.main", flex: "0 0 auto" }} />}
-						</Box>
+						</ButtonBase>
 					);
 				})}
 			</Box>

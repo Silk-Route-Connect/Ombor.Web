@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import DeliveryInfoCard from "components/order/Detail/DeliveryInfoCard";
 import OrderDetailHeader from "components/order/Detail/OrderDetailHeader";
 import OrderPositionsCard from "components/order/Detail/OrderPositionsCard";
@@ -10,43 +11,43 @@ import StatusHistoryCard from "components/order/Detail/StatusHistoryCard";
 import TerminalBanner from "components/order/Detail/TerminalBanner";
 import DeliveryConfirmModal from "components/order/Modal/DeliveryConfirmModal";
 import OrderFormModal from "components/order/Modal/OrderFormModal";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath } from "routing/paths";
+import { orderInvoicePath, partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 const OrderDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const orderId = Number(id);
-	const { orderStore, notificationStore } = useStore();
+	const orderId = useRouteEntityId();
+	const { orderStore } = useStore();
 
+	// The page reads the orders cache; a cache that is still empty or failed is (re)fetched.
 	useEffect(() => {
-		if (orderStore.allOrders === "loading") {
+		if (!isReady(orderStore.allOrders)) {
 			void orderStore.getAll();
 		}
 	}, [orderStore]);
 
-	if (orderStore.allOrders === "loading") {
+	const allOrders = orderStore.allOrders;
+	const order = orderId === null ? null : orderStore.orderById(orderId);
+	if (!isReady(allOrders) || !order) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	const order = orderStore.orderById(orderId);
-	if (!order) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("order.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={isReady(allOrders) ? null : allOrders}
+				onRetry={() => void orderStore.getAll()}
+				errorTitle={t("order.error.getAll")}
+				notFound={{ title: t("order.detail.notFound"), backTo: PATHS.orders }}
+			/>
 		);
 	}
 
@@ -54,7 +55,7 @@ const OrderDetailPage: React.FC = observer(() => {
 
 	const twoColSx = {
 		display: "grid",
-		gridTemplateColumns: { xs: "1fr", md: "1fr 372px" },
+		gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 		gap: "20px",
 		alignItems: "start",
 	} as const;
@@ -70,17 +71,18 @@ const OrderDetailPage: React.FC = observer(() => {
 				onCancel={orderStore.openCancel}
 				onReject={orderStore.openReject}
 				onReturn={orderStore.openReturn}
-				onDownload={() => notificationStore.info(t("order.detail.downloadInfo"))}
+				onPrint={() => navigate(orderInvoicePath(order.id))}
 			/>
 
 			<OrderStepper order={order} />
-			<TerminalBanner order={order} />
+			<TerminalBanner order={order} onOpenSale={(saleId) => navigate(saleDetailPath(saleId))} />
 
 			<Box sx={twoColSx}>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
 					<OrderPositionsCard order={order} />
 					<DeliveryInfoCard order={order} />
 					<StatusHistoryCard order={order} />
+					<EntityHistory kind="Order" id={order.id} refreshKey={order} variant="card" />
 				</Box>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 					<OrderSidebar order={order} onOpenCustomer={openCustomer} />
@@ -144,9 +146,7 @@ const OrderDetailPage: React.FC = observer(() => {
 				title={t("order.confirm.return.title", {
 					number: dialog.kind === "return" ? dialog.order.orderNumber : "",
 				})}
-				content={t("order.confirm.return.body", {
-					saleId: dialog.kind === "return" ? (dialog.order.saleId ?? "") : "",
-				})}
+				content={t("order.confirm.return.body")}
 				confirmLabel={t("order.confirm.return.confirm")}
 				cancelLabel={t("order.confirm.back")}
 				confirmVariant="danger"

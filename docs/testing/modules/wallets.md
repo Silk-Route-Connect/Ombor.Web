@@ -17,7 +17,7 @@ Module-specific designed behavior — never report these (shared-checklist §6 h
 | **No delete affordance anywhere on wallets** — list ⋮ and detail ⋮ offer edit + archive/restore only | Known divergence, not designed-correct: archive-only is the *shipped interim* behavior (repo-state Wallets; archive dialog copy) and diverges from DR-20/#19 — delete stays visible, reference-gated via served `isDeletable`; the FE affordance "follows" (not yet built). Observe per T-WAL-38; don't report as a NEW defect |
 | A Депозит raises «Баланс» AND «Авансы» while «Наши средства» stays flat | R11 — an advance is a partner's claim on cash sitting in the wallet |
 | After an overpayment-into-advance, «Наши средства» grows by less than the money that came in | R12 — only the settled part is ours (worked example 1) |
-| Operation kind labels mirror payment-type vocabulary: kind `Expense` renders «Общий», `Payment` renders «Оплата» | deliberate i18n mapping (`wallet.operation.*`), #17 wallet clause |
+| A payment row's «Тип» is the same coloured payment-type chip as on `/payments` («Оплата» / «Депозит» / «Вывод» / «Зарплата» / «Общий») | served `paymentType` (live-ui-17); on an API build without it the row falls back to the coarse `kind` label (`wallet.operation.*`) |
 | Clicking a transfer row opens a modal; clicking a payment row navigates to `/payments/:id` | designed split — transfers have no routed detail page |
 | An archived wallet is absent from the transfer and payment-source pickers while its money stays in the strip | R30/R31, #13 — hidden from pickers, not from value |
 | Transfer modal opened from a wallet detail pre-selects that wallet as source | designed default |
@@ -53,7 +53,7 @@ Expect: toast «Перевод проведён: QA-<MMDD> Касса А → QA-
 
 ### T-WAL-06 · Deposit raises balance AND advances; «Наши средства» flat [happy] ✍
 Pre: T-WAL-05 (Б at 350 000). Create partner «QA-<MMDD> Партнёр Кас» (Клиент, opening 0) via `/partners`.
-Steps: `/payments` → create payment → type «Депозит», partner «QA-<MMDD> Партнёр Кас», wallet Касса Б, amount 100 000 → submit.
+Steps: `/payments` → create payment → type «Аванс», partner «QA-<MMDD> Партнёр Кас», wallet Касса Б, amount 100 000 → submit.
 Expect: Б cards: Баланс 450 000 · Авансы 100 000 · Наши средства 350 000 (R11, R12); Операции top row «Депозит» · «Приход» · 100 000 · Баланс после 450 000. Strip deltas vs T-WAL-05 end: Общий баланс +100 000, Авансы партнёров +100 000, Наши средства ±0.
 
 ### T-WAL-07 · Overpay-into-advance: balance +full tender, our money +settled part only [happy] ✍
@@ -63,9 +63,9 @@ Expect: one Wallet source 25 000 balancing settlement 15 000 + advance 10 000 (R
 
 ### T-WAL-08 · Операции ledger: localization, order, running balance, links [happy]
 Pre: T-WAL-07 (А has 3 operations).
-Steps: on А's Операции tab: read rows; apply direction filter «Расход»; search the partner name from T-WAL-07; click the «Платёж» cell link.
-Expect: newest-first default (#21): «Оплата» 375 000 → «Перевод» 350 000 → «Начальный остаток» 500 000 in «Баланс после» — each row's balanceAfter = previous (older) balanceAfter ± amount; kinds localized, no raw `Opening`/`Payment` (#17); direction pills «Приход»/«Расход», amounts unsigned (#4); filter «Расход» leaves only the transfer row; search leaves only the payment row; payment reference renders «№N» (DR-21) and routes to `/payments/:id`. Party cell is plain text — not clickable (Known below).
-Known: F10 — direction narrowed to In/Out (if the backend serves Income/Expense every row shows red «Расход» — report KNOWN); op `partnerId` unmodeled, party not clickable (WAL-7). If the «Платёж» cell shows bare digits without «№», report a DR-21 defect — `WalletOperationsTab.tsx:121` renders the raw served number and was not in the F19 sweep.
+Steps: on А's Операции tab: read rows; apply direction filter «Расход»; search the partner name from T-WAL-07; click the «Платёж» cell, then the row; sort by «Платёж».
+Expect: «Платёж» is the first column; newest-first default (#21): «Оплата» 375 000 → «Перевод» 350 000 → «Начальный остаток» 500 000 in «Баланс после» — each row's balanceAfter = previous (older) balanceAfter ± amount; kinds localized, no raw `Opening`/`Payment` (#17); direction pills «Приход»/«Расход», amounts unsigned (#4); filter «Расход» leaves only the transfer row; search leaves only the payment row; the payment number renders «№N» (DR-21) exactly as on `/payments` — clicking it copies the number, clicking the row routes to `/payments/:id`; a payment without a number shows «Без номера» (as on `/payments` and the partner ledger), a transfer «—»; sorting by «Платёж» is numeric («№10» after «№9»). The party links to the partner detail.
+Known: F10 — direction narrowed to In/Out (if the backend serves Income/Expense every row shows red «Расход» — report KNOWN).
 
 ## Edge & negative
 
@@ -99,21 +99,31 @@ Expect: inline «Введите сумму перевода»; no request sent; 
 ### T-WAL-36 · Archive with balance — strip totals unchanged [edge]
 Pre: T-WAL-06 (Б at 450 000 with 100 000 advances). Record all three strip values.
 Steps: 1. `/wallets` → Касса Б ⋮ → «Архивировать». 2. Confirm dialog. 3. Re-read the strip; switch segments.
-Expect: dialog title «Архивировать кассу «QA-<MMDD> Касса Б»?», body states archive-not-delete and that the balance keeps counting; row leaves «Активные», appears under «Архив» with the «Архив» badge (#13); **all three strip totals are identical before/after** (R31 — archived money still counts).
+Expect: dialog title «Архивировать кассу «QA-<MMDD> Касса Б»?», body says the wallet leaves the pickers and its balance keeps counting in totals; row leaves «Активные», appears under «Архив» with the «Архив» badge (#13); **all three strip totals are identical before/after** (R31 — archived money still counts).
 
 ### T-WAL-37 · Archived wallet: affordances + picker exclusion, then restore [edge]
 Pre: T-WAL-36 (Б archived).
 Steps: 1. Open Б's detail. 2. From А open the transfer modal and both pickers. 3. Open the payment-create wallet picker. 4. Back on Б detail: «Восстановить».
-Expect: Б detail shows banner «Касса в архиве.», a single primary «Восстановить», no ⋮/edit/«Новый перевод» (#2); Б absent from both transfer pickers and from the payment wallet picker (R30, #13); its historical rows (T-WAL-05 transfer in А's Переводы) still resolve by name (R30). Restore → toast «Касса «QA-<MMDD> Касса Б» восстановлена», row back in «Активные», figures intact (450 000 / 100 000 / 350 000).
+Expect: Б detail shows banner «Касса в архиве.», a single primary «Восстановить», no «Новый перевод»; ⋮ holds edit · restore · delete (#2, #19); Б absent from both transfer pickers and from the payment wallet picker (R30, #13); its historical rows (T-WAL-05 transfer in А's Переводы) still resolve by name (R30). Restore → toast «Касса «QA-<MMDD> Касса Б» восстановлена», row back in «Активные», figures intact (450 000 / 100 000 / 350 000).
 
-### T-WAL-38 · No delete affordance anywhere [negative]
+### T-WAL-38 · Delete is always offered, reference-gated [negative]
 Pre: T-WAL-36.
 Steps: inspect the list ⋮ of an active and an archived wallet, and the detail ⋮. Perform the archived-wallet ⋮ inspection on Касса Б while it is archived — i.e. run this check between T-WAL-36 and T-WAL-37 — or re-archive Касса Б, inspect its list ⋮, and restore it afterwards.
-Expect: only edit + archive (or restore) — no delete item anywhere; the archive dialog body states «Кассы нельзя удалить — только архивировать.» (repo-state Wallets — shipped behavior). Known: diverges from DR-20/#19 (delete stays visible, reference-gated; FE affordance pending) — report as KNOWN, and flag that the divergence needs an F-item in frontend-gaps.md or a decision-log ruling. If a delete item appears, DR-20 FE work has landed — re-check this case and the archive-dialog copy «Кассы нельзя удалить — только архивировать.», which also contradicts DR-20/R32.
+Expect: every ⋮ (list, detail; active and archived) shows edit · archive-or-restore · «Удалить» (DR-20/#19). «Удалить» on a wallet with payments or transfers opens «Кассу нельзя удалить» — it explains why and offers «Архивировать» (an archived wallet gets «Понятно» instead); nothing is deleted. Only a never-used wallet gets the «Удалить кассу …?» confirm. The archive dialog no longer says wallets cannot be deleted.
 
 ### T-WAL-39 · Bad deep-link [negative]
 Steps: navigate to `/wallets/9999999`.
 Expect: «Касса не найдена.» rendered, no crash/blank; network shows the 404.
+
+### T-WAL-40 · Operations date filter and totals band [edge]
+
+Steps: 1. Open a wallet with operations, tab «Операции». 2. In the band pick «Дата: Этот месяц». 3. Toggle «Приход».
+Expect: 2 → only this month's operations; under the table «N операций · Приход … UZS · Расход … UZS» left of the pager. 3 → the band follows the toggle (Расход 0). The wallet's balance cards do not change — the filter narrows the list only.
+
+### T-WAL-41 · «История» tab [edge]
+Pre: T-WAL-01 wallet.
+Steps: Detail → tab «История».
+Expect: «Касса «QA-<MMDD> Касса А» добавлена · 500 000 UZS» (the opening balance as the amount); a rename reads «Касса «…» изменена: название … → …». Payments and transfers through the wallet stay on «Операции» / «Переводы» — the history lists changes to the wallet record only. Details in [activity-log.md](activity-log.md) (T-ACT-06).
 
 ## Reconciliation
 

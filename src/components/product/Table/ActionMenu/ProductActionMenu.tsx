@@ -1,61 +1,70 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
+import { TFunction } from "i18next";
 import { Product } from "models/product";
-import { designTokens } from "theme";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 
-interface ProductActionMenuProps {
+interface ProductActionHandlers {
 	product: Product;
 	onEdit: () => void;
 	onArchive: () => void;
 	onRestore: () => void;
+	onDelete: () => void;
 }
 
 /**
- * Row actions for a product: edit, plus archive or restore depending on state.
- * Products are archive-only — never hard-deleted (canon rules 17/22/32).
- * Colors per the bundle's rmenu: edit is neutral (ink label, muted icon);
- * archive is the saffron-tinted action; restore is the success-tinted action.
+ * The product action rows — edit, archive-or-restore, delete — shared by the
+ * list row menu and the detail-page kebab. Delete is always offered; a
+ * referenced product gets «cannot delete — archive instead» (pattern 19).
  */
-export const ProductActionMenu: React.FC<ProductActionMenuProps> = ({
-	product,
-	onEdit,
-	onArchive,
-	onRestore,
-}) => {
-	const { t } = useTranslation();
-
-	const actions: ActionMenuRow[] = [
+export function buildProductActionRows(
+	t: TFunction,
+	{ product, onEdit, onArchive, onRestore, onDelete }: ProductActionHandlers,
+): ActionMenuRow[] {
+	return [
 		{
 			key: "edit",
 			label: t("common.edit"),
-			icon: <EditOutlinedIcon fontSize="small" sx={{ color: "text.secondary" }} />,
+			icon: <EditOutlinedIcon fontSize="small" />,
 			onClick: onEdit,
 		},
 		product.isArchived
 			? {
 					key: "restore",
 					label: t("common.restore"),
-					labelColor: "success.main",
+					tone: "restore",
 					dividerBefore: true,
-					icon: <UnarchiveOutlinedIcon fontSize="small" sx={{ color: "success.main" }} />,
+					icon: <UnarchiveOutlinedIcon fontSize="small" />,
 					onClick: onRestore,
 				}
 			: {
 					key: "archive",
 					label: t("common.archive"),
-					labelColor: designTokens.saffron700,
+					tone: "archive",
 					dividerBefore: true,
-					icon: <ArchiveOutlinedIcon fontSize="small" sx={{ color: designTokens.saffron600 }} />,
+					icon: <ArchiveOutlinedIcon fontSize="small" />,
 					onClick: onArchive,
 				},
+		{
+			key: "delete",
+			label: t("common.delete"),
+			tone: "danger",
+			dividerBefore: true,
+			icon: <DeleteOutlineIcon fontSize="small" />,
+			onClick: onDelete,
+		},
 	];
+}
 
-	return <ActionMenu actions={actions} />;
+/** Row actions for a product on the shared {@link ActionMenu}. */
+export const ProductActionMenu: React.FC<ProductActionHandlers> = (handlers) => {
+	const { t } = useTranslation();
+	return <ActionMenu actions={buildProductActionRows(t, handlers)} />;
 };
 
 export default ProductActionMenu;

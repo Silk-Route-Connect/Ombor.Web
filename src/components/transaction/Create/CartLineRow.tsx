@@ -4,7 +4,7 @@ import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort, measurementShortLabel } from "utils/productUtils";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -72,7 +72,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const isSale = direction === "Sale";
-	const unit = MEASUREMENT_SHORT[item.product.measurement];
+	const unit = measurementShort(t, item.product.measurement);
 	const stock = stockAt(item.product, warehouseId);
 	// A supply adds stock, so over-stock never applies — only sales validate it.
 	const over = isSale && item.quantity > stock;
@@ -112,7 +112,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 								mt: "5px",
 								fontSize: 11.5,
 								fontWeight: 600,
-								color: over ? "error.main" : near ? "warning.main" : "text.secondary",
+								color: over ? "error.main" : near ? "warning.dark" : "text.secondary",
 							}}
 						>
 							{over ? (
@@ -154,7 +154,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
 					<Typography sx={fieldLabelSx}>
 						{t(isSale ? "transaction.new.line.price" : "transaction.new.line.priceSupply", {
-							unit,
+							unit: measurementShortLabel(t, item.product.measurement),
 						})}
 					</Typography>
 					<Box sx={boxedInputSx}>
@@ -207,7 +207,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						onClick={onRemove}
 						aria-label={t("transaction.new.line.remove")}
 						sx={{
-							color: designTokens.gray400,
+							color: designTokens.fg3,
 							"&:hover": { color: "error.main", bgcolor: designTokens.errorBg },
 						}}
 					>

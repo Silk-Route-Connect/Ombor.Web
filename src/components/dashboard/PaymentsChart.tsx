@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
 import {
 	Area,
@@ -18,9 +19,9 @@ import { formatCurrency, formatShortNumber } from "utils/formatCurrency";
 
 import { useTheme } from "@mui/material";
 
-import ChartTooltip from "./ChartTooltip";
 import { KassaSelection } from "./KassaFilter";
 import { usePrefersReducedMotion } from "./motion";
+import { seriesHeading, seriesTick, seriesTickInterval } from "./seriesLabels";
 
 const HEIGHT = 230;
 const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
@@ -64,7 +65,7 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 		if (!row) return null;
 		return (
 			<ChartTooltip
-				heading={row.label}
+				heading={seriesHeading(row.label)}
 				rows={[
 					{ label: t("dashboard.chart.payin"), color: green, value: formatCurrency(row.payin) },
 					{ label: t("dashboard.chart.payout"), color: red, value: formatCurrency(row.payout) },
@@ -86,6 +87,8 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 					<CartesianGrid vertical={false} stroke={theme.palette.divider} />
 					<XAxis
 						dataKey="label"
+						tickFormatter={seriesTick}
+						interval={seriesTickInterval(rows.length)}
 						tickLine={false}
 						axisLine={false}
 						tick={AXIS_TICK}
@@ -99,7 +102,7 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 						tickFormatter={(v) => formatShortNumber(Math.abs(v as number))}
 					/>
 					<ReferenceLine y={0} stroke={designTokens.gray400} strokeWidth={1.3} />
-					<Tooltip content={renderTooltip} cursor={{ fill: "rgba(18,103,107,0.05)" }} />
+					<Tooltip content={renderTooltip} cursor={{ fill: designTokens.primaryWash }} />
 					<Bar dataKey="payin" fill={green} radius={[3, 3, 0, 0]} maxBarSize={14} {...anim} />
 					<Bar
 						dataKey="payoutNeg"
@@ -115,6 +118,8 @@ const PaymentsChart: React.FC<Props> = ({ series, chartType, kassa }) => {
 					<CartesianGrid vertical={false} stroke={theme.palette.divider} />
 					<XAxis
 						dataKey="label"
+						tickFormatter={seriesTick}
+						interval={seriesTickInterval(rows.length)}
 						tickLine={false}
 						axisLine={false}
 						tick={AXIS_TICK}

@@ -1,16 +1,10 @@
 ﻿import { Order, OrderLine, OrderStatus } from "models/order";
-import { chipTokens, designTokens } from "theme";
+import { ChipTokenKey, chipTokens, designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-/** Resolved chip appearance (fill + text + border) — always drawn from `chipTokens`. */
-export interface OrderChipStyle {
-	bg: string;
-	color: string;
-	border: string;
-}
-
 export interface OrderStatusMeta {
-	chip: OrderChipStyle;
+	/** Chip colour semantics (`chipTokens` key). */
+	token: ChipTokenKey;
 	/** Struck-through label (Cancelled — closed without consequence). */
 	strike?: boolean;
 	/** Accent colour for non-chip status marks (timeline dots, tab counts). */
@@ -18,26 +12,19 @@ export interface OrderStatusMeta {
 }
 
 /**
- * Per-status chip styling via `chipTokens` — lifecycle semantics on the locked
- * palette: work-in-progress states carry the brand hues (Processing = teal,
- * Shipping = saffron), terminal states the semantic ones (Delivered = green =
- * good-terminal, Returned / Rejected = red = bad-terminal; Rejected keeps the
- * outline variant to stay distinguishable from Returned). Pending / Cancelled
- * are neutral. Status chips may use the full semantic palette — the green/red
- * money reservation applies to amount / balance figures, not status.
- * Labels live in i18n (`order.status.*`).
+ * Order lifecycle colours — their own axis, never the transaction-type hues:
+ * Pending neutral → Processing info blue → Shipping purple → Delivered green
+ * (good terminal); Returned red, Rejected red outline (bad terminals);
+ * Cancelled neutral struck through. Labels live in i18n (`order.status.*`).
  */
 export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
-	Pending: { chip: chipTokens.neutral, accent: designTokens.gray400 },
-	Processing: { chip: chipTokens.sale, accent: chipTokens.sale.color },
-	Shipping: { chip: chipTokens.supply, accent: chipTokens.supply.color },
-	Delivered: { chip: chipTokens.closed, accent: chipTokens.closed.color },
-	Cancelled: { chip: chipTokens.neutral, strike: true, accent: designTokens.gray400 },
-	Rejected: {
-		chip: { bg: "transparent", color: chipTokens.overdue.color, border: chipTokens.overdue.border },
-		accent: chipTokens.overdue.color,
-	},
-	Returned: { chip: chipTokens.overdue, accent: chipTokens.overdue.color },
+	Pending: { token: "neutral", accent: designTokens.decoration },
+	Processing: { token: "info", accent: chipTokens.info.color },
+	Shipping: { token: "purple", accent: chipTokens.purple.color },
+	Delivered: { token: "closed", accent: chipTokens.closed.color },
+	Cancelled: { token: "neutral", strike: true, accent: designTokens.decoration },
+	Rejected: { token: "dangerOutline", accent: chipTokens.danger.color },
+	Returned: { token: "danger", accent: chipTokens.danger.color },
 };
 
 /** The linear happy-path drawn by the detail stepper. */
@@ -63,25 +50,44 @@ export const ORDER_NEXT_STEP: Partial<Record<OrderStatus, OrderForwardStep>> = {
 	Shipping: { to: "Delivered", action: "deliver", promote: true },
 };
 
+type DeliveryFields = Pick<Order, "status" | "deliveryDate">;
+
+/** The requested delivery day (local midnight) of an order still to deliver; null otherwise. */
+function openDeliveryDay(order: DeliveryFields): number | null {
+	if (!order.deliveryDate || !PRE_DELIVERY.includes(order.status)) {
+		return null;
+	}
+	return new Date(`${order.deliveryDate}T00:00:00`).getTime();
+}
+
+const startOfToday = (): number => new Date().setHours(0, 0, 0, 0);
+
 /**
  * An order is overdue when it is still pre-delivery and its requested delivery
  * date is before today — flagged on the list/detail, never hidden.
  */
-export function isOrderOverdue(order: Pick<Order, "status" | "deliveryDate">): boolean {
-	if (!order.deliveryDate || !PRE_DELIVERY.includes(order.status)) {
-		return false;
-	}
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	const due = new Date(`${order.deliveryDate}T00:00:00`);
-	return due.getTime() < today.getTime();
+export function isOrderOverdue(order: DeliveryFields): boolean {
+	const day = openDeliveryDay(order);
+	return day !== null && day < startOfToday();
+}
+
+/** Still pre-delivery and requested for today — the bell's «Сегодня доставить». */
+export function isOrderDueToday(order: DeliveryFields): boolean {
+	return openDeliveryDay(order) === startOfToday();
 }
 
 /**
  * Display form of a served delivery time. The backend serializes `TimeOnly` as
- * «HH:mm:ss» (the mock seeds «HH:mm») — the UI shows «HH:mm» either way.
+ * «HH:mm:ss»; the UI shows «HH:mm».
  */
 export const shortDeliveryTime = (time: string): string => time.slice(0, 5);
+
+/**
+ * Request form of a delivery time picked in an «HH:mm» time input. The API binds
+ * `TimeOnly` only from «HH:mm:ss» — a bare «HH:mm» fails the whole body binding.
+ */
+export const toApiDeliveryTime = (time: string): string | null =>
+	time === "" ? null : time.length === 5 ? `${time}:00` : time;
 
 export const isOrderEditable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
 export const isOrderCancelable = (status: OrderStatus): boolean => PRE_DELIVERY.includes(status);
@@ -131,7 +137,11 @@ export function discountShortLabel(
 		: `−${formatCurrency(line.discount)}`;
 }
 
-/** Status tabs on the list toolbar (the prototype omits Rejected / Returned). */
+/**
+ * Status tabs on the list toolbar — every status, so the per-tab counts always
+ * add up to «Все» (the prototype's omission of Rejected / Returned left those
+ * orders unfilterable, live-ui-5).
+ */
 export type OrderStatusFilter = "all" | OrderStatus;
 export const ORDER_STATUS_TABS: OrderStatusFilter[] = [
 	"all",
@@ -139,8 +149,48 @@ export const ORDER_STATUS_TABS: OrderStatusFilter[] = [
 	"Processing",
 	"Shipping",
 	"Delivered",
+	"Returned",
 	"Cancelled",
+	"Rejected",
 ];
+
+/**
+ * «Доставка» filter on the Orders list, kept in the URL (`?delivery=overdue`)
+ * so the bell's order alerts open the list already narrowed.
+ */
+export type OrderDeliveryFilter = "all" | "overdue" | "today";
+export const ORDER_DELIVERY_FILTERS: OrderDeliveryFilter[] = ["all", "overdue", "today"];
+
+export const parseDeliveryFilter = (raw: string | null): OrderDeliveryFilter =>
+	raw === "overdue" || raw === "today" ? raw : "all";
+
+export function matchesDeliveryFilter(order: DeliveryFields, filter: OrderDeliveryFilter): boolean {
+	if (filter === "overdue") {
+		return isOrderOverdue(order);
+	}
+	return filter === "today" ? isOrderDueToday(order) : true;
+}
+
+/**
+ * The list search: people type «№12», «#12» or the bare number, so a leading
+ * prefix is stripped and the number matches EXACTLY (DR-21 numbers are short
+ * integers — a substring «3» would wrongly match 13 / 30 / …); the customer
+ * name stays a substring match.
+ */
+export function matchesOrderSearch(
+	order: Pick<Order, "orderNumber" | "customerName">,
+	search: string,
+): boolean {
+	const term = search.trim().toLowerCase();
+	if (!term) {
+		return true;
+	}
+	const numberTerm = term.replace(/^[№#]/, "");
+	return (
+		(numberTerm !== "" && order.orderNumber === numberTerm) ||
+		order.customerName.toLowerCase().includes(term)
+	);
+}
 
 /** Count of orders per status (for the tab pills). */
 export function countByStatus(orders: Order[]): Record<OrderStatusFilter, number> {

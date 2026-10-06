@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Order } from "models/order";
 import { Product } from "models/product";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -47,9 +48,9 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 	const [warehouseId, setWarehouseId] = useState<number>(0);
 	const [tried, setTried] = useState(false);
 
-	const warehouses = warehouseStore.allWarehouses === "loading" ? [] : warehouseStore.allWarehouses;
+	const warehouses = readyOr(warehouseStore.allWarehouses, []);
 	const productById = useMemo(() => {
-		const products = productStore.allProducts === "loading" ? [] : productStore.allProducts;
+		const products = readyOr(productStore.allProducts, []);
 		return new Map<number, Product>(products.map((p) => [p.id, p]));
 	}, [productStore.allProducts]);
 
@@ -105,7 +106,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 			onClose={handleClose}
 			disableEscapeKeyDown={isSaving}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 560, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 		>
 			<FormDialogHeader
 				title={t("order.deliver.title")}
@@ -204,7 +205,7 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 						)}
 					</Box>
 					{checks.map(({ line, have, ok }) => {
-						const unit = MEASUREMENT_SHORT[line.measurement];
+						const unit = measurementShort(t, line.measurement);
 						return (
 							<Box
 								key={line.id}

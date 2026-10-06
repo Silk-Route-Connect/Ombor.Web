@@ -1,5 +1,10 @@
+import { isReady, toLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { ALL_DATES, DateRangeValue, filterByDateRange } from "utils/dateRange";
+import { formatCurrency } from "utils/formatCurrency";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -35,6 +40,7 @@ export interface IPaymentStore {
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
 	directionFilter: PaymentDirection | "all";
+	dateRange: DateRangeValue;
 	isSaving: boolean;
 	isCreateOpen: boolean;
 
@@ -51,6 +57,7 @@ export interface IPaymentStore {
 	setTypeFilter(type: PaymentTypeFilter): void;
 	setWalletFilter(walletId: number | "all"): void;
 	setDirectionFilter(direction: PaymentDirection): void;
+	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
 	closeCreate(): void;
@@ -58,6 +65,9 @@ export interface IPaymentStore {
 
 export class PaymentStore implements IPaymentStore {
 	private readonly notificationStore: NotificationStore;
+	/** Latest-only: switching partner must never show the previous partner's debts. */
+	private readonly outstandingLoads = new LoadSequence();
+	private readonly formDataLoads = new LoadSequence();
 
 	allPayments: Loadable<PaymentRecord[]> = "loading";
 	formData: Loadable<PaymentFormData> = "loading";
@@ -67,8 +77,15 @@ export class PaymentStore implements IPaymentStore {
 	typeFilter: PaymentTypeFilter = "all";
 	walletFilter: number | "all" = "all";
 	directionFilter: PaymentDirection | "all" = "all";
+	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	isCreateOpen = false;
+	/**
+	 * Set by a create: advances / open debts / wallet balances moved, so the next
+	 * open refetches. The loaded data itself stays until then — dropping it while
+	 * the dialog is still closing left its selects holding out-of-range values.
+	 */
+	private formDataStale = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -76,16 +93,17 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	/**
-	 * Type + wallet + search filtered, but NOT the direction toggle — the scope the
-	 * summary cards total over, so the Приход / Расход cards stay stable references
-	 * you can toggle the table by (PAY-3).
+	 * Period + type + wallet + search filtered, but NOT the direction toggle — the
+	 * scope the summary cards total over, so the Приход / Расход cards follow the
+	 * picked period and stay stable references you can toggle the table by (PAY-3).
+	 * The period filters client-side like every list: the full list is loaded anyway.
 	 */
 	private get scopedPayments(): Loadable<PaymentRecord[]> {
-		if (this.allPayments === "loading") {
-			return "loading";
+		if (!isReady(this.allPayments)) {
+			return this.allPayments;
 		}
 
-		let rows = this.allPayments;
+		let rows = filterByDateRange(this.allPayments, this.dateRange, (p) => p.date);
 
 		if (this.typeFilter !== "all") {
 			rows = rows.filter((p) => p.type === this.typeFilter);
@@ -108,8 +126,8 @@ export class PaymentStore implements IPaymentStore {
 	/** The table view — the scoped set plus the Приход / Расход direction toggle. */
 	get filteredPayments(): Loadable<PaymentRecord[]> {
 		const rows = this.scopedPayments;
-		if (rows === "loading") {
-			return "loading";
+		if (!isReady(rows)) {
+			return rows;
 		}
 		return this.directionFilter === "all"
 			? rows
@@ -119,7 +137,7 @@ export class PaymentStore implements IPaymentStore {
 	/** Income / expense / count over the scoped view (excludes the direction toggle). */
 	get summary(): PaymentSummary {
 		const rows = this.scopedPayments;
-		if (rows === "loading") {
+		if (!isReady(rows)) {
 			return { income: 0, expense: 0, count: 0 };
 		}
 		return rows.reduce(
@@ -134,7 +152,7 @@ export class PaymentStore implements IPaymentStore {
 
 	/** Distinct wallets seen across all payments — drives the wallet filter. */
 	get walletOptions(): { id: number; name: string }[] {
-		if (this.allPayments === "loading") {
+		if (!isReady(this.allPayments)) {
 			return [];
 		}
 		const seen = new Map<number, string>();
@@ -152,36 +170,43 @@ export class PaymentStore implements IPaymentStore {
 		const result = await tryRun(() => PaymentApi.getAll());
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payment.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "payment.error.getAll");
 		}
 
-		runInAction(() => (this.allPayments = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allPayments = toLoadable(result)));
 	}
 
 	async getFormData(): Promise<void> {
-		const result = await tryRun(() => PaymentApi.getFormData());
+		const isCurrent = this.formDataLoads.begin();
+		runInAction(() => (this.formData = "loading"));
 
-		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payment.error.formData"));
+		const result = await tryRun(() => PaymentApi.getFormData());
+		if (!isCurrent()) {
+			return;
 		}
 
-		runInAction(() => {
-			this.formData =
-				result.status === "success" ? result.data : { partners: [], employees: [], wallets: [] };
-		});
+		if (result.status === "fail") {
+			this.notificationStore.notifyLoadError(result, "payment.error.formData");
+		}
+
+		runInAction(() => (this.formData = toLoadable(result)));
 	}
 
+	/** A failed fetch is an error state, never «no open debts» (which would book an advance). */
 	async loadOutstanding(partnerId: number): Promise<void> {
+		const isCurrent = this.outstandingLoads.begin();
 		runInAction(() => (this.outstanding = "loading"));
 
 		const result = await tryRun(() => PaymentApi.getOutstanding(partnerId));
+		if (!isCurrent()) {
+			return;
+		}
 
-		runInAction(() => {
-			this.outstanding = result.status === "success" ? result.data : [];
-		});
+		runInAction(() => (this.outstanding = toLoadable(result)));
 	}
 
 	clearOutstanding(): void {
+		this.outstandingLoads.invalidate();
 		this.outstanding = "loading";
 	}
 
@@ -189,22 +214,23 @@ export class PaymentStore implements IPaymentStore {
 		const result = await withSaving(this, () => PaymentApi.create(request));
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payment.error.create"));
+			this.notificationStore.notifyApiError(result, "payment.error.create");
 			return null;
 		}
 
 		runInAction(() => {
-			if (this.allPayments !== "loading") {
+			if (isReady(this.allPayments)) {
 				this.allPayments = [result.data, ...this.allPayments];
 			}
-			// Reference figures (advance / outstanding / wallet balance) moved —
-			// refetch form data lazily next time the modal opens.
-			this.formData = "loading";
+			this.formDataStale = true;
 		});
 
 		this.closeCreate();
 		this.notificationStore.success(
-			i18next.t("payment.success.create", { number: result.data.number }),
+			i18next.t("payment.success.create", {
+				number: formatOptionalNumber(result.data.number, i18next.t("common.noNumber")),
+				amount: formatCurrency(result.data.amount),
+			}),
 		);
 		analytics.capture("payment_recorded", {
 			payment_type: result.data.type,
@@ -238,7 +264,16 @@ export class PaymentStore implements IPaymentStore {
 		this.directionFilter = this.directionFilter === direction ? "all" : direction;
 	}
 
+	setDateRange(range: DateRangeValue): void {
+		this.dateRange = range;
+	}
+
 	openCreate(): void {
+		if (this.formDataStale) {
+			this.formDataStale = false;
+			this.formDataLoads.invalidate();
+			this.formData = "loading";
+		}
 		this.isCreateOpen = true;
 	}
 

@@ -18,16 +18,18 @@ class CategoryApi {
 		return response.data;
 	}
 
+	// Create/update responses carry no `productCount`; re-read the full CategoryDto
+	// so the count column and the delete guard stay correct after a write (F3).
 	async create(request: CreateCategoryRequest): Promise<Category> {
-		const response = await http.post<Category>(this.baseUrl, request);
+		const { data } = await http.post<{ id: number }>(this.baseUrl, request);
 
-		return response.data;
+		return this.getById(data.id);
 	}
 
 	async update(request: UpdateCategoryRequest): Promise<Category> {
-		const response = await http.put<Category>(this.getUrlWithId(request.id), request);
+		await http.put(this.getUrlWithId(request.id), request);
 
-		return response.data;
+		return this.getById(request.id);
 	}
 
 	async delete(id: number): Promise<void> {

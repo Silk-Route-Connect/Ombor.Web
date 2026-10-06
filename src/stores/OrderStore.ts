@@ -1,4 +1,4 @@
-import { Loadable } from "helpers/Loading";
+import { isReady, Loadable, readyOr, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -6,11 +6,17 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
 import { analytics } from "services/telemetry";
-import { countByStatus, ORDER_NEXT_STEP, OrderStatusFilter } from "utils/orderUtils";
+import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
+import {
+	countByStatus,
+	matchesDeliveryFilter,
+	matchesOrderSearch,
+	ORDER_NEXT_STEP,
+	OrderDeliveryFilter,
+	OrderStatusFilter,
+} from "utils/orderUtils";
 
 import { NotificationStore } from "./NotificationStore";
-
-export type OrderDateRange = "all" | "7" | "30" | "90";
 
 export type OrderDialogMode =
 	| { kind: "edit"; order: Order }
@@ -20,15 +26,14 @@ export type OrderDialogMode =
 	| { kind: "return"; order: Order }
 	| { kind: "none" };
 
-const MS_PER_DAY = 86_400_000;
-
 export class OrderStore {
 	private readonly notificationStore: NotificationStore;
 
 	allOrders: Loadable<Order[]> = "loading";
 	searchTerm = "";
 	statusFilter: OrderStatusFilter = "all";
-	dateRange: OrderDateRange = "all";
+	dateRange: DateRangeValue = ALL_DATES;
+	deliveryFilter: OrderDeliveryFilter = "all";
 	dialogMode: OrderDialogMode = { kind: "none" };
 	isSaving = false;
 
@@ -37,53 +42,40 @@ export class OrderStore {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	/** Status counts for the toolbar tabs (from the unfiltered set). */
+	/** Status counts for the toolbar tabs: the period and «Доставка», before the status tab and search. */
 	get statusCounts(): Record<OrderStatusFilter, number> {
-		const all = this.allOrders === "loading" ? [] : this.allOrders;
-		return countByStatus(all);
+		const inPeriod = filterByDateRange(readyOr(this.allOrders, []), this.dateRange, (o) => o.date);
+		return countByStatus(inPeriod.filter((o) => matchesDeliveryFilter(o, this.deliveryFilter)));
 	}
 
-	/** The list view: status tab + date range + search (number or customer), newest first. */
+	/** The list view: status tab + date range + delivery + search (number or customer), newest first. */
 	get listOrders(): Loadable<Order[]> {
-		if (this.allOrders === "loading") {
-			return "loading";
+		if (!isReady(this.allOrders)) {
+			return this.allOrders;
 		}
 
-		let list = [...this.allOrders];
-
-		if (this.statusFilter !== "all") {
-			list = list.filter((o) => o.status === this.statusFilter);
-		}
-
-		if (this.dateRange !== "all") {
-			const days = Number(this.dateRange);
-			list = list.filter((o) => (Date.now() - Date.parse(o.date)) / MS_PER_DAY <= days);
-		}
-
-		// Numbers display as «№…» but people also type «#…» or the bare number — strip
-		// any leading prefix, then match the order number EXACTLY: DR-21 numbers are
-		// short integers, so a substring «3» would wrongly match 13/30/… Customer name
-		// stays a substring match.
-		const term = this.searchTerm.trim().toLowerCase();
-		const numberTerm = term.replace(/^[№#]/, "");
-		if (term) {
-			list = list.filter(
+		return filterByDateRange(this.allOrders, this.dateRange, (o) => o.date)
+			.filter(
 				(o) =>
-					(numberTerm !== "" && o.orderNumber === numberTerm) ||
-					o.customerName.toLowerCase().includes(term),
-			);
-		}
-
-		return list.sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
+					(this.statusFilter === "all" || o.status === this.statusFilter) &&
+					matchesDeliveryFilter(o, this.deliveryFilter) &&
+					matchesOrderSearch(o, this.searchTerm),
+			)
+			.sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || b.id - a.id);
 	}
 
 	/** Whether any list filter is narrowing the view (drives empty-state copy). */
 	get isFiltering(): boolean {
-		return this.searchTerm.trim() !== "" || this.statusFilter !== "all" || this.dateRange !== "all";
+		return (
+			this.searchTerm.trim() !== "" ||
+			this.statusFilter !== "all" ||
+			this.deliveryFilter !== "all" ||
+			isDateRangeActive(this.dateRange)
+		);
 	}
 
 	orderById(id: number): Order | null {
-		if (this.allOrders === "loading") {
+		if (!isReady(this.allOrders)) {
 			return null;
 		}
 		return this.allOrders.find((o) => o.id === id) ?? null;
@@ -94,14 +86,14 @@ export class OrderStore {
 
 		const result = await tryRun(() => OrderApi.getAll());
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.getAll"));
+			this.notificationStore.notifyLoadError(result, "order.error.getAll");
 		}
 
-		runInAction(() => (this.allOrders = result.status === "success" ? result.data : []));
+		runInAction(() => (this.allOrders = toLoadable(result)));
 	}
 
 	private replace(order: Order): void {
-		if (this.allOrders !== "loading") {
+		if (isReady(this.allOrders)) {
 			this.allOrders = this.allOrders.map((o) => (o.id === order.id ? order : o));
 		}
 	}
@@ -134,7 +126,7 @@ export class OrderStore {
 		const fromStatus = this.orderById(id)?.status;
 		const result = await withSaving(this, call);
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t(errorKey));
+			this.notificationStore.notifyApiError(result, errorKey);
 			return;
 		}
 		runInAction(() => {
@@ -214,11 +206,11 @@ export class OrderStore {
 	async create(request: CreateOrderRequest): Promise<Order | null> {
 		const result = await withSaving(this, () => OrderApi.create(request));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.create"));
+			this.notificationStore.notifyApiError(result, "order.error.create");
 			return null;
 		}
 		runInAction(() => {
-			if (this.allOrders !== "loading") {
+			if (isReady(this.allOrders)) {
 				this.allOrders = [result.data, ...this.allOrders];
 			}
 		});
@@ -237,7 +229,7 @@ export class OrderStore {
 	async update(request: UpdateOrderRequest): Promise<void> {
 		const result = await withSaving(this, () => OrderApi.update(request));
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("order.error.update"));
+			this.notificationStore.notifyApiError(result, "order.error.update");
 			return;
 		}
 		runInAction(() => {
@@ -257,14 +249,19 @@ export class OrderStore {
 		this.statusFilter = status;
 	}
 
-	setDateRange(range: OrderDateRange): void {
+	setDateRange(range: DateRangeValue): void {
 		this.dateRange = range;
 	}
 
+	setDeliveryFilter(filter: OrderDeliveryFilter): void {
+		this.deliveryFilter = filter;
+	}
+
+	/** The delivery filter is not reset here — it follows the page URL (`?delivery=`). */
 	resetFilters(): void {
 		this.searchTerm = "";
 		this.statusFilter = "all";
-		this.dateRange = "all";
+		this.dateRange = ALL_DATES;
 	}
 
 	openEdit(order: Order): void {

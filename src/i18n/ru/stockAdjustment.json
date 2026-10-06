@@ -1,8 +1,8 @@
 {
   "adjustment.error.getAll": "Не удалось загрузить корректировки",
   "adjustment.error.create": "Не удалось сохранить корректировку",
-
-  "adjustment.success.create": "Корректировка сохранена",
+  "adjustment.success.create.Decrease": "Списание проведено: {{product}} — {{quantity}} {{unit}}",
+  "adjustment.success.create.Increase": "Приход товара проведён: {{product}} — {{quantity}} {{unit}}",
 
   "adjustment.title": "Корректировки",
   "adjustment.create": "Новая корректировка",
@@ -12,12 +12,18 @@
   "adjustment.title.create": "Новая корректировка",
 
   "adjustment.filter.allWarehouses": "Все склады",
+  "adjustment.totals.count_one": "{{formatted}} корректировка",
+  "adjustment.totals.count_few": "{{formatted}} корректировки",
+  "adjustment.totals.count_many": "{{formatted}} корректировок",
+  "adjustment.totals.count_other": "{{formatted}} корректировки",
+  "adjustment.totals.writtenOff": "Сумма списания",
+  "adjustment.totals.restored": "Сумма прихода",
   "adjustment.filter.direction.all": "Все",
   "adjustment.filter.direction.Decrease": "Списание",
-  "adjustment.filter.direction.Increase": "Оприходование",
+  "adjustment.filter.direction.Increase": "Приход товара",
 
   "adjustment.direction.Decrease": "Списание",
-  "adjustment.direction.Increase": "Оприходование",
+  "adjustment.direction.Increase": "Приход товара",
 
   "adjustment.reason.Damage": "Порча",
   "adjustment.reason.Expiry": "Истечение срока",
@@ -27,6 +33,7 @@
   "adjustment.reason.Found": "Находка",
   "adjustment.reason.Other": "Другое",
 
+  "adjustment.table.number": "№",
   "adjustment.table.date": "Дата",
   "adjustment.table.warehouse": "Склад",
   "adjustment.table.product": "Товар",
@@ -37,17 +44,24 @@
   "adjustment.table.sku": "Артикул",
   "adjustment.table.category": "Категория",
   "adjustment.table.note": "Примечание",
+  "adjustment.table.unit": "Ед.",
+  "adjustment.table.value": "Сумма",
+  "adjustment.table.valueHint": "Количество × средняя себестоимость товара на момент корректировки: у списания — сколько денег потеряно, у прихода — сколько вернулось в товар.",
 
   "adjustment.detail.title": "Корректировка запаса",
+  "adjustment.detail.notFound": "Корректировка не найдена",
   "adjustment.detail.dateTime": "Дата и время",
   "adjustment.detail.balanceAfter": "Остаток после операции",
   "adjustment.detail.createdBy": "Провёл",
+  "adjustment.detail.unitCost": "Себестоимость за единицу",
+  "adjustment.detail.value.Decrease": "Сумма списания",
+  "adjustment.detail.value.Increase": "Сумма прихода",
   "adjustment.detail.noNote": "Без примечания",
 
   "adjustment.empty.title": "Пока нет корректировок",
   "adjustment.empty.body": "Корректировки фиксируют изменения остатка без продаж и поставок — порча, недостача, пересчёт, находка. Создайте первую запись.",
   "adjustment.empty.searchTitle": "Ничего не найдено",
-  "adjustment.empty.searchBody": "По заданным условиям корректировок нет. Измените склад, направление или поиск.",
+  "adjustment.empty.searchBody": "По заданным условиям корректировок нет. Измените поиск, склад, направление или период.",
 
   "adjustment.field.warehouse": "Склад",
   "adjustment.field.direction": "Направление",
@@ -70,6 +84,8 @@
   "adjustment.form.floorNote": "Нельзя списать больше, чем есть: доступно {{available}} {{unit}}, запрошено {{requested}} {{unit}}. Остаток не может опуститься ниже нуля.",
   "adjustment.form.reasonPlaceholder": "Выберите причину",
   "adjustment.form.notePlaceholder": "Дополнительные детали корректировки…",
+  "adjustment.form.submit": "Провести корректировку",
+  "adjustment.form.commitNote": "После проведения изменить нельзя — ошибку исправляют новой корректировкой.",
 
   "adjustment.validation.warehouseRequired": "Выберите склад",
   "adjustment.validation.productRequired": "Выберите товар",

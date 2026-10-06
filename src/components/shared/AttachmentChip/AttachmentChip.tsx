@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { designTokens, numericSx } from "theme";
 import { formatBytes } from "utils/formatBytes";
 import { getImageFullUrl } from "utils/productUtils";
@@ -23,6 +24,7 @@ export interface AttachmentChipProps {
  * attachment lists (F7 / F18) so the chip is authored once.
  */
 const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, sizeBytes, url }) => {
+	const { t } = useTranslation();
 	const isImage = contentType.startsWith("image/");
 	// The backend serves a relative file path; resolve it against the API base so the
 	// download link is fetchable (shared resolver, same as product images).
@@ -56,7 +58,7 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 					placeItems: "center",
 					flex: "0 0 auto",
 					...(isImage
-						? { bgcolor: "rgba(42,111,151,0.12)", color: "info.main" }
+						? { bgcolor: designTokens.infoBg, color: "info.main" }
 						: { bgcolor: designTokens.errorBg, color: "error.main" }),
 				}}
 			>
@@ -68,8 +70,8 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 			</Box>
 			<Box>
 				<Typography sx={{ fontSize: 13, fontWeight: 600 }}>{name}</Typography>
-				<Typography sx={{ ...numericSx, fontSize: 11.5, color: "text.disabled", mt: "1px" }}>
-					{formatBytes(sizeBytes)}
+				<Typography sx={{ ...numericSx, fontSize: 12, color: "text.disabled", mt: "1px" }}>
+					{formatBytes(t, sizeBytes)}
 				</Typography>
 			</Box>
 		</Box>

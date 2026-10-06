@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import EmployeeDialogs from "components/employee/EmployeeDialogs";
 import EmployeeFormModal from "components/employee/Form/EmployeeFormModal";
 import EmployeeHeader from "components/employee/Header/EmployeeHeader";
 import EmployeesTable from "components/employee/Table/EmployeesTable";
 import PayrollFormModal from "components/payroll/Form/PayrollFormModal";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
+import { readyOr } from "helpers/Loading";
 import { EmployeeFormPayload } from "hooks/employee/useEmployeeForm";
 import { PayrollFormPayload } from "hooks/payroll/usePayrollForm";
 import { observer } from "mobx-react-lite";
@@ -15,14 +17,13 @@ import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
-import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
 import { Box } from "@mui/material";
 
 const EmployeePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { employeeStore, payrollStore } = useStore();
+	const tableOrder = useTableOrder<Employee>();
 
 	useEffect(() => {
 		employeeStore.getAll();
@@ -39,24 +40,24 @@ const EmployeePage: React.FC = observer(() => {
 	const handlePayrollSave = async (payload: PayrollFormPayload) => {
 		const ok = await payrollStore.create(payload);
 		if (ok) {
+			employeeStore.markPaid(payload.employeeId);
 			employeeStore.closeDialog();
 		}
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			employeeStore.filteredEmployees === "loading" ? [] : employeeStore.filteredEmployees;
+		const rows = readyOr(employeeStore.filteredEmployees, []);
 		const columns: CsvColumn<Employee>[] = [
 			{ header: t("employee.name"), value: (e) => e.name },
-			{ header: t("employee.position"), value: (e) => e.position },
-			{ header: t("employee.salary"), value: (e) => e.salary },
 			{ header: t("employee.status"), value: (e) => t(`employee.status.${e.status}`) },
+			{ header: t("employee.position"), value: (e) => e.position },
 			{ header: t("employee.dateOfEmployment"), value: (e) => formatDate(e.dateOfEmployment) },
+			{ header: t("employee.salary"), value: (e) => e.salary },
 		];
-		exportToCsv(`employees_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`employees_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
-	const all = employeeStore.allEmployees === "loading" ? [] : employeeStore.allEmployees;
+	const all = readyOr(employeeStore.allEmployees, []);
 	const isFiltering =
 		employeeStore.searchTerm.trim().length > 0 || employeeStore.filterStatus !== null;
 
@@ -69,9 +70,13 @@ const EmployeePage: React.FC = observer(() => {
 				onStatusChange={employeeStore.setFilterStatus}
 				onCreate={employeeStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(employeeStore.filteredEmployees, []).length}
 			/>
 
 			<EmployeesTable
+				exportOrder={tableOrder}
+				onRetry={() => void employeeStore.getAll()}
+				errorTitle={t("employees.error.getAll")}
 				rows={employeeStore.filteredEmployees}
 				isFiltering={isFiltering && all.length > 0}
 				onOpen={(employee) => navigate(employeeDetailPath(employee.id))}
@@ -80,6 +85,7 @@ const EmployeePage: React.FC = observer(() => {
 				onEdit={employeeStore.openEdit}
 				onTerminate={employeeStore.openTerminate}
 				onRestore={employeeStore.openRestore}
+				onDelete={employeeStore.openDelete}
 			/>
 
 			<EmployeeFormModal
@@ -98,43 +104,7 @@ const EmployeePage: React.FC = observer(() => {
 				onSave={handlePayrollSave}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogKind === "terminate"}
-				icon={<PersonOffOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("employee.terminate.title", {
-					name: dialogKind === "terminate" ? dialogMode.employee.name : "",
-				})}
-				content={t("employee.terminate.body")}
-				confirmLabel={t("employee.action.terminate")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="danger"
-				onCancel={employeeStore.closeDialog}
-				onConfirm={() => {
-					if (dialogKind === "terminate") {
-						void employeeStore.terminate(dialogMode.employee);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogKind === "restore"}
-				icon={<RestartAltOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("employee.restore.title", {
-					name: dialogKind === "restore" ? dialogMode.employee.name : "",
-				})}
-				content={t("employee.restore.body")}
-				confirmLabel={t("employee.action.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={employeeStore.closeDialog}
-				onConfirm={() => {
-					if (dialogKind === "restore") {
-						void employeeStore.restore(dialogMode.employee);
-					}
-				}}
-			/>
+			<EmployeeDialogs />
 		</Box>
 	);
 });

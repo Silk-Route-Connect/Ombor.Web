@@ -1,26 +1,21 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isReady, Loadable, readyOr } from "helpers/Loading";
 import { OutstandingTransaction, SettlementInput } from "models/payment";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 
 import CheckIcon from "@mui/icons-material/Check";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
-import {
-	Box,
-	Checkbox,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Checkbox, Dialog, DialogContent, TextField, Typography } from "@mui/material";
+
+import SettlementSummary from "./SettlementSummary";
 
 interface PaymentSettlementModalProps {
 	isOpen: boolean;
@@ -29,7 +24,15 @@ interface PaymentSettlementModalProps {
 	amount: number;
 	walletName: string;
 	direction: "Income" | "Expense";
-	outstanding: OutstandingTransaction[] | "loading";
+	/**
+	 * `commit` (a standalone payment): the confirm books the payment.
+	 * `apply` (the POS overpayment): the confirm only applies the split to the
+	 * cart — nothing is saved until the sale / supply itself is booked.
+	 */
+	mode?: "commit" | "apply";
+	outstanding: Loadable<OutstandingTransaction[]>;
+	/** Re-runs a failed open-debts load. */
+	onRetry?: () => void;
 	onBack: () => void;
 	onConfirm: (settlements: SettlementInput[], advance: number) => void;
 }
@@ -71,13 +74,16 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 	amount,
 	walletName,
 	direction,
+	mode = "commit",
 	outstanding,
+	onRetry,
 	onBack,
 	onConfirm,
 }) => {
 	const { t } = useTranslation();
+	const applyOnly = mode === "apply";
 
-	const rowsData = outstanding === "loading" ? [] : outstanding;
+	const rowsData = useMemo(() => readyOr(outstanding, []), [outstanding]);
 
 	const buildFifo = useMemo(
 		() => (): Row[] => {
@@ -98,6 +104,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		setRows(buildFifo());
 	}, [buildFifo]);
 
+	const debtsReady = isReady(outstanding);
 	const distributed = rows.reduce((s, r) => s + (r.on ? r.amt : 0), 0);
 	const advance = Math.max(0, amount - distributed);
 
@@ -113,6 +120,11 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		setRows((cur) => cur.map((x, j) => (j === i ? { on: !x.on, amt: !x.on ? x.amt : 0 } : x)));
 
 	const confirm = () => {
+		// Until the open debts are in, confirming would book the whole amount as an
+		// advance — the list area shows the spinner / error with «Повторить» instead.
+		if (!debtsReady) {
+			return;
+		}
 		const settlements: SettlementInput[] = rows
 			.map((r, i) => (r.on && r.amt > 0 ? { transactionId: rowsData[i].id, amount: r.amt } : null))
 			.filter((s): s is SettlementInput => s !== null);
@@ -125,18 +137,21 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 			onClose={onBack}
 			disableEscapeKeyDown={isSaving}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 760, maxWidth: "96%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 		>
 			<FormDialogHeader
 				title={t("payment.settlement.title")}
-				subtitle={t("payment.settlement.subtitle", {
-					amount: formatCurrency(amount),
-					wallet: walletName,
-					partner: partnerName,
-					kind: t(
-						direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
-					),
-				})}
+				subtitle={t(
+					applyOnly ? "payment.settlement.subtitleApply" : "payment.settlement.subtitle",
+					{
+						amount: formatCurrency(amount),
+						wallet: walletName,
+						partner: partnerName,
+						kind: t(
+							direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
+						),
+					},
+				)}
 				disabled={isSaving}
 				onClose={onBack}
 			/>
@@ -152,10 +167,13 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 					</GhostButton>
 				</Box>
 
-				{outstanding === "loading" ? (
-					<Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
-						<CircularProgress size={26} />
-					</Box>
+				{!isReady(outstanding) ? (
+					<LoadStateView
+						state={outstanding}
+						size="section"
+						onRetry={onRetry}
+						errorTitle={t("payment.settlement.loadFailed")}
+					/>
 				) : rowsData.length === 0 ? (
 					<Box
 						sx={{
@@ -219,14 +237,10 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 												component="span"
 												sx={{ ...numericSx, fontWeight: 600, color: "primary.main" }}
 											>
-												{formatEntityId(r.id)}
+												{formatOptionalNumber(r.number, t("common.noNumber"))}
 											</Box>{" "}
 											<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
-												{t(
-													r.type === "Sale"
-														? "payment.settlement.sale"
-														: "payment.settlement.supply",
-												)}
+												{t(`common.movementKind.${r.type}`)}
 											</Box>
 										</Box>
 										<Box component="td" sx={{ ...cellSx, textAlign: "right", ...numericSx }}>
@@ -260,76 +274,32 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 					</Box>
 				)}
 
-				{/* summary */}
-				<Box
-					sx={{
-						display: "grid",
-						gridTemplateColumns: "repeat(3, 1fr)",
-						gap: "12px",
-						mt: "18px",
-						p: "14px 16px",
-						borderRadius: "8px",
-						bgcolor: designTokens.gray25,
-						border: "1px solid",
-						borderColor: "divider",
-					}}
-				>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.toDistribute")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 800, fontSize: 18 }}>
-							{formatCurrency(amount)}
-						</Typography>
-					</Box>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.distributed")}
-						</Typography>
-						<Typography sx={{ ...numericSx, fontWeight: 800, fontSize: 18, color: "success.main" }}>
-							{formatCurrency(distributed)}
-						</Typography>
-					</Box>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.toAdvance")}
-						</Typography>
-						<Typography
-							sx={{
-								...numericSx,
-								fontWeight: 800,
-								fontSize: 18,
-								color: advance > 0 ? designTokens.saffron700 : "text.disabled",
-							}}
-						>
-							{formatCurrency(advance)}
-						</Typography>
-						{advance > 0 && (
-							<Typography sx={{ fontSize: 11, color: "text.disabled", mt: "2px" }}>
-								{t("payment.settlement.advanceNote")}
-							</Typography>
-						)}
-					</Box>
-				</Box>
+				<SettlementSummary
+					amount={amount}
+					distributed={distributed}
+					advance={advance}
+					debtsReady={debtsReady}
+					restGoesToAdvance={!applyOnly}
+				/>
 			</DialogContent>
 
-			<DialogActions
-				sx={{
-					px: "24px",
-					py: "14px",
-					gap: "10px",
-					borderTop: "1px solid",
-					borderColor: "divider",
-					bgcolor: designTokens.gray25,
-				}}
-			>
-				<GhostButton onClick={onBack} disabled={isSaving}>
-					{t("payment.settlement.back")}
-				</GhostButton>
-				<PrimaryButton icon={<CheckIcon />} onClick={confirm} disabled={isSaving}>
-					{t("payment.settlement.confirm")}
-				</PrimaryButton>
-			</DialogActions>
+			<FormDialogFooter
+				canSave={!isSaving}
+				loading={isSaving}
+				onCancel={onBack}
+				onSave={confirm}
+				cancelLabel={t("payment.settlement.back")}
+				submitLabel={t(applyOnly ? "payment.settlement.apply" : "payment.settlement.confirm")}
+				submitIcon={<CheckIcon />}
+				commitNote={applyOnly ? undefined : t("payment.form.commitNote")}
+				summary={
+					applyOnly ? (
+						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+							{t("payment.settlement.applyHint")}
+						</Typography>
+					) : undefined
+				}
+			/>
 		</Dialog>
 	);
 };

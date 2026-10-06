@@ -3,10 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
-import { designTokens } from "theme";
+import BackButton from "components/shared/Buttons/BackButton";
 
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { Box, ButtonBase, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface DetailPageHeaderProps {
 	/** Fallback list route for the back button — used only on a direct load / deep
@@ -62,38 +61,21 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				display: "flex",
 				alignItems: "flex-start",
 				justifyContent: "space-between",
-				gap: "20px",
+				// On a phone the actions drop below the title instead of squeezing it to
+				// nothing (a report's «Печать» + «Экспорт» are wider than the free space).
+				flexWrap: { xs: "wrap", sm: "nowrap" },
+				gap: { xs: "12px 20px", sm: "20px" },
 				mb: "20px",
 			}}
 		>
 			<Box sx={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
-				<ButtonBase
-					onClick={goBack}
-					aria-label={t("common.back")}
-					sx={{
-						width: 40,
-						height: 40,
-						flex: "0 0 auto",
-						borderRadius: "8px",
-						border: "1px solid",
-						borderColor: designTokens.gray300,
-						bgcolor: "background.paper",
-						color: designTokens.gray700,
-						"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
-					}}
-				>
-					<ChevronLeftIcon sx={{ fontSize: 20 }} />
-				</ButtonBase>
+				<BackButton onClick={goBack} />
 
 				<Box sx={{ minWidth: 0 }}>
 					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
 						<Typography
-							component="h1"
+							variant="h1"
 							sx={{
-								fontSize: 24,
-								fontWeight: 700,
-								letterSpacing: "-0.02em",
-								lineHeight: 1.25,
 								overflow: "hidden",
 								textOverflow: "ellipsis",
 								whiteSpace: "nowrap",
@@ -111,7 +93,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 								alignItems: "center",
 								gap: "8px",
 								mt: "6px",
-								fontSize: 13.5,
+								fontSize: 14,
 								color: "text.secondary",
 							}}
 						>

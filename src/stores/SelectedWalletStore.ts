@@ -1,6 +1,6 @@
-import { Loadable } from "helpers/Loading";
+import { Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Wallet, WalletOperation, WalletTransfer } from "models/wallet";
 import WalletApi from "services/api/WalletApi";
@@ -27,6 +27,7 @@ export interface ISelectedWalletStore {
  */
 export class SelectedWalletStore implements ISelectedWalletStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	wallet: Loadable<Wallet | null> = "loading";
 	operations: Loadable<WalletOperation[]> = "loading";
@@ -38,6 +39,7 @@ export class SelectedWalletStore implements ISelectedWalletStore {
 	}
 
 	async load(walletId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		runInAction(() => {
 			this.wallet = "loading";
 			this.operations = "loading";
@@ -49,17 +51,22 @@ export class SelectedWalletStore implements ISelectedWalletStore {
 			tryRun(() => WalletApi.getOperations(walletId)),
 			tryRun(() => WalletApi.getTransfers(walletId)),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		if (wallet.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.getById"));
-		} else if (operations.status === "fail" || transfers.status === "fail") {
-			this.notificationStore.error(i18next.t("wallet.error.getOperations"));
+			this.notificationStore.notifyLoadError(wallet, "wallet.error.getById");
+		} else if (operations.status === "fail") {
+			this.notificationStore.notifyLoadError(operations, "wallet.error.getOperations");
+		} else if (transfers.status === "fail") {
+			this.notificationStore.notifyLoadError(transfers, "wallet.error.getOperations");
 		}
 
 		runInAction(() => {
-			this.wallet = wallet.status === "success" ? wallet.data : null;
-			this.operations = operations.status === "success" ? operations.data : [];
-			this.transfers = transfers.status === "success" ? transfers.data : [];
+			this.wallet = toDetailLoadable(wallet);
+			this.operations = toLoadable(operations);
+			this.transfers = toLoadable(transfers);
 		});
 	}
 
@@ -68,11 +75,15 @@ export class SelectedWalletStore implements ISelectedWalletStore {
 	}
 
 	async reload(walletId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		const [wallet, operations, transfers] = await Promise.all([
 			tryRun(() => WalletApi.getById(walletId)),
 			tryRun(() => WalletApi.getOperations(walletId)),
 			tryRun(() => WalletApi.getTransfers(walletId)),
 		]);
+		if (!isCurrent()) {
+			return;
+		}
 
 		runInAction(() => {
 			if (wallet.status === "success") {
@@ -88,6 +99,7 @@ export class SelectedWalletStore implements ISelectedWalletStore {
 	}
 
 	clear(): void {
+		this.loads.invalidate();
 		this.wallet = "loading";
 		this.operations = "loading";
 		this.transfers = "loading";

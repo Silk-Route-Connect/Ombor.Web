@@ -8,7 +8,10 @@ import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog"
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { isReady, readyOr } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { TemplateFormPayload, useTemplateForm } from "hooks/templates/useTemplateForm";
@@ -17,9 +20,9 @@ import { Partner } from "models/partner";
 import { Product } from "models/product";
 import { Template, TemplateType } from "models/template";
 import { useStore } from "stores/StoreContext";
-import { chipTokens, designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -36,7 +39,6 @@ import {
 	DialogActions,
 	DialogContent,
 	IconButton,
-	InputAdornment,
 	LinearProgress,
 	Typography,
 	useTheme,
@@ -212,14 +214,13 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
 	);
 
-	const allPartners: Partner[] =
-		partnerStore.allPartners === "loading" ? [] : partnerStore.allPartners;
+	const allPartners: Partner[] = readyOr(partnerStore.allPartners, []);
 	const partnerValue = allPartners.find((p) => p.id === partnerId) ?? null;
 
 	const pickedIds = (watchedItems ?? []).map((l) => l.productId);
@@ -252,7 +253,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 760, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
 			>
 				<FormDialogHeader
 					title={isEdit ? t("template.title.edit") : t("template.title.create")}
@@ -370,8 +371,8 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 									{t("template.form.total")}:{" "}
 									<Box component="b" sx={{ ...numericSx, color: "text.primary", fontWeight: 700 }}>
 										{formatCurrency(totalDue)}
-									</Box>{" "}
-									UZS
+									</Box>
+									<UzsUnit />
 								</Typography>
 							)}
 						</Box>
@@ -411,7 +412,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 								const qty = line?.quantity ?? 1;
 								const price = line?.unitPrice ?? 0;
 								const product = activeProducts.find((p) => p.id === line?.productId);
-								const unit = product ? MEASUREMENT_SHORT[product.measurement] : "";
+								const unit = product ? measurementShort(t, product.measurement) : "";
 
 								return (
 									<Box
@@ -434,7 +435,8 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 											<Typography
 												sx={{ ...numericSx, fontSize: 12, color: "text.disabled", mt: "2px" }}
 											>
-												{product?.sku ?? ""} · {formatCurrency(qty * price)} UZS
+												{product?.sku ?? ""} · {formatCurrency(qty * price)}
+												<UzsUnit />
 											</Typography>
 										</Box>
 
@@ -478,7 +480,7 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 												sx={{ width: 140 }}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 														sx: { ...numericSx, fontWeight: 600 },
 													},
 												}}

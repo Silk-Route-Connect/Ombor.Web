@@ -1,39 +1,41 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WalletArchivedBanner from "components/wallet/Detail/WalletArchivedBanner";
 import WalletDetailHeader from "components/wallet/Detail/WalletDetailHeader";
 import WalletDetailStats from "components/wallet/Detail/WalletDetailStats";
-import WalletDetailTabs, { WalletDetailTab } from "components/wallet/Detail/WalletDetailTabs";
 import WalletOperationsTab from "components/wallet/Detail/WalletOperationsTab";
 import WalletTransferDetailModal from "components/wallet/Detail/WalletTransferDetailModal";
 import WalletTransfersTab from "components/wallet/Detail/WalletTransfersTab";
 import WalletFormModal from "components/wallet/Form/WalletFormModal";
 import WalletTransferModal from "components/wallet/Form/WalletTransferModal";
+import WalletDialogs from "components/wallet/WalletDialogs";
+import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { Wallet, WalletOperation } from "models/wallet";
 import { PATHS, paymentDetailPath } from "routing/paths";
 import { TransferFormValues, WalletFormValues } from "schemas/WalletSchema";
 import { useStore } from "stores/StoreContext";
 
-import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+
+type WalletDetailTab = "operations" | "transfers" | "history";
 
 const WalletDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const location = useLocation();
-	const { id } = useParams<{ id: string }>();
-	const walletId = Number(id);
-	const { walletStore, selectedWalletStore, notificationStore } = useStore();
+	const walletId = useRouteEntityId();
+	const { walletStore, selectedWalletStore } = useStore();
 
 	const [tab, setTab] = useState<WalletDetailTab>("operations");
 
 	useEffect(() => {
-		if (Number.isFinite(walletId)) {
-			selectedWalletStore.load(walletId);
+		if (walletId !== null) {
+			void selectedWalletStore.load(walletId);
 		}
 		// The transfer picker needs the full active-wallet list.
 		walletStore.getAll();
@@ -41,32 +43,20 @@ const WalletDetailPage: React.FC = observer(() => {
 		return () => selectedWalletStore.clear();
 	}, [walletId, selectedWalletStore, walletStore]);
 
-	const goBack = () => (location.key === "default" ? navigate(PATHS.wallets) : navigate(-1));
-
-	const wallet = selectedWalletStore.wallet;
+	const wallet = walletId === null ? null : selectedWalletStore.wallet;
+	const retry = () => walletId !== null && void selectedWalletStore.load(walletId);
 	const dialogMode = walletStore.dialogMode;
 
-	const activeWallets = useMemo(
-		() =>
-			walletStore.allWallets === "loading"
-				? []
-				: walletStore.allWallets.filter((w) => !w.isArchived),
-		[walletStore.allWallets],
-	);
+	const activeWallets = readyOr(walletStore.activeWallets, []);
 
-	if (wallet === "loading") {
+	if (!isPresent(wallet)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (wallet === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("wallet.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={wallet}
+				onRetry={retry}
+				errorTitle={t("wallet.error.getById")}
+				notFound={{ title: t("wallet.detail.notFound"), backTo: PATHS.wallets }}
+			/>
 		);
 	}
 
@@ -95,40 +85,51 @@ const WalletDetailPage: React.FC = observer(() => {
 	};
 
 	const handleOpenPayment = (operation: WalletOperation): void => {
-		if (operation.paymentId) {
+		if (operation.paymentId != null) {
 			navigate(paymentDetailPath(operation.paymentId));
-			return;
 		}
-		// Fallback for the self-contained mock (no real payment id to link to).
-		notificationStore.info(t("wallet.operations.openPayment", { number: operation.paymentNumber }));
 	};
 
 	const handleOpenTransfer = (transferId: number): void => {
-		const found =
-			selectedWalletStore.transfers === "loading"
-				? undefined
-				: selectedWalletStore.transfers.find((tr) => tr.id === transferId);
+		const found = readyOr(selectedWalletStore.transfers, []).find((tr) => tr.id === transferId);
 		if (found) {
 			walletStore.openTransferDetail(found);
 		}
 	};
 
-	const operations =
-		selectedWalletStore.operations === "loading" ? [] : selectedWalletStore.operations;
-	const transfers =
-		selectedWalletStore.transfers === "loading" ? [] : selectedWalletStore.transfers;
-	const ledgersLoading =
-		selectedWalletStore.operations === "loading" || selectedWalletStore.transfers === "loading";
+	const operationsState = selectedWalletStore.operations;
+	const transfersState = selectedWalletStore.transfers;
+	const operations = readyOr(operationsState, []);
+	const transfers = readyOr(transfersState, []);
+	const ledgersState = isLoadError(operationsState)
+		? operationsState
+		: isLoadError(transfersState)
+			? transfersState
+			: "loading";
+
+	const tabs: DetailTabSpec<WalletDetailTab>[] = [
+		{
+			key: "operations",
+			label: t("wallet.detail.tabs.operations"),
+			count: isReady(operationsState) ? operations.length : undefined,
+		},
+		{
+			key: "transfers",
+			label: t("wallet.detail.tabs.transfers"),
+			count: isReady(transfersState) ? transfers.length : undefined,
+		},
+		{ key: "history", label: t("activity.history.tab") },
+	];
 
 	return (
 		<Box>
 			<WalletDetailHeader
 				wallet={wallet}
-				onBack={goBack}
 				onNewTransfer={() => walletStore.openTransfer(wallet.id)}
 				onEdit={() => walletStore.openEdit(wallet)}
 				onArchive={() => walletStore.openArchive(wallet)}
-				onRestore={() => void walletStore.restore(wallet).then(reflect)}
+				onRestore={() => walletStore.openRestore(wallet)}
+				onDelete={() => walletStore.openDelete(wallet)}
 			/>
 
 			{wallet.isArchived && <WalletArchivedBanner />}
@@ -136,25 +137,27 @@ const WalletDetailPage: React.FC = observer(() => {
 			<WalletDetailStats wallet={wallet} />
 
 			<Stack sx={{ gap: "16px" }}>
-				<WalletDetailTabs
-					value={tab}
-					operationsCount={operations.length}
-					transfersCount={transfers.length}
-					onChange={setTab}
-				/>
+				<DetailTabs tabs={tabs} active={tab} onChange={setTab} />
 
-				{ledgersLoading ? (
-					<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-						<CircularProgress size={28} />
-					</Box>
+				{tab === "history" ? (
+					<EntityHistory kind="Wallet" id={wallet.id} refreshKey={wallet} />
+				) : !isReady(operationsState) || !isReady(transfersState) ? (
+					<LoadStateView
+						state={ledgersState}
+						size="section"
+						onRetry={retry}
+						errorTitle={t("wallet.error.getOperations")}
+					/>
 				) : tab === "operations" ? (
 					<WalletOperationsTab
+						walletName={wallet.name}
 						operations={operations}
 						onOpenPayment={handleOpenPayment}
 						onOpenTransfer={handleOpenTransfer}
 					/>
 				) : (
 					<WalletTransfersTab
+						walletName={wallet.name}
 						transfers={transfers}
 						canTransfer={!wallet.isArchived}
 						onNewTransfer={() => walletStore.openTransfer(wallet.id)}
@@ -185,42 +188,10 @@ const WalletDetailPage: React.FC = observer(() => {
 				onClose={walletStore.closeDialog}
 			/>
 
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "archive"}
-				icon={<ArchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("wallet.archive.title", {
-					name: dialogMode.kind === "archive" ? dialogMode.wallet.name : "",
-				})}
-				content={t("wallet.archive.body")}
-				confirmLabel={t("common.archive")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="warning"
-				onCancel={walletStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "archive") {
-						void walletStore.archive(dialogMode.wallet).then(reflect);
-					}
-				}}
-			/>
-
-			<ConfirmDialog
-				isOpen={dialogMode.kind === "restore"}
-				icon={<UnarchiveOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="info"
-				title={t("wallet.restore.title", {
-					name: dialogMode.kind === "restore" ? dialogMode.wallet.name : "",
-				})}
-				content={t("wallet.restore.body")}
-				confirmLabel={t("common.restore")}
-				cancelLabel={t("common.cancel")}
-				confirmVariant="primary"
-				onCancel={walletStore.closeDialog}
-				onConfirm={() => {
-					if (dialogMode.kind === "restore") {
-						void walletStore.restore(dialogMode.wallet).then(reflect);
-					}
-				}}
+			<WalletDialogs
+				onArchived={reflect}
+				onRestored={reflect}
+				onDeleted={() => navigate(PATHS.wallets)}
 			/>
 		</Box>
 	);

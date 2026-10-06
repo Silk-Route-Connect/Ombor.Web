@@ -7,6 +7,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { useStockAdjustmentForm } from "hooks/stockAdjustment/useStockAdjustmentForm";
@@ -16,16 +17,15 @@ import { AdjustmentDirection, reasonsFor } from "models/stockAdjustment";
 import { Warehouse } from "models/warehouse";
 import { StockAdjustmentFormValues } from "schemas/StockAdjustmentSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
+import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
 import {
 	Box,
 	Dialog,
@@ -37,7 +37,8 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
+
+import DirectionCard from "./DirectionCard";
 
 export interface StockAdjustmentModalProps {
 	isOpen: boolean;
@@ -47,67 +48,6 @@ export interface StockAdjustmentModalProps {
 	onClose: () => void;
 }
 
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
-
-/** One of the two big direction cards in the toggle (`.dir-opt`). */
-const DirectionCard: React.FC<{
-	direction: AdjustmentDirection;
-	active: boolean;
-	title: string;
-	subtitle: string;
-	onSelect: () => void;
-}> = ({ direction, active, title, subtitle, onSelect }) => {
-	const theme = useTheme();
-	const isDown = direction === "Decrease";
-	const tone = isDown ? theme.palette.error.main : theme.palette.success.main;
-	const tintBg = isDown ? designTokens.errorBg : alpha(theme.palette.success.main, 0.1);
-	const tintBorder = isDown ? designTokens.errorBorder : alpha(theme.palette.success.main, 0.4);
-
-	return (
-		<Box
-			onClick={onSelect}
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "11px",
-				p: "13px 15px",
-				borderRadius: "8px",
-				cursor: "pointer",
-				bgcolor: active ? tintBg : "background.paper",
-				border: "1.5px solid",
-				borderColor: active ? tintBorder : designTokens.gray300,
-				boxShadow: active ? `0 0 0 3px ${alpha(tone, 0.15)}` : "none",
-				transition: "border-color .14s, background .14s",
-				"&:hover": { borderColor: active ? tintBorder : designTokens.gray400 },
-			}}
-		>
-			<Box
-				sx={{
-					width: 34,
-					height: 34,
-					flex: "0 0 auto",
-					borderRadius: "9px",
-					display: "grid",
-					placeItems: "center",
-					bgcolor: tintBg,
-					color: tone,
-				}}
-			>
-				{isDown ? <SouthEastIcon sx={{ fontSize: 18 }} /> : <NorthEastIcon sx={{ fontSize: 18 }} />}
-			</Box>
-			<Box>
-				<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{title}</Typography>
-				<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "1px" }}>
-					{subtitle}
-				</Typography>
-			</Box>
-		</Box>
-	);
-};
-
 const PREV_CAP = {
 	fontSize: 11,
 	fontWeight: 600,
@@ -116,7 +56,7 @@ const PREV_CAP = {
 } as const;
 const PREV_NUM = {
 	...numericSx,
-	fontWeight: 800,
+	fontWeight: 700,
 	fontSize: 21,
 	letterSpacing: "-0.01em",
 	lineHeight: 1.1,
@@ -262,7 +202,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const warehouseId = watch("warehouseId");
 	const direction = watch("direction") as AdjustmentDirection;
@@ -288,13 +228,13 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
 	);
 
-	const unit = selected ? MEASUREMENT_SHORT[selected.measurement] : t("adjustment.unitFallback");
+	const unit = selected ? measurementShort(t, selected.measurement) : t("adjustment.unitFallback");
 
 	const avail = useMemo(
 		() => selected?.warehouseItems.find((i) => i.warehouseId === warehouseId)?.quantity ?? 0,
@@ -328,7 +268,7 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 600, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("adjustment.title.create")}
@@ -369,7 +309,10 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
 						<Stack sx={{ gap: "7px" }}>
 							<FormFieldLabel label={t("adjustment.field.direction")} />
-							<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+							<Box
+								role="radiogroup"
+								sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}
+							>
 								<DirectionCard
 									direction="Decrease"
 									active={direction === "Decrease"}
@@ -415,12 +358,10 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 									render={({ field, fieldState }) => (
 										<NumericField
 											{...field}
-											value={field.value || ""}
 											size="small"
-											min={0}
 											disabled={isSaving}
 											error={!!fieldState.error || overStock}
-											onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
+											helperText={fieldState.error?.message}
 											slotProps={{
 												input: {
 													endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
@@ -429,11 +370,6 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 										/>
 									)}
 								/>
-								{formState.errors.quantity && (
-									<Typography sx={{ fontSize: 12, color: "error.main" }}>
-										{formState.errors.quantity.message}
-									</Typography>
-								)}
 							</Stack>
 
 							<Stack sx={{ gap: "7px" }}>
@@ -530,6 +466,9 @@ const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 					onSave={submit}
 					canSave={canSave}
 					loading={isSaving}
+					submitLabel={t("adjustment.form.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("adjustment.form.commitNote")}
 				/>
 			</Dialog>
 

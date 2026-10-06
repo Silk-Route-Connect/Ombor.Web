@@ -30,7 +30,7 @@ After parity, components reference theme tokens only. If a prototype shows a val
 ## Reading a prototype
 
 1. Inventory the screen: layout regions, components used, every interactive element, every state the prototype demonstrates (empty, loading, error, filtered, modal open, validation failure).
-2. Map each element to an existing shared component first — see `docs/shared-components.md` for the index (`DataTable`, `FormDialog`, `KpiCard`, `SearchInput`, `DateFilterPicker`, `NumericField`, autocompletes, `ConfirmDialog`, chips/links, and the detail-page scaffold per ui-patterns #20). Create a new shared component only when nothing fits and the pattern is plainly reusable; one-off module components stay in `components/<module>/`.
+2. Map each element to an existing shared component first — see `docs/shared-components.md` for the index (`DataTable`, `FormDialogHeader` + `dialogPaperSx`, `StatusPill`, `SearchInput`, `DateFilterPicker`, `NumericField`, autocompletes, `ConfirmDialog`, chips/links, and the detail-page scaffold per ui-patterns #20). Create a new shared component only when nothing fits and the pattern is plainly reusable; one-off module components stay in `components/<module>/`.
 3. Extract every visible string into the module's ru i18n namespace. Prototype copy is the source for ru values.
 4. Prototype sample data is illustrative — screens bind to stores backed by the API or MSW mocks (see mocking.md), never to literals.
 5. Implement every state the prototype demonstrates, reachable the same way (through interaction, not debug toggles).
@@ -48,7 +48,7 @@ The locked patterns (1–20), display conventions, and behavior digest live in *
 - Match layout, hierarchy, grouping, and emphasis. Exact pixels come from the theme's spacing scale — pick the nearest token, don't transcribe prototype CSS values.
 - Responsive behavior follows MUI grid/breakpoint conventions; prototypes are desktop-first, and the web app targets desktop — don't invent mobile layouts (mobile is a separate read-only RN client).
 - Icons: `@mui/icons-material`, matched by meaning to the prototype's icons, not by importing new icon sets.
-- Charts: `recharts` via the shared `TimeSeriesChart`/chart components, themed to the palette.
+- Charts: `recharts` directly (see the dashboard charts), stroked from theme palette tokens — never hex.
 
 ## Definition of done for a designed screen
 

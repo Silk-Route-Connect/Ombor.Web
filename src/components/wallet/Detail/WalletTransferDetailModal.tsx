@@ -2,9 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -72,7 +73,7 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 			open
 			onClose={onClose}
 			disableRestoreFocus
-			slotProps={{ paper: { sx: { width: 480, maxWidth: "94%", borderRadius: "12px" } } }}
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 		>
 			<FormDialogHeader
 				title={t("wallet.transfer.detailTitle")}
@@ -111,9 +112,10 @@ export const WalletTransferDetailModal: React.FC<WalletTransferDetailModalProps>
 				<KvRow label={t("wallet.transfer.amount")}>
 					<Box
 						component="span"
-						sx={{ ...numericSx, fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}
+						sx={{ ...numericSx, fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}
 					>
-						{formatCurrency(transfer.amount)} UZS
+						{formatCurrency(transfer.amount)}
+						<UzsUnit />
 					</Box>
 				</KvRow>
 				<KvRow label={t("wallet.transfer.date")}>

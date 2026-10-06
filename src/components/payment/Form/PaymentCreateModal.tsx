@@ -3,13 +3,17 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import PeriodSelect from "components/shared/Inputs/PeriodSelect";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
+import { isLoadError, isReady, Loadable, readyOr } from "helpers/Loading";
 import { autoDirection, usePaymentForm } from "hooks/payment/usePaymentForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -24,8 +28,9 @@ import {
 } from "models/payment";
 import { PaymentFormValues } from "schemas/PaymentSchema";
 import { analytics } from "services/telemetry";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { toPeriod } from "utils/payrollUtils";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -33,9 +38,7 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import {
 	Box,
 	Dialog,
-	DialogActions,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	MenuItem,
 	Select,
@@ -46,14 +49,12 @@ import {
 
 import PaymentSettlementModal from "./PaymentSettlementModal";
 
-/** 1-based month numbers; labels come from the shared `common.month.*` keys. */
-const MONTH_NUMBERS = Array.from({ length: 12 }, (_, i) => i + 1);
-const YEARS = ["2026", "2025"];
-
 /**
  * Bounded, anchored-below dropdown menu — keeps long pickers (the partner list)
  * from spilling as a full-page overlay; opens below the field, capped + scrollable (PAY-7).
  */
+const EMPTY_FORM_DATA: PaymentFormData = { partners: [], employees: [], wallets: [] };
+
 const DROPDOWN_MENU_PROPS = {
 	anchorOrigin: { vertical: "bottom" as const, horizontal: "left" as const },
 	transformOrigin: { vertical: "top" as const, horizontal: "left" as const },
@@ -63,9 +64,11 @@ const DROPDOWN_MENU_PROPS = {
 export interface PaymentCreateModalProps {
 	isOpen: boolean;
 	isSaving: boolean;
-	formData: PaymentFormData | "loading";
-	outstanding: OutstandingTransaction[] | "loading";
+	formData: Loadable<PaymentFormData>;
+	outstanding: Loadable<OutstandingTransaction[]>;
 	onLoadOutstanding: (partnerId: number) => void;
+	/** Re-runs a failed reference-data load (partners, employees, wallets). */
+	onRetryFormData: () => void;
 	onSave: (request: CreatePaymentRecordRequest) => void;
 	onClose: () => void;
 }
@@ -94,11 +97,15 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	formData,
 	outstanding,
 	onLoadOutstanding,
+	onRetryFormData,
 	onSave,
 	onClose,
 }) => {
 	const { t } = useTranslation();
-	const { form } = usePaymentForm({ isOpen });
+	const { form } = usePaymentForm({
+		isOpen,
+		wallets: isReady(formData) ? formData.wallets : [],
+	});
 	const { control, watch, setValue, handleSubmit, formState } = form;
 	const [settleOpen, setSettleOpen] = useState(false);
 	const [files, setFiles] = useState<File[]>([]);
@@ -114,7 +121,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	const addFiles = (list: FileList) => setFiles((cur) => [...cur, ...Array.from(list)]);
 	const removeFile = (index: number) => setFiles((cur) => cur.filter((_, j) => j !== index));
 
-	const data = formData === "loading" ? { partners: [], employees: [], wallets: [] } : formData;
+	const data = readyOr(formData, EMPTY_FORM_DATA);
 
 	const type = watch("type") as PaymentType;
 	const partnerId = watch("partnerId");
@@ -152,10 +159,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 	}, [type, partnerId, onLoadOutstanding]);
 
 	const hasOpenDebts =
-		type === "Transaction" &&
-		partner != null &&
-		outstanding !== "loading" &&
-		outstanding.length > 0;
+		type === "Transaction" && partner != null && isReady(outstanding) && outstanding.length > 0;
 
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		formState.isDirty || files.length > 0,
@@ -171,7 +175,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		walletId: watch("walletId") as number,
 		amount,
 		description: type === "General" ? watch("description") : null,
-		period: type === "Payroll" ? `${watch("month")} ${watch("year")}` : null,
+		period: type === "Payroll" ? toPeriod(Number(watch("year")), Number(watch("month"))) : null,
 		settlements,
 		attachments: files,
 	});
@@ -202,7 +206,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 		});
 	});
 
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const fieldError = (name: keyof PaymentFormValues): string | undefined =>
 		(formState.errors[name]?.message as string | undefined) ?? undefined;
@@ -215,7 +219,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 720, maxWidth: "96%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("payment.form.title")}
@@ -227,6 +231,14 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 				{isSaving && <LinearProgress />}
 
 				<DialogContent dividers sx={{ pt: 2 }}>
+					{isLoadError(formData) && (
+						<LoadStateView
+							state={formData}
+							size="section"
+							onRetry={onRetryFormData}
+							errorTitle={t("payment.error.formData")}
+						/>
+					)}
 					{/* STEP 1 — type */}
 					<Stack sx={{ gap: "7px", mb: "16px" }}>
 						<FormFieldLabel label={t("payment.form.typeLabel")} />
@@ -248,6 +260,9 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 								/>
 							)}
 						/>
+						<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.5 }}>
+							{t(`payment.typeHint.${type}`)}
+						</Typography>
 					</Stack>
 					<Box sx={{ height: "1px", bgcolor: "divider", mb: "20px" }} />
 
@@ -336,7 +351,8 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 											color: partner.balance >= 0 ? "success.main" : "error.main",
 										}}
 									>
-										{formatCurrency(partner.balance)} UZS
+										{formatCurrency(partner.balance)}
+										<UzsUnit />
 									</Box>
 									{(type === "Withdrawal" || partner.advance > 0) && (
 										<>
@@ -347,7 +363,8 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 												{t("payment.form.advance")}
 											</Box>
 											<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-												{formatCurrency(partner.advance)} UZS
+												{formatCurrency(partner.advance)}
+												<UzsUnit />
 											</Box>
 										</>
 									)}
@@ -410,47 +427,15 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 							</Stack>
 							<Stack sx={{ gap: "7px" }}>
 								<FormFieldLabel label={t("payment.form.period")} required />
-								<Box sx={{ display: "flex", gap: "10px" }}>
-									<Controller
-										name="month"
-										control={control}
-										render={({ field }) => (
-											<Select
-												size="small"
-												fullWidth
-												value={field.value}
-												onChange={(e) => field.onChange(e.target.value)}
-											>
-												{MONTH_NUMBERS.map((n) => {
-													const label = t(`common.month.${n}`);
-													return (
-														<MenuItem key={n} value={label}>
-															{label}
-														</MenuItem>
-													);
-												})}
-											</Select>
-										)}
-									/>
-									<Controller
-										name="year"
-										control={control}
-										render={({ field }) => (
-											<Select
-												size="small"
-												sx={{ width: 110 }}
-												value={field.value}
-												onChange={(e) => field.onChange(e.target.value)}
-											>
-												{YEARS.map((y) => (
-													<MenuItem key={y} value={y}>
-														{y}
-													</MenuItem>
-												))}
-											</Select>
-										)}
-									/>
-								</Box>
+								<PeriodSelect
+									size="small"
+									month={Number(watch("month"))}
+									year={Number(watch("year"))}
+									onChange={({ month, year }) => {
+										setValue("month", month, { shouldDirty: true });
+										setValue("year", year, { shouldDirty: true });
+									}}
+								/>
 							</Stack>
 						</Box>
 					)}
@@ -559,7 +544,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 										placeholder="0"
 										error={!!fieldError("amount") || overWithdraw || overWallet}
 										slotProps={{
-											input: { endAdornment: <InputAdornment position="end">UZS</InputAdornment> },
+											input: { endAdornment: <UzsAdornment /> },
 										}}
 									/>
 								)}
@@ -614,43 +599,17 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 					)}
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "14px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-					}}
-				>
-					<Box
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "8px",
-							flex: 1,
-							minWidth: 0,
-							fontSize: 12,
-							color: designTokens.saffron700,
-						}}
-					>
-						<ReportProblemOutlinedIcon
-							sx={{ fontSize: 15, color: "warning.main", flex: "0 0 auto" }}
-						/>
-						{t("payment.form.immutableWarn")}
-					</Box>
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton
-						icon={type === "Transaction" ? <BalanceOutlinedIcon /> : <CheckIcon />}
-						onClick={submit}
-						disabled={isSaving}
-					>
-						{type === "Transaction" ? t("payment.form.submitSettle") : t("payment.form.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={!isSaving}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={
+						type === "Transaction" ? t("payment.form.submitSettle") : t("payment.form.submit")
+					}
+					submitIcon={type === "Transaction" ? <BalanceOutlinedIcon /> : <CheckIcon />}
+					commitNote={t("payment.form.commitNote")}
+				/>
 			</Dialog>
 
 			{settleOpen && partner && (
@@ -662,6 +621,7 @@ const PaymentCreateModal: React.FC<PaymentCreateModalProps> = ({
 					walletName={data.wallets.find((w) => w.id === watch("walletId"))?.name ?? ""}
 					direction={effectiveDir}
 					outstanding={outstanding}
+					onRetry={() => onLoadOutstanding(partner.id)}
 					onBack={() => setSettleOpen(false)}
 					onConfirm={(settlements) => {
 						setSettleOpen(false);

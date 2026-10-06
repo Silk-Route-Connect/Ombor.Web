@@ -5,9 +5,8 @@ import { Measurement } from "./product";
  * payment-less stock event with a direction and a mandatory reason
  * (business-rules §E, rules 23–25). It is NOT a transaction type. A Decrease
  * records loss (damage / theft / expiry / loss) at WAC; an Increase restores
- * units (found stock / recount correction) at current WAC. No backend endpoint
- * exists yet, so the resource is mocked at this target v1 contract under
- * `/api/stock-adjustments` (docs/mocking.md).
+ * units (found stock / recount correction) at current WAC. Served by
+ * `/api/stock-adjustments` (backend-contracts/inventory.md).
  */
 export const ADJUSTMENT_DIRECTIONS = ["Decrease", "Increase"] as const;
 export type AdjustmentDirection = (typeof ADJUSTMENT_DIRECTIONS)[number];
@@ -47,6 +46,14 @@ export type StockAdjustment = {
 	createdBy: string;
 	/** Served stock of this product in this warehouse right after the event. */
 	balanceAfter: number;
+	/**
+	 * Average unit cost snapshotted at the event: the loss cost of a Decrease, the
+	 * carrying cost restored on an Increase (0 on Increase rows recorded before
+	 * 2026-10-04, which did not snapshot it).
+	 */
+	unitCost: number;
+	/** quantity × unitCost (served): written off on a Decrease, restored on an Increase. */
+	value: number;
 };
 
 export type CreateStockAdjustmentRequest = {

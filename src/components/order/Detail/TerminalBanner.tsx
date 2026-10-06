@@ -1,10 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import GhostButton from "components/shared/Buttons/GhostButton";
 import { Order, OrderStatus } from "models/order";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 
 import CloseIcon from "@mui/icons-material/Close";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box, Typography } from "@mui/material";
 
@@ -12,8 +14,15 @@ type TerminalStatus = "Cancelled" | "Rejected" | "Returned";
 const isTerminal = (s: OrderStatus): s is TerminalStatus =>
 	s === "Cancelled" || s === "Rejected" || s === "Returned";
 
-/** Banner shown for branch endings (cancelled / rejected / returned). */
-export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
+/**
+ * Banner shown for branch endings (cancelled / rejected / returned). «Returned»
+ * is a bare status change on the backend (no stock or debt movement), so it
+ * offers the real next step: the promoted sale, where a sale refund is created.
+ */
+export const TerminalBanner: React.FC<{ order: Order; onOpenSale: (saleId: number) => void }> = ({
+	order,
+	onOpenSale,
+}) => {
 	const { t } = useTranslation();
 	if (!isTerminal(order.status)) {
 		return null;
@@ -78,6 +87,16 @@ export const TerminalBanner: React.FC<{ order: Order }> = ({ order }) => {
 				<Typography sx={{ fontSize: 12.5, mt: "2px", lineHeight: 1.45, color: tone.color }}>
 					{t(`order.terminal.${order.status}.body`)}
 				</Typography>
+				{order.status === "Returned" && order.saleId != null && (
+					<GhostButton
+						size="small"
+						icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 16 }} />}
+						onClick={() => onOpenSale(order.saleId!)}
+						sx={{ mt: "10px" }}
+					>
+						{t("order.terminal.Returned.openSale")}
+					</GhostButton>
+				)}
 			</Box>
 			{last && (
 				<Box

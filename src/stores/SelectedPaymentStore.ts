@@ -1,6 +1,6 @@
-import { Loadable } from "helpers/Loading";
+import { Loadable, toDetailLoadable } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
-import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { PaymentRecord } from "models/payment";
 import PaymentApi from "services/api/PaymentApi";
@@ -16,6 +16,7 @@ export interface ISelectedPaymentStore {
 /** State for the routed payment detail page — the open payment loaded by id. */
 export class SelectedPaymentStore implements ISelectedPaymentStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	payment: Loadable<PaymentRecord | null> = "loading";
 
@@ -25,20 +26,23 @@ export class SelectedPaymentStore implements ISelectedPaymentStore {
 	}
 
 	async load(paymentId: number): Promise<void> {
+		const isCurrent = this.loads.begin();
 		runInAction(() => (this.payment = "loading"));
 
 		const result = await tryRun(() => PaymentApi.getById(paymentId));
-
-		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("payment.error.getById"));
+		if (!isCurrent()) {
+			return;
 		}
 
-		runInAction(() => {
-			this.payment = result.status === "success" ? result.data : null;
-		});
+		if (result.status === "fail") {
+			this.notificationStore.notifyLoadError(result, "payment.error.getById");
+		}
+
+		runInAction(() => (this.payment = toDetailLoadable(result)));
 	}
 
 	clear(): void {
+		this.loads.invalidate();
 		this.payment = "loading";
 	}
 }

@@ -1,7 +1,6 @@
 import React, { ElementType, Fragment, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import OmborMark from "components/shared/brand/OmborMark";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
@@ -9,12 +8,11 @@ import { useStore } from "stores/StoreContext";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {
 	Box,
+	ButtonBase,
 	Collapse,
-	IconButton,
 	List,
 	ListItemButton,
 	ListItemIcon,
@@ -23,9 +21,11 @@ import {
 	Popper,
 	Tooltip,
 	Typography,
+	useMediaQuery,
 } from "@mui/material";
 
 import { ChildNavItem, NavItem, navItems } from "./config";
+import SidebarBrand from "./SidebarBrand";
 
 export const SIDEBAR_WIDTH = 248; // expanded column
 const RAIL_WIDTH = 72; // collapsed icon rail
@@ -34,6 +34,10 @@ const NAV_CHEVRON = 18; // parent expand/collapse chevron
 
 // Dense POS create-pages open with the rail collapsed for room (design autoCollapse).
 const POS_ROUTES = new Set<string>([PATHS.newSale, PATHS.newSupply, PATHS.newOrder]);
+
+// Below this viewport width the 248px column squeezes detail rails and wide
+// tables, so the sidebar starts on the 72px rail (not persisted, like POS).
+const NARROW_VIEWPORT_QUERY = "(max-width: 1279.95px)";
 
 /* Collapse state persists across sessions (design: `ombor.sidebar.expanded`). */
 const SB_KEY = "ombor.sidebar.expanded";
@@ -51,65 +55,6 @@ function isRouteActive(pathname: string, to: string): boolean {
 	}
 	return pathname === to || pathname.startsWith(`${to}/`);
 }
-
-/* ───────────────────────────── Brand + toggle ───────────────────────────── */
-
-const Brand = observer(function Brand({
-	expanded,
-	onToggle,
-}: {
-	expanded: boolean;
-	onToggle: () => void;
-}) {
-	const { t } = useTranslation();
-	const { authStore } = useStore();
-	const businessName = authStore.getUser()?.organizationName;
-
-	// Hamburger lives inside the sidebar (top-right when expanded, under the mark
-	// when collapsed) — deliberately not in the topbar.
-	const toggle = (
-		<Tooltip title={t(expanded ? "sidebar.collapse" : "sidebar.expand")} placement="right" arrow>
-			<IconButton
-				onClick={onToggle}
-				aria-label={t(expanded ? "sidebar.collapse" : "sidebar.expand")}
-				sx={{
-					width: 38,
-					height: 38,
-					borderRadius: 1,
-					color: "text.secondary",
-					flexShrink: 0,
-					"&:hover": { bgcolor: "action.hover", color: "text.primary" },
-				}}
-			>
-				<MenuIcon sx={{ fontSize: 20 }} />
-			</IconButton>
-		</Tooltip>
-	);
-
-	if (!expanded) {
-		return (
-			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, pb: 1.5 }}>
-				<OmborMark size={34} />
-				{toggle}
-			</Box>
-		);
-	}
-
-	return (
-		<Box sx={{ display: "flex", alignItems: "center", gap: 1.25, px: 1, pt: 0.75, pb: 1.75 }}>
-			<OmborMark size={34} />
-			<Box sx={{ minWidth: 0, flex: 1 }}>
-				<Typography sx={{ fontSize: 19, fontWeight: 700, lineHeight: 1.2 }}>Ombor</Typography>
-				{businessName && (
-					<Typography noWrap sx={{ fontSize: 11, color: "text.disabled", mt: "1px" }}>
-						{businessName}
-					</Typography>
-				)}
-			</Box>
-			{toggle}
-		</Box>
-	);
-});
 
 /* ─────────────────────── Expanded nav (labels + accordion) ─────────────────────── */
 
@@ -185,7 +130,7 @@ function SubItem({ item, active, onClick }: Readonly<SubItemProps>) {
 			<ListItemText
 				primary={t(item.labelKey)}
 				slotProps={{
-					primary: { sx: { fontSize: 13.5, fontWeight: active ? 600 : 500 } },
+					primary: { sx: { fontSize: 14, fontWeight: active ? 600 : 500 } },
 				}}
 			/>
 		</ListItemButton>
@@ -289,7 +234,7 @@ function RailGroup({
 						borderRadius: 2,
 						border: 1,
 						borderColor: "divider",
-						boxShadow: "0 14px 36px rgba(28,38,37,.20)",
+						boxShadow: 8,
 					}}
 				>
 					<Typography
@@ -309,19 +254,22 @@ function RailGroup({
 					{item.children?.map((child) => {
 						const active = isRouteActive(pathname, child.to);
 						return (
-							<Box
+							<ButtonBase
 								key={child.labelKey}
 								onClick={() => {
 									onNavigate(child.to);
 									setAnchor(null);
 								}}
 								sx={{
+									width: "100%",
+									justifyContent: "flex-start",
+									fontFamily: "inherit",
 									display: "flex",
 									alignItems: "center",
 									px: 1.5,
 									py: 1,
 									borderRadius: 1.5,
-									fontSize: 13.5,
+									fontSize: 14,
 									fontWeight: active ? 600 : 500,
 									cursor: "pointer",
 									color: active ? "primary.main" : "text.secondary",
@@ -333,7 +281,7 @@ function RailGroup({
 								}}
 							>
 								{t(child.labelKey)}
-							</Box>
+							</ButtonBase>
 						);
 					})}
 				</Paper>
@@ -349,11 +297,11 @@ const Sidebar: React.FC = observer(() => {
 	const { authStore } = useStore();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+	const narrow = useMediaQuery(NARROW_VIEWPORT_QUERY, { noSsr: true });
+	const autoCollapse = narrow || POS_ROUTES.has(pathname);
 
-	// Start collapsed if we land directly on a POS page (avoids an expand→collapse flash).
-	const [expanded, setExpandedState] = useState(() =>
-		POS_ROUTES.has(pathname) ? false : readExpanded(),
-	);
+	// Start collapsed when auto-collapse applies (avoids an expand→collapse flash).
+	const [expanded, setExpandedState] = useState(() => (autoCollapse ? false : readExpanded()));
 	const setExpanded = (value: boolean) => {
 		setExpandedState(value);
 		try {
@@ -365,7 +313,9 @@ const Sidebar: React.FC = observer(() => {
 
 	// Groups the user opened stay open while navigating; the group owning
 	// the current route is expanded additively, never collapsing others.
-	const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+	const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() =>
+		Object.fromEntries(navItems.filter((i) => i.defaultOpen).map((i) => [i.labelKey, true])),
+	);
 
 	useEffect(() => {
 		const owner = navItems.find((item) =>
@@ -378,12 +328,13 @@ const Sidebar: React.FC = observer(() => {
 		}
 	}, [pathname]);
 
-	// Collapse to the rail on the dense POS pages; elsewhere reflect the saved
-	// preference. The auto-collapse is NOT persisted, so a manual toggle wins and
-	// the user's stored choice is restored the moment they leave a POS page.
+	// Collapse to the rail on the dense POS pages and narrow viewports; elsewhere
+	// reflect the saved preference. The auto-collapse is NOT persisted, so a manual
+	// toggle wins until the next navigation and the stored choice comes back once
+	// the reason (POS page / narrow window) is gone.
 	useEffect(() => {
-		setExpandedState(POS_ROUTES.has(pathname) ? false : readExpanded());
-	}, [pathname]);
+		setExpandedState(autoCollapse ? false : readExpanded());
+	}, [pathname, autoCollapse]);
 
 	const toggleGroup = (labelKey: string) =>
 		setExpandedGroups((prev) => ({ ...prev, [labelKey]: !prev[labelKey] }));
@@ -422,7 +373,7 @@ const Sidebar: React.FC = observer(() => {
 					}),
 			}}
 		>
-			<Brand expanded={expanded} onToggle={() => setExpanded(!expanded)} />
+			<SidebarBrand expanded={expanded} onToggle={() => setExpanded(!expanded)} />
 
 			<List
 				disablePadding

@@ -42,19 +42,18 @@ export const WalletPicker: React.FC<WalletPickerProps> = ({ value, wallets, onCh
 				const wallet = wallets.find((w) => String(w.id) === v);
 				const Icon = wallet ? WALLET_ICON[wallet.type] : PaymentsOutlinedIcon;
 				return (
-					<Box sx={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
+					// The type is carried by the icon (and listed in the menu) — the closed
+					// field shows only the name so it isn't truncated in the narrow tender row.
+					<Box
+						title={wallet ? `${wallet.name} · ${t(WALLET_TYPE_KEY[wallet.type])}` : undefined}
+						sx={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}
+					>
 						<Icon sx={{ fontSize: 16, color: "text.disabled" }} />
 						<Box
 							component="span"
 							sx={{ fontSize: 13.5, overflow: "hidden", textOverflow: "ellipsis" }}
 						>
 							{wallet?.name ?? ""}
-							{wallet && (
-								<Box component="span" sx={{ color: "text.secondary" }}>
-									{" "}
-									· {t(WALLET_TYPE_KEY[wallet.type])}
-								</Box>
-							)}
 						</Box>
 					</Box>
 				);

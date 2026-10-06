@@ -1,24 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import NotFoundDialog from "components/shared/LoadState/NotFoundDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
+import TableTotals from "components/shared/Table/TableTotals";
 import TransferDetailModal from "components/transfer/Detail/TransferDetailModal";
 import TransferFormModal from "components/transfer/Form/TransferFormModal";
 import TransferHeader from "components/transfer/Header/TransferHeader";
 import TransfersTable from "components/transfer/Table/TransfersTable";
+import { isPresent, isReady, readyOr } from "helpers/Loading";
+import { useListDetailRoute } from "hooks/shared/useListDetailRoute";
 import { observer } from "mobx-react-lite";
 import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
-import { Warehouse } from "models/warehouse";
+import { PATHS, transferDetailPath } from "routing/paths";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { matchesSearch } from "utils/stringUtils";
+import { formatQuantity } from "utils/formatCurrency";
+import { formatEntityId } from "utils/formatEntityId";
 
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
+/** Stock transfers; `/transfers/:id` opens one's read-only detail over the list. */
 const TransferPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { transferStore, warehouseStore, productStore } = useStore();
-	const [search, setSearch] = useState("");
+	const tableOrder = useTableOrder<Transfer>();
+	const detailRoute = useListDetailRoute(PATHS.transfers);
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -26,10 +38,17 @@ const TransferPage: React.FC = observer(() => {
 		transferStore.getAll();
 	}, [warehouseStore, productStore, transferStore]);
 
-	const activeWarehouses: Warehouse[] =
-		warehouseStore.allWarehouses === "loading"
-			? []
-			: warehouseStore.allWarehouses.filter((w) => !w.isArchived);
+	const activeWarehouses = readyOr(warehouseStore.activeWarehouses, []);
+	// A transfer needs two warehouses; a new organisation has only the starter one,
+	// so «Новое перемещение» explains that instead of opening an unfillable form.
+	const needsSecondWarehouse =
+		isReady(warehouseStore.activeWarehouses) && activeWarehouses.length < 2;
+
+	const createSecondWarehouse = (): void => {
+		transferStore.closeDialog();
+		warehouseStore.openCreate();
+		navigate(PATHS.warehouses);
+	};
 
 	const handleFormSave = (payload: TransferFormValues): void => {
 		const request: CreateTransferRequest = {
@@ -42,67 +61,98 @@ const TransferPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			transferStore.filteredTransfers === "loading" ? [] : transferStore.filteredTransfers;
+		const rows = readyOr(transferStore.filteredTransfers, []);
 
 		const columns: CsvColumn<Transfer>[] = [
+			{ header: t("transfer.table.number"), value: (tr) => formatEntityId(tr.id) },
 			{ header: t("transfer.table.date"), value: (tr) => formatDate(tr.date) },
 			{ header: t("transfer.table.from"), value: (tr) => tr.fromWarehouseName },
 			{ header: t("transfer.table.to"), value: (tr) => tr.toWarehouseName },
+			{ header: t("transfer.table.createdBy"), value: (tr) => tr.createdBy },
 			{ header: t("transfer.table.positions"), value: (tr) => tr.lines.length },
 			{ header: t("transfer.table.units"), value: (tr) => transferUnits(tr) },
-			{ header: t("transfer.table.createdBy"), value: (tr) => tr.createdBy },
 		];
 
-		exportToCsv(`transfers_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`transfers_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
-	const all = transferStore.allTransfers === "loading" ? null : transferStore.allTransfers;
-	const totalCount = all?.length ?? null;
+	const all = !isReady(transferStore.allTransfers) ? null : transferStore.allTransfers;
 	const hasAny = (all?.length ?? 0) > 0;
-	const isFiltering = transferStore.warehouseFilter != null || search.trim() !== "";
 	const dialogMode = transferStore.dialogMode;
-
-	const base = transferStore.filteredTransfers;
-	const rows =
-		base === "loading" || search.trim() === ""
-			? base
-			: base.filter((tr) =>
-					matchesSearch([tr.fromWarehouseName, tr.toWarehouseName, tr.createdBy].join(" "), search),
-				);
+	const rows = transferStore.filteredTransfers;
+	// Closed: undefined; open: the record, or null when the URL names none (while the list loads, nothing).
+	const opened = detailRoute.isOpen ? transferStore.findById(detailRoute.id) : undefined;
 
 	return (
 		<Box>
 			<TransferHeader
-				totalCount={totalCount}
 				warehouses={activeWarehouses}
 				warehouseFilter={transferStore.warehouseFilter}
 				onWarehouseChange={transferStore.setWarehouseFilter}
-				search={search}
-				onSearchChange={setSearch}
+				search={transferStore.searchTerm}
+				onSearchChange={transferStore.setSearch}
+				dateRange={transferStore.dateRange}
+				onDateRangeChange={transferStore.setDateRange}
 				onCreate={transferStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(rows, []).length}
 			/>
 
 			<TransfersTable
+				exportOrder={tableOrder}
+				onRetry={() => void transferStore.getAll()}
+				errorTitle={t("transfer.error.getAll")}
 				rows={rows}
-				isFiltering={isFiltering}
+				isFiltering={transferStore.isFiltering}
 				hasAny={hasAny}
-				onOpen={transferStore.openDetail}
+				onOpen={(tr) => navigate(transferDetailPath(tr.id))}
 				onCreate={transferStore.openCreate}
+				summary={
+					isReady(rows) && (
+						<TableTotals
+							count={t("transfer.totals.count", {
+								count: rows.length,
+								formatted: formatQuantity(rows.length),
+							})}
+						/>
+					)
+				}
 			/>
 
 			<TransferFormModal
-				isOpen={dialogMode.kind === "create"}
+				isOpen={dialogMode.kind === "create" && !needsSecondWarehouse}
 				isSaving={transferStore.isSaving}
 				warehouses={activeWarehouses}
 				onClose={transferStore.closeDialog}
 				onSave={handleFormSave}
 			/>
 
+			<ConfirmDialog
+				isOpen={dialogMode.kind === "create" && needsSecondWarehouse}
+				icon={<WarehouseOutlinedIcon sx={{ fontSize: 22 }} />}
+				iconTone="info"
+				title={t("transfer.needsSecond.title")}
+				content={
+					activeWarehouses.length === 1
+						? t("transfer.needsSecond.body", { name: activeWarehouses[0].name })
+						: t("transfer.needsSecond.bodyNone")
+				}
+				confirmLabel={t("transfer.needsSecond.create")}
+				cancelLabel={t("common.close")}
+				confirmVariant="primary"
+				onConfirm={createSecondWarehouse}
+				onCancel={transferStore.closeDialog}
+			/>
+
 			<TransferDetailModal
-				transfer={dialogMode.kind === "detail" ? dialogMode.transfer : null}
-				onClose={transferStore.closeDialog}
+				transfer={opened !== undefined && isPresent(opened) ? opened : null}
+				onClose={detailRoute.close}
+			/>
+			<NotFoundDialog
+				open={opened === null}
+				title={t("transfer.detail.title")}
+				notFound={{ title: t("transfer.detail.notFound"), backTo: PATHS.transfers }}
+				onClose={detailRoute.close}
 			/>
 		</Box>
 	);

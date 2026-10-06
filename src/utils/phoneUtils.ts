@@ -5,12 +5,16 @@ const UZ_NATIONAL_MAX = 9;
 
 /**
  * The editable national part (digits after +998) of any stored or typed value —
- * used to bind a phone input that shows a fixed «+998» prefix.
+ * used to bind a phone input that shows a fixed «+998» prefix. The country code
+ * is dropped only from a stored «+998…» or a full 12-digit number: typed national
+ * digits may begin with 998 themselves (operator 99), and stripping those erased
+ * «99 8…» as it was typed.
  */
 export function uzNationalPart(value: string): string {
-	const digits = (value ?? "").replace(/\D/g, "");
-	const national = digits.startsWith("998") ? digits.slice(3) : digits;
-	return national.slice(0, UZ_NATIONAL_MAX);
+	const raw = (value ?? "").trim();
+	const digits = raw.replace(/\D/g, "");
+	const hasCountryCode = digits.startsWith("998") && (raw.startsWith("+") || digits.length >= 12);
+	return (hasCountryCode ? digits.slice(3) : digits).slice(0, UZ_NATIONAL_MAX);
 }
 
 /**
@@ -55,6 +59,15 @@ export function formatUzNational(input: string): string {
 export function formatUzPhone(value: string): string {
 	const grouped = formatUzNational(value);
 	return grouped === "" ? "" : `${UZ_COUNTRY_PREFIX} ${grouped}`;
+}
+
+/**
+ * A number shown without revealing it, for SMS-code copy: «+998 90 ••• •• 34» —
+ * the same grouping as `formatUzPhone`.
+ */
+export function maskUzPhone(value: string): string {
+	const national = uzNationalPart(value);
+	return `${UZ_COUNTRY_PREFIX} ${national.slice(0, 2)} ••• •• ${national.slice(7, 9)}`;
 }
 
 /**

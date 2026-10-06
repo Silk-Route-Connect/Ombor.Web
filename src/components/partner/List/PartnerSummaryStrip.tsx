@@ -1,13 +1,17 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { PartnerSummary } from "stores/PartnerStore";
+import UzsUnit from "components/shared/Money/UzsUnit";
+import { isReady, Loadable } from "helpers/Loading";
+import { DebtSummary } from "models/debt";
 import { numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Typography } from "@mui/material";
 
 interface PartnerSummaryStripProps {
-	summary: PartnerSummary;
+	/** The served debt totals — the same figures as «Долги» and the dashboard. */
+	summary: Loadable<DebtSummary>;
+	activeCount: number;
 }
 
 const CARD_SX = {
@@ -45,7 +49,8 @@ const Cap: React.FC<{ color: string; label: string }> = ({ color, label }) => (
 	</Box>
 );
 
-const Value: React.FC<{ color: string; text: string }> = ({ color, text }) => (
+/** The figure with its unit, or «—» until the served totals are in. */
+const Value: React.FC<{ color: string; text: string | null }> = ({ color, text }) => (
 	<Typography
 		sx={{
 			...numericSx,
@@ -57,30 +62,31 @@ const Value: React.FC<{ color: string; text: string }> = ({ color, text }) => (
 			color,
 		}}
 	>
-		{text}
-		<Box
-			component="span"
-			sx={{ fontSize: 12.5, fontWeight: 600, color: "text.disabled", ml: "7px" }}
-		>
-			UZS
-		</Box>
+		{text ?? "—"}
+		{text !== null && <UzsUnit />}
 	</Typography>
 );
 
-const Sub: React.FC<{ text: string }> = ({ text }) => (
-	<Typography sx={{ fontSize: 12, color: "text.disabled", mt: "8px" }}>{text}</Typography>
+const Sub: React.FC<{ text: string | null }> = ({ text }) => (
+	<Typography sx={{ fontSize: 12, color: "text.disabled", mt: "8px" }}>{text ?? "—"}</Typography>
 );
 
 /**
- * List summary strip: receivables / payables / net position. These are the
- * company's own aggregate positions, so colour is owner-POV (DR-27): money
- * coming to us (receivables) reads green, money we owe (payables) red; net is
- * neutral with a direction word. Aggregate buckets carry no +/− sign — only a
- * single partner's balance is signed + partner-POV.
+ * List summary strip: «Нам должны» / «Мы должны» / «Итог расчётов» — the served
+ * net partner positions (archived partners included), the same figures as
+ * «Долги» and the dashboard. These are the company's own aggregate positions,
+ * so colour is owner-POV (DR-27): money coming to us reads green, money we owe
+ * red; net is neutral with a direction word. Aggregates carry no +/− sign —
+ * only a single partner's balance is signed + partner-POV.
  */
-export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summary }) => {
+export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({
+	summary: loadable,
+	activeCount,
+}) => {
 	const { t } = useTranslation();
-	const netText = formatCurrency(Math.abs(summary.net));
+	const summary = isReady(loadable) ? loadable : null;
+	const money = (value: number | undefined): string | null =>
+		value === undefined ? null : formatCurrency(value);
 
 	return (
 		<Box
@@ -93,28 +99,37 @@ export const PartnerSummaryStrip: React.FC<PartnerSummaryStripProps> = ({ summar
 		>
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
 				<Cap color="success.main" label={t("partner.summary.receivable")} />
-				<Value color="success.main" text={formatCurrency(summary.receivable)} />
-				<Sub text={t("partner.summary.receivableSub", { count: summary.receivableCount })} />
+				<Value color="success.main" text={money(summary?.receivable)} />
+				<Sub
+					text={
+						summary && t("partner.summary.receivableSub", { count: summary.receivablePartnerCount })
+					}
+				/>
 			</Box>
 
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "error.main" } }}>
 				<Cap color="error.main" label={t("partner.summary.payable")} />
-				<Value color="error.main" text={formatCurrency(summary.payable)} />
-				<Sub text={t("partner.summary.payableSub", { count: summary.payableCount })} />
+				<Value color="error.main" text={money(summary?.payable)} />
+				<Sub
+					text={summary && t("partner.summary.payableSub", { count: summary.payablePartnerCount })}
+				/>
 			</Box>
 
 			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "primary.main" } }}>
 				<Cap color="primary.main" label={t("partner.summary.net")} />
-				<Value color="text.primary" text={netText} />
+				<Value color="text.primary" text={summary && formatCurrency(Math.abs(summary.net))} />
 				<Sub
-					text={t("partner.summary.netSub", {
-						direction: t(
-							summary.net >= 0
-								? "partner.summary.netInOurFavor"
-								: "partner.summary.netInPartnerFavor",
-						),
-						count: summary.activeCount,
-					})}
+					text={
+						summary &&
+						t("partner.summary.netSub", {
+							direction: t(
+								summary.net >= 0
+									? "partner.summary.netInOurFavor"
+									: "partner.summary.netInPartnerFavor",
+							),
+							count: activeCount,
+						})
+					}
 				/>
 			</Box>
 		</Box>

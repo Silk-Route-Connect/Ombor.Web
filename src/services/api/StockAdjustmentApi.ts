@@ -2,8 +2,7 @@ import { CreateStockAdjustmentRequest, StockAdjustment } from "../../models/stoc
 import http from "./http";
 
 /**
- * Stock-adjustments API over the target v1 contract (`/api/stock-adjustments`).
- * The resource is fully mocked (docs/mocking.md) — no backend endpoint exists.
+ * Stock-adjustments API (`/api/stock-adjustments`).
  * Adjustments are immutable (rule 23): only list + create, never update/delete.
  */
 class StockAdjustmentApi {

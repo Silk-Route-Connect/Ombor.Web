@@ -1,187 +1,181 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
-import DetailCard from "components/shared/Detail/DetailCard";
-import DetailSortHeader, { SortDir } from "components/shared/Detail/DetailSortHeader";
-import { compareValues } from "components/shared/Table/DataTable/tableConfigs";
-import TablePager from "components/shared/Table/TablePager";
+import MovementKindChip from "components/shared/Chip/MovementKindChip";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import QuantityCell from "components/shared/Table/cells/QuantityCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import { Measurement, ProductTransaction } from "models/product";
-import { numericSx } from "theme";
-import { formatDateTime } from "utils/dateUtils";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { unitInline } from "utils/productUtils";
+import { transactionDetailPath } from "routing/paths";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
+import { measurementShort } from "utils/productUtils";
+import { directionOf, isRefundType, lineNet } from "utils/transactionUtils";
 
 import SwapHorizOutlinedIcon from "@mui/icons-material/SwapHorizOutlined";
-import { Box } from "@mui/material";
-
-import { cardIconSx, detailTableSx, quantityInSx, quantityOutSx } from "./detailTableSx";
-import HistoryEmptyState from "./HistoryEmptyState";
-import TransactionKindChip from "./TransactionKindChip";
+import { Theme, useMediaQuery } from "@mui/material";
 
 interface ProductTransactionsTabProps {
+	productName: string;
 	transactions: ProductTransaction[];
 	measurement: Measurement;
+	/** Opens the sale / supply the line belongs to. */
+	onOpen: (path: string) => void;
 }
 
-type SortCol = "date" | "type" | "partner" | "quantity" | "price" | "total";
+/** One row per line; the served `id` is the transaction's, so two lines may share it. */
+type TransactionRow = ProductTransaction & { transactionId: number };
 
-/** «Транзакции» per the bundle: dated history with signed quantities, sortable
- *  on every column (defaults to date, newest first). */
+/** Line net after the served discount — the amount actually booked (frontend-18). */
+const lineTotal = (txn: ProductTransaction): number =>
+	lineNet({
+		quantity: Math.abs(txn.quantity),
+		unitPrice: txn.unitPrice,
+		discount: txn.discount,
+		discountType: txn.discountType,
+	});
+
+/**
+ * Stock goes in on a supply and a sale refund, out on a sale and a supply
+ * refund — read from the document type (the served line quantity is unsigned).
+ */
+const stockDirection = (row: TransactionRow): "in" | "out" =>
+	(directionOf(row.transactionType) === "Supply") !== isRefundType(row.transactionType)
+		? "in"
+		: "out";
+
+const sourcePath = (row: TransactionRow): string =>
+	transactionDetailPath(row.transactionType, row.transactionId);
+
+/**
+ * «Продажи и поставки»: every sale / supply / refund line of the product, newest
+ * first; the № (or the whole row) opens its document. «Цена» shows only on wide
+ * screens (xl) — beside the rail at 1366–1440px the seven columns would scroll
+ * sideways; the CSV and the document keep it.
+ */
 export const ProductTransactionsTab: React.FC<ProductTransactionsTabProps> = ({
+	productName,
 	transactions,
 	measurement,
+	onOpen,
 }) => {
 	const { t } = useTranslation();
-	const unit = unitInline(t, measurement);
-	const [sortCol, setSortCol] = useState<SortCol>("date");
-	const [sortDir, setSortDir] = useState<SortDir>("desc");
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const tableOrder = useTableOrder<TransactionRow>();
+	const showPrice = useMediaQuery((theme: Theme) => theme.breakpoints.up("xl"), { noSsr: true });
 
-	const rows = useMemo(() => {
-		const accessor = (txn: ProductTransaction): string | number => {
-			switch (sortCol) {
-				case "date":
-					return txn.date;
-				case "type":
-					return txn.transactionType;
-				case "partner":
-					return txn.partnerName;
-				case "quantity":
-					return Math.abs(txn.quantity);
-				case "price":
-					return txn.unitPrice;
-				case "total":
-					return Math.abs(txn.quantity) * txn.unitPrice;
-				default:
-					return "";
-			}
-		};
-		const sorted = [...transactions].sort((a, b) => compareValues(accessor(a), accessor(b)));
-		return sortDir === "desc" ? sorted.reverse() : sorted;
-	}, [transactions, sortCol, sortDir]);
+	const rows = useMemo<TransactionRow[]>(
+		() => transactions.map((txn, index) => ({ ...txn, id: index, transactionId: txn.id })),
+		[transactions],
+	);
 
-	const paged = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+	const columns = useMemo<Column<TransactionRow>[]>(() => {
+		const all: Column<TransactionRow>[] = [
+			{
+				key: "number",
+				headerName: t("product.detail.txns.number"),
+				sortValue: (r) => entityNumberSortValue(r.transactionNumber),
+				renderCell: (r) => <DocNumberCell number={r.transactionNumber} to={sourcePath(r)} />,
+			},
+			{
+				key: "date",
+				headerName: t("product.detail.txns.date"),
+				sortValue: (r) => Date.parse(r.date),
+				renderCell: (r) => <DateCell value={r.date} />,
+			},
+			{
+				key: "partner",
+				headerName: t("product.detail.txns.partner"),
+				sortValue: (r) => r.partnerName,
+				renderCell: (r) => <PartnerLink id={r.partnerId} name={r.partnerName} />,
+			},
+			{
+				key: "type",
+				headerName: t("product.detail.txns.type"),
+				sortValue: (r) => t(`common.movementKind.${r.transactionType}`),
+				renderCell: (r) => <MovementKindChip kind={r.transactionType} />,
+			},
+			{
+				key: "quantity",
+				headerName: t("product.detail.table.quantity"),
+				align: "right",
+				sortValue: (r) => (stockDirection(r) === "in" ? 1 : -1) * Math.abs(r.quantity),
+				renderCell: (r) => (
+					<QuantityCell
+						value={Math.abs(r.quantity)}
+						measurement={measurement}
+						direction={stockDirection(r)}
+					/>
+				),
+			},
+			{
+				key: "price",
+				headerName: t("product.detail.txns.price"),
+				align: "right",
+				sortValue: (r) => r.unitPrice,
+				renderCell: (r) => <MoneyCell value={r.unitPrice} />,
+			},
+			{
+				key: "total",
+				headerName: t("product.detail.txns.total"),
+				align: "right",
+				sortValue: lineTotal,
+				renderCell: (r) => <MoneyCell value={lineTotal(r)} main />,
+			},
+		];
+		return showPrice ? all : all.filter((col) => col.key !== "price");
+	}, [t, measurement, showPrice]);
 
-	const onSort = (col: SortCol) => {
-		if (col === sortCol) {
-			setSortDir((d) => (d === "desc" ? "asc" : "desc"));
-		} else {
-			setSortCol(col);
-			setSortDir("desc");
-		}
+	const handleExport = () => {
+		exportToCsv<TransactionRow>(
+			`product_${productName}_transactions_${csvDateStamp()}`,
+			[
+				{
+					header: t("product.detail.txns.number"),
+					value: (r) => formatOptionalNumber(r.transactionNumber, t("common.noNumber")),
+				},
+				{ header: t("product.detail.txns.date"), value: (r) => formatDate(r.date) },
+				{ header: t("product.detail.txns.partner"), value: (r) => r.partnerName },
+				{
+					header: t("product.detail.txns.type"),
+					value: (r) => t(`common.movementKind.${r.transactionType}`),
+				},
+				{
+					header: t("product.detail.table.quantity"),
+					value: (r) => (stockDirection(r) === "in" ? 1 : -1) * Math.abs(r.quantity),
+				},
+				{ header: t("warehouse.stock.unit"), value: () => measurementShort(t, measurement) },
+				{ header: t("product.detail.txns.price"), value: (r) => r.unitPrice },
+				{ header: t("product.detail.txns.total"), value: lineTotal },
+			],
+			tableOrder.apply(rows),
+		);
 	};
 
 	return (
-		<DetailCard
-			title={t("product.detail.txns.title")}
-			icon={<SwapHorizOutlinedIcon sx={cardIconSx} />}
-		>
-			{transactions.length === 0 ? (
-				<HistoryEmptyState
-					icon={<SwapHorizOutlinedIcon sx={{ fontSize: 22 }} />}
-					title={t("product.detail.txns.emptyTitle")}
-					body={t("product.detail.txns.emptyBody")}
-				/>
-			) : (
-				<>
-					<Box component="table" sx={detailTableSx}>
-						<thead>
-							<tr>
-								<DetailSortHeader
-									col="date"
-									label={t("product.detail.txns.date")}
-									active={sortCol === "date"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="type"
-									label={t("product.detail.txns.type")}
-									active={sortCol === "type"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="partner"
-									label={t("product.detail.txns.partner")}
-									active={sortCol === "partner"}
-									dir={sortDir}
-									onSort={onSort}
-								/>
-								<DetailSortHeader
-									col="quantity"
-									label={t("product.detail.table.quantity")}
-									active={sortCol === "quantity"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-								<DetailSortHeader
-									col="price"
-									label={t("product.detail.txns.price")}
-									active={sortCol === "price"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-								<DetailSortHeader
-									col="total"
-									label={t("product.detail.txns.total")}
-									active={sortCol === "total"}
-									dir={sortDir}
-									onSort={onSort}
-									align="right"
-								/>
-							</tr>
-						</thead>
-						<tbody>
-							{paged.map((txn) => (
-								<tr key={txn.id}>
-									<td>
-										<Box component="span" sx={{ ...numericSx, color: "text.secondary" }}>
-											{formatDateTime(txn.date)}
-										</Box>
-									</td>
-									<td>
-										<TransactionKindChip kind={txn.transactionType} />
-									</td>
-									<td>
-										<PartnerLink id={txn.partnerId} name={txn.partnerName} />
-									</td>
-									<td className="r">
-										<Box component="span" sx={txn.quantity > 0 ? quantityInSx : quantityOutSx}>
-											{formatQuantity(Math.abs(txn.quantity))}
-											{unit ? ` ${unit}` : ""}
-										</Box>
-									</td>
-									<td className="r">
-										<Box component="span" sx={numericSx}>
-											{formatCurrency(txn.unitPrice)}
-										</Box>
-									</td>
-									<td className="r">
-										<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-											{formatCurrency(Math.abs(txn.quantity) * txn.unitPrice)}
-										</Box>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</Box>
-					<TablePager
-						count={rows.length}
-						page={page}
-						rowsPerPage={rowsPerPage}
-						onPageChange={setPage}
-						onRowsPerPageChange={(n) => {
-							setRowsPerPage(n);
-							setPage(0);
-						}}
+		<DetailTableCard exportCsv={{ onExport: handleExport, rowCount: rows.length }}>
+			<DetailTable<TransactionRow>
+				exportOrder={tableOrder}
+				rows={rows}
+				columns={columns}
+				defaultSort={{ key: "date", order: "desc" }}
+				pagination
+				onRowClick={(r) => onOpen(sourcePath(r))}
+				empty={
+					<TableEmptyState
+						icon={<SwapHorizOutlinedIcon />}
+						title={t("product.detail.txns.emptyTitle")}
+						hint={t("product.detail.txns.emptyBody")}
 					/>
-				</>
-			)}
-		</DetailCard>
+				}
+			/>
+		</DetailTableCard>
 	);
 };
 

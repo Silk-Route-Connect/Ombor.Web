@@ -9,6 +9,9 @@ interface SaveButtonProps {
 	loading?: boolean;
 	fullWidth?: boolean;
 	tooltip?: string;
+	/** Overrides «Сохранить» — immutable events name what happens («Провести …»). */
+	label?: string;
+	icon?: React.ReactNode;
 	onSave: () => void;
 }
 
@@ -17,6 +20,8 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 	loading = false,
 	fullWidth = false,
 	tooltip,
+	label,
+	icon,
 	onSave,
 }) => {
 	const { t } = useTranslation();
@@ -26,14 +31,15 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 			<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
 				<Button
 					variant="contained"
-					startIcon={<SaveIcon />}
+					startIcon={icon ?? <SaveIcon />}
 					color="primary"
 					disabled={disabled}
 					loading={loading}
 					fullWidth={fullWidth}
 					onClick={onSave}
+					sx={{ whiteSpace: "nowrap" }}
 				>
-					{t("common.save")}
+					{label ?? t("common.save")}
 				</Button>
 			</Box>
 		</Tooltip>

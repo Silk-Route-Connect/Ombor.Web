@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import { DashboardAgingBucket, DashboardAgingBucketKey } from "models/dashboard";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -74,15 +75,12 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 				}}
 			>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+					<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
 						{t("dashboard.aging.overdueLabel")}
 					</Typography>
 					<Typography
 						sx={{
-							...numericSx,
-							fontSize: 26,
-							fontWeight: 700,
-							letterSpacing: "-0.02em",
+							...typeScale.numStrong,
 							lineHeight: 1,
 							color: hasOverdue ? "warning.main" : "text.disabled",
 						}}
@@ -91,25 +89,11 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 					</Typography>
 				</Box>
 				{hasOverdue && (
-					<Box
-						component="span"
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "5px",
-							fontSize: 12,
-							fontWeight: 600,
-							px: "10px",
-							py: "4px",
-							borderRadius: "999px",
-							bgcolor: designTokens.warningBg,
-							color: "#C57E14",
-							whiteSpace: "nowrap",
-						}}
-					>
-						<ReportProblemOutlinedIcon sx={{ fontSize: 13 }} />
-						{t("debt.summary.txCount", { count: overdueCount })}
-					</Box>
+					<StatusPill
+						token="warning"
+						icon={ReportProblemOutlinedIcon}
+						label={t("debt.summary.txCount", { count: overdueCount })}
+					/>
 				)}
 			</Box>
 
@@ -160,7 +144,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 								{pct(b.amount)}%
 							</Box>
 						</Box>
-						<Box component="span" sx={{ ...numericSx, fontSize: 13.5, fontWeight: 600 }}>
+						<Box component="span" sx={{ ...numericSx, fontSize: 14, fontWeight: 600 }}>
 							{formatCurrency(b.amount)}
 						</Box>
 					</Box>
@@ -178,7 +162,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 					borderColor: "divider",
 				}}
 			>
-				<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+				<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
 					{t("dashboard.aging.total")}
 				</Typography>
 				<Box

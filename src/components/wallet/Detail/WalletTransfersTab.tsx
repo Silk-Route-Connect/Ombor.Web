@@ -1,115 +1,48 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
-import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import { Column, DataTable } from "components/shared/Table/DataTable/DataTable";
+import DetailTable from "components/shared/Detail/DetailTable";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
+import DateCell from "components/shared/Table/cells/DateCell";
+import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import MoneyCell from "components/shared/Table/cells/MoneyCell";
+import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import { Column } from "components/shared/Table/DataTable/DataTable";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WalletLink from "components/wallet/Links/WalletLink";
-import { WalletTypeAvatar } from "components/wallet/WalletPresentation";
 import { WalletTransfer } from "models/wallet";
-import { numericSx } from "theme";
-import { formatDateTime } from "utils/dateUtils";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatDate } from "utils/dateUtils";
+import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
+import { formatEntityId } from "utils/formatEntityId";
 import { matchesSearch } from "utils/stringUtils";
 
-import AddIcon from "@mui/icons-material/Add";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import { Box, Paper, Typography } from "@mui/material";
 
 interface WalletTransfersTabProps {
+	walletName: string;
 	transfers: WalletTransfer[];
 	canTransfer: boolean;
 	onNewTransfer: () => void;
 	onOpenTransfer: (transferId: number) => void;
 }
 
-const stop = (e: React.MouseEvent) => e.stopPropagation();
-
-const WalletCell: React.FC<{
-	id: number;
-	name: string;
-	type: WalletTransfer["fromWalletType"];
-}> = ({ id, name, type }) => (
-	<Box
-		component="span"
-		sx={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600 }}
-		onClick={stop}
-	>
-		<WalletTypeAvatar type={type} size={24} iconSize={14} />
-		<WalletLink id={id} name={name} />
-	</Box>
-);
-
 /**
- * The «Переводы» tab on the shared DataTable — inter-wallet transfers touching
- * this wallet (immutable, rule 16). Each row opens the read-only transfer
- * detail; the «Новый перевод» action lives in the detail header (WAL-13).
+ * «Переводы»: inter-wallet transfers touching this wallet (immutable, rule 16)
+ * — № · Дата · Из кассы · В кассу · Автор · Сумма. Each row opens the
+ * read-only transfer detail.
  */
 export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
+	walletName,
 	transfers,
 	canTransfer,
 	onNewTransfer,
 	onOpenTransfer,
 }) => {
 	const { t } = useTranslation();
+	const tableOrder = useTableOrder<WalletTransfer>();
 	const [query, setQuery] = useState("");
 
-	const columns = useMemo<Column<WalletTransfer>[]>(
-		() => [
-			{
-				key: "date",
-				headerName: t("wallet.transfers.date"),
-				sortValue: (tr) => tr.date,
-				renderCell: (tr) => (
-					<Box
-						component="span"
-						sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}
-					>
-						{formatDateTime(tr.date)}
-					</Box>
-				),
-			},
-			{
-				key: "from",
-				headerName: t("wallet.transfers.from"),
-				sortValue: (tr) => tr.fromWalletName,
-				renderCell: (tr) => (
-					<WalletCell id={tr.fromWalletId} name={tr.fromWalletName} type={tr.fromWalletType} />
-				),
-			},
-			{
-				key: "to",
-				headerName: t("wallet.transfers.to"),
-				sortValue: (tr) => tr.toWalletName,
-				renderCell: (tr) => (
-					<WalletCell id={tr.toWalletId} name={tr.toWalletName} type={tr.toWalletType} />
-				),
-			},
-			{
-				key: "createdBy",
-				headerName: t("wallet.transfers.createdBy"),
-				sortValue: (tr) => tr.createdBy,
-				renderCell: (tr) => (
-					<Box component="span" sx={{ color: "text.secondary" }}>
-						{tr.createdBy}
-					</Box>
-				),
-			},
-			{
-				key: "amount",
-				headerName: t("wallet.transfers.amount"),
-				align: "right",
-				sortValue: (tr) => tr.amount,
-				renderCell: (tr) => (
-					<Box component="span" sx={{ ...numericSx, fontWeight: 700, fontSize: 15 }}>
-						{formatCurrency(tr.amount)}
-					</Box>
-				),
-			},
-		],
-		[t],
-	);
-
-	const filtered = useMemo(
+	const rows = useMemo(
 		() =>
 			query.trim()
 				? transfers.filter((tr) =>
@@ -119,51 +52,100 @@ export const WalletTransfersTab: React.FC<WalletTransfersTabProps> = ({
 		[transfers, query],
 	);
 
-	if (transfers.length === 0) {
-		return (
-			<Paper
-				elevation={1}
-				sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
-			>
-				<Box sx={{ p: "44px 24px 48px", textAlign: "center" }}>
-					<SwapHorizIcon sx={{ fontSize: 26, color: "text.disabled" }} />
-					<Typography sx={{ fontWeight: 600, mt: 1 }}>
-						{t("wallet.transfers.emptyTitle")}
-					</Typography>
-					<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-						{t("wallet.transfers.emptyBody")}
-					</Typography>
-					{canTransfer && (
-						<GhostButton
-							icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-							onClick={onNewTransfer}
-							sx={{ mt: 2 }}
-						>
-							{t("wallet.transfer.action")}
-						</GhostButton>
-					)}
-				</Box>
-			</Paper>
+	const columns = useMemo<Column<WalletTransfer>[]>(
+		() => [
+			{
+				key: "number",
+				headerName: t("wallet.transfers.number"),
+				sortValue: (tr) => tr.id,
+				renderCell: (tr) => <DocNumberCell number={tr.id} onOpen={() => onOpenTransfer(tr.id)} />,
+			},
+			{
+				key: "date",
+				headerName: t("wallet.transfers.date"),
+				sortValue: (tr) => Date.parse(tr.date),
+				renderCell: (tr) => <DateCell value={tr.date} />,
+			},
+			{
+				key: "from",
+				headerName: t("wallet.transfers.from"),
+				sortValue: (tr) => tr.fromWalletName,
+				renderCell: (tr) => <WalletLink id={tr.fromWalletId} name={tr.fromWalletName} />,
+			},
+			{
+				key: "to",
+				headerName: t("wallet.transfers.to"),
+				sortValue: (tr) => tr.toWalletName,
+				renderCell: (tr) => <WalletLink id={tr.toWalletId} name={tr.toWalletName} />,
+			},
+			{
+				key: "createdBy",
+				headerName: t("wallet.transfers.createdBy"),
+				sortValue: (tr) => tr.createdBy,
+				renderCell: (tr) => <MutedTextCell text={tr.createdBy} />,
+			},
+			{
+				key: "amount",
+				headerName: t("wallet.transfers.amount"),
+				align: "right",
+				sortValue: (tr) => tr.amount,
+				renderCell: (tr) => <MoneyCell value={tr.amount} main />,
+			},
+		],
+		[t, onOpenTransfer],
+	);
+
+	const handleExport = () => {
+		exportToCsv<WalletTransfer>(
+			`wallet_${walletName}_transfers_${csvDateStamp()}`,
+			[
+				{ header: t("wallet.transfers.number"), value: (tr) => formatEntityId(tr.id) },
+				{ header: t("wallet.transfers.date"), value: (tr) => formatDate(tr.date) },
+				{ header: t("wallet.transfers.from"), value: (tr) => tr.fromWalletName },
+				{ header: t("wallet.transfers.to"), value: (tr) => tr.toWalletName },
+				{ header: t("wallet.transfers.createdBy"), value: (tr) => tr.createdBy },
+				{ header: t("wallet.transfers.amount"), value: (tr) => tr.amount },
+			],
+			tableOrder.apply(rows),
 		);
-	}
+	};
+
+	const firstRun = transfers.length === 0;
 
 	return (
-		<Box>
-			<Box sx={{ mb: "12px" }}>
-				<SearchInput
-					value={query}
-					onChange={setQuery}
-					placeholder={t("wallet.transfers.searchPlaceholder")}
-				/>
-			</Box>
-			<DataTable<WalletTransfer>
-				rows={filtered}
+		<DetailTableCard
+			search={
+				firstRun
+					? undefined
+					: {
+							value: query,
+							onChange: setQuery,
+							placeholder: t("wallet.transfers.searchPlaceholder"),
+						}
+			}
+			exportCsv={firstRun ? undefined : { onExport: handleExport, rowCount: rows.length }}
+		>
+			<DetailTable<WalletTransfer>
+				exportOrder={tableOrder}
+				rows={rows}
 				columns={columns}
-				pagination
 				defaultSort={{ key: "date", order: "desc" }}
+				pagination
 				onRowClick={(tr) => onOpenTransfer(tr.id)}
+				empty={
+					<TableEmptyState
+						icon={<SwapHorizIcon />}
+						title={firstRun ? t("wallet.transfers.emptyTitle") : t("common.table.noMatches")}
+						hint={firstRun ? t("wallet.transfers.emptyBody") : t("common.table.noMatchesHint")}
+						action={
+							firstRun && canTransfer
+								? { label: t("wallet.transfer.action"), onClick: onNewTransfer }
+								: undefined
+						}
+					/>
+				}
 			/>
-		</Box>
+		</DetailTableCard>
 	);
 };
 

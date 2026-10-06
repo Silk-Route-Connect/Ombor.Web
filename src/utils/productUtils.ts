@@ -1,25 +1,36 @@
 import { TFunction } from "i18next";
-import { Measurement, Product, ProductPackaging, ProductTransaction } from "models/product";
-import { ProductFormInputs } from "schemas/ProductSchema";
+import {
+	CreateProductRequest,
+	Measurement,
+	Product,
+	ProductPackaging,
+	ProductTransaction,
+} from "models/product";
+import { ProductFormInputs, ProductFormValues } from "schemas/ProductSchema";
 
-/** Short unit codes for the «Ед. изм.» column, keyed by the domain enum. */
-export const MEASUREMENT_SHORT: Record<Measurement, string> = {
-	Gram: "г",
-	Kilogram: "кг",
-	Ton: "т",
-	Piece: "шт",
-	Box: "кор",
-	// Legacy alias of Piece — kept so products the backend still serves as `Unit`
-	// render a short code (issues-tracker §12); not offered in the product picker.
-	Unit: "ед",
-	None: "—",
-};
+/**
+ * Short localized unit code next to a number («5 кг», «На складе: 24 шт»), or
+ * empty when unset (`None`) so a unit-less quantity reads «5», never «5 —».
+ * `Unit` is a legacy alias of Piece the backend may still serve
+ * (issues-tracker §12) — it keeps its own short code.
+ */
+export function measurementShort(t: TFunction, measurement: Measurement): string {
+	return measurement === "None" ? "" : t(`product.measurementShort.${measurement}`);
+}
+
+/**
+ * Unit word inside a field label («Кол-во · кг», «Цена за шт»): the short code,
+ * or the generic «ед.» when unset — a label never ends in a bare «за» or «·».
+ */
+export function measurementShortLabel(t: TFunction, measurement: Measurement): string {
+	return measurementShort(t, measurement) || t("product.measurementShort.generic");
+}
 
 /**
  * Inline unit for a quantity value (e.g. «5 Килограмм») — the FULL localized
  * term, or empty for `None` so a unit-less quantity reads «5» (never a bare
  * trailing dash). For a dedicated unit column/field use {@link measurementLabel}.
- * (`MEASUREMENT_SHORT` is kept for other modules that still render short codes.)
+ * For a short code next to a number use {@link measurementShort}.
  */
 export function unitInline(t: TFunction, measurement: Measurement): string {
 	return measurement === "None" ? "" : t(`product.measurement.${measurement}`);
@@ -83,7 +94,8 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 		supplyPrice: Number(product.supplyPrice),
 		salePrice: Number(product.salePrice),
 
-		lowStockThreshold: product.lowStockThreshold ?? null,
+		// 0 is the served default and means the same as no threshold — show it empty.
+		lowStockThreshold: product.lowStockThreshold || null,
 
 		packaging: product.packaging
 			? {
@@ -110,6 +122,22 @@ export const mapFormPackagingToPackaging = (
 	};
 };
 
+/** The validated product form → the create / update request body. */
+export const toProductRequest = (payload: ProductFormValues): CreateProductRequest => ({
+	categoryId: payload.categoryId,
+	name: payload.name,
+	sku: payload.sku,
+	description: payload.description,
+	barcode: payload.barcode,
+	salePrice: payload.salePrice,
+	supplyPrice: payload.supplyPrice,
+	measurement: payload.measurement,
+	type: payload.type,
+	lowStockThreshold: payload.lowStockThreshold ?? null,
+	packaging: mapFormPackagingToPackaging(payload.packaging),
+	attachments: payload.attachments,
+});
+
 const IMAGE_BASE_URL = import.meta.env.VITE_OMBOR_API_BASE_URL ?? "";
 
 export function getImageFullUrl(path?: string): string | undefined {
@@ -117,7 +145,7 @@ export function getImageFullUrl(path?: string): string | undefined {
 		return undefined;
 	}
 
-	// Self-contained URLs (mock object URLs, inline data URIs) need no base.
+	// Self-contained URLs (an upload preview's object URL or data URI) need no base.
 	if (/^(data|blob|https?):/.test(path)) {
 		return path;
 	}

@@ -41,6 +41,9 @@ export const TableToolbar: React.FC<TableToolbarProps> = ({ search, filters, act
 				onChange={search.onChange}
 				placeholder={search.placeholder}
 				dense={search.dense}
+				// In a card band the search gives way first, so the filters and
+				// «Экспорт» stay on one row in a narrow detail column.
+				sx={search.dense ? { flex: "1 1 180px", minWidth: 160, maxWidth: 280 } : undefined}
 			/>
 		)}
 		{filters}

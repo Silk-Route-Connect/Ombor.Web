@@ -6,6 +6,8 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import MoneyField from "components/shared/Inputs/MoneyField";
+import UzsAdornment from "components/shared/Money/UzsAdornment";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -13,7 +15,7 @@ import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
 import { WalletFormValues } from "schemas/WalletSchema";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -23,7 +25,6 @@ import {
 	ButtonBase,
 	Dialog,
 	DialogContent,
-	InputAdornment,
 	LinearProgress,
 	Stack,
 	TextField,
@@ -158,7 +159,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 520, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
 			>
 				<FormDialogHeader
 					title={editing ? t("wallet.form.editTitle") : t("wallet.form.createTitle")}
@@ -224,7 +225,8 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 									icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
 									value={
 										<Box component="span" sx={numericSx}>
-											{formatCurrency(wallet.openingBalance)} UZS
+											{formatCurrency(wallet.openingBalance)}
+											<UzsUnit />
 										</Box>
 									}
 									tag={t("wallet.form.lockedOpening")}
@@ -248,7 +250,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 												helperText={fieldState.error?.message}
 												slotProps={{
 													input: {
-														endAdornment: <InputAdornment position="end">UZS</InputAdornment>,
+														endAdornment: <UzsAdornment />,
 													},
 												}}
 											/>

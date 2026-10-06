@@ -5,7 +5,7 @@ import { ConnectivityBridge } from "../services/api/connectivityBridge";
 import { NotificationStore } from "./NotificationStore";
 
 export interface IConnectivityStore {
-	/** True while the backend is unreachable (network error or 5xx). */
+	/** True while the backend is unreachable (no response, timeout, gateway 502–504). */
 	isBackendDown: boolean;
 	/** True while the device itself has no network (`navigator.onLine === false`). */
 	isOffline: boolean;
@@ -16,8 +16,9 @@ export interface IConnectivityStore {
 /**
  * Tracks backend reachability so the UI can warn the user and block mutating
  * actions while the server is unresponsive (F-028). Fed by the axios error
- * interceptor via `ConnectivityBridge`: a network error or a 5xx marks it down;
- * any response received marks it back up.
+ * interceptor via `ConnectivityBridge`: a network error, a timeout or a gateway
+ * 502 / 503 / 504 marks it down; any other response — a 500 included, since one
+ * endpoint failing is not an outage — marks it back up.
  */
 export class ConnectivityStore implements IConnectivityStore {
 	private readonly notificationStore: NotificationStore;
@@ -50,7 +51,7 @@ export class ConnectivityStore implements IConnectivityStore {
 		this.isOffline = false;
 	}
 
-	/** Called by the interceptor on a network error / 5xx. Toasts once per outage. */
+	/** Called by the interceptor on a connectivity failure. Toasts once per outage. */
 	reportDown(): void {
 		if (this.isBackendDown) {
 			return;

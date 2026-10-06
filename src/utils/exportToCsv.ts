@@ -19,12 +19,37 @@ const DELIMITER = ";";
 // UTF-8 byte-order mark (U+FEFF) — makes Excel decode the file as UTF-8.
 const BOM = String.fromCharCode(0xfeff);
 
+/** A signed plain number held in a string («-150000», «1500,5») — never a formula. */
+const NUMERIC_TEXT = /^-?\d+(?:[.,]\d+)?$/;
+/** Display-formatted phones («+998 90 123 45 67», comma-joined) — digits, spaces and «+» only. */
+const PHONE_TEXT = /^\+\d+(?: \d+)+(?:, \+\d+(?: \d+)+)*$/;
+
+/**
+ * Numbers go out as plain numbers with a decimal comma — the separator the
+ * ru-locale Excel this file targets (semicolon delimiter) parses as numeric.
+ */
+function formatNumber(value: number): string {
+	return Number.isFinite(value) ? String(value).replace(".", ",") : "";
+}
+
+/**
+ * Neutralise CSV formula injection (OWASP): a text cell starting with =, +, -, @
+ * (or tab/CR) would be evaluated by Excel/Sheets, so it gets an apostrophe
+ * prefix. Only text can carry a formula — numbers, numeric strings and formatted
+ * phones are exempt so negative amounts and «+998…» phones stay intact.
+ */
+function guardFormula(value: string): string {
+	if (!/^[=+\-@\t\r]/.test(value) || NUMERIC_TEXT.test(value) || PHONE_TEXT.test(value)) {
+		return value;
+	}
+	return `'${value}`;
+}
+
 function escapeCell(raw: string | number | null | undefined): string {
-	const value = raw == null ? "" : String(raw);
-	// Neutralise CSV formula injection: a leading =, +, -, @ (or tab/CR) makes
-	// Excel/Sheets evaluate the cell as a formula. Prefix an apostrophe so the
-	// spreadsheet treats it as literal text (OWASP CSV Injection).
-	const guarded = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+	if (raw == null) {
+		return "";
+	}
+	const guarded = typeof raw === "number" ? formatNumber(raw) : guardFormula(raw);
 	// Quote when the value contains the delimiter, a quote, or a newline.
 	if (/[";\r\n]/.test(guarded)) {
 		return `"${guarded.replace(/"/g, '""')}"`;

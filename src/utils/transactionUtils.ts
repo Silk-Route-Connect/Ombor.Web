@@ -1,3 +1,4 @@
+import { PaymentDirection } from "models/payment";
 import { TransactionLine, TransactionStatus, TransactionType } from "models/transaction";
 import { formatCurrency } from "utils/formatCurrency";
 
@@ -21,10 +22,14 @@ export const isRefundType = (type: TransactionType): boolean =>
 export const directionOf = (type: TransactionType): TransactionDirection =>
 	type === "Sale" || type === "SaleRefund" ? "Sale" : "Supply";
 
+/** Money direction of the payments settling a transaction: sales and supply refunds bring money in. */
+export const paymentDirectionOf = (type: TransactionType): PaymentDirection =>
+	type === "Sale" || type === "SupplyRefund" ? "Income" : "Expense";
+
 /* ───────────────────────── line + total math ─────────────────────────
    Mirrors the design's sales-data.jsx: every total is computed from line
-   items so each screen reconciles digit-for-digit. The mock serves the same
-   computed values; these helpers drive the detail's footer breakdown. */
+   items so each screen reconciles digit-for-digit; these helpers drive the
+   detail's footer breakdown. */
 
 export const lineGross = (line: Pick<TransactionLine, "quantity" | "unitPrice">): number =>
 	line.quantity * line.unitPrice;
@@ -52,10 +57,6 @@ export const discountLabel = (
 		? `−${line.discount}%`
 		: `−${formatCurrency(line.discount)}`;
 };
-
-/** Effective per-unit price after the line discount (used to seed refund prices). */
-export const effectiveUnitPrice = (line: TransactionLine): number =>
-	line.quantity ? Math.round(lineNet(line) / line.quantity) : line.unitPrice;
 
 export const txSubtotal = (lines: TransactionLine[]): number =>
 	lines.reduce((sum, l) => sum + lineGross(l), 0);

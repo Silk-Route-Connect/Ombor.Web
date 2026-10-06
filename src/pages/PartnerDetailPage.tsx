@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { EmptyRecords, LedgerCard } from "components/partner/Detail/detailTable";
-import { derivePayments, deriveTransactions } from "components/partner/Detail/ledgerHelpers";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
+import {
+	derivePayments,
+	deriveTransactions,
+	ledgerSourcePath,
+} from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
 import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
 import PartnerDetailRail from "components/partner/Detail/PartnerDetailRail";
@@ -11,29 +15,37 @@ import TransactionsTab from "components/partner/Detail/TransactionsTab";
 import PartnerFormModal from "components/partner/Form/PartnerFormModal";
 import { buildPartnerActionRows } from "components/partner/PartnerActionsMenu";
 import PartnerDialogs from "components/partner/PartnerDialogs";
+import { buildPartnerDocumentRows } from "components/partner/PartnerDocumentActions";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
+import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import TableEmptyState from "components/shared/Table/TableEmptyState";
+import { isPresent, isReady, readyOr } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { Partner, PartnerLedgerEntry, UpdatePartnerRequest } from "models/partner";
-import { PATHS, paymentDetailPath, saleDetailPath, supplyDetailPath } from "routing/paths";
+import { Partner, PartnerLedgerEntry } from "models/partner";
+import { partnerStatementPath, PATHS } from "routing/paths";
 import { PartnerFormValues } from "schemas/PartnerSchema";
 import { useStore } from "stores/StoreContext";
+import { toUpdatePartnerRequest } from "utils/partnerRequest";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
-type PartnerDetailTab = "ledger" | "transactions" | "payments";
+type PartnerDetailTab = "ledger" | "transactions" | "payments" | "history";
 
 const PartnerDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const partnerId = Number(id);
+	const partnerId = useRouteEntityId();
 	const [searchParams] = useSearchParams();
-	const { partnerStore, partnerLedgerStore, notificationStore } = useStore();
+	const { partnerStore, partnerLedgerStore, debtReminderStore } = useStore();
 
 	// Deep-link: a partner opened from Debts arrives with ?tab=transactions&status=open
 	// so it lands on the Транзакции tab pre-filtered to outstanding debt (B13/DBT-1).
@@ -48,64 +60,40 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const [tab, setTab] = useState<PartnerDetailTab>(initialTab);
 
 	useEffect(() => {
-		if (Number.isFinite(partnerId)) {
+		if (partnerId !== null) {
 			void partnerLedgerStore.load(partnerId);
 		}
 		setTab(initialTab);
 		return () => partnerLedgerStore.clear();
 	}, [partnerId, initialTab, partnerLedgerStore]);
 
-	const partner = partnerLedgerStore.partner;
+	const partner = partnerId === null ? null : partnerLedgerStore.partner;
 	const ledgerState = partnerLedgerStore.ledger;
-	const ledger = useMemo<PartnerLedgerEntry[]>(
-		() => (ledgerState === "loading" ? [] : ledgerState),
-		[ledgerState],
-	);
+	const ledger = useMemo<PartnerLedgerEntry[]>(() => readyOr(ledgerState, []), [ledgerState]);
+	const retry = () => partnerId !== null && void partnerLedgerStore.load(partnerId);
 
 	const transactions = useMemo(() => deriveTransactions(ledger), [ledger]);
 	const payments = useMemo(() => derivePayments(ledger), [ledger]);
 
 	const goBack = () => navigate(PATHS.partners);
 	const openSource = (entry: PartnerLedgerEntry) => {
-		if (!entry.sourceId) {
-			// Fallback for the self-contained mock (no real source id to link to).
-			notificationStore.info(
-				`${entry.reference ?? t(`partner.event.${entry.type}`)} — ${t("common.pageInDevelopment")}`,
-			);
-			return;
-		}
-		switch (entry.type) {
-			case "sale":
-			case "refund-sale":
-				navigate(saleDetailPath(entry.sourceId));
-				break;
-			case "supply":
-			case "refund-supply":
-				navigate(supplyDetailPath(entry.sourceId));
-				break;
-			case "payment":
-			case "deposit":
-			case "withdraw":
-				navigate(paymentDetailPath(entry.sourceId));
-				break;
-			default:
-				break; // opening — not navigable
+		const path = ledgerSourcePath(entry);
+		if (path) {
+			navigate(path);
 		}
 	};
 
-	if (partner === "loading" || partnerLedgerStore.ledger === "loading") {
+	// The ledger is the page's core (tabs, rail figures) — the page waits for both
+	// and shows a failed ledger as the page error, never as an empty history.
+	if (!isPresent(partner) || !isReady(ledgerState)) {
+		const state = !isPresent(partner) ? partner : isReady(ledgerState) ? "loading" : ledgerState;
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (partner === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("partner.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={state}
+				onRetry={retry}
+				errorTitle={t(isPresent(partner) ? "partner.error.getLedger" : "partner.error.getById")}
+				notFound={{ title: t("partner.detail.notFound"), backTo: PATHS.partners }}
+			/>
 		);
 	}
 
@@ -116,17 +104,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 	};
 
 	const handleEditSave = (values: PartnerFormValues) => {
-		const request: UpdatePartnerRequest = {
-			id: partner.id,
-			type: values.type,
-			name: values.name,
-			companyName: values.companyName,
-			address: values.address,
-			email: values.email,
-			telegram: values.telegram,
-			phoneNumbers: values.phoneNumbers,
-		};
-		void partnerStore.update(request).then(reflect);
+		void partnerStore.update(toUpdatePartnerRequest(partner.id, values)).then(reflect);
 	};
 
 	const handleDelete = () => {
@@ -140,34 +118,45 @@ const PartnerDetailPage: React.FC = observer(() => {
 	const noHistory = partner.activityCount === 0;
 	const dialogMode = partnerStore.dialogMode;
 
-	const actions = buildPartnerActionRows(t, {
-		partner,
-		onEdit: () => partnerStore.openEdit(partner),
-		onArchive: () => partnerStore.openArchive(partner),
-		onRestore: () => partnerStore.openRestore(partner),
-		onDelete: handleDelete,
-	});
+	const actions = [
+		...buildPartnerDocumentRows(t, {
+			owesUs: partner.balance > 0,
+			onRemind: () => debtReminderStore.open(partner.id),
+			onStatement: () => navigate(partnerStatementPath(partner.id)),
+		}),
+		...buildPartnerActionRows(t, {
+			partner,
+			onEdit: () => partnerStore.openEdit(partner),
+			onArchive: () => partnerStore.openArchive(partner),
+			onRestore: () => partnerStore.openRestore(partner),
+			onDelete: handleDelete,
+		}).map((row, index) => (index === 0 ? { ...row, dividerBefore: true } : row)),
+	];
 
 	const tabs: DetailTabSpec<PartnerDetailTab>[] = [
 		{ key: "ledger", label: t("partner.tab.ledger"), count: ledger.length },
 		{ key: "transactions", label: t("partner.tab.transactions"), count: transactions.length },
 		{ key: "payments", label: t("partner.tab.payments"), count: payments.length },
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	const renderTab = () => {
+		if (tab === "history") {
+			return <EntityHistory kind="Partner" id={partner.id} refreshKey={partner} />;
+		}
 		if (tab === "ledger") {
 			return <LedgerTab ledger={ledger} partnerName={partner.name} onOpenSource={openSource} />;
 		}
 		if (tab === "transactions") {
 			if (noHistory) {
 				return (
-					<LedgerCard>
-						<EmptyRecords
-							icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 22 }} />}
+					<DetailTableCard>
+						<TableEmptyState
+							icon={<ReceiptLongOutlinedIcon />}
 							title={t("partner.txns.empty.title")}
-							body={t("partner.txns.emptyNew.body")}
+							hint={t("partner.txns.emptyNew.body")}
 						/>
-					</LedgerCard>
+					</DetailTableCard>
 				);
 			}
 			return (
@@ -181,13 +170,13 @@ const PartnerDetailPage: React.FC = observer(() => {
 		}
 		if (noHistory) {
 			return (
-				<LedgerCard>
-					<EmptyRecords
-						icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 22 }} />}
+				<DetailTableCard>
+					<TableEmptyState
+						icon={<AccountBalanceWalletOutlinedIcon />}
 						title={t("partner.pays.empty.title")}
-						body={t("partner.pays.emptyNew.body")}
+						hint={t("partner.pays.emptyNew.body")}
 					/>
-				</LedgerCard>
+				</DetailTableCard>
 			);
 		}
 		return <PaymentsTab payments={payments} partnerName={partner.name} onOpen={openSource} />;
@@ -241,7 +230,6 @@ const PartnerDetailPage: React.FC = observer(() => {
 				}
 				actions={actions}
 				isArchived={partner.isArchived}
-				archivedLabel={t("partner.badge.archived")}
 			/>
 
 			{partner.isArchived && <PartnerArchivedBanner />}
@@ -249,7 +237,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: { xs: "1fr", lg: "1fr 372px" },
+					gridTemplateColumns: DETAIL_RAIL_COLUMNS,
 					gap: "20px",
 					alignItems: "start",
 				}}
@@ -273,6 +261,7 @@ const PartnerDetailPage: React.FC = observer(() => {
 			/>
 
 			<PartnerDialogs onArchived={reflect} onRestored={reflect} onDeleted={goBack} />
+			<DebtReminderDialog />
 		</Box>
 	);
 });

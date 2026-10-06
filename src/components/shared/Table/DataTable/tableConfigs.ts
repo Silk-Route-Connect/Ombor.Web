@@ -21,10 +21,6 @@ import { SxProps, Theme } from "@mui/material";
  * Density is the kit spec: 52px rows, 16px horizontal cell padding, 12px header
  * padding (the foundational card shows 46/14/11px — off the 8px scale; the kit's
  * tokenised values are used instead).
- *
- * NB: the hand-rolled module tables (Employees / Payments / Wallets / Debt) carry
- * their own copy of these in `components/shared/Table/tableStyles.ts`; they adopt
- * this look in their module passes (kept separate here, out of this scope).
  */
 
 export const DEFAULT_ROWS_PER_PAGE = 10;
@@ -41,11 +37,57 @@ export const ROW_HEIGHT = 52;
 /** Width of the trailing ⋮ actions column (fits a single icon button). */
 export const ACTIONS_COLUMN_WIDTH = 56;
 
+/**
+ * Column widths per column type (padding included) for fixed-layout tables
+ * (`DataTable` `fixedLayout`): these columns keep their width and the columns
+ * without one (entity names) share the rest, so a search that narrows the rows
+ * never re-flows the columns (live-ui-23). The steps are as narrow as their
+ * content allows (the № copy button overlays the padding), so Stock adjustments
+ * — the widest event list — fits a 1366px screen without sideways scrolling.
+ */
+export const COLUMN_WIDTH = {
+	number: 104,
+	dateTime: 152,
+	chip: 152,
+	direction: 136,
+	money: 152,
+	quantity: 112,
+	count: 108,
+	author: 168,
+} as const;
+
+/** The narrowest an entity-name column (no `COLUMN_WIDTH`) gets before the table scrolls. */
+export const NAME_COLUMN_MIN_WIDTH = 120;
+
+/**
+ * Fixed layout sized to its columns: the fixed widths plus a readable share for
+ * each name column. Below that the table scrolls inside its card instead of
+ * crushing the names to a few letters (a 9-column list at 1280px).
+ */
+export function fixedTableSx(widths: ReadonlyArray<number | string | undefined>): SxProps<Theme> {
+	const minWidth = widths.reduce<number>(
+		(sum, width) => sum + (typeof width === "number" ? width : NAME_COLUMN_MIN_WIDTH),
+		0,
+	);
+	return { tableLayout: "fixed", minWidth };
+}
+
 export const TABLE_CONTAINER_SX: SxProps<Theme> = {
 	border: 1,
 	borderColor: "divider", // DSN --border
 	borderRadius: `${radius.xl}px`, // DSN --radius-xl (16px)
-	overflowX: "auto",
+	overflow: "hidden",
+};
+
+/**
+ * The table body scrolls inside the card, capped at the visible content height
+ * (viewport − 60px topbar − 48px page padding − 56px pager). Any scroll container
+ * between the header and the page's <main> breaks `position: sticky`, so the
+ * table must own its scroll for the header band to stay visible on long lists.
+ */
+export const TABLE_SCROLL_SX: SxProps<Theme> = {
+	overflow: "auto",
+	maxHeight: "calc(100vh - 164px)",
 };
 
 export const HEADER_CONTAINER_SX: SxProps<Theme> = {
@@ -72,13 +114,19 @@ export const HEADER_CELL_SX: SxProps<Theme> = {
 	"& .MuiTableSortLabel-root:hover": { color: "primary.dark" },
 	"& .MuiTableSortLabel-root.Mui-active": { color: "primary.dark" },
 	"& .MuiTableSortLabel-icon": { fontSize: 16, color: "inherit !important" },
+	// The hidden arrow of an inactive column takes no space, so right-aligned
+	// headers line up with their values; it reappears on hover.
+	"& .MuiTableSortLabel-root:not(.Mui-active):not(:hover) .MuiTableSortLabel-icon": {
+		width: 0,
+		mx: 0,
+	},
 };
 
 export const BODY_CELL_SX: SxProps<Theme> = {
 	height: ROW_HEIGHT, // 52px, content vertically centred (DSN)
 	py: 0,
 	px: 2, // 16px
-	fontSize: 13.5, // DSN kit body font
+	fontSize: 14, // body
 	borderBottom: 1,
 	borderColor: designTokens.gray100, // DSN --divider (lighter in-body rows)
 };
@@ -100,8 +148,6 @@ export const FOOTER_SX: SxProps<Theme> = {
 	borderTop: 1,
 	borderColor: "divider", // DSN --border
 };
-
-export const LOADING_CONTAINER_HEIGHT = 200;
 
 /** Locale-aware comparator for client-side column sorting (ascending). */
 export function compareValues(a: unknown, b: unknown): number {

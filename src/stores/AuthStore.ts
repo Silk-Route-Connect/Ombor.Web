@@ -9,60 +9,23 @@ import {
 	VerifyResetCodeRequest,
 } from "models/auth";
 import { authApi } from "services/api/AuthApi";
+import { AuthUser, userFromAccessToken } from "services/auth/accessTokenUser";
 import { AuthTokenBridge } from "services/auth/tokenBridge";
 import { analytics } from "services/telemetry";
+import { ApiCodeError, parseApiError } from "utils/apiError";
 
 /** Auth lifecycle status for routing/guards */
 export type AuthStatus = "idle" | "checking" | "authenticated" | "unauthenticated";
 
-/** Optional user shape; extend when backend returns user info */
-export interface AuthUser {
-	id?: number;
-	firstName?: string;
-	lastName?: string;
-	phoneNumber?: string;
-	email?: string | null;
-	organizationName?: string;
-}
-
-const CLAIM_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
-const CLAIM_PHONE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone";
-const CLAIM_ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-
 /**
- * Decode a JWT payload segment as UTF-8. `atob` yields a Latin-1 (binary)
- * string, so multi-byte UTF-8 claims (e.g. Cyrillic display names) must be
- * re-decoded from the raw bytes before `JSON.parse`, otherwise the name
- * arrives as mojibake.
+ * Why the app signed the user out on its own — shown once on the login page so
+ * the user is not left wondering: the owner switched the account off, or the
+ * session ended (a password change on another device, or it simply expired).
  */
-function decodeJwtPayload(token: string): Record<string, unknown> {
-	const segment = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-	const bytes = Uint8Array.from(atob(segment), (c) => c.charCodeAt(0));
-	return JSON.parse(new TextDecoder().decode(bytes));
-}
+export type SignOutNotice = "deactivated" | "sessionEnded";
 
-/**
- * The backend exposes no /me endpoint yet — the access token's claims are
- * the only source of user identity (display name, phone, id). The tenant
- * name is not in the token; `organizationName` stays unset until the
- * backend provides it.
- */
-function userFromAccessToken(token: string): AuthUser | null {
-	try {
-		const payload = decodeJwtPayload(token);
-		const fullName = (payload[CLAIM_NAME] as string | undefined) ?? "";
-		const [firstName, ...rest] = fullName.split(" ").filter(Boolean);
-
-		return {
-			id: payload[CLAIM_ID] ? Number(payload[CLAIM_ID]) : undefined,
-			firstName,
-			lastName: rest.length > 0 ? rest.join(" ") : undefined,
-			phoneNumber: payload[CLAIM_PHONE] as string | undefined,
-		};
-	} catch {
-		return null;
-	}
-}
+const isDeactivated = (cause: unknown): boolean =>
+	parseApiError(cause).code === "auth.account_deactivated";
 
 /** Navigation/side-effect hooks provided by the app shell */
 export interface AuthSideEffects {
@@ -83,6 +46,15 @@ export class AuthStore {
 
 	/** Shell-provided callbacks */
 	private sideEffects: AuthSideEffects = {};
+
+	/** True while a logout runs — concurrent forced logouts collapse into one. */
+	private loggingOut = false;
+
+	/** Set by a forced sign-out, cleared by the next sign-in. */
+	public signOutNotice: SignOutNotice | null = null;
+
+	/** The last refresh was refused because the account is switched off (rule 41). */
+	private refreshRefusedDeactivated = false;
 
 	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
@@ -133,11 +105,14 @@ export class AuthStore {
 			if (this.user) {
 				analytics.identify(this.user);
 			}
-		} catch {
+		} catch (e) {
 			runInAction(() => {
 				this.accessToken = null;
 				this.user = null;
 				this.status = "unauthenticated";
+				// No cookie on a first visit is the normal case; only a switched-off
+				// account deserves a word on the login page.
+				this.signOutNotice = isDeactivated(e) ? "deactivated" : null;
 			});
 		}
 	}
@@ -151,6 +126,7 @@ export class AuthStore {
 	 */
 	public enterWithTokens(accessToken: string): void {
 		runInAction(() => {
+			this.signOutNotice = null;
 			this.accessToken = accessToken;
 			this.user = userFromAccessToken(accessToken);
 			this.status = "authenticated";
@@ -190,7 +166,10 @@ export class AuthStore {
 		const response = await authApi.verifyPhone(request);
 
 		if (response.success !== true || !response.accessToken) {
-			throw new Error(response.message ?? "OTP verification failed");
+			throw new ApiCodeError(
+				response.success === false ? response.code : undefined,
+				response.message ?? "OTP verification failed",
+			);
 		}
 
 		// The backend confirms registration here — the welcome screen that follows
@@ -201,7 +180,7 @@ export class AuthStore {
 		return response.accessToken;
 	}
 
-	/* ── Password reset (mocked target v1 contract). None of these enter the app —
+	/* ── Password reset. None of these enter the app —
 	 * the user logs in afterwards with the new password. ── */
 
 	public async requestPasswordReset(
@@ -220,14 +199,14 @@ export class AuthStore {
 	public async verifyResetCode(request: VerifyResetCodeRequest): Promise<void> {
 		const response = await authApi.verifyResetCode(request);
 		if (response.success !== true) {
-			throw new Error(response.message ?? "Reset code verification failed");
+			throw new ApiCodeError(response.code, response.message ?? "Reset code verification failed");
 		}
 	}
 
 	public async resetPassword(request: ResetPasswordRequest): Promise<void> {
 		const response = await authApi.resetPassword(request);
 		if (response.success !== true) {
-			throw new Error(response.message ?? "Password reset failed");
+			throw new ApiCodeError(response.code, response.message ?? "Password reset failed");
 		}
 		analytics.capture("password_reset_completed");
 	}
@@ -237,9 +216,18 @@ export class AuthStore {
 	 * Must return a fresh access token string.
 	 */
 	public async refresh(): Promise<string> {
-		const { accessToken } = await authApi.refresh();
+		let accessToken: string;
+		try {
+			({ accessToken } = await authApi.refresh());
+		} catch (e) {
+			runInAction(() => {
+				this.refreshRefusedDeactivated = isDeactivated(e);
+			});
+			throw e;
+		}
 
 		runInAction(() => {
+			this.refreshRefusedDeactivated = false;
 			this.accessToken = accessToken;
 			this.user = userFromAccessToken(accessToken);
 			if (this.status !== "authenticated") {
@@ -255,10 +243,10 @@ export class AuthStore {
 	}
 
 	/**
-	 * User-initiated logout.
 	 * Calls API, clears state, resets other stores, then redirects to /login.
+	 * `notice` says why when the app (not the user) ended the session.
 	 */
-	public async logout(): Promise<void> {
+	public async logout(notice: SignOutNotice | null = null): Promise<void> {
 		// Capture while identity is still attached, then clear it — events after
 		// reset() would be anonymous. Only for real sessions: the forced-logout
 		// path can fire on an already-unauthenticated store.
@@ -267,15 +255,19 @@ export class AuthStore {
 		}
 		analytics.reset();
 
+		this.loggingOut = true;
 		try {
 			await authApi.logout();
 		} catch {
 			// ignore network/logout errors; still clear local state
 		} finally {
 			runInAction(() => {
+				this.loggingOut = false;
 				this.accessToken = null;
 				this.user = null;
 				this.status = "unauthenticated";
+				this.signOutNotice = notice;
+				this.refreshRefusedDeactivated = false;
 			});
 
 			if (this.sideEffects.onResetAllStores) {
@@ -291,10 +283,14 @@ export class AuthStore {
 	 * Interceptor-triggered logout (refresh failed or unauthorized on auth route).
 	 */
 	private handleExternalLogout(reason: "refresh_failed" | "unauthorized"): void {
+		// Several requests can fail at once; only the first ends an active session,
+		// so the user is sent to /login once (auth-12).
+		if (this.loggingOut || this.status !== "authenticated") {
+			return;
+		}
 		// We intentionally don't await here to avoid blocking interceptor chains
-		void this.logout();
+		void this.logout(this.refreshRefusedDeactivated ? "deactivated" : "sessionEnded");
 	}
 }
 
-export const authStore = new AuthStore();
 export default AuthStore;

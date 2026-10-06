@@ -15,8 +15,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box, Typography } from "@mui/material";
@@ -34,7 +34,8 @@ interface OrderDetailHeaderProps {
 	onCancel: (order: Order) => void;
 	onReject: (order: Order) => void;
 	onReturn: (order: Order) => void;
-	onDownload: () => void;
+	/** Opens the printable «Накладная» of the order. */
+	onPrint: () => void;
 }
 
 /**
@@ -94,7 +95,7 @@ function buildOrderActionRows(
 	order: Order,
 	handlers: Pick<
 		OrderDetailHeaderProps,
-		"onEdit" | "onCancel" | "onReject" | "onReturn" | "onDownload"
+		"onEdit" | "onCancel" | "onReject" | "onReturn" | "onPrint"
 	>,
 ): ActionMenuRow[] {
 	const rows: ActionMenuRow[] = [];
@@ -109,10 +110,10 @@ function buildOrderActionRows(
 	}
 
 	rows.push({
-		key: "download",
-		label: t("order.action.download"),
-		icon: <DownloadOutlinedIcon fontSize="small" />,
-		onClick: handlers.onDownload,
+		key: "print",
+		label: t("print.invoice.action"),
+		icon: <PrintOutlinedIcon fontSize="small" />,
+		onClick: handlers.onPrint,
 	});
 
 	if (order.status === "Delivered") {
@@ -161,7 +162,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	onCancel,
 	onReject,
 	onReturn,
-	onDownload,
+	onPrint,
 }) => {
 	const { t } = useTranslation();
 	const step = ORDER_NEXT_STEP[order.status];
@@ -169,7 +170,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	return (
 		<DetailPageHeader
 			backTo={PATHS.orders}
-			title={formatEntityId(order.orderNumber)}
+			title={t("order.detail.title", { number: formatEntityId(order.orderNumber) })}
 			primaryAction={
 				<>
 					{step && (
@@ -185,7 +186,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 					)}
 				</>
 			}
-			actions={buildOrderActionRows(t, order, { onEdit, onCancel, onReject, onReturn, onDownload })}
+			actions={buildOrderActionRows(t, order, { onEdit, onCancel, onReject, onReturn, onPrint })}
 		/>
 	);
 };

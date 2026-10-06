@@ -1,16 +1,19 @@
+import { LoadError } from "helpers/Loading";
+import { LoadSequence } from "helpers/LoadSequence";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { tryRun } from "../helpers/helpers";
-import i18next from "../i18n/config";
 import { DashboardData, DashboardPeriod } from "../models/dashboard";
 import DashboardApi from "../services/api/DashboardApi";
 import { NotificationStore } from "./NotificationStore";
 
 export interface IDashboardStore {
-	/** The last successfully-loaded snapshot; null before the first load. */
+	/** The snapshot for the current period; null before the first load and after a failed one. */
 	data: DashboardData | null;
 	/** True while a fetch is in flight (initial load or a period re-fetch). */
 	isLoading: boolean;
+	/** Set when the last load failed — the page shows it with «Повторить», never stale numbers. */
+	loadError: LoadError | null;
 	period: DashboardPeriod;
 	/** True when the served snapshot has no activity (new business). */
 	isEmpty: boolean;
@@ -21,20 +24,19 @@ export interface IDashboardStore {
 
 /**
  * «Главное» dashboard — a read-only morning briefing. Holds the served snapshot
- * and the active period; switching period re-fetches. The previous snapshot is
- * kept during a re-fetch (so the header + period selector stay mounted and only
- * the content shows a spinner). The snapshot is mocked at the target v1 contract
- * (no backend endpoint); its debt figures reconcile with the «Долги» page (rule 12).
+ * and the active period; switching period re-fetches. The previous snapshot stays
+ * on screen (dimmed) while a re-fetch is in flight, so the header + period selector
+ * stay mounted; a failed fetch drops it, so another period's numbers never sit
+ * under the new period label. Its debt figures reconcile with «Долги» (rule 12).
  */
 export class DashboardStore implements IDashboardStore {
 	private readonly notificationStore: NotificationStore;
+	private readonly loads = new LoadSequence();
 
 	data: DashboardData | null = null;
 	isLoading = false;
+	loadError: LoadError | null = null;
 	period: DashboardPeriod = "month";
-
-	/** Monotonic load counter — guards against a slow response overwriting a newer one. */
-	private loadSeq = 0;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -42,22 +44,24 @@ export class DashboardStore implements IDashboardStore {
 	}
 
 	async load(): Promise<void> {
-		const seq = ++this.loadSeq;
-		runInAction(() => (this.isLoading = true));
+		const isCurrent = this.loads.begin();
+		runInAction(() => {
+			this.isLoading = true;
+			this.loadError = null;
+		});
 
 		const result = await tryRun(() => DashboardApi.get(this.period));
-
-		// A newer load started while this was in flight — discard this response so a
-		// slow earlier-period fetch can't clobber the current period's KPIs.
-		if (seq !== this.loadSeq) {
+		if (!isCurrent()) {
 			return;
 		}
 
 		if (result.status === "fail") {
-			this.notificationStore.error(i18next.t("dashboard.error.load"));
-			// Keep the previous snapshot (if any) so a transient re-fetch failure
-			// doesn't blank the page; the toast reports the error.
-			runInAction(() => (this.isLoading = false));
+			this.notificationStore.notifyLoadError(result, "dashboard.error.load");
+			runInAction(() => {
+				this.data = null;
+				this.loadError = new LoadError(result.cause);
+				this.isLoading = false;
+			});
 			return;
 		}
 

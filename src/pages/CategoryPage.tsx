@@ -5,6 +5,8 @@ import CategoryFormModal from "components/category/Form/CategoryFormModal";
 import CategoryHeader from "components/category/Header/CategoryHeader";
 import { CategoryTable } from "components/category/Table/CategoryTable";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { useTableOrder } from "components/shared/Table/tableOrder";
+import { readyOr } from "helpers/Loading";
 import { CategoryFormPayload } from "hooks/category/useCategoryForm";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
@@ -17,6 +19,7 @@ import { useStore } from "../stores/StoreContext";
 const CategoryPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const { categoryStore } = useStore();
+	const tableOrder = useTableOrder<Category>();
 
 	useEffect(() => {
 		categoryStore.getAll();
@@ -37,8 +40,7 @@ const CategoryPage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			categoryStore.filteredCategories === "loading" ? [] : categoryStore.filteredCategories;
+		const rows = readyOr(categoryStore.filteredCategories, []);
 
 		const columns: CsvColumn<Category>[] = [
 			{ header: t("category.table.name"), value: (c) => c.name },
@@ -46,7 +48,7 @@ const CategoryPage: React.FC = observer(() => {
 			{ header: t("category.table.productCount"), value: (c) => c.productCount },
 		];
 
-		exportToCsv(`categories_${csvDateStamp()}`, columns, rows);
+		exportToCsv(`categories_${csvDateStamp()}`, columns, tableOrder.apply(rows));
 	};
 
 	const dialogType = categoryStore.dialogMode.type;
@@ -55,22 +57,22 @@ const CategoryPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<CategoryHeader
-				totalCount={
-					categoryStore.allCategories === "loading" ? null : categoryStore.allCategories.length
-				}
 				searchValue={categoryStore.searchTerm}
 				onSearch={categoryStore.setSearch}
 				onCreate={categoryStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(categoryStore.filteredCategories, []).length}
 			/>
 
 			<CategoryTable
+				exportOrder={tableOrder}
+				onRetry={() => void categoryStore.getAll()}
+				errorTitle={t("category.error.load")}
 				data={categoryStore.filteredCategories}
 				searchTerm={categoryStore.searchTerm}
 				onCreate={categoryStore.openCreate}
 				onEdit={categoryStore.openEdit}
 				onDelete={categoryStore.openDelete}
-				onSort={categoryStore.setSort}
 			/>
 
 			<CategoryFormModal

@@ -2,12 +2,12 @@ import React, { useEffect, useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import GhostButton from "components/shared/Buttons/GhostButton";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import NumericField from "components/shared/Inputs/NumericField";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { emptyLine, useTransferForm } from "hooks/transfer/useTransferForm";
@@ -16,9 +16,9 @@ import { Product } from "models/product";
 import { Warehouse } from "models/warehouse";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, numericSx } from "theme";
+import { designTokens, dialogPaperSx, numericSx } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
-import { MEASUREMENT_SHORT } from "utils/productUtils";
+import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -29,7 +29,6 @@ import {
 	Box,
 	Button,
 	Dialog,
-	DialogActions,
 	DialogContent,
 	InputAdornment,
 	LinearProgress,
@@ -48,11 +47,6 @@ export interface TransferFormModalProps {
 	onSave: (payload: TransferFormValues) => void;
 	onClose: () => void;
 }
-
-const toNumberOrZero = (raw: string): number => {
-	const value = raw.trim();
-	return value === "" ? 0 : Number(value);
-};
 
 const WarehouseSelect: React.FC<{
 	value: number;
@@ -94,7 +88,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 		onSave: guardedSave,
 	});
 	const { control, setValue, formState, watch } = form;
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
+	const onKeyDown = useFormKeyboardSubmit(submit, isSaving, { requireModifier: true });
 
 	const fromWarehouseId = watch("fromWarehouseId");
 	const toWarehouseId = watch("toWarehouseId");
@@ -102,7 +96,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 
 	const activeProducts: Product[] = useMemo(
 		() =>
-			productStore.allProducts === "loading"
+			!isReady(productStore.allProducts)
 				? []
 				: productStore.allProducts.filter((p) => !p.isArchived),
 		[productStore.allProducts],
@@ -167,7 +161,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 				disableEscapeKeyDown={isSaving}
 				disableRestoreFocus
 				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: { width: 680, maxWidth: "94%", borderRadius: "12px" } } }}
+				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
 			>
 				<FormDialogHeader
 					title={t("transfer.title.create")}
@@ -239,7 +233,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 							const quantity = line?.quantity ?? 0;
 							const product = productById.get(productId) ?? null;
 							const unit = product
-								? MEASUREMENT_SHORT[product.measurement]
+								? measurementShort(t, product.measurement)
 								: t("transfer.unitFallback");
 							const avail = availFor(productId);
 							const over = lineIsOver(productId, quantity);
@@ -297,12 +291,9 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 											render={({ field, fieldState }) => (
 												<NumericField
 													{...field}
-													value={field.value || ""}
 													size="small"
-													min={0}
 													disabled={isSaving}
 													error={!!fieldState.error || over}
-													onChange={(e) => field.onChange(toNumberOrZero(e.target.value))}
 													slotProps={{
 														input: {
 															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
@@ -403,30 +394,23 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 					</Stack>
 				</DialogContent>
 
-				<DialogActions
-					sx={{
-						px: "24px",
-						py: "14px",
-						gap: "10px",
-						borderTop: "1px solid",
-						borderColor: "divider",
-						bgcolor: designTokens.gray25,
-					}}
-				>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-						{t("transfer.form.positionsCount")}{" "}
-						<Box component="b" sx={numericSx}>
-							{completeLines}
-						</Box>
-					</Typography>
-					<Box sx={{ flexGrow: 1 }} />
-					<GhostButton onClick={requestClose} disabled={isSaving}>
-						{t("common.cancel")}
-					</GhostButton>
-					<PrimaryButton icon={<CheckIcon />} onClick={submit} disabled={!canSave}>
-						{t("transfer.form.submit")}
-					</PrimaryButton>
-				</DialogActions>
+				<FormDialogFooter
+					canSave={canSave}
+					loading={isSaving}
+					onCancel={requestClose}
+					onSave={submit}
+					submitLabel={t("transfer.form.submit")}
+					submitIcon={<CheckIcon />}
+					commitNote={t("transfer.form.commitNote")}
+					summary={
+						<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+							{t("transfer.form.positionsCount")}{" "}
+							<Box component="b" sx={numericSx}>
+								{completeLines}
+							</Box>
+						</Typography>
+					}
+				/>
 			</Dialog>
 
 			<ConfirmDialog

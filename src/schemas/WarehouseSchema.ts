@@ -33,7 +33,10 @@ export type WarehouseFormValues = z.output<typeof WarehouseSchema>;
  */
 export const OpeningStockLineSchema = z.object({
 	productId: z.number().int().positive(i18next.t("warehouse.opening.validation.productRequired")),
-	quantity: z.number().min(0, i18next.t("warehouse.opening.validation.nonNegative")),
+	// NaN is a typed «1,5» (NumericField).
+	quantity: z
+		.number({ error: i18next.t("common.quantity.wholeOnly") })
+		.min(0, i18next.t("warehouse.opening.validation.nonNegative")),
 	unitCost: z.number().min(0, i18next.t("warehouse.opening.validation.nonNegative")),
 });
 

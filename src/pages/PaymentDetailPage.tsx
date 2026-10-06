@@ -1,52 +1,50 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import PaymentAllocationCard from "components/payment/Detail/PaymentAllocationCard";
 import {
-	PaymentAllocationCard,
 	PaymentAttachmentsCard,
 	PaymentGeneralCard,
 	PaymentInfoCard,
 	PaymentPayrollCard,
-	PaymentSourceCard,
 	PaymentWithdrawalCard,
 } from "components/payment/Detail/PaymentDetailCards";
+import PaymentSourceCard from "components/payment/Detail/PaymentSourceCard";
+import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
+import { isPresent } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { partnerDetailPath, PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatEntityId, hasEntityNumber } from "utils/formatEntityId";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
 const PaymentDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const paymentId = Number(id);
+	const paymentId = useRouteEntityId();
 	const { selectedPaymentStore } = useStore();
 
 	useEffect(() => {
-		if (Number.isFinite(paymentId)) {
-			selectedPaymentStore.load(paymentId);
+		if (paymentId !== null) {
+			void selectedPaymentStore.load(paymentId);
 		}
 		return () => selectedPaymentStore.clear();
 	}, [paymentId, selectedPaymentStore]);
 
-	const payment = selectedPaymentStore.payment;
+	const payment = paymentId === null ? null : selectedPaymentStore.payment;
 
-	if (payment === "loading") {
+	if (!isPresent(payment)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (payment === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("payment.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={payment}
+				onRetry={() => paymentId !== null && void selectedPaymentStore.load(paymentId)}
+				errorTitle={t("payment.error.getById")}
+				notFound={{ title: t("payment.detail.notFound"), backTo: PATHS.payments }}
+			/>
 		);
 	}
 
@@ -58,12 +56,14 @@ const PaymentDetailPage: React.FC = observer(() => {
 		<Box>
 			<DetailPageHeader
 				backTo={PATHS.payments}
-				title={formatEntityId(payment.number ?? payment.id)}
+				title={
+					hasEntityNumber(payment.number)
+						? t("payment.detail.title", { number: formatEntityId(payment.number) })
+						: t("payment.detail.untitled")
+				}
 			/>
 
-			<Box
-				sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 340px" }, gap: "20px" }}
-			>
+			<Box sx={{ display: "grid", gridTemplateColumns: DETAIL_RAIL_COLUMNS, gap: "20px" }}>
 				<Stack sx={{ gap: "16px", minWidth: 0 }}>
 					{isPayroll && <PaymentPayrollCard payment={payment} />}
 					{isGeneral && <PaymentGeneralCard payment={payment} />}

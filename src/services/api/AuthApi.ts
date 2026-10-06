@@ -84,23 +84,35 @@ class AuthApi {
 		return data;
 	}
 
-	async refresh(): Promise<RefreshTokenResponse> {
-		const { data } = await http.post<RefreshTokenResponse>(
-			AuthEndpoints.refresh,
-			{}, // Empty body - cookie will be sent automatically
-			{
-				withCredentials: true,
-			},
-		);
+	private refreshInFlight: Promise<RefreshTokenResponse> | null = null;
 
-		return data;
+	/**
+	 * Concurrent callers share one request: the refresh cookie is single-use, so a
+	 * second parallel call (StrictMode's double app-start effect, or app start racing
+	 * the 401 interceptor) would present an already-rotated token and sign the user out.
+	 */
+	refresh(): Promise<RefreshTokenResponse> {
+		this.refreshInFlight ??= http
+			.post<RefreshTokenResponse>(
+				AuthEndpoints.refresh,
+				{}, // Empty body - cookie will be sent automatically
+				{
+					withCredentials: true,
+				},
+			)
+			.then(({ data }) => data)
+			.finally(() => {
+				this.refreshInFlight = null;
+			});
+
+		return this.refreshInFlight;
 	}
 
 	async logout(): Promise<void> {
 		await http.post<void>(AuthEndpoints.logout);
 	}
 
-	/* ── Password reset (mocked target v1 contract — see models/auth.ts) ── */
+	/* ── Password reset (see models/auth.ts) ── */
 
 	async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
 		const { data } = await http.post<ForgotPasswordResponse>(

@@ -1,17 +1,18 @@
+import { PaymentType } from "./payment";
+
 /**
  * Wallet (the «Касса» money-location resource) — answers "how much cash do I
  * have, and where?". A wallet is a Cash register, Card terminal or Bank account
- * (business-rules §C). The backend has no wallet entity yet (tech-change-list:
- * "Wallet entity — not started"), so the whole resource is mocked at the target
- * v1 contract under `/api/wallets` (docs/mocking.md).
+ * (business-rules §C). Served by `/api/wallets` (backend-contracts/wallets.md).
  *
  * Every derived figure — balance, advances held, "our money" — is server-computed
  * and served (hard rule 8 / rule 12); clients never recompute a balance from
  * event lists. Balance is opening balance + Wallet-type payment components +
  * inter-wallet transfers (rule 15). "Our money" = balance − advances held for
  * partners (rule 12): the wallet physically holds the advance cash, but partners
- * have a claim on it. Wallets archive-only, never deleted (rule 29); an archived
- * wallet that still holds money still counts in totals (rule 31).
+ * have a claim on it. Archive is the default (rule 29); only a never-referenced
+ * wallet can be deleted (`isDeletable`, pattern 19). An archived wallet that
+ * still holds money still counts in totals (rule 31).
  */
 export const WALLET_TYPES = ["Cash", "Card", "Bank"] as const;
 export type WalletType = (typeof WALLET_TYPES)[number];
@@ -36,6 +37,8 @@ export type Wallet = {
 	openingBalance: number;
 
 	isArchived: boolean;
+	/** Served: false once a payment or transfer references the wallet (DELETE then returns 409). */
+	isDeletable: boolean;
 	/** Display author of the create event. */
 	createdBy: string;
 	/** ISO date string of creation. */
@@ -66,7 +69,7 @@ export type WalletOperation = {
 	date: string;
 	kind: WalletOperationKind;
 	direction: WalletOperationDirection;
-	/** Payment number («P-520») for partner payments; null for transfers. */
+	/** Bare payment number («520») on a payment row; null for transfers and a few legacy payments. */
 	paymentNumber: string | null;
 	/** Partner / recipient name, or the transfer direction («→ Расчётный счёт»); null for non-party ops (e.g. Opening). */
 	party: string | null;
@@ -79,6 +82,8 @@ export type WalletOperation = {
 	transferId: number | null;
 	/** Set for payment-kind operations — opens the payment detail. */
 	paymentId?: number | null;
+	/** The payment's type on a payment row (labelled like the payments list); null for transfers. */
+	paymentType?: PaymentType | null;
 };
 
 /** An inter-wallet transfer — auditable, immutable once created (rule 16). */

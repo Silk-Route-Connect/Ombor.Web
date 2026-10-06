@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Category } from "models/category";
+import { dialogPaperSx } from "theme";
 
 import {
 	Alert,
@@ -22,7 +23,7 @@ interface CategoryDeleteBlockedDialogProps {
  * Shown when a delete is attempted on a category that still has referencing
  * products. The delete action is never disabled; this dialog carries the inline
  * explanation instead (CLAUDE.md hard rule 5; business-rules rule 32). The
- * message mirrors the 409 ProblemDetails the mock returns for the same case.
+ * message mirrors the 409 the backend returns for the same case.
  */
 const CategoryDeleteBlockedDialog: React.FC<CategoryDeleteBlockedDialogProps> = ({
 	isOpen,
@@ -36,7 +37,12 @@ const CategoryDeleteBlockedDialog: React.FC<CategoryDeleteBlockedDialogProps> = 
 	}
 
 	return (
-		<Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth disableRestoreFocus>
+		<Dialog
+			open={isOpen}
+			onClose={onClose}
+			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
+			disableRestoreFocus
+		>
 			<DialogTitle>{t("category.delete.blocked.title", { name: category.name })}</DialogTitle>
 			<DialogContent>
 				<Alert severity="error" variant="outlined" sx={{ mb: 1.5, fontWeight: 600 }}>

@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard from "components/shared/Detail/DetailCard";
+import UzsUnit from "components/shared/Money/UzsUnit";
+import { COPY_BUTTON_CLASS, CopyIconButton } from "components/shared/Table/cells/CopyIconButton";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
+import { formatUzPhone } from "utils/phoneUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
-import CheckIcon from "@mui/icons-material/Check";
-import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
@@ -19,54 +21,12 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 interface PartnerDetailRailProps {
 	partner: Partner;
 	ledger: PartnerLedgerEntry[];
 }
-
-/** Copy-to-clipboard affordance on a contact row — reveals on hover, ticks on copy. */
-const CopyButton: React.FC<{ value: string; label: string }> = ({ value, label }) => {
-	const { t } = useTranslation();
-	const [copied, setCopied] = useState(false);
-
-	const copy = async (e: React.MouseEvent) => {
-		e.stopPropagation();
-		try {
-			await navigator.clipboard.writeText(value);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1200);
-		} catch {
-			/* clipboard unavailable — no-op */
-		}
-	};
-
-	return (
-		<Tooltip title={copied ? t("common.copied") : label} placement="top">
-			<IconButton
-				className="copy-btn"
-				onClick={copy}
-				aria-label={label}
-				size="small"
-				sx={{
-					p: "3px",
-					ml: "auto",
-					color: copied ? "success.main" : "text.disabled",
-					opacity: copied ? 1 : 0,
-					transition: "opacity .12s, color .12s",
-					"&:hover": { color: copied ? "success.main" : "primary.main" },
-				}}
-			>
-				{copied ? (
-					<CheckIcon sx={{ fontSize: 14 }} />
-				) : (
-					<ContentCopyOutlinedIcon sx={{ fontSize: 14 }} />
-				)}
-			</IconButton>
-		</Tooltip>
-	);
-};
 
 const ContactRow: React.FC<{
 	icon: React.ReactNode;
@@ -74,23 +34,26 @@ const ContactRow: React.FC<{
 	mono?: boolean;
 	/** Raw text copied by the row's copy button (phone / email / telegram / address). */
 	copyValue?: string;
-	copyLabel?: string;
-}> = ({ icon, children, mono, copyValue, copyLabel }) => (
+}> = ({ icon, children, mono, copyValue }) => (
 	<Box
 		sx={{
 			display: "flex",
 			alignItems: "center",
 			gap: "10px",
-			fontSize: 13.5,
+			fontSize: 13,
 			color: "text.primary",
-			"&:hover .copy-btn": { opacity: 1 },
+			[`&:hover .${COPY_BUTTON_CLASS}, &:focus-within .${COPY_BUTTON_CLASS}`]: { opacity: 1 },
 		}}
 	>
 		<Box sx={{ color: "text.disabled", display: "inline-flex", flex: "0 0 auto" }}>{icon}</Box>
 		<Box component="span" sx={{ minWidth: 0, ...(mono ? numericSx : undefined) }}>
 			{children}
 		</Box>
-		{copyValue && <CopyButton value={copyValue} label={copyLabel ?? ""} />}
+		{copyValue && (
+			<Box sx={{ ml: "auto" }}>
+				<CopyIconButton value={copyValue} />
+			</Box>
+		)}
 	</Box>
 );
 
@@ -183,12 +146,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						}}
 					>
 						{formatPartnerBalance(partner.balance)}
-						<Box
-							component="span"
-							sx={{ fontSize: 15, fontWeight: 600, color: "text.disabled", ml: "8px" }}
-						>
-							UZS
-						</Box>
+						<UzsUnit sx={{ fontSize: 14 }} />
 					</Typography>
 					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "6px" }}>
 						{t(hintKey)}
@@ -224,7 +182,8 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 								color: partnerBalanceColor(partner.openingBalance),
 							}}
 						>
-							{formatPartnerBalance(partner.openingBalance)} UZS
+							{formatPartnerBalance(partner.openingBalance)}
+							<UzsUnit />
 						</Box>
 					</Box>
 				</Box>
@@ -267,26 +226,11 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 								icon={<PhoneOutlinedIcon sx={{ fontSize: 15 }} />}
 								mono
 								copyValue={phone}
-								copyLabel={t("common.copy")}
 							>
-								{phone}
+								{formatUzPhone(phone)}
 								{i === 0 && phones.length > 1 && (
-									<Box
-										component="span"
-										sx={{
-											ml: "8px",
-											fontSize: 10.5,
-											fontWeight: 600,
-											color: "primary.main",
-											bgcolor: "primary.light",
-											border: "1px solid",
-											borderColor: designTokens.primaryLine,
-											px: "7px",
-											py: "1px",
-											borderRadius: "999px",
-										}}
-									>
-										{t("partner.detail.contactPrimary")}
+									<Box component="span" sx={{ ml: 1 }}>
+										<StatusPill token="teal" label={t("partner.detail.contactPrimary")} />
 									</Box>
 								)}
 							</ContactRow>
@@ -295,7 +239,6 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 							<ContactRow
 								icon={<MailOutlineIcon sx={{ fontSize: 15 }} />}
 								copyValue={partner.email}
-								copyLabel={t("common.copy")}
 							>
 								{partner.email}
 							</ContactRow>
@@ -305,7 +248,6 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 								icon={<SendOutlinedIcon sx={{ fontSize: 15 }} />}
 								mono
 								copyValue={partner.telegram}
-								copyLabel={t("common.copy")}
 							>
 								{partner.telegram}
 							</ContactRow>
@@ -314,7 +256,6 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 							<ContactRow
 								icon={<PlaceOutlinedIcon sx={{ fontSize: 15 }} />}
 								copyValue={partner.address}
-								copyLabel={t("common.copy")}
 							>
 								{partner.address}
 							</ContactRow>

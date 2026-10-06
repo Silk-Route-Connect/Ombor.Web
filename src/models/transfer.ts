@@ -3,10 +3,8 @@ import { Measurement } from "./product";
 /**
  * Transfer — an atomic, immutable, audited inter-warehouse stock movement
  * (business-rules §D, rule 16/116): both warehouses update at once, no status
- * workflow, no partner, no money. The backend's `/api/transfers` DTO is missing
- * the author and per-line unit the redesign shows and carries a `status` the
- * redesign drops, so the resource is mocked at this target v1 contract
- * (docs/mocking.md), deriving names/units from the Products + Warehouses mocks.
+ * workflow, no partner, no money. Served by `/api/transfers`
+ * (backend-contracts/inventory.md).
  */
 export type TransferLine = {
 	productId: number;

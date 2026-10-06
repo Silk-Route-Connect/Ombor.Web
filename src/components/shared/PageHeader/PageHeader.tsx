@@ -11,21 +11,24 @@ interface PageHeaderProps {
 
 /**
  * Page header per the Ombor Design System (`.page-head`): title block on the
- * left, action toolbar on the right. Every routed page renders one.
+ * left, action toolbar on the right. On narrow widths the toolbar wraps below the
+ * title instead of overflowing, and a title that still does not fit ellipsizes.
  */
 export default function PageHeader({ title, subtitle, actions }: Readonly<PageHeaderProps>) {
 	return (
 		<Box
 			sx={{
 				display: "flex",
+				flexWrap: "wrap",
 				alignItems: "flex-start",
 				justifyContent: "space-between",
-				gap: 2.5,
+				columnGap: 2.5,
+				rowGap: 1.5,
 				mb: 3,
 			}}
 		>
-			<Box sx={{ minWidth: 0 }}>
-				<Typography variant="h1" sx={{ whiteSpace: "nowrap" }}>
+			<Box sx={{ minWidth: 0, flex: "1 1 auto" }}>
+				<Typography variant="h1" noWrap title={title}>
 					{title}
 				</Typography>
 				{subtitle && (
@@ -34,7 +37,20 @@ export default function PageHeader({ title, subtitle, actions }: Readonly<PageHe
 					</Typography>
 				)}
 			</Box>
-			{actions && <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>{actions}</Box>}
+			{actions && (
+				<Box
+					sx={{
+						display: "flex",
+						flexWrap: "wrap",
+						alignItems: "center",
+						justifyContent: "flex-end",
+						gap: 1.5,
+						ml: "auto",
+					}}
+				>
+					{actions}
+				</Box>
+			)}
 		</Box>
 	);
 }

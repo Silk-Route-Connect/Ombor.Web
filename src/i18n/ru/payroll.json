@@ -3,12 +3,13 @@
   "payroll.searchPlaceholder": "Поиск выплат...",
 
   "payroll.title": "Оплата зарплаты",
-  "payroll.createTitle": "Создать выплату",
+  "payroll.createTitle": "Выплата зарплаты",
+  "payroll.createTitleFor": "Выплата зарплаты — {{name}}",
   "payroll.editTitle": "Редактировать выплату",
   "payroll.employee": "Сотрудник",
   "payroll.deleteConfirmation": "Вы уверены, что хотите удалить выплату {{amount}} {{currency}} для {{employeeName}} от {{date}}?",
 
-  "payroll.success.create": "Выплата успешно создана",
+  "payroll.success.create": "Зарплата выплачена — {{amount}} UZS",
   "payroll.success.update": "Выплата успешно обновлена",
   "payroll.success.delete": "Выплата успешно удалена",
 
@@ -21,9 +22,21 @@
   "payroll.validation.employeeRequired": "Выберите сотрудника",
   "payroll.validation.walletRequired": "Выберите кассу",
   "payroll.validation.periodRequired": "Укажите период (ГГГГ-ММ)",
+  "payroll.validation.amountPositive": "Введите сумму выплаты",
+  "payroll.validation.notesTooLong": "Комментарий не должен превышать 500 символов",
 
   "payroll.wallet": "Касса",
   "payroll.period": "Период",
+  "payroll.amount": "Сумма",
+  "payroll.notes": "Комментарий",
+  "payroll.form.submit": "Выплатить зарплату",
+  "payroll.form.commitNote": "После выплаты изменить нельзя — ошибку исправляют отдельным платежом.",
+  "payroll.form.walletBalance": "В кассе: {{amount}} UZS",
+  "payroll.form.overWallet": "В кассе только {{available}} UZS — выберите другую кассу или уменьшите сумму",
+  "payroll.form.noWallets": "Нет кассы, из которой можно выплатить.",
+  "payroll.form.createWallet": "Создать кассу",
+  "payroll.form.amountHint": "Подставлен оклад — сумму можно изменить",
+  "payroll.form.salaryLine": "оклад {{amount}} UZS в месяц",
 
   "employeeAutocomplete.employee": "Сотрудник",
   "employeeAutocomplete.search": "Поиск сотрудника...",

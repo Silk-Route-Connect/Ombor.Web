@@ -1,4 +1,5 @@
 import { PartnerType } from "./partner";
+import type { TransactionType } from "./transaction";
 import { WalletType } from "./wallet";
 
 export type PaymentCurrency = "UZS" | "USD" | "RUB";
@@ -88,7 +89,7 @@ export type GetPaymentsRequest = {
 /* ───────────────────────── Redesigned «Платежи» module ─────────────────────────
  * The legacy DTO above (PaymentMethod / currency / exchangeRate) is the removed-enum
  * model, kept only for the still-legacy New Sale debt-payment flow. The redesigned
- * standalone Payments page is mocked at the target v1 contract (business-rules §B):
+ * standalone Payments page uses the served contract (business-rules §B):
  * Wallet/Advance sources, canon allocation types, server-computed figures. PaymentType
  * and PaymentDirection above already match canon, so they are reused.
  */
@@ -126,8 +127,10 @@ export type PaymentAllocationEntry = {
 	/** Set for TransactionSettlement; null otherwise. The UI composes the label. */
 	transactionId: number | null;
 	/** Type of the settled transaction (routes the link); null for advance/change. */
-	transactionType?: "Sale" | "Supply" | "SaleRefund" | "SupplyRefund" | null;
+	transactionType?: TransactionType | null;
 	amount: number;
+	/** The settled document's bare number («42»; differs from `transactionId`); null for advance/change and legacy rows. */
+	transactionNumber: string | null;
 };
 
 /** A file uploaded with a payment (F18); served raw values only. */
@@ -149,8 +152,8 @@ export type PaymentAttachmentDto = {
  */
 export type PaymentRecord = {
 	id: number;
-	/** Human number, e.g. «P-520». */
-	number: string;
+	/** Bare document number («42»). Served for every new payment; a few legacy rows have none. */
+	number: string | null;
 	/** ISO date string. */
 	date: string;
 	type: PaymentType;
@@ -175,7 +178,7 @@ export type PaymentRecord = {
 
 	/** General-payment description. */
 	description: string | null;
-	/** Payroll period, e.g. «Июнь 2026». */
+	/** Payroll period «YYYY-MM» (legacy rows may hold a label like «Июнь 2026»); render via formatPeriod. */
 	period: string | null;
 	/** Payroll salary at payment time. */
 	salary: number | null;
@@ -199,11 +202,13 @@ export type OutstandingTransaction = {
 	id: number;
 	/** ISO date string. */
 	date: string;
-	/** «Продажа» / «Поставка» (the transaction type, localized server-side label key). */
-	type: "Sale" | "Supply";
+	/** The document type — refunds included (an unpaid refund is owed too). */
+	type: TransactionType;
 	total: number;
 	paid: number;
 	remaining: number;
+	/** The document's bare number («42»; differs from `id`); null for a legacy row. */
+	number: string | null;
 };
 
 /** A partner option for the create modal — carries served balance + advance. */
@@ -254,7 +259,7 @@ export type CreatePaymentRecordRequest = {
 	amount: number;
 	/** General-payment description (required for General). */
 	description: string | null;
-	/** Payroll period «Июнь 2026» (required for Payroll). */
+	/** Payroll period «YYYY-MM» (required for Payroll) — build it with toPeriod. */
 	period: string | null;
 	/** Transaction-type settlement allocations; excess becomes an advance. */
 	settlements: SettlementInput[];

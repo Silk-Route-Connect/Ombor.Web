@@ -24,6 +24,7 @@ export const GhostButton: React.FC<GhostButtonProps> = ({ icon, children, sx, ..
 			borderColor: designTokens.gray300,
 			whiteSpace: "nowrap",
 			"& .MuiButton-startIcon": { mr: "7px", ml: 0 },
+			"& .MuiButton-startIcon > *:nth-of-type(1)": { fontSize: 17 },
 			"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
 			...sx,
 		}}

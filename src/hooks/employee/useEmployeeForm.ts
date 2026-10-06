@@ -41,7 +41,9 @@ export function useEmployeeForm({
 }: UseEmployeeFormParams): UseEmployeeFormResult {
 	const form = useForm<EmployeeFormInputs>({
 		resolver: zodResolver(EmployeeSchema),
-		mode: "onBlur",
+		// Errors appear on submit, then follow every change. A blur-time error pushed the
+		// fields below down under the pointer, so the click aimed at «Добавить номер» missed.
+		mode: "onSubmit",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
 		defaultValues: EMPLOYEE_FORM_DEFAULT_VALUES,

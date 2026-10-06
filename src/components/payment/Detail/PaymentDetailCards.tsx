@@ -1,17 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
 import DetailCard from "components/shared/Detail/DetailCard";
-import { detailBodyCellSx, detailHeadCellSx } from "components/shared/Detail/detailTableChrome";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import WalletLink from "components/wallet/Links/WalletLink";
-import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
-import { PaymentAllocationKind, PaymentRecord } from "models/payment";
-import { saleDetailPath, supplyDetailPath } from "routing/paths";
+import { PaymentRecord } from "models/payment";
 import { designTokens, numericSx } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatPeriod } from "utils/payrollUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
@@ -19,208 +16,11 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import SouthEastIcon from "@mui/icons-material/SouthEast";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import { Box, Tooltip, Typography } from "@mui/material";
-
-/** Касса (source) card — single clean line per source (rule 9). */
-export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
-	const { t } = useTranslation();
-	return (
-		<DetailCard
-			icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 18 }} />}
-			title={t("payment.detail.source")}
-		>
-			<Box sx={{ p: "16px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
-				{payment.sources.map((s) => {
-					const meta = s.walletType ? WALLET_TYPE_META[s.walletType] : null;
-					const Icon = meta?.Icon ?? AccountBalanceWalletOutlinedIcon;
-					return (
-						<Box
-							key={s.id}
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "space-between",
-								gap: "14px",
-							}}
-						>
-							<Box
-								sx={{ display: "inline-flex", alignItems: "center", gap: "11px", fontWeight: 600 }}
-							>
-								<Box
-									sx={{
-										width: 38,
-										height: 38,
-										borderRadius: "10px",
-										display: "grid",
-										placeItems: "center",
-										bgcolor: meta?.bg ?? designTokens.accentSoft,
-										color: meta?.color ?? designTokens.saffron700,
-									}}
-								>
-									<Icon sx={{ fontSize: 18 }} />
-								</Box>
-								{s.sourceType === "Wallet" ? (
-									<span>
-										{s.walletName}{" "}
-										<Box component="span" sx={{ color: "text.secondary", fontWeight: 500 }}>
-											· {meta ? t(meta.labelKey) : ""}
-										</Box>
-									</span>
-								) : (
-									<span>{t("payment.detail.advanceSource")}</span>
-								)}
-							</Box>
-							<Box
-								component="span"
-								sx={{ ...numericSx, fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}
-							>
-								{formatCurrency(s.amount)}{" "}
-								<Box
-									component="span"
-									sx={{ fontSize: 12, fontWeight: 600, color: "text.disabled" }}
-								>
-									UZS
-								</Box>
-							</Box>
-						</Box>
-					);
-				})}
-			</Box>
-		</DetailCard>
-	);
-};
-
-const ALLOC_META: Record<PaymentAllocationKind, { labelKey: string; color: string }> = {
-	TransactionSettlement: { labelKey: "payment.alloc.settlement", color: "text.secondary" },
-	AdvanceCredit: { labelKey: "payment.alloc.advance", color: "secondary.main" },
-	ChangeReturn: { labelKey: "payment.alloc.change", color: "text.secondary" },
-};
-
-/** Распределение (allocations) table. */
-export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-
-	return (
-		<DetailCard
-			icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 17 }} />}
-			title={t("payment.detail.allocation")}
-			count={payment.allocations.length}
-			headerExtra={
-				<Tooltip title={t("payment.detail.allocationTooltip")} placement="top">
-					<InfoOutlinedIcon sx={{ fontSize: 15, color: "text.disabled", cursor: "help" }} />
-				</Tooltip>
-			}
-		>
-			<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-				<thead>
-					<tr>
-						<Box component="th" sx={detailHeadCellSx}>
-							{t("payment.detail.allocTarget")}
-						</Box>
-						<Box component="th" sx={detailHeadCellSx}>
-							{t("payment.detail.allocType")}
-						</Box>
-						<Box component="th" sx={{ ...detailHeadCellSx, textAlign: "right" }}>
-							{t("payment.detail.allocAmount")}
-						</Box>
-					</tr>
-				</thead>
-				<tbody>
-					{payment.allocations.map((a) => {
-						const meta = ALLOC_META[a.allocationType];
-						const isChange = a.allocationType === "ChangeReturn";
-						const isSettlement = a.allocationType === "TransactionSettlement";
-						const isSupplyTx =
-							a.transactionType === "Supply" || a.transactionType === "SupplyRefund";
-						// The server no longer bakes a display reference — compose it here.
-						const txWord = a.transactionType
-							? isSupplyTx
-								? t("payment.alloc.supply")
-								: t("payment.alloc.sale")
-							: t("payment.alloc.txRef");
-						const targetLabel =
-							a.allocationType === "AdvanceCredit"
-								? t("payment.alloc.advanceTarget")
-								: a.allocationType === "ChangeReturn"
-									? t("payment.alloc.change")
-									: a.transactionId
-										? `${txWord} ${formatEntityId(a.transactionId)}`
-										: t("payment.alloc.settlement");
-						// Settlement rows link to the settled transaction (split sale/supply route).
-						const canOpenTx = isSettlement && a.transactionId != null && a.transactionType != null;
-						const openTx = () => {
-							if (a.transactionId == null) {
-								return;
-							}
-							navigate(
-								isSupplyTx ? supplyDetailPath(a.transactionId) : saleDetailPath(a.transactionId),
-							);
-						};
-						return (
-							<Box
-								component="tr"
-								key={a.id}
-								sx={isChange ? { bgcolor: designTokens.gray25 } : undefined}
-							>
-								<Box component="td" sx={detailBodyCellSx}>
-									<Box
-										component="span"
-										onClick={canOpenTx ? openTx : undefined}
-										sx={{
-											fontWeight: 600,
-											color: isSettlement ? "primary.main" : "text.primary",
-											fontStyle: isChange ? "italic" : "normal",
-											cursor: canOpenTx ? "pointer" : "default",
-											"&:hover": canOpenTx ? { textDecoration: "underline" } : undefined,
-										}}
-									>
-										{targetLabel}
-									</Box>
-								</Box>
-								<Box
-									component="td"
-									sx={{ ...detailBodyCellSx, color: meta?.color ?? "text.secondary" }}
-								>
-									{meta ? t(meta.labelKey) : a.allocationType}
-								</Box>
-								<Box component="td" sx={{ ...detailBodyCellSx, textAlign: "right" }}>
-									<Box component="span" sx={{ ...numericSx, fontWeight: 700 }}>
-										{formatCurrency(a.amount)}
-									</Box>
-									{isChange && (
-										<Box
-											component="span"
-											sx={{
-												ml: "8px",
-												fontSize: 10,
-												fontWeight: 700,
-												textTransform: "uppercase",
-												letterSpacing: "0.04em",
-												color: "text.disabled",
-												bgcolor: designTokens.gray100,
-												borderRadius: "4px",
-												px: "6px",
-												py: "1px",
-											}}
-										>
-											{t("payment.detail.memoTag")}
-										</Box>
-									)}
-								</Box>
-							</Box>
-						);
-					})}
-				</tbody>
-			</Box>
-		</DetailCard>
-	);
-};
+import { Box, Typography } from "@mui/material";
 
 /** Withdrawal — a single «Возврат аванса партнёру» line (no canon allocation). */
 export const PaymentWithdrawalCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
@@ -241,9 +41,10 @@ export const PaymentWithdrawalCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 				<Typography sx={{ fontWeight: 600 }}>{t("payment.detail.advanceReturned")}</Typography>
 				<Box
 					component="span"
-					sx={{ ...numericSx, fontWeight: 800, fontSize: 17, color: "error.main" }}
+					sx={{ ...numericSx, fontWeight: 700, fontSize: 17, color: "error.main" }}
 				>
-					{formatCurrency(payment.amount)} UZS
+					{formatCurrency(payment.amount)}
+					<UzsUnit />
 				</Box>
 			</Box>
 		</DetailCard>
@@ -274,12 +75,12 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 			>
 				{item(t("payment.detail.employee"), payment.employeeName)}
 				{item(t("payment.detail.position"), payment.employeePosition)}
-				{item(t("payment.detail.period"), payment.period)}
+				{item(t("payment.detail.period"), payment.period && formatPeriod(t, payment.period))}
 				{item(
 					t("payment.detail.salary"),
 					<Box component="span" sx={numericSx}>
-						{formatCurrency(payment.salary ?? 0)}{" "}
-						<small style={{ fontSize: 11, color: designTokens.gray400 }}>UZS</small>
+						{formatCurrency(payment.salary ?? 0)}
+						<UzsUnit />
 					</Box>,
 				)}
 				<Box sx={{ p: "15px 18px", gridColumn: "1 / -1", borderRight: "none !important" }}>
@@ -287,10 +88,8 @@ export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 						{t("payment.detail.paid")}
 					</Typography>
 					<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 600, color: "success.main" }}>
-						{formatCurrency(payment.amount)}{" "}
-						<Box component="span" sx={{ fontSize: 11, color: "text.disabled" }}>
-							UZS
-						</Box>
+						{formatCurrency(payment.amount)}
+						<UzsUnit />
 					</Typography>
 				</Box>
 			</Box>
@@ -462,7 +261,7 @@ export const PaymentInfoCard: React.FC<{
 				{row(
 					<PersonOutlineIcon sx={{ fontSize: 16 }} />,
 					t("payment.detail.createdBy"),
-					payment.createdBy,
+					payment.createdBy || t("common.dash"),
 				)}
 				{row(
 					<ScheduleOutlinedIcon sx={{ fontSize: 16 }} />,

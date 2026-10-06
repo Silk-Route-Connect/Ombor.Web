@@ -7,8 +7,10 @@ import {
 	OverpaymentDisposition,
 	TransactionLineDiscountType,
 } from "models/transaction";
-import PaymentApi from "services/api/PaymentApi";
+import { addToCart } from "utils/cartUtils";
 import { lineGross, lineNet, TransactionDirection } from "utils/transactionUtils";
+
+import { useOutstandingDebts } from "./useOutstandingDebts";
 
 /** A single product line in the cart (the product snapshot drives stock + unit). */
 export type CartItem = {
@@ -61,6 +63,8 @@ export interface UseTransactionEntry {
 	overChoice: OverpaymentDisposition;
 	tried: boolean;
 	outstanding: OutstandingTransaction[];
+	/** The open-debts fetch failed — show an error with retry, never «no debts». */
+	outstandingFailed: boolean;
 
 	// derived
 	inCart: Set<number>;
@@ -91,7 +95,8 @@ export interface UseTransactionEntry {
 	// actions
 	setPartner(partner: Partner | null): void;
 	setWarehouseId(id: number | null): void;
-	addProduct(product: Product): void;
+	/** `asPackage`: a scanned packaging barcode — the line counts in packages. */
+	addProduct(product: Product, asPackage?: boolean): void;
 	updateItem(index: number, patch: Partial<CartItem>): void;
 	removeItem(index: number): void;
 	clearItems(): void;
@@ -104,6 +109,7 @@ export interface UseTransactionEntry {
 	setSettleAlloc(alloc: SettlementInput[]): void;
 	setOverChoice(choice: OverpaymentDisposition): void;
 	setTried(tried: boolean): void;
+	retryOutstanding(): void;
 	buildPayload(): CreateTransactionEntryRequest;
 }
 
@@ -128,32 +134,13 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 	const [settleAlloc, setSettleAlloc] = useState<SettlementInput[]>([]);
 	const [overChoice, setOverChoice] = useState<OverpaymentDisposition>("change");
 	const [tried, setTried] = useState(false);
-	const [outstanding, setOutstanding] = useState<OutstandingTransaction[]>([]);
+	const debts = useOutstandingDebts(partner?.id ?? null);
+	const outstanding = debts.rows;
 
-	// Reset the excess disposition whenever the partner changes, then load their
-	// open transactions for the settlement modal.
+	// Reset the excess disposition whenever the partner changes.
 	useEffect(() => {
 		setSettleAlloc([]);
 		setOverChoice("change");
-		if (!partner) {
-			setOutstanding([]);
-			return;
-		}
-		let cancelled = false;
-		PaymentApi.getOutstanding(partner.id)
-			.then((rows) => {
-				if (!cancelled) {
-					setOutstanding(rows);
-				}
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setOutstanding([]);
-				}
-			});
-		return () => {
-			cancelled = true;
-		};
 	}, [partner]);
 
 	const setPartner = (next: Partner | null) => setPartnerState(next);
@@ -166,29 +153,10 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 	// Line price seeds from the sale price (Sale) or the supply / cost price (Supply).
 	const defaultPrice = (product: Product) => (isSale ? product.salePrice : product.supplyPrice);
 
-	const addProduct = (product: Product) => {
-		setItems((cur) => {
-			const existing = cur.find((x) => x.product.id === product.id);
-			if (existing) {
-				// Re-adding steps one display unit — a whole package when the line counts in packages.
-				const step =
-					existing.inPackages && existing.product.packaging ? existing.product.packaging.size : 1;
-				return cur.map((x) =>
-					x.product.id === product.id ? { ...x, quantity: x.quantity + step } : x,
-				);
-			}
-			return [
-				...cur,
-				{
-					product,
-					quantity: 1,
-					unitPrice: defaultPrice(product),
-					discountValue: 0,
-					discountType: "Percentage",
-				},
-			];
-		});
-	};
+	const addProduct = (product: Product, asPackage = false) =>
+		setItems((cur) =>
+			addToCart(cur, product, { unitPrice: defaultPrice(product), asPackage, packages: true }),
+		);
 
 	const updateItem = (index: number, patch: Partial<CartItem>) =>
 		setItems((cur) => cur.map((it, j) => (j === index ? { ...it, ...patch } : it)));
@@ -224,7 +192,8 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		overExcess,
 	);
 	const debtRemainingAfter = Math.max(0, debtsTotal - settledSum);
-	const allDebtsSettled = outstanding.length === 0 || debtRemainingAfter === 0;
+	// Unknown debts (failed fetch) are never «settled» — the excess stays change until a retry succeeds.
+	const allDebtsSettled = !debts.failed && (outstanding.length === 0 || debtRemainingAfter === 0);
 	const leftover = Math.max(0, overExcess - settledSum);
 	const useAdvance = payState === "over" && allDebtsSettled && overChoice === "advance";
 	const advanceSum = useAdvance ? leftover : 0;
@@ -279,6 +248,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		overChoice,
 		tried,
 		outstanding,
+		outstandingFailed: debts.failed,
 		inCart,
 		count,
 		subtotal,
@@ -316,6 +286,7 @@ export function useTransactionEntry(direction: TransactionDirection): UseTransac
 		setSettleAlloc,
 		setOverChoice,
 		setTried,
+		retryOutstanding: debts.retry,
 		buildPayload,
 	};
 }

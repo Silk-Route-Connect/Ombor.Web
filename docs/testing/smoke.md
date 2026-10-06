@@ -19,9 +19,9 @@ Expect exactly, top to bottom: Главное · Финансы (Платежи,
 
 Logged in, navigate to `/login` → redirected to `/`. Unknown URL (e.g. `/nope`) → NotFoundPage inside the app layout.
 
-### T-SMK-04 · Placeholders render, don't crash [happy]
+### T-SMK-04 · Activity Log and stubs render, don't crash [happy]
 
-`/activity-log` (known U1) and `/payments/new` render PlaceholderPage with app chrome; console stays clean.
+`/activity-log` renders «Журнал действий» — filter row (Кто · Что · Действие · «Дата: Этот месяц») and the day-grouped timeline, or «Ничего не найдено» for an empty month ([modules/activity-log.md](modules/activity-log.md)); `/payments/new` renders with app chrome; console stays clean.
 
 ## Route render pass
 

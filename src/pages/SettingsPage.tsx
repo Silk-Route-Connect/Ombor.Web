@@ -4,23 +4,28 @@ import CurrencySection from "components/settings/CurrencySection";
 import InviteUserModal from "components/settings/InviteUserModal";
 import LanguageSection from "components/settings/LanguageSection";
 import OrganizationSection from "components/settings/OrganizationSection";
+import SecuritySection from "components/settings/SecuritySection";
 import SettingsNav, { SettingsSectionDef } from "components/settings/SettingsNav";
 import SettingsSaveBar from "components/settings/SettingsSaveBar";
 import UsersSection from "components/settings/UsersSection";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
+import { isLoadError, isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
-import { InviteUserRequest, Organization, TenantUser } from "models/settings";
+import { Organization, TenantUser } from "models/settings";
 import { useStore } from "stores/StoreContext";
+import { tenantUserLabel } from "utils/tenantUser";
 
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 
-const SECTION_KEYS = ["org", "lang", "currency", "users"] as const;
+const SECTION_KEYS = ["org", "lang", "currency", "users", "security"] as const;
 
 const SettingsPage: React.FC = observer(() => {
 	const { t, i18n } = useTranslation();
@@ -41,7 +46,7 @@ const SettingsPage: React.FC = observer(() => {
 
 	// Seed / re-sync the editable draft from the persisted org (on load + save).
 	useEffect(() => {
-		if (storeOrg !== "loading" && storeOrg) {
+		if (isReady(storeOrg) && storeOrg) {
 			setDraft(storeOrg);
 		}
 	}, [storeOrg]);
@@ -61,7 +66,10 @@ const SettingsPage: React.FC = observer(() => {
 					current = key;
 				}
 			}
-			setActive(current);
+			// The last section is too short to reach the top; scrolled to the end, it is the one in view.
+			const atEnd =
+				root.scrollTop > 0 && root.scrollTop + root.clientHeight >= root.scrollHeight - 2;
+			setActive(atEnd ? SECTION_KEYS[SECTION_KEYS.length - 1] : current);
 		};
 		root.addEventListener("scroll", onScroll, { passive: true });
 		onScroll();
@@ -85,18 +93,24 @@ const SettingsPage: React.FC = observer(() => {
 			label: t("settings.users.title"),
 			icon: <PeopleAltOutlinedIcon sx={{ fontSize: 18 }} />,
 		},
+		{
+			key: "security",
+			label: t("settings.security.title"),
+			icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />,
+		},
 	];
 
 	const dirty = useMemo(
 		() =>
 			draft !== null &&
-			storeOrg !== "loading" &&
+			isReady(storeOrg) &&
 			storeOrg !== null &&
 			JSON.stringify(draft) !== JSON.stringify(storeOrg),
 		[draft, storeOrg],
 	);
 
-	const loading = storeOrg === "loading" || storeUsers === "loading" || draft === null;
+	const loading = !isReady(storeOrg) || !isReady(storeUsers) || draft === null;
+	const failed = isLoadError(storeOrg) ? storeOrg : isLoadError(storeUsers) ? storeUsers : null;
 
 	const jump = (key: string): void => {
 		document
@@ -114,16 +128,9 @@ const SettingsPage: React.FC = observer(() => {
 		}
 	};
 	const onReset = (): void => {
-		if (storeOrg !== "loading" && storeOrg) {
+		if (isReady(storeOrg) && storeOrg) {
 			setDraft(storeOrg);
 		}
-	};
-	const onInvite = (request: InviteUserRequest): void => {
-		void settingsStore.inviteUser(request).then((ok) => {
-			if (ok) {
-				setInviteOpen(false);
-			}
-		});
 	};
 	const onDeactivate = (user: TenantUser): void => {
 		if (user.self) {
@@ -133,16 +140,18 @@ const SettingsPage: React.FC = observer(() => {
 		setConfirmUser(user);
 	};
 
-	const users = storeUsers === "loading" ? [] : storeUsers;
+	const users = readyOr(storeUsers, []);
 
 	return (
 		<Box>
 			<PageHeader title={t("settings.title")} />
 
 			{loading || !draft ? (
-				<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-					<CircularProgress />
-				</Box>
+				<LoadStateView
+					state={failed ?? "loading"}
+					onRetry={() => void settingsStore.load()}
+					errorTitle={t("settings.error.load")}
+				/>
 			) : (
 				<Box
 					sx={{
@@ -182,6 +191,10 @@ const SettingsPage: React.FC = observer(() => {
 							onDeactivate={onDeactivate}
 							onReactivate={(u) => void settingsStore.reactivateUser(u)}
 						/>
+						<SecuritySection
+							saving={settingsStore.changingPassword}
+							onChangePassword={settingsStore.changePassword}
+						/>
 
 						<SettingsSaveBar
 							dirty={dirty}
@@ -195,9 +208,9 @@ const SettingsPage: React.FC = observer(() => {
 
 			<InviteUserModal
 				isOpen={inviteOpen}
-				saving={false}
+				saving={settingsStore.inviting}
 				onClose={() => setInviteOpen(false)}
-				onInvite={onInvite}
+				onInvite={settingsStore.inviteUser}
 			/>
 
 			<ConfirmDialog
@@ -205,7 +218,9 @@ const SettingsPage: React.FC = observer(() => {
 				icon={<VisibilityOffOutlinedIcon sx={{ fontSize: 22 }} />}
 				iconTone="warning"
 				title={t("settings.users.deactivateTitle")}
-				content={t("settings.users.deactivateBody", { name: confirmUser?.name ?? "" })}
+				content={t("settings.users.deactivateBody", {
+					name: confirmUser ? tenantUserLabel(confirmUser) : "",
+				})}
 				confirmLabel={t("settings.users.deactivate")}
 				confirmVariant="danger"
 				onCancel={() => setConfirmUser(null)}

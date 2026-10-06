@@ -80,7 +80,15 @@
       "warn",
       {
         "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
-        "message": "Hardcoded hex color — use tokens from theme.ts instead (docs/conventions.md → Styling)."
+        "message": "Hardcoded hex color — use tokens from src/theme instead (docs/conventions.md → Styling)."
+      },
+      {
+        "selector": "Literal[value=/rgba?\\(/], TemplateElement[value.raw=/rgba?\\(|#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Hardcoded colour — use tokens from src/theme instead (docs/conventions.md → Styling)."
+      },
+      {
+        "selector": "Property[key.name='fontWeight'] > Literal[value=800]",
+        "message": "Onest 800 is not loaded — weights stop at 700 (docs/conventions.md → Typography)."
       },
       {
         "selector": "CallExpression[callee.property.name='toLocaleString']",
@@ -93,6 +101,18 @@
       {
         "selector": "CallExpression[callee.name='navigate'] > TemplateLiteral.arguments:first-child",
         "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
+      },
+      {
+        "selector": "Literal[value=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
+      },
+      {
+        "selector": "TemplateElement[value.raw=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
+      },
+      {
+        "selector": "JSXText[value=/[А-Яа-яЁё]/]",
+        "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
       }
     ],
     "no-restricted-imports": [
@@ -119,6 +139,10 @@
         "no-restricted-syntax": [
           "warn",
           {
+            "selector": "Property[key.name='fontWeight'] > Literal[value=800]",
+            "message": "Onest 800 is not loaded — weights stop at 700 (docs/conventions.md → Typography)."
+          },
+          {
             "selector": "CallExpression[callee.property.name='toLocaleString']",
             "message": "Do not call toLocaleString directly — use the shared formatCurrency/formatDate formatters."
           },
@@ -131,6 +155,13 @@
             "message": "Do not pass template-literal paths to navigate() — use paths from routing/paths.ts."
           }
         ]
+      }
+    },
+    {
+      /* Locale files and the language picker's native names are the home of Russian text */
+      "files": ["src/i18n/**"],
+      "rules": {
+        "no-restricted-syntax": "off"
       }
     },
     {

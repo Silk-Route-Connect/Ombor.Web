@@ -1,49 +1,58 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
+import ExportButton from "components/shared/Buttons/ExportButton";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
+import EntityFilterSelect, {
+	FilterOption,
+} from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import { PAYMENT_TYPES, PaymentType } from "models/payment";
 import { PaymentTypeFilter } from "stores/PaymentStore";
+import { DateRangeValue } from "utils/dateRange";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { Box } from "@mui/material";
 
 import { PAYMENT_TYPE_META } from "../PaymentPresentation";
-import PaymentFilterDropdown, { FilterOption } from "./PaymentFilterDropdown";
 
 interface PaymentHeaderProps {
 	searchValue: string;
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
 	walletOptions: { id: number; name: string }[];
+	dateRange: DateRangeValue;
 	onSearch: (value: string) => void;
 	onTypeChange: (value: PaymentTypeFilter) => void;
 	onWalletChange: (value: number | "all") => void;
+	onDateRangeChange: (range: DateRangeValue) => void;
 	onCreate: () => void;
 	onExport: () => void;
+	/** Rows the export would write (the filtered list). */
+	exportCount: number;
 }
 
 /**
  * Payments page header. Per locked pattern 11: dataset-level actions (create,
  * «Экспорт») sit on the title row; the view-shaping search + type + wallet
- * filters sit on the filter row below (the prototype's period date filter is
- * omitted — locked pattern 12).
+ * filters and the shared period filter sit on the filter row below.
  */
 const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 	searchValue,
 	typeFilter,
 	walletFilter,
 	walletOptions,
+	dateRange,
 	onSearch,
 	onTypeChange,
 	onWalletChange,
+	onDateRangeChange,
 	onCreate,
 	onExport,
+	exportCount,
 }) => {
 	const { t } = useTranslation();
 
@@ -55,9 +64,9 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 		})),
 	];
 
-	const walletFilterOptions: FilterOption<number | "all">[] = [
+	const walletFilterOptions: FilterOption[] = [
 		{ value: "all", label: t("payment.filter.allWallets") },
-		...walletOptions.map((w) => ({ value: w.id, label: w.name })),
+		...walletOptions.map((w) => ({ value: String(w.id), label: w.name })),
 	];
 
 	return (
@@ -66,12 +75,7 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 				title={t("payment.title")}
 				actions={
 					<>
-						<GhostButton
-							icon={<FileDownloadOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-							onClick={onExport}
-						>
-							{t("common.export")}
-						</GhostButton>
+						<ExportButton onExport={onExport} rowCount={exportCount} />
 						<PrimaryButton icon={<AddIcon />} onClick={onCreate}>
 							{t("payment.create")}
 						</PrimaryButton>
@@ -85,19 +89,21 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					onChange={onSearch}
 					placeholder={t("payment.searchPlaceholder")}
 				/>
-				<PaymentFilterDropdown
-					icon={<LayersOutlinedIcon sx={{ fontSize: 15 }} />}
+				<EntityFilterSelect<PaymentTypeFilter>
+					icon={<LayersOutlinedIcon />}
 					value={typeFilter}
 					options={typeOptions}
 					onChange={onTypeChange}
 				/>
-				<PaymentFilterDropdown
-					icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 15 }} />}
-					value={walletFilter}
+				<EntityFilterSelect
+					icon={<AccountBalanceWalletOutlinedIcon />}
+					value={String(walletFilter)}
 					options={walletFilterOptions}
-					onChange={onWalletChange}
+					onChange={(v) => onWalletChange(v === "all" ? "all" : Number(v))}
 					width={210}
 				/>
+				<Box sx={{ flexGrow: 1 }} />
+				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />
 			</Box>
 		</>
 	);

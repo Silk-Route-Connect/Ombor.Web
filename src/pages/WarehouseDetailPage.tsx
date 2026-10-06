@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import EntityHistory from "components/activity/History/EntityHistory";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
+import LoadStateView from "components/shared/LoadState/LoadStateView";
 import WarehouseArchivedBanner from "components/warehouse/Detail/WarehouseArchivedBanner";
 import WarehouseEmptyStock from "components/warehouse/Detail/WarehouseEmptyStock";
 import WarehouseKpis from "components/warehouse/Detail/WarehouseKpis";
@@ -13,30 +15,41 @@ import OpeningStockModal from "components/warehouse/Form/OpeningStockModal";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import { buildWarehouseActionRows } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
+import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
+import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
+import { lowStockThresholds } from "utils/productFilters";
 
 import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
-type WarehouseDetailTab = "stock" | "movements";
+type WarehouseDetailTab = "stock" | "movements" | "history";
 
 const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { id } = useParams<{ id: string }>();
-	const warehouseId = Number(id);
-	const { warehouseStore, selectedWarehouseStore } = useStore();
+	const warehouseId = useRouteEntityId();
+	const { warehouseStore, selectedWarehouseStore, productStore } = useStore();
 
 	const [tab, setTab] = useState<WarehouseDetailTab>("stock");
 
+	// Products carry the «Минимальный остаток» the stock tab's low-stock alert compares with.
 	useEffect(() => {
-		if (Number.isFinite(warehouseId)) {
-			selectedWarehouseStore.load(warehouseId);
+		void productStore.getAll();
+	}, [productStore]);
+	const thresholds = useMemo(
+		() => lowStockThresholds(readyOr(productStore.allProducts, [])),
+		[productStore.allProducts],
+	);
+
+	useEffect(() => {
+		if (warehouseId !== null) {
+			void selectedWarehouseStore.load(warehouseId);
 		}
 		setTab("stock");
 		return () => selectedWarehouseStore.clear();
@@ -44,23 +57,19 @@ const WarehouseDetailPage: React.FC = observer(() => {
 
 	const goBack = () => navigate(PATHS.warehouses);
 
-	const warehouse = selectedWarehouseStore.warehouse;
+	const warehouse = warehouseId === null ? null : selectedWarehouseStore.warehouse;
 	const dialogMode = warehouseStore.dialogMode;
 	const editingWarehouse = dialogMode.kind === "form" ? (dialogMode.warehouse ?? null) : null;
+	const retry = () => warehouseId !== null && void selectedWarehouseStore.load(warehouseId);
 
-	if (warehouse === "loading") {
+	if (!isPresent(warehouse)) {
 		return (
-			<Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-				<CircularProgress />
-			</Box>
-		);
-	}
-
-	if (warehouse === null) {
-		return (
-			<Box sx={{ py: 10, textAlign: "center" }}>
-				<Typography sx={{ color: "text.secondary" }}>{t("warehouse.detail.notFound")}</Typography>
-			</Box>
+			<LoadStateView
+				state={warehouse}
+				onRetry={retry}
+				errorTitle={t("warehouse.error.getById")}
+				notFound={{ title: t("warehouse.detail.notFound"), backTo: PATHS.warehouses }}
+			/>
 		);
 	}
 
@@ -96,11 +105,16 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	const stock = selectedWarehouseStore.stock === "loading" ? [] : selectedWarehouseStore.stock;
-	const movements =
-		selectedWarehouseStore.movements === "loading" ? [] : selectedWarehouseStore.movements;
-	const ledgersLoading =
-		selectedWarehouseStore.stock === "loading" || selectedWarehouseStore.movements === "loading";
+	const stockState = selectedWarehouseStore.stock;
+	const movementsState = selectedWarehouseStore.movements;
+	const stock = readyOr(stockState, []);
+	const movements = readyOr(movementsState, []);
+	const ledgersReady = isReady(stockState) && isReady(movementsState);
+	const ledgersState = isLoadError(stockState)
+		? stockState
+		: isLoadError(movementsState)
+			? movementsState
+			: "loading";
 
 	const empty = warehouse.productCount === 0;
 
@@ -125,8 +139,17 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	);
 
 	const tabs: DetailTabSpec<WarehouseDetailTab>[] = [
-		{ key: "stock", label: t("warehouse.detail.tabs.stock"), count: stock.length },
-		{ key: "movements", label: t("warehouse.detail.tabs.movements"), count: movements.length },
+		{
+			key: "stock",
+			label: t("warehouse.detail.tabs.stock"),
+			count: isReady(stockState) ? stock.length : undefined,
+		},
+		{
+			key: "movements",
+			label: t("warehouse.detail.tabs.movements"),
+			count: isReady(movementsState) ? movements.length : undefined,
+		},
+		{ key: "history", label: t("activity.history.tab") },
 	];
 
 	return (
@@ -158,14 +181,26 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				<Stack sx={{ gap: "16px" }}>
 					<DetailTabs<WarehouseDetailTab> tabs={tabs} active={tab} onChange={setTab} />
 
-					{ledgersLoading ? (
-						<Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-							<CircularProgress size={28} />
-						</Box>
+					{tab === "history" ? (
+						<EntityHistory kind="Warehouse" id={warehouse.id} refreshKey={warehouse} />
+					) : !ledgersReady ? (
+						<LoadStateView
+							state={ledgersState}
+							size="section"
+							onRetry={retry}
+							errorTitle={t("warehouse.error.getStock")}
+						/>
 					) : tab === "stock" ? (
-						<WarehouseStockTab warehouse={warehouse} stock={stock} />
+						<WarehouseStockTab
+							warehouse={warehouse}
+							stock={stock}
+							onAddOpeningStock={
+								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
+							}
+							lowStockThresholds={thresholds}
+						/>
 					) : (
-						<WarehouseMovementsTab movements={movements} />
+						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />
 					)}
 				</Stack>
 			)}

@@ -18,8 +18,9 @@ export const PaymentSchema = z
 		walletId: z.number().int().positive().nullable(),
 		amount: z.number().nonnegative(),
 		description: z.string().trim().max(250),
-		month: z.string(),
-		year: z.string(),
+		/** Payroll period month (1–12) and year; sent as «YYYY-MM» (toPeriod). */
+		month: z.number().int().min(1).max(12),
+		year: z.number().int(),
 	})
 	.superRefine((v, ctx) => {
 		const partnerTypes = ["Transaction", "Deposit", "Withdrawal"];

@@ -1,17 +1,20 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UzsUnit from "components/shared/Money/UzsUnit";
 import { PaymentDirection } from "models/payment";
 import { PaymentSummary } from "stores/PaymentStore";
-import { designTokens, numericSx } from "theme";
+import { chipTokens, designTokens, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 
 interface PaymentSummaryStripProps {
-	summary: PaymentSummary;
+	/** Null while the list is loading or failed — the cards show «—», never a fake 0. */
+	summary: PaymentSummary | null;
 	/** Active direction toggle (`"all"` when none). */
 	directionFilter: PaymentDirection | "all";
 	/** Toggle the table's direction filter (click the active card again to clear). */
@@ -44,8 +47,14 @@ const Card: React.FC<{
 }) => (
 	<Paper
 		elevation={1}
+		component={clickable ? ButtonBase : "div"}
 		onClick={onClick}
+		aria-pressed={clickable ? Boolean(active) : undefined}
 		sx={{
+			width: "100%",
+			justifyContent: "flex-start",
+			textAlign: "left",
+			fontFamily: "inherit",
 			position: "relative",
 			display: "flex",
 			alignItems: "center",
@@ -100,10 +109,7 @@ const Card: React.FC<{
 			<Typography sx={{ fontSize: 13, color: "text.secondary" }}>{caption}</Typography>
 			<Typography
 				sx={{
-					...numericSx,
-					fontSize: 24,
-					fontWeight: 800,
-					letterSpacing: "-0.02em",
+					...typeScale.numStrong,
 					mt: "3px",
 					lineHeight: 1.1,
 					color: valueColor ?? "text.primary",
@@ -113,12 +119,6 @@ const Card: React.FC<{
 			</Typography>
 		</Box>
 	</Paper>
-);
-
-const Uzs: React.FC = () => (
-	<Box component="span" sx={{ fontSize: 13, fontWeight: 600, color: "text.disabled", ml: "5px" }}>
-		UZS
-	</Box>
 );
 
 /**
@@ -133,6 +133,15 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 	onToggle,
 }) => {
 	const { t } = useTranslation();
+	const money = (value: number): React.ReactNode =>
+		summary ? (
+			<>
+				{formatCurrency(value)}
+				<UzsUnit />
+			</>
+		) : (
+			t("common.dash")
+		);
 
 	return (
 		<Box
@@ -144,16 +153,11 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 			}}
 		>
 			<Card
-				icon={<SouthEastIcon sx={{ fontSize: 21 }} />}
-				iconBg={designTokens.successBg}
-				iconColor="#17835A"
+				icon={<ArrowDownwardIcon sx={{ fontSize: 21 }} />}
+				iconBg={chipTokens.income.bg}
+				iconColor={chipTokens.income.color}
 				caption={t("payment.summary.income")}
-				value={
-					<>
-						{formatCurrency(summary.income)}
-						<Uzs />
-					</>
-				}
+				value={money(summary?.income ?? 0)}
 				valueColor="success.main"
 				clickable
 				active={directionFilter === "Income"}
@@ -161,16 +165,11 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 				onClick={() => onToggle("Income")}
 			/>
 			<Card
-				icon={<NorthEastIcon sx={{ fontSize: 21 }} />}
-				iconBg={designTokens.errorBg}
-				iconColor="#C53D31"
+				icon={<ArrowUpwardIcon sx={{ fontSize: 21 }} />}
+				iconBg={chipTokens.expense.bg}
+				iconColor={chipTokens.expense.color}
 				caption={t("payment.summary.expense")}
-				value={
-					<>
-						{formatCurrency(summary.expense)}
-						<Uzs />
-					</>
-				}
+				value={money(summary?.expense ?? 0)}
 				valueColor="error.main"
 				clickable
 				active={directionFilter === "Expense"}
@@ -179,10 +178,10 @@ export const PaymentSummaryStrip: React.FC<PaymentSummaryStripProps> = ({
 			/>
 			<Card
 				icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 20 }} />}
-				iconBg={designTokens.primarySoft}
-				iconColor="#12676B"
+				iconBg={chipTokens.teal.bg}
+				iconColor={chipTokens.teal.color}
 				caption={t("payment.summary.count")}
-				value={summary.count}
+				value={summary ? summary.count : t("common.dash")}
 			/>
 		</Box>
 	);

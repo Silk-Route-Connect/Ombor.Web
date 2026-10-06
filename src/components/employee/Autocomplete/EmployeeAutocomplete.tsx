@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import EntityAutocomplete, { AutocompleteSize } from "components/shared/Autocomplete/Autocomplete";
+import { isLoading, isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import type { Employee } from "models/employee";
 import { useStore } from "stores/StoreContext";
@@ -26,14 +27,14 @@ const EmployeeAutocomplete: React.FC<EmployeeAutocompleteProps> = ({
 	const { employeeStore } = useStore();
 
 	const options = useMemo(() => {
-		if (employeeStore.allEmployees === "loading") {
+		if (!isReady(employeeStore.allEmployees)) {
 			return [];
 		}
 		// A payment/payroll flow must not target a terminated employee (F15).
 		return employeeStore.allEmployees.filter((employee) => employee.status !== "Terminated");
 	}, [employeeStore.allEmployees]);
 
-	const loading = employeeStore.allEmployees === "loading";
+	const loading = isLoading(employeeStore.allEmployees);
 
 	return (
 		<EntityAutocomplete<Employee>

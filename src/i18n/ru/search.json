@@ -1,0 +1,27 @@
+{
+  "search.open": "Поиск по системе (Ctrl K)",
+  "search.inputLabel": "Поиск по системе",
+  "search.placeholder": "Партнёр, телефон, товар, артикул, штрих-код или № документа",
+
+  "search.group.partners": "Партнёры",
+  "search.group.products": "Товары",
+  "search.group.documents": "Документы",
+  "search.group.employees": "Сотрудники",
+  "search.group.warehouses": "Склады",
+  "search.group.wallets": "Кассы",
+  "search.shownOf": "{{shown}} из {{total}}",
+
+  "search.matched.phone": "найден по телефону",
+  "search.matched.barcode": "найден по штрих-коду",
+  "search.matched.packagingBarcode": "найден по штрих-коду упаковки",
+
+  "search.start.title": "Что найти?",
+  "search.start.hint": "Партнёра или сотрудника — по имени или телефону, товар — по названию, артикулу или штрих-коду, документ — по номеру, например №125.",
+  "search.empty.title": "Ничего не найдено",
+  "search.empty.hint": "По запросу «{{query}}» ничего нет. Проверьте написание или поищите по телефону, артикулу, штрих-коду или номеру документа.",
+  "search.error": "Не удалось выполнить поиск",
+
+  "search.kbd.move": "выбрать",
+  "search.kbd.open": "открыть",
+  "search.kbd.close": "закрыть"
+}

@@ -1,5 +1,15 @@
 import { KeyboardEvent, useCallback } from "react";
 
+export interface FormKeyboardSubmitOptions {
+	/**
+	 * Commit only on Ctrl / Cmd + Enter, never on a bare Enter. Set for every
+	 * immutable money/stock event (payment, payroll, adjustment, transfer, refund,
+	 * opening stock): users press Enter after typing a number by habit, and the
+	 * event cannot be edited afterwards (commit convention, ui-patterns).
+	 */
+	requireModifier?: boolean;
+}
+
 /**
  * Keyboard submit for the form modals (XC-11). Attach the returned handler to the
  * modal's `<Dialog onKeyDown={…}>`:
@@ -9,11 +19,16 @@ import { KeyboardEvent, useCallback } from "react";
  *   textarea (newline) or while an autocomplete / select popup is open on the
  *   focused input (`aria-expanded="true"` — let it pick the option), and never
  *   fires from a button (the browser already maps Enter to a click there).
+ *   With `requireModifier` a bare Enter never submits.
  *
  * `disabled` (pass the form's `isSaving`) suppresses the shortcut while saving.
  * IME composition (`isComposing`) is ignored so Enter can commit a candidate.
  */
-export function useFormKeyboardSubmit(submit: () => void, disabled = false) {
+export function useFormKeyboardSubmit(
+	submit: () => void,
+	disabled = false,
+	{ requireModifier = false }: FormKeyboardSubmitOptions = {},
+) {
 	return useCallback(
 		(event: KeyboardEvent<HTMLElement>) => {
 			if (disabled || event.key !== "Enter" || event.nativeEvent.isComposing) {
@@ -24,6 +39,9 @@ export function useFormKeyboardSubmit(submit: () => void, disabled = false) {
 				submit();
 				return;
 			}
+			if (requireModifier) {
+				return;
+			}
 			const target = event.target as HTMLElement;
 			if (target.tagName !== "INPUT" || target.getAttribute("aria-expanded") === "true") {
 				return;
@@ -31,7 +49,7 @@ export function useFormKeyboardSubmit(submit: () => void, disabled = false) {
 			event.preventDefault();
 			submit();
 		},
-		[submit, disabled],
+		[submit, disabled, requireModifier],
 	);
 }
 

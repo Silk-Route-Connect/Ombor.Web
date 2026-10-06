@@ -7,22 +7,28 @@ import { PaymentFormInputs, PaymentSchema } from "schemas/PaymentSchema";
 
 export interface UsePaymentFormOptions {
 	isOpen: boolean;
+	/** Active wallets from the form data — the first one is preselected. */
+	wallets: { id: number }[];
 }
 
 export interface UsePaymentFormResult {
 	form: UseFormReturn<PaymentFormInputs>;
 }
 
-const DEFAULT_VALUES: PaymentFormInputs = {
-	type: "Transaction",
-	direction: "Income",
-	partnerId: null,
-	employeeId: null,
-	walletId: null,
-	amount: 0,
-	description: "",
-	month: "Июнь",
-	year: "2026",
+/** Built per open so the payroll period always defaults to the current month. */
+const defaultValues = (): PaymentFormInputs => {
+	const now = new Date();
+	return {
+		type: "Transaction",
+		direction: "Income",
+		partnerId: null,
+		employeeId: null,
+		walletId: null,
+		amount: 0,
+		description: "",
+		month: now.getMonth() + 1,
+		year: now.getFullYear(),
+	};
 };
 
 /**
@@ -42,22 +48,34 @@ export function autoDirection(
 	return partnerType === "Supplier" ? "Expense" : "Income";
 }
 
-export const usePaymentForm = ({ isOpen }: UsePaymentFormOptions): UsePaymentFormResult => {
+export const usePaymentForm = ({
+	isOpen,
+	wallets,
+}: UsePaymentFormOptions): UsePaymentFormResult => {
 	const form = useForm<PaymentFormInputs>({
 		resolver: zodResolver(PaymentSchema),
 		mode: "onBlur",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
-		defaultValues: DEFAULT_VALUES,
+		defaultValues: defaultValues(),
 	});
 
-	const { reset } = form;
+	const { reset, getValues, setValue } = form;
+	const firstWalletId = wallets[0]?.id ?? null;
 
 	useEffect(() => {
 		if (isOpen) {
-			reset({ ...DEFAULT_VALUES });
+			reset(defaultValues());
 		}
 	}, [isOpen, reset]);
+
+	// Preselect the paying wallet (the only one, or the first active) once the
+	// reference data is in — not dirtying the form, so closing needs no confirm.
+	useEffect(() => {
+		if (isOpen && firstWalletId != null && getValues("walletId") == null) {
+			setValue("walletId", firstWalletId);
+		}
+	}, [isOpen, firstWalletId, getValues, setValue]);
 
 	return { form };
 };

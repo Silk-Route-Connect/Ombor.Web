@@ -1,4 +1,4 @@
-import { TransactionType } from "./transaction";
+import { TransactionLineDiscountType, TransactionType } from "./transaction";
 
 // `Unit` duplicates `Piece`; removed from the product picker + default (2026-07-16).
 // Kept in the type because the backend still serves it for legacy products — the
@@ -68,6 +68,8 @@ export type Product = {
 	lowStockThreshold?: number | null;
 	isLowStock: boolean;
 	isArchived: boolean;
+	/** Served: false once any stock movement or document references the product (DELETE then returns 409). */
+	isDeletable: boolean;
 
 	packaging?: ProductPackaging;
 	images: ProductImage[];
@@ -114,10 +116,14 @@ export type ProductTransaction = {
 	partnerName: string;
 	/** ISO date string. */
 	date: string;
-	/** Signed quantity in base units: positive into stock, negative out. */
+	/** Line quantity in base units as served (unsigned); the transaction type says in or out. */
 	quantity: number;
 	unitPrice: number;
 	discount: number;
+	/** How `discount` is read (rule 37); older API builds omit it. */
+	discountType?: TransactionLineDiscountType;
+	/** The document's bare number («42»; differs from `id`); null for a legacy row. */
+	transactionNumber: string | null;
 };
 
 /**
@@ -128,14 +134,33 @@ export type ProductTransaction = {
  */
 export type ProductMovementKind = TransactionType | "Opening" | "Transfer" | "Adjustment";
 
-export type ProductMovement = {
+/**
+ * The document a stock movement belongs to — what its row opens: a sale /
+ * supply / refund, a transfer, a stock adjustment or the opening-stock record.
+ */
+export type MovementSource = "Transaction" | "Transfer" | "StockAdjustment" | "OpeningStock";
+
+/** Source-document fields every movement row carries (product and warehouse ledgers). */
+export type MovementSourceRef = {
+	kind: ProductMovementKind;
+	sourceType: MovementSource;
+	/** The document's id (the transaction, transfer, adjustment or opening record — not its line). */
+	sourceId: number;
+	/** The transaction's bare number on a `Transaction` row; null for other sources. */
+	sourceNumber: string | null;
+};
+
+export type ProductMovement = MovementSourceRef & {
+	/** The source line / event id — not routable; `sourceId` opens the document. */
 	id: number;
 	productId: number;
 	/** ISO date string. */
 	date: string;
-	kind: ProductMovementKind;
 	warehouseId: number;
 	warehouseName: string;
+	/** For a transfer row: the other warehouse; null otherwise. */
+	counterpartyWarehouseId: number | null;
+	counterpartyWarehouseName: string | null;
 	/** Signed delta in base units: positive into stock, negative out. */
 	quantity: number;
 	/** Served running total across all warehouses after this movement (hard rule 8). */

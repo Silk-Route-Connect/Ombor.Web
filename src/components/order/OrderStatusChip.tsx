@@ -1,32 +1,25 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import { OrderStatus } from "models/order";
-import { chipTokens } from "theme";
-import { ORDER_STATUS_META, OrderStatusMeta } from "utils/orderUtils";
+import { ORDER_STATUS_META } from "utils/orderUtils";
 
+import { SvgIconComponent } from "@mui/icons-material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
-import { Box } from "@mui/material";
 
-const ICON: Record<OrderStatus, React.ReactNode> = {
-	Pending: <HourglassEmptyIcon sx={{ fontSize: 13 }} />,
-	Processing: <Inventory2OutlinedIcon sx={{ fontSize: 13 }} />,
-	Shipping: <LocalShippingOutlinedIcon sx={{ fontSize: 13 }} />,
-	Delivered: <CheckCircleOutlineIcon sx={{ fontSize: 13 }} />,
-	Cancelled: <UndoOutlinedIcon sx={{ fontSize: 13 }} />,
-	Rejected: <CloseIcon sx={{ fontSize: 13 }} />,
-	Returned: <UndoOutlinedIcon sx={{ fontSize: 13 }} />,
-};
-
-// Neutral fallback for a status value the frontend doesn't know (the backend
-// serves the enum as an open string) — an unknown state must never blank a list.
-const FALLBACK_META: OrderStatusMeta = {
-	chip: chipTokens.neutral,
-	accent: chipTokens.neutral.color,
+const ICON: Record<OrderStatus, SvgIconComponent> = {
+	Pending: HourglassEmptyIcon,
+	Processing: Inventory2OutlinedIcon,
+	Shipping: LocalShippingOutlinedIcon,
+	Delivered: CheckCircleOutlineIcon,
+	Cancelled: UndoOutlinedIcon,
+	Rejected: CloseIcon,
+	Returned: UndoOutlinedIcon,
 };
 
 interface OrderStatusChipProps {
@@ -35,34 +28,19 @@ interface OrderStatusChipProps {
 	withIcon?: boolean;
 }
 
-/** Lifecycle status pill — colours from `chipTokens` via {@link ORDER_STATUS_META}. */
+/** Lifecycle status pill — token per {@link ORDER_STATUS_META}. */
 export const OrderStatusChip: React.FC<OrderStatusChipProps> = ({ status, withIcon }) => {
 	const { t } = useTranslation();
-	const meta = (ORDER_STATUS_META as Record<string, OrderStatusMeta>)[status] ?? FALLBACK_META;
-
+	// The backend serves the enum as an open string — an unknown state renders
+	// neutral instead of blanking the list.
+	const meta = ORDER_STATUS_META[status];
 	return (
-		<Box
-			component="span"
-			sx={{
-				display: "inline-flex",
-				alignItems: "center",
-				gap: "5px",
-				px: "9px",
-				py: "2px",
-				borderRadius: "999px",
-				fontSize: 11.5,
-				fontWeight: 600,
-				whiteSpace: "nowrap",
-				border: "1px solid",
-				color: meta.chip.color,
-				bgcolor: meta.chip.bg,
-				borderColor: meta.chip.border,
-				textDecoration: meta.strike ? "line-through" : "none",
-			}}
-		>
-			{withIcon && ICON[status]}
-			{t(`order.status.${status}`, { defaultValue: status })}
-		</Box>
+		<StatusPill
+			token={meta?.token ?? "neutral"}
+			strike={meta?.strike}
+			icon={withIcon ? ICON[status] : undefined}
+			label={t(`order.status.${status}`, { defaultValue: status })}
+		/>
 	);
 };
 

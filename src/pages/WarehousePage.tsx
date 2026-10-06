@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useTableOrder } from "components/shared/Table/tableOrder";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
-import { buildWarehouseColumns } from "components/warehouse/Table/warehouseColumns";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
 import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
+import { buildWarehouseColumns } from "components/warehouse/Table/warehouseTableConfigs";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
+import { isReady, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -20,6 +22,7 @@ const WarehousePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { warehouseStore } = useStore();
+	const tableOrder = useTableOrder<Warehouse>();
 
 	useEffect(() => {
 		warehouseStore.getAll();
@@ -59,8 +62,7 @@ const WarehousePage: React.FC = observer(() => {
 	};
 
 	const handleExport = (): void => {
-		const rows =
-			warehouseStore.filteredWarehouses === "loading" ? [] : warehouseStore.filteredWarehouses;
+		const rows = readyOr(warehouseStore.filteredWarehouses, []);
 
 		const csvColumns: CsvColumn<Warehouse>[] = [
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
@@ -75,11 +77,10 @@ const WarehousePage: React.FC = observer(() => {
 			},
 		];
 
-		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, rows);
+		exportToCsv(`warehouses_${csvDateStamp()}`, csvColumns, tableOrder.apply(rows));
 	};
 
-	const all = warehouseStore.allWarehouses === "loading" ? null : warehouseStore.allWarehouses;
-	const totalCount = all?.length ?? null;
+	const all = !isReady(warehouseStore.allWarehouses) ? null : warehouseStore.allWarehouses;
 	const isFiltering = warehouseStore.searchTerm.trim().length > 0;
 	const hasAny = (all?.length ?? 0) > 0;
 	const hasActive = (all ?? []).some((w) => !w.isArchived);
@@ -87,7 +88,6 @@ const WarehousePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WarehouseHeader
-				totalCount={totalCount}
 				searchValue={warehouseStore.searchTerm}
 				showArchived={warehouseStore.showArchived}
 				archivedCount={warehouseStore.archivedCount}
@@ -95,11 +95,15 @@ const WarehousePage: React.FC = observer(() => {
 				onToggleArchived={warehouseStore.setShowArchived}
 				onCreate={warehouseStore.openCreate}
 				onExport={handleExport}
+				exportCount={readyOr(warehouseStore.filteredWarehouses, []).length}
 			/>
 
 			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
 
 			<WarehousesTable
+				exportOrder={tableOrder}
+				onRetry={() => void warehouseStore.getAll()}
+				errorTitle={t("warehouse.error.getAll")}
 				rows={warehouseStore.filteredWarehouses}
 				columns={columns}
 				isFiltering={isFiltering}
