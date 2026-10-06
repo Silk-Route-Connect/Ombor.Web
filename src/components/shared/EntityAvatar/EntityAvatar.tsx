@@ -28,7 +28,7 @@ export const EntityAvatar: React.FC<EntityAvatarProps> = ({ name, size = 36, mut
 				bgcolor: muted ? designTokens.gray100 : tone.bg,
 				color: muted ? "text.secondary" : tone.fg,
 				fontWeight: 600,
-				fontSize: size >= 36 ? 14 : 13,
+				fontSize: size >= 36 ? 14 : size >= 28 ? 13 : 10,
 			}}
 		>
 			{getInitials(name)}

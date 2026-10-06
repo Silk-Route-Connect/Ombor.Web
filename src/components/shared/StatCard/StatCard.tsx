@@ -1,7 +1,8 @@
 import React from "react";
+import IconTile from "components/shared/IconTile/IconTile";
 import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
-import { chipTokens, designTokens, radius, typeScale } from "theme";
+import { designTokens, radius, typeScale } from "theme";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
@@ -79,7 +80,6 @@ const StatCard: React.FC<StatCardProps> = ({
 	tooltip,
 }) => {
 	const clickable = Boolean(onClick);
-	const token = chipTokens[STAT_TONE_TOKEN[tone]];
 	const accent = active && activeColor ? activeColor : undefined;
 
 	const card = (
@@ -134,24 +134,7 @@ const StatCard: React.FC<StatCardProps> = ({
 			)}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.25, pr: clickable ? 3 : 0 }}>
-				{icon && (
-					<Box
-						aria-hidden
-						sx={{
-							width: 30,
-							height: 30,
-							flex: "0 0 auto",
-							display: "grid",
-							placeItems: "center",
-							borderRadius: `${radius.md}px`,
-							bgcolor: token.bg,
-							color: token.color,
-							"& .MuiSvgIcon-root": { fontSize: 17 },
-						}}
-					>
-						{icon}
-					</Box>
-				)}
+				{icon && <IconTile icon={icon} token={STAT_TONE_TOKEN[tone]} />}
 				<Typography
 					component="span"
 					variant="body2"

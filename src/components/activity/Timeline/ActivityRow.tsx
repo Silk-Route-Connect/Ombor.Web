@@ -1,6 +1,7 @@
 import React, { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import MetaDot from "components/shared/Detail/MetaDot";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
+import IconTile from "components/shared/IconTile/IconTile";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { ActivityItem } from "models/activity";
 import { ActivityFeed } from "stores/ActivityFeed";
@@ -10,10 +11,12 @@ import { buildActivitySentence } from "utils/activity/activitySentence";
 import { formatTime } from "utils/dateUtils";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { Box, IconButton } from "@mui/material";
 
 import ActivityChanges from "../Changes/ActivityChanges";
 import ActivityRefLink from "./ActivityRefLink";
+import { activityTile } from "./activityTile";
 
 interface ActivityRowProps {
 	item: ActivityItem;
@@ -21,8 +24,9 @@ interface ActivityRowProps {
 }
 
 /**
- * One operation: time · who · what, in one sentence with the record as a link,
- * and its money figure. The chevron (or a click on the row) opens what changed.
+ * One operation: time · the record's tile · who · what, in one sentence with
+ * the record as a link, and its money figure. The chevron (or a click on the
+ * row) opens what changed.
  */
 export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 	const { t } = useTranslation();
@@ -30,6 +34,8 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 	const [open, setOpen] = useState(false);
 	const sentence = useMemo(() => buildActivitySentence(t, item), [t, item]);
 	const amount = useMemo(() => activityAmount(item), [item]);
+	const tile = useMemo(() => activityTile(item), [item]);
+	const TileIcon = tile.icon;
 	const toggle = () => setOpen((value) => !value);
 
 	return (
@@ -39,7 +45,14 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 				sx={{
 					display: "grid",
 					// On a phone the time, the sentence and the amount stack, so the sentence keeps the width.
-					gridTemplateColumns: { xs: "minmax(0, 1fr) 32px", sm: "44px minmax(0, 1fr) auto 32px" },
+					gridTemplateColumns: {
+						xs: "28px minmax(0, 1fr) 32px",
+						sm: "44px 28px minmax(0, 1fr) auto 32px",
+					},
+					gridTemplateAreas: {
+						xs: '"tile time chev" "tile body chev" "tile amount chev"',
+						sm: '"time tile body amount chev"',
+					},
 					alignItems: "center",
 					columnGap: "12px",
 					rowGap: { xs: "2px", sm: 0 },
@@ -49,11 +62,18 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 					"&:hover": { bgcolor: "action.hover" },
 				}}
 			>
-				<Box component="span" sx={{ ...numericSx, fontSize: 13, color: "text.secondary" }}>
+				<Box
+					component="span"
+					sx={{ gridArea: "time", ...numericSx, fontSize: 13, color: "text.secondary" }}
+				>
 					{formatTime(item.at)}
+				</Box>
+				<Box sx={{ gridArea: "tile", alignSelf: { xs: "start", sm: "center" } }}>
+					<IconTile icon={<TileIcon />} token={tile.token} size={28} />
 				</Box>
 				<Box
 					sx={{
+						gridArea: "body",
 						display: "flex",
 						flexWrap: "wrap",
 						alignItems: "center",
@@ -66,15 +86,22 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 					<Box
 						component="span"
 						sx={{
+							display: "inline-flex",
+							alignItems: "center",
+							gap: "6px",
 							fontWeight: 600,
 							color: item.actor ? "text.primary" : "text.secondary",
 							whiteSpace: "nowrap",
 						}}
 					>
+						{item.actor ? (
+							<EntityAvatar name={item.actor.name} size={22} />
+						) : (
+							<SettingsOutlinedIcon aria-hidden sx={{ fontSize: 18, color: "text.disabled" }} />
+						)}
 						{item.actor?.name ?? t("activity.system")}
 					</Box>
-					<MetaDot />
-					<Box component="span" sx={{ minWidth: 0 }}>
+					<Box component="span" sx={{ minWidth: 0, color: "text.secondary" }}>
 						{sentence.before}
 						<ActivityRefLink value={sentence.ref} />
 						{sentence.after}
@@ -82,7 +109,13 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 				</Box>
 				<Box
 					component="span"
-					sx={{ ...numericSx, fontWeight: 600, whiteSpace: "nowrap", color: amount?.color }}
+					sx={{
+						gridArea: "amount",
+						...numericSx,
+						fontWeight: 600,
+						whiteSpace: "nowrap",
+						color: amount?.color,
+					}}
 				>
 					{amount && (
 						<>
@@ -93,7 +126,7 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ item, feed }) => {
 				</Box>
 				<IconButton
 					size="small"
-					sx={{ gridColumn: { xs: 2, sm: "auto" }, gridRow: { xs: "1 / span 3", sm: "auto" } }}
+					sx={{ gridArea: "chev" }}
 					aria-expanded={open}
 					aria-controls={open ? panelId : undefined}
 					aria-label={t(open ? "common.collapse" : "common.expand")}
