@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import IconTile from "components/shared/IconTile/IconTile";
-import { ChipTokenKey, designTokens, dialogPaperSx } from "theme";
+import { ChipTokenKey, designTokens, dialogPaperSx, radius } from "theme";
 
 import { Box, Button, Dialog, Typography } from "@mui/material";
 
@@ -106,7 +106,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 				<Button
 					onClick={onConfirm}
 					sx={{
-						borderRadius: "8px",
+						borderRadius: `${radius.md}px`,
 						fontSize: 14,
 						fontWeight: 600,
 						px: "16px",

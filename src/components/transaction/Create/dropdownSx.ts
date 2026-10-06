@@ -1,4 +1,4 @@
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 /**
  * Shared Autocomplete popper styling for the New Sale partner + product
@@ -11,15 +11,17 @@ export const dropdownSlotProps = {
 	paper: {
 		sx: {
 			mt: "6px",
-			borderRadius: "8px",
+			borderRadius: `${radius.md}px`,
 			border: "1px solid",
 			borderColor: "divider",
 			boxShadow: 8, // theme elevation e-2
 			"& .MuiAutocomplete-listbox": { py: "4px" },
 			"& .MuiAutocomplete-option": {
-				borderRadius: "6px",
+				borderRadius: `${radius.sm}px`,
 				mx: "4px",
 				"&:hover, &.Mui-focused, &.Mui-focusVisible, &[aria-selected='true']": {
+					// MUI's own selected + focused option rule out-ranks a nested sx selector.
+					// eslint-disable-next-line no-restricted-syntax
 					bgcolor: `${designTokens.primarySoft} !important`,
 				},
 			},

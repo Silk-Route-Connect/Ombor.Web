@@ -20,7 +20,7 @@ interface PaymentPayrollFieldsProps {
 const PaymentPayrollFields: React.FC<PaymentPayrollFieldsProps> = ({ form, employees }) => {
 	const { t } = useTranslation();
 	const { control, setValue } = form;
-	const { errors } = useFormState({ control, name: "employeeId" });
+	const { errors, isSubmitted } = useFormState({ control, name: "employeeId" });
 	const [month, year] = useWatch({ control, name: ["month", "year"] });
 	const error = errors.employeeId?.message;
 
@@ -40,7 +40,12 @@ const PaymentPayrollFields: React.FC<PaymentPayrollFieldsProps> = ({ form, emplo
 								field.onChange(id);
 								const employee = employees.find((e) => e.id === id);
 								if (employee) {
-									setValue("amount", employee.salary, { shouldDirty: true });
+									// After a failed submit, re-check the prefilled amount so its
+									// «Введите сумму» error doesn't outlive the value that fixed it.
+									setValue("amount", employee.salary, {
+										shouldDirty: true,
+										shouldValidate: isSubmitted,
+									});
 								}
 							}}
 						/>

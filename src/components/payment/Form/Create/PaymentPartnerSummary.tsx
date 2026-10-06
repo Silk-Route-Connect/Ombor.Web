@@ -4,6 +4,7 @@ import UzsUnit from "components/shared/Money/UzsUnit";
 import { PaymentPartnerRef } from "models/payment";
 import { designTokens, numericSx, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
+import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
 import { Box } from "@mui/material";
 
@@ -19,7 +20,11 @@ const Dot: React.FC = () => (
 	</Box>
 );
 
-/** The picked partner's type, served balance and advance under the partner picker. */
+/**
+ * The picked partner's type, served balance and advance under the partner
+ * picker. The balance reads from the partner's side like every partner balance
+ * (DR-27): «−…» red when they owe us, «+…» green when we owe them.
+ */
 const PaymentPartnerSummary: React.FC<PaymentPartnerSummaryProps> = ({ partner, showAdvance }) => {
 	const { t } = useTranslation();
 
@@ -50,10 +55,10 @@ const PaymentPartnerSummary: React.FC<PaymentPartnerSummaryProps> = ({ partner, 
 				sx={{
 					...numericSx,
 					fontWeight: 700,
-					color: partner.balance >= 0 ? "success.main" : "error.main",
+					color: partnerBalanceColor(partner.balance),
 				}}
 			>
-				{formatCurrency(partner.balance)}
+				{formatPartnerBalance(partner.balance)}
 				<UzsUnit />
 			</Box>
 			{showAdvance && (

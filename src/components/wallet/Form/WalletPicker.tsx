@@ -49,7 +49,7 @@ export const WalletPicker: React.FC<{
 		{wallets.map((wallet) => (
 			<MenuItem key={wallet.id} value={String(wallet.id)} disabled={wallet.id === excludeId}>
 				<Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
-					<WalletTypeAvatar type={wallet.type} size={28} iconSize={15} />
+					<WalletTypeAvatar type={wallet.type} size={28} iconSize={16} />
 					<Box component="span" sx={{ flex: 1 }}>
 						{wallet.name}
 					</Box>

@@ -23,7 +23,7 @@ const GEOMETRY: Record<
 	{ height: number; px: number; iconPx: number; fontSize: number; icon: number }
 > = {
 	sm: { height: 22, px: 10, iconPx: 8, fontSize: 12, icon: 14 },
-	md: { height: 26, px: 12, iconPx: 10, fontSize: 13, icon: 15 },
+	md: { height: 26, px: 12, iconPx: 10, fontSize: 13, icon: 16 },
 };
 
 /**

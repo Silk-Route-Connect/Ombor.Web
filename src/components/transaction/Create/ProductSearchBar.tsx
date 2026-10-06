@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { dropdownSlotProps } from "components/transaction/Create/dropdownSx";
 import { stockAt } from "hooks/transactions/useTransactionEntry";
 import { Product } from "models/product";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import {
 	findBarcodeMatch,
@@ -201,7 +201,7 @@ export const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
 							sx={{
 								width: 32,
 								height: 32,
-								borderRadius: "8px",
+								borderRadius: `${radius.md}px`,
 								bgcolor: designTokens.gray100,
 								color: designTokens.gray600,
 								display: "grid",

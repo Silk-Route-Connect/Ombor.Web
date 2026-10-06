@@ -53,10 +53,10 @@ export const LockedOpeningBalance: React.FC<{ partner: Partner }> = ({ partner }
 					bgcolor: "primary.light",
 					border: "1px solid",
 					borderColor: designTokens.primaryLine,
-					borderRadius: "8px",
+					borderRadius: `${radius.md}px`,
 				}}
 			>
-				<InfoOutlinedIcon sx={{ fontSize: 15, color: "info.main", mt: "1px", flex: "0 0 auto" }} />
+				<InfoOutlinedIcon sx={{ fontSize: 16, color: "info.main", mt: "1px", flex: "0 0 auto" }} />
 				<Typography sx={{ fontSize: 13, color: "info.main", lineHeight: 1.55 }}>
 					{t("partner.form.openingLockedHelper", {
 						balance: formatPartnerBalance(partner.balance),
