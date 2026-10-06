@@ -64,7 +64,11 @@ const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 				<LinearProgress
 					variant="determinate"
 					value={(doneCount / total) * 100}
-					sx={{ mt: firstRun ? 1.75 : 1.25, height: firstRun ? 6 : 4, borderRadius: 3 }}
+					sx={{
+						mt: firstRun ? 1.75 : 1.25,
+						height: firstRun ? 6 : 4,
+						borderRadius: `${radius.pill}px`,
+					}}
 				/>
 
 				<Box

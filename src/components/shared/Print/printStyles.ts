@@ -6,12 +6,9 @@ export const PRINT_PAGE_MARGIN = "12mm";
 /** The one rule colour on paper: table grid, signature lines, header divider. */
 export const PRINT_RULE_COLOR = designTokens.borderControl;
 
-/** Small uppercase caption above a block («Отправитель», «Получатель»). */
+/** Overline caption above a block («Отправитель», «Получатель»). */
 export const printCaptionSx = {
-	fontSize: 11,
-	fontWeight: 600,
-	textTransform: "uppercase",
-	letterSpacing: "0.04em",
+	typography: "overline",
 	color: "text.secondary",
 } as const;
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import LegendSwatch from "components/shared/Chart/LegendSwatch";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { heroShade } from "components/shared/StatCard/statTone";
 import { DashboardAgingBucket, DashboardAgingBucketKey } from "models/dashboard";
-import { designTokens, numericSx, typeScale } from "theme";
+import { designTokens, numericSx, radius, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -57,7 +58,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue }) => {
 			sx={{
 				border: "1px solid",
 				borderColor: "divider",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				display: "flex",
 				flexDirection: "column",
 				minWidth: 0,
@@ -112,7 +113,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue }) => {
 				sx={{
 					display: "flex",
 					height: 10,
-					borderRadius: "999px",
+					borderRadius: `${radius.pill}px`,
 					overflow: "hidden",
 					mx: "20px",
 					mb: "16px",
@@ -143,9 +144,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue }) => {
 							gap: "11px",
 						}}
 					>
-						<Box
-							sx={{ width: 10, height: 10, borderRadius: "3px", bgcolor: bucketColor[b.bucket] }}
-						/>
+						<LegendSwatch color={bucketColor[b.bucket]} />
 						<Box sx={{ typography: "body2", color: designTokens.gray700 }}>
 							{t(`dashboard.aging.bucket.${b.bucket}`)}
 							<Box

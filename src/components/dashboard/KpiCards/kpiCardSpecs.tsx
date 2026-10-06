@@ -29,7 +29,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 	return [
 		{
 			key: "revenue",
-			icon: <LocalAtmOutlinedIcon sx={{ fontSize: 16 }} />,
+			icon: <LocalAtmOutlinedIcon />,
 			caption: t("dashboard.kpi.revenue"),
 			value: data.revenue.value,
 			valueColor: "text.primary",
@@ -44,7 +44,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "grossProfit",
-			icon: <SavingsOutlinedIcon sx={{ fontSize: 16 }} />,
+			icon: <SavingsOutlinedIcon />,
 			caption: t("dashboard.kpi.grossProfit"),
 			value: profit.value,
 			valueColor: profit.value < 0 ? "error.main" : "text.primary",
@@ -66,7 +66,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "cash",
-			icon: <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />,
+			icon: <AccountBalanceWalletOutlinedIcon />,
 			caption: t("dashboard.kpi.cash"),
 			value: data.cash.value,
 			valueColor: "text.primary",
@@ -78,7 +78,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "stockValue",
-			icon: <Inventory2OutlinedIcon sx={{ fontSize: 16 }} />,
+			icon: <Inventory2OutlinedIcon />,
 			caption: t("dashboard.kpi.stockValue"),
 			value: data.stockValue.value,
 			valueColor: "text.primary",
@@ -94,7 +94,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "receivable",
-			icon: <ArrowDownwardIcon sx={{ fontSize: 15 }} />,
+			icon: <ArrowDownwardIcon />,
 			caption: t("dashboard.kpi.receivable"),
 			value: data.receivable.value,
 			valueColor: "success.main",
@@ -105,7 +105,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "payable",
-			icon: <ArrowUpwardIcon sx={{ fontSize: 15 }} />,
+			icon: <ArrowUpwardIcon />,
 			caption: t("dashboard.kpi.payable"),
 			value: data.payable.value,
 			valueColor: "error.main",
@@ -116,7 +116,7 @@ export function buildKpiCardSpecs(data: DashboardData, t: TFunction): KpiCardSpe
 		},
 		{
 			key: "overdue",
-			icon: <ReportProblemOutlinedIcon sx={{ fontSize: 15 }} />,
+			icon: <ReportProblemOutlinedIcon />,
 			caption: t("dashboard.kpi.overdue"),
 			value: data.overdue.value,
 			// Age-based («older than 30 days») — the aging axis keeps amber; red is

@@ -130,10 +130,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	// kept as a standalone header button beside the lifecycle ⋮ kebab. Hidden on
 	// archived warehouses (no new operations until restored).
 	const primaryAction = warehouse.isArchived ? undefined : (
-		<GhostButton
-			icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-			onClick={() => warehouseStore.openOpeningStock(warehouse)}
-		>
+		<GhostButton icon={<AddIcon />} onClick={() => warehouseStore.openOpeningStock(warehouse)}>
 			{t("warehouse.opening.action")}
 		</GhostButton>
 	);

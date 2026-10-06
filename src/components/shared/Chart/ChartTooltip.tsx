@@ -1,7 +1,9 @@
 import React from "react";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 
 import { Box } from "@mui/material";
+
+import LegendSwatch from "./LegendSwatch";
 
 export type TooltipRow = {
 	label: string;
@@ -20,7 +22,7 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 		sx={{
 			bgcolor: designTokens.gray900,
 			color: "common.white",
-			borderRadius: "8px",
+			borderRadius: `${radius.md}px`,
 			boxShadow: 16,
 			p: "9px 11px",
 			minWidth: 132,
@@ -45,9 +47,7 @@ const ChartTooltip: React.FC<{ heading: string; rows: TooltipRow[] }> = ({ headi
 					}),
 				}}
 			>
-				<Box
-					sx={{ width: 8, height: 8, borderRadius: "2px", flex: "0 0 auto", bgcolor: r.color }}
-				/>
+				<LegendSwatch color={r.color} />
 				<Box sx={{ color: designTokens.gray300 }}>{r.label}</Box>
 				<Box sx={{ ...numericSx, ml: "auto", fontWeight: 600, pl: "14px" }}>{r.value}</Box>
 			</Box>

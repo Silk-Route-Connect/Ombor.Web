@@ -9,7 +9,7 @@ import UzsAdornment from "components/shared/Money/UzsAdornment";
 import { Wallet } from "models/wallet";
 import { PATHS } from "routing/paths";
 import { PayrollFormInputs } from "schemas/PayrollSchema";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { parsePeriod, toPeriod } from "utils/payrollUtils";
 
@@ -50,7 +50,7 @@ const PayrollFormFields: React.FC<PayrollFormFieldsProps> = ({
 						<Box
 							sx={{
 								p: "10px 12px",
-								borderRadius: "8px",
+								borderRadius: `${radius.md}px`,
 								border: "1px solid",
 								borderColor: designTokens.warningBorder,
 								bgcolor: designTokens.warningBg,

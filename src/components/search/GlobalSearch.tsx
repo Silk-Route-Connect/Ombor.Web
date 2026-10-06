@@ -4,7 +4,7 @@ import Kbd from "components/shared/Keyboard/Kbd";
 import { useGlobalSearchHotkey } from "hooks/search/useGlobalSearchHotkey";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { designTokens, radius } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, ButtonBase, Typography } from "@mui/material";
@@ -46,7 +46,7 @@ const GlobalSearch: React.FC = observer(() => {
 					"&:hover": { borderColor: "text.primary" },
 				}}
 			>
-				<SearchIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+				<SearchIcon sx={{ fontSize: iconSize.md, color: "text.secondary" }} />
 				<Typography
 					noWrap
 					sx={{

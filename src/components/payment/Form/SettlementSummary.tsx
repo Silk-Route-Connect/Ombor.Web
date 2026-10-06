@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Typography } from "@mui/material";
@@ -41,7 +41,7 @@ export const SettlementSummary: React.FC<SettlementSummaryProps> = ({
 				gap: "12px",
 				mt: "18px",
 				p: "14px 16px",
-				borderRadius: "8px",
+				borderRadius: `${radius.md}px`,
 				bgcolor: designTokens.gray25,
 				border: "1px solid",
 				borderColor: "divider",

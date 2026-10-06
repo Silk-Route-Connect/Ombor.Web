@@ -6,7 +6,7 @@ import { recordTile } from "components/shared/IconTile/recordTile";
 import TransferLinesTable from "components/transfer/Detail/TransferLinesTable";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { Transfer } from "models/transfer";
-import { designTokens, radius } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatEntityId } from "utils/formatEntityId";
 
@@ -38,7 +38,7 @@ const RouteNode: React.FC<{
 				gap: "8px",
 			}}
 		>
-			<WarehouseOutlinedIcon sx={{ fontSize: 17, color: "primary.main" }} />
+			<WarehouseOutlinedIcon sx={{ fontSize: iconSize.md, color: "primary.main" }} />
 			<WarehouseLink id={id} name={name} />
 		</Typography>
 	</Box>
@@ -129,7 +129,9 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({ transf
 						lineHeight: 1.55,
 					}}
 				>
-					<ReceiptLongOutlinedIcon sx={{ fontSize: 15, color: "text.disabled", mt: "1px" }} />
+					<ReceiptLongOutlinedIcon
+						sx={{ fontSize: iconSize.sm, color: "text.disabled", mt: "1px" }}
+					/>
 					{transfer.note}
 				</Box>
 			)}

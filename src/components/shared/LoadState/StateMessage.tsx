@@ -86,7 +86,7 @@ export const StateMessage: React.FC<StateMessageProps> = ({
 	}
 
 	return (
-		<Paper variant="outlined" sx={{ borderRadius: 1.5, borderColor: "divider" }}>
+		<Paper variant="outlined" sx={{ borderRadius: `${radius.lg}px`, borderColor: "divider" }}>
 			{content}
 		</Paper>
 	);

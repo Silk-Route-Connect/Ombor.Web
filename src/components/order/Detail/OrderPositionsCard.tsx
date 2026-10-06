@@ -9,7 +9,7 @@ import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { Order, OrderLine } from "models/order";
-import { designTokens } from "theme";
+import { designTokens, iconSize } from "theme";
 import { discountShortLabel, isOrderEditable } from "utils/orderUtils";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -95,7 +95,7 @@ export const OrderPositionsCard: React.FC<{ order: Order }> = ({ order }) => {
 							color: "primary.main",
 						}}
 					>
-						<EditOutlinedIcon sx={{ fontSize: 13 }} />
+						<EditOutlinedIcon sx={{ fontSize: iconSize.xs }} />
 						{t("order.detail.editable")}
 					</Box>
 				) : undefined

@@ -4,7 +4,7 @@ import StatusPill from "components/shared/Chip/StatusPill";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import InfoHint from "components/shared/InfoHint/InfoHint";
 import { TenantUser } from "models/settings";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { displayContact, isUnnamed, tenantUserLabel } from "utils/tenantUser";
 
@@ -24,7 +24,7 @@ const actionSx = (hoverBg: string, hoverColor: string) =>
 		width: 34,
 		height: 34,
 		flex: "0 0 auto",
-		borderRadius: "8px",
+		borderRadius: `${radius.md}px`,
 		color: "text.disabled",
 		transition: "background .14s, color .14s",
 		"&:hover": { bgcolor: hoverBg, color: hoverColor },

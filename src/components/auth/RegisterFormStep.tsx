@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { RegisterForm } from "hooks/auth/useRegisterForm";
+import { radius } from "theme";
 
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
@@ -118,7 +119,7 @@ const RegisterFormStep: React.FC<RegisterFormStepProps> = ({
 					fullWidth
 					disabled={submitting}
 					onClick={onSubmit}
-					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+					sx={{ height: 46, fontSize: 15, borderRadius: `${radius.md}px` }}
 				>
 					{t("auth.register.submit")}
 				</Button>

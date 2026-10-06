@@ -14,8 +14,6 @@ import "@fontsource/onest/400.css";
 import "@fontsource/onest/500.css";
 import "@fontsource/onest/600.css";
 import "@fontsource/onest/700.css";
-import "./index.css";
-import "./styles/global.scss";
 
 // Safety net only — modules that call i18next.t at import time must import
 // the configured instance from "i18n/config" themselves.

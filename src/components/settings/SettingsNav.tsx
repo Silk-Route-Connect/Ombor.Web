@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -45,7 +45,7 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 						alignItems: "center",
 						gap: "12px",
 						p: "10px 12px",
-						borderRadius: "8px",
+						borderRadius: `${radius.md}px`,
 						fontSize: 14,
 						fontWeight: on ? 600 : 500,
 						cursor: "pointer",

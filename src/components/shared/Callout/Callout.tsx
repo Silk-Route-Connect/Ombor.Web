@@ -1,5 +1,5 @@
 import React from "react";
-import { chipTokens, designTokens, radius } from "theme";
+import { chipTokens, designTokens, iconSize, radius } from "theme";
 
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -132,7 +132,7 @@ export const Callout: React.FC<CalloutProps> = ({
 						height: 20,
 						flex: "0 0 auto",
 						color: style.icon,
-						"& .MuiSvgIcon-root": { fontSize: 16 },
+						"& .MuiSvgIcon-root": { fontSize: iconSize.sm },
 					}}
 				>
 					{glyph}

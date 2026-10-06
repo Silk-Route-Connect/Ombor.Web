@@ -27,6 +27,19 @@ export const radius = {
 } as const;
 
 /**
+ * Icon sizes by role — one step per role so the same glyph reads the same size
+ * everywhere. Button start/end icons come from the theme (`MuiButton`): md, and
+ * sm on small buttons.
+ */
+export const iconSize = {
+	xs: 14, // inline hint beside a label or figure (ⓘ, delta arrows)
+	sm: 16, // table cell, chip, caption / meta row, card-footer link
+	md: 18, // button & input adornment, card-header icon
+	lg: 20, // back button, header icon buttons, menu item (MUI `fontSize="small"`)
+	xl: 22, // dialog / confirmation tile
+} as const;
+
+/**
  * Interactive-control heights — one source so a header/filter row of mixed
  * controls (buttons, inputs, search, selects, segmented) aligns at one height.
  * Inputs use MUI `size="small"`, which the theme maps to `md` (38px).

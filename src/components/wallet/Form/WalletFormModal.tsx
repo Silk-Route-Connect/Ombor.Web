@@ -16,7 +16,7 @@ import { useWalletForm } from "hooks/wallet/useWalletForm";
 import { observer } from "mobx-react-lite";
 import { Wallet, WALLET_TYPES, WalletType } from "models/wallet";
 import { WalletFormValues } from "schemas/WalletSchema";
-import { designTokens, numericSx } from "theme";
+import { designTokens, iconSize, numericSx, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -45,7 +45,7 @@ const LockedField: React.FC<{ icon: React.ReactNode; value: React.ReactNode; tag
 			minHeight: 40,
 			border: "1px dashed",
 			borderColor: designTokens.gray300,
-			borderRadius: "8px",
+			borderRadius: `${radius.md}px`,
 			bgcolor: designTokens.gray25,
 		}}
 	>
@@ -65,7 +65,7 @@ const LockedField: React.FC<{ icon: React.ReactNode; value: React.ReactNode; tag
 				color: "text.disabled",
 			}}
 		>
-			<InfoOutlinedIcon sx={{ fontSize: 13 }} />
+			<InfoOutlinedIcon sx={{ fontSize: iconSize.xs }} />
 			{tag}
 		</Box>
 	</Box>
@@ -165,7 +165,7 @@ const WalletFormModal: React.FC<WalletFormModalProps> = ({
 				<FormField label={t("wallet.field.openingBalance")}>
 					{editing && wallet ? (
 						<LockedField
-							icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
+							icon={<InfoOutlinedIcon sx={{ fontSize: iconSize.sm }} />}
 							value={
 								<Box component="span" sx={numericSx}>
 									{formatCurrency(wallet.openingBalance)}

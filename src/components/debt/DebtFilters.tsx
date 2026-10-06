@@ -5,7 +5,7 @@ import EntityFilterSelect, {
 } from "components/shared/EntityFilterSelect/EntityFilterSelect";
 import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
 import { DebtAgeBucket, DebtDirectionFilter } from "stores/DebtStore";
-import { controlSize, designTokens, radius } from "theme";
+import { controlSize, designTokens, iconSize, radius } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -85,7 +85,7 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 						color: "primary.main",
 					}}
 				>
-					<ReportProblemOutlinedIcon sx={{ fontSize: 15 }} />
+					<ReportProblemOutlinedIcon sx={{ fontSize: iconSize.sm }} />
 					{t("debt.onlyOverdue")}
 					<CloseIcon sx={{ fontSize: 14 }} />
 				</ButtonBase>

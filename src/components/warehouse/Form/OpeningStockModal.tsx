@@ -213,7 +213,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 			<Button
 				onClick={addRow}
 				disabled={isSaving}
-				startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
+				startIcon={<AddIcon />}
 				sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
 			>
 				{t("warehouse.opening.addLine")}

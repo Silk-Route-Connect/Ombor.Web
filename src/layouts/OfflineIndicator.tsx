@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import CloudOffOutlinedIcon from "@mui/icons-material/CloudOffOutlined";
 import { Box, Tooltip } from "@mui/material";
@@ -35,7 +35,7 @@ const OfflineIndicator: React.FC = observer(() => {
 					gap: 0.75,
 					height: 38,
 					px: 1.25,
-					borderRadius: 1,
+					borderRadius: `${radius.md}px`,
 					bgcolor: designTokens.errorBg,
 					color: "error.main",
 					fontSize: 12,
@@ -43,7 +43,7 @@ const OfflineIndicator: React.FC = observer(() => {
 					whiteSpace: "nowrap",
 				}}
 			>
-				<CloudOffOutlinedIcon sx={{ fontSize: 17 }} />
+				<CloudOffOutlinedIcon sx={{ fontSize: iconSize.md }} />
 				<Box component="span" sx={{ display: { xs: "none", md: "inline" } }}>
 					{t("common.offline.chip")}
 				</Box>

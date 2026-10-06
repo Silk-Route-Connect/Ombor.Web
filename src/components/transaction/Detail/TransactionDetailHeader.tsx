@@ -53,10 +53,7 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 			];
 
 	const primaryAction = refund ? (
-		<GhostButton
-			icon={<PrintOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-			onClick={onPrint}
-		>
+		<GhostButton icon={<PrintOutlinedIcon />} onClick={onPrint}>
 			{t("print.invoice.action")}
 		</GhostButton>
 	) : fullyRefunded ? (
@@ -67,10 +64,7 @@ export const TransactionDetailHeader: React.FC<TransactionDetailHeaderProps> = (
 			label={t("transaction.refund.fullyRefunded")}
 		/>
 	) : (
-		<GhostButton
-			icon={<UndoOutlinedIcon sx={{ fontSize: "17px !important" }} />}
-			onClick={onCreateRefund}
-		>
+		<GhostButton icon={<UndoOutlinedIcon />} onClick={onCreateRefund}>
 			{t("transaction.detail.createRefund")}
 		</GhostButton>
 	);

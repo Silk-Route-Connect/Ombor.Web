@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { menuItemSx, menuSlotProps } from "components/shared/ActionMenuCell/menuPaper";
 import { DashboardWallet } from "models/dashboard";
 import { WalletType } from "models/wallet";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import CheckIcon from "@mui/icons-material/Check";
@@ -17,12 +18,12 @@ export type KassaSelection = "all" | number;
 
 const walletIcon = (type: WalletType): React.ReactNode => {
 	if (type === "Bank") {
-		return <AccountBalanceOutlinedIcon sx={{ fontSize: 16 }} />;
+		return <AccountBalanceOutlinedIcon fontSize="small" />;
 	}
 	if (type === "Card") {
-		return <CreditCardOutlinedIcon sx={{ fontSize: 16 }} />;
+		return <CreditCardOutlinedIcon fontSize="small" />;
 	}
-	return <PaymentsOutlinedIcon sx={{ fontSize: 16 }} />;
+	return <PaymentsOutlinedIcon fontSize="small" />;
 };
 
 interface Props {
@@ -42,7 +43,7 @@ const KassaFilter: React.FC<Props> = ({ wallets, value, onChange }) => {
 	const current =
 		value === "all" ? null : ((wallets[value] as DashboardWallet | undefined) ?? null);
 	const label = current ? current.name : t("dashboard.chart.allWallets");
-	const icon = current ? walletIcon(current.type) : <LayersOutlinedIcon sx={{ fontSize: 16 }} />;
+	const icon = current ? walletIcon(current.type) : <LayersOutlinedIcon fontSize="small" />;
 
 	const select = (v: KassaSelection): void => {
 		onChange(v);
@@ -54,14 +55,14 @@ const KassaFilter: React.FC<Props> = ({ wallets, value, onChange }) => {
 			<Button
 				onClick={(e) => setAnchor(e.currentTarget)}
 				startIcon={icon}
-				endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+				endIcon={<KeyboardArrowDownIcon sx={{ opacity: 0.5 }} />}
 				sx={{
 					color: "text.primary",
 					fontSize: 13,
 					fontWeight: 500,
 					px: "10px",
 					py: "6px",
-					borderRadius: "8px",
+					borderRadius: `${radius.md}px`,
 					whiteSpace: "nowrap",
 					"&:hover": { bgcolor: designTokens.gray50 },
 				}}
@@ -74,20 +75,19 @@ const KassaFilter: React.FC<Props> = ({ wallets, value, onChange }) => {
 				onClose={() => setAnchor(null)}
 				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 				transformOrigin={{ vertical: "top", horizontal: "right" }}
+				slotProps={menuSlotProps}
 			>
-				<MenuItem selected={value === "all"} onClick={() => select("all")}>
-					<ListItemIcon>
-						<LayersOutlinedIcon sx={{ fontSize: 18 }} />
+				<MenuItem selected={value === "all"} onClick={() => select("all")} sx={menuItemSx}>
+					<ListItemIcon sx={{ color: "text.secondary" }}>
+						<LayersOutlinedIcon fontSize="small" />
 					</ListItemIcon>
-					<ListItemText primaryTypographyProps={{ fontSize: 13.5 }}>
-						{t("dashboard.chart.allWallets")}
-					</ListItemText>
+					<ListItemText>{t("dashboard.chart.allWallets")}</ListItemText>
 					{value === "all" && <CheckIcon sx={{ fontSize: 16, ml: 1.5, color: "primary.main" }} />}
 				</MenuItem>
 				{wallets.map((w, i) => (
-					<MenuItem key={w.id} selected={value === i} onClick={() => select(i)}>
-						<ListItemIcon>{walletIcon(w.type)}</ListItemIcon>
-						<ListItemText primaryTypographyProps={{ fontSize: 13.5 }}>{w.name}</ListItemText>
+					<MenuItem key={w.id} selected={value === i} onClick={() => select(i)} sx={menuItemSx}>
+						<ListItemIcon sx={{ color: "text.secondary" }}>{walletIcon(w.type)}</ListItemIcon>
+						<ListItemText>{w.name}</ListItemText>
 						{value === i && <CheckIcon sx={{ fontSize: 16, ml: 1.5, color: "primary.main" }} />}
 					</MenuItem>
 				))}

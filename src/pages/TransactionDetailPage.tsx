@@ -33,6 +33,7 @@ import {
 	supplyInvoicePath,
 } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { radius } from "theme";
 import {
 	isRefundType,
 	TransactionDirection,
@@ -118,7 +119,7 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					<PositionsCard lines={tx.lines} count={tx.lines.length} />
 
 					{relationsError && (
-						<Paper variant="outlined" sx={{ borderRadius: 1.5 }}>
+						<Paper variant="outlined" sx={{ borderRadius: `${radius.lg}px` }}>
 							<LoadStateView
 								state={relationsError}
 								size="section"

@@ -170,7 +170,7 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 		>
 			<Box sx={{ mb: "12px" }}>
 				<GhostButton
-					icon={<SortByAlphaIcon sx={{ fontSize: "16px !important" }} />}
+					icon={<SortByAlphaIcon />}
 					onClick={() => setRows(buildFifo())}
 					sx={{ fontSize: 13, py: "6px" }}
 				>

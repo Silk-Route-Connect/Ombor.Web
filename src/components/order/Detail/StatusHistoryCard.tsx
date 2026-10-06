@@ -1,9 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import OrderStatusChip from "components/order/OrderStatusChip";
-import DetailCard from "components/shared/Detail/DetailCard";
+import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Order } from "models/order";
-import { designTokens, numericSx } from "theme";
+import { designTokens, figuresSx, iconSize } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { ORDER_STATUS_META } from "utils/orderUtils";
 
@@ -20,7 +20,7 @@ export const StatusHistoryCard: React.FC<{ order: Order }> = ({ order }) => {
 	return (
 		<DetailCard
 			title={t("order.detail.history")}
-			icon={<HistoryOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />}
+			icon={<HistoryOutlinedIcon sx={detailCardIconSx} />}
 			count={order.history.length}
 		>
 			<Box sx={{ p: "18px" }}>
@@ -49,27 +49,35 @@ export const StatusHistoryCard: React.FC<{ order: Order }> = ({ order }) => {
 								)}
 							</Box>
 							<Box sx={{ pb: last ? 0 : "18px" }}>
-								<Typography sx={{ ...numericSx, fontSize: 12.5, color: "text.secondary" }}>
+								<Typography
+									variant="caption"
+									component="div"
+									sx={{ ...figuresSx, color: "text.secondary" }}
+								>
 									{formatDateTime(h.at)}
 								</Typography>
 								<Box sx={{ display: "flex", alignItems: "center", gap: "9px", mt: "5px" }}>
 									{h.from ? (
 										<>
 											<OrderStatusChip status={h.from} />
-											<ChevronRightIcon sx={{ fontSize: 13, color: "text.disabled" }} />
+											<ChevronRightIcon sx={{ fontSize: iconSize.xs, color: "text.disabled" }} />
 											<OrderStatusChip status={h.to} />
 										</>
 									) : (
 										<>
 											<OrderStatusChip status={h.to} />
-											<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+											<Typography variant="caption" sx={{ color: "text.secondary" }}>
 												{t("order.detail.created")}
 											</Typography>
 										</>
 									)}
 								</Box>
 								{h.by && (
-									<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "4px" }}>
+									<Typography
+										variant="caption"
+										component="div"
+										sx={{ color: "text.secondary", mt: "4px" }}
+									>
 										{h.by}
 									</Typography>
 								)}

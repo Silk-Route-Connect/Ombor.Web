@@ -32,6 +32,7 @@ export {
 	dialogPaperSx,
 	dialogWidth,
 	figuresSx,
+	iconSize,
 	layout,
 	numericSx,
 	radius,

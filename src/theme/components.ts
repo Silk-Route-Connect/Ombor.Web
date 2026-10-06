@@ -2,7 +2,7 @@ import type { Components, Theme } from "@mui/material/styles";
 import { alpha } from "@mui/material/styles";
 
 import { BORDER_CONTROL, designTokens, INK, NEUTRAL, TEAL_500 } from "./palette";
-import { controlSize, radius } from "./tokens";
+import { controlSize, iconSize, radius } from "./tokens";
 
 /** The single keyboard-focus indicator: 2px teal outline, offset so it reads on teal fills too. */
 const FOCUS_OUTLINE = { outline: `2px solid ${TEAL_500}`, outlineOffset: 2 } as const;
@@ -74,6 +74,11 @@ export const components: Components<Omit<Theme, "components">> = {
 				paddingRight: controlSize.sm.paddingX,
 				fontSize: controlSize.sm.fontSize,
 			},
+			// Start/end icons by button size. MUI's own rule (20 / 18) out-specifies an
+			// icon's `sx`, which is why call sites used to force sizes with !important.
+			iconSizeSmall: { "& > *:nth-of-type(1)": { fontSize: iconSize.sm } },
+			iconSizeMedium: { "& > *:nth-of-type(1)": { fontSize: iconSize.md } },
+			iconSizeLarge: { "& > *:nth-of-type(1)": { fontSize: iconSize.lg } },
 		},
 	},
 	MuiTableCell: {

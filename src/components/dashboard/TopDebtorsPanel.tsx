@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import BalanceCell from "components/shared/Table/cells/BalanceCell";
 import { DashboardDebtor } from "models/dashboard";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
@@ -29,14 +29,14 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 			sx={{
 				border: "1px solid",
 				borderColor: "divider",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				display: "flex",
 				flexDirection: "column",
 				minWidth: 0,
 			}}
 		>
 			<Box sx={{ p: "16px 20px 4px" }}>
-				<Typography sx={{ fontSize: 15, fontWeight: 600 }}>
+				<Typography variant="h3" component="h2">
 					{t("dashboard.topDebtors.title")}
 				</Typography>
 			</Box>
@@ -87,7 +87,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 				sx={{
 					width: "100%",
 					fontFamily: "inherit",
-					borderRadius: "0 0 12px 12px",
+					borderRadius: `0 0 ${radius.lg}px ${radius.lg}px`,
 					mt: "auto",
 					display: "flex",
 					alignItems: "center",
@@ -104,7 +104,7 @@ const TopDebtorsPanel: React.FC<Props> = ({ debtors, onOpenDebtor, onAllPartners
 				}}
 			>
 				{t("dashboard.topDebtors.allPartners")}
-				<ChevronRightIcon sx={{ fontSize: 15 }} />
+				<ChevronRightIcon sx={{ fontSize: iconSize.sm }} />
 			</ButtonBase>
 		</Paper>
 	);

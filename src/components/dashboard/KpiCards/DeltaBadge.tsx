@@ -1,4 +1,5 @@
 import React from "react";
+import { iconSize } from "theme";
 
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -18,11 +19,11 @@ const TONE_COLOR: Record<DeltaTone, string> = {
 export const DeltaBadge: React.FC<{ delta: Delta }> = ({ delta }) => {
 	let icon: React.ReactNode = null;
 	if (delta.tone === "warn") {
-		icon = <ReportProblemOutlinedIcon sx={{ fontSize: 12 }} />;
+		icon = <ReportProblemOutlinedIcon sx={{ fontSize: iconSize.xs }} />;
 	} else if (delta.direction === "up") {
-		icon = <NorthEastIcon sx={{ fontSize: 13 }} />;
+		icon = <NorthEastIcon sx={{ fontSize: iconSize.xs }} />;
 	} else if (delta.direction === "down") {
-		icon = <SouthEastIcon sx={{ fontSize: 13 }} />;
+		icon = <SouthEastIcon sx={{ fontSize: iconSize.xs }} />;
 	}
 	return (
 		<Box

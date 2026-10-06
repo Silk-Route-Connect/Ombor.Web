@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Product } from "models/product";
-import { numericSx } from "theme";
+import { numericSx, radius } from "theme";
 import { productStockLevel } from "utils/productFilters";
 import { getImageFullUrl } from "utils/productUtils";
 
@@ -41,7 +41,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 									src={getImageFullUrl(image.thumbnailUrl ?? image.originalUrl)}
 									alt={image.name}
 									size={132}
-									radius={8}
+									radius={radius.md}
 									muted={product.isArchived}
 									sx={{
 										display: "grid",
@@ -53,7 +53,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								<Typography
 									sx={{
 										...numericSx,
-										fontSize: 11.5,
+										fontSize: 12,
 										fontWeight: 600,
 										color: "text.secondary",
 										mt: "6px",
@@ -69,7 +69,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 						))}
 					</Box>
 				) : (
-					<Typography sx={{ p: "16px 18px", fontSize: 13.5, color: "text.disabled" }}>
+					<Typography variant="body2" sx={{ p: "16px 18px", color: "text.disabled" }}>
 						{t("product.detail.imagesEmpty")}
 					</Typography>
 				)}

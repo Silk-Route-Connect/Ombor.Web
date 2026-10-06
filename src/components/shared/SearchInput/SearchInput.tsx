@@ -1,4 +1,5 @@
 import React from "react";
+import { iconSize } from "theme";
 
 import SearchIcon from "@mui/icons-material/Search";
 import { SxProps } from "@mui/material";
@@ -51,7 +52,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 				input: {
 					startAdornment: (
 						<InputAdornment position="start">
-							<SearchIcon sx={{ fontSize: 18, color: "text.disabled" }} />
+							<SearchIcon sx={{ fontSize: iconSize.md, color: "text.disabled" }} />
 						</InputAdornment>
 					),
 				},

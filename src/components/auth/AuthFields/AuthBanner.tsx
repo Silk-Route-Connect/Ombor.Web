@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -28,7 +28,7 @@ export const AuthBanner: React.FC<AuthBannerProps> = ({ tone = "error", children
 				alignItems: "flex-start",
 				gap: "9px",
 				p: "11px 13px",
-				borderRadius: "8px",
+				borderRadius: `${radius.md}px`,
 				border: "1px solid",
 				borderColor: colors.border,
 				bgcolor: colors.bg,
@@ -38,7 +38,7 @@ export const AuthBanner: React.FC<AuthBannerProps> = ({ tone = "error", children
 				lineHeight: 1.4,
 			}}
 		>
-			<Icon sx={{ fontSize: 17, flex: "0 0 auto", mt: "1px" }} />
+			<Icon sx={{ fontSize: iconSize.sm, flex: "0 0 auto", mt: "1px" }} />
 			<Box>{children}</Box>
 		</Box>
 	);

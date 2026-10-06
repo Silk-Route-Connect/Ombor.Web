@@ -5,7 +5,7 @@ import FormField from "components/shared/Forms/FormField";
 import FormSection from "components/shared/Forms/FormSection";
 import NumericField from "components/shared/Inputs/NumericField";
 import { ProductFormInputs } from "schemas/ProductSchema";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { Box, Collapse, FormControlLabel, Switch, TextField } from "@mui/material";
@@ -38,7 +38,11 @@ const switchSx = {
 		bgcolor: "common.white",
 		boxShadow: (theme: { shadows: string[] }) => theme.shadows[1],
 	},
-	"& .MuiSwitch-track": { borderRadius: 999, bgcolor: designTokens.gray300, opacity: 1 },
+	"& .MuiSwitch-track": {
+		borderRadius: `${radius.pill}px`,
+		bgcolor: designTokens.gray300,
+		opacity: 1,
+	},
 } as const;
 
 /**
@@ -85,7 +89,7 @@ const ProductFormPackaging: React.FC<ProductFormPackagingProps> = ({
 						p: "16px",
 						border: "1px solid",
 						borderColor: "divider",
-						borderRadius: "8px",
+						borderRadius: `${radius.md}px`,
 						bgcolor: designTokens.gray25,
 						display: "grid",
 						gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },

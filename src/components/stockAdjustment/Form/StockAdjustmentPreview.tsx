@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { AdjustmentDirection } from "models/stockAdjustment";
-import { designTokens, numericSx, radius } from "theme";
+import { designTokens, iconSize, numericSx, radius } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -17,7 +17,7 @@ const PREV_CAP = {
 const PREV_NUM = {
 	...numericSx,
 	fontWeight: 700,
-	fontSize: 21,
+	fontSize: 20,
 	letterSpacing: "-0.01em",
 	lineHeight: 1.1,
 	color: "text.primary",
@@ -77,7 +77,7 @@ export const StockAdjustmentPreview: React.FC<{
 					color: "text.disabled",
 				}}
 			>
-				<InfoOutlinedIcon sx={{ fontSize: 15, flex: "0 0 auto" }} />
+				<InfoOutlinedIcon sx={{ fontSize: iconSize.sm, flex: "0 0 auto" }} />
 				{t("adjustment.form.previewHint")}
 			</Box>
 		);

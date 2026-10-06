@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DebtFilters from "components/debt/DebtFilters";
+import DebtSignLegend from "components/debt/DebtSignLegend";
 import DebtSummaryCards from "components/debt/DebtSummaryCards";
-import DebtTabs from "components/debt/DebtTabs";
 import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/DebtTables";
 import {
 	debtDocumentPath,
@@ -12,6 +12,7 @@ import {
 } from "components/debt/Table/transactionDebtTableConfigs";
 import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
 import ExportButton from "components/shared/Buttons/ExportButton";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { useTableOrder } from "components/shared/Table/tableOrder";
@@ -20,6 +21,7 @@ import { isLoadError, isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
 import { partnerDebtPath, partnerStatementPath } from "routing/paths";
+import { DebtTab } from "stores/DebtStore";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
@@ -74,6 +76,15 @@ const DebtPage: React.FC = observer(() => {
 		exportToCsv(`debts_${csvDateStamp()}`, columns, rows);
 	};
 
+	const tabs: DetailTabSpec<DebtTab>[] = [
+		{ key: "partners", label: t("debt.tabs.partners"), count: debtStore.partnerRows.length },
+		{
+			key: "transactions",
+			label: t("debt.tabs.transactions"),
+			count: debtStore.transactionRows.length,
+		},
+	];
+
 	const openTransaction = (d: Debt): void => {
 		void navigate(debtDocumentPath(d));
 	};
@@ -100,12 +111,14 @@ const DebtPage: React.FC = observer(() => {
 				<>
 					<DebtSummaryCards summary={summary} onCard={debtStore.applyCard} />
 
-					<DebtTabs
-						value={debtStore.tab}
-						partnersCount={debtStore.partnerRows.length}
-						transactionsCount={debtStore.transactionRows.length}
-						onChange={debtStore.setTab}
-					/>
+					<Box sx={{ mb: "18px" }}>
+						<DetailTabs
+							tabs={tabs}
+							active={debtStore.tab}
+							onChange={debtStore.setTab}
+							trailing={<DebtSignLegend />}
+						/>
+					</Box>
 
 					<TableToolbar
 						search={{

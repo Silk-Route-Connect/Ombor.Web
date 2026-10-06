@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -25,7 +25,7 @@ export const WarehouseEmptyStock: React.FC<WarehouseEmptyStockProps> = ({ onOpen
 			sx={{
 				border: 1,
 				borderColor: "divider",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				p: "52px 24px 58px",
 				textAlign: "center",
 			}}
@@ -34,7 +34,7 @@ export const WarehouseEmptyStock: React.FC<WarehouseEmptyStockProps> = ({ onOpen
 				sx={{
 					width: 60,
 					height: 60,
-					borderRadius: "16px",
+					borderRadius: `${radius.lg}px`,
 					mx: "auto",
 					mb: "18px",
 					display: "grid",
@@ -52,7 +52,7 @@ export const WarehouseEmptyStock: React.FC<WarehouseEmptyStockProps> = ({ onOpen
 			</Typography>
 			<Typography
 				sx={{
-					fontSize: 13.5,
+					fontSize: 14,
 					color: "text.secondary",
 					maxWidth: 400,
 					mx: "auto",

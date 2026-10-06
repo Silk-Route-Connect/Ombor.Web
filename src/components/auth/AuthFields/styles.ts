@@ -1,4 +1,4 @@
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 /** The bordered input shell of every auth field (the design's `.ainput`). */
 export const shellSx = (error?: boolean) =>
@@ -8,7 +8,7 @@ export const shellSx = (error?: boolean) =>
 		gap: "9px",
 		minHeight: 44,
 		px: "12px",
-		borderRadius: "8px",
+		borderRadius: `${radius.md}px`,
 		border: "1px solid",
 		borderColor: error ? "error.main" : designTokens.borderControl,
 		bgcolor: error ? designTokens.errorBg : "background.paper",

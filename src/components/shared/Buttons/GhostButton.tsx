@@ -9,7 +9,7 @@ export interface GhostButtonProps extends ButtonProps {
 
 /**
  * Secondary page action per the design system's `.btn-ghost`: surface
- * background, strong-border outline, ink text, 7px icon gap, no shadow;
+ * background, strong-border outline, ink text, 8px icon gap, no shadow;
  * hover fills gray-50 and darkens the border.
  */
 export const GhostButton: React.FC<GhostButtonProps> = ({ icon, children, sx, ...buttonProps }) => (
@@ -23,8 +23,7 @@ export const GhostButton: React.FC<GhostButtonProps> = ({ icon, children, sx, ..
 			border: "1px solid",
 			borderColor: designTokens.gray300,
 			whiteSpace: "nowrap",
-			"& .MuiButton-startIcon": { mr: "7px", ml: 0 },
-			"& .MuiButton-startIcon > *:nth-of-type(1)": { fontSize: 17 },
+			"& .MuiButton-startIcon": { mr: 1, ml: 0 },
 			"&:hover": { bgcolor: designTokens.gray50, borderColor: designTokens.gray400 },
 			...sx,
 		}}

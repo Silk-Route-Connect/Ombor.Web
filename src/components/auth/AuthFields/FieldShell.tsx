@@ -1,4 +1,5 @@
 import React from "react";
+import { iconSize } from "theme";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Box, Typography } from "@mui/material";
@@ -17,7 +18,7 @@ export const FieldError: React.FC<{ message: string }> = ({ message }) => (
 			color: "error.main",
 		}}
 	>
-		<ErrorOutlineIcon sx={{ fontSize: 13, flex: "0 0 auto" }} />
+		<ErrorOutlineIcon sx={{ fontSize: iconSize.xs, flex: "0 0 auto" }} />
 		{message}
 	</Box>
 );

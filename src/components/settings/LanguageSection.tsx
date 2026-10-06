@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import Callout from "components/shared/Callout/Callout";
 import { UI_LANGUAGES } from "i18n/languages";
-import { designTokens, radius } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -71,7 +71,7 @@ const LanguageSection: React.FC<Props> = ({ currentCode, onSelect }) => {
 									placeItems: "center",
 								}}
 							>
-								{on && <CheckIcon sx={{ fontSize: 13 }} />}
+								{on && <CheckIcon sx={{ fontSize: iconSize.xs }} />}
 							</Box>
 							<Box sx={{ flex: 1, minWidth: 0 }}>
 								<Typography variant="subtitle1">{lang.label}</Typography>

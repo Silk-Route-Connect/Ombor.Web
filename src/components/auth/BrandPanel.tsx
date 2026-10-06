@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import OmborMark from "components/shared/brand/OmborMark";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
@@ -102,14 +102,14 @@ const BrandPanel: React.FC = () => {
 								width: 30,
 								height: 30,
 								flex: "0 0 auto",
-								borderRadius: "8px",
+								borderRadius: `${radius.md}px`,
 								bgcolor: designTokens.onDarkFill,
 								display: "grid",
 								placeItems: "center",
 								color: "common.white",
 							}}
 						>
-							<Icon sx={{ fontSize: 17 }} />
+							<Icon sx={{ fontSize: iconSize.md }} />
 						</Box>
 						{text}
 					</Box>

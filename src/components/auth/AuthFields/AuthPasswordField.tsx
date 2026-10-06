@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
+import { radius } from "theme";
 
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
@@ -55,7 +56,12 @@ export const AuthPasswordField: React.FC<AuthPasswordFieldProps> = ({
 				<ButtonBase
 					onClick={() => setShow((s) => !s)}
 					aria-label={t("auth.togglePasswordVisibility")}
-					sx={{ p: "4px", borderRadius: "6px", color: "text.disabled", flex: "0 0 auto" }}
+					sx={{
+						p: "4px",
+						borderRadius: `${radius.sm}px`,
+						color: "text.disabled",
+						flex: "0 0 auto",
+					}}
 				>
 					{show ? (
 						<VisibilityOffOutlinedIcon sx={{ fontSize: 18 }} />

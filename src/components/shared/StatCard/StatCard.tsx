@@ -2,7 +2,7 @@ import React from "react";
 import IconTile from "components/shared/IconTile/IconTile";
 import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
-import { designTokens, radius, typeScale } from "theme";
+import { designTokens, iconSize, radius, typeScale } from "theme";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
@@ -113,7 +113,7 @@ const StatCard: React.FC<StatCardProps> = ({
 						position: "absolute",
 						top: 16,
 						right: 16,
-						fontSize: 16,
+						fontSize: iconSize.sm,
 						color: accent ?? "text.disabled",
 						opacity: active ? 1 : 0,
 						transition: "opacity .15s",
@@ -134,7 +134,7 @@ const StatCard: React.FC<StatCardProps> = ({
 				    marker only (no second tab stop inside the button). */}
 				{hint &&
 					(clickable || typeof hint !== "string" ? (
-						<InfoOutlinedIcon aria-hidden sx={{ fontSize: 14, color: "text.disabled" }} />
+						<InfoOutlinedIcon aria-hidden sx={{ fontSize: iconSize.xs, color: "text.disabled" }} />
 					) : (
 						<InfoHint text={hint} />
 					))}

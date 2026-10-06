@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens, radius } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -69,7 +69,7 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 					fontSize: 13,
 				}}
 			>
-				{done ? <CheckIcon sx={{ fontSize: 15 }} /> : index + 1}
+				{done ? <CheckIcon sx={{ fontSize: iconSize.sm }} /> : index + 1}
 			</Box>
 			<Box sx={{ flex: 1, minWidth: 0 }}>
 				<Typography

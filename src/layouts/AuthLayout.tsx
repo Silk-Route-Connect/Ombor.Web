@@ -1,7 +1,7 @@
 import React from "react";
 import AuthLangFooter from "components/auth/AuthLangFooter";
 import BrandPanel, { BrandLockup } from "components/auth/BrandPanel";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -43,7 +43,7 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 				display: "grid",
 				gridTemplateColumns: { xs: "1fr", md: "0.92fr 1.08fr" },
 				minHeight: { md: 588 },
-				borderRadius: "16px",
+				borderRadius: `${radius.xl}px`,
 				border: "1px solid",
 				borderColor: "divider",
 				bgcolor: designTokens.scrim,

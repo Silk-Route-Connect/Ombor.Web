@@ -1,4 +1,4 @@
-import { designTokens } from "theme";
+import { designTokens, iconSize } from "theme";
 
 import { SxProps, Theme } from "@mui/material";
 
@@ -44,7 +44,9 @@ export const HEAD_CELL_SX: SxProps<Theme> = {
 	"& .MuiTableSortLabel-root": { color: "text.secondary", flexDirection: "row" },
 	"& .MuiTableSortLabel-root:hover": { color: "primary.dark" },
 	"& .MuiTableSortLabel-root.Mui-active": { color: "primary.dark" },
-	"& .MuiTableSortLabel-icon": { fontSize: 16, color: "inherit !important" },
+	"& .MuiTableSortLabel-icon": { fontSize: iconSize.sm },
+	// MUI greys the active arrow; it follows the label colour instead.
+	"& .MuiTableSortLabel-root.Mui-active .MuiTableSortLabel-icon": { color: "inherit" },
 	// An inactive column's hidden arrow takes no space, so right-aligned headers
 	// line up with their values; it reappears on hover as a preview.
 	"& .MuiTableSortLabel-root:not(.Mui-active):not(:hover) .MuiTableSortLabel-icon": {

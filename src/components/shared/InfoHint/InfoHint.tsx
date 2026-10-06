@@ -1,4 +1,5 @@
 import React from "react";
+import { iconSize } from "theme";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Tooltip } from "@mui/material";
@@ -19,7 +20,12 @@ const InfoHint: React.FC<InfoHintProps> = ({ text }) => (
 			tabIndex={0}
 			aria-label={text}
 			onClick={(e) => e.stopPropagation()}
-			sx={{ fontSize: 14, color: "text.disabled", cursor: "help", verticalAlign: "middle" }}
+			sx={{
+				fontSize: iconSize.xs,
+				color: "text.disabled",
+				cursor: "help",
+				verticalAlign: "middle",
+			}}
 		/>
 	</Tooltip>
 );

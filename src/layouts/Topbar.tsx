@@ -9,6 +9,7 @@ import { UI_LANGUAGES } from "i18n/languages";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { radius } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
@@ -131,7 +132,12 @@ const Topbar: React.FC = observer(() => {
 					<Tooltip title={t("topbar.language")} arrow enterDelay={200}>
 						<IconButton
 							onClick={openMenu(setLangAnchor)}
-							sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
+							sx={{
+								width: 38,
+								height: 38,
+								borderRadius: `${radius.md}px`,
+								color: "text.secondary",
+							}}
 						>
 							<LanguageIcon sx={{ fontSize: 20 }} />
 						</IconButton>

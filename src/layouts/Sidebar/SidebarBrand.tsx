@@ -5,7 +5,7 @@ import TruncatedText from "components/shared/Table/TruncatedText";
 import { isPresent } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { getImageFullUrl } from "utils/productUtils";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -47,7 +47,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 				sx={{
 					width: 38,
 					height: 38,
-					borderRadius: 1,
+					borderRadius: `${radius.md}px`,
 					color: designTokens.onDarkMuted,
 					flexShrink: 0,
 					"&:hover": { bgcolor: designTokens.onDarkHover, color: "common.white" },
@@ -87,7 +87,7 @@ const SidebarBrand: React.FC<SidebarBrandProps> = observer(({ expanded, onToggle
 									width: 16,
 									height: 16,
 									flexShrink: 0,
-									borderRadius: "4px",
+									borderRadius: `${radius.xs}px`,
 									objectFit: "cover",
 								}}
 							/>

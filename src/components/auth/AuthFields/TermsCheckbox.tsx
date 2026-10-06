@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import { Box, Checkbox } from "@mui/material";
@@ -19,7 +19,7 @@ const termsBox = (filled: boolean, error?: boolean) => (
 			flex: "0 0 auto",
 			width: 18,
 			height: 18,
-			borderRadius: "4px",
+			borderRadius: `${radius.xs}px`,
 			border: "1.5px solid",
 			borderColor: error ? "error.main" : filled ? "primary.main" : designTokens.gray300,
 			bgcolor: filled ? "primary.main" : "background.paper",
@@ -29,7 +29,7 @@ const termsBox = (filled: boolean, error?: boolean) => (
 			transition: "background .12s, border-color .12s",
 		}}
 	>
-		{filled && <CheckIcon sx={{ fontSize: 13 }} />}
+		{filled && <CheckIcon sx={{ fontSize: iconSize.xs }} />}
 	</Box>
 );
 
@@ -60,7 +60,7 @@ export const TermsCheckbox: React.FC<TermsCheckboxProps> = ({
 					outline: "2px solid",
 					outlineColor: "primary.main",
 					outlineOffset: "2px",
-					borderRadius: "4px",
+					borderRadius: `${radius.xs}px`,
 				},
 			}}
 		/>

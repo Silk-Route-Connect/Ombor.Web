@@ -7,7 +7,7 @@ import HeroAmountCard from "components/shared/Detail/HeroAmountCard";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { COPY_BUTTON_CLASS, CopyIconButton } from "components/shared/Table/cells/CopyIconButton";
 import { Partner, PartnerLedgerEntry } from "models/partner";
-import { chipTokens, figuresSx } from "theme";
+import { chipTokens, figuresSx, iconSize } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 import { formatUzPhone } from "utils/phoneUtils";
@@ -152,7 +152,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						{phones.map((phone, i) => (
 							<ContactRow
 								key={i}
-								icon={<PhoneOutlinedIcon sx={{ fontSize: 15 }} />}
+								icon={<PhoneOutlinedIcon sx={{ fontSize: iconSize.sm }} />}
 								mono
 								copyValue={phone}
 							>
@@ -166,7 +166,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						))}
 						{partner.email && (
 							<ContactRow
-								icon={<MailOutlineIcon sx={{ fontSize: 15 }} />}
+								icon={<MailOutlineIcon sx={{ fontSize: iconSize.sm }} />}
 								copyValue={partner.email}
 							>
 								{partner.email}
@@ -174,7 +174,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						)}
 						{partner.telegram && (
 							<ContactRow
-								icon={<SendOutlinedIcon sx={{ fontSize: 15 }} />}
+								icon={<SendOutlinedIcon sx={{ fontSize: iconSize.sm }} />}
 								mono
 								copyValue={partner.telegram}
 							>
@@ -183,7 +183,7 @@ export const PartnerDetailRail: React.FC<PartnerDetailRailProps> = ({ partner, l
 						)}
 						{partner.address && (
 							<ContactRow
-								icon={<PlaceOutlinedIcon sx={{ fontSize: 15 }} />}
+								icon={<PlaceOutlinedIcon sx={{ fontSize: iconSize.sm }} />}
 								copyValue={partner.address}
 							>
 								{partner.address}

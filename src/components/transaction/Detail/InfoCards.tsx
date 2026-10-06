@@ -6,7 +6,7 @@ import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCar
 import { FactList, FactRow } from "components/shared/Detail/FactRow";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TransactionRecord } from "models/transaction";
-import { designTokens, figuresSx, radius } from "theme";
+import { designTokens, figuresSx, iconSize, radius } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, TransactionDirection } from "utils/transactionUtils";
@@ -104,7 +104,7 @@ export const ReasonCard: React.FC<{ reason: string }> = ({ reason }) => {
 	return (
 		<DetailCard
 			title={t("transaction.detail.reasonTitle")}
-			icon={<UndoOutlinedIcon sx={{ fontSize: 16, color: designTokens.saffron600 }} />}
+			icon={<UndoOutlinedIcon sx={{ ...detailCardIconSx, color: designTokens.saffron600 }} />}
 		>
 			<Box sx={{ p: "16px 18px" }}>
 				<Typography
@@ -153,7 +153,7 @@ export const RefundReferenceBanner: React.FC<{
 				"&:hover": { borderColor: designTokens.primaryLine, bgcolor: "primary.light" },
 			}}
 		>
-			<UndoOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+			<UndoOutlinedIcon sx={{ fontSize: iconSize.md, color: "text.secondary" }} />
 			<Box component="span">
 				{t(`transaction.detail.refundOfBanner.${direction}`)}{" "}
 				<Box component="b" sx={{ ...figuresSx, color: "primary.main" }}>

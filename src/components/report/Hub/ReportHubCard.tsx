@@ -1,5 +1,5 @@
 import React from "react";
-import { chipTokens, designTokens } from "theme";
+import { chipTokens, designTokens, iconSize, radius } from "theme";
 
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
@@ -31,7 +31,7 @@ const ReportHubCard: React.FC<ReportHubCardProps> = ({ icon, title, description,
 			fontFamily: "inherit",
 			border: "1px solid",
 			borderColor: "divider",
-			borderRadius: "12px",
+			borderRadius: `${radius.lg}px`,
 			transition: "box-shadow .15s, border-color .15s, transform .15s",
 			"&:hover": {
 				boxShadow: 8,
@@ -46,7 +46,7 @@ const ReportHubCard: React.FC<ReportHubCardProps> = ({ icon, title, description,
 			className="go-arrow"
 			sx={{ position: "absolute", top: 14, right: 14, color: "text.disabled", opacity: 0 }}
 		>
-			<NorthEastIcon sx={{ fontSize: 15 }} />
+			<NorthEastIcon sx={{ fontSize: iconSize.sm }} />
 		</Box>
 		<Box
 			component="span"
@@ -54,21 +54,18 @@ const ReportHubCard: React.FC<ReportHubCardProps> = ({ icon, title, description,
 				width: 42,
 				height: 42,
 				flex: "0 0 auto",
-				borderRadius: "11px",
+				borderRadius: `${radius.lg}px`,
 				display: "grid",
 				placeItems: "center",
 				bgcolor: chipTokens.teal.bg,
 				color: chipTokens.teal.color,
-				"& svg": { fontSize: 21 },
+				"& svg": { fontSize: iconSize.xl },
 			}}
 		>
 			{icon}
 		</Box>
 		<Box component="span" sx={{ display: "block", minWidth: 0, pr: "12px" }}>
-			<Typography
-				component="span"
-				sx={{ display: "block", fontSize: 16, fontWeight: 600, color: "text.primary" }}
-			>
+			<Typography variant="h3" component="span" sx={{ display: "block", color: "text.primary" }}>
 				{title}
 			</Typography>
 			<Typography

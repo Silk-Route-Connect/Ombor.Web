@@ -12,6 +12,7 @@ import { readLoginPrefill } from "routing/navigationState";
 import { PATHS } from "routing/paths";
 import { analytics } from "services/telemetry";
 import { useStore } from "stores/StoreContext";
+import { radius } from "theme";
 import { loginFailureText } from "utils/authErrors";
 import { phoneError as phoneErrorOf } from "utils/authValidation";
 import { normalizeUzPhoneToE164 } from "utils/phoneUtils";
@@ -119,7 +120,7 @@ const LoginPage: React.FC = observer(() => {
 					fullWidth
 					disabled={submitting}
 					onClick={() => void submit()}
-					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+					sx={{ height: 46, fontSize: 15, borderRadius: `${radius.md}px` }}
 				>
 					{t("auth.login.submit")}
 				</Button>

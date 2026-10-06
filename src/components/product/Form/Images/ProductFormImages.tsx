@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import ProductImage from "components/product/ProductImage";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
@@ -35,7 +35,7 @@ const ImageThumb: React.FC<{
 			src={src}
 			alt={alt}
 			size={40}
-			radius={6}
+			radius={radius.sm}
 			sx={{ display: "grid", border: "1px solid", borderColor: "divider" }}
 		/>
 		{!disabled && (
@@ -115,7 +115,7 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 					p: "20px 12px",
 					border: "1.5px dashed",
 					borderColor: designTokens.gray300,
-					borderRadius: "8px",
+					borderRadius: `${radius.md}px`,
 					bgcolor: designTokens.gray25,
 					color: "text.secondary",
 					textAlign: "center",
@@ -131,7 +131,7 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 					sx={{
 						width: 38,
 						height: 38,
-						borderRadius: "10px",
+						borderRadius: `${radius.md}px`,
 						bgcolor: designTokens.gray100,
 						color: designTokens.gray600,
 						display: "grid",
@@ -140,7 +140,7 @@ const ProductFormImages: React.FC<ProductFormImagesProps> = ({
 				>
 					<UploadFileOutlinedIcon sx={{ fontSize: 20 }} />
 				</Box>
-				<Typography sx={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.4, color: "inherit" }}>
+				<Typography sx={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4, color: "inherit" }}>
 					{t("product.images.uploadMore")}
 				</Typography>
 			</ButtonBase>
