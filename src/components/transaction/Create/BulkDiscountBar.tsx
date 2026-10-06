@@ -1,10 +1,12 @@
 import React, { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import { designTokens, numericSx } from "theme";
+import PercentField from "components/shared/Inputs/PercentField";
+import { formatPercentInput } from "components/shared/Inputs/percentInput";
+import { designTokens } from "theme";
 
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
-import { Box, InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface BulkDiscountBarProps {
 	/** The percent last applied to every line, 0 when none. */
@@ -16,7 +18,7 @@ interface BulkDiscountBarProps {
 export const BulkDiscountBar: React.FC<BulkDiscountBarProps> = ({ applied, onApply }) => {
 	const { t } = useTranslation();
 	const id = useId();
-	const [pct, setPct] = useState("");
+	const [pct, setPct] = useState(0);
 
 	return (
 		<Box
@@ -45,26 +47,18 @@ export const BulkDiscountBar: React.FC<BulkDiscountBarProps> = ({ applied, onApp
 			<Box sx={{ flex: 1 }} />
 			{applied > 0 && (
 				<Typography variant="caption" sx={{ color: "success.main", fontWeight: 600 }}>
-					{t("transaction.new.bulk.applied", { pct: applied })}
+					{t("transaction.new.bulk.applied", { pct: formatPercentInput(applied) })}
 				</Typography>
 			)}
-			<TextField
+			<PercentField
 				id={id}
 				value={pct}
+				onChange={setPct}
 				placeholder="0"
-				onChange={(e) => setPct(e.target.value.replace(/[^\d]/g, ""))}
-				sx={{
-					width: 96,
-					"& .MuiOutlinedInput-input": { textAlign: "right", fontWeight: 600, ...numericSx },
-				}}
-				slotProps={{
-					input: { endAdornment: <InputAdornment position="end">%</InputAdornment> },
-					htmlInput: { inputMode: "numeric" },
-				}}
+				fullWidth={false}
+				sx={{ width: 96 }}
 			/>
-			<GhostButton onClick={() => onApply(parseInt(pct, 10) || 0)}>
-				{t("transaction.new.bulk.apply")}
-			</GhostButton>
+			<GhostButton onClick={() => onApply(pct)}>{t("transaction.new.bulk.apply")}</GhostButton>
 		</Box>
 	);
 };
