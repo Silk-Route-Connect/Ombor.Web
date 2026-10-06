@@ -168,7 +168,7 @@
   "report.stock.empty": "Нет товара на складах — или ничего не подходит под поиск и фильтры.",
   "report.stock.asOf": "На сегодня, {{date}}",
   "report.stock.search": "Поиск по товару или артикулу…",
-  "report.stock.allWarehouses": "Все склады",
+  "report.stock.allWarehouses": "Все",
   "report.stock.archivedWarehouse": "{{name}} (архив)",
   "report.stock.print.warehouse": "Склад: {{name}}",
   "report.stock.print.level": "Остаток: {{level}}",

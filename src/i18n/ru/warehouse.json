@@ -97,7 +97,8 @@
   "warehouse.detail.emptyStock.action": "Добавить начальный остаток",
 
   "warehouse.stock.searchPlaceholder": "Поиск по товару или артикулу…",
-  "warehouse.stock.allCategories": "Все категории",
+  "warehouse.stock.allCategories": "Все",
+  "warehouse.stock.categoryLabel": "Категория",
   "warehouse.stock.product": "Товар",
   "warehouse.stock.sku": "Артикул",
   "warehouse.stock.category": "Категория",
@@ -112,7 +113,8 @@
   "warehouse.stock.noStockBody": "Добавьте начальный остаток или оформите поставку — товары появятся здесь.",
 
   "warehouse.movements.searchPlaceholder": "Поиск по товару…",
-  "warehouse.movements.allTypes": "Все события",
+  "warehouse.movements.allTypes": "Все",
+  "warehouse.movements.eventLabel": "Событие",
   "warehouse.movements.number": "№",
   "warehouse.movements.date": "Дата",
   "warehouse.movements.event": "Событие",

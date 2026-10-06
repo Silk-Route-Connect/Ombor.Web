@@ -79,6 +79,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 				/>
 
 				<EntityFilterSelect
+					label={t("adjustment.filter.warehouseLabel")}
 					value={warehouseFilter == null ? ALL_WAREHOUSES : String(warehouseFilter)}
 					allValue={ALL_WAREHOUSES}
 					allLabel={t("adjustment.filter.allWarehouses")}

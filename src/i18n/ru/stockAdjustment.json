@@ -11,7 +11,8 @@
 
   "adjustment.title.create": "Новая корректировка",
 
-  "adjustment.filter.allWarehouses": "Все склады",
+  "adjustment.filter.allWarehouses": "Все",
+  "adjustment.filter.warehouseLabel": "Склад",
   "adjustment.totals.count_one": "{{formatted}} корректировка",
   "adjustment.totals.count_few": "{{formatted}} корректировки",
   "adjustment.totals.count_many": "{{formatted}} корректировок",

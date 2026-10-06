@@ -160,6 +160,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 			filters={
 				<Stack direction="row" sx={{ gap: "10px", flexWrap: "wrap" }}>
 					<EntityFilterSelect
+						label={t("warehouse.stock.categoryLabel")}
 						value={category}
 						allValue={ALL_CATEGORIES}
 						allLabel={t("warehouse.stock.allCategories")}

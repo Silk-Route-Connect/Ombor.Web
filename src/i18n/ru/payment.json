@@ -65,8 +65,10 @@
   "payment.partnerType.Supplier": "Поставщик",
   "payment.partnerType.Both": "Клиент + Поставщик",
 
-  "payment.filter.allTypes": "Все типы",
-  "payment.filter.allWallets": "Все кассы",
+  "payment.filter.allTypes": "Все",
+  "payment.filter.allWallets": "Все",
+  "payment.filter.typeLabel": "Тип",
+  "payment.filter.walletLabel": "Касса",
 
   "payment.summary.income": "Приход",
   "payment.summary.expense": "Расход",

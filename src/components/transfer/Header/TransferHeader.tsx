@@ -71,6 +71,7 @@ const TransferHeader: React.FC<TransferHeaderProps> = ({
 					placeholder={t("transfer.searchPlaceholder")}
 				/>
 				<EntityFilterSelect
+					label={t("transfer.filter.warehouseLabel")}
 					value={warehouseFilter == null ? ALL_WAREHOUSES : String(warehouseFilter)}
 					allValue={ALL_WAREHOUSES}
 					allLabel={t("transfer.filter.allWarehouses")}

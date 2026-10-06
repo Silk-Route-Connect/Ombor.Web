@@ -31,7 +31,7 @@
   "debt.direction.payable": "Мы должны",
 
   "debt.age.prefix": "Срок",
-  "debt.age.all": "Все сроки",
+  "debt.age.all": "Все",
   "debt.age.0-7": "0–7 дней",
   "debt.age.8-30": "8–30 дней",
   "debt.age.31+": "Старше 30 дней",

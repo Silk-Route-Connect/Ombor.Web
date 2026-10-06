@@ -95,17 +95,18 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					placeholder={t("payment.searchPlaceholder")}
 				/>
 				<EntityFilterSelect<PaymentTypeFilter>
+					label={t("payment.filter.typeLabel")}
 					icon={<LayersOutlinedIcon />}
 					value={typeFilter}
 					options={typeOptions}
 					onChange={onTypeChange}
 				/>
 				<EntityFilterSelect
+					label={t("payment.filter.walletLabel")}
 					icon={<AccountBalanceWalletOutlinedIcon />}
 					value={String(walletFilter)}
 					options={walletFilterOptions}
 					onChange={(v) => onWalletChange(v === "all" ? "all" : Number(v))}
-					width={210}
 				/>
 				<Box sx={{ flexGrow: 1 }} />
 				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />

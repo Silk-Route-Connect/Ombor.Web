@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import DateRangeFilter from "components/shared/Date/DateRangeFilter";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
@@ -12,15 +13,15 @@ import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import { PartnerLedgerEntry } from "models/partner";
 import { designTokens } from "theme";
+import { ALL_DATES, DateRangeValue, isInDateRange, resolveDateRange } from "utils/dateRange";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { entityNumberSortValue, formatOptionalNumber } from "utils/formatEntityId";
 
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 
-import { LedgerPeriod, ledgerSourcePath, withinPeriod } from "./ledgerHelpers";
+import { ledgerSourcePath } from "./ledgerHelpers";
 import { EventCell, eventLabelKey } from "./ledgerMeta";
 
 type EventFilter = "all" | "sale" | "supply" | "payment" | "refund" | "opening";
@@ -51,13 +52,14 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<PartnerLedgerEntry>();
 	const [eventFilter, setEventFilter] = useState<EventFilter>("all");
-	const [period, setPeriod] = useState<LedgerPeriod>("all");
+	const [period, setPeriod] = useState<DateRangeValue>(ALL_DATES);
 	const [search, setSearch] = useState("");
 
 	const filtered = useMemo(() => {
 		const ql = search.trim().toLowerCase();
+		const range = resolveDateRange(period);
 		return ledger.filter((e) => {
-			if (!withinPeriod(e.date, period) || !matchesEventFilter(e, eventFilter)) {
+			if (!isInDateRange(e.date, range) || !matchesEventFilter(e, eventFilter)) {
 				return false;
 			}
 			if (!ql) {
@@ -136,6 +138,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 			filters={
 				<>
 					<EntityFilterSelect<EventFilter>
+						label={t("partner.ledger.eventLabel")}
 						icon={<FilterListIcon />}
 						value={eventFilter}
 						onChange={setEventFilter}
@@ -148,16 +151,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({ ledger, partnerName, onOpe
 							{ value: "opening", label: t("partner.ledger.event.opening") },
 						]}
 					/>
-					<EntityFilterSelect<LedgerPeriod>
-						icon={<CalendarTodayOutlinedIcon />}
-						value={period}
-						onChange={setPeriod}
-						options={[
-							{ value: "all", label: t("partner.ledger.period.all") },
-							{ value: "90", label: t("partner.ledger.period.90") },
-							{ value: "30", label: t("partner.ledger.period.30") },
-						]}
-					/>
+					<DateRangeFilter value={period} onChange={setPeriod} />
 				</>
 			}
 			exportCsv={{ onExport: handleExport, rowCount: filtered.length }}

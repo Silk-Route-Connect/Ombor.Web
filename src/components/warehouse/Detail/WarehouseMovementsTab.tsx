@@ -188,6 +188,7 @@ export const WarehouseMovementsTab: React.FC<WarehouseMovementsTabProps> = ({
 			}}
 			filters={
 				<EntityFilterSelect<KindFilter>
+					label={t("warehouse.movements.eventLabel")}
 					icon={<FilterListIcon />}
 					value={type}
 					allValue={ALL_TYPES}
