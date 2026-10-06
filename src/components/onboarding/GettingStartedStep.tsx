@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -34,9 +34,10 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 				color: "inherit",
 				textAlign: "left",
 				border: "1px solid",
-				borderColor: done ? designTokens.successBorder : "divider",
-				borderRadius: "8px",
-				bgcolor: done ? designTokens.successBg : "background.paper",
+				borderColor: "divider",
+				borderRadius: `${radius.md}px`,
+				// A finished step steps back (quiet fill, green tick) so the open one leads.
+				bgcolor: done ? designTokens.bgSubtle : "background.paper",
 				cursor: "pointer",
 				transition: "border-color .14s, box-shadow .14s",
 				"&:hover": { borderColor: designTokens.primaryLine, boxShadow: 1 },
@@ -52,11 +53,11 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 					width: 28,
 					height: 28,
 					flex: "0 0 auto",
-					borderRadius: "8px",
+					borderRadius: `${radius.md}px`,
 					display: "grid",
 					placeItems: "center",
-					bgcolor: done ? "success.main" : designTokens.primarySoft,
-					color: done ? "common.white" : "primary.main",
+					bgcolor: done ? designTokens.successBg : designTokens.primarySoft,
+					color: done ? "success.dark" : "primary.main",
 					fontWeight: 700,
 					fontSize: 13,
 				}}
@@ -69,7 +70,7 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 				>
 					{t(`onboarding.step.${step.key}.title`)}
 				</Typography>
-				<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "3px", lineHeight: 1.5 }}>
+				<Typography variant="caption" component="div" sx={{ color: "text.secondary", mt: "3px" }}>
 					{done ? t("onboarding.done") : t(`onboarding.step.${step.key}.body`)}
 				</Typography>
 			</Box>

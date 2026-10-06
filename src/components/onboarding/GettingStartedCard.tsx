@@ -39,7 +39,7 @@ const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 			>
 				<Box sx={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
 					<Box sx={{ flex: 1, minWidth: 0 }}>
-						<Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>
+						<Typography variant="h2" component="div">
 							{t(doneCount === 0 ? "onboarding.titleNew" : "onboarding.title")}
 						</Typography>
 						<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "4px", lineHeight: 1.6 }}>
