@@ -1,66 +1,18 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import InfoHint from "components/shared/InfoHint/InfoHint";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import StatCard from "components/shared/StatCard/StatCard";
+import StatCardGrid from "components/shared/StatCard/StatCardGrid";
 import { WalletSummary } from "stores/WalletStore";
-import { designTokens, typeScale } from "theme";
+import { designTokens } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-import { Box, Typography } from "@mui/material";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
+import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 
 interface WalletSummaryStripProps {
 	summary: WalletSummary;
 }
-
-const CARD_SX = {
-	position: "relative",
-	overflow: "hidden",
-	bgcolor: "background.paper",
-	border: "1px solid",
-	borderColor: "divider",
-	borderRadius: "12px",
-	boxShadow: 1,
-	p: "18px 20px",
-	"&::before": {
-		content: '""',
-		position: "absolute",
-		left: 0,
-		top: 0,
-		bottom: 0,
-		width: "3px",
-	},
-} as const;
-
-const Cap: React.FC<{ color: string; label: string; hint?: string }> = ({ color, label, hint }) => (
-	<Box
-		sx={{
-			display: "flex",
-			alignItems: "center",
-			gap: "8px",
-			fontSize: 12.5,
-			fontWeight: 600,
-			color: "text.secondary",
-		}}
-	>
-		<Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: color }} />
-		{label}
-		{hint && <InfoHint text={hint} />}
-	</Box>
-);
-
-const Value: React.FC<{ color: string; text: string }> = ({ color, text }) => (
-	<Typography
-		sx={{
-			...typeScale.numStrong,
-			lineHeight: 1,
-			mt: "10px",
-			color,
-		}}
-	>
-		{text}
-		<UzsUnit />
-	</Typography>
-);
 
 /**
  * List summary strip per the bundle's `.wal-sum`: total balance (primary),
@@ -71,37 +23,34 @@ export const WalletSummaryStrip: React.FC<WalletSummaryStripProps> = ({ summary 
 	const { t } = useTranslation();
 
 	return (
-		<Box
-			sx={{
-				display: "grid",
-				gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-				gap: "16px",
-				mb: "22px",
-			}}
-		>
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "primary.main" } }}>
-				<Cap color="primary.main" label={t("wallet.summary.balance")} />
-				<Value color="text.primary" text={formatCurrency(summary.totalBalance)} />
-			</Box>
-
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "success.main" } }}>
-				<Cap
-					color="success.main"
-					label={t("wallet.summary.ourMoney")}
-					hint={t("wallet.summary.ourMoneyHint")}
-				/>
-				<Value color="success.main" text={formatCurrency(summary.totalOurMoney)} />
-			</Box>
-
-			<Box sx={{ ...CARD_SX, "&::before": { ...CARD_SX["&::before"], bgcolor: "secondary.main" } }}>
-				<Cap
-					color="secondary.main"
-					label={t("wallet.summary.advances")}
-					hint={t("wallet.summary.advancesHint")}
-				/>
-				<Value color={designTokens.saffron700} text={formatCurrency(summary.totalAdvances)} />
-			</Box>
-		</Box>
+		<StatCardGrid columns={3}>
+			<StatCard
+				icon={<AccountBalanceWalletOutlinedIcon />}
+				tone="primary"
+				caption={t("wallet.summary.balance")}
+				value={formatCurrency(summary.totalBalance)}
+				unit="uzs"
+			/>
+			<StatCard
+				icon={<SavingsOutlinedIcon />}
+				tone="success"
+				caption={t("wallet.summary.ourMoney")}
+				hint={t("wallet.summary.ourMoneyHint")}
+				value={formatCurrency(summary.totalOurMoney)}
+				// A shortfall is not good news: below zero the figure reads red.
+				valueColor={summary.totalOurMoney < 0 ? "error.main" : "success.main"}
+				unit="uzs"
+			/>
+			<StatCard
+				icon={<HandshakeOutlinedIcon />}
+				tone="accent"
+				caption={t("wallet.summary.advances")}
+				hint={t("wallet.summary.advancesHint")}
+				value={formatCurrency(summary.totalAdvances)}
+				valueColor={designTokens.saffron700}
+				unit="uzs"
+			/>
+		</StatCardGrid>
 	);
 };
 

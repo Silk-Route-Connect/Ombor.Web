@@ -43,13 +43,15 @@ const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits
  * decimals («1 250 000»), anything fractional with exactly two («702,01»,
  * «1 190 434,20») — never one decimal place. All money display routes through
  * this, KPIs included — never hand-assemble separators or round before calling.
+ * A negative sum reads with a true minus («−3 683 000»), never `Intl`'s hyphen.
  */
 export function formatCurrency(value: number): string {
 	// Round to the cent first so 702,004 reads «702», and `|| 0` drops a -0.
 	const cents = Math.round(value * 100) || 0;
-	return cents % 100 === 0
-		? wholeMoneyFormatter.format(cents / 100)
-		: fractionalMoneyFormatter.format(cents / 100);
+	const abs = Math.abs(cents) / 100;
+	const text =
+		cents % 100 === 0 ? wholeMoneyFormatter.format(abs) : fractionalMoneyFormatter.format(abs);
+	return cents < 0 ? `−${text}` : text;
 }
 
 /**
@@ -76,10 +78,11 @@ export function formatPercent(value: number): string {
 
 /**
  * Money that may be negative, with a true minus: «−18 000» (a refund row and
- * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned.
+ * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned. Same output
+ * as `formatCurrency` — the name marks call sites where a negative is expected.
  */
 export function formatCurrencyMinus(value: number): string {
-	return value < 0 ? `−${formatCurrency(-value)}` : formatCurrency(value);
+	return formatCurrency(value);
 }
 
 /** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */

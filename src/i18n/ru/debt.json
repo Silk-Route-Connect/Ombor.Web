@@ -16,6 +16,7 @@
   "debt.summary.partners_few": "{{count}} партнёра",
   "debt.summary.partners_many": "{{count}} партнёров",
   "debt.summary.partners_other": "{{count}} партнёра",
+  "debt.summary.netSub": "{{direction}} · {{partners}}",
 
   "debt.tabs.partners": "По партнёрам",
   "debt.tabs.transactions": "Неоплаченные документы",
