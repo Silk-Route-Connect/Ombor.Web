@@ -11,7 +11,10 @@ interface SummaryTotalProps {
 	total: number;
 }
 
-/** «Итого» of a POS / New Order summary — the one emphasised figure of the card. */
+/**
+ * «Итого» of a POS / New Order summary — the one emphasised figure of the card,
+ * in ink like every document total (teal reads as a link).
+ */
 const SummaryTotal: React.FC<SummaryTotalProps> = ({ label, total }) => (
 	<Box
 		sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "12px" }}
@@ -24,7 +27,7 @@ const SummaryTotal: React.FC<SummaryTotalProps> = ({ label, total }) => (
 				lineHeight: "28px",
 				fontWeight: 700,
 				letterSpacing: "-0.02em",
-				color: "primary.main",
+				color: "text.primary",
 				whiteSpace: "nowrap",
 			}}
 		>

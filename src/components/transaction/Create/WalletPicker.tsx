@@ -60,7 +60,7 @@ export const WalletPicker: React.FC<WalletPickerProps> = ({ value, wallets, onCh
 				const Icon = WALLET_ICON[w.type];
 				return (
 					<MenuItem key={w.id} value={String(w.id)} sx={{ gap: "10px" }}>
-						<Icon sx={{ fontSize: 17, color: "primary.main" }} />
+						<Icon sx={{ fontSize: 18, color: "primary.main" }} />
 						<ListItemText
 							primary={w.name}
 							secondary={

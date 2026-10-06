@@ -38,7 +38,7 @@ export const WarehousePicker: React.FC<WarehousePickerProps> = ({
 		{warehouses.map((w) => (
 			<MenuItem key={w.id} value={String(w.id)} sx={{ gap: "10px" }}>
 				<WarehouseOutlinedIcon
-					sx={{ fontSize: 17, color: w.id === value ? "primary.main" : "text.disabled" }}
+					sx={{ fontSize: 18, color: w.id === value ? "primary.main" : "text.disabled" }}
 				/>
 				<ListItemText primary={w.name} />
 				{w.id === value && <CheckIcon sx={{ fontSize: 16, color: "primary.main" }} />}
