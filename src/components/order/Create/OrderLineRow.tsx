@@ -1,8 +1,8 @@
 import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
+import FormField from "components/shared/Forms/FormField";
 import QtyStepper from "components/shared/Inputs/QtyStepper";
 import LineDiscountField from "components/transaction/Create/LineDiscountField";
-import LineField from "components/transaction/Create/LineField";
 import LineMoneyInput from "components/transaction/Create/LineMoneyInput";
 import LineRemoveButton from "components/transaction/Create/LineRemoveButton";
 import LineRowHead from "components/transaction/Create/LineRowHead";
@@ -82,14 +82,22 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 					mt: "12px",
 				}}
 			>
-				<LineField label={t("order.new.line.qty", { unit: unitLabel })} htmlFor={`${id}-qty`}>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.qty", { unit: unitLabel })}
+					htmlFor={`${id}-qty`}
+				>
 					<QtyStepper
 						id={`${id}-qty`}
 						value={item.quantity}
 						onChange={(quantity) => onChange({ quantity })}
 					/>
-				</LineField>
-				<LineField label={t("order.new.line.price", { unit: unitLabel })} htmlFor={`${id}-price`}>
+				</FormField>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.price", { unit: unitLabel })}
+					htmlFor={`${id}-price`}
+				>
 					<LineMoneyInput
 						id={`${id}-price`}
 						value={item.unitPrice}
@@ -97,8 +105,12 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 						prefix="×"
 						width={152}
 					/>
-				</LineField>
-				<LineField label={t("order.new.line.discount")} htmlFor={`${id}-discount`}>
+				</FormField>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.discount")}
+					htmlFor={`${id}-discount`}
+				>
 					<LineDiscountField
 						id={`${id}-discount`}
 						value={item.discountValue}
@@ -106,7 +118,7 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 						onValueChange={(discountValue) => onChange({ discountValue })}
 						onTypeChange={(discountType) => onChange({ discountType })}
 					/>
-				</LineField>
+				</FormField>
 				<LineRemoveButton label={t("order.new.line.remove")} onClick={onRemove} />
 			</Box>
 		</Box>

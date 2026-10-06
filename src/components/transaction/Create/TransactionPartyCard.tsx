@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import FormField from "components/shared/Forms/FormField";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Partner } from "models/partner";
 import { Warehouse } from "models/warehouse";
@@ -7,7 +8,6 @@ import { Warehouse } from "models/warehouse";
 import { Box } from "@mui/material";
 
 import PartnerPicker from "./PartnerPicker";
-import PosField from "./PosField";
 import { POS_CARD_PADDING, posCardSx } from "./posStyles";
 import WarehousePicker from "./WarehousePicker";
 
@@ -37,12 +37,12 @@ export const TransactionPartyCard: React.FC<TransactionPartyCardProps> = ({
 				gap: "16px",
 			}}
 		>
-			<PosField
-				ns="partner"
+			<FormField
+				data-ns="partner"
 				label={t(`transaction.new.partner.label.${direction}`)}
 				required
 				error={noPartner ? t(`transaction.new.partner.required.${direction}`) : undefined}
-				hint={
+				helperText={
 					direction === "Sale" && !entry.partner
 						? t("transaction.new.partner.walkInHint")
 						: undefined
@@ -55,14 +55,18 @@ export const TransactionPartyCard: React.FC<TransactionPartyCardProps> = ({
 					error={noPartner}
 					onPick={entry.setPartner}
 				/>
-			</PosField>
-			<PosField ns="warehouse" label={t(`transaction.new.warehouse.label.${direction}`)} required>
+			</FormField>
+			<FormField
+				data-ns="warehouse"
+				label={t(`transaction.new.warehouse.label.${direction}`)}
+				required
+			>
 				<WarehousePicker
 					value={entry.warehouseId}
 					warehouses={warehouses}
 					onChange={entry.setWarehouseId}
 				/>
-			</PosField>
+			</FormField>
 		</Box>
 	);
 };

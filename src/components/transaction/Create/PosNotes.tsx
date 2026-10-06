@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import AttachmentPicker from "components/shared/AttachmentPicker/AttachmentPicker";
+import FormField from "components/shared/Forms/FormField";
 import { TransactionDirection } from "utils/transactionUtils";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Box, ButtonBase, TextField } from "@mui/material";
 
-import PosField from "./PosField";
 import { POS_CARD_PADDING, posCardSx } from "./posStyles";
 
 interface PosNotesProps {
@@ -59,7 +59,7 @@ export const PosNotes: React.FC<PosNotesProps> = ({
 						gap: "16px",
 					}}
 				>
-					<PosField label={t("transaction.new.notes.label")}>
+					<FormField label={t("transaction.new.notes.label")}>
 						<TextField
 							value={notes}
 							onChange={(e) => onNotesChange(e.target.value)}
@@ -68,7 +68,7 @@ export const PosNotes: React.FC<PosNotesProps> = ({
 							minRows={3}
 							fullWidth
 						/>
-					</PosField>
+					</FormField>
 					<AttachmentPicker files={attachments} onAdd={onAddFiles} onRemove={onRemoveFile} />
 				</Box>
 			)}

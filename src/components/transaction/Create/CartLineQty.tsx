@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import FormField from "components/shared/Forms/FormField";
 import QtyStepper from "components/shared/Inputs/QtyStepper";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { CartItem } from "hooks/transactions/useTransactionEntry";
@@ -7,8 +8,6 @@ import { controlSize, numericSx } from "theme";
 import { measurementShort, measurementShortLabel } from "utils/productUtils";
 
 import { Box, Typography } from "@mui/material";
-
-import LineField from "./LineField";
 
 type UnitMode = "unit" | "pack";
 
@@ -78,7 +77,8 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 	};
 
 	return (
-		<LineField
+		<FormField
+			variant="caption"
 			label={t("transaction.new.line.qty", {
 				unit: inPackages ? t("transaction.new.line.packShort") : unitLabel,
 			})}
@@ -122,7 +122,7 @@ export const CartLineQty: React.FC<CartLineQtyProps> = ({
 					</Typography>
 				)}
 			</Box>
-		</LineField>
+		</FormField>
 	);
 };
 

@@ -1,6 +1,7 @@
 import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
 import Callout from "components/shared/Callout/Callout";
+import FormField from "components/shared/Forms/FormField";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
 import { designTokens } from "theme";
 import { measurementShort, measurementShortLabel } from "utils/productUtils";
@@ -12,7 +13,6 @@ import { Box } from "@mui/material";
 
 import { CartLineQty } from "./CartLineQty";
 import LineDiscountField from "./LineDiscountField";
-import LineField from "./LineField";
 import LineMoneyInput from "./LineMoneyInput";
 import LineRemoveButton from "./LineRemoveButton";
 import LineRowHead, { LineStatus } from "./LineRowHead";
@@ -105,7 +105,8 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 					onAutoFocused={onAutoFocused}
 					onContinue={onContinue}
 				/>
-				<LineField
+				<FormField
+					variant="caption"
 					label={t(isSale ? "transaction.new.line.price" : "transaction.new.line.priceSupply", {
 						unit: measurementShortLabel(t, item.product.measurement),
 					})}
@@ -119,8 +120,12 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						prefix="×"
 						width={152}
 					/>
-				</LineField>
-				<LineField label={t("transaction.new.line.discount")} htmlFor={`${id}-discount`}>
+				</FormField>
+				<FormField
+					variant="caption"
+					label={t("transaction.new.line.discount")}
+					htmlFor={`${id}-discount`}
+				>
 					<LineDiscountField
 						id={`${id}-discount`}
 						value={item.discountValue}
@@ -129,7 +134,7 @@ export const CartLineRow: React.FC<CartLineRowProps> = ({
 						onTypeChange={(discountType) => onChange({ discountType })}
 						onEnter={onContinue}
 					/>
-				</LineField>
+				</FormField>
 				<LineRemoveButton label={t("transaction.new.line.remove")} onClick={onRemove} />
 			</Box>
 

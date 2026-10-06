@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import FormField from "components/shared/Forms/FormField";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
-import PosField from "components/transaction/Create/PosField";
 import { POS_CARD_PADDING, posCardSx } from "components/transaction/Create/posStyles";
 import WarehousePicker from "components/transaction/Create/WarehousePicker";
 import { OrderSource } from "models/order";
@@ -65,7 +65,7 @@ export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 			}}
 		>
 			<Box sx={rowSx("1.3fr 1fr 1fr")}>
-				<PosField
+				<FormField
 					label={t("order.field.client")}
 					required
 					error={errors.client ? t("order.new.err.client") : undefined}
@@ -77,8 +77,8 @@ export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 						error={errors.client}
 						onPick={onClientChange}
 					/>
-				</PosField>
-				<PosField
+				</FormField>
+				<FormField
 					label={t("order.new.field.warehouse")}
 					required
 					error={errors.warehouse ? t("order.new.err.warehouse") : undefined}
@@ -88,13 +88,13 @@ export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 						warehouses={warehouses}
 						onChange={onWarehouseChange}
 					/>
-				</PosField>
-				<PosField label={t("order.field.source")}>
+				</FormField>
+				<FormField label={t("order.field.source")}>
 					<OrderSourcePicker value={source} onChange={onSourceChange} />
-				</PosField>
+				</FormField>
 			</Box>
 			<Box sx={rowSx("1fr 1fr")}>
-				<PosField
+				<FormField
 					label={t("order.field.deliveryDate")}
 					required
 					error={errors.deliveryDate ? t("order.new.err.deliveryDate") : undefined}
@@ -106,15 +106,15 @@ export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 						onChange={(e) => onDeliveryDateChange(e.target.value)}
 						fullWidth
 					/>
-				</PosField>
-				<PosField label={t("order.field.deliveryTime")} optional>
+				</FormField>
+				<FormField label={t("order.field.deliveryTime")} hint={t("common.optional")}>
 					<TextField
 						type="time"
 						value={deliveryTime}
 						onChange={(e) => onDeliveryTimeChange(e.target.value)}
 						fullWidth
 					/>
-				</PosField>
+				</FormField>
 			</Box>
 		</Box>
 	);

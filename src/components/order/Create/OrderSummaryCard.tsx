@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import Callout from "components/shared/Callout/Callout";
+import FormField from "components/shared/Forms/FormField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
-import PosField from "components/transaction/Create/PosField";
 import {
 	POS_CARD_PADDING,
 	posSubmitSx,
@@ -90,15 +90,15 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
 			</Box>
 
 			<Box sx={blockSx}>
-				<PosField label={t("order.field.address")} optional>
+				<FormField label={t("order.field.address")} hint={t("common.optional")}>
 					<TextField
 						value={address}
 						placeholder={t("order.edit.addressPlaceholder")}
 						onChange={(e) => onAddressChange(e.target.value)}
 						fullWidth
 					/>
-				</PosField>
-				<PosField label={t("order.field.note")} optional>
+				</FormField>
+				<FormField label={t("order.field.note")} hint={t("common.optional")}>
 					<TextField
 						value={note}
 						placeholder={t("order.edit.notePlaceholder")}
@@ -107,7 +107,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
 						minRows={2}
 						fullWidth
 					/>
-				</PosField>
+				</FormField>
 			</Box>
 
 			<Box sx={blockSx}>
