@@ -23,6 +23,8 @@ import { typography } from "./typography";
 
 export type { ChipToken, ChipTokenKey } from "./chipTokens";
 export { chipTokens } from "./chipTokens";
+export type { IdentityTone } from "./identityPalette";
+export { identityTone } from "./identityPalette";
 export { designTokens } from "./palette";
 export type { DialogSize } from "./tokens";
 export {
