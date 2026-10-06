@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { layout } from "theme";
 
 import { Box, Collapse, List, useMediaQuery } from "@mui/material";
 
@@ -19,7 +20,7 @@ import RailButton from "./RailButton";
 import RailGroup from "./RailGroup";
 import SidebarBrand from "./SidebarBrand";
 import SidebarFooter from "./SidebarFooter";
-import { asideSx, navListSx, navScrollSx, subListSx } from "./styles";
+import { asideSx, navListSx, navScrollSx, RAIL_WIDTH, SIDEBAR_WIDTH, subListSx } from "./styles";
 import SubItem from "./SubItem";
 import TopLevelItem from "./TopLevelItem";
 
@@ -68,6 +69,15 @@ const Sidebar: React.FC = observer(() => {
 	useEffect(() => {
 		setExpandedState(autoCollapse ? false : readExpanded());
 	}, [pathname, autoCollapse]);
+
+	// Publishes the panel's width so toasts sit past it, never over «Выход».
+	useEffect(() => {
+		const root = document.documentElement;
+		root.style.setProperty(layout.sidebarWidthVar, `${expanded ? SIDEBAR_WIDTH : RAIL_WIDTH}px`);
+		return () => {
+			root.style.removeProperty(layout.sidebarWidthVar);
+		};
+	}, [expanded]);
 
 	const toggleGroup = (labelKey: string) =>
 		setExpandedGroups((prev) => ({ ...prev, [labelKey]: !prev[labelKey] }));

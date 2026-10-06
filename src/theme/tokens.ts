@@ -85,4 +85,6 @@ export const typeScale = {
  */
 export const layout = {
 	contentMax: 1600,
+	/** CSS variable holding the sidebar's current width (set by the sidebar; toasts sit past it). */
+	sidebarWidthVar: "--app-sidebar-width",
 } as const;

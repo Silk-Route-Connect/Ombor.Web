@@ -65,6 +65,7 @@
 
   "common.dash": "—",
   "common.documentTitle": "{{title}} · Ombor",
+  "common.toast.close": "Закрыть уведомление",
   "common.all": "Все",
 
   "common.movementKind.Sale": "Продажа",

@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter, Navigate, Route } from "react-router-dom";
+import ToastProvider from "components/shared/Toast/ToastProvider";
 import AppLayout from "layouts/AppLayout";
-import { SnackbarProvider, useSnackbar } from "notistack";
+import { useSnackbar } from "notistack";
 import ActivityLogPage from "pages/ActivityLogPage";
 import CategoryPage from "pages/CategoryPage";
 import DashboardPage from "pages/DashboardPage";
@@ -61,11 +62,7 @@ function SnackbarInjector() {
 function App() {
 	return (
 		<StoreProvider>
-			<SnackbarProvider
-				maxSnack={3}
-				preventDuplicate
-				anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-			>
+			<ToastProvider>
 				<BrowserRouter>
 					<AppBootstrap />
 					<SnackbarInjector />
@@ -135,7 +132,7 @@ function App() {
 						</Route>
 					</Routes>
 				</BrowserRouter>
-			</SnackbarProvider>
+			</ToastProvider>
 		</StoreProvider>
 	);
 }
