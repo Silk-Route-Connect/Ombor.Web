@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
-import { numericSx } from "theme";
+import { numericSx, radius } from "theme";
 
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, IconButton, LinearProgress, Paper, Tooltip, Typography } from "@mui/material";
@@ -19,12 +19,15 @@ interface GettingStartedCardProps {
 /**
  * Dashboard «Первые шаги» checklist (ux-2 / scope-22): the four getting-started
  * steps, each ticked from real data by `OnboardingStore`, shown until all are done
- * or the owner hides it.
+ * or the owner hides it. A first-run card explains itself; once a step is done it
+ * tightens (smaller title, no intro, finished steps on one line) so it stops
+ * pushing the day's figures below the fold.
  */
 const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 	({ progress, doneCount, onStep, onDismiss }) => {
 		const { t } = useTranslation();
 		const total = ONBOARDING_STEPS.length;
+		const firstRun = doneCount === 0;
 
 		return (
 			<Paper
@@ -32,21 +35,23 @@ const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 				sx={{
 					border: "1px solid",
 					borderColor: "divider",
-					borderRadius: "12px",
-					p: "22px 24px 22px",
-					mb: "16px",
+					borderRadius: `${radius.lg}px`,
+					p: firstRun ? "22px 24px" : "16px 20px 18px",
+					mb: 2,
 				}}
 			>
-				<Box sx={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+				<Box sx={{ display: "flex", alignItems: firstRun ? "flex-start" : "center", gap: 1.5 }}>
 					<Box sx={{ flex: 1, minWidth: 0 }}>
-						<Typography variant="h2" component="div">
-							{t(doneCount === 0 ? "onboarding.titleNew" : "onboarding.title")}
+						<Typography variant={firstRun ? "h2" : "h3"} component="div">
+							{t(firstRun ? "onboarding.titleNew" : "onboarding.title")}
 						</Typography>
-						<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "4px", lineHeight: 1.6 }}>
-							{t("onboarding.body")}
-						</Typography>
+						{firstRun && (
+							<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
+								{t("onboarding.body")}
+							</Typography>
+						)}
 					</Box>
-					<Typography sx={{ ...numericSx, fontSize: 13, color: "text.secondary", mt: "6px" }}>
+					<Typography variant="body2" sx={{ ...numericSx, color: "text.secondary" }}>
 						{t("onboarding.progress", { done: doneCount, total })}
 					</Typography>
 					<Tooltip title={t("onboarding.dismiss")}>
@@ -59,15 +64,18 @@ const GettingStartedCard: React.FC<GettingStartedCardProps> = observer(
 				<LinearProgress
 					variant="determinate"
 					value={(doneCount / total) * 100}
-					sx={{ mt: "14px", height: 6, borderRadius: 3 }}
+					sx={{ mt: firstRun ? 1.75 : 1.25, height: firstRun ? 6 : 4, borderRadius: 3 }}
 				/>
 
 				<Box
 					sx={{
 						display: "grid",
 						gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)", xl: "repeat(4, 1fr)" },
-						gap: "12px",
-						mt: "16px",
+						// Finished steps are one line; they keep their height instead of
+						// stretching to the open step's two-line hint.
+						alignItems: "start",
+						gap: 1.5,
+						mt: firstRun ? 2 : 1.75,
 					}}
 				>
 					{ONBOARDING_STEPS.map((step, i) => (

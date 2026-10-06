@@ -15,7 +15,10 @@ interface GettingStartedStepProps {
 	onOpen: () => void;
 }
 
-/** One checklist row: number (or a tick once the data shows it's done), title, hint. */
+/**
+ * One checklist row: number and hint while open; once the data shows it's done,
+ * a single quiet line — green tick and title.
+ */
 const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, done, onOpen }) => {
 	const { t } = useTranslation();
 
@@ -24,11 +27,15 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 			component="button"
 			type="button"
 			onClick={onOpen}
+			// The finished row drops its «Готово» line; the tick still reads out.
+			aria-label={
+				done ? `${t(`onboarding.step.${step.key}.title`)} — ${t("onboarding.done")}` : undefined
+			}
 			sx={{
 				display: "flex",
-				alignItems: "flex-start",
-				gap: "12px",
-				p: "14px",
+				alignItems: done ? "center" : "flex-start",
+				gap: 1.5,
+				p: done ? "9px 12px" : "14px",
 				width: "100%",
 				font: "inherit",
 				color: "inherit",
@@ -50,8 +57,8 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 		>
 			<Box
 				sx={{
-					width: 28,
-					height: 28,
+					width: done ? 22 : 28,
+					height: done ? 22 : 28,
 					flex: "0 0 auto",
 					borderRadius: `${radius.md}px`,
 					display: "grid",
@@ -62,7 +69,7 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 					fontSize: 13,
 				}}
 			>
-				{done ? <CheckIcon sx={{ fontSize: 17 }} /> : index + 1}
+				{done ? <CheckIcon sx={{ fontSize: 15 }} /> : index + 1}
 			</Box>
 			<Box sx={{ flex: 1, minWidth: 0 }}>
 				<Typography
@@ -70,9 +77,11 @@ const GettingStartedStep: React.FC<GettingStartedStepProps> = ({ step, index, do
 				>
 					{t(`onboarding.step.${step.key}.title`)}
 				</Typography>
-				<Typography variant="caption" component="div" sx={{ color: "text.secondary", mt: "3px" }}>
-					{done ? t("onboarding.done") : t(`onboarding.step.${step.key}.body`)}
-				</Typography>
+				{!done && (
+					<Typography variant="caption" component="div" sx={{ color: "text.secondary", mt: "3px" }}>
+						{t(`onboarding.step.${step.key}.body`)}
+					</Typography>
+				)}
 			</Box>
 			{!done && (
 				<ChevronRightIcon sx={{ fontSize: 18, color: "text.disabled", flex: "0 0 auto" }} />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
 import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import { DashboardSeriesPoint } from "models/dashboard";
@@ -31,8 +31,10 @@ interface Props {
 
 /**
  * «Динамика продаж и поставок» — sales vs supplies over the period. Smooth
- * area-filled lines by default (cleaner for comparing two trends), bars on
- * toggle. Teal = sales (primary), saffron = supplies (accent).
+ * lines by default, bars on toggle. Teal = sales (primary), saffron = supplies
+ * (accent). Sales is the series the owner reads first: a gradient area drawn
+ * on top; supplies is a plain line beneath it, so a large purchase week never
+ * buries the sales trend under a saffron fill.
  */
 const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 	const { t } = useTranslation();
@@ -40,6 +42,7 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 	const sales = theme.palette.primary.main;
 	const supplies = theme.palette.secondary.main;
 	const reduced = usePrefersReducedMotion();
+	const salesFillId = `sales-fill-${useId().replace(/:/g, "")}`;
 	const anim = {
 		isAnimationActive: !reduced,
 		animationDuration: 850,
@@ -90,22 +93,29 @@ const SalesSuppliesChart: React.FC<Props> = ({ series, chartType }) => {
 						content={renderTooltip}
 						cursor={{ stroke: designTokens.gray300, strokeDasharray: "3 3" }}
 					/>
-					<Area
-						type="monotone"
-						dataKey="sales"
-						stroke={sales}
-						strokeWidth={2.4}
-						fill={sales}
-						fillOpacity={0.13}
-						{...anim}
-					/>
+					<defs>
+						<linearGradient id={salesFillId} x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0%" stopColor={sales} stopOpacity={0.26} />
+							<stop offset="100%" stopColor={sales} stopOpacity={0.02} />
+						</linearGradient>
+					</defs>
 					<Area
 						type="monotone"
 						dataKey="supplies"
 						stroke={supplies}
-						strokeWidth={2.4}
-						fill={supplies}
-						fillOpacity={0.13}
+						strokeWidth={2}
+						fill="none"
+						activeDot={{ r: 4, strokeWidth: 0 }}
+						{...anim}
+					/>
+					<Area
+						type="monotone"
+						dataKey="sales"
+						stroke={sales}
+						strokeWidth={2.6}
+						fill={`url(#${salesFillId})`}
+						fillOpacity={1}
+						activeDot={{ r: 4.5, strokeWidth: 0 }}
 						{...anim}
 						animationBegin={120}
 					/>
