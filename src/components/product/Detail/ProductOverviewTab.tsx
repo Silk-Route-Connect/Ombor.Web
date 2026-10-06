@@ -40,6 +40,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								<ProductImage
 									src={getImageFullUrl(image.thumbnailUrl ?? image.originalUrl)}
 									alt={image.name}
+									name={product.name}
 									size={132}
 									radius={radius.md}
 									muted={product.isArchived}
