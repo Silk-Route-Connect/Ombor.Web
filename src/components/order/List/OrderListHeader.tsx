@@ -67,22 +67,32 @@ export const OrderListHeader: React.FC<OrderListHeaderProps> = ({
 				}
 			/>
 
+			{/* Eight status tabs need ~900px: below xl they take a line of their own
+			    under search and the filters, instead of hiding five statuses behind a fade. */}
 			<Box
 				sx={{
 					display: "flex",
 					alignItems: "center",
 					gap: 1.5,
 					mb: 2,
-					flexWrap: { xs: "wrap", lg: "nowrap" },
+					flexWrap: { xs: "wrap", xl: "nowrap" },
 				}}
 			>
 				<SearchInput
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("order.searchPlaceholder")}
-					sx={{ width: { xs: "100%", sm: 350, lg: 260 }, flex: "0 0 auto" }}
+					sx={{ width: { xs: "100%", sm: 350, xl: 280 }, flex: "0 0 auto" }}
 				/>
-				<Box sx={{ display: "flex", flex: "0 1 auto", minWidth: 0, maxWidth: "100%" }}>
+				<Box
+					sx={{
+						display: "flex",
+						flex: { xs: "1 1 100%", xl: "0 1 auto" },
+						order: { xs: 1, xl: 0 },
+						minWidth: 0,
+						maxWidth: "100%",
+					}}
+				>
 					<OrderStatusTabs value={statusFilter} counts={statusCounts} onChange={onStatusChange} />
 				</Box>
 				<Box sx={{ flexGrow: 1 }} />

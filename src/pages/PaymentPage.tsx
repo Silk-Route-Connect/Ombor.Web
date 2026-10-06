@@ -93,6 +93,8 @@ const PaymentPage: React.FC = observer(() => {
 				}
 				searchValue={paymentStore.searchTerm}
 				typeFilter={paymentStore.typeFilter}
+				directionFilter={paymentStore.directionFilter}
+				onDirectionChange={paymentStore.chooseDirection}
 				walletFilter={paymentStore.walletFilter}
 				walletOptions={paymentStore.walletOptions}
 				dateRange={paymentStore.dateRange}

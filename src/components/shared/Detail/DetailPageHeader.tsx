@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ActionMenu, { ActionMenuRow } from "components/shared/ActionMenuCell/MenuActionCell";
 import ArchivedBadge from "components/shared/ArchivedBadge/ArchivedBadge";
 import BackButton from "components/shared/Buttons/BackButton";
+import { controlSize } from "theme";
 
 import { Box, Typography } from "@mui/material";
 
@@ -68,11 +69,22 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 				mb: "20px",
 			}}
 		>
-			<Box sx={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
+			{/* Back, title and actions share one top line: the title row is the 38px
+			    control height, and a meta line hangs below it instead of re-centring
+			    the back button between two lines. */}
+			<Box sx={{ display: "flex", alignItems: "flex-start", gap: "14px", minWidth: 0 }}>
 				<BackButton onClick={goBack} />
 
 				<Box sx={{ minWidth: 0 }}>
-					<Box sx={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+					<Box
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							gap: "10px",
+							minWidth: 0,
+							minHeight: controlSize.md.height,
+						}}
+					>
 						<Typography
 							variant="h1"
 							sx={{
@@ -92,7 +104,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 								display: "flex",
 								alignItems: "center",
 								gap: "8px",
-								mt: "6px",
+								mt: "2px",
 								fontSize: 14,
 								color: "text.secondary",
 							}}

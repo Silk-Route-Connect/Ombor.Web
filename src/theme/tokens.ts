@@ -77,3 +77,12 @@ export const typeScale = {
 		fontVariantNumeric: "tabular-nums lining-nums",
 	}, // headline money cell
 } as const;
+
+/**
+ * Page layout. `contentMax` caps the content column on very wide screens (at
+ * 2560px a label and its amount sat ~1900px apart); at 1920 and below it
+ * changes nothing.
+ */
+export const layout = {
+	contentMax: 1600,
+} as const;

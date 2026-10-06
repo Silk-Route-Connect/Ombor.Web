@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import { layout } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -47,7 +48,11 @@ export default function AppLayout() {
 						"@media print": { overflow: "visible", p: 0 },
 					}}
 				>
-					<Outlet />
+					<Box
+						sx={{ maxWidth: layout.contentMax, mx: "auto", "@media print": { maxWidth: "none" } }}
+					>
+						<Outlet />
+					</Box>
 				</Box>
 			</Box>
 		</Box>

@@ -57,6 +57,7 @@ export interface IPaymentStore {
 	setTypeFilter(type: PaymentTypeFilter): void;
 	setWalletFilter(walletId: number | "all"): void;
 	setDirectionFilter(direction: PaymentDirection): void;
+	chooseDirection(direction: PaymentDirection | "all"): void;
 	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
@@ -260,8 +261,14 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	/** Toggle the direction filter — clicking the active direction clears it (PAY-3). */
+	/** A summary-card click: picks a direction, or clears it when it is already on. */
 	setDirectionFilter(direction: PaymentDirection): void {
 		this.directionFilter = this.directionFilter === direction ? "all" : direction;
+	}
+
+	/** The «Все | Приход | Расход» control in the filter row: an explicit choice. */
+	chooseDirection(direction: PaymentDirection | "all"): void {
+		this.directionFilter = direction;
 	}
 
 	setDateRange(range: DateRangeValue): void {

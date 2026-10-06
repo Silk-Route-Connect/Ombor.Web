@@ -30,6 +30,7 @@ export {
 	dialogPaperSx,
 	dialogWidth,
 	figuresSx,
+	layout,
 	numericSx,
 	radius,
 	typeScale,

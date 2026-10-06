@@ -222,10 +222,10 @@
   "sidebar.expand": "Развернуть меню",
 
   "topbar.quickActions": "Быстрые действия",
-  "topbar.quickActions.sale": "Продажа",
-  "topbar.quickActions.supply": "Поставка",
-  "topbar.quickActions.order": "Заказ",
-  "topbar.quickActions.payment": "Оплата",
+  "topbar.quickActions.sale": "Новая продажа",
+  "topbar.quickActions.supply": "Новая поставка",
+  "topbar.quickActions.order": "Новый заказ",
+  "topbar.quickActions.payment": "Новый платёж",
 
   "topbar.notifications": "Уведомления",
   "topbar.create": "Создать",
