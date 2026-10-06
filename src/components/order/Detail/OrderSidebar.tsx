@@ -2,126 +2,59 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import OrderSourceChip from "components/order/OrderSourceChip";
 import OrderStatusChip from "components/order/OrderStatusChip";
-import DetailCard from "components/shared/Detail/DetailCard";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import DetailNote from "components/shared/Detail/DetailNote";
+import { FactDivider, FactList, FactRow } from "components/shared/Detail/FactRow";
+import HeroAmountCard from "components/shared/Detail/HeroAmountCard";
 import { Order } from "models/order";
-import { designTokens, numericSx } from "theme";
+import { designTokens, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { isOrderEditable, ORDER_NEXT_STEP, orderSubtotal, orderTotal } from "utils/orderUtils";
+import { isOrderEditable, ORDER_NEXT_STEP, orderSubtotal } from "utils/orderUtils";
 
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { Box, Typography } from "@mui/material";
-
-const FinRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-	<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-		<Box component="span" sx={{ fontSize: 13.5, color: "text.secondary" }}>
-			{label}
-		</Box>
-		{children}
-	</Box>
-);
+import { Box } from "@mui/material";
 
 /**
- * Order summary rail — a single card (merged from the former partner + financial
- * cards): the order amount hero, then Партнёр / Скидка / Статус / Источник rows.
- * The line count and the partner's balance are intentionally dropped — the served
- * balance is the partner's *current* position, not their balance at order time, so
- * showing it against a past order misleads.
+ * Order summary rail — one card (merged from the former partner + financial
+ * cards): the served order total with its status, then Подытог / Скидка and
+ * Клиент / Источник. The line count and the partner's balance are intentionally
+ * dropped — the served balance is the partner's *current* position, not their
+ * balance at order time, so showing it against a past order misleads.
  */
-export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }> = ({
-	order,
-	onOpenCustomer,
-}) => {
+export const OrderSidebar: React.FC<{ order: Order }> = ({ order }) => {
 	const { t } = useTranslation();
-	const total = orderTotal(order.lines);
-	const discount = orderSubtotal(order.lines) - total;
+	const subtotal = orderSubtotal(order.lines);
+	// The served total wins (hard rule 8): the discount is whatever separates it
+	// from the undiscounted lines, so the rows always add up to the hero figure.
+	const discount = subtotal - order.total;
 	const step = ORDER_NEXT_STEP[order.status];
 
 	return (
 		<>
-			<DetailCard>
-				<Box sx={{ p: "18px" }}>
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-						{t("order.detail.orderAmount")}
-					</Typography>
-					<Typography
-						sx={{
-							...numericSx,
-							fontSize: 34,
-							fontWeight: 700,
-							letterSpacing: "-0.025em",
-							lineHeight: 1,
-							color: "primary.main",
-							mt: "6px",
-						}}
-					>
-						{formatCurrency(total)}
-						<UzsUnit sx={{ fontSize: 14 }} />
-					</Typography>
-
-					<Box
-						sx={{
-							mt: "18px",
-							pt: "16px",
-							borderTop: "1px solid",
-							borderColor: "divider",
-							display: "flex",
-							flexDirection: "column",
-							gap: "13px",
-						}}
-					>
-						<FinRow label={t("order.detail.customer")}>
-							<Box
-								component="span"
-								onClick={onOpenCustomer}
-								sx={{
-									fontWeight: 700,
-									color: "primary.main",
-									cursor: "pointer",
-									textAlign: "right",
-									"&:hover": { textDecoration: "underline" },
-								}}
-							>
-								{order.customerName}
-							</Box>
-						</FinRow>
-						<FinRow label={t("order.detail.discount")}>
-							<Box component="span" sx={{ ...numericSx, fontWeight: 600 }}>
-								{formatCurrency(discount)}
-							</Box>
-						</FinRow>
-						<FinRow label={t("order.col.status")}>
-							<OrderStatusChip status={order.status} />
-						</FinRow>
-						<FinRow label={t("order.col.source")}>
-							<OrderSourceChip source={order.source} />
-						</FinRow>
-					</Box>
-
-					{isOrderEditable(order.status) && (
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "flex-start",
-								gap: "8px",
-								mt: "16px",
-								p: "10px 12px",
-								bgcolor: designTokens.gray25,
-								border: "1px solid",
-								borderColor: "divider",
-								borderRadius: "8px",
-								fontSize: 12,
-								color: "text.secondary",
-								lineHeight: 1.45,
-							}}
-						>
-							<InfoOutlinedIcon sx={{ fontSize: 14, color: "text.disabled", mt: "1px" }} />
-							{t("order.detail.untouchedHint")}
-						</Box>
-					)}
-				</Box>
-			</DetailCard>
+			<HeroAmountCard
+				caption={t("order.detail.orderAmount")}
+				value={formatCurrency(order.total)}
+				status={<OrderStatusChip status={order.status} />}
+			>
+				<FactList divided={false} inset={false}>
+					<FactRow label={t("order.detail.subtotal")} money={subtotal} />
+					<FactRow
+						label={t("order.detail.discountByLines")}
+						money={discount}
+						valueColor={designTokens.saffron700}
+					/>
+					<FactDivider />
+					<FactRow label={t("order.detail.customer")}>
+						<PartnerLink id={order.customerId} name={order.customerName} />
+					</FactRow>
+					<FactRow label={t("order.col.source")}>
+						<OrderSourceChip source={order.source} />
+					</FactRow>
+				</FactList>
+				{isOrderEditable(order.status) && (
+					<DetailNote>{t("order.detail.untouchedHint")}</DetailNote>
+				)}
+			</HeroAmountCard>
 
 			{/* promote-to-sale hint */}
 			{step?.promote && (
@@ -130,12 +63,12 @@ export const OrderSidebar: React.FC<{ order: Order; onOpenCustomer: () => void }
 						display: "flex",
 						gap: "11px",
 						p: "14px 16px",
-						borderRadius: "12px",
+						borderRadius: `${radius.lg}px`,
 						bgcolor: designTokens.primarySoft,
 						border: "1px solid",
 						borderColor: designTokens.primaryLine,
 						color: "primary.main",
-						fontSize: 13,
+						typography: "body2",
 						lineHeight: 1.5,
 					}}
 				>

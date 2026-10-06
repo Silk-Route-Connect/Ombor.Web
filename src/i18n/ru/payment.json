@@ -115,6 +115,7 @@
   "payment.detail.paid": "Выплачено",
   "payment.detail.description": "Описание",
   "payment.detail.info": "Информация",
+  "payment.detail.amount": "Сумма платежа",
   "payment.detail.attachments": "Вложения",
   "payment.detail.fromTransaction": "Из операции",
   "payment.detail.partner": "Партнёр",

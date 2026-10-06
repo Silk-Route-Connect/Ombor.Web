@@ -17,7 +17,7 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { orderInvoicePath, partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
+import { orderInvoicePath, PATHS, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatOptionalNumber } from "utils/formatEntityId";
 
@@ -52,8 +52,6 @@ const OrderDetailPage: React.FC = observer(() => {
 		);
 	}
 
-	const openCustomer = () => navigate(partnerDetailPath(order.customerId));
-
 	const twoColSx = {
 		display: "grid",
 		gridTemplateColumns: DETAIL_RAIL_COLUMNS,
@@ -86,7 +84,7 @@ const OrderDetailPage: React.FC = observer(() => {
 					<EntityHistory kind="Order" id={order.id} refreshKey={order} variant="card" />
 				</Box>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-					<OrderSidebar order={order} onOpenCustomer={openCustomer} />
+					<OrderSidebar order={order} />
 				</Box>
 			</Box>
 

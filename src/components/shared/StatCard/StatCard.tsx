@@ -8,7 +8,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, ButtonBase, Paper, Tooltip, Typography } from "@mui/material";
 
-import { STAT_TONE_TOKEN, StatTone } from "./statTone";
+import { heroShade, STAT_TONE_TOKEN, StatTone } from "./statTone";
 
 export interface StatCardProps {
 	/** The glyph of the figure (16–18px icon), shown on a tinted tile. */
@@ -44,18 +44,6 @@ export interface StatCardProps {
 }
 
 const GO_ARROW_CLASS = "stat-go";
-
-/**
- * A 26px figure in a signal shade reads as a traffic light; the card draws it in
- * the same family's dark on-tint shade — the hue (and so the meaning, pattern 4)
- * is unchanged. Table money, sparklines and icons keep the `.main` shades.
- */
-const HERO_SHADE: Record<string, string> = {
-	"success.main": "success.dark",
-	"error.main": "error.dark",
-	// The aging axis is amber; the warning family's dark shade leans olive.
-	"warning.main": designTokens.saffron700,
-};
 
 /**
  * The one summary-figure card of the app — dashboard KPIs, list summary strips,
@@ -158,7 +146,7 @@ const StatCard: React.FC<StatCardProps> = ({
 					...typeScale.numStrong,
 					mt: 1.5,
 					lineHeight: 1.1,
-					color: HERO_SHADE[valueColor] ?? valueColor,
+					color: heroShade(valueColor),
 					overflowWrap: "anywhere",
 					// A big figure with kopecks is wider than a quarter-row card on a 1366px
 					// laptop; a narrow card steps the figure down instead of wrapping it.

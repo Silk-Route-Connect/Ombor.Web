@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import StatusPill from "components/shared/Chip/StatusPill";
+import UzsUnit from "components/shared/Money/UzsUnit";
+import { heroShade } from "components/shared/StatCard/statTone";
 import { DashboardAgingBucket, DashboardAgingBucketKey } from "models/dashboard";
 import { designTokens, numericSx, typeScale } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -13,17 +14,17 @@ import { EASE, usePrefersReducedMotion } from "./motion";
 interface Props {
 	aging: DashboardAgingBucket[];
 	receivableTotal: number;
+	/** The served receivable aged 31+ days — shown as its share, the KPI card above has the sum. */
 	overdue: number;
-	overdueCount: number;
 }
 
 /**
- * «Дебиторка по срокам» — receivables broken into age buckets with a stacked
- * proportion bar and escalating colours, an overdue (31+ days) banner, and a
- * "total to receive" footer. Not clickable — an at-a-glance indicator (the user
- * acts from the «Долги» page). Buckets sum to the receivable total.
+ * «Нам должны — по давности» — the receivable total, broken into age buckets
+ * with a stacked proportion bar and escalating colours; the 31+ days share is
+ * named beside the total. Not clickable — an at-a-glance indicator (the user acts
+ * from the «Долги» page). Buckets sum to the receivable total.
  */
-const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueCount }) => {
+const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
@@ -36,6 +37,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 	const pct = (amt: number): number =>
 		receivableTotal > 0 ? Math.round((amt / receivableTotal) * 100) : 0;
 	const hasOverdue = overdue > 0;
+	const overdueShare = pct(overdue);
 
 	// Grow the proportion bar in from zero on mount; CSS-transition the widths so
 	// they also re-animate smoothly when the period changes.
@@ -62,38 +64,47 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 			}}
 		>
 			<Box sx={{ p: "16px 20px 0" }}>
-				<Typography sx={{ fontSize: 15, fontWeight: 600 }}>{t("dashboard.aging.title")}</Typography>
+				<Typography variant="h3" component="h2">
+					{t("dashboard.aging.title")}
+				</Typography>
 			</Box>
 
 			<Box
 				sx={{
 					display: "flex",
-					alignItems: "center",
+					alignItems: "flex-end",
 					justifyContent: "space-between",
+					flexWrap: "wrap",
 					gap: 1.5,
 					p: "16px 20px",
 				}}
 			>
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-					<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-						{t("dashboard.aging.overdueLabel")}
+				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+					<Typography variant="body2" sx={{ color: "text.secondary" }}>
+						{t("dashboard.aging.total")}
 					</Typography>
 					<Typography
-						sx={{
-							...typeScale.numStrong,
-							lineHeight: 1,
-							color: hasOverdue ? "warning.main" : "text.disabled",
-						}}
+						component="div"
+						sx={{ ...typeScale.numStrong, lineHeight: 1.1, color: heroShade("success.main") }}
 					>
-						{formatCurrency(overdue)}
+						{formatCurrency(receivableTotal)}
+						<UzsUnit sx={{ fontSize: 13 }} />
 					</Typography>
 				</Box>
 				{hasOverdue && (
-					<StatusPill
-						token="warning"
-						icon={ReportProblemOutlinedIcon}
-						label={t("debt.summary.txCount", { count: overdueCount })}
-					/>
+					<Box
+						sx={{
+							display: "inline-flex",
+							alignItems: "center",
+							gap: "6px",
+							typography: "body2",
+							fontWeight: 600,
+							color: designTokens.saffron700,
+						}}
+					>
+						<ReportProblemOutlinedIcon sx={{ fontSize: 16, color: "warning.main" }} />
+						{t("dashboard.aging.overdueShare", { pct: overdueShare })}
+					</Box>
 				)}
 			</Box>
 
@@ -121,7 +132,7 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 				))}
 			</Box>
 
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "13px", p: "2px 20px 18px" }}>
+			<Box sx={{ display: "flex", flexDirection: "column", gap: "13px", p: "2px 20px 20px" }}>
 				{aging.map((b) => (
 					<Box
 						key={b.bucket}
@@ -135,42 +146,20 @@ const AgingPanel: React.FC<Props> = ({ aging, receivableTotal, overdue, overdueC
 						<Box
 							sx={{ width: 10, height: 10, borderRadius: "3px", bgcolor: bucketColor[b.bucket] }}
 						/>
-						<Box sx={{ fontSize: 13, color: designTokens.gray700 }}>
+						<Box sx={{ typography: "body2", color: designTokens.gray700 }}>
 							{t(`dashboard.aging.bucket.${b.bucket}`)}
 							<Box
 								component="span"
-								sx={{ ...numericSx, color: "text.disabled", ml: "7px", fontSize: 12 }}
+								sx={{ ...numericSx, typography: "caption", color: "text.secondary", ml: "7px" }}
 							>
 								{pct(b.amount)}%
 							</Box>
 						</Box>
-						<Box component="span" sx={{ ...numericSx, fontSize: 14, fontWeight: 600 }}>
+						<Box component="span" sx={{ ...numericSx, typography: "body1", fontWeight: 600 }}>
 							{formatCurrency(b.amount)}
 						</Box>
 					</Box>
 				))}
-			</Box>
-
-			<Box
-				sx={{
-					mt: "auto",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-					p: "14px 20px",
-					borderTop: "1px solid",
-					borderColor: "divider",
-				}}
-			>
-				<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-					{t("dashboard.aging.total")}
-				</Typography>
-				<Box
-					component="span"
-					sx={{ ...numericSx, fontWeight: 700, fontSize: 16, color: "success.main" }}
-				>
-					{formatCurrency(receivableTotal)}
-				</Box>
 			</Box>
 		</Paper>
 	);

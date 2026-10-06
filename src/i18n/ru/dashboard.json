@@ -59,7 +59,7 @@
   "dashboard.chart.allWallets": "Все кассы",
 
   "dashboard.aging.title": "Нам должны — по давности",
-  "dashboard.aging.overdueLabel": "Старше 30 дней",
+  "dashboard.aging.overdueShare": "{{pct}}% старше 30 дней",
   "dashboard.aging.bucket.0-7": "0–7 дней",
   "dashboard.aging.bucket.8-30": "8–30 дней",
   "dashboard.aging.bucket.31-60": "31–60 дней",

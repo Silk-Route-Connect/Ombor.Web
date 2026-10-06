@@ -195,7 +195,6 @@ const DashboardPage: React.FC = observer(() => {
 								aging={data.aging}
 								receivableTotal={data.receivable.value}
 								overdue={data.overdue.value}
-								overdueCount={data.overdue.count}
 							/>
 
 							<ChartPanel<ChartKind>
