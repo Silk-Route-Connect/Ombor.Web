@@ -14,6 +14,8 @@ import StateMessage, { StateSize } from "./StateMessage";
 export interface NotFoundConfig {
 	/** «Платёж не найден». */
 	title: string;
+	/** The line under the title; defaults to «Возможно, запись удалили или ссылка неверна.». */
+	body?: string;
 	/** The list route the «К списку» button returns to. */
 	backTo: string;
 	backLabel?: string;
@@ -68,7 +70,7 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 				size={size}
 				icon={<SearchOffOutlinedIcon />}
 				title={notFound?.title ?? t("common.loadState.notFound")}
-				body={t("common.loadState.notFoundBody")}
+				body={notFound?.body ?? t("common.loadState.notFoundBody")}
 				action={
 					notFound && (
 						<GhostButton onClick={() => navigate(notFound.backTo)}>
