@@ -41,7 +41,9 @@ export const ToastContent = forwardRef<HTMLDivElement, CustomContentProps>(funct
 			ref={ref}
 			style={style}
 			className={className}
-			role={variant === "error" || variant === "warning" ? "alert" : "status"}
+			// «alert» for every variant, as notistack had it: a «status» region that
+			// appears already filled is often not read out by NVDA / JAWS.
+			role="alert"
 		>
 			<Box
 				sx={{

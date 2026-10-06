@@ -23,6 +23,8 @@ const COMPONENTS = {
  * bottom-left of the content — past the sidebar (its width comes from the
  * `layout.sidebarWidthVar` the sidebar publishes), so a toast never covers
  * «Настройки» / «Выход»; without a sidebar (sign-in pages) it keeps the gutter.
+ * While a dialog is open the sidebar sits behind its backdrop, so the toasts
+ * move back to the screen edge instead of covering the dialog's own buttons.
  * Toasts fade in place: notistack's default slide enters from the viewport's
  * left edge and would sweep across the sidebar on every toast.
  */
@@ -40,6 +42,10 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 				[`.notistack-SnackbarContainer.${CONTAINER_CLASS}`]: {
 					left: `calc(var(${layout.sidebarWidthVar}, 0px) + ${GUTTER}px)`,
 					maxWidth: `calc(100% - var(${layout.sidebarWidthVar}, 0px) - ${GUTTER * 2}px)`,
+				},
+				[`body:has(.MuiDialog-root) .notistack-SnackbarContainer.${CONTAINER_CLASS}`]: {
+					left: GUTTER,
+					maxWidth: `calc(100% - ${GUTTER * 2}px)`,
 				},
 				// notistack's 288px floor overflows the column beside the rail on a phone;
 				// the toast card sets its own minimum from `sm` up.
