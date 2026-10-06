@@ -13,8 +13,11 @@ import { formatCurrency } from "utils/formatCurrency";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box, Button, InputAdornment, Typography } from "@mui/material";
 
-/** Product · quantity · unit cost · line value · remove — the header captions share it. */
-export const OPENING_LINE_GRID = "1fr 108px 150px 132px 38px";
+/**
+ * Product · quantity · unit cost · line value · remove — the header captions share
+ * it. The cost column holds a nine-figure cost at the money-input weight beside «UZS».
+ */
+export const OPENING_LINE_GRID = "1fr 108px 160px 132px 38px";
 
 interface OpeningStockLineRowProps {
 	index: number;
