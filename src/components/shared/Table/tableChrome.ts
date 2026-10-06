@@ -12,6 +12,7 @@ import { SxProps, Theme } from "@mui/material";
  * - band separators                          --border    → palette.divider
  * - in-body row dividers (lighter)           --divider   → designTokens.gray100
  * - row hover (clickable rows only)          teal wash   → palette.action.hover
+ * - row keyboard focus (clickable rows)      2px inset ring → palette.primary.main
  */
 
 /** Header band height — fixed, so a column with an «i» never makes its band taller. */
@@ -77,10 +78,20 @@ export const TOTAL_CELL_SX: SxProps<Theme> = {
  * Body row chrome: hairline rows, the last one borderless (the footer band or
  * card edge closes the table). Only a row that opens something gets the hover
  * wash and the pointer — a static row (Reports, Categories) never looks clickable.
+ * A keyboard-focused row draws its own inset ring: MUI's `TableRow` resets
+ * `outline`, which beats the app-wide zero-specificity `:focus-visible` ring.
  */
 export const rowChromeSx = (clickable: boolean): SxProps<Theme> => ({
 	"&:last-of-type td": { borderBottom: 0 },
-	...(clickable && { cursor: "pointer", "&:hover": { bgcolor: "action.hover" } }),
+	...(clickable && {
+		cursor: "pointer",
+		"&:hover": { bgcolor: "action.hover" },
+		"&:focus-visible": {
+			outline: (theme: Theme) => `2px solid ${theme.palette.primary.main}`,
+			outlineOffset: "-2px",
+			bgcolor: "action.hover",
+		},
+	}),
 });
 
 /** Footer band — brackets the body opposite the header band (pager, totals). */
