@@ -1,6 +1,7 @@
 import React from "react";
+import { designTokens, radius } from "theme";
 
-import { Box, Paper, Typography } from "@mui/material";
+import { alpha, Box, Paper, Typography } from "@mui/material";
 
 export type StateSize = "page" | "section";
 
@@ -28,21 +29,25 @@ export const StateMessage: React.FC<StateMessageProps> = ({
 	size,
 	role,
 }) => {
+	const tint = tone === "error" ? designTokens.errorBg : designTokens.primarySoft;
 	const content = (
 		<Box role={role} sx={{ textAlign: "center", py: size === "page" ? 8 : 5, px: 3 }}>
+			{/* The brand tint (error tint for a failure) with a soft halo: an empty
+			    screen still looks like Ombor, not like something broke. */}
 			<Box
+				aria-hidden
 				sx={{
 					width: 56,
 					height: 56,
-					borderRadius: 1.5,
+					borderRadius: `${radius.lg}px`,
 					mx: "auto",
-					mb: 2,
+					mb: 2.5,
 					display: "grid",
 					placeItems: "center",
-					bgcolor: "background.default",
-					border: 1,
-					borderColor: tone === "error" ? "error.light" : "divider",
-					color: tone === "error" ? "error.main" : "text.disabled",
+					bgcolor: tint,
+					color: tone === "error" ? "error.main" : "primary.main",
+					boxShadow: `0 0 0 8px ${alpha(tint, 0.45)}`,
+					"& .MuiSvgIcon-root": { fontSize: 28 },
 				}}
 			>
 				{icon}
