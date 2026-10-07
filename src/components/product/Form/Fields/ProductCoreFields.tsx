@@ -10,15 +10,10 @@ import { ProductType } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import {
-	Box,
-	IconButton,
-	InputAdornment,
-	MenuItem,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, IconButton, InputAdornment, Stack, TextField, Typography } from "@mui/material";
+
+import ProductMeasurementField from "./ProductMeasurementField";
+import ProductStockAlertField from "./ProductStockAlertField";
 
 export interface ProductFormCoreFieldsProps {
 	control: Control<ProductFormInputs>;
@@ -30,7 +25,6 @@ export interface ProductFormCoreFieldsProps {
 	skuAutofill?: boolean;
 }
 
-const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as const;
 const TYPES: ProductType[] = ["Sale", "Supply", "All"];
 
 const uzsSuffix = {
@@ -39,7 +33,9 @@ const uzsSuffix = {
 
 /**
  * Core fields laid out per the bundle's dialog: a 196px/1fr top grid (images
- * left; name + category/unit right), then full-width rows — артикул/штрих-код,
+ * left; name, category, then the unit beside «Минимальный остаток» with what the
+ * threshold does — set when the product is added, not hidden in «Дополнительно»),
+ * then full-width rows — артикул/штрих-код,
  * «Тип товара» segmented control, and the type-dependent price pair. Labels sit
  * above the inputs (`.flabel`); inputs are 40px (`.tinput`, MUI small).
  */
@@ -91,53 +87,37 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 						/>
 					</FormField>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-						<FormField label={t("product.category")} required>
-							<Controller
-								name="categoryId"
-								control={control}
-								render={({ field, fieldState }) => (
-									<CategoryAutocomplete
-										mode="id"
-										value={field.value ?? null}
-										size="small"
-										label=""
-										placeholder={t("product.form.categoryPlaceholder")}
-										disabled={disabled}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-										onChange={(id) =>
-											setValue("categoryId", id, { shouldDirty: true, shouldValidate: true })
-										}
-									/>
-								)}
-							/>
-						</FormField>
-						<FormField label={t("product.measurement")}>
-							<Controller
-								name="measurement"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										select
-										size="small"
-										fullWidth
-										value={field.value}
-										onChange={(e) => field.onChange(e.target.value)}
-										disabled={disabled}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									>
-										{MEASUREMENTS.map((m) => (
-											<MenuItem key={m} value={m}>
-												{t(`product.measurement.${m}`)}
-											</MenuItem>
-										))}
-									</TextField>
-								)}
-							/>
-						</FormField>
-					</Box>
+					<FormField label={t("product.category")} required>
+						<Controller
+							name="categoryId"
+							control={control}
+							render={({ field, fieldState }) => (
+								<CategoryAutocomplete
+									mode="id"
+									value={field.value ?? null}
+									size="small"
+									label=""
+									placeholder={t("product.form.categoryPlaceholder")}
+									disabled={disabled}
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+									onChange={(id) =>
+										setValue("categoryId", id, { shouldDirty: true, shouldValidate: true })
+									}
+								/>
+							)}
+						/>
+					</FormField>
+
+					<Stack sx={{ gap: "6px" }}>
+						<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+							<ProductMeasurementField control={control} disabled={disabled} />
+							<ProductStockAlertField control={control} disabled={disabled} />
+						</Box>
+						<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
+							{t("product.form.lowStockHelper")}
+						</Typography>
+					</Stack>
 				</Stack>
 			</Box>
 

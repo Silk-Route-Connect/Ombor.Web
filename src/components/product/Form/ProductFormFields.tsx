@@ -13,7 +13,6 @@ import { Stack, TextField } from "@mui/material";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";
-import ProductStockAlertField from "./Fields/ProductStockAlertField";
 import ProductFormImages from "./Images/ProductFormImages";
 
 export interface ProductFormFieldsProps {
@@ -27,9 +26,9 @@ export interface ProductFormFieldsProps {
 
 /**
  * Dialog body per the bundle: core fields (with the image block in the top
- * grid's left column), then two `FormSection`s — «Фасовка» (its switch on the
- * heading line) and «Дополнительно» (the «Минимальный остаток» alert threshold
- * and the description).
+ * grid's left column and the «Минимальный остаток» beside the unit), then two
+ * `FormSection`s — «Фасовка» (its switch on the heading line) and
+ * «Дополнительно» (the description).
  */
 const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	api,
@@ -112,8 +111,6 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 			/>
 
 			<FormSection title={t("product.form.moreSection")} icon={<TuneOutlinedIcon />}>
-				<ProductStockAlertField control={control} disabled={disabled} />
-
 				<FormField label={t("product.description")}>
 					<Controller
 						name="description"

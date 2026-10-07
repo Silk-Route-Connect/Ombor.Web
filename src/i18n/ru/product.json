@@ -128,7 +128,7 @@
   "product.form.skuHelper": "Заполнится сам по названию — можно изменить",
   "product.form.optionalPlaceholder": "Необязательно",
   "product.form.lowStockLabel": "Минимальный остаток",
-  "product.form.lowStockHelper": "Когда остаток на всех складах опустится до этого числа, товар отметится «Мало» в списках. Пусто — отметка появится, только когда товар закончится.",
+  "product.form.lowStockHelper": "Когда остаток опустится до этого числа, товар появится в «Заканчивается» — на главной, в товарах и на складах.",
   "product.form.descriptionPlaceholder": "Описание товара…",
   "product.form.packLabelPlaceholder": "Например: Коробка 24 шт",
   "product.form.moreSection": "Дополнительно",
