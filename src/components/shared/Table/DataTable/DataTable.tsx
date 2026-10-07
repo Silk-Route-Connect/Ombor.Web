@@ -15,7 +15,6 @@ import { useTableSort } from "../useTableSort";
 import DataTableGrid from "./DataTableGrid";
 import { DataTableTotalRow } from "./DataTableRow";
 import {
-	DEFAULT_ROWS_PER_PAGE,
 	fixedTableSx,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
@@ -67,10 +66,10 @@ export interface DataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
 	columns: Column<T>[];
 	className?: string;
-	/** 10/25/50 pager; on by default — pass `false` only with a documented reason. */
+	/** 25/50/100 pager; on by default — pass `false` only with a documented reason. */
 	pagination?: boolean;
-	rowsPerPageOptions?: number[];
-	/** Initial page size; defaults to the first entry of rowsPerPageOptions. */
+	rowsPerPageOptions?: readonly number[];
+	/** Initial page size; defaults to 25 (or the smallest of `rowsPerPageOptions`). */
 	defaultRowsPerPage?: number;
 	/** Initial sort column + direction (see {@link DefaultSort}). */
 	defaultSort?: DefaultSort;
@@ -123,12 +122,11 @@ export function DataTable<T extends { id: string | number }>({
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
-		"list",
-		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
-		rowsPerPageOptions,
-		storageKey,
-	);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage("list", {
+		options: rowsPerPageOptions,
+		initial: defaultRowsPerPage,
+		tableKey: storageKey,
+	});
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 
 	const sortedRows = useMemo<Loadable<T[]>>(

@@ -2,10 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Column, DefaultSort } from "components/shared/Table/DataTable/DataTable";
 import DataTableGrid from "components/shared/Table/DataTable/DataTableGrid";
-import {
-	DEFAULT_ROWS_PER_PAGE,
-	ROWS_PER_PAGE_OPTIONS,
-} from "components/shared/Table/DataTable/tableConfigs";
 import { FOOTER_SX } from "components/shared/Table/tableChrome";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { TableOrder } from "components/shared/Table/tableOrder";
@@ -31,7 +27,7 @@ interface DetailTableProps<T extends { id: string | number }> {
 	isRowClickable?: (row: T) => boolean;
 	/** Per-row highlight (e.g. the opening-balance row). */
 	rowSx?: (row: T) => SxProps<Theme> | undefined;
-	/** 10/25/50 pager under the table. Off for short line tables with a total band. */
+	/** 25/50/100 pager under the table. Off for short line tables with a total band. */
 	pagination?: boolean;
 	/** Total band: `<tr className="total">` rows appended to the body (`.r` right-aligns a cell). */
 	footer?: React.ReactNode;
@@ -70,12 +66,7 @@ export function DetailTable<T extends { id: string | number }>({
 	const { t } = useTranslation();
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
-		"detail",
-		ROWS_PER_PAGE_OPTIONS[0] ?? DEFAULT_ROWS_PER_PAGE,
-		ROWS_PER_PAGE_OPTIONS,
-		storageKey,
-	);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage("detail", { tableKey: storageKey });
 
 	const sorted = useMemo(() => sortRows(rows), [rows, sortRows]);
 

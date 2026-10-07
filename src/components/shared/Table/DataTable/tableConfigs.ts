@@ -8,13 +8,14 @@ import { SxProps, Theme } from "@mui/material";
  * detail alike) lives in `../tableChrome`.
  */
 
-export const DEFAULT_ROWS_PER_PAGE = 10;
-
 /**
- * Canonical page-size choices for every table. Override per table only with a
- * documented reason (e.g. very high-volume feeds).
+ * Canonical page-size choices for every table (owner decision 2026-10-07: 25 /
+ * 50 / 100, opening on 25). Override per table only with a documented reason
+ * (e.g. very high-volume feeds).
  */
-export const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+export const ROWS_PER_PAGE_OPTIONS: readonly number[] = [25, 50, 100];
+
+export const DEFAULT_ROWS_PER_PAGE = 25;
 
 /** Width of the trailing ⋮ actions column (fits a single icon button). */
 export const ACTIONS_COLUMN_WIDTH = 56;

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
+import { DEFAULT_ROWS_PER_PAGE, ROWS_PER_PAGE_OPTIONS } from "./DataTable/tableConfigs";
+
 const STORAGE_PREFIX = "ombor.rowsPerPage:";
 
 /**
@@ -33,24 +35,40 @@ function writeStored(key: string, value: number): void {
 	}
 }
 
+interface RowsPerPageConfig {
+	/** The table's page sizes; the canonical 25 / 50 / 100 unless it overrides them. */
+	options?: readonly number[];
+	/** The size a first visit opens on; 25 (or the smallest option) when left out. */
+	initial?: number;
+	/** Names the table among several on one page (see `storageKeyOf`). */
+	tableKey?: string;
+}
+
+function startingSize(options: readonly number[], initial?: number): number {
+	if (initial !== undefined && options.includes(initial)) return initial;
+	if (options.includes(DEFAULT_ROWS_PER_PAGE)) return DEFAULT_ROWS_PER_PAGE;
+	return options[0] ?? DEFAULT_ROWS_PER_PAGE;
+}
+
 /**
- * A table's page size, remembered per viewer in this browser: the 10 / 25 / 50
- * last picked for this table comes back on the next visit. A per-viewer
- * convenience only — without storage the table opens on `initial` as before.
+ * A table's page size, remembered per viewer in this browser: the 25 / 50 / 100
+ * last picked for this table comes back on the next visit. A remembered size
+ * that is no longer offered (the 10 of the old 10 / 25 / 50 set) is ignored, so
+ * the table opens on 25 again. A per-viewer convenience only — without storage
+ * the table opens on its starting size.
  */
 export function useRowsPerPage(
 	scope: "list" | "detail",
-	initial: number,
-	options: readonly number[],
-	tableKey?: string,
+	{ options = ROWS_PER_PAGE_OPTIONS, initial, tableKey }: RowsPerPageConfig = {},
 ): [number, (next: number) => void] {
 	const { pathname } = useLocation();
 	const key = storageKeyOf(scope, pathname, tableKey);
-	const [state, setState] = useState(() => ({ key, value: readStored(key, options) ?? initial }));
+	const restore = () => readStored(key, options) ?? startingSize(options, initial);
+	const [state, setState] = useState(() => ({ key, value: restore() }));
 
 	// The same table instance can move to another route (Продажи → Поставки).
 	if (state.key !== key) {
-		setState({ key, value: readStored(key, options) ?? initial });
+		setState({ key, value: restore() });
 	}
 
 	const update = (next: number) => {

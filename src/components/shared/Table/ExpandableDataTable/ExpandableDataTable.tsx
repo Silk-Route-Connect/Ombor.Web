@@ -24,7 +24,6 @@ import { Column, DefaultSort, SortOrder } from "../DataTable/DataTable";
 import DataTableHead, { LEADING_COLUMN_WIDTH } from "../DataTable/DataTableHead";
 import DataTableRow from "../DataTable/DataTableRow";
 import {
-	DEFAULT_ROWS_PER_PAGE,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
 	TABLE_SCROLL_SX,
@@ -40,9 +39,9 @@ export interface ExpandableDataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
 	/** Same column API as `DataTable` (sorting, alignment, cells). */
 	columns: Column<T>[];
-	/** 10/25/50 pager; on by default. */
+	/** 25/50/100 pager; on by default. */
 	pagination?: boolean;
-	rowsPerPageOptions?: number[];
+	rowsPerPageOptions?: readonly number[];
 	defaultSort?: DefaultSort;
 	/** The page's `useTableOrder()` — its CSV export then writes rows in this table's order. */
 	exportOrder?: TableOrder<T>;
@@ -85,11 +84,7 @@ export function ExpandableDataTable<T extends { id: string | number }>({
 }: Readonly<ExpandableDataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useRowsPerPage(
-		"list",
-		rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
-		rowsPerPageOptions,
-	);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage("list", { options: rowsPerPageOptions });
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 	const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
 
