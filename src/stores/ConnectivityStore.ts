@@ -107,10 +107,8 @@ export class ConnectivityStore implements IConnectivityStore {
 	}
 
 	get saveBlockedBy(): SaveBlockCause | null {
-		if (this.isOffline) {
-			return "offline";
-		}
-		return this.isBackendDown ? "backendDown" : null;
+		const status = this.status;
+		return status === "offline" || status === "backendDown" ? status : null;
 	}
 
 	/** Interceptor: a request failed for lack of a connection. */
@@ -123,7 +121,10 @@ export class ConnectivityStore implements IConnectivityStore {
 	reportUp(): void {
 		this.reports += 1;
 		this.lastResponseAt = this.env.now();
-		if (this.isDisconnected) {
+		// A response sent before the network dropped can land after the offline
+		// event; it proves nothing about the network now, so only the online
+		// event's re-check lifts «Нет интернета» (and the save gate with it).
+		if (this.isDisconnected && this.env.isOnline()) {
 			this.restore();
 		}
 	}
