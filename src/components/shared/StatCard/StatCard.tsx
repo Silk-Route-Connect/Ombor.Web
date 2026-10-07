@@ -4,6 +4,7 @@ import InfoHint from "components/shared/InfoHint/InfoHint";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { designTokens, iconSize, radius, typeScale } from "theme";
 
+import CheckIcon from "@mui/icons-material/Check";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import { Box, ButtonBase, Paper, Tooltip, Typography } from "@mui/material";
@@ -35,7 +36,7 @@ export interface StatCardProps {
 	chart?: React.ReactNode;
 	/** Makes the whole card one button (opens the module, toggles a filter). */
 	onClick?: () => void;
-	/** Pressed state of a toggle card (`aria-pressed`). */
+	/** Pressed state of a toggle card (`aria-pressed`) — set it, even `false`, on every filter card. */
 	active?: boolean;
 	/** Border colour of an active toggle card. */
 	activeColor?: string;
@@ -49,7 +50,8 @@ const GO_ARROW_CLASS = "stat-go";
  * The one summary-figure card of the app — dashboard KPIs, list summary strips,
  * detail KPIs and report totals share this anatomy: icon tile · caption (+ «i»)
  * · the figure with its unit · a footer line · optional detail and chart. A
- * clickable card lifts on hover and shows ↗; a toggle card shows its pressed state.
+ * clickable card lifts on hover and shows ↗ (it opens something); a toggle card
+ * (a filter) shows ✓ and its accent border while pressed instead — it goes nowhere.
  */
 const StatCard: React.FC<StatCardProps> = ({
 	icon,
@@ -68,7 +70,14 @@ const StatCard: React.FC<StatCardProps> = ({
 	tooltip,
 }) => {
 	const clickable = Boolean(onClick);
+	const toggle = active !== undefined;
 	const accent = active && activeColor ? activeColor : undefined;
+	const cornerSx = {
+		position: "absolute",
+		top: 16,
+		right: 16,
+		fontSize: iconSize.sm,
+	} as const;
 
 	const card = (
 		<Paper
@@ -105,20 +114,15 @@ const StatCard: React.FC<StatCardProps> = ({
 				}),
 			}}
 		>
-			{clickable && (
+			{clickable && !toggle && (
 				<NorthEastIcon
 					className={GO_ARROW_CLASS}
 					aria-hidden
-					sx={{
-						position: "absolute",
-						top: 16,
-						right: 16,
-						fontSize: iconSize.sm,
-						color: accent ?? "text.disabled",
-						opacity: active ? 1 : 0,
-						transition: "opacity .15s",
-					}}
+					sx={{ ...cornerSx, color: "text.disabled", opacity: 0, transition: "opacity .15s" }}
 				/>
+			)}
+			{clickable && active && (
+				<CheckIcon aria-hidden sx={{ ...cornerSx, color: accent ?? "primary.main" }} />
 			)}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.25, pr: clickable ? 3 : 0 }}>
