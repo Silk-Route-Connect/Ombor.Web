@@ -159,6 +159,8 @@
   "warehouse.opening.product": "Товар",
   "warehouse.opening.productPlaceholder": "Найдите товар по названию или артикулу…",
   "warehouse.opening.quantity": "Кол-во",
+  "warehouse.opening.threshold": "Порог",
+  "warehouse.opening.thresholdHint": "Необязательно. Когда остаток на этом складе опустится до порога, товар появится в «Заканчивается». Пусто — не отслеживать; порог можно задать и позже, во вкладке «Остатки».",
   "warehouse.opening.unitCost": "Себестоимость",
   "warehouse.opening.colValue": "Сумма",
   "warehouse.opening.unitFallback": "ед.",

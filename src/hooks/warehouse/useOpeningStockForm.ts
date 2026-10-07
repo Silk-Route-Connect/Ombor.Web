@@ -24,6 +24,7 @@ const emptyLine = (): OpeningStockFormInputs["items"][number] => ({
 	productId: 0,
 	quantity: 0,
 	unitCost: 0,
+	lowStockThreshold: null,
 });
 
 const DEFAULT_VALUES: OpeningStockFormInputs = {
@@ -38,7 +39,7 @@ export const useOpeningStockForm = ({
 }: UseOpeningStockFormOptions): UseOpeningStockFormResult => {
 	const form = useForm<OpeningStockFormInputs>({
 		resolver: zodResolver(OpeningStockSchema),
-		mode: "onBlur",
+		mode: "onSubmit",
 		reValidateMode: "onChange",
 		criteriaMode: "all",
 		defaultValues: DEFAULT_VALUES,

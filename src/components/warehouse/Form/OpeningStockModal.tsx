@@ -6,6 +6,7 @@ import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormField from "components/shared/Forms/FormField";
 import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { recordTile } from "components/shared/IconTile/recordTile";
+import InfoHint from "components/shared/InfoHint/InfoHint";
 import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -149,6 +150,10 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 			>
 				<FormFieldLabel variant="caption" label={t("warehouse.opening.product")} required />
 				<FormFieldLabel variant="caption" label={t("warehouse.opening.quantity")} required />
+				<Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+					<FormFieldLabel variant="caption" label={t("warehouse.opening.threshold")} />
+					<InfoHint text={t("warehouse.opening.thresholdHint")} />
+				</Box>
 				<FormFieldLabel variant="caption" label={t("warehouse.opening.unitCost")} />
 				<FormFieldLabel variant="caption" label={t("warehouse.opening.colValue")} />
 				<Box />
@@ -177,9 +182,12 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 					// «3,5» says why at once, ahead of the row's submit errors.
 					const rowErrorMsg = Number.isNaN(quantity)
 						? t("common.quantity.wholeOnly")
-						: (rowError?.productId?.message ??
-							rowError?.quantity?.message ??
-							rowError?.unitCost?.message);
+						: Number.isNaN(line?.lowStockThreshold)
+							? t("warehouse.threshold.wholeOnly")
+							: (rowError?.productId?.message ??
+								rowError?.quantity?.message ??
+								rowError?.lowStockThreshold?.message ??
+								rowError?.unitCost?.message);
 					const lineValue = productId > 0 && quantity > 0 ? quantity * unitCost : 0;
 					const onlyLine = lines.fields.length === 1;
 
@@ -192,6 +200,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 							product={product}
 							options={options}
 							unit={unit}
+							measurement={product?.measurement ?? "None"}
 							unitCost={unitCost}
 							lineValue={lineValue}
 							errorMessage={rowErrorMsg}

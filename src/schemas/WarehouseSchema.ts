@@ -53,6 +53,8 @@ export const OpeningStockLineSchema = z.object({
 		.number({ error: i18next.t("common.quantity.wholeOnly") })
 		.min(0, i18next.t("warehouse.opening.validation.nonNegative")),
 	unitCost: z.number().min(0, i18next.t("warehouse.opening.validation.nonNegative")),
+	/** The new row's «Заканчивается» threshold (DR-41); null = not tracked. */
+	lowStockThreshold: lowStockThresholdSchema,
 });
 
 /**

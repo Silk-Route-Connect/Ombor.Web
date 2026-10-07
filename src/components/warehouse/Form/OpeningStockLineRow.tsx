@@ -5,7 +5,8 @@ import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import NumericField from "components/shared/Inputs/NumericField";
 import UzsAdornment from "components/shared/Money/UzsAdornment";
-import { Product } from "models/product";
+import ThresholdField from "components/warehouse/Stock/ThresholdField";
+import { Measurement, Product } from "models/product";
 import { OpeningStockFormInputs } from "schemas/WarehouseSchema";
 import { designTokens, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
@@ -14,10 +15,11 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box, Button, InputAdornment, Typography } from "@mui/material";
 
 /**
- * Product · quantity · unit cost · line value · remove — the header captions share
- * it. The cost column holds a nine-figure cost at the money-input weight beside «UZS».
+ * Product · quantity · threshold · unit cost · line value · remove — the header
+ * captions share it. The cost column holds a nine-figure cost at the money-input
+ * weight beside «UZS»; product names keep ~270px of the 880px modal.
  */
-export const OPENING_LINE_GRID = "1fr 108px 160px 132px 38px";
+export const OPENING_LINE_GRID = "1fr 96px 96px 160px 120px 38px";
 
 interface OpeningStockLineRowProps {
 	index: number;
@@ -26,6 +28,8 @@ interface OpeningStockLineRowProps {
 	product: Product | null;
 	options: Product[];
 	unit: string;
+	/** The picked product's unit — the threshold takes a fraction for weight units. */
+	measurement: Measurement;
 	/** The line's unit cost already entered (a picked product prefills only an empty one). */
 	unitCost: number;
 	/** quantity × unit cost of a complete line, else 0 (draft display). */
@@ -45,6 +49,7 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 	product,
 	options,
 	unit,
+	measurement,
 	unitCost,
 	lineValue,
 	errorMessage,
@@ -103,6 +108,25 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 									endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
 								},
 							}}
+						/>
+					)}
+				/>
+				<Controller
+					name={`items.${index}.lowStockThreshold` as const}
+					control={control}
+					render={({ field, fieldState }) => (
+						<ThresholdField
+							name={field.name}
+							ref={field.ref}
+							value={field.value}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							measurement={measurement}
+							size="small"
+							placeholder="—"
+							disabled={disabled}
+							error={!!fieldState.error}
+							inlineHint={false}
 						/>
 					)}
 				/>
