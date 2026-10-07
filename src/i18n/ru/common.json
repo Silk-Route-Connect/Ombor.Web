@@ -102,6 +102,8 @@
   "common.dateRange.to": "По",
   "common.dateRange.apply": "Применить",
   "common.dateRange.bothRequired": "Укажите обе даты",
+  "common.picker.hoursPlaceholder": "ЧЧ",
+  "common.picker.minutesPlaceholder": "ММ",
 
   "common.totals.amount": "Сумма",
   "common.totals.paid": "Оплачено",

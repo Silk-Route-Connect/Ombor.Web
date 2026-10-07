@@ -1,5 +1,6 @@
 import type { Components, Theme } from "@mui/material/styles";
 import { alpha } from "@mui/material/styles";
+import type {} from "@mui/x-date-pickers/themeAugmentation";
 
 import { BORDER_CONTROL, designTokens, INK, NEUTRAL, TEAL_500 } from "./palette";
 import { controlSize, iconSize, radius } from "./tokens";
@@ -133,6 +134,59 @@ export const components: Components<Omit<Theme, "components">> = {
 				paddingBottom: controlSize.md.paddingY,
 			},
 		},
+	},
+	// Date / time fields (shared/Date) render MUI X's own field, not a TextField:
+	// the same 38px, 14px, BORDER_CONTROL edge, ink hover and placeholder tone.
+	MuiPickersTextField: { defaultProps: { size: "small" } },
+	MuiPickersInputBase: {
+		styleOverrides: {
+			root: { fontSize: controlSize.md.fontSize },
+			// The «ДД.ММ.ГГГГ» format of an empty field reads as a placeholder.
+			sectionsContainer: {
+				variants: [
+					{
+						props: { isFieldValueEmpty: true, isFieldFocused: false },
+						style: { color: designTokens.fg3, opacity: 1 },
+					},
+				],
+			},
+		},
+	},
+	MuiPickersOutlinedInput: {
+		styleOverrides: {
+			root: {
+				minHeight: controlSize.md.height,
+				"@media (hover: none)": {
+					"&:hover .MuiPickersOutlinedInput-notchedOutline": { borderColor: BORDER_CONTROL },
+				},
+			},
+			sectionsContainer: {
+				paddingTop: controlSize.md.paddingY,
+				paddingBottom: controlSize.md.paddingY,
+			},
+			notchedOutline: { borderColor: BORDER_CONTROL },
+		},
+	},
+	// The calendar / clock popup is a menu surface (menuPaper): hairline, e-2, r-md.
+	MuiPickerPopper: {
+		styleOverrides: {
+			paper: { borderRadius: radius.md, border: `1px solid ${designTokens.border}` },
+		},
+	},
+	// A desktop popup has no toolbar column: the view spans the popup instead of
+	// leaving the «Отмена / Ок» bar's extra width as a blank left column, and the
+	// hour / minute columns sit centred in it.
+	MuiPickersLayout: {
+		styleOverrides: {
+			contentWrapper: {
+				variants: [{ props: { pickerVariant: "desktop" }, style: { gridColumn: "1 / 4" } }],
+			},
+		},
+	},
+	MuiMultiSectionDigitalClock: { styleOverrides: { root: { justifyContent: "center" } } },
+	// date-fns writes Russian months in lower case («октябрь 2026»).
+	MuiPickersCalendarHeader: {
+		styleOverrides: { label: { textTransform: "capitalize", fontSize: 14, fontWeight: 600 } },
 	},
 	MuiTooltip: {
 		styleOverrides: {

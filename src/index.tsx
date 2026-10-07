@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 
 import App from "./App";
+import DatePickersProvider from "./components/shared/Date/DatePickersProvider";
 import ErrorFallback from "./components/shared/ErrorFallback/ErrorFallback";
 import { initTelemetry } from "./services/telemetry";
 import theme from "./theme";
@@ -42,11 +43,13 @@ enableMocking().then(() => {
 		<React.StrictMode>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
-				{/* Last-resort boundary: reports the crash and shows a themed
-				    fallback instead of a blank screen. Works uninitialized too. */}
-				<Sentry.ErrorBoundary fallback={<ErrorFallback />}>
-					<App />
-				</Sentry.ErrorBoundary>
+				<DatePickersProvider>
+					{/* Last-resort boundary: reports the crash and shows a themed
+					    fallback instead of a blank screen. Works uninitialized too. */}
+					<Sentry.ErrorBoundary fallback={<ErrorFallback />}>
+						<App />
+					</Sentry.ErrorBoundary>
+				</DatePickersProvider>
 			</ThemeProvider>
 		</React.StrictMode>,
 	);

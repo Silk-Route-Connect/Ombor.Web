@@ -1,5 +1,6 @@
 /** Set on every `FormFieldLabel`, so a label never claims the control of the label after it. */
 const FIELD_LABEL_ATTR = "data-field-label";
+const LABEL_TARGET_ATTR = "data-label-target";
 
 const CONTROL_SELECTOR = [
 	// A file input is always opened by its own button; a label must not open the file dialog.
@@ -42,7 +43,9 @@ function followingControl(label: HTMLElement): HTMLElement | null {
  * input with an id (every MUI TextField / Autocomplete input has one) is linked
  * through the label's `for`, returned here; a MUI Select's combobox or a radio
  * group gets `aria-labelledby` instead — unless it already carries an
- * `aria-label` of its own.
+ * `aria-label` of its own. Such a control may name, in `data-label-target`, the
+ * id the label's `for` should point at so a click on the label focuses it (a
+ * date / time field's hidden value input, which hands focus to its sections).
  */
 export function linkLabelToControl(label: HTMLElement): string | undefined {
 	const control = followingControl(label);
@@ -62,5 +65,5 @@ export function linkLabelToControl(label: HTMLElement): string | undefined {
 			control.setAttribute("aria-labelledby", [label.id, ...ids].join(" "));
 		}
 	}
-	return undefined;
+	return control.getAttribute(LABEL_TARGET_ATTR) ?? undefined;
 }
