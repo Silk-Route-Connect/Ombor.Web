@@ -82,8 +82,10 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	const reflect = (updated: Warehouse): void => {
+	// Archiving drops this warehouse's empty rows from the stock report, so «Заканчивается» changes.
+	const reflectLifecycle = (updated: Warehouse): void => {
 		selectedWarehouseStore.applyWarehouse(updated);
+		void selectedWarehouseStore.reloadLedgers(updated.id);
 	};
 
 	const handleDelete = (): void => {
@@ -236,7 +238,11 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				onSave={handleOpeningSave}
 			/>
 
-			<WarehouseDialogs onArchived={reflect} onRestored={reflect} onDeleted={goBack} />
+			<WarehouseDialogs
+				onArchived={reflectLifecycle}
+				onRestored={reflectLifecycle}
+				onDeleted={goBack}
+			/>
 		</Box>
 	);
 });

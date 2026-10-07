@@ -1,7 +1,15 @@
-import { Loadable, toLoadable } from "helpers/Loading";
+import { isReady, Loadable, toLoadable } from "helpers/Loading";
 import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
 import { makeAutoObservable, runInAction } from "mobx";
+
+export interface ReportLoadOptions {
+	/**
+	 * Keep the shown snapshot until the new one lands, and on a failed fetch — a
+	 * refresh after an edit on the same page, so its figures never flash «—».
+	 */
+	refresh?: boolean;
+}
 
 /**
  * One report's served snapshot. Every filter change refetches it; only the
@@ -17,12 +25,15 @@ export class ReportResource<T> {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
-	async load(fetch: () => Promise<T>): Promise<void> {
+	async load(fetch: () => Promise<T>, options?: ReportLoadOptions): Promise<void> {
 		const isCurrent = this.loads.begin();
-		this.data = "loading";
+		const keep = options?.refresh === true && isReady(this.data);
+		if (!keep) {
+			this.data = "loading";
+		}
 
 		const result = await tryRun(fetch);
-		if (!isCurrent()) {
+		if (!isCurrent() || (keep && result.status === "fail")) {
 			return;
 		}
 		runInAction(() => (this.data = toLoadable(result)));

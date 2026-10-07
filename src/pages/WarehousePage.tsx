@@ -37,6 +37,8 @@ const WarehousePage: React.FC = observer(() => {
 	}, [warehouseStore, productStore]);
 
 	const lowStockCounts = warehouseStore.lowStockCounts;
+	// Archiving drops a warehouse's empty rows from the report, so its «Заканчивается» changes.
+	const refreshStockReport = (): void => void warehouseStore.loadStockReport({ refresh: true });
 
 	const dialogMode = warehouseStore.dialogMode;
 	const editingWarehouse = dialogMode.kind === "form" ? (dialogMode.warehouse ?? null) : null;
@@ -143,7 +145,7 @@ const WarehousePage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<WarehouseDialogs />
+			<WarehouseDialogs onArchived={refreshStockReport} onRestored={refreshStockReport} />
 		</Box>
 	);
 });

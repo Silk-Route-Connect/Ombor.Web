@@ -15,7 +15,7 @@ import {
 } from "../models/warehouse";
 import WarehouseApi from "../services/api/WarehouseApi";
 import { NotificationStore } from "./NotificationStore";
-import { ReportResource } from "./ReportResource";
+import { ReportLoadOptions, ReportResource } from "./ReportResource";
 
 export type WarehouseDialogMode =
 	| { kind: "form"; warehouse?: Warehouse }
@@ -40,7 +40,7 @@ export interface IWarehouseStore {
 	dialogMode: WarehouseDialogMode;
 
 	getAll(options?: LoadOptions): Promise<void>;
-	loadStockReport(): Promise<void>;
+	loadStockReport(options?: ReportLoadOptions): Promise<void>;
 	create(request: CreateWarehouseRequest): Promise<void>;
 	update(request: UpdateWarehouseRequest): Promise<Warehouse | null>;
 	archive(warehouse: Warehouse): Promise<Warehouse | null>;
@@ -142,8 +142,8 @@ export class WarehouseStore implements IWarehouseStore {
 	}
 
 	/** Today's stock over every warehouse, archived ones included (rule 31) — served, never summed from the list. */
-	loadStockReport(): Promise<void> {
-		return this.stockReport.load(() => ReportApi.getStock({}));
+	loadStockReport(options?: ReportLoadOptions): Promise<void> {
+		return this.stockReport.load(() => ReportApi.getStock({}), options);
 	}
 
 	async create(request: CreateWarehouseRequest): Promise<void> {
