@@ -1,7 +1,7 @@
 # Frontend repo state — per-module detail
 
 **Status:** per-module state — the single home of module status (Ombor.Web/CLAUDE.md keeps only a short exceptions list and routes here). Read the module's entry before touching a module. Pairs with frontend-gaps.md (live F-item gap list).
-**Last updated:** 2026-10-06 (UI refresh notes on the affected entries; earlier: 2026-07-14 doc-sync pass).
+**Last updated:** 2026-10-07 (owner-decision notes on the affected entries — dates & times, stock signs, warehouse «Заканчивается», shell & lists; Акт сверки entry corrected to built). Earlier: 2026-10-06 UI refresh, 2026-07-14 doc-sync pass.
 **Discipline:** entries record decisions-and-state, not narrative history — prune superseded detail when updating (git history keeps the record).
 
 **Global facts (stated once, not repeated per entry):** since the 2026-07-05 contract alignment the app runs on the REAL backend (`VITE_ENABLE_MOCKS=false`); `src/mocks/` handlers are dead code pending deletion; the authoritative gap list is `frontend-gaps.md` (F1–F17 live FE↔DTO divergences, U1–U3 unbuilt v1 modules).
@@ -14,6 +14,7 @@
 - **Open:** —
 - **Decisions:** rewrite-as-we-go — legacy modules keep the stores/api/models/schemas structure; components and layouts are replaced per module when rebuilt.
 - **UI refresh 2026-10-06:** `layouts/Sidebar.tsx` split into the `layouts/Sidebar/` folder (`index`, `styles`, `navState`, `TopLevelItem`, `SubItem`, `RailButton`, `RailGroup`, `SidebarBrand`, `SidebarFooter`) — teal navigation panel, compact rows with guide lines and a scroll fade; it publishes its width as `layout.sidebarWidthVar` for the toasts. Topbar «Создать» and every menu on the shared `menuSlotProps` surface; content column capped at `layout.contentMax`. Toasts are the app's own `ToastProvider` / `ToastContent` (past the sidebar, at the screen edge while a dialog is open). Browser tab titles via `useDocumentTitle` («… · Ombor»). The route 404 (`NotFoundPage`) renders `LoadStateView`'s not-found state. Dead CRA stylesheets (`App.css`, `index.css`, `styles/global.scss`) deleted — `sx` only.
+- **Owner decisions 2026-10-07:** the sidebar footer holds only «Настройки» — «Выход» lives in the topbar avatar menu alone (`SidebarFooter` reuses `TopLevelItem` / `RailButton`; `sidebar.logout` key removed); the sidebar opens on its 72px rail below a 1440px window (was 1280; `NARROW_VIEWPORT_QUERY` in `navState.ts`) and on the POS pages. Dependency `@mui/x-date-pickers` 8.29.4 added, its locale mounted once in `index.tsx` (`DatePickersProvider`).
 
 ## Theme & design tokens
 - **State:** `theme.ts` at full parity with `tokens.css` + the DSN-1 foundational-components reference; the single styling source — no inline hex anywhere. Exports: `designTokens`, `numericSx`, `radius`, `typeScale`, `chipTokens`.
@@ -32,6 +33,8 @@
 - Mobile responsiveness deferred — desktop-first (owner).
 - Server search/filter params exist on most routes but are deliberately unwired in v1 (see F14).
 - **UI refresh 2026-10-06:** one table chrome (`tableChrome` / `DataTableGrid`) for list, expandable and detail tables — no zebra, hover / focus only on clickable rows, page size remembered (`useRowsPerPage`); summary figures on `StatCard` / `StatCardGrid`; every modal on `FormDialog` (+ `FormField` labels above fields, `FormSection`, form `SegmentedControl`); `Callout` the only notice box; `QtyStepper` / `PercentField` / `MoneyField` (right-aligned, «UZS») the line inputs (`MoneyInputBase`, `PosField`, `LineField` deleted). Load errors shown inline raise no toast — list pages load shared lists with `{ quiet: true }` (conventions.md → MobX).
+- **Owner decisions 2026-10-07:** every date / time input is the shared `DateField` / `TimeField` (MUI X, «ДД.ММ.ГГГГ» / 24-hour «ЧЧ:ММ» whatever the browser locale; no native `type="date|time"` remains) — incl. the shared date filter's «Период…» (`DateRangePopover`, «С» / «По» labels above); payloads unchanged. Pager 25 / 50 / 100 opening on 25 (`ROWS_PER_PAGE_OPTIONS`; a remembered 10 opens on 25). The offline gate covers every form-modal submit (`FormDialogFooter`) but the debt reminder (`PartnerFormModal`, `TemplateFormModal`, `OrderFormModal`, `SaveTemplateModal`, `DeliveryConfirmModal` joined) and Enter / Ctrl+Enter too (`useFormKeyboardSubmit` `offlineGate`; `SaveTemplateModal` moved onto the hook); `ConfirmDialog` confirmations and the full-page POS / new-order screens are not gated. A pressed filter `StatCard` shows ✓, not ↗.
+- **Open (owner):** the gate reacts to an unreachable server only — a device that lost its own network keeps submit enabled and gets the «нет связи» toast; the gate lifts only when a later request succeeds (no dedicated re-check — in an idle modal only the bell's read, every 5 min while visible and on window focus, lifts it); its reason is a hover-only tooltip on the disabled button.
 
 ## i18n
 - **State:** i18next, flat keys, single merged namespace, ru fallback, locale persisted in localStorage `ombor.locale`. ru is the working locale; uz-Latn ~14% translated, uz-Cyrl an empty stub — both gated out of the picker (`i18n/languages.ts` is ru-only) but stay registered so persisted prefs resolve.
@@ -65,6 +68,7 @@
 - **Decisions:** `retailPrice` dropped from create/edit (and now absent from the contract); measurement enum aligned to backend (no `Liter`).
 - Product delete has no served `isDeletable` predicate to gate on (contract gap — frontend-gaps A11).
 - **UI refresh 2026-10-06:** rail on `FactRow` (prices in ink, a 0 price «—», markup green / red by sign); «Минимальный остаток» / «Фасовка» read through `QuantityCell` («10 кг»); a product without a photo shows its name's letter on its identity tint (`ProductImage` `name`); the form on `FormDialog` (`lg`, fixed 850px body) with `FormSection`s «Фасовка» / «Дополнительно» and a form `SegmentedControl` for the type, submit «Создать товар»; the archived banner is a `Callout`; list filters on `EntityFilterSelect` («Категория: Все»); «Движения» column «Событие», «Продажи и поставки» «Цена за ед.» / «Итого».
+- **Owner decisions 2026-10-07:** «Минимальный остаток» sits beside «Единица измерения» in the form's top grid (`Form/Fields/ProductMeasurementField` + `ProductStockAlertField`, optional, the unit as a suffix «шт» / «кг»), the hint under that row says what it drives («Заканчивается» on the dashboard, Products and warehouses) and that an empty value alerts only at zero; «Дополнительно» holds only the description. Payload unchanged (`lowStockThreshold`).
 
 ## Categories
 - **State:** legacy CRUD, not yet rebuilt; delete reference-gated via served `productCount` (backend 409 still protects data).
@@ -75,9 +79,10 @@
 ## Warehouses
 - **State:** rebuilt — list + full-page detail with Остатки/Движения tabs, create/edit modal, «Начальный остаток» opening-stock modal, archive/restore, reference-gated delete.
 - **Data:** real (`/api/warehouses`, `/{id}/stock`, `/{id}/movements`, `/{id}/opening-stock`, archive/restore)
-- **Open:** F8 refund kind filter matches nothing
+- **Open:** — (F8 resolved 2026-07-16). F22 served `WarehouseDto.productCount` counts zero-quantity rows (kept for «Товаров» — it equals the «Остатки» row count). Owner questions: the strip card counts *products* across warehouses while the column counts *rows* per warehouse, so they never sum to each other (the tooltips say so); never-stocked products (stock 0 ≤ threshold 0) count as «нет в наличии» — most of the seed's; archived products alert in «Остатки» (the served count includes them) and an archived product's or warehouse's empty rows no longer read «Нет в наличии» (the report leaves them out). `WarehouseStore.ts` is at 300 lines — split dialog state from data when next touched.
 - **Decisions:** opening stock is an event entered per-warehouse via the «Начальный остаток» modal (`POST /{id}/opening-stock`, note + decimal qty) — not an editable stock field.
 - **UI refresh 2026-10-06:** list strip and detail KPIs on `StatCard`; «Остатки» column «Остаток»; «Движения» shows an adjustment's reason as its label («Кража/утеря», not the raw enum) and the counterparty as a secondary link; form and «Начальный остаток» modal on `FormDialog` (line rows split out, unit-cost column 160px for the 600-weight figures), submit «Создать склад»; archived banner a `Callout`.
+- **Owner decisions 2026-10-07 — every figure served, no mixed units:** the list loads the stock report (`GET /api/reports/stock`, `WarehouseStore.stockReport` — a `ReportResource`); the strip reads «Товаров на складах» = `totals.productCount` (distinct — replaced a client sum that counted a product once per warehouse), «Заканчивается» = the dashboard set (`stockAlerts` / `countStockAlerts` over products' served `isLowStock`; footnote «нет в наличии: N»; click → Products «Остаток: Заканчивается» via `useOpenLowStock`), «Стоимость остатка» = `totals.value`. The «Единиц» column is replaced by «Заканчивается» = served `warehouses[].lowStockCount` (`lowStockOf`; sortable, «i» header hint, amber pill when > 0, «0» at zero, «—» until loaded; the CSV too). The detail also loads `/api/reports/stock?warehouseId=` (`SelectedWarehouseStore.stockReport`): KPI «Заканчивается» = served `lowStockCount`, click → «Остатки» with search / category cleared and «Остаток: Заканчивается» (exactly the rows it counts); «Остатки» alerts come from each row's served `isLowStock` (`warehouseStockLevels`) — the page no longer loads the product list; the tab's filters live on the page (`hooks/warehouse/useWarehouseStockFilters`), reset on another warehouse and survive «Движения». The report reloads after archive / restore (list `loadStockReport({ refresh: true })`, detail `reloadLedgers`) and after opening stock, keeping the shown figures meanwhile. «Итого по складу» totals the value only and the opening-stock summary reads «Позиций» · «Стоимость партии» (the unit sums mixed kg, pieces and tonnes; `Warehouse.totalUnits` stays modeled, unused).
 
 ## Stock Adjustments
 - **State:** rebuilt — immutable list with expand-row detail, warehouse/direction/search filters, create modal with direction toggle + reason-by-direction.
@@ -85,11 +90,12 @@
 - **Open:** —
 - **Decisions:** immutable — no edit/delete (rule 1); over-stock decrease hard-blocked (rule 20).
 - **UI refresh 2026-10-06:** create and detail modals on `FormDialog`; the detail is titled «Корректировка №N» (`formatEntityId(id)`) with `FactRow` facts; product column on `EntityCell`, «Склад» a secondary link; «Склад: Все» filter.
+- **Owner decisions 2026-10-07:** a direction reads as its quantity's sign — «+ Приход товара» blue / «− Списание» amber — on the list chip (`DirectionChip`), the form's option cards (`DirectionCard`) and the form preview's change figure, all from `directionPresentation`; no arrows (money-only) and no green / red.
 
 ## Transfers
 - **State:** rebuilt — immutable list with warehouse filter, read-only detail modal, multi-line create with route picker + per-line availability.
 - **Data:** real (`/api/transfers`; served `GET /{id}` unused — the detail modal is fed from the list row)
-- **Open:** —
+- **Owner decisions 2026-10-07 — no mixed-unit totals:** the list «Единиц» column and its CSV column are gone, and the detail lines footer reads «Позиций N» only (`transferUnits` deleted) — line quantities of different products mix kg, pieces and tonnes, like the warehouse «Единиц» that was replaced.
 - **Decisions:** immutable; from ≠ to enforced at the picker; over-stock hard-blocked (rule 20).
 - **UI refresh 2026-10-06:** create and detail modals on `FormDialog` (line rows split out); the detail is titled «Перемещение №N»; «Откуда / Куда» are secondary links.
 
@@ -136,7 +142,8 @@
 - **Decisions:** warehouse IS collected at creation as the order's *intended* warehouse (product-owner decision) — it pre-fills the delivery dialog but reserves no stock; the real per-line stock check runs at delivery confirmation and hard-blocks (rule 20).
 - «Склад списания» detail row is gated to Delivered/Returned so a pending order's intended warehouse doesn't mislabel as written-off.
 - Order edit distinguishes omitted / null / value for `warehouseId` (keep / clear / set).
-- **UI refresh 2026-10-06:** the rail reads the served `order.total` (discount = subtotal − total) and the lines' served `line.total`; the positions card dropped its client-side total footer; delivery is a fact grid (empty «—»); the source chip reads «Ombor» for `OmborWeb` (enum unchanged); the order-edit modal on `FormDialog` (`lg`) with `QtyStepper` and the POS `LineDiscountField` (fixes the raw `order.new.line.fixedHint` key in its tooltip); the delivery-confirm modal on `FormDialog` (still an MUI `Alert` inside — move to `Callout` when touched).
+- **UI refresh 2026-10-06:** the rail reads the served `order.total` (discount = subtotal − total) and the lines' served `line.total`; the positions card dropped its client-side total footer; delivery is a fact grid (empty «—»); the source chip reads «Ombor» for `OmborWeb` (enum unchanged); the order-edit modal on `FormDialog` (`lg`) with `QtyStepper` and the POS `LineDiscountField` (fixes the raw `order.new.line.fixedHint` key in its tooltip); the delivery-confirm modal on `FormDialog`.
+- **Owner decisions 2026-10-07:** delivery date / time in the order-edit modal on `DateField` / `TimeField` («ДД.ММ.ГГГГ», 24-hour «ЧЧ:ММ»; the optional time clears with «×»); payload unchanged (`deliveryDate` «yyyy-MM-dd», `deliveryTime` «HH:mm:ss» or null). `OrderFormModal` and `DeliveryConfirmModal` are offline-gated now (button only — neither has a keyboard submit).
 
 ## New Order
 - **State:** rebuilt — full-page order-create POS at `/orders/new` mirroring New Sale for a *pending intent*: no payment, no wallet, no immutability warning; required client + warehouse + delivery date, source picker, product cart with % / fixed line discounts, unsaved-changes guard.
@@ -146,6 +153,7 @@
 - Source enum is Telegram/OmborWeb (no `None`); New Order defaults to OmborWeb.
 - Deliberately simpler than New Sale — no templates, bulk discount, or keyboard loop.
 - **UI refresh 2026-10-06:** `NewOrder` (770 lines) split into `order/Create/` (`NewOrder`, `OrderHeaderCard`, `OrderLineRow`, `OrderSourcePicker`, `OrderSummaryCard`) over the POS line pieces and partner card; «1,5» in a quantity no longer saves 15 (`QtyStepper`); discounts on `PercentField`; the summary «Доставка» reads DD.MM.YYYY; the summary's «editable until delivery» note is a `Callout`.
+- **Owner decisions 2026-10-07:** delivery date / time on `DateField` / `TimeField` in `OrderHeaderCard` (time clearable); payload unchanged.
 
 ## Wallets
 - **State:** rebuilt — list on shared DataTable (summary strip spanning archived wallets per rule 31, search, archive segmented, CSV); routed detail `/wallets/:id` (three stat cards, Операции ledger + Переводы tabs on DataTable); create/edit modal, inter-wallet transfer modal, archive/restore — never delete.
@@ -157,13 +165,14 @@
 - **UI refresh 2026-10-06:** list strip and detail stat cards on `StatCard`; the form on `FormDialog` with the type as a form `SegmentedControl` with icons, submit «Создать кассу»; the transfer modal on `FormDialog`; the transfer detail is titled «Перевод №N» with `FactRow` facts and a close-only footer; «Операции» column «Партнёр / сотрудник»; «Переводы» «Откуда / Куда» secondary links; archived banner a `Callout`.
 
 ## Payments
-- **State:** rebuilt — five immutable payment types (Оплата / Депозит / Вывод / Зарплата / Общий): list (stat cards, search, type + wallet filters, CSV); routed detail `/payments/:id` (Касса source line + Распределение allocation table + attachments card + info card); create modal with per-type fields, an attachment picker (F18), and the standalone settlement modal (FIFO auto-allocate, manual per-row, excess → advance; Вывод hard-blocks over-advance).
+- **State:** rebuilt — five immutable payment types (Оплата / Депозит / Вывод / Зарплата / Общий): list (direction filter cards, search, type + wallet + date filters, CSV); routed detail `/payments/:id` (Касса source line + Распределение allocation table + attachments card + info card); create modal with per-type fields, an attachment picker (F18), and the standalone settlement modal (FIFO auto-allocate, manual per-row, excess → advance; Вывод hard-blocks over-advance).
 - **Data:** real (`/api/payments`, `/form-data`, `/outstanding`; **POST is multipart/form-data — carries `Attachments` file parts, F18**; the source/allocation read model is served, incl. `attachments[]` + echoed `transactionNotes`/`transactionAttachments`)
 - **Open:** — (F9 guard fixed wave-4). F18 attachments landed + live-verified 2026-07-19 (create + display via the shared `AttachmentChip`); the **note-on-any-payment** input stays a deferred feature (only `General` carries a note today).
 - **Decisions:** payments are immutable (rule 1); reverse-payment is out of MVP.
 - Payroll allows any number of payments per employee+month (canon — the prototype's one-per-month block dropped).
 - The standalone create's simplified settlement (no advance source / overpayment disposition) is the accepted DR-05 deferral.
-- **UI refresh 2026-10-06:** the create modal (was 640 lines) is on `FormDialog` (record tile, «Провести платёж» + commit note, Ctrl+Enter only, discard confirm) — logic in `hooks/payment/usePaymentCreate.ts`, sections in `components/payment/Form/Create/` (`PaymentTypeField`, `PaymentPartnerField` + `PaymentPartnerSummary`, `PaymentPayrollFields`, `PaymentGeneralFields`, `PaymentDirectionField`, `PaymentWalletAmountFields`, one `PaymentRefSelect` for the partner / employee / wallet pickers); the type control scrolls sideways instead of wrapping on a narrow screen; the partner balance line reads partner-side like every partner balance (DR-27: «−…» red when they owe us); the salary prefill clears its stale amount error. Detail: «Сумма платежа» hero coloured by direction with the Приход / Расход chip, «Информация» on `FactRow` (type as `PaymentTypeBadge`, entity links), the memo tag a `StatusPill`. List: summary strip on `StatCard` under the title, filters «Тип: Все» / «Касса: Все», column «Партнёр / сотрудник».
+- **UI refresh 2026-10-06:** the create modal (was 640 lines) is on `FormDialog` (record tile, «Провести платёж» + commit note, Ctrl+Enter only, discard confirm) — logic in `hooks/payment/usePaymentCreate.ts`, sections in `components/payment/Form/Create/` (`PaymentTypeField`, `PaymentPartnerField` + `PaymentPartnerSummary`, `PaymentPayrollFields`, `PaymentGeneralFields`, `PaymentDirectionField`, `PaymentWalletAmountFields`, one `PaymentRefSelect` for the partner / employee / wallet pickers); the type control scrolls sideways instead of wrapping on a narrow screen; the partner balance line reads partner-side like every partner balance (DR-27: «−…» red when they owe us); the salary prefill clears its stale amount error. Detail: «Сумма платежа» hero coloured by direction with the Приход / Расход chip, «Информация» on `FactRow` (type as `PaymentTypeBadge`, entity links), the memo tag a `StatusPill`. List: filters «Тип: Все» / «Касса: Все», column «Партнёр / сотрудник».
+- **Owner decisions 2026-10-07:** the direction filter is three toggle cards under the title — «Все платежи · Приход · Расход» (`PaymentDirectionCards`; replaced `PaymentSummaryStrip` and the header's «Все | Приход | Расход» segmented control). Each card counts the payments it would show under the other filters (`PaymentStore.directionCounts`, client-side — the list serves no counts), the pressed card shows ✓, a second click on Приход / Расход returns to «Все» (`setDirectionFilter` takes `"all"`); money appears only in the totals band. Open (owner): the band still shows «Расход 0 UZS» while «Приход» is pressed; Wallet «Операции» and Debts keep their segmented direction switches.
 
 ## Debts
 - **State:** rebuilt — read-only aggregated view over unpaid/partially-paid transactions (no create): four summary cards (three clickable, presetting the transactions tab), По партнёрам / По транзакциям tabs on shared DataTable, search + age buckets + direction filters, CSV, partner/transaction deep-links.
@@ -181,6 +190,7 @@
 - Payroll allows any number of payments per employee+month (canon, matching Payments).
 - Status badge Active=green / OnVacation=orange / Terminated=stone-gray (owner), with a defensive fallback for the nullable served status.
 - **UI refresh 2026-10-06:** detail KPIs on `StatCardGrid` / `StatCard`; the form on `FormDialog` (now `md` 640, was 880) with `FormSection` «Контактная информация» and the status as a form `SegmentedControl`, submit «Создать сотрудника»; the payroll modal on `FormDialog`; the employee picker has no floating label.
+- **Owner decisions 2026-10-07:** hire date on `DateField` («ДД.ММ.ГГГГ»; no future-day greying — «not in the future» still reports on submit); Enter in it saves the form, and a submit error focuses its first section so typing goes in. Payload unchanged (`dateOfEmployment` «yyyy-MM-dd»).
 
 ## Settings
 - **State:** rebuilt — single page `/settings` with scroll-spy section nav and four cards: Организация (editable profile + logo, 2 MB limit), Язык (immediate-apply per-user radio), Валюта (locked UZS), Пользователи (invite / deactivate / reactivate — never delete, self-account guarded); save bar governs the org form only, buttons stay enabled.
@@ -197,11 +207,12 @@
 - **Decisions:** see conventions.md → Activity Log.
 - **UI refresh 2026-10-06:** each row leads with its record's tile (`activityTile` over the shared `recordTile`, moved to `shared/IconTile/recordTile.ts` so modal headers reuse it) and the actor's `EntityAvatar`; the «Что» filter reads «Что: Все».
 
-## Акт сверки — not built
-- **State:** not built (mvp-plan §16) — the per-partner, date-range, print-friendly reconciliation statement screen is missing.
-- **Data:** real — the ledger it renders from is already served (`GET /api/partners/{id}/ledger`)
-- **Open:** U2 screen missing, data served
-- **Decisions:** —
+## Акт сверки
+- **State:** built — the printable statement `/partners/:id/statement?from&to` (`PartnerStatementPage` + `components/partner/Statement/`, on the shared print kit; conventions.md → Printable documents), opened from the partner ⋮ and the Debts row ⋮ «Акт сверки»; cases in `docs/testing/modules/partners.md`. (This entry read «not built» until 2026-10-07; frontend-gaps U2 still does.)
+- **Data:** real (`GET /api/partners/{id}/ledger`)
+- **Open:** changing both period fields within ~100 ms can drop one edit (each change sends `{ ...period, [side]: day }` from the rendered period) — human typing is unaffected.
+- **Decisions:** default period 01.01 of this year → today; the period ends no later than today.
+- **Owner decisions 2026-10-07:** the toolbar «С» / «По» are `DateField`s («ДД.ММ.ГГГГ») with the labels on their left, so the toolbar keeps one row; the calendars grey out days after today (`maxDate`); a cleared or half-typed entry keeps the previous day and a future day is capped at today — on leaving the field it shows the day the statement uses again.
 
 ## Reports — not built
 - **State:** not built — deferred to v2 (mvp-plan Deferred); out of navigation (pattern 10). Not a gap (U3).

@@ -49,7 +49,7 @@ Steps: open its row.
 Expect: cards in order — «Продажа · №N · Создание» (Номер «№N», Партнёр, Статус оплаты «Оплачено», Сумма, Оплачено, Тип документа «Продажа», Склад, Дата «DD.MM.YYYY HH:mm»), then «Позиция документа» per line (Товар, Количество, Цена), «Платёж», «Откуда деньги» (Источник «Касса»), «Куда пошли деньги» (Назначение «Оплата документа», Документ «№N»), «Остаток на складе» «Остаток · 40 · 28». No raw enum names («Closed», «Wallet») and no ids anywhere.
 
 ### T-ACT-05 · Filters narrow on the server [happy]
-Steps: 1. «Что: Товар». 2. «Действие: В архив». 3. «Кто: <second user>». 4. «Дата: Период…» a range with no activity.
+Steps: 1. «Что: Товар». 2. «Действие: В архив». 3. «Кто: <second user>». 4. «Дата: Период…» — type a range with no activity into «С» / «По» («ДД.ММ.ГГГГ»), «Применить».
 Expect: each change reloads (spinner, then rows); every row matches all filters; 4→ «Ничего не найдено» · «За выбранный период с этими фильтрами действий нет — измените период или фильтры.», no button.
 
 ### T-ACT-06 · «История» on a detail page [happy] ✍

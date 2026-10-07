@@ -8,12 +8,12 @@ Result vocabulary and reporting: see [README.md](README.md).
 
 ### T-SMK-01 · Sidebar structure [happy]
 
-Expect exactly, top to bottom: Главное · Финансы (Платежи, Долги, Касса) · Транзакции (Партнёры, Заказы, Продажи, Поставки, Шаблоны) · Кадры (Сотрудники) · Каталог (Товары, Категории) · Склад (Склады, Корректировки, Перемещения); footer: Настройки, Выход. No section-label headings, no «Отчёты» (#10). Collapse/expand toggle works.
+Expect exactly, top to bottom: Главное · Финансы (Платежи, Долги, Касса) · Транзакции (Партнёры, Заказы, Продажи, Поставки, Шаблоны) · Кадры (Сотрудники) · Каталог (Товары, Категории) · Склад (Склады, Корректировки, Перемещения); footer: Настройки only — no «Выход» (sign-out is in the avatar menu). No section-label headings, no «Отчёты» (#10). Collapse/expand toggle works.
 
 ### T-SMK-02 · Topbar [happy]
 
 - «Создать» menu → Продажа `/sales/new` · Поставка `/supplies/new` · Заказ `/orders/new` · Оплата `/payments/new` (placeholder page — known stub).
-- Global search field is a visual stub (known); notifications bell opens «Нет уведомлений» (known stub); language menu present; avatar menu shows full name + Выход.
+- Global search field is a visual stub (known); notifications bell opens «Нет уведомлений» (known stub); language menu present; avatar menu shows full name + Выход — the only sign-out, it lands on `/login`.
 
 ### T-SMK-03 · Auth guards [happy]
 
@@ -33,7 +33,7 @@ Period control (Сегодня/Неделя/Месяц, default Месяц); 4 K
 
 ### T-SMK-11 · `/products` and `/products/:id` [happy]
 
-List renders with archive toggle; open one product detail (tabs Overview/Транзакции/Движения + right rail). **Do not test edit** — F1 edit crash is a known Blocker. Legacy side-pane layout is known pending rebuild.
+List renders with archive toggle; open one product detail (tabs Обзор / Продажи и поставки / Движения / История + right rail; no side pane remains). **Do not test edit** — F1 edit crash is a known Blocker. «Новый товар» (close without saving): «Единица измерения» and «Минимальный остаток» side by side under «Категория» (the threshold optional, the unit as its suffix), the hint under them ends «Пусто — только когда товар закончится.»; «Дополнительно» holds only the description.
 
 ### T-SMK-12 · `/categories` [happy]
 
@@ -41,15 +41,15 @@ List renders; legacy module — layout deviations from shared checklist §2 are 
 
 ### T-SMK-13 · `/warehouses` and `/warehouses/:id` [happy]
 
-Summary strip; detail with Остатки/Движения tabs on the shared table chrome (same look as the list tables, #20d), stacked layout (no rail). «Движения» names an adjustment by its reason («Кража/утеря»), never a raw enum.
+Summary strip «Товаров на складах» · «Заканчивается» (footnote «нет в наличии: N») · «Стоимость остатка»; columns Название · Адрес · Товаров · Заканчивается · Стоимость остатка · ⋮ — no «Единиц» anywhere. Detail: KPIs «Товаров» · «Заканчивается» · «Стоимость остатка», Остатки/Движения tabs on the shared table chrome (same look as the list tables, #20d), stacked layout (no rail); «Итого по складу» totals the value only (no unit sum). «Движения» names an adjustment by its reason («Кража/утеря»), never a raw enum. Click-throughs: T-SMK-37.
 
 ### T-SMK-14 · `/adjustments` [happy]
 
-List with expand-row detail; no edit/delete anywhere (R1); direction chips.
+List with expand-row detail; no edit/delete anywhere (R1); direction chips «+ Приход товара» blue / «− Списание» amber — never arrows, never green / red. «Новая корректировка» (close without saving): the two direction cards carry the same «+» / «−» glyphs, and the preview's change figure is blue «+N» / amber «−N».
 
 ### T-SMK-15 · `/transfers` [happy]
 
-List renders; row opens detail modal (no route — correct); no edit/delete (R1).
+List renders; row opens detail modal (no route — correct); no edit/delete (R1). No «Единиц» column; the detail's lines footer reads «Позиций N» only (no quantity sum).
 
 ### T-SMK-16 · `/partners` and `/partners/:id` [happy]
 
@@ -73,7 +73,7 @@ List with expand rows; «Использован» column shows «—» (known �
 
 ### T-SMK-21 · `/payments` and `/payments/:id` [happy]
 
-Summary strip; type column «Тип операции» with real localized types (#17); detail shows Касса + Распределение blocks; no edit/delete (R1). Unknown allocation types crashing is KNOWN (F9).
+Direction cards «Все платежи · Приход · Расход» (counts, the pressed one with ✓) instead of a segmented control; type column «Тип операции» with real localized types (#17); detail shows Касса + Распределение blocks; no edit/delete (R1). Unknown allocation types crashing is KNOWN (F9).
 
 ### T-SMK-22 · `/debts` [happy]
 
@@ -104,19 +104,35 @@ Expect: «Продажи · Ombor», «Продажа №N · Ombor» (a legacy 
 
 ### T-SMK-33 · Page size is remembered per table [happy]
 
-Steps: 1. `/sales` → pager 25. 2. Open a sale, go back; reload. 3. Open `/supplies`.
-Expect: 2 → `/sales` still shows 25 rows per page. 3 → `/supplies` keeps its own size (10 by default). A private window (no storage) still pages normally at 10.
+Steps: 1. `/sales` → pager 50. 2. Open a sale, go back; reload. 3. Open `/supplies`.
+Expect: options 25 / 50 / 100. 1 → set 50 first; 2 → `/sales` still shows 50 rows per page. 3 → `/supplies` keeps its own size (25 by default, «1–25 из N»). A private window (no storage), or a stored 10 from before 2026-10-07, opens on 25. A list of 25 rows or fewer shows no pager.
 
 ### T-SMK-34 · Toast look and position [happy]
 
 Steps: 1. `/sales`: search «zzz», click «Экспорт». 2. Collapse the sidebar to its rail; click «Экспорт» again. 3. Whenever a toast happens to appear over an open dialog during the run, note where it sits.
-Expect: 1 → an info toast «Нечего экспортировать — в таблице нет строк»: a white card with a blue icon tile and ✕, bottom-left of the content, starting past the sidebar (never over «Настройки» / «Выход»); it fades in place, never slides across the sidebar. 2 → it starts past the 72px rail. 3 → while a dialog is open a toast sits at the screen's left edge, clear of the dialog's own buttons.
+Expect: 1 → an info toast «Нечего экспортировать — в таблице нет строк»: a white card with a blue icon tile and ✕, bottom-left of the content, starting past the sidebar (never over «Настройки»); it fades in place, never slides across the sidebar. 2 → it starts past the 72px rail. 3 → while a dialog is open a toast sits at the screen's left edge, clear of the dialog's own buttons.
 
 ### T-SMK-35 · Register page fits a laptop screen (logged out) [happy]
 
 Pre: logged out (end of the run, or a private window).
 Steps: open `/register` and `/login` at 1366×650 and 1280×720; scroll to the bottom.
 Expect: the card grows with its form and the page scrolls — the register submit button and the «Войти» link are fully reachable; nothing is clipped inside the card (no inner scrollbar).
+
+### T-SMK-36 · Sidebar width by window [happy]
+
+Steps: resize one window 1920 → 1440 → 1439 → 1366 → 1920; open `/sales/new` at 1920.
+Expect: 1920 and 1440 → the expanded 248px panel; 1439 and 1366 → the 72px rail (the toggle still expands it; navigating returns to the rail); back at 1920 → expanded; `/sales/new` opens on the rail at any width. The rail's footer is «Настройки» with its tooltip; toasts start past whichever width shows.
+
+### T-SMK-37 · Warehouse «Заканчивается» click-throughs [reconcile]
+
+Steps: 1. `/warehouses`: read the strip's «Заканчивается» and click it. 2. Back; open a warehouse whose «Заканчивается» column is > 0; read its KPI and click it. 3. Open another warehouse.
+Expect: 1 → Products «Остаток: Заканчивается» whose row count (the pager's «из N» when there is one) = the card, the dashboard «Заканчивается» panel and the bell's «Заканчиваются N товаров» (the same product set across warehouses). 2 → the KPI equals the list column for that warehouse; the click opens «Остатки» with search and category cleared and «Остаток: Заканчивается», row count = the KPI (zero rows «Нет в наличии» included). The strip card (products across warehouses) and the column (rows per warehouse) never sum to each other — by design. 3 → the tab's filters reset. An active warehouse with no stock shows 0, a «Заканчивается» KPI that opens nothing, and no tabs (the opening-stock prompt instead).
+
+### T-SMK-38 · Date and time fields [happy]
+
+Pre: an English (en-US) browser locale if available.
+Steps: 1. `/orders/new`: read «Дата доставки» / «Время доставки»; type «07102026», then «1430»; open the calendar. 2. Leave without saving; open an order's edit modal, hover the time field. 3. Open `/employees` → «Новый сотрудник», clear the hire date, submit, then type «01102026».
+Expect: 1 → empty fields read «ДД.ММ.ГГГГ» / «ЧЧ:ММ» (never «mm/dd/yyyy», never AM/PM); the digits fill 07.10.2026 and 14:30; the calendar is Russian, Monday first, the month capitalised; picking a day fills the field and the order summary. 2 → the optional time, when it holds a time, shows a «×» on hover; Escape closes the calendar, not the modal. 3 → «Дата найма обязательна» and the cursor in the day section, so the typed digits fill 01.10.2026. Labels above the fields name them (clicking a label focuses its field). No writes.
 
 ### T-SMK-31 · Hygiene sweep [happy]
 

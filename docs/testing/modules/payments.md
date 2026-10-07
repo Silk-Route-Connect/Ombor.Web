@@ -6,7 +6,7 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 
 ## Surfaces
 
-- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт»; under the title row `PaymentSummaryStrip` — clickable «Приход»/«Расход» toggle cards + «Платежей» count (space-grouped, «1 181»), they follow the date filter; then search «Поиск по номеру, партнёру или сотруднику…», direction segmented «Все | Приход | Расход», «Тип: Все», «Касса: Все», the shared date filter «Дата: Весь период …»), `PaymentsTable` (row click → detail; no actions column; totals band «N платежей · Приход · Расход» left of the pager).
+- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт»; under the title row `PaymentDirectionCards` — the direction filter as three toggle cards «Все платежи» · «Приход» · «Расход», each a payment **count** (space-grouped, «1 181») under the other filters, the pressed one with a ✓ and its accent border, no ↗; no direction segmented control; then search «Поиск по номеру, партнёру или сотруднику…», «Тип: Все», «Касса: Все», the shared date filter «Дата: Весь период …»), `PaymentsTable` (row click → detail; no actions column; totals band «N платежей · Приход · Расход» left of the pager).
 - `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Куда пошли деньги» allocation table; rail: the «Сумма платежа» hero (green / red by direction, the «Приход»/«Расход» chip under it), then «Информация» (Партнёр or Сотрудник as a link, «Тип» as the payment-type chip, «Касса», «Создал», «Дата»). The tab reads «Платёж №N · Ombor».
 - `PaymentCreateModal` (the shared modal shell: record tile + «Новый платёж», «Тип платежа» segmented control + per-type fields, a partner line «<тип> · Баланс: … · Аванс: …» under the partner picker, footer «Провести платёж» / «Далее: какие долги закрыть» with the lock line) and `PaymentSettlementModal` («Какие долги закрыть») — both launched from the list page.
 - `/payments/new` — the topbar «Создать → Оплата» target: redirects to `/payments` and opens `PaymentCreateModal` (never a placeholder page). The modal preselects the first active wallet.
@@ -74,10 +74,10 @@ Pre: T-PAY-03…08 created one payment of each type.
 Steps: 1. Open `/payments`; sort default date-desc. 2. Scan the run's rows.
 Expect: columns «№» (the number opens the payment; copy button on row hover; «Без номера» for legacy rows) · «Дата» (date+time) · «Партнёр / сотрудник» (partner rows link to the partner, payroll rows to the employee) · «Тип операции» with the real localized type — «Оплата», «Аванс», «Возврат аванса», «Зарплата», «Прочее» all present (#17) · «Направление» («Приход» green / «Расход» red pills) · «Касса» (wallet link) · «Сумма» right-aligned, unsigned, green/red by direction (#4). No `⋮` column (R1 — see Traps).
 
-### T-PAY-10 · Filters and summary-card toggle [happy]
+### T-PAY-10 · Filters and the direction cards [happy]
 Pre: T-PAY-09.
-Steps: 1. Search «QA-<MMDD> Плательщик». 2. Clear; type filter «Аванс». 3. Clear; wallet filter «QA-<MMDD> Касса-П». 4. Click the «Расход» summary card; click it again. 5. Combine search with a non-matching type.
-Expect: 1 → only this run's partner's payments. 2 → all visible rows are type «Аванс» and the run's 150 000 deposit is among them (the filter is org-wide and may include deposits from earlier runs). 3 → only the run wallet's payments. 4 → first click filters to Expense rows and highlights the card; second click clears; «Приход»/«Расход» card totals do NOT change when the direction toggle flips (they total the scoped view). 5 → empty state «Платежи не найдены» / «Измените запрос поиска или фильтры по типу и кассе.»
+Steps: 1. Search «QA-<MMDD> Плательщик». 2. Clear; type filter «Аванс». 3. Clear; wallet filter «QA-<MMDD> Касса-П». 4. Click the «Расход» card; click it again; then Tab to «Приход» and press Space. 5. Combine search with a non-matching type.
+Expect: 1 → only this run's partner's payments; the three cards count them. 2 → all visible rows are type «Аванс» and the run's 150 000 deposit is among them (the filter is org-wide and may include deposits from earlier runs). 3 → only the run wallet's payments. 4 → first click filters to Expense rows: «Расход» shows a ✓ and its red border (`aria-pressed=true`), the band's «N платежей» (and the pager's «из N» when there is one) = the «Расход» count; second click returns to «Все платежи» (pressed); Space selects «Приход» the same way. The card counts do NOT change when the direction flips — each counts what it would show under the other filters; «Все платежи» = «Приход» + «Расход». No money on the cards — sums live only in the totals band. 5 → empty state «Платежи не найдены» / «Измените поиск, тип, кассу или период.»
 
 ### T-PAY-11 · Attachments upload + display (F18) [happy] ✍
 Pre: wallet «QA-<MMDD> Касса-П» (from T-PAY-01).
@@ -131,10 +131,10 @@ Expect: 1 → sale flips to «Оплачено» (Closed); wallet = 2 200 000. 2
 Steps: 1. Block `GET /api/payments/outstanding` (DevTools → Network request blocking). 2. «Новый платёж»: «Оплата», a partner with open debt, amount 100 → «Далее: какие долги закрыть». 3. «Провести платёж». 4. Unblock, «Повторить».
 Expect: 2 → «Не удалось загрузить открытые долги» + reason + «Повторить» where the debt table goes; «Закрыто долгов» and «В аванс» read «—», never 0 / the whole amount. 3 → no `POST /api/payments` (confirming blind would book the whole amount as an advance). 4 → the debt rows load and the FIFO split fills the figures.
 
-### T-PAY-39 · Date filter drives the summary cards and the totals band [edge]
+### T-PAY-39 · Date filter drives the direction cards and the totals band [edge]
 
-Steps: 1. `/payments`: note the «Приход» / «Расход» cards. 2. «Дата» → «Сегодня». 3. Click the «Приход» card. 4. «Дата» → «Прошлый месяц», then «Весь период».
-Expect: 2 → only today's payments; the cards and «Платежей» now total today only; the band reads «N платежей · Приход … UZS (green) · Расход … UZS (red)» and equals the cards. 3 → the table and the band show income only; the cards stay (PAY-3). 4 → last calendar month, then everything again — the cards return to the step-1 values.
+Steps: 1. `/payments`: note the three cards. 2. «Дата» → «Сегодня». 3. Click the «Приход» card. 4. «Дата» → «Прошлый месяц», then «Весь период».
+Expect: 2 → only today's payments; the cards count today only; the band reads «N платежей · Приход … UZS (green) · Расход … UZS (red)» and N equals «Все платежи». 3 → the table and the band show income only (the band's N = the «Приход» count; it still reads «Расход 0 UZS» — open owner question, not a FAIL); the counts on the cards stay. 4 → last calendar month, then everything again — the cards return to the step-1 values.
 
 ### T-PAY-40 · Create modal: shell, keyboard, partner balance sign [edge]
 Pre: T-PAY-02 state or any partner who owes us, and one we owe (e.g. fixture «QA Поставщик» after an unpaid supply).

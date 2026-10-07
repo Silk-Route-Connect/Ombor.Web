@@ -1,7 +1,7 @@
 # Design tokens — Ombor
 
 **Status:** token sheet — a readable mirror of `src/theme/`, which is the **single source** (there is no `tokens.css`; the Design-project tokens were folded into the theme). When the two disagree, the theme wins and this sheet is corrected in the same change.
-**Last updated:** 2026-10-06 (UI refresh: warm-stone surfaces → one cool ink-grey ramp, teal navigation panel, ink-tinted modal scrim, success / warning tints separated from the Sale / Supply chips, `figuresSx`, `layout.contentMax` / `sidebarWidthVar`, identity tints, `iconSize` roles, theme-sized button icons, the modal anatomy, overline labels, lint guards)
+**Last updated:** 2026-10-07 (the MUI X date / time picker overrides; sidebar rail below a 1440px window). Earlier 2026-10-06 (UI refresh: warm-stone surfaces → one cool ink-grey ramp, teal navigation panel, ink-tinted modal scrim, success / warning tints separated from the Sale / Supply chips, `figuresSx`, `layout.contentMax` / `sidebarWidthVar`, identity tints, `iconSize` roles, theme-sized button icons, the modal anatomy, overline labels, lint guards)
 
 Contrast figures are WCAG ratios on white unless stated. Text needs 4.5:1 (all app text is below the 18px/24px "large" threshold except page titles); control edges and focus indicators need 3:1.
 
@@ -14,7 +14,7 @@ Contrast figures are WCAG ratios on white unless stated. Text needs 4.5:1 (all a
 | `src/theme/typography.ts` | the type scale (all MUI variants defined) |
 | `src/theme/tokens.ts` | `radius`, `iconSize`, `controlSize`, `dialogWidth` + `dialogPaperSx`, `typeScale` (numeric), `numericSx`, `figuresSx`, `layout` (`contentMax`, `sidebarWidthVar`) |
 | `src/theme/identityPalette.ts` | `identityTone(name)` — the 8 avatar / placeholder tints |
-| `src/theme/components.ts` | MUI overrides: focus ring, the app font on every `ButtonBase`, input borders and adornments, helper text, tooltip, the modal anatomy (paper, body, footer band, backdrop), button heights and icon sizes, table / input sizing |
+| `src/theme/components.ts` | MUI overrides: focus ring, the app font on every `ButtonBase`, input borders and adornments, helper text, tooltip, the modal anatomy (paper, body, footer band, backdrop), button heights and icon sizes, table / input sizing, the MUI X date / time pickers (`MuiPickers*`, typed through `@mui/x-date-pickers/themeAugmentation`) |
 | `src/theme/index.ts` | `createTheme` (palette slots, shadows) + re-exports — import everything `from "theme"` |
 
 ## Core colours
@@ -109,7 +109,8 @@ A raw `fontSize` outside a variant is a step of this scale — 11 · 12 · 13 ·
 - Dialog widths (`dialogWidth`): sm 480 · md 640 · lg 880; `dialogPaperSx(size)` adds `maxWidth: calc(100% − 32px)`.
 - Table (`Table/tableChrome.ts`): 42px header band on bgSubtle, 52px rows, 16px cell padding, body 14px, header 12px/600, gray100 row hairlines (no zebra striping), total band bgSubtle / 700 / 1.5px gray300 rule; hover wash and a 2px inset primary focus ring only on rows that open something — list `DataTable`, `ExpandableDataTable` and `DetailTable` alike. Table cards radius lg.
 - Modals (`MuiDialogContent` / `MuiDialogActions`, used by `FormDialog`): body always divided, padding 16 24 20, an ink scroll shadow at whichever edge still hides content; footer band bgSubtle, padding 14 24, gap 10. Helper / error text flush with the field edge, 12 / 16, 6px above. An end unit inside a field («UZS», «%») 13 / 500 secondary; a start prefix («+998») keeps the field's size.
-- Layout: sidebar 248px expanded / 72px rail (auto-collapsed below 1280px viewport and on POS pages); it publishes its current width as the CSS variable named by `layout.sidebarWidthVar` (`--app-sidebar-width`) — the toasts sit past it · topbar 60px · page padding 24px · content max width `layout.contentMax` 1600px (wide monitors keep a readable measure).
+- Date / time fields (`DateField` / `TimeField`) render MUI X's own field, not a TextField, so the theme matches them to the inputs: `MuiPickersTextField` small · `MuiPickersOutlinedInput` 38px min height, `controlSize.md` padding, `borderControl` edge (ink hover, primary focus as on every input) · `MuiPickersInputBase` 14px, an empty unfocused «ДД.ММ.ГГГГ» / «ЧЧ:ММ» in `fg3` (it reads as a placeholder); the calendar / clock icon 18px (`iconSize.md`, set in `usePickerField`, not the theme). The popup is a menu surface — `MuiPickerPopper` paper radius md + 1px `border` hairline on MUI's elevation 8 (`shadows[8]`), 6px below the field (the popper offset in `usePickerField`); on desktop the view spans the popup (`MuiPickersLayout`, no blank toolbar column) and the hour / minute columns sit centred (`MuiMultiSectionDigitalClock`); the month heading is capitalised 14 / 600 («Октябрь 2026», `MuiPickersCalendarHeader`); the touch dialog's heading is sentence case 13 / 600, never an uppercase overline (`MuiPickersToolbar`).
+- Layout: sidebar 248px expanded / 72px rail (auto-collapsed below a 1440px window — `NARROW_VIEWPORT_QUERY` `(max-width: 1439.95px)` — and on POS pages); it publishes its current width as the CSS variable named by `layout.sidebarWidthVar` (`--app-sidebar-width`) — the toasts sit past it · topbar 60px · page padding 24px · content max width `layout.contentMax` 1600px (wide monitors keep a readable measure).
 
 ## Elevation
 
