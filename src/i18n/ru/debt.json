@@ -4,6 +4,7 @@
 
   "debt.title": "Долги",
 
+  "debt.summary.label": "Фильтр долгов",
   "debt.summary.receivable": "Нам должны",
   "debt.summary.payable": "Мы должны",
   "debt.summary.overdue": "Просрочено",
@@ -26,10 +27,6 @@
 
   "debt.searchPlaceholder": "Поиск по партнёру или номеру…",
 
-  "debt.direction.all": "Все",
-  "debt.direction.receivable": "Нам должны",
-  "debt.direction.payable": "Мы должны",
-
   "debt.age.prefix": "Срок",
   "debt.age.all": "Все",
   "debt.age.0-7": "0–7 дней",
@@ -38,7 +35,6 @@
   "debt.age.31-60": "31–60 дней",
   "debt.age.60+": "60+ дней",
 
-  "debt.onlyOverdue": "Только просроченные",
   "debt.inTerm": "в сроке",
 
   "debt.partnerTable.partner": "Партнёр",

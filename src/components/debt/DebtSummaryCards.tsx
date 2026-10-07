@@ -2,7 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import StatCard from "components/shared/StatCard/StatCard";
 import StatCardGrid from "components/shared/StatCard/StatCardGrid";
-import { DebtSummary } from "models/debt";
+import { DebtDirection, DebtSummary } from "models/debt";
+import { DebtDirectionFilter } from "stores/DebtStore";
 import { formatCurrency } from "utils/formatCurrency";
 
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -12,7 +13,11 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 
 interface DebtSummaryCardsProps {
 	summary: DebtSummary;
-	onCard: (card: "receivable" | "payable" | "overdue") => void;
+	/** The page's direction filter — the matching card shows pressed. */
+	direction: DebtDirectionFilter;
+	onlyOverdue: boolean;
+	onToggleDirection: (direction: DebtDirection) => void;
+	onToggleOverdue: () => void;
 }
 
 /**
@@ -21,13 +26,24 @@ interface DebtSummaryCardsProps {
  * dashboard), «Просрочено» the unpaid documents past their due date, «Итог
  * расчётов» the difference — colour-neutral with a direction word, as on the
  * Partners strip (pattern 4, DR-27: an aggregate net carries no colour).
+ *
+ * The first three are also the page's direction and «просрочено» filters (a
+ * pressed card shows ✓; pressing it again lifts the filter). Unlike Payments the
+ * figures stay money — the totals are the point of this page — and they are the
+ * served totals, so they never follow the filters. «Итог расчётов» filters nothing.
  */
-export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onCard }) => {
+export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({
+	summary,
+	direction,
+	onlyOverdue,
+	onToggleDirection,
+	onToggleOverdue,
+}) => {
 	const { t } = useTranslation();
 	const pastDue = summary.unpaidDocuments.pastDue;
 
 	return (
-		<StatCardGrid columns={4}>
+		<StatCardGrid columns={4} label={t("debt.summary.label")}>
 			<StatCard
 				icon={<ArrowDownwardIcon />}
 				tone="success"
@@ -36,7 +52,9 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 				valueColor="success.main"
 				unit="uzs"
 				footer={t("partner.summary.receivableSub", { count: summary.receivablePartnerCount })}
-				onClick={() => onCard("receivable")}
+				onClick={() => onToggleDirection("Receivable")}
+				active={direction === "Receivable"}
+				activeColor="success.main"
 			/>
 			<StatCard
 				icon={<ArrowUpwardIcon />}
@@ -46,7 +64,9 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 				valueColor="error.main"
 				unit="uzs"
 				footer={t("partner.summary.payableSub", { count: summary.payablePartnerCount })}
-				onClick={() => onCard("payable")}
+				onClick={() => onToggleDirection("Payable")}
+				active={direction === "Payable"}
+				activeColor="error.main"
 			/>
 			<StatCard
 				icon={<ReportProblemOutlinedIcon />}
@@ -56,7 +76,9 @@ export const DebtSummaryCards: React.FC<DebtSummaryCardsProps> = ({ summary, onC
 				valueColor={pastDue > 0 ? "error.main" : "text.primary"}
 				unit="uzs"
 				footer={t("debt.summary.txCount", { count: summary.unpaidDocuments.pastDueCount })}
-				onClick={() => onCard("overdue")}
+				onClick={onToggleOverdue}
+				active={onlyOverdue}
+				activeColor="error.main"
 			/>
 			<StatCard
 				icon={<BalanceOutlinedIcon />}

@@ -109,7 +109,13 @@ const DebtPage: React.FC = observer(() => {
 				/>
 			) : (
 				<>
-					<DebtSummaryCards summary={summary} onCard={debtStore.applyCard} />
+					<DebtSummaryCards
+						summary={summary}
+						direction={debtStore.directionFilter}
+						onlyOverdue={debtStore.onlyOverdue}
+						onToggleDirection={debtStore.toggleDirection}
+						onToggleOverdue={debtStore.toggleOverdue}
+					/>
 
 					<Box sx={{ mb: "18px" }}>
 						<DetailTabs
@@ -127,14 +133,7 @@ const DebtPage: React.FC = observer(() => {
 							placeholder: t("debt.searchPlaceholder"),
 						}}
 						filters={
-							<DebtFilters
-								ageBucket={debtStore.ageBucket}
-								directionFilter={debtStore.directionFilter}
-								onlyOverdue={debtStore.onlyOverdue}
-								onAgeChange={debtStore.setAgeBucket}
-								onDirectionChange={debtStore.setDirectionFilter}
-								onClearOverdue={() => debtStore.setOnlyOverdue(false)}
-							/>
+							<DebtFilters ageBucket={debtStore.ageBucket} onAgeChange={debtStore.setAgeBucket} />
 						}
 					/>
 
@@ -147,10 +146,10 @@ const DebtPage: React.FC = observer(() => {
 							onStatement={(g) => navigate(partnerStatementPath(g.partnerId))}
 						/>
 					) : (
-						// Keyed by the preset nonce so any summary-card click re-seeds the
-						// table's sort — even re-clicking the same card after a manual
-						// header re-sort (defaultSort is initial-state only, and a same-value
-						// preset write wouldn't change a value-based key).
+						// Keyed by the preset nonce so any preset from another page (dashboard,
+						// bell) re-seeds the table's sort — even the same preset again after a
+						// manual header re-sort (defaultSort is initial-state only, and a
+						// same-value preset write wouldn't change a value-based key).
 						<TransactionDebtTable
 							key={debtStore.txPresetNonce}
 							rows={debtStore.transactionRows}

@@ -3,38 +3,22 @@ import { useTranslation } from "react-i18next";
 import EntityFilterSelect, {
 	FilterOption,
 } from "components/shared/EntityFilterSelect/EntityFilterSelect";
-import { SegmentedControl } from "components/shared/SegmentedControl/SegmentedControl";
-import { DebtAgeBucket, DebtDirectionFilter } from "stores/DebtStore";
-import { controlSize, designTokens, iconSize, radius } from "theme";
+import { DebtAgeBucket } from "stores/DebtStore";
 
-import CloseIcon from "@mui/icons-material/Close";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
-import { ButtonBase } from "@mui/material";
 
 interface DebtFiltersProps {
 	ageBucket: DebtAgeBucket;
-	directionFilter: DebtDirectionFilter;
-	onlyOverdue: boolean;
 	onAgeChange: (v: DebtAgeBucket) => void;
-	onDirectionChange: (v: DebtDirectionFilter) => void;
-	onClearOverdue: () => void;
 }
 
 /**
- * Debt filter controls for the table toolbar, shared by both tabs: the
- * direction segmented, the age dropdown (the shared filter select) and the
- * removable «Только просроченные» chip a summary card sets. The prototype's
- * date-range picker is omitted (locked pattern 12).
+ * The debts toolbar's one filter control, shared by both tabs: the age dropdown
+ * (the shared filter select). Direction and «просрочено» are the summary cards
+ * above the tabs — one control per filter. The prototype's date-range picker is
+ * omitted (locked pattern 12).
  */
-export const DebtFilters: React.FC<DebtFiltersProps> = ({
-	ageBucket,
-	directionFilter,
-	onlyOverdue,
-	onAgeChange,
-	onDirectionChange,
-	onClearOverdue,
-}) => {
+export const DebtFilters: React.FC<DebtFiltersProps> = ({ ageBucket, onAgeChange }) => {
 	const { t } = useTranslation();
 
 	const ageOptions: FilterOption<DebtAgeBucket>[] = [
@@ -47,50 +31,13 @@ export const DebtFilters: React.FC<DebtFiltersProps> = ({
 	];
 
 	return (
-		<>
-			<SegmentedControl
-				value={directionFilter}
-				onChange={onDirectionChange}
-				options={[
-					{ value: "all", label: t("debt.direction.all") },
-					{ value: "Receivable", label: t("debt.direction.receivable") },
-					{ value: "Payable", label: t("debt.direction.payable") },
-				]}
-			/>
-
-			<EntityFilterSelect<DebtAgeBucket>
-				icon={<ScheduleOutlinedIcon />}
-				label={t("debt.age.prefix")}
-				value={ageBucket}
-				options={ageOptions}
-				onChange={onAgeChange}
-			/>
-
-			{onlyOverdue && (
-				<ButtonBase
-					onClick={onClearOverdue}
-					aria-pressed
-					sx={{
-						display: "inline-flex",
-						alignItems: "center",
-						gap: "6px",
-						height: controlSize.md.height,
-						px: "13px",
-						borderRadius: `${radius.md}px`,
-						border: "1px solid",
-						borderColor: designTokens.primaryLine,
-						bgcolor: designTokens.primarySoft,
-						fontSize: 13,
-						fontWeight: 600,
-						color: "primary.main",
-					}}
-				>
-					<ReportProblemOutlinedIcon sx={{ fontSize: iconSize.sm }} />
-					{t("debt.onlyOverdue")}
-					<CloseIcon sx={{ fontSize: 14 }} />
-				</ButtonBase>
-			)}
-		</>
+		<EntityFilterSelect<DebtAgeBucket>
+			icon={<ScheduleOutlinedIcon />}
+			label={t("debt.age.prefix")}
+			value={ageBucket}
+			options={ageOptions}
+			onChange={onAgeChange}
+		/>
 	);
 };
 

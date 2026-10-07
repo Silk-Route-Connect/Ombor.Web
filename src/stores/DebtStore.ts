@@ -12,7 +12,7 @@ export type DebtTab = "partners" | "transactions";
 export type DebtDirectionFilter = DebtDirection | "all";
 export type DebtAgeBucket = "all" | "0-7" | "8-30" | "31+" | "31-60" | "60+";
 
-/** Dashboard / Debts summary cards that pre-filter the debts tables. */
+/** A preset another page opens «Долги» with (dashboard KPIs, the bell). */
 export type DebtCard = "receivable" | "payable" | "overdue" | "aged";
 /** Initial-sort seed for the documents table (column headers own ad-hoc sorting). */
 export type DebtTxPresetSort = "remaining" | "age";
@@ -41,9 +41,9 @@ export interface IDebtStore {
 	searchTerm: string;
 	ageBucket: DebtAgeBucket;
 	directionFilter: DebtDirectionFilter;
-	/** Seeds the documents table's initial sort (set by the card presets). */
+	/** Seeds the documents table's initial sort (set by the presets). */
 	txPresetSort: DebtTxPresetSort;
-	/** Bumped on every card click so the table re-seeds even for the same preset. */
+	/** Bumped on every preset so the table re-seeds even for the same one. */
 	txPresetNonce: number;
 	onlyOverdue: boolean;
 
@@ -55,9 +55,12 @@ export interface IDebtStore {
 	setSearch(term: string): void;
 	setAgeBucket(bucket: DebtAgeBucket): void;
 	setDirectionFilter(dir: DebtDirectionFilter): void;
-	setOnlyOverdue(value: boolean): void;
+	/** «Нам должны» / «Мы должны» card: picks that direction; the pressed one again shows both. */
+	toggleDirection(direction: DebtDirection): void;
+	/** «Просрочено» card: only documents past their due date (and the partners holding them), or all again. */
+	toggleOverdue(): void;
 	clearFilters(): void;
-	/** A summary-card click opens the matching tab with a preset filter. */
+	/** Opens «Долги» from another page on the matching tab with a preset filter. */
 	applyCard(card: DebtCard): void;
 }
 
@@ -200,8 +203,11 @@ export class DebtStore implements IDebtStore {
 	setDirectionFilter(dir: DebtDirectionFilter): void {
 		this.directionFilter = dir;
 	}
-	setOnlyOverdue(value: boolean): void {
-		this.onlyOverdue = value;
+	toggleDirection(direction: DebtDirection): void {
+		this.directionFilter = this.directionFilter === direction ? "all" : direction;
+	}
+	toggleOverdue(): void {
+		this.onlyOverdue = !this.onlyOverdue;
 	}
 
 	clearFilters(): void {
@@ -212,9 +218,10 @@ export class DebtStore implements IDebtStore {
 	}
 
 	/**
-	 * «Нам должны» / «Мы должны» and the dashboard's «Долги старше 30 дней» are
+	 * The dashboard's «Нам должны» / «Мы должны» / «Долги старше 30 дней» are
 	 * partner positions → «По партнёрам»; «Просрочено» is a document's due date →
-	 * «Неоплаченные документы».
+	 * «Неоплаченные документы». On the page itself the cards are plain filters
+	 * (`toggleDirection`, `toggleOverdue`) and keep the open tab.
 	 */
 	applyCard(card: DebtCard): void {
 		this.txPresetNonce += 1;
