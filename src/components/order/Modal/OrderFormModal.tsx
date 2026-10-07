@@ -2,6 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import PartnerAutocomplete from "components/partner/Autocomplete/PartnerAutocomplete";
 import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
+import DateField from "components/shared/Date/DateField";
+import TimeField from "components/shared/Date/TimeField";
 import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormField from "components/shared/Forms/FormField";
@@ -139,25 +141,20 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 
 				<Box sx={twoCols}>
 					<FormField label={t("order.field.deliveryDate")} required>
-						<TextField
-							type="date"
-							size="small"
-							fullWidth
+						<DateField
 							value={form.deliveryDate}
 							disabled={isSaving}
 							error={deliverErr}
 							helperText={deliverErr ? t("order.edit.deliveryDateRequired") : undefined}
-							onChange={(e) => form.setDeliveryDate(e.target.value)}
+							onChange={form.setDeliveryDate}
 						/>
 					</FormField>
 					<FormField label={t("order.field.deliveryTime")}>
-						<TextField
-							type="time"
-							size="small"
-							fullWidth
+						<TimeField
 							value={form.deliveryTime}
 							disabled={isSaving}
-							onChange={(e) => form.setDeliveryTime(e.target.value)}
+							clearable
+							onChange={form.setDeliveryTime}
 						/>
 					</FormField>
 				</Box>

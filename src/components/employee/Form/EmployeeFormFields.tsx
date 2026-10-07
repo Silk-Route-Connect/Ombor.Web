@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller, FieldError, UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import DateField from "components/shared/Date/DateField";
 import FormField from "components/shared/Forms/FormField";
 import FormSection from "components/shared/Forms/FormSection";
 import MoneyField from "components/shared/Inputs/MoneyField";
@@ -86,14 +87,21 @@ const EmployeeFormFields: React.FC<EmployeeFormFieldsProps> = ({ form, disabled 
 
 			<Box sx={twoCol}>
 				<FormField label={t("employee.dateOfEmployment")} required>
-					<TextField
-						{...register("dateOfEmployment")}
-						type="date"
-						size="small"
-						fullWidth
-						error={!!errors.dateOfEmployment}
-						helperText={errors.dateOfEmployment?.message}
-						disabled={disabled}
+					<Controller
+						name="dateOfEmployment"
+						control={control}
+						render={({ field }) => (
+							<DateField
+								value={field.value}
+								onChange={field.onChange}
+								onBlur={field.onBlur}
+								name={field.name}
+								inputRef={field.ref}
+								error={!!errors.dateOfEmployment}
+								helperText={errors.dateOfEmployment?.message}
+								disabled={disabled}
+							/>
+						)}
 					/>
 				</FormField>
 

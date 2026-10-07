@@ -1,5 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DateField from "components/shared/Date/DateField";
+import TimeField from "components/shared/Date/TimeField";
 import FormField from "components/shared/Forms/FormField";
 import PartnerPicker from "components/transaction/Create/PartnerPicker";
 import { POS_CARD_PADDING, posCardSx } from "components/transaction/Create/posStyles";
@@ -8,7 +10,7 @@ import { OrderSource } from "models/order";
 import { Partner } from "models/partner";
 import { Warehouse } from "models/warehouse";
 
-import { Box, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 
 import OrderSourcePicker from "./OrderSourcePicker";
 
@@ -32,11 +34,7 @@ interface OrderHeaderCardProps {
 const rowSx = (columns: string) =>
 	({ display: "grid", gridTemplateColumns: { xs: "1fr", sm: columns }, gap: "16px" }) as const;
 
-/**
- * Who the order is for, where it ships from and when — the New Order header card.
- * Date and time stay native inputs on the theme field (a localized date picker is
- * an owner decision).
- */
+/** Who the order is for, where it ships from and when — the New Order header card. */
 export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 	customers,
 	client,
@@ -99,21 +97,14 @@ export const OrderHeaderCard: React.FC<OrderHeaderCardProps> = ({
 					required
 					error={errors.deliveryDate ? t("order.new.err.deliveryDate") : undefined}
 				>
-					<TextField
-						type="date"
+					<DateField
 						value={deliveryDate}
 						error={errors.deliveryDate}
-						onChange={(e) => onDeliveryDateChange(e.target.value)}
-						fullWidth
+						onChange={onDeliveryDateChange}
 					/>
 				</FormField>
 				<FormField label={t("order.field.deliveryTime")} hint={t("common.optional")}>
-					<TextField
-						type="time"
-						value={deliveryTime}
-						onChange={(e) => onDeliveryTimeChange(e.target.value)}
-						fullWidth
-					/>
+					<TimeField value={deliveryTime} clearable onChange={onDeliveryTimeChange} />
 				</FormField>
 			</Box>
 		</Box>
