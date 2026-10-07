@@ -4,6 +4,7 @@ import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
 import FormField from "components/shared/Forms/FormField";
 import { recordTile } from "components/shared/IconTile/recordTile";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 
 import { TextField } from "@mui/material";
 
@@ -42,6 +43,7 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 	};
 
 	const nameError = tried && !name.trim();
+	const onKeyDown = useFormKeyboardSubmit(handleSave, isSaving);
 
 	return (
 		<FormDialog
@@ -52,6 +54,7 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 			tile={recordTile("Template")}
 			busy={isSaving}
 			onClose={handleClose}
+			onKeyDown={onKeyDown}
 			footer={
 				<FormDialogFooter
 					canSave={!isSaving}
@@ -71,11 +74,6 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 					onChange={(e) => setName(e.target.value)}
 					error={nameError}
 					helperText={nameError ? t("transaction.new.tpl.nameRequired") : undefined}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") {
-							handleSave();
-						}
-					}}
 				/>
 			</FormField>
 		</FormDialog>

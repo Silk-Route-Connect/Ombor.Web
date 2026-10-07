@@ -1,4 +1,5 @@
 import { KeyboardEvent, useCallback } from "react";
+import { useStore } from "stores/StoreContext";
 
 export interface FormKeyboardSubmitOptions {
 	/**
@@ -8,6 +9,12 @@ export interface FormKeyboardSubmitOptions {
 	 * event cannot be edited afterwards (commit convention, ui-patterns).
 	 */
 	requireModifier?: boolean;
+	/**
+	 * Mirror the footer's `offlineGate` (default on): while the backend is
+	 * unreachable the shortcut does nothing, as the disabled submit button does —
+	 * otherwise Enter would send the write the gate is there to hold back.
+	 */
+	offlineGate?: boolean;
 }
 
 /**
@@ -22,17 +29,23 @@ export interface FormKeyboardSubmitOptions {
  *   fires from a button (the browser already maps Enter to a click there).
  *   With `requireModifier` a bare Enter never submits.
  *
- * `disabled` (pass the form's `isSaving`) suppresses the shortcut while saving.
+ * `disabled` (pass the form's `isSaving`) suppresses the shortcut while saving,
+ * and the offline gate while the backend is unreachable (F-028).
  * IME composition (`isComposing`) is ignored so Enter can commit a candidate.
  */
 export function useFormKeyboardSubmit(
 	submit: () => void,
 	disabled = false,
-	{ requireModifier = false }: FormKeyboardSubmitOptions = {},
+	{ requireModifier = false, offlineGate = true }: FormKeyboardSubmitOptions = {},
 ) {
+	const { connectivityStore } = useStore();
+
 	return useCallback(
 		(event: KeyboardEvent<HTMLElement>) => {
 			if (disabled || event.key !== "Enter" || event.nativeEvent.isComposing) {
+				return;
+			}
+			if (offlineGate && connectivityStore.isBackendDown) {
 				return;
 			}
 			if (event.metaKey || event.ctrlKey) {
@@ -51,7 +64,7 @@ export function useFormKeyboardSubmit(
 			event.preventDefault();
 			submit();
 		},
-		[submit, disabled, requireModifier],
+		[submit, disabled, requireModifier, offlineGate, connectivityStore],
 	);
 }
 
