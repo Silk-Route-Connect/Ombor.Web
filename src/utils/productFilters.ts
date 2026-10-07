@@ -49,11 +49,6 @@ export function productStockLevel(product: Product): StockLevel {
 	return product.isLowStock ? "low" : "ok";
 }
 
-/** Each product's «Минимальный остаток» by id (0 when none) — for rows that carry only the id. */
-export function lowStockThresholds(products: readonly Product[]): Map<number, number> {
-	return new Map(products.map((p) => [p.id, p.lowStockThreshold ?? 0]));
-}
-
 /** «Остаток» filter: every row, the ones running low (incl. none left), or none left only. */
 export type StockFilter = "all" | "low" | "out";
 

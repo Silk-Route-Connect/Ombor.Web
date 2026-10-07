@@ -17,12 +17,13 @@ import { buildWarehouseActionRows } from "components/warehouse/Table/ActionMenu/
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
+import { useWarehouseStockFilters } from "hooks/warehouse/useWarehouseStockFilters";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { lowStockThresholds } from "utils/productFilters";
+import { warehouseStockLevels } from "utils/report/reportStock";
 
 import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -34,17 +35,16 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const warehouseId = useRouteEntityId();
-	const { warehouseStore, selectedWarehouseStore, productStore } = useStore();
+	const { warehouseStore, selectedWarehouseStore } = useStore();
 
 	const [tab, setTab] = useState<WarehouseDetailTab>("stock");
+	const stockFilters = useWarehouseStockFilters();
+	const resetStockFilters = stockFilters.reset;
 
-	// Products carry the «Минимальный остаток» the stock tab's low-stock alert compares with.
-	useEffect(() => {
-		void productStore.getAll();
-	}, [productStore]);
-	const thresholds = useMemo(
-		() => lowStockThresholds(readyOr(productStore.allProducts, [])),
-		[productStore.allProducts],
+	const reportState = selectedWarehouseStore.stockReport;
+	const levels = useMemo(
+		() => warehouseStockLevels(isReady(reportState) ? reportState.rows : []),
+		[reportState],
 	);
 
 	useEffect(() => {
@@ -52,8 +52,9 @@ const WarehouseDetailPage: React.FC = observer(() => {
 			void selectedWarehouseStore.load(warehouseId);
 		}
 		setTab("stock");
+		resetStockFilters();
 		return () => selectedWarehouseStore.clear();
-	}, [warehouseId, selectedWarehouseStore]);
+	}, [warehouseId, selectedWarehouseStore, resetStockFilters]);
 
 	const goBack = () => navigate(PATHS.warehouses);
 
@@ -109,14 +110,21 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const movementsState = selectedWarehouseStore.movements;
 	const stock = readyOr(stockState, []);
 	const movements = readyOr(movementsState, []);
-	const ledgersReady = isReady(stockState) && isReady(movementsState);
-	const ledgersState = isLoadError(stockState)
-		? stockState
-		: isLoadError(movementsState)
-			? movementsState
-			: "loading";
+	// The stock tab's alerts come from the stock report, so it waits for all three.
+	const ledgersReady = isReady(stockState) && isReady(movementsState) && isReady(reportState);
+	const ledgersState =
+		[stockState, movementsState, reportState].find((state) => isLoadError(state)) ?? "loading";
 
 	const empty = warehouse.productCount === 0;
+	const showsTabs = !empty || warehouse.isArchived;
+	const lowStock = isReady(reportState)
+		? (reportState.warehouses.find((w) => w.warehouseId === warehouse.id)?.lowStockCount ?? 0)
+		: null;
+
+	const openLowStock = (): void => {
+		stockFilters.showLowStock();
+		setTab("stock");
+	};
 
 	const actions = buildWarehouseActionRows(t, {
 		warehouse,
@@ -174,9 +182,13 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				</Callout>
 			)}
 
-			<WarehouseKpis warehouse={warehouse} />
+			<WarehouseKpis
+				warehouse={warehouse}
+				lowStock={lowStock}
+				onLowStock={showsTabs ? openLowStock : undefined}
+			/>
 
-			{empty && !warehouse.isArchived ? (
+			{!showsTabs ? (
 				<WarehouseEmptyStock onOpeningStock={() => warehouseStore.openOpeningStock(warehouse)} />
 			) : (
 				<Stack sx={{ gap: "16px" }}>
@@ -198,7 +210,8 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							onAddOpeningStock={
 								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
 							}
-							lowStockThresholds={thresholds}
+							levels={levels}
+							filters={stockFilters}
 						/>
 					) : (
 						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />

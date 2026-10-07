@@ -8,7 +8,7 @@ import { Product } from "models/product";
 import { figuresSx, radius } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
-import { stockAlerts } from "utils/stockAlerts";
+import { countStockAlerts, stockAlerts } from "utils/stockAlerts";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
@@ -31,7 +31,7 @@ interface LowStockPanelProps {
 const LowStockPanel: React.FC<LowStockPanelProps> = ({ products, onRetry, onAll }) => {
 	const { t } = useTranslation();
 	const alerts = useMemo(() => (isReady(products) ? stockAlerts(products) : []), [products]);
-	const outCount = alerts.filter((a) => a.level === "out").length;
+	const counts = countStockAlerts(alerts);
 
 	const unitQty = (value: number, product: Product) =>
 		`${formatQuantity(value)} ${measurementShort(t, product.measurement)}`.trim();
@@ -61,7 +61,7 @@ const LowStockPanel: React.FC<LowStockPanelProps> = ({ products, onRetry, onAll 
 				</Typography>
 				{alerts.length > 0 && (
 					<Typography variant="body2" sx={{ color: "text.secondary" }}>
-						{t("dashboard.lowStock.summary", { out: outCount, low: alerts.length - outCount })}
+						{t("dashboard.lowStock.summary", { out: counts.out, low: counts.total - counts.out })}
 					</Typography>
 				)}
 				<ButtonBase

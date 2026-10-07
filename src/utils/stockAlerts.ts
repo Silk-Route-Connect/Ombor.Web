@@ -26,3 +26,13 @@ export function stockAlerts(products: readonly Product[]): StockAlert[] {
 				a.product.name.localeCompare(b.product.name, "ru", { sensitivity: "base" }),
 		);
 }
+
+/** The «Заканчивается» set in figures: every product in it, and those with none left. */
+export interface StockAlertCounts {
+	total: number;
+	out: number;
+}
+
+export function countStockAlerts(alerts: readonly StockAlert[]): StockAlertCounts {
+	return { total: alerts.length, out: alerts.filter((alert) => alert.level === "out").length };
+}

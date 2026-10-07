@@ -6,9 +6,13 @@ import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
 import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
-import { buildWarehouseColumns } from "components/warehouse/Table/warehouseTableConfigs";
+import {
+	buildWarehouseColumns,
+	lowStockOf,
+} from "components/warehouse/Table/warehouseTableConfigs";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isReady, readyOr } from "helpers/Loading";
+import { useOpenLowStock } from "hooks/product/useOpenLowStock";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -21,12 +25,18 @@ import { Box } from "@mui/material";
 const WarehousePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { warehouseStore } = useStore();
+	const { warehouseStore, productStore } = useStore();
 	const tableOrder = useTableOrder<Warehouse>();
+	const openLowStock = useOpenLowStock();
 
+	// Products carry the served `isLowStock` the «Заканчивается» card counts, as on the dashboard.
 	useEffect(() => {
 		warehouseStore.getAll({ quiet: true });
-	}, [warehouseStore]);
+		void warehouseStore.loadStockReport();
+		void productStore.getAll({ quiet: true });
+	}, [warehouseStore, productStore]);
+
+	const lowStockCounts = warehouseStore.lowStockCounts;
 
 	const dialogMode = warehouseStore.dialogMode;
 	const editingWarehouse = dialogMode.kind === "form" ? (dialogMode.warehouse ?? null) : null;
@@ -41,14 +51,18 @@ const WarehousePage: React.FC = observer(() => {
 
 	const columns = useMemo(
 		() =>
-			buildWarehouseColumns(t, {
-				onEdit: (w) => warehouseStore.openEdit(w),
-				onArchive: (w) => warehouseStore.openArchive(w),
-				onRestore: (w) => warehouseStore.openRestore(w),
-				onDelete: handleDelete,
-			}),
+			buildWarehouseColumns(
+				t,
+				{
+					onEdit: (w) => warehouseStore.openEdit(w),
+					onArchive: (w) => warehouseStore.openArchive(w),
+					onRestore: (w) => warehouseStore.openRestore(w),
+					onDelete: handleDelete,
+				},
+				lowStockCounts,
+			),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[t],
+		[t, lowStockCounts],
 	);
 
 	const handleFormSave = (payload: WarehouseFormValues): void => {
@@ -68,7 +82,7 @@ const WarehousePage: React.FC = observer(() => {
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
 			{ header: t("warehouse.table.address"), value: (w) => w.location ?? "" },
 			{ header: t("warehouse.table.products"), value: (w) => w.productCount },
-			{ header: t("warehouse.table.units"), value: (w) => w.totalUnits },
+			{ header: t("warehouse.lowStock.title"), value: (w) => lowStockOf(lowStockCounts, w) ?? "" },
 			{ header: t("warehouse.table.stockValue"), value: (w) => w.stockValue },
 			{
 				header: t("warehouse.table.status"),
@@ -88,7 +102,15 @@ const WarehousePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WarehouseHeader
-				summary={hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
+				summary={
+					hasAny && (
+						<WarehouseSummaryStrip
+							report={warehouseStore.stockReport.data}
+							products={productStore.allProducts}
+							onLowStock={openLowStock}
+						/>
+					)
+				}
 				searchValue={warehouseStore.searchTerm}
 				showArchived={warehouseStore.showArchived}
 				archivedCount={warehouseStore.archivedCount}

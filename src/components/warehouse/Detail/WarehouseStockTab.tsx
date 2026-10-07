@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
 import StockQuantityCell from "components/product/StockQuantityCell";
@@ -11,11 +11,12 @@ import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
+import { ALL_CATEGORIES, WarehouseStockFilters } from "hooks/warehouse/useWarehouseStockFilters";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { matchesStockFilter, StockFilter, StockLevel, stockLevel } from "utils/productFilters";
+import { matchesStockFilter, StockFilter, StockLevel } from "utils/productFilters";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
 
@@ -28,34 +29,35 @@ interface WarehouseStockTabProps {
 	stock: WarehouseStockItem[];
 	/** Shown in the empty state of a warehouse with no stock yet (omit when archived). */
 	onAddOpeningStock?: () => void;
-	/** Each product's «Минимальный остаток» by id; a missing one alerts only at zero. */
-	lowStockThresholds: Map<number, number>;
+	/** Each product's served alert in this warehouse (`warehouseStockLevels`); a missing one is «ok». */
+	levels: ReadonlyMap<number, StockLevel>;
+	/** Search, category and «Остаток» — held by the page (the «Заканчивается» KPI sets them). */
+	filters: WarehouseStockFilters;
 }
 
 type StockRow = WarehouseStockItem & { id: number; level: StockLevel };
 
-const ALL_CATEGORIES = "__all__";
 const STOCK_FILTERS: StockFilter[] = ["all", "low", "out"];
 
 /**
  * «Остатки»: the warehouse's on-hand products — Товар · Артикул · Категория ·
  * Количество · Сред. себест. · Стоимость — searchable, filterable by category
  * and by the low-stock alert, with the served «Итого по складу» band on the
- * unfiltered view. The alert compares this warehouse's quantity with the
- * product's «Минимальный остаток».
+ * unfiltered view. The alert is the served one — this warehouse's quantity at
+ * or below the product's «Минимальный остаток» — so «Остаток: Заканчивается»
+ * lists exactly the rows the «Заканчивается» KPI counts.
  */
 export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	warehouse,
 	stock,
 	onAddOpeningStock,
-	lowStockThresholds,
+	levels,
+	filters,
 }) => {
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<StockRow>();
-	const [query, setQuery] = useState("");
-	const [category, setCategory] = useState(ALL_CATEGORIES);
-	const [stockFilter, setStockFilter] = useState<StockFilter>("all");
-	const isFiltering = query.trim() !== "" || category !== ALL_CATEGORIES || stockFilter !== "all";
+	const { query, setQuery, category, setCategory, stockFilter, setStockFilter, isFiltering } =
+		filters;
 
 	const categories = useMemo(() => {
 		const names = new Set<string>();
@@ -69,7 +71,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				.map((item) => ({
 					...item,
 					id: item.productId,
-					level: stockLevel(item.quantity, lowStockThresholds.get(item.productId)),
+					level: levels.get(item.productId) ?? "ok",
 				}))
 				.filter(
 					(item) =>
@@ -79,7 +81,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 							matchesSearch(item.productName, query) ||
 							matchesSearch(item.sku, query)),
 				),
-		[stock, query, category, stockFilter, lowStockThresholds],
+		[stock, query, category, stockFilter, levels],
 	);
 
 	const columns = useMemo<Column<StockRow>[]>(

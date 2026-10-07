@@ -1,16 +1,21 @@
 import React from "react";
+import StatusPill from "components/shared/Chip/StatusPill";
 import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
+import NoValue from "components/shared/Table/cells/NoValue";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import { ACTIONS_COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { WarehouseActionMenu } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
+import { isReady, Loadable } from "helpers/Loading";
 import { TFunction } from "i18next";
 import { Warehouse } from "models/warehouse";
 import { designTokens, radius } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
@@ -39,13 +44,34 @@ const WarehouseAvatar: React.FC<{ archived: boolean }> = ({ archived }) => (
 	</Box>
 );
 
+/** A warehouse's served `lowStockCount` (`WarehouseStore.lowStockCounts`); null until served. */
+export const lowStockOf = (
+	counts: Loadable<Map<number, number>>,
+	warehouse: Warehouse,
+): number | null => (isReady(counts) ? (counts.get(warehouse.id) ?? 0) : null);
+
+/** «Заканчивается» cell: the low-stock pill look when any row runs low, a plain «0» when none. */
+const LowStockCountCell: React.FC<{ count: number | null }> = ({ count }) => {
+	if (count === null) {
+		return <NoValue />;
+	}
+	return count > 0 ? (
+		<StatusPill token="warning" icon={TrendingDownIcon} label={formatQuantity(count)} />
+	) : (
+		<QuantityCell value={0} />
+	);
+};
+
 /**
  * Warehouse list columns in the canonical order (conventions.md → Tables):
- * Склад · Адрес · Товаров · Единиц · Стоимость · ⋮.
+ * Склад · Адрес · Товаров · Заканчивается · Стоимость · ⋮. «Заканчивается» is
+ * the served count of the warehouse's rows at or below the product's
+ * «Минимальный остаток» — what its «Остатки» tab lists under that filter.
  */
 export function buildWarehouseColumns(
 	t: TFunction,
 	handlers: WarehouseColumnHandlers,
+	lowStockCounts: Loadable<Map<number, number>>,
 ): Column<Warehouse>[] {
 	return [
 		{
@@ -72,11 +98,12 @@ export function buildWarehouseColumns(
 			renderCell: (w) => <QuantityCell value={w.productCount} />,
 		},
 		{
-			key: "units",
-			headerName: t("warehouse.table.units"),
+			key: "lowStock",
+			headerName: t("warehouse.lowStock.title"),
+			headerTooltip: t("warehouse.lowStock.hint"),
 			align: "right",
-			sortValue: (w) => w.totalUnits,
-			renderCell: (w) => <QuantityCell value={w.totalUnits} />,
+			sortValue: (w) => lowStockOf(lowStockCounts, w) ?? -1,
+			renderCell: (w) => <LowStockCountCell count={lowStockOf(lowStockCounts, w)} />,
 		},
 		{
 			key: "stockValue",
