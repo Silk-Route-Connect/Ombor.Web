@@ -225,7 +225,7 @@
 - **Data:** real (`/api/reports/*`)
 - **Open:** frontend-gaps U3 still describes Reports as v2.
 - **Decisions:** see conventions.md → Reports.
-- **DR-41 (2026-10-07):** the stock report's «Остаток» filter reads the served flags — «Заканчивается» = rows with `isLowStock` (exactly `totals.lowStockCount`), «Нет в наличии» = rows at 0 (tracked or not); the pill per row on the same rule; `rows[].lowStockThreshold` is optional (absent = not tracked). Other pages open it pre-filtered through `reportStore.presetStock(warehouseId, level)` (the Warehouses «Заканчивается» card, the dashboard panel's «Все», the bell's low-stock alert — all over every warehouse).
+- **DR-41 (2026-10-07):** the stock report's «Остаток» filter reads the served flags — «Заканчивается» = rows with `isLowStock` (exactly `totals.lowStockCount`), «Нет в наличии» = rows at 0 (tracked or not); the pill per row on the same rule; `rows[].lowStockThreshold` is optional (absent = not tracked). Other pages open it pre-filtered through `reportStore.presetStock(warehouseId, level)` (the Warehouses «Заканчивается» card, the dashboard panel's «Все», the bell's low-stock alert — all over every warehouse); the bell clicked while the stock report is open refetches it, since the route stays the same.
 
 ---
 

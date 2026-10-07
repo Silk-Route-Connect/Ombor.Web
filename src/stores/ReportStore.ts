@@ -60,7 +60,7 @@ export interface IReportStore {
 	setStockWarehouse(warehouseId: number | null): void;
 	setStockSearch(value: string): void;
 	setStockLevel(value: StockFilter): void;
-	/** Narrows the stock report to one warehouse (or all) and one «Остаток» level, search off — a link from another page. */
+	/** Narrows the stock report to one warehouse (or all) and one «Остаток» level, search off — a link from another page; refetches when the stock report is already open. */
 	presetStock(warehouseId: number | null, level: StockFilter): void;
 	/** The filters of a report, for its print URL. */
 	queryOf(kind: ReportKind): ReportQuery;
@@ -188,6 +188,11 @@ export class ReportStore implements IReportStore {
 		this.stockWarehouseId = warehouseId;
 		this.stockSearch = "";
 		this.stockLevel = level;
+		// The bell can preset the stock report while it is the page on screen: the
+		// route stays the same, so the report never remounts to refetch.
+		if (this.active === "stock") {
+			void this.reload();
+		}
 	}
 
 	queryOf(kind: ReportKind): ReportQuery {
