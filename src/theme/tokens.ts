@@ -116,3 +116,16 @@ export const dialogBelowHeaderSx = {
 	transition: "margin-top .2s ease, max-height .2s ease",
 	"@media (prefers-reduced-motion: reduce)": { transition: "none" },
 } as const;
+
+/** Off screen but read out by assistive tech — live regions and accessible descriptions. */
+export const visuallyHiddenSx = {
+	position: "absolute",
+	width: "1px",
+	height: "1px",
+	padding: 0,
+	margin: "-1px",
+	overflow: "hidden",
+	clip: "rect(0 0 0 0)",
+	whiteSpace: "nowrap",
+	border: 0,
+} as const;

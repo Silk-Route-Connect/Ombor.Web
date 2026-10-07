@@ -15,12 +15,18 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { lastReachableText, nextCheckText } from "./detailsText";
 import { ProblemStatus, STATUS_PRESENTATION } from "./presentation";
 
+interface DetailsProps {
+	status: ProblemStatus;
+	/** Id for the heading — the popover is labelled by it. */
+	titleId: string;
+}
+
 /**
  * The connection pill's popover: what is wrong, what it means for the user
  * (nothing saves, figures may be stale), when the server last answered, when the
  * next automatic check runs, and «Проверить сейчас».
  */
-export const ConnectivityDetails: React.FC<{ status: ProblemStatus }> = observer(({ status }) => {
+export const ConnectivityDetails: React.FC<DetailsProps> = observer(({ status, titleId }) => {
 	const { t } = useTranslation();
 	const { connectivityStore: store } = useStore();
 	const now = useNow();
@@ -31,7 +37,11 @@ export const ConnectivityDetails: React.FC<{ status: ProblemStatus }> = observer
 			<Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, p: 2, pb: 1.5 }}>
 				<IconTile icon={<Icon />} token={token} size={36} />
 				<Box sx={{ minWidth: 0 }}>
-					<Typography component="h2" sx={{ fontSize: 15, fontWeight: 600, lineHeight: "22px" }}>
+					<Typography
+						id={titleId}
+						component="h2"
+						sx={{ fontSize: 15, fontWeight: 600, lineHeight: "22px" }}
+					>
 						{t(labelKey)}
 					</Typography>
 					<Typography variant="body2" sx={{ color: "text.secondary", mt: 0.25 }}>

@@ -5,6 +5,7 @@ import SaveButton from "components/shared/Buttons/SaveButton";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
+import { visuallyHiddenSx } from "theme";
 
 import { Box, DialogActions } from "@mui/material";
 
@@ -67,6 +68,13 @@ const SubmitActions: React.FC<SubmitFooterProps> = observer(
 		const { t } = useTranslation();
 		const { connectivityStore } = useStore();
 		const offline = offlineGate && connectivityStore.isBackendDown;
+		// The header's live region is hidden from assistive tech behind an open modal,
+		// so the modal says it itself when its save is gated and when it comes back.
+		const announcement = offline
+			? t("common.offline.saveTooltip")
+			: offlineGate && connectivityStore.status === "restored"
+				? t("common.connectivity.restored")
+				: "";
 
 		return (
 			<>
@@ -77,13 +85,16 @@ const SubmitActions: React.FC<SubmitFooterProps> = observer(
 				)}
 				{secondaryActions}
 				<SaveButton
-					disabled={!canSave || offline}
+					disabled={!canSave}
 					loading={loading}
-					tooltip={offline ? t("common.offline.saveTooltip") : undefined}
+					blockedReason={offline ? t("common.offline.saveTooltip") : undefined}
 					label={submitLabel}
 					icon={submitIcon}
 					onSave={onSave}
 				/>
+				<Box role="status" sx={visuallyHiddenSx}>
+					{announcement}
+				</Box>
 			</>
 		);
 	},
@@ -107,7 +118,9 @@ const CloseAction: React.FC<CloseFooterProps> = ({ onClose, closeLabel, emphasis
  * any secondary actions and the primary submit right; and, for immutable events,
  * one `CommitNote` line under the buttons. The submit stays enabled (validation
  * runs on submit, rule 5); it is disabled only while a save is in flight or
- * while the backend is unreachable (F-028). `variant="close"` is the read-only
+ * while the backend is unreachable (F-028) — then it stays focusable with the
+ * reason as its tooltip and description, and a polite status inside the modal
+ * announces the gate and the recovery. `variant="close"` is the read-only
  * footer: a single «Закрыть» (or «Готово»).
  */
 const FormDialogFooter: React.FC<FormDialogFooterProps> = (props) => {

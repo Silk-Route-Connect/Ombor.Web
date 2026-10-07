@@ -38,6 +38,7 @@ export {
 	numericSx,
 	radius,
 	typeScale,
+	visuallyHiddenSx,
 } from "./tokens";
 
 // Elevation (border-first, restrained).

@@ -11,12 +11,10 @@ const ripple = keyframes({
 interface PulseDotProps {
 	/** Palette colour of the dot. */
 	color: string;
-	/** A steady dot — a settled state has nothing to draw the eye to. */
-	still?: boolean;
 }
 
 /** The header status's live dot: a ripple draws the eye to an ongoing problem (none with reduced motion). */
-export const PulseDot: React.FC<PulseDotProps> = ({ color, still = false }) => (
+export const PulseDot: React.FC<PulseDotProps> = ({ color }) => (
 	<Box
 		component="span"
 		aria-hidden
@@ -34,7 +32,7 @@ export const PulseDot: React.FC<PulseDotProps> = ({ color, still = false }) => (
 				borderRadius: "50%",
 				bgcolor: color,
 				opacity: 0,
-				animation: still ? "none" : `${ripple} 1.6s ease-out infinite`,
+				animation: `${ripple} 1.6s ease-out infinite`,
 			},
 			"@media (prefers-reduced-motion: reduce)": { "&::after": { animation: "none" } },
 		}}

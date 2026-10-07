@@ -40,11 +40,14 @@ export default function AppLayout() {
 				</Box>
 				<Box
 					component="main"
+					// Focusable by script only: a header popover that vanishes hands focus here.
+					tabIndex={-1}
 					sx={{
 						flex: 1,
 						overflow: "auto",
 						scrollbarGutter: "stable",
 						p: 3,
+						outline: "none",
 						"@media print": { overflow: "visible", p: 0 },
 					}}
 				>
