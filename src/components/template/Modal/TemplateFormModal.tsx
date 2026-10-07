@@ -126,7 +126,6 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
 					onCancel={requestClose}
 					onSave={submit}
 					submitLabel={isEdit ? undefined : t("template.form.submit")}
-					offlineGate={false}
 					summary={
 						<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
 							{t("template.form.positionsCount")}{" "}

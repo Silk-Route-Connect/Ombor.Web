@@ -112,7 +112,6 @@ const DeliveryConfirmModal: React.FC<DeliveryConfirmModalProps> = ({
 					onSave={handleConfirm}
 					submitLabel={t("order.deliver.confirm")}
 					submitIcon={<CheckIcon />}
-					offlineGate={false}
 				/>
 			}
 		>

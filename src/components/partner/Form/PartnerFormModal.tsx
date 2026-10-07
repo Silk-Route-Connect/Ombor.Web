@@ -82,7 +82,6 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 					onCancel={requestClose}
 					onSave={submit}
 					submitLabel={isEdit ? undefined : t("partner.form.submitCreate")}
-					offlineGate={false}
 				/>
 			}
 		>

@@ -59,7 +59,6 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 					onCancel={handleClose}
 					onSave={handleSave}
 					submitLabel={t("transaction.new.tpl.save")}
-					offlineGate={false}
 				/>
 			}
 		>

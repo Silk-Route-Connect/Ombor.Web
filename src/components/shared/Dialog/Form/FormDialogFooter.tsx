@@ -34,7 +34,7 @@ interface SubmitFooterProps extends FooterCommonProps {
 	secondaryActions?: React.ReactNode;
 	/**
 	 * Disable the submit while the backend is unreachable (F-028; default on).
-	 * Off for a submit that needs no server (opening Telegram).
+	 * Off only for a submit that needs no server (the debt reminder's «Telegram»).
 	 */
 	offlineGate?: boolean;
 }

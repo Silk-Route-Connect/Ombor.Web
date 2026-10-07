@@ -71,13 +71,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 			onClose={requestClose}
 			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
 			footer={
-				<FormDialogFooter
-					canSave
-					loading={isSaving}
-					onCancel={requestClose}
-					onSave={form.submit}
-					offlineGate={false}
-				/>
+				<FormDialogFooter canSave loading={isSaving} onCancel={requestClose} onSave={form.submit} />
 			}
 		>
 			<Stack sx={{ gap: "16px" }}>
