@@ -23,7 +23,7 @@ const COMPONENTS = {
  * The app's toast host: at most three at a time, an identical message once,
  * bottom-left of the content — past the sidebar (its width comes from the
  * `layout.sidebarWidthVar` the sidebar publishes), so a toast never covers
- * «Настройки» / «Выход»; without a sidebar (sign-in pages) it keeps the gutter.
+ * «Настройки»; without a sidebar (sign-in pages) it keeps the gutter.
  * While a dialog is open the sidebar sits behind its backdrop, so the toasts
  * move back to the screen edge instead of covering the dialog's own buttons.
  * Toasts fade in place: notistack's default slide enters from the viewport's

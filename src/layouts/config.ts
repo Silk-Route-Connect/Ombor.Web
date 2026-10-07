@@ -32,8 +32,8 @@ export interface NavItem {
  * headings. Ordered by how often a shopkeeper uses it: selling and buying first,
  * then the people, money and stock behind it, then the look-back pages
  * («Отчёты», «Журнал действий»). A group with a single child is a direct link
- * instead (no extra click). «Настройки» / «Выход» are rendered by the Sidebar
- * footer, not listed here.
+ * instead (no extra click). «Настройки» is rendered by the Sidebar footer, not
+ * listed here.
  */
 export const navItems: NavItem[] = [
 	{ labelKey: "sidebar.dashboard", icon: SpaceDashboardOutlinedIcon, to: PATHS.dashboard },

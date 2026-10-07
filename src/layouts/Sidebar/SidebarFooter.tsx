@@ -1,68 +1,55 @@
-import React, { ElementType } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { PATHS } from "routing/paths";
 import { designTokens } from "theme";
 
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { List } from "@mui/material";
 
+import { NavItem } from "../config";
 import RailButton from "./RailButton";
-import { NAV_ICON, navLabelSx, navListSx, topLevelItemSx } from "./styles";
+import { navListSx } from "./styles";
+import TopLevelItem from "./TopLevelItem";
 
 interface SidebarFooterProps {
 	expanded: boolean;
 	settingsActive: boolean;
 	onSettings: () => void;
-	onLogout: () => void;
 }
 
-function FooterRow({
-	label,
-	icon: Icon,
-	active,
-	onClick,
-}: Readonly<{ label: string; icon: ElementType; active: boolean; onClick: () => void }>) {
-	return (
-		<ListItemButton
-			onClick={onClick}
-			aria-current={active ? "page" : undefined}
-			sx={topLevelItemSx(active)}
-		>
-			<ListItemIcon sx={{ minWidth: 0, color: "inherit" }}>
-				<Icon sx={{ fontSize: NAV_ICON }} />
-			</ListItemIcon>
-			<ListItemText primary={label} slotProps={{ primary: { sx: navLabelSx(active) } }} />
-		</ListItemButton>
-	);
-}
+const SETTINGS_ITEM: NavItem = {
+	labelKey: "sidebar.settings",
+	icon: SettingsOutlinedIcon,
+	to: PATHS.settings,
+};
 
-/** «Настройки» and «Выход», pinned at the bottom of the panel (pattern 10). */
+/**
+ * «Настройки», pinned at the bottom of the panel (pattern 10). Signing out lives
+ * in the topbar's avatar menu only, so a stray click at the panel's foot never
+ * ends the session.
+ */
 export default function SidebarFooter({
 	expanded,
 	settingsActive,
 	onSettings,
-	onLogout,
 }: Readonly<SidebarFooterProps>) {
 	const { t } = useTranslation();
-	const Row = expanded ? FooterRow : RailButton;
 
 	return (
 		<List
 			disablePadding
 			sx={{ mt: 1, pt: 1.25, borderTop: 1, borderColor: designTokens.onDarkLine, ...navListSx }}
 		>
-			<Row
-				label={t("sidebar.settings")}
-				icon={SettingsOutlinedIcon}
-				active={settingsActive}
-				onClick={onSettings}
-			/>
-			<Row
-				label={t("sidebar.logout")}
-				icon={LogoutOutlinedIcon}
-				active={false}
-				onClick={onLogout}
-			/>
+			{expanded ? (
+				<TopLevelItem item={SETTINGS_ITEM} active={settingsActive} onClick={onSettings} />
+			) : (
+				<RailButton
+					label={t(SETTINGS_ITEM.labelKey)}
+					icon={SETTINGS_ITEM.icon}
+					active={settingsActive}
+					onClick={onSettings}
+				/>
+			)}
 		</List>
 	);
 }

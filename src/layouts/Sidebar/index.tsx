@@ -1,9 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
-import { useStore } from "stores/StoreContext";
 import { layout } from "theme";
 
 import { Box, Collapse, List, useMediaQuery } from "@mui/material";
@@ -30,9 +28,8 @@ export { SIDEBAR_WIDTH } from "./styles";
  * The app's navigation panel — the brand's one large teal surface: a flat
  * two-tier list (pattern 10) that collapses to a 72px icon rail.
  */
-const Sidebar: React.FC = observer(() => {
+const Sidebar: React.FC = () => {
 	const { t } = useTranslation();
-	const { authStore } = useStore();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 	const narrow = useMediaQuery(NARROW_VIEWPORT_QUERY, { noSsr: true });
@@ -70,7 +67,7 @@ const Sidebar: React.FC = observer(() => {
 		setExpandedState(autoCollapse ? false : readExpanded());
 	}, [pathname, autoCollapse]);
 
-	// Publishes the panel's width so toasts sit past it, never over «Выход».
+	// Publishes the panel's width so toasts sit past it, never over «Настройки».
 	useEffect(() => {
 		const root = document.documentElement;
 		root.style.setProperty(layout.sidebarWidthVar, `${expanded ? SIDEBAR_WIDTH : RAIL_WIDTH}px`);
@@ -163,10 +160,9 @@ const Sidebar: React.FC = observer(() => {
 				expanded={expanded}
 				settingsActive={isRouteActive(pathname, PATHS.settings)}
 				onSettings={() => navigate(PATHS.settings)}
-				onLogout={() => void authStore.logout()}
 			/>
 		</Box>
 	);
-});
+};
 
 export default Sidebar;
