@@ -31,6 +31,18 @@ export interface PickerFieldProps {
 }
 
 /**
+ * Slot props that never change — module constants, so an open popup's Popper is
+ * not rebuilt on every render of the form around it (a new `modifiers` array
+ * re-creates the popper instance).
+ */
+const STATIC_SLOT_PROPS = {
+	openPickerButton: { size: "small" as const },
+	openPickerIcon: { sx: { fontSize: iconSize.md } },
+	clearIcon: { sx: { fontSize: iconSize.md } },
+	popper: { modifiers: [{ name: "offset", options: { offset: [0, 6] } }] },
+};
+
+/**
  * Picker props shared by the date and time fields. The picker holds a `Date`
  * draft of its own: a half-typed entry («07.1М.ГГГГ») is reported to the form as
  * "", and handing "" back must not wipe what the user is still typing — the
@@ -98,10 +110,7 @@ export function usePickerField(
 				slotProps: { input: labelHooks },
 			},
 			field: { clearable },
-			openPickerButton: { size: "small" as const },
-			openPickerIcon: { sx: { fontSize: iconSize.md } },
-			clearIcon: { sx: { fontSize: iconSize.md } },
-			popper: { modifiers: [{ name: "offset", options: { offset: [0, 6] } }] },
+			...STATIC_SLOT_PROPS,
 		},
 	};
 }
