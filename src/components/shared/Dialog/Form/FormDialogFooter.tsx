@@ -22,7 +22,8 @@ interface SubmitFooterProps extends FooterCommonProps {
 	loading: boolean;
 	/** «Отмена»; omit it where the header ✕ is the only way out (the debt reminder). */
 	onCancel?: () => void;
-	onSave: () => void;
+	/** Sync or async; a returned promise is not awaited — the store reports its own outcome. */
+	onSave: () => unknown;
 	/** Submit text; defaults to «Сохранить». Create says «Создать …», immutable events say what happens. */
 	submitLabel?: string;
 	submitIcon?: React.ReactNode;

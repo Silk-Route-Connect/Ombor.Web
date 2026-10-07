@@ -12,7 +12,8 @@ interface SaveButtonProps {
 	/** Overrides «Сохранить» — immutable events name what happens («Провести …»). */
 	label?: string;
 	icon?: React.ReactNode;
-	onSave: () => void;
+	/** Sync or async; a returned promise is not awaited — the store reports its own outcome. */
+	onSave: () => unknown;
 }
 
 const SaveButton: React.FC<SaveButtonProps> = ({
@@ -38,7 +39,7 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 					disabled={disabled}
 					loading={loading}
 					fullWidth={fullWidth}
-					onClick={onSave}
+					onClick={() => void onSave()}
 					sx={{ whiteSpace: "nowrap" }}
 				>
 					{label ?? t("common.save")}

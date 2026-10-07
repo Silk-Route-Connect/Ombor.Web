@@ -29,11 +29,11 @@ export function useReminderDraft(facts: DebtReminderFacts | null, open: boolean)
 	const setText = (text: string) => setDraft((d) => ({ ...d, text, empty: false }));
 
 	/** Runs an action with the trimmed text, or flags the field when it is empty. */
-	const withText = (action: (value: string) => void) => () => {
+	const withText = (action: (value: string) => unknown) => () => {
 		const value = draft.text.trim();
 		setDraft((d) => ({ ...d, empty: value === "" }));
 		if (value) {
-			action(value);
+			void action(value);
 		}
 	};
 

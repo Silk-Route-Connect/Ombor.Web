@@ -26,7 +26,7 @@ export interface LoadStateViewProps {
 	/** A not-ready state: in flight, failed, or `null` (a by-id record that does not exist). */
 	state: "loading" | LoadError | null;
 	/** Re-runs the failed load. Without it the error offers a page reload. */
-	onRetry?: () => void;
+	onRetry?: () => unknown;
 	/** What failed, e.g. «Не удалось загрузить партнёров»; defaults to a generic line. */
 	errorTitle?: string;
 	/** Required wherever `state` can be `null`. */
@@ -76,7 +76,7 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 				body={notFound?.body ?? t("common.loadState.notFoundBody")}
 				action={
 					notFound && (
-						<GhostButton onClick={() => navigate(notFound.backTo)}>
+						<GhostButton onClick={() => void navigate(notFound.backTo)}>
 							{notFound.backLabel ?? t("common.loadState.backToList")}
 						</GhostButton>
 					)
@@ -94,7 +94,10 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 			title={errorTitle ?? t("common.loadState.errorTitle")}
 			body={t(`common.loadState.reason.${state.kind}`)}
 			action={
-				<GhostButton icon={<RefreshIcon />} onClick={onRetry ?? (() => window.location.reload())}>
+				<GhostButton
+					icon={<RefreshIcon />}
+					onClick={() => (onRetry ? void onRetry() : window.location.reload())}
+				>
 					{t("common.retry")}
 				</GhostButton>
 			}

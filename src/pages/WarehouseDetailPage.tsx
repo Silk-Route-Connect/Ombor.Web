@@ -56,7 +56,9 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		return () => selectedWarehouseStore.clear();
 	}, [warehouseId, selectedWarehouseStore, resetStockFilters]);
 
-	const goBack = () => navigate(PATHS.warehouses);
+	const goBack = () => {
+		void navigate(PATHS.warehouses);
+	};
 
 	const warehouse = warehouseId === null ? null : selectedWarehouseStore.warehouse;
 	const dialogMode = warehouseStore.dialogMode;

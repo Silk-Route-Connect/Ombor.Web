@@ -16,8 +16,9 @@ const ICON_STEPS = Object.values(iconSize);
 
 /** 28 → 16, 30/32 → 18, 40/44 → 22: tile glyphs stay on the icon scale. */
 const glyphSize = (tile: number): number =>
-	ICON_STEPS.reduce((best, step) =>
-		Math.abs(step - tile * 0.57) < Math.abs(best - tile * 0.57) ? step : best,
+	ICON_STEPS.reduce(
+		(best, step) => (Math.abs(step - tile * 0.57) < Math.abs(best - tile * 0.57) ? step : best),
+		ICON_STEPS[0],
 	);
 
 /**

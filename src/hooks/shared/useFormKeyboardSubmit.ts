@@ -34,7 +34,7 @@ export interface FormKeyboardSubmitOptions {
  * IME composition (`isComposing`) is ignored so Enter can commit a candidate.
  */
 export function useFormKeyboardSubmit(
-	submit: () => void,
+	submit: () => unknown,
 	disabled = false,
 	{ requireModifier = false, offlineGate = true }: FormKeyboardSubmitOptions = {},
 ) {
@@ -50,7 +50,7 @@ export function useFormKeyboardSubmit(
 			}
 			if (event.metaKey || event.ctrlKey) {
 				event.preventDefault();
-				submit();
+				void submit();
 				return;
 			}
 			if (requireModifier) {
@@ -62,7 +62,7 @@ export function useFormKeyboardSubmit(
 				return;
 			}
 			event.preventDefault();
-			submit();
+			void submit();
 		},
 		[submit, disabled, requireModifier, offlineGate, connectivityStore],
 	);

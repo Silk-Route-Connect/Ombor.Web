@@ -30,7 +30,10 @@ export { SIDEBAR_WIDTH } from "./styles";
  */
 const Sidebar: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
+	const routerNavigate = useNavigate();
+	const navigate = (to: string) => {
+		void routerNavigate(to);
+	};
 	const { pathname } = useLocation();
 	const narrow = useMediaQuery(NARROW_VIEWPORT_QUERY, { noSsr: true });
 	const autoCollapse = narrow || POS_ROUTES.has(pathname);
