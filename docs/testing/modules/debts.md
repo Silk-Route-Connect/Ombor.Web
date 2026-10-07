@@ -6,9 +6,9 @@ Read with: [../README.md](../README.md) · [../shared-checklist.md](../shared-ch
 ## Surfaces
 
 - `/debts` (sidebar «Долги»). Read-only: no create button. The only row actions are the «По партнёрам» ⋮ — «Напомнить о долге» (rows where they owe us) and «Акт сверки»; «Неоплаченные документы» rows have none.
-- `DebtSummaryCards` — 4 served cards: «Нам должны» (green) and «Мы должны» (red) are **net partner positions** (opening + unpaid documents ± advances, archived partners included) with pills «N партнёров должны нам» / «мы должны N партнёрам»; «Просрочено» (red when > 0) = unpaid documents past their due date, both directions, pill «N документов»; «Итог расчётов» (color by sign) = the difference, pill «N партнёров». First three clickable (hover arrow), net card is not. Small «UZS» suffix on each.
+- `DebtSummaryCards` — 4 served cards: «Нам должны» (green) and «Мы должны» (red) are **net partner positions** (opening + unpaid documents ± advances, archived partners included) with pills «N партнёров должны нам» / «мы должны N партнёрам»; «Просрочено» (red when > 0) = unpaid documents past their due date, both directions, pill «N документов»; «Итог расчётов» (color by sign) = the difference, pill «N партнёров». The first three are the page's direction and «просрочено» filters (a named group «Фильтр долгов»; toggle buttons, `aria-pressed`): no ↗, a pressed card shows ✓ and a green / red border; the net card is plain. Small «UZS» suffix on each.
 - The shared `DetailTabs` — underline tabs «По партнёрам» / «Неоплаченные документы» (`role="tab"` with `aria-selected`; Tab reaches each tab, Enter or Space switches) with the shared count pills (space-grouped); the legend swatches «нам должны» (green) / «мы должны» (red) sit right of the tabs, outside the tablist.
-- Toolbar — search «Поиск по партнёру или номеру…» (partner name and company on both tabs; document-number substring on the documents tab); direction segmented «Все | Нам должны | Мы должны» (both tabs); «Срок» dropdown («Срок: Все» / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней — on «По партнёрам» it reads the age of what the partner owes us); clearable «Только просроченные» chip (appears only via the «Просрочено» card, or the topbar bell's «Просрочено N долгов клиентов» alert — which also sets «Нам должны» on «Неоплаченные документы»). «Экспорт» sits on the title row (pattern 11).
+- Toolbar — search «Поиск по партнёру или номеру…» (partner name and company on both tabs; document-number substring on the documents tab) and the «Срок» dropdown («Срок: Все» / 0–7 дней / 8–30 дней / Старше 30 дней / 31–60 дней / 60+ дней — on «По партнёрам» it reads the age of what the partner owes us). Direction and «только просроченные» are the cards above (no segmented switch, no chip); both filter both tabs. Presets from elsewhere press the matching cards: the dashboard KPIs (and «Долги старше 30 дней» → «Нам должны» + «Срок: Старше 30 дней»), the topbar bell's «Просрочено N долгов клиентов» alert (→ «Неоплаченные документы» with «Нам должны» + «Просрочено»). «Экспорт» sits on the title row (pattern 11).
 - Exits: partner-tab row → `/partners/:id?tab=transactions&status=open`; transaction-tab row → `/supplies/:id` for Supply/SupplyRefund, `/sales/:id` otherwise; partner name inside a row → partner detail (does not open the transaction).
 
 ## Traps
@@ -52,10 +52,10 @@ Pre: T-DBT-01..03 (Универсал holds BOTH directions: receivable 30 000 +
 Steps: 1. Tab «По партнёрам»; search «QA-<MMDD>». 2. Record the row amounts and the card values.
 Expect: «QA-<MMDD> Дебитор»: «Документов» 1, «Сумма долга» 35 000 green, «Старейший долг» «0 дн», «Тип» «Клиент». «QA-<MMDD> Универсал»: «Документов» 2, amount 70 000 red (net position, unsigned, color = direction, #4), «Старейший долг» «—» (it owes us nothing net), «Тип» «Клиент + Поставщик» (the partner's real type). The cards count Универсал net too (its 70 000 inside «Мы должны») — rows and cards agree. Each row equals that partner's page balance in magnitude.
 
-### T-DBT-05 · Clickable summary cards preset the tabs [happy]
+### T-DBT-05 · The summary cards are the direction and «просрочено» filters [happy]
 Pre: T-DBT-01+.
-Steps: 1. From the documents tab click «Нам должны». 2. Click «Мы должны». 3. Click «Просрочено». 4. Sort the documents by any header manually, then click «Просрочено» again. 5. Clear the «Только просроченные» chip via its ×.
-Expect: 1→ «По партнёрам», segmented «Нам должны» active, only partners who owe us, largest «Сумма долга» first; 2→ segmented «Мы должны», only partners we owe; 3→ «Неоплаченные документы», segmented «Все», chip «Только просроченные», only rows with an overdue chip (with run data only: filtered empty state «Ничего не найдено»), initial sort «Возраст» desc; 4→ re-click re-seeds the sort even after a manual re-sort (preset seeds via nonce); 5→ chip gone, rows return. «Итог расчётов» is not clickable — no hover arrow, no action.
+Steps: 1. On «По партнёрам» click «Нам должны». 2. Switch to «Неоплаченные документы». 3. Click «Просрочено». 4. Click «Мы должны». 5. Click «Просрочено», then «Мы должны» again. 6. Tab to «Нам должны» and press Space, then Enter. 7. Dashboard → click its «Нам должны» KPI.
+Expect: 1→ the tab stays «По партнёрам»; «Нам должны» pressed (✓, green border, `aria-pressed=true`), only partners who owe us; both tab pills shrink to the receivable rows; the card figures do not change. 2→ still pressed; only green (receivable) documents. 3→ both «Нам должны» and «Просрочено» pressed; only receivable rows with an overdue chip (with run data only: filtered empty state «Ничего не найдено»). 4→ «Мы должны» replaces «Нам должны» (one direction at a time), «Просрочено» stays. 5→ no card pressed, every row back. 6→ Space presses, Enter releases. 7→ /debts «По партнёрам» with «Нам должны» pressed (the preset shows on the card). «Итог расчётов» is not a button — no ✓, no ↗, no action.
 
 ### T-DBT-06 · Search and tab count pills track the filtered view [happy]
 Pre: T-DBT-01+.
@@ -69,7 +69,7 @@ Expect: 1→ URL `/partners/<id>?tab=transactions&status=open`; partner detail o
 
 ### T-DBT-08 · CSV exports the current filtered transactions view [happy]
 Pre: T-DBT-01+.
-Steps: 1. Transactions tab; direction «Нам должны»; search «QA-<MMDD>». 2. «Экспорт» (title row). 3. Switch to «По партнёрам», export again.
+Steps: 1. Transactions tab; card «Нам должны» pressed; search «QA-<MMDD>». 2. «Экспорт» (title row). 3. Switch to «По партнёрам», export again.
 Expect: file `debts_<datestamp>.csv`; headers №/Дата/Партнёр/Тип/Возраст (дней)/Сумма/Оплачено/Осталось оплатить — the table's column order; rows = exactly the visible filtered receivable run rows (#11 — filtered view); 3→ export still emits transaction-level rows (never partner groups) — current implementation; record as observation only if the owner flags it.
 
 ### T-DBT-09 · By-partner row ⋮: reminder and Акт сверки [happy]
@@ -102,7 +102,7 @@ Expect: «Нам должны» −35 000 after step 1; after 2: one row, badge 
 
 ### T-DBT-34 · Filters and tab switches never move the cards [edge]
 Pre: T-DBT-01+.
-Steps: 1. Record all four cards. 2. Apply search «Универсал» + «Срок: 60+» + direction «Мы должны»; toggle both tabs; clear everything.
+Steps: 1. Record all four cards. 2. Apply search «Универсал» + «Срок: 60+» + the «Мы должны» card; toggle both tabs; clear everything.
 Expect: cards identical throughout — they are the served totals, never the filtered view; pills and table contents do change with filters (contrast T-DBT-06).
 
 ## Reconciliation
@@ -114,11 +114,11 @@ Steps: 1. /debts: record «Нам должны» / «Мы должны» values 
 Expect: dashboard «Нам должны» / «Мы должны» = the /debts cards = the /partners strip, exactly (one served definition, `GET /api/debts/summary`; `period` moves only the trend and the change badge). The KPI footnotes («N партнёров должны нам» / «мы должны N партнёрам») equal the card pills.
 
 ### T-DBT-61 · Dashboard «Долги старше 30 дней» = 31+-day receivable aging, NOT /debts overdue [reconcile]
-Steps: 1. /debts transactions tab: direction «Нам должны», «Срок: Старше 30 дней» → sum «Осталось оплатить» = S. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the «Долги старше 30 дней» KPI V; click it.
-Expect: V = the dashboard aging panel's 31–60 + 60+ buckets; V = S only for partners with no advance, opening balance or payable documents (the served figure nets those per partner, oldest first). The click lands on /debts «По партнёрам» with «Нам должны» + «Срок: Старше 30 дней» preset — never the «Только просроченные» chip. Do **not** assert V = C — C is due-date overdue across both directions; V ≠ C is designed (Traps). With a young QA org S, C, V may all be 0 — note it.
+Steps: 1. /debts transactions tab: card «Нам должны» pressed, «Срок: Старше 30 дней» → sum «Осталось оплатить» = S. 2. Record the /debts «Просрочено» card C. 3. Dashboard: record the «Долги старше 30 дней» KPI V; click it.
+Expect: V = the dashboard aging panel's 31–60 + 60+ buckets; V = S only for partners with no advance, opening balance or payable documents (the served figure nets those per partner, oldest first). The click lands on /debts «По партнёрам» with «Нам должны» pressed + «Срок: Старше 30 дней» — never «Просрочено» pressed. Do **not** assert V = C — C is due-date overdue across both directions; V ≠ C is designed (Traps). With a young QA org S, C, V may all be 0 — note it.
 
 ### T-DBT-62 · Dashboard aging panel ↔ /debts bucket sums [reconcile]
-Steps: for each bucket 0-7 / 8-30 / 31-60 / 60+: /debts direction «Нам должны» + matching «Срок» filter → sum «Осталось оплатить»; compare with the dashboard aging panel amount for that bucket.
+Steps: for each bucket 0-7 / 8-30 / 31-60 / 60+: /debts card «Нам должны» pressed + matching «Срок» filter → sum «Осталось оплатить»; compare with the dashboard aging panel amount for that bucket.
 Expect: the panel buckets add up to «Нам должны»; each bucket equals the /debts sum only where no partner nets an advance, opening balance or payable document (the served aging attributes each partner's net receivable to its newest unpaid documents). Payable rows never enter the panel.
 
 ### T-DBT-63 · Partner row ↔ partner detail balance card (POV flip) [reconcile]

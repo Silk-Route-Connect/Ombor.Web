@@ -77,7 +77,7 @@ Direction cards «Все платежи · Приход · Расход» (count
 
 ### T-SMK-22 · `/debts` [happy]
 
-4 summary cards (3 clickable), «По партнёрам» / «Неоплаченные документы» tabs (shared detail tabs — Tab + Enter / Space switch them; the «нам должны / мы должны» legend sits right of the tabs), aging buckets; row drill-down navigates to partner detail debt view.
+4 summary cards — «Нам должны» / «Мы должны» / «Просрочено» are the filters (the pressed one with ✓; no segmented switch), «Итог расчётов» plain — «По партнёрам» / «Неоплаченные документы» tabs (shared detail tabs — Tab + Enter / Space switch them; the «нам должны / мы должны» legend sits right of the tabs), aging buckets; row drill-down navigates to partner detail debt view.
 
 ### T-SMK-23 · `/wallets` and `/wallets/:id` [happy]
 
