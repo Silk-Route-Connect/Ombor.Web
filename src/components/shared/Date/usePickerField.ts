@@ -1,4 +1,4 @@
-import React, { useId, useState } from "react";
+import React, { useId, useImperativeHandle, useState } from "react";
 import { iconSize } from "theme";
 
 import type { SxProps, Theme } from "@mui/material";
@@ -25,8 +25,8 @@ export interface PickerFieldProps {
 	fullWidth?: boolean;
 	onBlur?: () => void;
 	name?: string;
-	/** react-hook-form's `field.ref`, so a submit error can focus the field. */
-	inputRef?: React.Ref<HTMLInputElement>;
+	/** react-hook-form's `field.ref`, so a submit error can focus the field (its first section). */
+	inputRef?: React.Ref<{ focus: () => void }>;
 	sx?: SxProps<Theme>;
 }
 
@@ -100,6 +100,21 @@ export function usePickerField(
 		}
 	};
 
+	// A form focuses its first invalid field on submit. Focused from code, MUI's hidden
+	// value input keeps the focus without a section to type into, so the form gets the
+	// first section instead.
+	useImperativeHandle(
+		inputRef,
+		() => ({
+			focus: () =>
+				document
+					.getElementById(id)
+					?.parentElement?.querySelector<HTMLElement>("[role=spinbutton]")
+					?.focus(),
+		}),
+		[id],
+	);
+
 	// The FormFieldLabel above names the field: its sections live in a `group`
 	// (labelLink sets `aria-labelledby`), and `for` points at the hidden value
 	// input, which hands focus to the first section when the label is clicked.
@@ -111,7 +126,6 @@ export function usePickerField(
 		disabled,
 		autoFocus,
 		name,
-		inputRef,
 		slots: { openPickerIcon: icon },
 		slotProps: {
 			textField: {
