@@ -15,10 +15,14 @@ export type Warehouse = {
 	 * Server-computed aggregates (hard rule 8) — never recomputed client-side.
 	 * An archived warehouse that still holds stock still reports them (rule 31).
 	 */
-	/** Distinct products currently held. */
+	/** Distinct products on hand (quantity > 0); a row emptied to 0 stays in «Остатки» but is not counted. */
 	productCount: number;
-	/** Total units across all products. */
-	totalUnits: number;
+	/**
+	 * «Заканчивается»: the stock rows `GET …/stock` flags `isLowStock` (DR-41) —
+	 * 0 for an archived warehouse. Never summed over warehouses (the stock report
+	 * serves the total).
+	 */
+	lowStockCount: number;
 	/** Total value of stock on hand at weighted-average cost (WAC). */
 	stockValue: number;
 
@@ -45,6 +49,18 @@ export type WarehouseStockItem = {
 	averageCost: number;
 	/** quantity × averageCost (served). */
 	value: number;
+	/**
+	 * The row's own «Заканчивается» threshold (DR-41), in the product's unit; the
+	 * key is omitted (null) when the row is not tracked.
+	 */
+	lowStockThreshold?: number | null;
+	/** Served: tracked and quantity ≤ threshold; false for an archived product or warehouse. */
+	isLowStock: boolean;
+};
+
+/** Body of `PUT /api/warehouses/{id}/stock/{productId}/threshold`; null clears the threshold. */
+export type SetLowStockThresholdRequest = {
+	lowStockThreshold: number | null;
 };
 
 /**
@@ -116,6 +132,8 @@ export type OpeningStockLine = {
 	productId: number;
 	quantity: number;
 	unitCost: number;
+	/** The new row's «Заканчивается» threshold; omitted / null = not tracked (DR-41). */
+	lowStockThreshold?: number | null;
 };
 
 /**

@@ -14,7 +14,6 @@ import { ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { ServerErrorHandler } from "utils/formServerErrors";
-import { productStockLevel } from "utils/productFilters";
 import { measurementLabel, toProductRequest } from "utils/productUtils";
 
 import { Box } from "@mui/material";
@@ -60,13 +59,6 @@ const ProductPage: React.FC = observer(() => {
 			{ header: t("product.table.category"), value: (p) => p.categoryName ?? "" },
 			{ header: t("product.table.stock"), value: (p) => p.totalStock },
 			{ header: t("product.table.measurement"), value: (p) => measurementLabel(t, p.measurement) },
-			{
-				header: t("product.table.stockLevel"),
-				value: (p) => {
-					const level = productStockLevel(p);
-					return level === "ok" ? "" : t(`product.stockLevel.${level}`);
-				},
-			},
 			{
 				header: t("product.table.salePrice"),
 				value: (p) => (p.type === "Supply" ? "" : p.salePrice),

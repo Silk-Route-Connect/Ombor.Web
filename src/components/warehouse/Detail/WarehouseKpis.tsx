@@ -11,24 +11,17 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 
 interface WarehouseKpisProps {
 	warehouse: Warehouse;
-	/** The served `lowStockCount` of this warehouse; null until the stock report is in. */
-	lowStock: number | null;
 	/** Opens «Остатки» filtered «Заканчивается»; omit while the tab is not shown. */
 	onLowStock?: () => void;
 }
 
 /**
- * Three summary KPI cards: products, «Заканчивается» (rows at or below the
- * product's «Минимальный остаток», out of stock included — the served count,
+ * Three summary KPI cards: products on hand, «Заканчивается» (the served
+ * `lowStockCount` — rows with a threshold at or below it, zero included, DR-41 —
  * which opens the «Остатки» rows it counts) and the stock value (WAC).
  */
-export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({
-	warehouse,
-	lowStock,
-	onLowStock,
-}) => {
+export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({ warehouse, onLowStock }) => {
 	const { t } = useTranslation();
-	const dash = t("common.dash");
 
 	return (
 		<StatCardGrid columns={3}>
@@ -45,7 +38,7 @@ export const WarehouseKpis: React.FC<WarehouseKpisProps> = ({
 				caption={t("warehouse.lowStock.title")}
 				hint={onLowStock ? true : t("warehouse.lowStock.hint")}
 				tooltip={onLowStock ? t("warehouse.lowStock.hint") : undefined}
-				value={lowStock === null ? dash : formatQuantity(lowStock)}
+				value={formatQuantity(warehouse.lowStockCount)}
 				footer={t("warehouse.kpi.lowStockSub")}
 				onClick={onLowStock}
 			/>

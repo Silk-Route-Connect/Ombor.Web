@@ -84,9 +84,6 @@ export const mapProductToFormPayload = (product: Product): ProductFormInputs => 
 		supplyPrice: Number(product.supplyPrice),
 		salePrice: Number(product.salePrice),
 
-		// 0 is the served default and means the same as no threshold — show it empty.
-		lowStockThreshold: product.lowStockThreshold || null,
-
 		packaging: product.packaging
 			? {
 					size: product.packaging.size,
@@ -123,7 +120,6 @@ export const toProductRequest = (payload: ProductFormValues): CreateProductReque
 	supplyPrice: payload.supplyPrice,
 	measurement: payload.measurement,
 	type: payload.type,
-	lowStockThreshold: payload.lowStockThreshold ?? null,
 	packaging: mapFormPackagingToPackaging(payload.packaging),
 	attachments: payload.attachments,
 });

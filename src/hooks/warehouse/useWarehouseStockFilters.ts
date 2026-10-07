@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { StockFilter } from "utils/productFilters";
+import { StockFilter } from "utils/stockLevel";
 
 /** «Все» in the category filter. */
 export const ALL_CATEGORIES = "__all__";

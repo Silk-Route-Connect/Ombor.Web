@@ -1,4 +1,4 @@
-import { isReady, LoadOptions, mapLoadable, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { StockReport } from "models/report";
@@ -30,8 +30,8 @@ export interface IWarehouseStore {
 	allWarehouses: Loadable<Warehouse[]>;
 	filteredWarehouses: Loadable<Warehouse[]>;
 	activeWarehouses: Loadable<Warehouse[]>;
+	/** Today's stock report over every warehouse — the list strip's served totals. */
 	stockReport: ReportResource<StockReport>;
-	lowStockCounts: Loadable<Map<number, number>>;
 	archivedCount: number;
 
 	searchTerm: string;
@@ -115,18 +115,6 @@ export class WarehouseStore implements IWarehouseStore {
 		}
 
 		return warehouses;
-	}
-
-	/**
-	 * The served `lowStockCount` of each warehouse — its rows at or below the
-	 * product's «Минимальный остаток» (the «Остатки» tab's rule). A warehouse the
-	 * report does not list holds no stock rows, so it reads 0.
-	 */
-	get lowStockCounts(): Loadable<Map<number, number>> {
-		return mapLoadable(
-			this.stockReport.data,
-			(report) => new Map(report.warehouses.map((w) => [w.warehouseId, w.lowStockCount])),
-		);
 	}
 
 	async getAll(options?: LoadOptions): Promise<void> {

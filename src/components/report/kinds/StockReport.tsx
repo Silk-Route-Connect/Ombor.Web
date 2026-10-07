@@ -6,8 +6,8 @@ import { isReady, mapLoadable, readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
-import { StockFilter } from "utils/productFilters";
 import { byLabel } from "utils/sortUtils";
+import { STOCK_FILTERS, StockFilter } from "utils/stockLevel";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
@@ -16,12 +16,13 @@ import ReportFrame, { ReportMode } from "../Layout/ReportFrame";
 import { buildStockView } from "../views/stockView";
 
 const ALL = "all";
-const STOCK_FILTERS: StockFilter[] = ["all", "low", "out"];
 
 /**
  * «Остатки и стоимость склада» — today's stock, so no period: a warehouse filter
- * (served), plus a search and the «Остаток» filter that narrow the rows on screen.
- * Archived warehouses stay pickable — their stock still counts (rule 31).
+ * (served), plus a search and the «Остаток» filter that narrow the rows on screen
+ * («Заканчивается» = the served flag, the rows `lowStockCount` counts; «Нет в
+ * наличии» = rows at zero). Archived warehouses stay pickable — their stock
+ * still counts (rule 31).
  */
 const StockReport: React.FC<{ mode: ReportMode }> = observer(({ mode }) => {
 	const { t } = useTranslation();
@@ -69,12 +70,12 @@ const StockReport: React.FC<{ mode: ReportMode }> = observer(({ mode }) => {
 				onChange={(value) => reportStore.setStockWarehouse(value === ALL ? null : Number(value))}
 			/>
 			<EntityFilterSelect<StockFilter>
-				label={t("product.filter.stock.label")}
+				label={t("warehouse.stockFilter.label")}
 				icon={<Inventory2OutlinedIcon />}
 				value={reportStore.stockLevel}
 				options={STOCK_FILTERS.map((filter) => ({
 					value: filter,
-					label: t(`product.filter.stock.${filter}`),
+					label: t(`warehouse.stockFilter.${filter}`),
 				}))}
 				onChange={reportStore.setStockLevel}
 			/>

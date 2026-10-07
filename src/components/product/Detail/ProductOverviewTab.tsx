@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Product } from "models/product";
 import { numericSx, radius } from "theme";
-import { productStockLevel } from "utils/productFilters";
 import { getImageFullUrl } from "utils/productUtils";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -12,7 +11,6 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
 import ProductImage from "../ProductImage";
-import StockLevelPill from "../StockLevelPill";
 import ProductStockTable from "./ProductStockTable";
 
 interface ProductOverviewTabProps {
@@ -25,7 +23,6 @@ interface ProductOverviewTabProps {
  */
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const level = productStockLevel(product);
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
@@ -96,7 +93,6 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 			<DetailCard
 				title={t("product.detail.stockByWarehouse")}
 				icon={<WarehouseOutlinedIcon sx={detailCardIconSx} />}
-				headerExtra={level === "ok" ? undefined : <StockLevelPill level={level} />}
 			>
 				<ProductStockTable product={product} />
 			</DetailCard>

@@ -1,12 +1,10 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import StatCard from "components/shared/StatCard/StatCard";
 import StatCardGrid from "components/shared/StatCard/StatCardGrid";
 import { isReady, Loadable } from "helpers/Loading";
-import { Product } from "models/product";
 import { StockReport } from "models/report";
 import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { countStockAlerts, stockAlerts } from "utils/stockAlerts";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -15,31 +13,24 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 interface WarehouseSummaryStripProps {
 	/** The served stock report over every warehouse, archived ones included (rule 31). */
 	report: Loadable<StockReport>;
-	/** Products with their served `isLowStock` — the source of the dashboard «Заканчивается». */
-	products: Loadable<Product[]>;
-	/** Opens Products filtered «Остаток: Заканчивается». */
+	/** Opens the stock report over every warehouse filtered «Остаток: Заканчивается». */
 	onLowStock: () => void;
 }
 
 /**
- * List summary strip over every warehouse: distinct products in stock and the
- * stock value, both served by the stock report (a product held in two
- * warehouses is one product), and «Заканчивается» — the very set the dashboard
- * panel and Products «Остаток: Заканчивается» show (served `isLowStock` on the
- * total across warehouses), which the card opens. «—» until each source is in.
+ * List summary strip over every warehouse, all served by the stock report:
+ * distinct products in stock (a product held in two warehouses is one product),
+ * «Заканчивается» — `totals.lowStockCount`, the rows with a threshold at or
+ * below it over all warehouses (DR-41), which the card opens in the report —
+ * and the stock value. «—» until the report is in.
  */
 export const WarehouseSummaryStrip: React.FC<WarehouseSummaryStripProps> = ({
 	report: reportState,
-	products,
 	onLowStock,
 }) => {
 	const { t } = useTranslation();
 	const dash = t("common.dash");
 	const report = isReady(reportState) ? reportState : null;
-	const lowStock = useMemo(
-		() => (isReady(products) ? countStockAlerts(stockAlerts(products)) : null),
-		[products],
-	);
 
 	return (
 		<StatCardGrid columns={3}>
@@ -56,8 +47,8 @@ export const WarehouseSummaryStrip: React.FC<WarehouseSummaryStripProps> = ({
 				caption={t("warehouse.lowStock.title")}
 				hint
 				tooltip={t("warehouse.summary.lowStockHint")}
-				value={lowStock ? formatQuantity(lowStock.total) : dash}
-				footer={lowStock ? t("warehouse.summary.lowStockSub", { count: lowStock.out }) : dash}
+				value={report ? formatQuantity(report.totals.lowStockCount) : dash}
+				footer={t("warehouse.summary.lowStockSub")}
 				onClick={onLowStock}
 			/>
 			<StatCard

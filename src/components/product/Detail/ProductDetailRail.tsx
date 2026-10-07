@@ -92,11 +92,6 @@ export const ProductDetailRail: React.FC<ProductDetailRailProps> = ({ product })
 								<QuantityCell value={product.packaging.size} measurement={product.measurement} />
 							))}
 					</FactRow>
-					<FactRow label={t("product.form.lowStockLabel")} figures="tabular">
-						{product.lowStockThreshold ? (
-							<QuantityCell value={product.lowStockThreshold} measurement={product.measurement} />
-						) : null}
-					</FactRow>
 				</FactList>
 			</DetailCard>
 		</Stack>

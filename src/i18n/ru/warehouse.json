@@ -27,12 +27,19 @@
   "warehouse.filter.archive": "Архив",
 
   "warehouse.lowStock.title": "Заканчивается",
-  "warehouse.lowStock.hint": "Товары, у которых остаток на этом складе дошёл до их «Минимального остатка» или закончился.",
+  "warehouse.lowStock.hint": "Товары с заданным порогом, у которых остаток на складе дошёл до порога или закончился. Товар без порога не учитывается.",
+
+  "warehouse.stockLevel.low": "Мало",
+  "warehouse.stockLevel.out": "Нет в наличии",
+  "warehouse.stockFilter.label": "Остаток",
+  "warehouse.stockFilter.all": "Все",
+  "warehouse.stockFilter.low": "Заканчивается",
+  "warehouse.stockFilter.out": "Нет в наличии",
 
   "warehouse.summary.products": "Товаров на складах",
   "warehouse.summary.productsSub": "в наличии — без повторов между складами",
-  "warehouse.summary.lowStockSub": "нет в наличии: {{count}}",
-  "warehouse.summary.lowStockHint": "Товары, у которых остаток на всех складах вместе дошёл до «Минимального остатка» или закончился, — тот же список, что на главной и в «Товарах». Нажмите, чтобы открыть его.",
+  "warehouse.summary.lowStockSub": "по порогам на всех складах",
+  "warehouse.summary.lowStockHint": "Позиции с заданным порогом, у которых остаток на складе дошёл до порога или закончился, — по всем складам. Порог задают на складе, во вкладке «Остатки». Нажмите, чтобы открыть их в отчёте по остаткам.",
   "warehouse.summary.value": "Стоимость остатка",
   "warehouse.summary.valueSub": "по средней себестоимости",
 
@@ -80,7 +87,7 @@
   "warehouse.kpi.productsSub_few": "позиции на складе",
   "warehouse.kpi.productsSub_many": "позиций на складе",
   "warehouse.kpi.productsSub_other": "позиций на складе",
-  "warehouse.kpi.lowStockSub": "по минимальному остатку товаров",
+  "warehouse.kpi.lowStockSub": "по порогам этого склада",
   "warehouse.kpi.value": "Стоимость остатка",
   "warehouse.kpi.valueSub": "по средней себестоимости",
 
@@ -101,12 +108,13 @@
   "warehouse.stock.sku": "Артикул",
   "warehouse.stock.category": "Категория",
   "warehouse.stock.unit": "Ед.",
+  "warehouse.stock.level": "Запас",
   "warehouse.stock.quantity": "Остаток",
   "warehouse.stock.wac": "Сред. себест.",
   "warehouse.stock.value": "Стоимость",
   "warehouse.stock.total": "Итого по складу",
   "warehouse.stock.emptyTitle": "Ничего не найдено",
-  "warehouse.stock.emptyBody": "По заданным условиям товаров нет. Измените поиск или категорию.",
+  "warehouse.stock.emptyBody": "По заданным условиям товаров нет. Измените поиск, категорию или остаток.",
   "warehouse.stock.noStockTitle": "На складе пока нет товаров",
   "warehouse.stock.noStockBody": "Добавьте начальный остаток или оформите поставку — товары появятся здесь.",
 

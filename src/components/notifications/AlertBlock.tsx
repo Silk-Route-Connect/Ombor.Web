@@ -93,7 +93,8 @@ const AlertBlock: React.FC<AlertBlockProps> = ({ alert, unseen, onOpenAlert, onO
 					return (
 						<Typography
 							component="li"
-							key={`${item.entityKind}-${item.id}`}
+							// A low-stock product appears once per warehouse.
+							key={`${item.entityKind}-${item.id}-${item.warehouseId ?? ""}`}
 							sx={{ fontSize: 13, color: "text.secondary", py: "2px" }}
 						>
 							{path ? (

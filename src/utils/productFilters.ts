@@ -21,46 +21,17 @@ export function matchesType(type: Product["type"], filter: ProductTypeFilter): b
 }
 
 /**
- * Stock alert of a product: `out` — none left, `low` — at or below its
- * «Минимальный остаток», `ok` — enough. The threshold is product-level for v1
- * (DR-23 amended 2026-10-04); 0 or none alerts only when stock runs out.
+ * Products «Остаток: Все / Нет в наличии» — a fact read from the served total
+ * over every warehouse. Low stock is not a product matter (DR-41): thresholds
+ * live on the warehouse rows, so Products has no «Заканчивается».
  */
-export type StockLevel = "out" | "low" | "ok";
+export type ProductStockFilter = "all" | "out";
 
-export function stockLevel(quantity: number, threshold: number | null | undefined): StockLevel {
-	if (quantity <= 0) {
-		return "out";
-	}
-	return quantity <= (threshold ?? 0) ? "low" : "ok";
-}
+export const PRODUCT_STOCK_FILTERS: readonly ProductStockFilter[] = ["all", "out"];
 
-/**
- * A product's level across all warehouses — from the served `isLowStock` (total ≤
- * threshold). An archived product is out of trade: no alert, and the «Остаток»
- * filter never lists it.
- */
-export function productStockLevel(product: Product): StockLevel {
-	if (product.isArchived) {
-		return "ok";
-	}
-	if (product.totalStock <= 0) {
-		return "out";
-	}
-	return product.isLowStock ? "low" : "ok";
-}
-
-/** «Остаток» filter: every row, the ones running low (incl. none left), or none left only. */
-export type StockFilter = "all" | "low" | "out";
-
-export function matchesStockFilter(level: StockLevel, filter: StockFilter): boolean {
-	switch (filter) {
-		case "low":
-			return level !== "ok";
-		case "out":
-			return level === "out";
-		default:
-			return true;
-	}
+/** None left in any warehouse; an archived product is out of trade and never listed by it. */
+export function isOutOfStock(product: Product): boolean {
+	return !product.isArchived && product.totalStock <= 0;
 }
 
 /** List and POS search: name, SKU, the product barcode or its packaging barcode. */

@@ -22,23 +22,21 @@ export const alertItemTitle = (t: TFunction, item: NotificationItem): string =>
 const money = (t: TFunction, value: number): string =>
 	`${formatCurrency(value)} ${t("common.unit.uzs")}`;
 
+/** «осталось 1 т, порог 5 т» — or «нет в наличии, порог 10 шт» — in that one warehouse. */
 function stockLeft(t: TFunction, item: NotificationItem): string {
 	const quantity = item.quantity ?? 0;
-	if (quantity <= 0) {
-		return t("notifications.item.outOfStock");
-	}
 	const unit = item.measurement ? measurementShort(t, item.measurement) : "";
 	const withUnit = (value: number) => `${formatQuantity(value)} ${unit}`.trim();
-	return t("notifications.item.stockLeft", {
-		qty: withUnit(quantity),
-		min: withUnit(item.threshold ?? 0),
-	});
+	const threshold = withUnit(item.threshold ?? 0);
+	return quantity <= 0
+		? t("notifications.item.outOfStock", { threshold })
+		: t("notifications.item.stockLeft", { qty: withUnit(quantity), threshold });
 }
 
 /**
  * The muted rest of an item's line, in the order a shopkeeper reads it: who
- * (the partner / customer), how much, and how late — or, for a product, its SKU
- * and what is left of the minimum.
+ * (the partner / customer), how much, and how late — or, for a low-stock row,
+ * the product's SKU, the warehouse and what is left there of its threshold.
  */
 export function alertItemDetails(
 	t: TFunction,
@@ -46,7 +44,9 @@ export function alertItemDetails(
 	item: NotificationItem,
 ): string[] {
 	if (kind === "LowStock") {
-		return [item.detail, stockLeft(t, item)].filter((part): part is string => Boolean(part));
+		return [item.detail, item.warehouseName, stockLeft(t, item)].filter((part): part is string =>
+			Boolean(part),
+		);
 	}
 	const parts: string[] = [];
 	if (item.detail) {

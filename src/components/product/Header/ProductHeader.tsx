@@ -9,9 +9,10 @@ import SegmentedControl from "components/shared/SegmentedControl/SegmentedContro
 import { readyOr } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Category } from "models/category";
-import { ProductTypeFilter, StockFilter } from "stores/ProductStore";
+import { ProductStockFilter, ProductTypeFilter } from "stores/ProductStore";
 import { useStore } from "stores/StoreContext";
 import { formatQuantity } from "utils/formatCurrency";
+import { PRODUCT_STOCK_FILTERS } from "utils/productFilters";
 import { byLabel } from "utils/sortUtils";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -27,13 +28,13 @@ interface ProductHeaderProps {
 	searchValue: string;
 	selectedCategory: Category | null;
 	typeFilter: ProductTypeFilter;
-	stockFilter: StockFilter;
+	stockFilter: ProductStockFilter;
 	showArchived: boolean;
 	archivedCount: number;
 	onSearch: (value: string) => void;
 	onCategoryChange: (category: Category | null) => void;
 	onTypeChange: (filter: ProductTypeFilter) => void;
-	onStockChange: (filter: StockFilter) => void;
+	onStockChange: (filter: ProductStockFilter) => void;
 	onToggleArchived: (show: boolean) => void;
 	onCreate: () => void;
 	onExport: () => void;
@@ -43,7 +44,6 @@ interface ProductHeaderProps {
 
 const ALL = "all";
 const TYPE_TABS: ProductTypeFilter[] = ["all", "sale", "supply", "both"];
-const STOCK_FILTERS: StockFilter[] = ["all", "low", "out"];
 
 /**
  * Products page header. Per locked pattern 11: dataset-level actions (create,
@@ -126,11 +126,11 @@ const ProductHeader: React.FC<ProductHeaderProps> = observer(
 						onChange={onTypeChange}
 					/>
 
-					<EntityFilterSelect<StockFilter>
+					<EntityFilterSelect<ProductStockFilter>
 						label={t("product.filter.stock.label")}
 						icon={<Inventory2OutlinedIcon />}
 						value={stockFilter}
-						options={STOCK_FILTERS.map((filter) => ({
+						options={PRODUCT_STOCK_FILTERS.map((filter) => ({
 							value: filter,
 							label: t(`product.filter.stock.${filter}`),
 						}))}

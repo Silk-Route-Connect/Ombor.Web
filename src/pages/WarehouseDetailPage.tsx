@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EntityHistory from "components/activity/History/EntityHistory";
@@ -23,7 +23,6 @@ import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { warehouseStockLevels } from "utils/report/reportStock";
 
 import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -40,12 +39,6 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const [tab, setTab] = useState<WarehouseDetailTab>("stock");
 	const stockFilters = useWarehouseStockFilters();
 	const resetStockFilters = stockFilters.reset;
-
-	const reportState = selectedWarehouseStore.stockReport;
-	const levels = useMemo(
-		() => warehouseStockLevels(isReady(reportState) ? reportState.rows : []),
-		[reportState],
-	);
 
 	useEffect(() => {
 		if (warehouseId !== null) {
@@ -84,7 +77,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	// Archiving drops this warehouse's empty rows from the stock report, so «Заканчивается» changes.
+	// Archiving clears every row's served flag (and the count); restoring brings them back.
 	const reflectLifecycle = (updated: Warehouse): void => {
 		selectedWarehouseStore.applyWarehouse(updated);
 		void selectedWarehouseStore.reloadLedgers(updated.id);
@@ -114,16 +107,14 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const movementsState = selectedWarehouseStore.movements;
 	const stock = readyOr(stockState, []);
 	const movements = readyOr(movementsState, []);
-	// The stock tab's alerts come from the stock report, so it waits for all three.
-	const ledgersReady = isReady(stockState) && isReady(movementsState) && isReady(reportState);
+	const ledgersReady = isReady(stockState) && isReady(movementsState);
 	const ledgersState =
-		[stockState, movementsState, reportState].find((state) => isLoadError(state)) ?? "loading";
+		[stockState, movementsState].find((state) => isLoadError(state)) ?? "loading";
 
-	const empty = warehouse.productCount === 0;
+	// A row emptied to 0 is not in `productCount` but stays in «Остатки» (it can be
+	// tracked, and «Нет в наличии» lists it), so the tabs show while any row exists.
+	const empty = isReady(stockState) ? stock.length === 0 : warehouse.productCount === 0;
 	const showsTabs = !empty || warehouse.isArchived;
-	const lowStock = isReady(reportState)
-		? (reportState.warehouses.find((w) => w.warehouseId === warehouse.id)?.lowStockCount ?? 0)
-		: null;
 
 	const openLowStock = (): void => {
 		stockFilters.showLowStock();
@@ -186,11 +177,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				</Callout>
 			)}
 
-			<WarehouseKpis
-				warehouse={warehouse}
-				lowStock={lowStock}
-				onLowStock={showsTabs ? openLowStock : undefined}
-			/>
+			<WarehouseKpis warehouse={warehouse} onLowStock={showsTabs ? openLowStock : undefined} />
 
 			{!showsTabs ? (
 				<WarehouseEmptyStock onOpeningStock={() => warehouseStore.openOpeningStock(warehouse)} />
@@ -214,7 +201,6 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							onAddOpeningStock={
 								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
 							}
-							levels={levels}
 							filters={stockFilters}
 						/>
 					) : (

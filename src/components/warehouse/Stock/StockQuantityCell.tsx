@@ -1,7 +1,7 @@
 import React from "react";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import { Measurement } from "models/product";
-import { StockLevel } from "utils/productFilters";
+import { StockLevel } from "utils/stockLevel";
 
 import { Box } from "@mui/material";
 
@@ -14,9 +14,9 @@ interface StockQuantityCellProps {
 }
 
 /**
- * A stock figure with its low-stock pill before it («Мало 3 шт»); the figure stays
- * ink. When the column is tight the pill wraps above the figure, so the pill never
- * widens the Products table past a 1366px screen.
+ * A stock figure with its pill before it («Мало 3 шт»); the figure stays ink.
+ * When the column is tight the pill wraps above the figure, so the pill never
+ * widens a table past a 1366px screen.
  */
 const StockQuantityCell: React.FC<StockQuantityCellProps> = ({ quantity, measurement, level }) => (
 	<Box

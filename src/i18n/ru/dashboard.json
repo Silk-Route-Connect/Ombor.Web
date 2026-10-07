@@ -71,11 +71,14 @@
   "dashboard.topDebtors.allPartners": "Все партнёры",
 
   "dashboard.lowStock.title": "Заканчивается",
-  "dashboard.lowStock.summary": "Нет в наличии: {{out}} · мало: {{low}}",
+  "dashboard.lowStock.summary_one": "{{formatted}} позиция на складах",
+  "dashboard.lowStock.summary_few": "{{formatted}} позиции на складах",
+  "dashboard.lowStock.summary_many": "{{formatted}} позиций на складах",
+  "dashboard.lowStock.summary_other": "{{formatted}} позиций на складах",
   "dashboard.lowStock.all": "Все",
-  "dashboard.lowStock.left": "Осталось {{qty}}",
-  "dashboard.lowStock.leftOfMin": "Осталось {{qty}} · минимум {{min}}",
+  "dashboard.lowStock.leftOfThreshold": "осталось {{qty}} · порог {{threshold}}",
   "dashboard.lowStock.empty": "Всё в наличии — ничего не заканчивается",
+  "dashboard.lowStock.untracked": "Пороги пока не заданы. Укажите порог товара на складе — во вкладке «Остатки» или в начальном остатке, — и товар появится здесь, когда начнёт заканчиваться.",
 
   "dashboard.recent.title": "Последние продажи и поставки",
   "dashboard.recent.number": "№",

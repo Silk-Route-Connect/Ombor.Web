@@ -13,7 +13,6 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import { Box, IconButton, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 
 import ProductMeasurementField from "./ProductMeasurementField";
-import ProductStockAlertField from "./ProductStockAlertField";
 
 export interface ProductFormCoreFieldsProps {
 	control: Control<ProductFormInputs>;
@@ -33,9 +32,8 @@ const uzsSuffix = {
 
 /**
  * Core fields laid out per the bundle's dialog: a 196px/1fr top grid (images
- * left; name, category, then the unit beside «Минимальный остаток» with what the
- * threshold does — set when the product is added, not hidden in «Дополнительно»),
- * then full-width rows — артикул/штрих-код,
+ * left; name, category, unit — no low-stock threshold: it is set per warehouse,
+ * DR-41), then full-width rows — артикул/штрих-код,
  * «Тип товара» segmented control, and the type-dependent price pair. Labels sit
  * above the inputs (`.flabel`); inputs are 40px (`.tinput`, MUI small).
  */
@@ -109,17 +107,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 						/>
 					</FormField>
 
-					<Stack sx={{ gap: "6px" }}>
-						<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-							<ProductMeasurementField control={control} disabled={disabled} />
-							<ProductStockAlertField control={control} disabled={disabled} />
-						</Box>
-						<Typography
-							sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45, textWrap: "pretty" }}
-						>
-							{t("product.form.lowStockHelper")}
-						</Typography>
-					</Stack>
+					<ProductMeasurementField control={control} disabled={disabled} />
 				</Stack>
 			</Box>
 

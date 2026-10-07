@@ -6,13 +6,10 @@ import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
 import WarehouseHeader from "components/warehouse/Header/WarehouseHeader";
 import WarehousesTable from "components/warehouse/Table/WarehousesTable";
 import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummaryStrip";
-import {
-	buildWarehouseColumns,
-	lowStockOf,
-} from "components/warehouse/Table/warehouseTableConfigs";
+import { buildWarehouseColumns } from "components/warehouse/Table/warehouseTableConfigs";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isReady, readyOr } from "helpers/Loading";
-import { useOpenLowStock } from "hooks/product/useOpenLowStock";
+import { useOpenLowStock } from "hooks/warehouse/useOpenLowStock";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -25,19 +22,16 @@ import { Box } from "@mui/material";
 const WarehousePage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { warehouseStore, productStore } = useStore();
+	const { warehouseStore } = useStore();
 	const tableOrder = useTableOrder<Warehouse>();
 	const openLowStock = useOpenLowStock();
 
-	// Products carry the served `isLowStock` the «Заканчивается» card counts, as on the dashboard.
 	useEffect(() => {
 		void warehouseStore.getAll({ quiet: true });
 		void warehouseStore.loadStockReport();
-		void productStore.getAll({ quiet: true });
-	}, [warehouseStore, productStore]);
+	}, [warehouseStore]);
 
-	const lowStockCounts = warehouseStore.lowStockCounts;
-	// Archiving drops a warehouse's empty rows from the report, so its «Заканчивается» changes.
+	// Archiving takes a warehouse's rows out of the report's «Заканчивается» (and its empty rows out of the report).
 	const refreshStockReport = (): void => void warehouseStore.loadStockReport({ refresh: true });
 
 	const dialogMode = warehouseStore.dialogMode;
@@ -53,18 +47,14 @@ const WarehousePage: React.FC = observer(() => {
 
 	const columns = useMemo(
 		() =>
-			buildWarehouseColumns(
-				t,
-				{
-					onEdit: (w) => warehouseStore.openEdit(w),
-					onArchive: (w) => warehouseStore.openArchive(w),
-					onRestore: (w) => warehouseStore.openRestore(w),
-					onDelete: handleDelete,
-				},
-				lowStockCounts,
-			),
+			buildWarehouseColumns(t, {
+				onEdit: (w) => warehouseStore.openEdit(w),
+				onArchive: (w) => warehouseStore.openArchive(w),
+				onRestore: (w) => warehouseStore.openRestore(w),
+				onDelete: handleDelete,
+			}),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[t, lowStockCounts],
+		[t],
 	);
 
 	const handleFormSave = (payload: WarehouseFormValues): void => {
@@ -84,7 +74,7 @@ const WarehousePage: React.FC = observer(() => {
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
 			{ header: t("warehouse.table.address"), value: (w) => w.location ?? "" },
 			{ header: t("warehouse.table.products"), value: (w) => w.productCount },
-			{ header: t("warehouse.lowStock.title"), value: (w) => lowStockOf(lowStockCounts, w) ?? "" },
+			{ header: t("warehouse.lowStock.title"), value: (w) => w.lowStockCount },
 			{ header: t("warehouse.table.stockValue"), value: (w) => w.stockValue },
 			{
 				header: t("warehouse.table.status"),
@@ -108,7 +98,6 @@ const WarehousePage: React.FC = observer(() => {
 					hasAny && (
 						<WarehouseSummaryStrip
 							report={warehouseStore.stockReport.data}
-							products={productStore.allProducts}
 							onLowStock={openLowStock}
 						/>
 					)

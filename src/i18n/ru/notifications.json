@@ -30,7 +30,7 @@
   "notifications.item.daysOverdue_few": "{{count}} дня просрочки",
   "notifications.item.daysOverdue_many": "{{count}} дней просрочки",
   "notifications.item.daysOverdue_other": "{{count}} дней просрочки",
-  "notifications.item.stockLeft": "осталось {{qty}}, минимум {{min}}",
-  "notifications.item.outOfStock": "нет в наличии",
+  "notifications.item.stockLeft": "осталось {{qty}}, порог {{threshold}}",
+  "notifications.item.outOfStock": "нет в наличии, порог {{threshold}}",
   "notifications.more": "и ещё {{formatted}}"
 }
