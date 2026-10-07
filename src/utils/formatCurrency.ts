@@ -36,7 +36,8 @@ const fractionalMoneyFormatter = new Intl.NumberFormat("ru-RU", {
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 });
-const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
+// Three places: stock is stored at decimal(18,3), and a weight threshold may use them («0,125 т»).
+const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 3 });
 
 /**
  * Canonical money formatter (UZS, no currency symbol): whole sums without

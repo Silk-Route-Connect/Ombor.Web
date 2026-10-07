@@ -105,7 +105,7 @@ export class RootStore {
 		this.paymentStore = new PaymentStore(this.notificationStore);
 		this.selectedPaymentStore = new SelectedPaymentStore();
 		this.warehouseStore = new WarehouseStore(this.notificationStore);
-		this.selectedWarehouseStore = new SelectedWarehouseStore();
+		this.selectedWarehouseStore = new SelectedWarehouseStore(this.notificationStore);
 		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
 		this.transferStore = new TransferStore(this.notificationStore);
 		this.movementSourceStore = new MovementSourceStore(this.notificationStore);

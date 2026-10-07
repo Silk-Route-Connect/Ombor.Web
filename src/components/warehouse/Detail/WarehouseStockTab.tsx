@@ -11,6 +11,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import StockQuantityCell from "components/warehouse/Stock/StockQuantityCell";
+import StockThresholdCell from "components/warehouse/Stock/StockThresholdCell";
 import { ALL_CATEGORIES, WarehouseStockFilters } from "hooks/warehouse/useWarehouseStockFilters";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
@@ -31,13 +32,15 @@ interface WarehouseStockTabProps {
 	onAddOpeningStock?: () => void;
 	/** Search, category and «Остаток» — held by the page (the «Заканчивается» KPI sets them). */
 	filters: WarehouseStockFilters;
+	/** Opens a row's «Порог» dialog. */
+	onEditThreshold: (row: WarehouseStockItem) => void;
 }
 
 type StockRow = WarehouseStockItem & { id: number };
 
 /**
  * «Остатки»: every stock row of the warehouse, emptied ones included — Товар ·
- * Артикул · Категория · Остаток · Сред. себест. · Стоимость — searchable,
+ * Артикул · Категория · Остаток · Порог · Сред. себест. · Стоимость — searchable,
  * filterable by category and «Остаток», with the served «Итого по складу» band
  * on the unfiltered view. «Заканчивается» is the row's served `isLowStock`
  * (DR-41), so it lists exactly the rows the KPI counts; «Нет в наличии» is
@@ -48,6 +51,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	stock,
 	onAddOpeningStock,
 	filters,
+	onEditThreshold,
 }) => {
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<StockRow>();
@@ -109,6 +113,14 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				),
 			},
 			{
+				key: "threshold",
+				headerName: t("warehouse.stock.threshold"),
+				headerTooltip: t("warehouse.stock.thresholdHint"),
+				align: "right",
+				sortValue: (i) => i.lowStockThreshold ?? -1,
+				renderCell: (i) => <StockThresholdCell row={i} onEdit={onEditThreshold} />,
+			},
+			{
 				key: "averageCost",
 				headerName: t("warehouse.stock.wac"),
 				headerTooltip: t("common.hint.wac"),
@@ -124,7 +136,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				renderCell: (i) => <MoneyCell value={i.value} main />,
 			},
 		],
-		[t],
+		[t, onEditThreshold],
 	);
 
 	const handleExport = () => {
@@ -143,6 +155,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 						return level === "ok" ? "" : t(`warehouse.stockLevel.${level}`);
 					},
 				},
+				{ header: t("warehouse.stock.threshold"), value: (i) => i.lowStockThreshold ?? "" },
 				{ header: t("warehouse.stock.wac"), value: (i) => i.averageCost },
 				{ header: t("warehouse.stock.value"), value: (i) => i.value },
 			],
@@ -215,6 +228,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 						<tr className="total">
 							<td colSpan={3}>{t("warehouse.stock.total")}</td>
 							{/* No quantity total: rows mix kg, pieces and tonnes (owner decision 2026-10-07). */}
+							<td />
 							<td />
 							<td />
 							<Box component="td" className="r" sx={numericSx}>

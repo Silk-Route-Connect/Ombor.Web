@@ -13,6 +13,7 @@ import WarehouseMovementsTab from "components/warehouse/Detail/WarehouseMovement
 import WarehouseStockTab from "components/warehouse/Detail/WarehouseStockTab";
 import OpeningStockModal from "components/warehouse/Form/OpeningStockModal";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
+import StockThresholdDialog from "components/warehouse/Stock/StockThresholdDialog";
 import { buildWarehouseActionRows } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
@@ -202,6 +203,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
 							}
 							filters={stockFilters}
+							onEditThreshold={selectedWarehouseStore.openThreshold}
 						/>
 					) : (
 						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />
@@ -224,6 +226,14 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				stock={stock}
 				onClose={warehouseStore.closeDialog}
 				onSave={handleOpeningSave}
+			/>
+
+			<StockThresholdDialog
+				row={selectedWarehouseStore.thresholdRow}
+				warehouseName={warehouse.name}
+				isSaving={selectedWarehouseStore.isSaving}
+				onSave={(value) => void selectedWarehouseStore.saveThreshold(value)}
+				onClose={selectedWarehouseStore.closeThreshold}
 			/>
 
 			<WarehouseDialogs
