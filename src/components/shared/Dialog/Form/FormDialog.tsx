@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { KindPresentation } from "components/shared/Chip/movementKind";
+import { useRestoreFocus } from "hooks/shared/useRestoreFocus";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { dialogBelowHeaderSx, dialogPaperSx, DialogSize } from "theme";
@@ -35,7 +36,10 @@ export interface FormDialogProps {
 	contentSx?: SxProps<Theme>;
 	/** The «Закрыть форму?» confirm of a dirty form (`useDirtyClose`). */
 	discard?: DiscardChangesDialogProps;
-	/** Return focus to the opener on close (off by default: most modals open from a menu that is gone). */
+	/**
+	 * Return focus to the opener on close (off by default: most modals open from a
+	 * menu that is gone). `useRestoreFocus`, not MUI's own restore — see there.
+	 */
 	restoreFocus?: boolean;
 	children: React.ReactNode;
 }
@@ -67,6 +71,7 @@ const FormDialog: React.FC<FormDialogProps> = observer(
 		children,
 	}) => {
 		const { connectivityStore } = useStore();
+		useRestoreFocus(open, restoreFocus);
 		// Latched for as long as the modal is open: it clears the header when a problem
 		// shows, but a recovery never moves it back up — the save re-enables at that
 		// moment, and a form jumping under the pointer turns a click into a backdrop click.
@@ -81,7 +86,7 @@ const FormDialog: React.FC<FormDialogProps> = observer(
 					open={open}
 					onClose={onClose}
 					disableEscapeKeyDown={busy}
-					disableRestoreFocus={!restoreFocus}
+					disableRestoreFocus
 					onKeyDown={onKeyDown}
 					slotProps={{
 						paper: { sx: [dialogPaperSx(size), belowHeader && dialogBelowHeaderSx] },
