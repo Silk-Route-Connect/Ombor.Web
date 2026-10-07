@@ -26,7 +26,7 @@ const EmployeePage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Employee>();
 
 	useEffect(() => {
-		employeeStore.getAll({ quiet: true });
+		void employeeStore.getAll({ quiet: true });
 	}, [employeeStore]);
 
 	const { dialogMode } = employeeStore;

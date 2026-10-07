@@ -31,7 +31,7 @@ const WarehousePage: React.FC = observer(() => {
 
 	// Products carry the served `isLowStock` the «Заканчивается» card counts, as on the dashboard.
 	useEffect(() => {
-		warehouseStore.getAll({ quiet: true });
+		void warehouseStore.getAll({ quiet: true });
 		void warehouseStore.loadStockReport();
 		void productStore.getAll({ quiet: true });
 	}, [warehouseStore, productStore]);

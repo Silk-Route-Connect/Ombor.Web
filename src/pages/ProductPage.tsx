@@ -27,7 +27,7 @@ const ProductPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		categoryStore.getAll();
-		productStore.getAll({ quiet: true });
+		void productStore.getAll({ quiet: true });
 	}, [categoryStore, productStore]);
 
 	const dialogMode = productStore.dialogMode;

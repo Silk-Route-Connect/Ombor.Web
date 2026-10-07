@@ -23,7 +23,7 @@ const CategoryPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Category>();
 
 	useEffect(() => {
-		categoryStore.getAll({ quiet: true });
+		void categoryStore.getAll({ quiet: true });
 	}, [categoryStore]);
 
 	const handleFormSave = (payload: CategoryFormPayload) => {

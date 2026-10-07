@@ -25,7 +25,7 @@ const WalletPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Wallet>();
 
 	useEffect(() => {
-		walletStore.getAll({ quiet: true });
+		void walletStore.getAll({ quiet: true });
 	}, [walletStore]);
 
 	const dialogMode = walletStore.dialogMode;

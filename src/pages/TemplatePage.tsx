@@ -30,7 +30,7 @@ const TemplatePage: React.FC = observer(() => {
 
 	useEffect(() => {
 		templateStore.resetFilters();
-		templateStore.getAll({ quiet: true });
+		void templateStore.getAll({ quiet: true });
 		partnerStore.getAll();
 		productStore.getAll();
 	}, [templateStore, partnerStore, productStore]);

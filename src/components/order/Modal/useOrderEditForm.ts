@@ -49,9 +49,9 @@ export function useOrderEditForm({ isOpen, order, onSave }: UseOrderEditFormOpti
 	// Reset the form from the order whenever the modal (re)opens.
 	useEffect(() => {
 		if (isOpen && order) {
-			partnerStore.getAll();
-			productStore.getAll();
-			warehouseStore.getAll();
+			void partnerStore.getAll();
+			void productStore.getAll();
+			void warehouseStore.getAll();
 			setClient(allPartners.find((p) => p.id === order.customerId) ?? null);
 			setSource(order.source);
 			setWarehouseId(order.warehouseId ?? "");
