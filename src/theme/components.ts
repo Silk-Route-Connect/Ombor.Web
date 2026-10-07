@@ -184,6 +184,19 @@ export const components: Components<Omit<Theme, "components">> = {
 		},
 	},
 	MuiMultiSectionDigitalClock: { styleOverrides: { root: { justifyContent: "center" } } },
+	// The touch dialog's «Выбрать дату» heading in sentence case, never an uppercase overline.
+	MuiPickersToolbar: {
+		styleOverrides: {
+			root: {
+				"& .MuiPickersToolbar-title": {
+					textTransform: "none",
+					letterSpacing: 0,
+					fontSize: 13,
+					fontWeight: 600,
+				},
+			},
+		},
+	},
 	// date-fns writes Russian months in lower case («октябрь 2026»).
 	MuiPickersCalendarHeader: {
 		styleOverrides: { label: { textTransform: "capitalize", fontSize: 14, fontWeight: 600 } },
