@@ -12,9 +12,10 @@ interface DirectionBadgeProps {
 }
 
 /**
- * Money-direction pill — green ↓ inflow / red ↑ outflow (the app-wide arrow
+ * Money-direction pill — green ↓ inflow / red ↑ outflow (the money arrow
  * convention: in = ↓, out = ↑). The arrow carries the direction; amounts stay
- * unsigned (locked pattern 4).
+ * unsigned (locked pattern 4). Stock never takes arrows: its movements carry the
+ * quantity's sign «+ / −» (stockAdjustment/directionPresentation).
  */
 export const DirectionBadge: React.FC<DirectionBadgeProps> = ({ income, label }) => (
 	<StatusPill

@@ -3,9 +3,9 @@ import IconTile from "components/shared/IconTile/IconTile";
 import { AdjustmentDirection } from "models/stockAdjustment";
 import { chipTokens, designTokens, radius } from "theme";
 
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { Box, ButtonBase, Typography } from "@mui/material";
+
+import { directionPresentation } from "../directionPresentation";
 
 interface DirectionCardProps {
 	direction: AdjustmentDirection;
@@ -16,9 +16,9 @@ interface DirectionCardProps {
 }
 
 /**
- * One of the two direction options in the adjustment form (a radio pair). Stock
- * is not money, so it uses the stock-direction hues of the chips — Increase blue
- * ↓ (in), Decrease amber ↑ (out) — never green/red.
+ * One of the two direction options in the adjustment form (a radio pair), drawn
+ * like the list chip: the quantity's sign — «−» Списание, «+» Приход товара — in
+ * the stock hues, never green/red.
  */
 export const DirectionCard: React.FC<DirectionCardProps> = ({
 	direction,
@@ -27,10 +27,8 @@ export const DirectionCard: React.FC<DirectionCardProps> = ({
 	subtitle,
 	onSelect,
 }) => {
-	const out = direction === "Decrease";
-	const token = out ? "stockOut" : "stockIn";
+	const { token, icon: Icon } = directionPresentation(direction);
 	const tk = chipTokens[token];
-	const Icon = out ? ArrowUpwardIcon : ArrowDownwardIcon;
 
 	return (
 		<ButtonBase
