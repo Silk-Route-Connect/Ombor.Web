@@ -108,8 +108,11 @@ export const layout = {
  * Paper `sx` keeping a modal below the app header — while the header's connection
  * status sits above the modal layer, a tall modal would otherwise run under it.
  * (MUI caps a modal at the viewport less 64px; this caps it below the header.)
+ * A modal already open when a problem shows glides down instead of jumping.
  */
 export const dialogBelowHeaderSx = {
 	mt: `${layout.topbarHeight + 16}px`,
 	maxHeight: `calc(100% - ${layout.topbarHeight + 16 + 32}px)`,
+	transition: "margin-top .2s ease, max-height .2s ease",
+	"@media (prefers-reduced-motion: reduce)": { transition: "none" },
 } as const;

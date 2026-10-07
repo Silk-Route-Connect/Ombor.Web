@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { KindPresentation } from "components/shared/Chip/movementKind";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
@@ -45,8 +45,8 @@ export interface FormDialogProps {
  * subtitle, record tile, ✕), a save progress bar that overlays the header rule
  * without shifting the form, the themed body (dividers, padding, scroll shadows)
  * and the footer — plus the discard confirm. Every create / edit / detail modal
- * renders through it so they share one anatomy. While the header shows the
- * connection status (drawn above the backdrop, so the user sees why a save is
+ * renders through it so they share one anatomy. While the header shows a
+ * connection problem (drawn above the backdrop, so the user sees why a save is
  * blocked) the paper keeps below the header instead of running under the pill.
  */
 const FormDialog: React.FC<FormDialogProps> = observer(
@@ -67,7 +67,13 @@ const FormDialog: React.FC<FormDialogProps> = observer(
 		children,
 	}) => {
 		const { connectivityStore } = useStore();
-		const belowHeader = connectivityStore.status !== "connected";
+		// Latched for as long as the modal is open: it clears the header when a problem
+		// shows, but a recovery never moves it back up — the save re-enables at that
+		// moment, and a form jumping under the pointer turns a click into a backdrop click.
+		const [belowHeader, setBelowHeader] = useState(false);
+		if (open && connectivityStore.isDisconnected && !belowHeader) {
+			setBelowHeader(true);
+		}
 
 		return (
 			<>
@@ -79,6 +85,7 @@ const FormDialog: React.FC<FormDialogProps> = observer(
 					onKeyDown={onKeyDown}
 					slotProps={{
 						paper: { sx: [dialogPaperSx(size), belowHeader && dialogBelowHeaderSx] },
+						transition: { onExited: () => setBelowHeader(false) },
 					}}
 				>
 					<FormDialogHeader
