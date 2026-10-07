@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import BlockedAction from "components/shared/Buttons/BlockedAction";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
@@ -16,7 +17,7 @@ import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import { Tooltip, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 import ThresholdField from "./ThresholdField";
 
@@ -73,17 +74,18 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 	const unit = shownRow ? measurementShort(t, shownRow.measurement) : "";
 
 	const clearButton = tracked && (
-		<Tooltip title={blockedReason ?? ""} placement="top">
-			<span>
+		<BlockedAction reason={isSaving ? undefined : blockedReason}>
+			{(blocked, blockedProps) => (
 				<GhostButton
 					icon={<RemoveCircleOutlineIcon />}
-					onClick={() => onSave(null)}
-					disabled={isSaving || blockedReason !== undefined}
+					onClick={blocked ? undefined : () => onSave(null)}
+					disabled={isSaving}
+					{...blockedProps}
 				>
 					{t("warehouse.threshold.clear")}
 				</GhostButton>
-			</span>
-		</Tooltip>
+			)}
+		</BlockedAction>
 	);
 
 	return (

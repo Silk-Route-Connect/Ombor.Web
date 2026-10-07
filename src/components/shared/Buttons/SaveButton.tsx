@@ -1,9 +1,10 @@
-import React, { useId } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { visuallyHiddenSx } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
-import { Box, Button, buttonClasses, Tooltip } from "@mui/material";
+import { Button } from "@mui/material";
+
+import BlockedAction from "./BlockedAction";
 
 interface SaveButtonProps {
 	disabled?: boolean;
@@ -32,12 +33,10 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 	onSave,
 }) => {
 	const { t } = useTranslation();
-	const reasonId = useId();
-	const blocked = Boolean(blockedReason) && !loading;
 
 	return (
-		<Tooltip title={blocked ? blockedReason : ""} placement="top">
-			<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
+		<BlockedAction reason={loading ? undefined : blockedReason} fullWidth={fullWidth}>
+			{(blocked, blockedProps) => (
 				<Button
 					variant="contained"
 					// The commit tick every submit shares (the filled floppy disk was the one
@@ -45,25 +44,16 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 					startIcon={icon ?? <CheckIcon />}
 					color="primary"
 					disabled={disabled && !blocked}
-					// Blocked looks disabled (the theme's own disabled class) but keeps focus.
-					className={blocked ? buttonClasses.disabled : undefined}
-					aria-disabled={blocked || undefined}
-					aria-describedby={blocked ? reasonId : undefined}
-					disableRipple={blocked}
 					loading={loading}
 					fullWidth={fullWidth}
 					onClick={blocked ? undefined : () => void onSave()}
 					sx={{ whiteSpace: "nowrap" }}
+					{...blockedProps}
 				>
 					{label ?? t("common.save")}
 				</Button>
-				{blocked && (
-					<Box component="span" id={reasonId} sx={visuallyHiddenSx}>
-						{blockedReason}
-					</Box>
-				)}
-			</Box>
-		</Tooltip>
+			)}
+		</BlockedAction>
 	);
 };
 
