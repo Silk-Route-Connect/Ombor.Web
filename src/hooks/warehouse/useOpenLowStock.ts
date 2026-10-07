@@ -15,6 +15,6 @@ export function useOpenLowStock(): () => void {
 
 	return useCallback(() => {
 		reportStore.presetStock(null, "low");
-		navigate(reportPath("stock"));
+		void navigate(reportPath("stock"));
 	}, [navigate, reportStore]);
 }
