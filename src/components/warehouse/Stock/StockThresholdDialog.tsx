@@ -8,10 +8,10 @@ import FormField from "components/shared/Forms/FormField";
 import { recordTile } from "components/shared/IconTile/recordTile";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
+import { useSaveBlockedReason } from "hooks/shared/useSaveBlockedReason";
 import { useStockThresholdForm } from "hooks/warehouse/useStockThresholdForm";
 import { observer } from "mobx-react-lite";
 import { WarehouseStockItem } from "models/warehouse";
-import { useStore } from "stores/StoreContext";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
 
@@ -44,7 +44,6 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 	onClose,
 }) => {
 	const { t } = useTranslation();
-	const { connectivityStore } = useStore();
 	// The last opened row stays on screen while the dialog fades out after a save.
 	const [shownRow, setShownRow] = useState(row);
 	if (row !== null && row !== shownRow) {
@@ -70,16 +69,16 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 	const onKeyDown = useFormKeyboardSubmit(handleSave, isSaving);
 
 	const tracked = shownRow?.lowStockThreshold != null;
-	const offline = connectivityStore.isBackendDown;
+	const blockedReason = useSaveBlockedReason();
 	const unit = shownRow ? measurementShort(t, shownRow.measurement) : "";
 
 	const clearButton = tracked && (
-		<Tooltip title={offline ? t("common.offline.saveTooltip") : ""} placement="top">
+		<Tooltip title={blockedReason ?? ""} placement="top">
 			<span>
 				<GhostButton
 					icon={<RemoveCircleOutlineIcon />}
 					onClick={() => onSave(null)}
-					disabled={isSaving || offline}
+					disabled={isSaving || blockedReason !== undefined}
 				>
 					{t("warehouse.threshold.clear")}
 				</GhostButton>

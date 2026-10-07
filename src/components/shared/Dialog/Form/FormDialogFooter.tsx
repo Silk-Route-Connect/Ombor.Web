@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import SaveButton from "components/shared/Buttons/SaveButton";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
+import { useSaveBlockedReason } from "hooks/shared/useSaveBlockedReason";
 import { observer } from "mobx-react-lite";
 import { useStore } from "stores/StoreContext";
 import { visuallyHiddenSx } from "theme";
@@ -35,8 +36,9 @@ interface SubmitFooterProps extends FooterCommonProps {
 	/** Further ghost actions between «Отмена» and the submit (the reminder's «Копировать» / «SMS»). */
 	secondaryActions?: React.ReactNode;
 	/**
-	 * Disable the submit while the backend is unreachable (F-028; default on).
-	 * Off only for a submit that needs no server (the debt reminder's «Telegram»).
+	 * Block the submit while there is no connection — the device offline or the
+	 * backend unreachable (F-028; default on). Off only for a submit that needs no
+	 * server (the debt reminder's «Telegram»).
 	 */
 	offlineGate?: boolean;
 }
@@ -67,14 +69,14 @@ const SubmitActions: React.FC<SubmitFooterProps> = observer(
 	}) => {
 		const { t } = useTranslation();
 		const { connectivityStore } = useStore();
-		const offline = offlineGate && connectivityStore.isBackendDown;
+		const blockedReason = useSaveBlockedReason(offlineGate);
 		// The header's live region is hidden from assistive tech behind an open modal,
 		// so the modal says it itself when its save is gated and when it comes back.
-		const announcement = offline
-			? t("common.offline.saveTooltip")
-			: offlineGate && connectivityStore.status === "restored"
+		const announcement =
+			blockedReason ??
+			(offlineGate && connectivityStore.status === "restored"
 				? t("common.connectivity.restored")
-				: "";
+				: "");
 
 		return (
 			<>
@@ -87,7 +89,7 @@ const SubmitActions: React.FC<SubmitFooterProps> = observer(
 				<SaveButton
 					disabled={!canSave}
 					loading={loading}
-					blockedReason={offline ? t("common.offline.saveTooltip") : undefined}
+					blockedReason={blockedReason}
 					label={submitLabel}
 					icon={submitIcon}
 					onSave={onSave}
@@ -118,10 +120,11 @@ const CloseAction: React.FC<CloseFooterProps> = ({ onClose, closeLabel, emphasis
  * any secondary actions and the primary submit right; and, for immutable events,
  * one `CommitNote` line under the buttons. The submit stays enabled (validation
  * runs on submit, rule 5); it is disabled only while a save is in flight or
- * while the backend is unreachable (F-028) — then it stays focusable with the
- * reason as its tooltip and description, and a polite status inside the modal
- * announces the gate and the recovery. `variant="close"` is the read-only
- * footer: a single «Закрыть» (or «Готово»).
+ * while there is no connection (F-028: the device offline or the backend
+ * unreachable) — then it stays focusable with the cause as its tooltip and
+ * description, and a polite status inside the modal announces the gate and the
+ * recovery. `variant="close"` is the read-only footer: a single «Закрыть» (or
+ * «Готово»).
  */
 const FormDialogFooter: React.FC<FormDialogFooterProps> = (props) => {
 	const commitNote = props.variant === "close" ? undefined : props.commitNote;

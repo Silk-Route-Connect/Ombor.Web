@@ -10,9 +10,9 @@ export interface FormKeyboardSubmitOptions {
 	 */
 	requireModifier?: boolean;
 	/**
-	 * Mirror the footer's `offlineGate` (default on): while the backend is
-	 * unreachable the shortcut does nothing, as the disabled submit button does —
-	 * otherwise Enter would send the write the gate is there to hold back.
+	 * Mirror the footer's `offlineGate` (default on): while there is no connection
+	 * (`ConnectivityStore.saveBlockedBy`) the shortcut does nothing, as the blocked
+	 * submit button does — otherwise Enter would send the write the gate holds back.
 	 */
 	offlineGate?: boolean;
 }
@@ -30,7 +30,7 @@ export interface FormKeyboardSubmitOptions {
  *   With `requireModifier` a bare Enter never submits.
  *
  * `disabled` (pass the form's `isSaving`) suppresses the shortcut while saving,
- * and the offline gate while the backend is unreachable (F-028).
+ * and the offline gate while the device is offline or the backend unreachable (F-028).
  * IME composition (`isComposing`) is ignored so Enter can commit a candidate.
  */
 export function useFormKeyboardSubmit(
@@ -45,7 +45,7 @@ export function useFormKeyboardSubmit(
 			if (disabled || event.key !== "Enter" || event.nativeEvent.isComposing) {
 				return;
 			}
-			if (offlineGate && connectivityStore.isBackendDown) {
+			if (offlineGate && connectivityStore.saveBlockedBy !== null) {
 				return;
 			}
 			if (event.metaKey || event.ctrlKey) {

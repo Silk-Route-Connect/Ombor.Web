@@ -10,7 +10,7 @@ import {
 	RELAPSE_MS,
 	RESTORED_FLASH_MS,
 } from "./connectivityEnv";
-import { ConnectivityStatus, IConnectivityStore } from "./connectivityTypes";
+import { ConnectivityStatus, IConnectivityStore, SaveBlockCause } from "./connectivityTypes";
 
 /**
  * Backend reachability for the header status and the offline gate (F-028).
@@ -104,6 +104,13 @@ export class ConnectivityStore implements IConnectivityStore {
 			return "backendDown";
 		}
 		return this.isRestored ? "restored" : "connected";
+	}
+
+	get saveBlockedBy(): SaveBlockCause | null {
+		if (this.isOffline) {
+			return "offline";
+		}
+		return this.isBackendDown ? "backendDown" : null;
 	}
 
 	/** Interceptor: a request failed for lack of a connection. */
