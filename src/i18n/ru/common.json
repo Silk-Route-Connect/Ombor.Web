@@ -127,6 +127,7 @@
   "common.loadState.notFoundBody": "Возможно, запись удалили или ссылка неверна.",
   "common.loadState.backToList": "К списку",
   "common.loadState.reason.network": "Нет связи с сервером. Проверьте интернет и нажмите «Повторить».",
+  "common.loadState.reason.networkAutoRetry": "Нет связи с сервером. Загрузим снова, как только связь вернётся.",
   "common.loadState.reason.server": "Сервер ответил ошибкой. Попробуйте ещё раз через минуту.",
   "common.loadState.reason.unauthorized": "Сессия истекла. Войдите снова.",
   "common.loadState.reason.forbidden": "Недостаточно прав для просмотра.",

@@ -2,8 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import { LoadError } from "helpers/Loading";
+import { isLoadError, LoadError } from "helpers/Loading";
 import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
+import { useRetryOnReconnect } from "hooks/shared/useRetryOnReconnect";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -39,6 +40,8 @@ export interface LoadStateViewProps {
  * The one renderer for everything that is not data: spinner while loading, an
  * error with «Повторить» after a failed load, or not-found with a way back.
  * A failed load never renders as empty data or zeros (conventions.md → MobX).
+ * A load that failed for lack of a connection re-runs `onRetry` by itself when
+ * the connection returns.
  */
 export const LoadStateView: React.FC<LoadStateViewProps> = ({
 	state,
@@ -51,6 +54,8 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 	const navigate = useNavigate();
 	const notFoundTitle = notFound?.title ?? t("common.loadState.notFound");
 	useDocumentTitle(state === null && size === "page" ? notFoundTitle : null);
+	const retriesOnReconnect = Boolean(onRetry) && isLoadError(state) && state.kind === "network";
+	useRetryOnReconnect(onRetry, retriesOnReconnect);
 
 	if (state === "loading") {
 		return (
@@ -92,7 +97,11 @@ export const LoadStateView: React.FC<LoadStateViewProps> = ({
 			tone="error"
 			icon={<ErrorOutlineIcon />}
 			title={errorTitle ?? t("common.loadState.errorTitle")}
-			body={t(`common.loadState.reason.${state.kind}`)}
+			body={t(
+				retriesOnReconnect
+					? "common.loadState.reason.networkAutoRetry"
+					: `common.loadState.reason.${state.kind}`,
+			)}
 			action={
 				<GhostButton
 					icon={<RefreshIcon />}
