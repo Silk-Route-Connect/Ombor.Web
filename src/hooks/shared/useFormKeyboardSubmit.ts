@@ -15,7 +15,8 @@ export interface FormKeyboardSubmitOptions {
  * modal's `<Dialog onKeyDown={…}>`:
  *
  * - **Ctrl / Cmd + Enter** always submits — even from a textarea.
- * - **Enter** submits from a single-line text input, but is left alone inside a
+ * - **Enter** submits from a single-line text input — a date / time field's
+ *   section (`role=spinbutton`) counts as one — but is left alone inside a
  *   textarea (newline) or while an autocomplete / select popup is open on the
  *   focused input (`aria-expanded="true"` — let it pick the option), and never
  *   fires from a button (the browser already maps Enter to a click there).
@@ -43,7 +44,8 @@ export function useFormKeyboardSubmit(
 				return;
 			}
 			const target = event.target as HTMLElement;
-			if (target.tagName !== "INPUT" || target.getAttribute("aria-expanded") === "true") {
+			const singleLine = target.tagName === "INPUT" || target.getAttribute("role") === "spinbutton";
+			if (!singleLine || target.getAttribute("aria-expanded") === "true") {
 				return;
 			}
 			event.preventDefault();
