@@ -87,5 +87,5 @@ Applied to **every screen** the run visits, in every tier. Module docs never rep
 | Device offline (network unplugged) leaves submits enabled; the submit then fails with a «нет связи» toast | only an unreachable server gates (owner question open) |
 | The offline gate stays on up to 30 s after the server is back                                   | the header re-checks on a 5 → 10 → 20 → 30 s backoff — «Проверить сейчас» checks at once |
 | A background tab shows no «Нет связи» even though the server is down                             | nothing is probed in a hidden tab; coming back to it re-checks at once |
-| Warehouses: the strip's «Заканчивается» ≠ the sum of the column                                 | the card counts products across warehouses, the column rows per warehouse |
+| A product low in two warehouses counts twice in «Заканчивается» (strip, report, dashboard, bell) | the threshold belongs to the product in one warehouse (DR-41) — every count is warehouse rows |
 | A date / time field has a second Tab stop (its calendar / clock button)                         | MUI picker default                                |

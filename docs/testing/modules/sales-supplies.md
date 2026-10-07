@@ -26,6 +26,7 @@ Module-specific; shared-checklist §6 still applies.
 | «Скачать» (in ⋮ on a sale/supply, visible on a refund) → toast «… — раздел в разработке» | dev stub until the print feature |
 | Sale and Supply numbers interleave in one sequence | DR-21 single series |
 | Product search shows «Нет в наличии» but still allows adding the product on Supply | stock-in needs no stock |
+| Product search reads only «На складе: N» (green) or «Нет в наличии» (red) for the picked warehouse — never an amber «мало» | low stock is a warehouse row's threshold, shown on the warehouse, the dashboard and the bell — not at the till (DR-41) |
 | Line totals and stock hints stay in «шт» while the qty field counts «упак» | quantity is base-unit source of truth (R21); the entered pack count now **is** persisted (F21 resolved 2026-07-19 — FE sends `packageQuantity`, server snapshots `packageSize`) and the detail line shows "N упак / <base>" |
 
 ## Happy path

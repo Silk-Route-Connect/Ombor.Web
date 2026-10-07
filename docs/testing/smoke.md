@@ -29,11 +29,11 @@ For each route: page renders with correct h1/title, no console errors, no failed
 
 ### T-SMK-10 · `/` Dashboard [happy]
 
-Period control (Сегодня/Неделя/Месяц, default Месяц); 4 KPI cards render numbers (not NaN/«не число»); charts, aging panel, top-debtors, recent-transactions table render. Known crash-risk F5 — an unknown transaction status crashing the table is KNOWN.
+Period control (Сегодня/Неделя/Месяц, default Месяц); 4 KPI cards render numbers (not NaN/«не число»); charts, aging panel, top-debtors, recent-transactions table render. The «Заканчивается» panel lists warehouse rows: product · «Нет в наличии» / «Мало» · «Склад N · осталось Q · порог T», none left first, «N позиций на складах» beside the title; «Все» opens the stock report (T-SMK-37); with no threshold set anywhere it says where thresholds are set instead. Known crash-risk F5 — an unknown transaction status crashing the table is KNOWN.
 
 ### T-SMK-11 · `/products` and `/products/:id` [happy]
 
-List renders with archive toggle; open one product detail (tabs Обзор / Продажи и поставки / Движения / История + right rail; no side pane remains). **Do not test edit** — F1 edit crash is a known Blocker. «Новый товар» (close without saving): «Единица измерения» and «Минимальный остаток» side by side under «Категория» (the threshold optional, the unit as its suffix), the hint under them ends «Пусто — только когда товар закончится.»; «Дополнительно» holds only the description.
+List renders with archive toggle; open one product detail (tabs Обзор / Продажи и поставки / Движения / История + right rail; no side pane remains). **Do not test edit** — F1 edit crash is a known Blocker. «Новый товар» (close without saving): «Единица измерения» spans the row under «Категория» — no «Минимальный остаток» (thresholds are set per warehouse, DR-41); «Дополнительно» holds only the description. No «Мало» / «Нет в наличии» pill on the list or the detail; the list's «Остаток» offers «Все» / «Нет в наличии» only.
 
 ### T-SMK-12 · `/categories` [happy]
 
@@ -41,7 +41,7 @@ List renders; legacy module — layout deviations from shared checklist §2 are 
 
 ### T-SMK-13 · `/warehouses` and `/warehouses/:id` [happy]
 
-Summary strip «Товаров на складах» · «Заканчивается» (footnote «нет в наличии: N») · «Стоимость остатка»; columns Название · Адрес · Товаров · Заканчивается · Стоимость остатка · ⋮ — no «Единиц» anywhere. Detail: KPIs «Товаров» · «Заканчивается» · «Стоимость остатка», Остатки/Движения tabs on the shared table chrome (same look as the list tables, #20d), stacked layout (no rail); «Итого по складу» totals the value only (no unit sum). «Движения» names an adjustment by its reason («Кража/утеря»), never a raw enum. Click-throughs: T-SMK-37.
+Summary strip «Товаров на складах» · «Заканчивается» (footnote «по порогам на всех складах») · «Стоимость остатка»; columns Название · Адрес · Товаров · Заканчивается · Стоимость остатка · ⋮ — no «Единиц» anywhere. Detail: KPIs «Товаров» · «Заканчивается» · «Стоимость остатка», Остатки/Движения tabs on the shared table chrome (same look as the list tables, #20d), stacked layout (no rail); «Остатки» columns Товар · Артикул · Категория · Остаток · Порог («—» when not tracked, a pencil on every row) · Сред. себест. · Стоимость, filters «Категория» and «Остаток: Все / Заканчивается / Нет в наличии»; «Итого по складу» totals the value only (no unit sum). «Остатки» may count more rows than «Товаров» — an emptied row stays listed («Нет в наличии») but is not on hand (F22). «Движения» names an adjustment by its reason («Кража/утеря»), never a raw enum. Click-throughs: T-SMK-37.
 
 ### T-SMK-14 · `/adjustments` [happy]
 
@@ -126,13 +126,18 @@ Expect: 1920 and 1440 → the expanded 248px panel; 1439 and 1366 → the 72px r
 ### T-SMK-37 · Warehouse «Заканчивается» click-throughs [reconcile]
 
 Steps: 1. `/warehouses`: read the strip's «Заканчивается» and click it. 2. Back; open a warehouse whose «Заканчивается» column is > 0; read its KPI and click it. 3. Open another warehouse.
-Expect: 1 → Products «Остаток: Заканчивается» whose row count (the pager's «из N» when there is one) = the card, the dashboard «Заканчивается» panel and the bell's «Заканчиваются N товаров» (the same product set across warehouses). 2 → the KPI equals the list column for that warehouse; the click opens «Остатки» with search and category cleared and «Остаток: Заканчивается», row count = the KPI (zero rows «Нет в наличии» included). The strip card (products across warehouses) and the column (rows per warehouse) never sum to each other — by design. 3 → the tab's filters reset. An active warehouse with no stock shows 0, a «Заканчивается» KPI that opens nothing, and no tabs (the opening-stock prompt instead).
+Expect: 1 → the stock report «Остатки и стоимость склада» with «Склад: Все» and «Остаток: Заканчивается»; its «N позиций» = the card = the report's «Заканчивается» card = the dashboard panel's «N позиций на складах» = the bell's «Заканчиваются N товаров» = the sum of the column (each row is one product in one warehouse — the same product low in two warehouses counts twice). 2 → the KPI equals the list column for that warehouse; the click opens «Остатки» with search and category cleared and «Остаток: Заканчивается», row count = the KPI (a tracked row at zero included, an untracked one never). 3 → the tab's filters reset. An active warehouse with no stock shows 0, a «Заканчивается» KPI that opens nothing, and no tabs (the opening-stock prompt instead); an archived warehouse reads 0 until restored.
 
 ### T-SMK-38 · Date and time fields [happy]
 
 Pre: an English (en-US) browser locale if available.
 Steps: 1. `/orders/new`: read «Дата доставки» / «Время доставки»; type «07102026», then «1430»; open the calendar. 2. Leave without saving; open an order's edit modal, hover the time field. 3. Open `/employees` → «Новый сотрудник», clear the hire date, submit, then type «01102026».
 Expect: 1 → empty fields read «ДД.ММ.ГГГГ» / «ЧЧ:ММ» (never «mm/dd/yyyy», never AM/PM); the digits fill 07.10.2026 and 14:30; the calendar is Russian, Monday first, the month capitalised; picking a day fills the field and the order summary. 2 → the optional time, when it holds a time, shows a «×» on hover; Escape closes the calendar, not the modal. 3 → «Дата найма обязательна» and the cursor in the day section, so the typed digits fill 01.10.2026. Labels above the fields name them (clicking a label focuses its field). No writes.
+
+### T-SMK-39 · Set and clear a warehouse threshold [happy]
+
+Steps: 1. A warehouse «Остатки»: find an untracked row (Порог «—») in «шт» with quantity Q > 0; click its pencil. 2. Type «2,5», «Сохранить». 3. Type Q, «Сохранить». 4. Pencil again → «Убрать порог». 5. Repeat 1–3 on a «кг» row with «2,5».
+Expect: 1 → dialog «Порог «Заканчивается»» · «<товар> · <склад>», «Сейчас на складе: Q шт», field «Порог необязательно» with «шт» after it, no «Убрать порог» yet. 2 → «Порог — только целое число» under the field, nothing saved. 3 → toast «Порог сохранён: «<товар>» — Q шт»; the row shows amber «Мало» and «Q шт» in «Порог»; the KPI «Заканчивается» +1. 4 → toast «Порог убран…»; «—», no pill; the KPI back. 5 → «2,5 кг» saves («2,5» in «Порог»). The Activity Log reads «Порог «Заканчивается» для «<товар> · <склад>» изменён: — → Q» (and «Q → —»).
 
 ### T-SMK-31 · Hygiene sweep [happy]
 
