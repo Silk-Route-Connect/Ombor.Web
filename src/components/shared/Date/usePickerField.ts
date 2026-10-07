@@ -47,7 +47,8 @@ const STATIC_SLOT_PROPS = {
  * draft of its own: a half-typed entry («07.1М.ГГГГ») is reported to the form as
  * "", and handing "" back must not wipe what the user is still typing — the
  * draft is replaced only when the form itself changes the value (a reset, a
- * default, a day capped by the page).
+ * default, a day capped by the page), or when the user leaves a field whose
+ * entry the form did not take.
  */
 export function usePickerField(
 	{
@@ -85,6 +86,20 @@ export function usePickerField(
 		}
 	};
 
+	const handleBlur = (event: React.FocusEvent<HTMLElement>) => {
+		onBlur?.();
+		const next = event.relatedTarget;
+		if (next instanceof Node && event.currentTarget.contains(next)) {
+			return;
+		}
+		// A caller may keep its own day instead of the entry (the Акт сверки ignores a
+		// half-typed day and caps a future one): once the user leaves the field it shows
+		// the day the page uses again, as the native input did.
+		if (fromPickerDate(draft, valueFormat) !== value) {
+			setDraft(toPickerDate(value, valueFormat));
+		}
+	};
+
 	// The FormFieldLabel above names the field: its sections live in a `group`
 	// (labelLink sets `aria-labelledby`), and `for` points at the hidden value
 	// input, which hands focus to the first section when the label is clicked.
@@ -105,7 +120,7 @@ export function usePickerField(
 				// Without a caller error the picker shows its own (an unreadable or half-filled entry).
 				error: error || undefined,
 				helperText,
-				onBlur,
+				onBlur: handleBlur,
 				sx,
 				slotProps: { input: labelHooks },
 			},
