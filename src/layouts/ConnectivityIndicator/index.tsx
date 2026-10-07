@@ -1,7 +1,7 @@
 import React, { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { observer } from "mobx-react-lite";
-import { ConnectivityStatus } from "stores/ConnectivityStore";
+import { ConnectivityStatus } from "stores/connectivityTypes";
 import { useStore } from "stores/StoreContext";
 
 import { Box, Fade, Popover } from "@mui/material";

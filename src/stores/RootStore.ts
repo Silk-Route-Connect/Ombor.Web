@@ -6,7 +6,8 @@ import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEm
 import { ActivityLogStore, IActivityLogStore } from "./ActivityLogStore";
 import { AlertStore, IAlertStore } from "./AlertStore";
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
-import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
+import { ConnectivityStore } from "./ConnectivityStore";
+import { IConnectivityStore } from "./connectivityTypes";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtReminderStore, IDebtReminderStore } from "./DebtReminderStore";
 import { DebtStore, IDebtStore } from "./DebtStore";

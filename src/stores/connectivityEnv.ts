@@ -9,6 +9,9 @@ export const HEARTBEAT_MS = 60_000;
 /** How long «Связь восстановлена» stays in the header. */
 export const RESTORED_FLASH_MS = 3_000;
 
+/** A request failing this soon after a recovery is the same outage relapsing, not a new one. */
+export const RELAPSE_MS = 10_000;
+
 /** The wait before re-check number `attempt` (0-based) of one outage. */
 export function recheckDelay(attempt: number): number {
 	return RECHECK_DELAYS_MS[Math.min(attempt, RECHECK_DELAYS_MS.length - 1)];

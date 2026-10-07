@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { ConnectivityStatus } from "stores/ConnectivityStore";
+import type { ConnectivityStatus } from "stores/connectivityTypes";
 import { ChipTokenKey } from "theme";
 
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";

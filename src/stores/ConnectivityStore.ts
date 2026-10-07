@@ -7,44 +7,27 @@ import {
 	ConnectivityEnv,
 	HEARTBEAT_MS,
 	recheckDelay,
+	RELAPSE_MS,
 	RESTORED_FLASH_MS,
 } from "./connectivityEnv";
-
-/** What the header shows: nothing, a problem, or a brief «Связь восстановлена». */
-export type ConnectivityStatus = "connected" | "offline" | "backendDown" | "restored";
-
-export interface IConnectivityStore {
-	/** True while the backend is unreachable (no response, timeout, gateway 502–504). */
-	isBackendDown: boolean;
-	/** True while the device has no network — until the backend answers again after it returns. */
-	isOffline: boolean;
-	/** True while either the device is offline or the backend is unreachable. */
-	isDisconnected: boolean;
-	status: ConnectivityStatus;
-	/** When the backend last answered before this outage (ms epoch); null if it never did. */
-	lastReachableAt: number | null;
-	/** When the next automatic re-check runs; null while none is armed (checking, offline, hidden tab). */
-	nextCheckAt: number | null;
-	isChecking: boolean;
-	/** Bumped on every return to connected — failed loads re-run on it. */
-	reconnects: number;
-	/** Probes the backend now («Проверить сейчас»). */
-	checkNow(): Promise<void>;
-}
+import { ConnectivityStatus, IConnectivityStore } from "./connectivityTypes";
 
 /**
  * Backend reachability for the header status and the offline gate (F-028).
  *
- * Fed by the axios interceptors via `ConnectivityBridge` — a network error, a
- * timeout or a gateway 502 / 503 / 504 marks the backend down; any other
- * response (a 500 included: one endpoint failing is not an outage) marks it up —
- * and by the browser's online / offline events. While it is down the store
- * re-checks `GET /health` itself with a backoff (5 → 10 → 20 → 30 s), so the
- * header and the gate lift without waiting for the user's next request; while
- * the device is offline it waits for the `online` event instead. While connected
- * a one-a-minute heartbeat probes only a quiet tab, so an outage shows before the
- * user presses «Сохранить» and an active tab costs no extra requests. Nothing is
- * probed while the tab is hidden; coming back to it re-checks at once.
+ * Fed by the axios interceptors via `ConnectivityBridge` (a network error, a
+ * timeout or a gateway 502–504 marks the backend down; any other response — a
+ * 500 included, one endpoint failing is not an outage — marks it up) and by the
+ * browser's online / offline events. While down it re-checks `GET /health` itself
+ * (5 → 10 → 20 → 30 s), so the header and the gate lift without the user's next
+ * request; offline it waits for the `online` event. While connected a once-a-minute
+ * heartbeat probes a quiet tab only, so an outage shows before «Сохранить». A
+ * hidden tab is never probed; coming back to it re-checks at once.
+ *
+ * A request failing within `RELAPSE_MS` of a recovery is the same outage
+ * relapsing (one bad route, a gateway still warming up): the backoff carries on
+ * and failed loads are not re-run again, so a route that keeps failing cannot
+ * hold the app in «Нет связи» with a retry every few seconds.
  */
 export class ConnectivityStore implements IConnectivityStore {
 	isBackendDown = false;
@@ -54,12 +37,16 @@ export class ConnectivityStore implements IConnectivityStore {
 	lastReachableAt: number | null = null;
 	nextCheckAt: number | null = null;
 	reconnects = 0;
+	reloadsOnReconnect = true;
 
 	private readonly env: ConnectivityEnv;
 	private readonly startedAt: number;
 	private lastResponseAt: number | null = null;
 	private lastProbeAt: number | null = null;
 	private attempt = 0;
+	private restoredAt: number | null = null;
+	/** Counts the interceptor's reports; a probe that saw it move was overtaken. */
+	private reports = 0;
 	private timer: number | null = null;
 	private restoredTimer: number | null = null;
 	private readonly unlisten: () => void;
@@ -75,6 +62,8 @@ export class ConnectivityStore implements IConnectivityStore {
 			| "lastResponseAt"
 			| "lastProbeAt"
 			| "attempt"
+			| "restoredAt"
+			| "reports"
 			| "timer"
 			| "restoredTimer"
 			| "unlisten"
@@ -86,6 +75,8 @@ export class ConnectivityStore implements IConnectivityStore {
 				lastResponseAt: false,
 				lastProbeAt: false,
 				attempt: false,
+				restoredAt: false,
+				reports: false,
 				timer: false,
 				restoredTimer: false,
 				unlisten: false,
@@ -117,18 +108,13 @@ export class ConnectivityStore implements IConnectivityStore {
 
 	/** Interceptor: a request failed for lack of a connection. */
 	reportDown(): void {
-		if (this.isBackendDown) {
-			return;
-		}
-		this.isBackendDown = true;
-		this.endRestored();
-		this.lastReachableAt = this.lastResponseAt;
-		this.attempt = 0;
-		this.schedule();
+		this.reports += 1;
+		this.markDown();
 	}
 
 	/** Interceptor: the backend answered (any status). */
 	reportUp(): void {
+		this.reports += 1;
 		this.lastResponseAt = this.env.now();
 		if (this.isDisconnected) {
 			this.restore();
@@ -142,8 +128,9 @@ export class ConnectivityStore implements IConnectivityStore {
 		this.cancelTimer();
 		this.isChecking = true;
 		this.lastProbeAt = this.env.now();
+		const reportsBefore = this.reports;
 		const result = await this.env.probe();
-		this.settle(result);
+		this.settle(result, this.reports !== reportsBefore);
 	}
 
 	/** Stops listening and every timer (tests; the app's store lives as long as the tab). */
@@ -153,7 +140,21 @@ export class ConnectivityStore implements IConnectivityStore {
 		this.endRestored();
 	}
 
-	private settle(result: HealthProbe): void {
+	private markDown(): void {
+		if (this.isBackendDown) {
+			return;
+		}
+		const relapse = this.restoredAt !== null && this.env.now() - this.restoredAt < RELAPSE_MS;
+		this.isBackendDown = true;
+		this.endRestored();
+		this.lastReachableAt = this.lastResponseAt;
+		this.attempt = relapse ? this.attempt + 1 : 0;
+		this.reloadsOnReconnect = !relapse;
+		this.schedule();
+	}
+
+	/** `overtaken`: a real request answered or failed while the probe was out — its word is newer. */
+	private settle(result: HealthProbe, overtaken: boolean): void {
 		this.isChecking = false;
 		if (result === "up") {
 			this.lastResponseAt = this.env.now();
@@ -162,10 +163,16 @@ export class ConnectivityStore implements IConnectivityStore {
 			this.handleOffline();
 			return;
 		}
+		if (overtaken) {
+			if (this.timer === null) {
+				this.schedule();
+			}
+			return;
+		}
 		if (result === "down") {
 			this.isOffline = false;
 			if (!this.isBackendDown) {
-				this.reportDown();
+				this.markDown();
 				return;
 			}
 		} else if (result === "up" || this.isOffline) {
@@ -213,8 +220,10 @@ export class ConnectivityStore implements IConnectivityStore {
 	private restore(): void {
 		this.isOffline = false;
 		this.isBackendDown = false;
-		this.attempt = 0;
-		this.reconnects += 1;
+		this.restoredAt = this.env.now();
+		if (this.reloadsOnReconnect) {
+			this.reconnects += 1;
+		}
 		this.endRestored();
 		this.isRestored = true;
 		this.restoredTimer = this.env.setTimer(this.endRestored, RESTORED_FLASH_MS);
