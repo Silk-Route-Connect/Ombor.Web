@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Measurement } from "models/product";
 import { measurementShort } from "utils/productUtils";
@@ -58,14 +58,38 @@ const ThresholdField: React.FC<ThresholdFieldProps> = ({
 	const notWhole =
 		heldDraft !== null && parseThresholdInput(heldDraft, fraction).kind === "notWhole";
 
-	const handleChange = (raw: string) => {
-		if (!isThresholdDraft(raw)) {
-			return;
-		}
+	const commit = (raw: string, allowFraction: boolean) => {
 		setDraft(raw);
-		const parsed = parseThresholdInput(raw, fraction);
+		const parsed = parseThresholdInput(raw, allowFraction);
 		onChange(parsed.kind === "value" ? parsed.value : parsed.kind === "empty" ? null : Number.NaN);
 	};
+
+	const handleChange = (raw: string) => {
+		if (isThresholdDraft(raw)) {
+			commit(raw, fraction);
+		}
+	};
+
+	// A line whose product changes keeps the text on screen and reads it again in
+	// the new unit: «2,5» typed for kg turns into a flagged «2,5 шт», and a
+	// flagged «2,5 шт» becomes 2.5 kg — never a hidden value the field no longer shows.
+	const shownFraction = useRef(fraction);
+	useEffect(() => {
+		const previous = shownFraction.current;
+		if (previous === fraction) {
+			return;
+		}
+		shownFraction.current = fraction;
+		const shown =
+			draft !== null && draftMatches(draft, value, previous) ? draft : formatThresholdInput(value);
+		if (shown !== "") {
+			commit(shown, fraction);
+		}
+	});
+
+	// Callers add their own slots (an accessible name); they merge with ours, never replace them.
+	const callerInput = (slotProps?.input ?? {}) as Record<string, unknown>;
+	const callerHtmlInput = (slotProps?.htmlInput ?? {}) as Record<string, unknown>;
 
 	return (
 		<TextField
@@ -87,8 +111,9 @@ const ThresholdField: React.FC<ThresholdFieldProps> = ({
 				input: {
 					onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.target.select(),
 					...(unit && { endAdornment: <InputAdornment position="end">{unit}</InputAdornment> }),
+					...callerInput,
 				},
-				htmlInput: { inputMode: fraction ? "decimal" : "numeric" },
+				htmlInput: { inputMode: fraction ? "decimal" : "numeric", ...callerHtmlInput },
 			}}
 		/>
 	);

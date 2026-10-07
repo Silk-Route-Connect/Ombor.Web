@@ -17,9 +17,10 @@ import { Box, Button, InputAdornment, Typography } from "@mui/material";
 /**
  * Product · quantity · threshold · unit cost · line value · remove — the header
  * captions share it. The cost column holds a nine-figure cost at the money-input
- * weight beside «UZS»; product names keep ~270px of the 880px modal.
+ * weight beside «UZS», the value column a twelve-figure line sum; product names
+ * keep ~270px of the 880px modal.
  */
-export const OPENING_LINE_GRID = "1fr 96px 96px 160px 120px 38px";
+export const OPENING_LINE_GRID = "1fr 92px 92px 160px 128px 38px";
 
 interface OpeningStockLineRowProps {
 	index: number;
@@ -107,6 +108,7 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 								input: {
 									endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
 								},
+								htmlInput: { "aria-label": t("warehouse.opening.quantity") },
 							}}
 						/>
 					)}
@@ -123,10 +125,11 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 							onBlur={field.onBlur}
 							measurement={measurement}
 							size="small"
-							placeholder="—"
+							placeholder={t("common.dash")}
 							disabled={disabled}
 							error={!!fieldState.error}
 							inlineHint={false}
+							slotProps={{ htmlInput: { "aria-label": t("warehouse.opening.threshold") } }}
 						/>
 					)}
 				/>
@@ -145,6 +148,7 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 								input: {
 									endAdornment: <UzsAdornment />,
 								},
+								htmlInput: { "aria-label": t("warehouse.opening.unitCost") },
 							}}
 						/>
 					)}
@@ -157,7 +161,7 @@ const OpeningStockLineRow: React.FC<OpeningStockLineRowProps> = ({
 						color: lineValue > 0 ? "text.primary" : "text.disabled",
 					}}
 				>
-					{lineValue > 0 ? formatCurrency(lineValue) : "—"}
+					{lineValue > 0 ? formatCurrency(lineValue) : t("common.dash")}
 				</Typography>
 				<Button
 					onClick={() => !onlyLine && onRemove()}
