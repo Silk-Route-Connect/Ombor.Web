@@ -35,6 +35,8 @@ export interface ActivitySentence {
 	after: string;
 }
 
+// The one field a stock row's setting changes, not its stock (DR-41).
+const THRESHOLD_FIELD = "lowStockThreshold";
 const NUMBERED_KINDS = new Set<ActivityEntityKind>([
 	"Sale",
 	"Supply",
@@ -167,11 +169,29 @@ function changeSummary(t: TFunction, change: ActivityChange | undefined): string
 	return rest > 0 ? `${head} ${t("activity.detail.more", { count: rest })}` : head;
 }
 
+/** A stock-row change that only set or cleared its «Заканчивается» threshold (DR-41). */
+const isThresholdOnly = (change: ActivityChange | undefined): boolean =>
+	!!change && change.fields.length > 0 && change.fields.every((f) => f.field === THRESHOLD_FIELD);
+
+/** «: — → 10» — a threshold change without repeating the field the sentence already names. */
+function thresholdChange(t: TFunction, change: ActivityChange | undefined): string {
+	const field = findField(change, THRESHOLD_FIELD);
+	return field
+		? t("activity.detail.status", {
+				from: shownValue(t, "Stock", THRESHOLD_FIELD, field.old),
+				to: shownValue(t, "Stock", THRESHOLD_FIELD, field.new),
+			})
+		: "";
+}
+
 function sentenceKey(item: ActivityItem, primary: ActivityChange | undefined): string {
 	const base = `activity.sentence.${item.kind}`;
 	if (item.kind === "AdjustmentCreated") {
 		const direction = currentValue(findField(primary, "direction"));
 		return direction === "Increase" || direction === "Decrease" ? `${base}.${direction}` : base;
+	}
+	if (item.kind === "StockChanged" && isThresholdOnly(primary)) {
+		return `${base}.threshold`;
 	}
 	if (item.kind === "UserUpdated") {
 		const active = findField(primary, "isActive");
@@ -214,6 +234,8 @@ function sentenceDetail(
 			return route(t, primary, "fromWallet", "toWallet");
 		case "OrderStatusChanged":
 			return statusChange(t, item, primary);
+		case "StockChanged":
+			return isThresholdOnly(primary) ? thresholdChange(t, primary) : changeSummary(t, primary);
 		default:
 			return item.kind.endsWith("Updated") ? changeSummary(t, primary) : "";
 	}
