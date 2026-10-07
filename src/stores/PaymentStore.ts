@@ -23,23 +23,25 @@ import { NotificationStore } from "./NotificationStore";
 
 export type PaymentTypeFilter = PaymentType | "all";
 
-/** Summary stat cards: income / expense totals + count over the filtered view. */
-export type PaymentSummary = {
+/** Payments per direction under the other filters — the direction cards' counts. */
+export type PaymentDirectionCounts = {
+	all: number;
 	income: number;
 	expense: number;
-	count: number;
 };
+
+export type PaymentDirectionFilter = PaymentDirection | "all";
 
 export interface IPaymentStore {
 	allPayments: Loadable<PaymentRecord[]>;
 	filteredPayments: Loadable<PaymentRecord[]>;
-	summary: PaymentSummary;
+	directionCounts: PaymentDirectionCounts;
 	walletOptions: { id: number; name: string }[];
 
 	searchTerm: string;
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
-	directionFilter: PaymentDirection | "all";
+	directionFilter: PaymentDirectionFilter;
 	dateRange: DateRangeValue;
 	isSaving: boolean;
 	isCreateOpen: boolean;
@@ -56,8 +58,7 @@ export interface IPaymentStore {
 	setSearch(term: string): void;
 	setTypeFilter(type: PaymentTypeFilter): void;
 	setWalletFilter(walletId: number | "all"): void;
-	setDirectionFilter(direction: PaymentDirection): void;
-	chooseDirection(direction: PaymentDirection | "all"): void;
+	setDirectionFilter(direction: PaymentDirectionFilter): void;
 	setDateRange(range: DateRangeValue): void;
 
 	openCreate(): void;
@@ -77,7 +78,7 @@ export class PaymentStore implements IPaymentStore {
 	searchTerm = "";
 	typeFilter: PaymentTypeFilter = "all";
 	walletFilter: number | "all" = "all";
-	directionFilter: PaymentDirection | "all" = "all";
+	directionFilter: PaymentDirectionFilter = "all";
 	dateRange: DateRangeValue = ALL_DATES;
 	isSaving = false;
 	isCreateOpen = false;
@@ -94,10 +95,10 @@ export class PaymentStore implements IPaymentStore {
 	}
 
 	/**
-	 * Period + type + wallet + search filtered, but NOT the direction toggle — the
-	 * scope the summary cards total over, so the Приход / Расход cards follow the
-	 * picked period and stay stable references you can toggle the table by (PAY-3).
-	 * The period filters client-side like every list: the full list is loaded anyway.
+	 * Period + type + wallet + search filtered, but NOT the direction — the scope
+	 * the direction cards count over, so each card says how many rows picking it
+	 * would show (PAY-3). The period filters client-side like every list: the full
+	 * list is loaded anyway.
 	 */
 	private get scopedPayments(): Loadable<PaymentRecord[]> {
 		if (!isReady(this.allPayments)) {
@@ -124,7 +125,7 @@ export class PaymentStore implements IPaymentStore {
 		return rows;
 	}
 
-	/** The table view — the scoped set plus the Приход / Расход direction toggle. */
+	/** The table view — the scoped set narrowed to the picked direction card. */
 	get filteredPayments(): Loadable<PaymentRecord[]> {
 		const rows = this.scopedPayments;
 		if (!isReady(rows)) {
@@ -135,20 +136,18 @@ export class PaymentStore implements IPaymentStore {
 			: rows.filter((p) => p.direction === this.directionFilter);
 	}
 
-	/** Income / expense / count over the scoped view (excludes the direction toggle). */
-	get summary(): PaymentSummary {
+	/**
+	 * Loaded payments per direction under the other filters. The list endpoint
+	 * serves no counts and the filters run client-side, so these count its rows.
+	 */
+	get directionCounts(): PaymentDirectionCounts {
 		const rows = this.scopedPayments;
 		if (!isReady(rows)) {
-			return { income: 0, expense: 0, count: 0 };
+			return { all: 0, income: 0, expense: 0 };
 		}
-		return rows.reduce(
-			(acc, p) => ({
-				income: acc.income + (p.direction === "Income" ? p.amount : 0),
-				expense: acc.expense + (p.direction === "Expense" ? p.amount : 0),
-				count: acc.count + 1,
-			}),
-			{ income: 0, expense: 0, count: 0 },
-		);
+		const count = (direction: PaymentDirection) =>
+			rows.filter((p) => p.direction === direction).length;
+		return { all: rows.length, income: count("Income"), expense: count("Expense") };
 	}
 
 	/** Distinct wallets seen across all payments — drives the wallet filter. */
@@ -252,15 +251,12 @@ export class PaymentStore implements IPaymentStore {
 		this.walletFilter = walletId;
 	}
 
-	/** Toggle the direction filter — clicking the active direction clears it (PAY-3). */
-	/** A summary-card click: picks a direction, or clears it when it is already on. */
-	setDirectionFilter(direction: PaymentDirection): void {
+	/**
+	 * A direction-card pick (the page's one direction filter): picking the active
+	 * Приход / Расход again goes back to «Все платежи» (PAY-3).
+	 */
+	setDirectionFilter(direction: PaymentDirectionFilter): void {
 		this.directionFilter = this.directionFilter === direction ? "all" : direction;
-	}
-
-	/** The «Все | Приход | Расход» control in the filter row: an explicit choice. */
-	chooseDirection(direction: PaymentDirection | "all"): void {
-		this.directionFilter = direction;
 	}
 
 	setDateRange(range: DateRangeValue): void {

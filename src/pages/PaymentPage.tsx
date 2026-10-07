@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaymentCreateModal from "components/payment/Form/PaymentCreateModal";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
+import PaymentDirectionCards from "components/payment/List/PaymentDirectionCards";
 import PaymentListTotals from "components/payment/List/PaymentListTotals";
-import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
 import { useTableOrder } from "components/shared/Table/tableOrder";
@@ -85,16 +85,14 @@ const PaymentPage: React.FC = observer(() => {
 		<Box>
 			<PaymentHeader
 				summary={
-					<PaymentSummaryStrip
-						summary={isReady(paymentStore.filteredPayments) ? paymentStore.summary : null}
-						directionFilter={paymentStore.directionFilter}
-						onToggle={paymentStore.setDirectionFilter}
+					<PaymentDirectionCards
+						counts={isReady(paymentStore.filteredPayments) ? paymentStore.directionCounts : null}
+						value={paymentStore.directionFilter}
+						onChange={paymentStore.setDirectionFilter}
 					/>
 				}
 				searchValue={paymentStore.searchTerm}
 				typeFilter={paymentStore.typeFilter}
-				directionFilter={paymentStore.directionFilter}
-				onDirectionChange={paymentStore.chooseDirection}
 				walletFilter={paymentStore.walletFilter}
 				walletOptions={paymentStore.walletOptions}
 				dateRange={paymentStore.dateRange}

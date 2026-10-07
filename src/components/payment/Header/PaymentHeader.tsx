@@ -8,8 +8,6 @@ import EntityFilterSelect, {
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
-import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
-import { PaymentDirection } from "models/payment";
 import { PAYMENT_TYPES, PaymentType } from "models/payment";
 import { PaymentTypeFilter } from "stores/PaymentStore";
 import { DateRangeValue } from "utils/dateRange";
@@ -23,17 +21,15 @@ import { Box } from "@mui/material";
 import { PAYMENT_TYPE_META } from "../PaymentPresentation";
 
 interface PaymentHeaderProps {
-	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	/** The direction cards — under the title row, above the filters (pattern 11). */
 	summary?: React.ReactNode;
 	searchValue: string;
 	typeFilter: PaymentTypeFilter;
-	directionFilter: PaymentDirection | "all";
 	walletFilter: number | "all";
 	walletOptions: { id: number; name: string }[];
 	dateRange: DateRangeValue;
 	onSearch: (value: string) => void;
 	onTypeChange: (value: PaymentTypeFilter) => void;
-	onDirectionChange: (value: PaymentDirection | "all") => void;
 	onWalletChange: (value: number | "all") => void;
 	onDateRangeChange: (range: DateRangeValue) => void;
 	onCreate: () => void;
@@ -45,19 +41,18 @@ interface PaymentHeaderProps {
 /**
  * Payments page header. Per locked pattern 11: dataset-level actions (create,
  * «Экспорт») sit on the title row; the view-shaping search + type + wallet
- * filters and the shared period filter sit on the filter row below.
+ * filters and the shared period filter sit on the filter row below. The
+ * direction is picked on the cards in the `summary` slot, not in this row.
  */
 const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 	summary,
 	searchValue,
 	typeFilter,
-	directionFilter,
 	walletFilter,
 	walletOptions,
 	dateRange,
 	onSearch,
 	onTypeChange,
-	onDirectionChange,
 	onWalletChange,
 	onDateRangeChange,
 	onCreate,
@@ -102,15 +97,6 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					value={searchValue}
 					onChange={onSearch}
 					placeholder={t("payment.searchPlaceholder")}
-				/>
-				<SegmentedControl<PaymentDirection | "all">
-					options={[
-						{ value: "all", label: t("payment.direction.All") },
-						{ value: "Income", label: t("payment.direction.Income") },
-						{ value: "Expense", label: t("payment.direction.Expense") },
-					]}
-					value={directionFilter}
-					onChange={onDirectionChange}
 				/>
 				<EntityFilterSelect<PaymentTypeFilter>
 					label={t("payment.filter.typeLabel")}
