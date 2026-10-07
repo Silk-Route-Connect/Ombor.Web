@@ -39,8 +39,3 @@ export type CreateTransferRequest = {
 	note: string | null;
 	lines: CreateTransferLine[];
 };
-
-/** Σ of line quantities — the «Единиц» figure (display arithmetic over served lines). */
-export function transferUnits(transfer: Transfer): number {
-	return transfer.lines.reduce((sum, line) => sum + line.quantity, 0);
-}

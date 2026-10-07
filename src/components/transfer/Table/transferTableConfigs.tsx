@@ -7,7 +7,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { COLUMN_WIDTH } from "components/shared/Table/DataTable/tableConfigs";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TFunction } from "i18next";
-import { Transfer, transferUnits } from "models/transfer";
+import { Transfer } from "models/transfer";
 import { transferDetailPath } from "routing/paths";
 
 /**
@@ -61,14 +61,6 @@ export function buildTransferColumns(t: TFunction): Column<Transfer>[] {
 			align: "right",
 			sortValue: (tr) => tr.lines.length,
 			renderCell: (tr) => <QuantityCell value={tr.lines.length} />,
-		},
-		{
-			key: "units",
-			headerName: t("transfer.table.units"),
-			width: COLUMN_WIDTH.quantity,
-			align: "right",
-			sortValue: (tr) => transferUnits(tr),
-			renderCell: (tr) => <QuantityCell value={transferUnits(tr)} />,
 		},
 	];
 }
