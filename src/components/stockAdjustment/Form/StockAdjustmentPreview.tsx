@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { AdjustmentDirection } from "models/stockAdjustment";
-import { designTokens, iconSize, numericSx, radius } from "theme";
+import { chipTokens, designTokens, iconSize, numericSx, radius } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -110,7 +110,8 @@ export const StockAdjustmentPreview: React.FC<{
 			</Box>
 			<Box sx={PREV_SEG}>
 				<Box sx={PREV_CAP}>{t("adjustment.form.previewChange")}</Box>
-				<Box sx={{ ...PREV_NUM, color: isDown ? "error.main" : "success.main" }}>
+				{/* Stock is not money: the change takes the direction's chip tone, never green / red. */}
+				<Box sx={{ ...PREV_NUM, color: chipTokens[isDown ? "stockOut" : "stockIn"].color }}>
 					{isDown ? "−" : "+"}
 					{formatQuantity(quantity)}
 					<PrevUnit>{unit}</PrevUnit>

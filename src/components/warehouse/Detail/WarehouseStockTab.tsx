@@ -15,7 +15,7 @@ import { ALL_CATEGORIES, WarehouseStockFilters } from "hooks/warehouse/useWareho
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
+import { formatCurrency } from "utils/formatCurrency";
 import { matchesStockFilter, StockFilter, StockLevel } from "utils/productFilters";
 import { measurementShort } from "utils/productUtils";
 import { matchesSearch } from "utils/stringUtils";
@@ -216,9 +216,8 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 					!isFiltering && (
 						<tr className="total">
 							<td colSpan={3}>{t("warehouse.stock.total")}</td>
-							<Box component="td" className="r" sx={numericSx}>
-								{formatQuantity(warehouse.totalUnits)}
-							</Box>
+							{/* No quantity total: rows mix kg, pieces and tonnes (owner decision 2026-10-07). */}
+							<td />
 							<td />
 							<Box component="td" className="r" sx={numericSx}>
 								{formatCurrency(warehouse.stockValue)}

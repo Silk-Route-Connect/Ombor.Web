@@ -141,7 +141,6 @@
   "warehouse.opening.submit": "Записать остаток",
   "warehouse.opening.commitNote": "После записи изменить нельзя — ошибку исправляют корректировкой остатка.",
   "warehouse.opening.summaryPositions": "Позиций",
-  "warehouse.opening.summaryUnits": "Всего единиц",
   "warehouse.opening.summaryValue": "Стоимость партии",
   "warehouse.opening.footerSummary": "{{count}} поз. · {{value}} UZS",
   "warehouse.opening.note": "Примечание",

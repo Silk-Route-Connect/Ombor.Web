@@ -93,7 +93,6 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 	const stockedIds = useMemo(() => new Set(stock.map((s) => s.productId)), [stock]);
 
 	const completeLines = (watchedItems ?? []).filter((l) => l.productId > 0 && l.quantity > 0);
-	const totalUnits = completeLines.reduce((sum, l) => sum + l.quantity, 0);
 	const batchValue = completeLines.reduce((sum, l) => sum + l.quantity * l.unitCost, 0);
 
 	// Semantic "add at least one line" message shown inline near the table after a
@@ -224,11 +223,7 @@ const OpeningStockModal: React.FC<OpeningStockModalProps> = ({
 				</Typography>
 			)}
 
-			<OpeningStockSummary
-				positions={completeLines.length}
-				totalUnits={totalUnits}
-				batchValue={batchValue}
-			/>
+			<OpeningStockSummary positions={completeLines.length} batchValue={batchValue} />
 
 			<FormField label={t("warehouse.opening.note")} sx={{ mt: "20px" }}>
 				<Controller

@@ -3,23 +3,21 @@ import { useTranslation } from "react-i18next";
 import { fieldCaptionSx } from "components/shared/Forms/FormFieldLabel";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { designTokens, numericSx, radius } from "theme";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
+import { formatCurrency } from "utils/formatCurrency";
 
 import { Box, Typography } from "@mui/material";
 
 interface OpeningStockSummaryProps {
 	positions: number;
-	totalUnits: number;
 	/** Σ quantity × unit cost of the complete lines — the draft batch, before it is recorded. */
 	batchValue: number;
 }
 
-/** The draft batch in figures: positions · units · value at the entered costs. */
-const OpeningStockSummary: React.FC<OpeningStockSummaryProps> = ({
-	positions,
-	totalUnits,
-	batchValue,
-}) => {
+/**
+ * The draft batch in figures: positions · value at the entered costs. No unit
+ * total — lines mix kg, pieces and tonnes (owner decision 2026-10-07).
+ */
+const OpeningStockSummary: React.FC<OpeningStockSummaryProps> = ({ positions, batchValue }) => {
 	const { t } = useTranslation();
 
 	return (
@@ -42,12 +40,6 @@ const OpeningStockSummary: React.FC<OpeningStockSummaryProps> = ({
 					{positions}
 				</Typography>
 			</Box>
-			<Box>
-				<Typography sx={fieldCaptionSx}>{t("warehouse.opening.summaryUnits")}</Typography>
-				<Typography sx={{ ...numericSx, fontWeight: 700, fontSize: 16, mt: "2px" }}>
-					{formatQuantity(totalUnits)}
-				</Typography>
-			</Box>
 			<Box sx={{ flexGrow: 1 }} />
 			<Box sx={{ textAlign: "right" }}>
 				<Typography sx={fieldCaptionSx}>{t("warehouse.opening.summaryValue")}</Typography>
@@ -57,7 +49,6 @@ const OpeningStockSummary: React.FC<OpeningStockSummaryProps> = ({
 						fontWeight: 700,
 						fontSize: 16,
 						mt: "2px",
-						color: "primary.main",
 					}}
 				>
 					{formatCurrency(batchValue)}
