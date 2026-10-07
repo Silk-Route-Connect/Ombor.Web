@@ -51,7 +51,6 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 		setShownRow(row);
 	}
 	const { form, canSave, submit } = useStockThresholdForm({ row, isSaving, onSave });
-	const onKeyDown = useFormKeyboardSubmit(submit, isSaving);
 	const { control, formState } = form;
 	const { discardOpen, requestClose, cancelDiscard, confirmDiscard } = useDirtyClose(
 		formState.isDirty,
@@ -59,7 +58,8 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 		onClose,
 	);
 
-	// An unchanged threshold closes without a request or a «saved» toast.
+	// An unchanged threshold closes without a request or a «saved» toast — from the
+	// button and from Enter alike.
 	const handleSave = (): void => {
 		if (!formState.isDirty) {
 			onClose();
@@ -67,6 +67,7 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 		}
 		void submit();
 	};
+	const onKeyDown = useFormKeyboardSubmit(handleSave, isSaving);
 
 	const tracked = shownRow?.lowStockThreshold != null;
 	const offline = connectivityStore.isBackendDown;
@@ -94,6 +95,7 @@ const StockThresholdDialog: React.FC<StockThresholdDialogProps> = ({
 			subtitle={shownRow ? `${shownRow.productName} · ${warehouseName}` : undefined}
 			tile={recordTile("Warehouse")}
 			busy={isSaving}
+			restoreFocus
 			onClose={requestClose}
 			onKeyDown={onKeyDown}
 			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}

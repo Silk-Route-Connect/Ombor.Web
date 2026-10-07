@@ -136,8 +136,8 @@ Expect: 1 → empty fields read «ДД.ММ.ГГГГ» / «ЧЧ:ММ» (never «
 
 ### T-SMK-39 · Set and clear a warehouse threshold [happy]
 
-Steps: 1. A warehouse «Остатки»: find an untracked row (Порог «—») in «шт» with quantity Q > 0; click its pencil. 2. Type «2,5», «Сохранить». 3. Type Q, «Сохранить». 4. Pencil again → «Убрать порог». 5. Repeat 1–3 on a «кг» row with «2,5».
-Expect: 1 → dialog «Порог «Заканчивается»» · «<товар> · <склад>», «Сейчас на складе: Q шт», field «Порог необязательно» with «шт» after it, no «Убрать порог» yet. 2 → «Порог — только целое число» under the field, nothing saved. 3 → toast «Порог сохранён: «<товар>» — Q шт»; the row shows amber «Мало» and «Q шт» in «Порог»; the KPI «Заканчивается» +1. 4 → toast «Порог убран…»; «—», no pill; the KPI back. 5 → «2,5 кг» saves («2,5» in «Порог»). The Activity Log reads «Порог «Заканчивается» для «<товар> · <склад>» изменён: — → Q» (and «Q → —»).
+Steps: 1. A warehouse «Остатки»: find an untracked row (Порог «—») in «шт» with quantity Q > 0; click its pencil. 2. Type «2,5», «Сохранить». 3. Type Q, «Сохранить». 4. Pencil again → «Убрать порог». 5. Repeat 1–3 on a «кг» row with «2,5». 6. Tab to a row's pencil, Enter; Enter again without changing anything; reopen it and press Escape.
+Expect: 1 → dialog «Порог «Заканчивается»» · «<товар> · <склад>», «Сейчас на складе: Q шт», field «Порог необязательно» with «шт» after it, no «Убрать порог» yet. 2 → «Порог — только целое число» under the field, nothing saved. 3 → toast «Порог сохранён: «<товар>» — Q шт»; the row shows amber «Мало» and «Q шт» in «Порог»; the KPI «Заканчивается» +1. 4 → toast «Порог убран…»; «—», no pill; the KPI back. 5 → «2,5 кг» saves («2,5» in «Порог»). 6 → the unchanged Enter closes the dialog with no request and no toast; after every close (save, Enter, Escape) the focus is back on that row's pencil. The Activity Log reads «Порог «Заканчивается» для «<товар> · <склад>» изменён: — → Q» (and «Q → —»).
 
 ### T-SMK-31 · Hygiene sweep [happy]
 

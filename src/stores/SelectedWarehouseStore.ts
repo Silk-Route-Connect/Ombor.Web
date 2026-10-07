@@ -120,27 +120,36 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 			return false;
 		}
 
-		const result = await withSaving(this, () =>
-			WarehouseApi.setLowStockThreshold(warehouse.id, row.productId, { lowStockThreshold: value }),
-		);
+		// The re-read stays inside the saving window: until the served count is back
+		// the dialog's buttons stay disabled, so a second click cannot send another PUT.
+		const result = await withSaving(this, async () => {
+			const updated = await WarehouseApi.setLowStockThreshold(warehouse.id, row.productId, {
+				lowStockThreshold: value,
+			});
+			// The KPI reads the warehouse's served `lowStockCount`, never a count of the rows here.
+			const refreshed = await tryRun(() => WarehouseApi.getById(warehouse.id));
+			return { updated, refreshed };
+		});
 		if (result.status === "fail") {
 			this.notificationStore.notifyApiError(result, "warehouse.error.threshold");
 			return false;
 		}
 
-		// The KPI reads the warehouse's served `lowStockCount`, never a count of the rows here.
-		const refreshed = await tryRun(() => WarehouseApi.getById(warehouse.id));
+		const { updated, refreshed } = result.data;
 		runInAction(() => {
-			const updated = result.data;
+			if (this.thresholdRow === row) {
+				this.thresholdRow = null;
+			}
+			// The user may have left for another warehouse while the save was in flight.
+			if (!isPresent(this.warehouse) || this.warehouse.id !== warehouse.id) {
+				return;
+			}
 			if (isReady(this.stock)) {
 				this.stock = this.stock.map((r) => (r.productId === updated.productId ? updated : r));
 			}
-			if (refreshed.status === "success" && isPresent(this.warehouse)) {
-				if (this.warehouse.id === refreshed.data.id) {
-					this.warehouse = refreshed.data;
-				}
+			if (refreshed.status === "success") {
+				this.warehouse = refreshed.data;
 			}
-			this.thresholdRow = null;
 		});
 
 		const unit = measurementShort(i18next.t, row.measurement);
@@ -152,6 +161,10 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 						threshold: `${formatQuantity(value)} ${unit}`.trim(),
 					}),
 		);
+		// Saved, but the warehouse's «Заканчивается» count could not be re-read.
+		if (refreshed.status === "fail") {
+			this.notificationStore.notifyLoadError(refreshed, "warehouse.error.getById");
+		}
 		return true;
 	}
 
