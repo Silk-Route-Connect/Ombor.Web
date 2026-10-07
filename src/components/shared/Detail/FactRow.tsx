@@ -6,7 +6,7 @@ import { figuresSx, numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
 import type { SxProps, Theme } from "@mui/material";
-import { Box } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 
 /** `FactList` spaces and divides its rows through this class. */
 const FACT_ROW_CLASS = "fact-row";
@@ -185,8 +185,6 @@ export const FactList: React.FC<FactListProps> = ({
 );
 
 /** A hairline between two groups of an undivided list (what was billed · what was paid). */
-export const FactDivider: React.FC = () => (
-	<Box role="separator" sx={{ height: "1px", bgcolor: "divider", my: "6px" }} />
-);
+export const FactDivider: React.FC = () => <Divider sx={{ my: "6px" }} />;
 
 export default FactRow;

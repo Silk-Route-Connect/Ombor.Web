@@ -69,9 +69,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
 			) : letter ? (
 				<Box
 					component="span"
-					role={alt ? "img" : undefined}
-					aria-label={alt || undefined}
-					aria-hidden={alt ? undefined : true}
+					aria-hidden
 					sx={{ fontWeight: 700, fontSize: Math.min(Math.round(size * 0.42), 40), lineHeight: 1 }}
 				>
 					{letter}

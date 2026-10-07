@@ -19,9 +19,15 @@ interface StatCardGridProps {
  */
 const StatCardGrid: React.FC<StatCardGridProps> = ({ columns, children, label, sx }) => (
 	<Box
-		role={label ? "group" : undefined}
+		// A labelled row of toggle cards is a fieldset, so it is announced as one group.
+		component={label ? "fieldset" : "div"}
 		aria-label={label}
 		sx={{
+			border: 0,
+			p: 0,
+			mx: 0,
+			mt: 0,
+			minWidth: 0,
 			display: "grid",
 			gridTemplateColumns:
 				columns >= 4
