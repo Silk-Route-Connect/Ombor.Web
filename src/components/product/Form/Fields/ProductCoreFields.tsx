@@ -114,7 +114,9 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							<ProductMeasurementField control={control} disabled={disabled} />
 							<ProductStockAlertField control={control} disabled={disabled} />
 						</Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
+						<Typography
+							sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45, textWrap: "pretty" }}
+						>
 							{t("product.form.lowStockHelper")}
 						</Typography>
 					</Stack>
