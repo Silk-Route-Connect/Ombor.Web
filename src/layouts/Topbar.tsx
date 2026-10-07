@@ -9,7 +9,7 @@ import { UI_LANGUAGES } from "i18n/languages";
 import { observer } from "mobx-react-lite";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
-import { radius } from "theme";
+import { layout, radius } from "theme";
 
 import AddIcon from "@mui/icons-material/Add";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
@@ -30,9 +30,9 @@ import {
 	Tooltip,
 } from "@mui/material";
 
-import OfflineIndicator from "./OfflineIndicator";
+import ConnectivityIndicator from "./ConnectivityIndicator";
 
-export const TOPBAR_HEIGHT = 60;
+export const TOPBAR_HEIGHT = layout.topbarHeight;
 
 /** The same words and glyphs as each page's own create button and type chip. */
 const CREATE_ACTIONS: Array<{
@@ -122,7 +122,7 @@ const Topbar: React.FC = observer(() => {
 				))}
 			</Menu>
 
-			<OfflineIndicator />
+			<ConnectivityIndicator />
 
 			<NotificationBell />
 

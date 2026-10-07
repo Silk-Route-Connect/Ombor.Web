@@ -98,6 +98,18 @@ export const typeScale = {
  */
 export const layout = {
 	contentMax: 1600,
+	/** The app header's height — a modal clears it while the header shows the connection status. */
+	topbarHeight: 60,
 	/** CSS variable holding the sidebar's current width (set by the sidebar; toasts sit past it). */
 	sidebarWidthVar: "--app-sidebar-width",
+} as const;
+
+/**
+ * Paper `sx` keeping a modal below the app header — while the header's connection
+ * status sits above the modal layer, a tall modal would otherwise run under it.
+ * (MUI caps a modal at the viewport less 64px; this caps it below the header.)
+ */
+export const dialogBelowHeaderSx = {
+	mt: `${layout.topbarHeight + 16}px`,
+	maxHeight: `calc(100% - ${layout.topbarHeight + 16 + 32}px)`,
 } as const;

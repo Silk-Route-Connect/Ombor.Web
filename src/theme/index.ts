@@ -29,6 +29,7 @@ export { designTokens } from "./palette";
 export type { DialogSize } from "./tokens";
 export {
 	controlSize,
+	dialogBelowHeaderSx,
 	dialogPaperSx,
 	dialogWidth,
 	figuresSx,

@@ -83,7 +83,7 @@ export class RootStore {
 		this.authStore = new AuthStore();
 		// Registers the ConnectivityBridge reporters used by the http error
 		// interceptor — construct it so the wiring exists before any request.
-		this.connectivityStore = new ConnectivityStore(this.notificationStore);
+		this.connectivityStore = new ConnectivityStore();
 		this.createDataStores();
 	}
 

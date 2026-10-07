@@ -1,6 +1,8 @@
 import React from "react";
 import { KindPresentation } from "components/shared/Chip/movementKind";
-import { dialogPaperSx, DialogSize } from "theme";
+import { observer } from "mobx-react-lite";
+import { useStore } from "stores/StoreContext";
+import { dialogBelowHeaderSx, dialogPaperSx, DialogSize } from "theme";
 
 import type { SxProps, Theme } from "@mui/material";
 import { Box, Dialog, DialogContent, LinearProgress } from "@mui/material";
@@ -43,57 +45,68 @@ export interface FormDialogProps {
  * subtitle, record tile, ✕), a save progress bar that overlays the header rule
  * without shifting the form, the themed body (dividers, padding, scroll shadows)
  * and the footer — plus the discard confirm. Every create / edit / detail modal
- * renders through it so they share one anatomy.
+ * renders through it so they share one anatomy. While the header shows the
+ * connection status (drawn above the backdrop, so the user sees why a save is
+ * blocked) the paper keeps below the header instead of running under the pill.
  */
-const FormDialog: React.FC<FormDialogProps> = ({
-	open,
-	size,
-	title,
-	subtitle,
-	tile,
-	busy = false,
-	onClose,
-	onKeyDown,
-	footer,
-	bodyHeight,
-	contentSx,
-	discard,
-	restoreFocus = false,
-	children,
-}) => (
-	<>
-		<Dialog
-			open={open}
-			onClose={onClose}
-			disableEscapeKeyDown={busy}
-			disableRestoreFocus={!restoreFocus}
-			onKeyDown={onKeyDown}
-			slotProps={{ paper: { sx: dialogPaperSx(size) } }}
-		>
-			<FormDialogHeader
-				title={title}
-				subtitle={subtitle}
-				tile={tile}
-				disabled={busy}
-				onClose={onClose}
-			/>
-			{busy && (
-				<Box sx={{ position: "relative", height: 0, zIndex: 1 }}>
-					<LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />
-				</Box>
-			)}
-			<DialogContent
-				sx={[
-					bodyHeight != null && { height: bodyHeight },
-					...(Array.isArray(contentSx) ? contentSx : [contentSx]),
-				]}
-			>
-				{children}
-			</DialogContent>
-			{footer}
-		</Dialog>
-		{discard && <DiscardChangesDialog {...discard} />}
-	</>
+const FormDialog: React.FC<FormDialogProps> = observer(
+	({
+		open,
+		size,
+		title,
+		subtitle,
+		tile,
+		busy = false,
+		onClose,
+		onKeyDown,
+		footer,
+		bodyHeight,
+		contentSx,
+		discard,
+		restoreFocus = false,
+		children,
+	}) => {
+		const { connectivityStore } = useStore();
+		const belowHeader = connectivityStore.status !== "connected";
+
+		return (
+			<>
+				<Dialog
+					open={open}
+					onClose={onClose}
+					disableEscapeKeyDown={busy}
+					disableRestoreFocus={!restoreFocus}
+					onKeyDown={onKeyDown}
+					slotProps={{
+						paper: { sx: [dialogPaperSx(size), belowHeader && dialogBelowHeaderSx] },
+					}}
+				>
+					<FormDialogHeader
+						title={title}
+						subtitle={subtitle}
+						tile={tile}
+						disabled={busy}
+						onClose={onClose}
+					/>
+					{busy && (
+						<Box sx={{ position: "relative", height: 0, zIndex: 1 }}>
+							<LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} />
+						</Box>
+					)}
+					<DialogContent
+						sx={[
+							bodyHeight != null && { height: bodyHeight },
+							...(Array.isArray(contentSx) ? contentSx : [contentSx]),
+						]}
+					>
+						{children}
+					</DialogContent>
+					{footer}
+				</Dialog>
+				{discard && <DiscardChangesDialog {...discard} />}
+			</>
+		);
+	},
 );
 
 export default FormDialog;
