@@ -5,7 +5,7 @@ import { formatCurrency, formatQuantity } from "./formatCurrency";
 import { formatOptionalNumber } from "./formatEntityId";
 import { measurementShort } from "./productUtils";
 
-/** «Просрочено 3 долга клиентов на 4 500 000 UZS», «Заканчиваются 7 товаров», «Сегодня доставить 2 заказа». */
+/** «Просрочено 3 долга клиентов на 4 500 000 UZS», «Заканчиваются 7 позиций», «Сегодня доставить 2 заказа». */
 export const alertSentence = (t: TFunction, alert: NotificationAlert): string =>
 	t(`notifications.alert.${alert.kind}`, {
 		count: alert.count,

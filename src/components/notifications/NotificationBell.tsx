@@ -20,7 +20,7 @@ import AlertBlock from "./AlertBlock";
 /**
  * The topbar bell: a badge with the alerts that grew since the user last
  * marked them read, and a popover with each alert in plain words («Заканчиваются
- * 7 товаров») leading to the list narrowed to it. Re-read on open, on window
+ * 7 позиций») leading to the list narrowed to it. Re-read on open, on window
  * focus and every 5 minutes.
  */
 const NotificationBell: React.FC = observer(() => {
