@@ -4,7 +4,7 @@ The audit trail read back (mvp-plan §17, R26–R28): the «Журнал дей�
 
 ## Surfaces
 
-- `/activity-log` (sidebar «Журнал действий») — `PageHeader` «Журнал действий» + subtitle; filter row «Кто: Все» · «Что: Все записи» · «Действие: Все» · (right) «Дата: Этот месяц»; one card with the timeline: day bands («Сегодня, DD.MM.YYYY», «Вчера, …», then «DD.MM.YYYY»), one row per operation — time «HH:mm» · actor (or grey «Система») · one sentence with the record as a link · money figure «… UZS» · chevron; footer «Показано N из M» + «Показать ещё».
+- `/activity-log` (sidebar «Журнал действий») — `PageHeader` «Журнал действий» + subtitle; filter row «Кто: Все» · «Что: Все» · «Действие: Все» · (right) «Дата: Этот месяц»; one card with the timeline: day bands («Сегодня, DD.MM.YYYY», «Вчера, …», then «DD.MM.YYYY»), one row per operation — time «HH:mm» · the record's tile (a document in its type hue — Продажа teal, Поставка saffron; a payment green / red by direction; anything else a neutral tile with its module icon) · the actor's initials avatar + name (or a gear and grey «Система») · one sentence with the record as a link · money figure «… UZS» · chevron; footer «Показано N из M» + «Показать ещё».
 - An opened row — «Что изменилось · N записей», then one card per record the operation changed: kind («Продажа», «Позиция документа», «Остаток на складе», «Откуда деньги», «Куда пошли деньги», …) · the record · action pill («Создание» / «Изменение» / «В архив» / «Из архива» / «Удаление») · a table «Поле · Было · Стало» (a created record «Поле · Значение», a deleted one «Поле · Значение» with the old values). Ten records at first, «Показать ещё (N)» for more.
 - «История» — a tab on Product, Partner, Wallet, Warehouse (not while an empty warehouse shows its «Начальный остаток» panel) and Employee («Выплаты» | «История»); a card «История изменений» at the bottom of the Order detail and of the Sale / Supply / refund detail. Same timeline, narrowed to the record and its lines, 20 per page.
 
@@ -22,7 +22,8 @@ The audit trail read back (mvp-plan §17, R26–R28): the «Журнал дей�
 | A payment's amount is green / red, a sale's is ink; a new partner's opening balance is signed («+150 000» green = we owe them) | Direction amounts only (conventions → Money); partner balances partner-side (DR-27) |
 | «Кто» lists deactivated users as «Имя (деактивирован)» | R41 — they stay attributed |
 | «Действие: Изменение» does not list sales and payments that only settled a document | Contract: without «Что», a settlement update is not an edit |
-| A product's card has no «Розничная цена», and «Минимальный остаток» / «Штук в упаковке» at 0 read «—» (a new product without them shows no such rows) | `retailPrice` is a legacy column no screen shows or edits; 0 means «not set» there, as on the product page |
+| A product's card has no «Розничная цена», and «Минимальный остаток» / «Штук в упаковке» at 0 read «—» (a new product without them shows no such rows) | `retailPrice` is a legacy column no screen shows or edits; 0 means «not set» there, as on the product page. «Минимальный остаток» appears only on entries before 2026-10-07 — the product no longer carries one (DR-41) |
+| A warehouse threshold change reads «Порог «Заканчивается» для «<товар> · <склад>» изменён: — → 10», the record in plain bold; its card is «Остаток на складе» with «Порог «Заканчивается»» (0 reads «0», not «—») | DR-41: the threshold is a setting of the stock row, audited as `StockChanged`; a stock row has no page of its own; there 0 means «alert at zero» |
 | On a phone the row stacks: time, then actor and sentence, then the amount | The sentence keeps the card's width instead of wrapping word by word |
 | «История» of a product, partner, wallet, warehouse or employee created before 2026-10-04 reads «Изменений пока нет» | Master data has been audited only since 2026-10-04; a record's history lists changes to the record itself, not the documents that use it |
 
@@ -49,13 +50,18 @@ Steps: open its row.
 Expect: cards in order — «Продажа · №N · Создание» (Номер «№N», Партнёр, Статус оплаты «Оплачено», Сумма, Оплачено, Тип документа «Продажа», Склад, Дата «DD.MM.YYYY HH:mm»), then «Позиция документа» per line (Товар, Количество, Цена), «Платёж», «Откуда деньги» (Источник «Касса»), «Куда пошли деньги» (Назначение «Оплата документа», Документ «№N»), «Остаток на складе» «Остаток · 40 · 28». No raw enum names («Closed», «Wallet») and no ids anywhere.
 
 ### T-ACT-05 · Filters narrow on the server [happy]
-Steps: 1. «Что: Товар». 2. «Действие: В архив». 3. «Кто: <second user>». 4. «Дата: Период…» a range with no activity.
+Steps: 1. «Что: Товар». 2. «Действие: В архив». 3. «Кто: <second user>». 4. «Дата: Период…» — type a range with no activity into «С» / «По» («ДД.ММ.ГГГГ»), «Применить».
 Expect: each change reloads (spinner, then rows); every row matches all filters; 4→ «Ничего не найдено» · «За выбранный период с этими фильтрами действий нет — измените период или фильтры.», no button.
 
 ### T-ACT-06 · «История» on a detail page [happy] ✍
 Pre: T-ACT-03 product.
-Steps: 1. Product detail → tab «История». 2. With the tab open, ⋮ → edit → change «Минимальный остаток», save.
+Steps: 1. Product detail → tab «История». 2. With the tab open, ⋮ → edit → change «Описание», save.
 Expect: 1→ only operations that changed this product record (its creation, the T-ACT-03 price edit) — sales and stock movements of the product stay on its other tabs; 20 per page. 2→ the new edit appears at the top without leaving the tab. Partner / Wallet / Warehouse / Employee tabs behave the same; the Order card also lists its line and status changes, the Sale / Supply card the document's creation and every payment that settled it.
+
+### T-ACT-07 · A warehouse threshold change [happy] ✍
+Pre: «QA Склад А» holds a run-scoped product with no threshold (Порог «—»).
+Steps: 1. Its «Остатки» → the row's pencil → «Порог» 10 → «Сохранить». 2. `/activity-log`, find the row; open it. 3. Back, pencil → «Убрать порог»; reload the log.
+Expect: 2→ «Порог «Заканчивается» для «<товар> · QA Склад А» изменён: — → 10» (the record plain bold, no link); the card «Остаток на складе · <товар> · QA Склад А · Изменение» with «Порог «Заканчивается» · — · 10». 3→ a new row «… изменён: 10 → —». An opening stock entered with a «Порог» shows the same field on its «Остаток на складе · Создание» card.
 
 ## Edge & negative
 

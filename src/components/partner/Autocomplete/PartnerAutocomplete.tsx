@@ -11,6 +11,8 @@ interface PartnerAutocompleteProps {
 	type: PartnerType;
 	value: Partner | null;
 	size?: AutocompleteSize;
+	error?: boolean;
+	helperText?: React.ReactNode;
 	onChange(value: Partner | null): void;
 }
 
@@ -18,6 +20,8 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 	type,
 	value,
 	size,
+	error,
+	helperText,
 	onChange,
 }) => {
 	const { t } = useTranslation();
@@ -37,11 +41,12 @@ const PartnerAutocomplete: React.FC<PartnerAutocompleteProps> = ({
 
 	return (
 		<EntityAutocomplete<Partner>
-			label={t("partnerAutocomplete.partner")}
 			placeholder={t("partnerAutocomplete.search")}
 			options={readyOr(options, [])}
 			value={value}
 			size={size}
+			error={error}
+			helperText={helperText}
 			onChange={onChange}
 			loading={isLoading(options)}
 			disabled={isLoading(options)}

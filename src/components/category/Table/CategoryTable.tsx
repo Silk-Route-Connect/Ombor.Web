@@ -7,7 +7,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Category } from "models/category";
 
-import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 
 interface CategoryTableProps {
 	data: Loadable<Category[]>;
@@ -50,7 +50,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
 			defaultSort={{ key: "name", order: "asc" }}
 			empty={
 				<TableEmptyState
-					icon={<LocalOfferOutlinedIcon />}
+					icon={<CategoryOutlinedIcon />}
 					title={isSearch ? t("category.empty.searchTitle") : t("category.empty.title")}
 					hint={
 						isSearch

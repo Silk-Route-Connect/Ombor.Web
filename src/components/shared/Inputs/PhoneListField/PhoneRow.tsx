@@ -1,9 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { formatUzNational, UZ_COUNTRY_PREFIX, uzPhoneToStored } from "utils/phoneUtils";
+import { designTokens } from "theme";
+import { formatUzNational, uzPhoneToStored } from "utils/phoneUtils";
 
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { Box, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
+
+import UzPhonePrefix from "./UzPhonePrefix";
 
 export type PhoneRowField = {
 	id: string;
@@ -49,24 +52,22 @@ export const PhoneRow: React.FC<PhoneRowProps> = ({
 					slotProps={{
 						input: {
 							inputMode: "numeric",
-							startAdornment: (
-								<InputAdornment position="start">
-									<Typography sx={{ color: "text.secondary", fontWeight: 600 }}>
-										{UZ_COUNTRY_PREFIX}
-									</Typography>
-								</InputAdornment>
-							),
+							startAdornment: <UzPhonePrefix />,
 							endAdornment: canDelete ? (
 								<InputAdornment position="end">
 									<IconButton
 										aria-label={t("remove")}
 										size="small"
-										color="error"
 										onClick={() => onRemove(row.id)}
 										disabled={disabled}
 										edge="end"
+										// The neutral remove glyph of every line editor; red only on hover.
+										sx={{
+											color: designTokens.fg3,
+											"&:hover": { color: "error.main", bgcolor: designTokens.errorBg },
+										}}
 									>
-										<DeleteIcon />
+										<DeleteOutlineIcon sx={{ fontSize: 18 }} />
 									</IconButton>
 								</InputAdornment>
 							) : undefined,

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import NotFoundDialog from "components/shared/LoadState/NotFoundDialog";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
@@ -151,6 +152,7 @@ const StockAdjustmentPage: React.FC = observer(() => {
 			<NotFoundDialog
 				open={opened === null}
 				title={t("adjustment.detail.title")}
+				tile={recordTile("Adjustment")}
 				notFound={{ title: t("adjustment.detail.notFound"), backTo: PATHS.adjustments }}
 				onClose={detailRoute.close}
 			/>

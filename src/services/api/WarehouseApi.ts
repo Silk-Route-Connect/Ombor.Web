@@ -1,6 +1,7 @@
 import {
 	AddOpeningStockRequest,
 	CreateWarehouseRequest,
+	SetLowStockThresholdRequest,
 	UpdateWarehouseRequest,
 	Warehouse,
 	WarehouseMovement,
@@ -31,6 +32,23 @@ class WarehouseApi {
 	/** The «Остатки» tab — products held in this warehouse with WAC + value. */
 	async getStock(id: number): Promise<WarehouseStockItem[]> {
 		const response = await http.get<WarehouseStockItem[]>(`${this.getUrlWithId(id)}/stock`);
+
+		return response.data;
+	}
+
+	/**
+	 * Set (or, with null, clear) one stock row's «Заканчивается» threshold (DR-41)
+	 * — a row setting, not a stock event; answers the row with its recomputed flag.
+	 */
+	async setLowStockThreshold(
+		id: number,
+		productId: number,
+		request: SetLowStockThresholdRequest,
+	): Promise<WarehouseStockItem> {
+		const response = await http.put<WarehouseStockItem>(
+			`${this.getUrlWithId(id)}/stock/${productId}/threshold`,
+			request,
+		);
 
 		return response.data;
 	}

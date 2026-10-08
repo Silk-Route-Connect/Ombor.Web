@@ -4,6 +4,7 @@
 
   "debt.title": "Долги",
 
+  "debt.summary.label": "Фильтр долгов",
   "debt.summary.receivable": "Нам должны",
   "debt.summary.payable": "Мы должны",
   "debt.summary.overdue": "Просрочено",
@@ -16,6 +17,7 @@
   "debt.summary.partners_few": "{{count}} партнёра",
   "debt.summary.partners_many": "{{count}} партнёров",
   "debt.summary.partners_other": "{{count}} партнёра",
+  "debt.summary.netSub": "{{direction}} · {{partners}}",
 
   "debt.tabs.partners": "По партнёрам",
   "debt.tabs.transactions": "Неоплаченные документы",
@@ -25,19 +27,14 @@
 
   "debt.searchPlaceholder": "Поиск по партнёру или номеру…",
 
-  "debt.direction.all": "Все",
-  "debt.direction.receivable": "Нам должны",
-  "debt.direction.payable": "Мы должны",
-
   "debt.age.prefix": "Срок",
-  "debt.age.all": "Все сроки",
+  "debt.age.all": "Все",
   "debt.age.0-7": "0–7 дней",
   "debt.age.8-30": "8–30 дней",
   "debt.age.31+": "Старше 30 дней",
   "debt.age.31-60": "31–60 дней",
   "debt.age.60+": "60+ дней",
 
-  "debt.onlyOverdue": "Только просроченные",
   "debt.inTerm": "в сроке",
 
   "debt.partnerTable.partner": "Партнёр",
@@ -53,6 +50,7 @@
   "debt.position.settled": "закрыто авансом",
   "debt.position.partnerAdvance": "с учётом аванса партнёра {{amount}}",
   "debt.position.companyAdvance": "с учётом нашего аванса {{amount}}",
+  "debt.position.advances": "с учётом авансов",
 
   "debt.txTable.document": "№",
   "debt.txTable.date": "Дата",
@@ -60,7 +58,7 @@
   "debt.txTable.partner": "Партнёр",
   "debt.txTable.total": "Сумма",
   "debt.txTable.paid": "Оплачено",
-  "debt.txTable.remaining": "Остаток",
+  "debt.txTable.remaining": "Осталось оплатить",
   "debt.txTable.age": "Возраст",
   "debt.txTable.ageCsv": "Возраст (дней)",
 

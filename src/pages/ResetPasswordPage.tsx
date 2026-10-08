@@ -7,11 +7,13 @@ import { AuthBanner } from "components/auth/AuthFields/AuthBanner";
 import { AuthPasswordField } from "components/auth/AuthFields/AuthPasswordField";
 import { AuthPhoneField } from "components/auth/AuthFields/AuthPhoneField";
 import { useCodeChallenge } from "hooks/auth/useCodeChallenge";
+import { useDocumentTitle } from "hooks/shared/useDocumentTitle";
 import AuthLayout from "layouts/AuthLayout";
 import { observer } from "mobx-react-lite";
 import { LoginPrefill } from "routing/navigationState";
 import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { radius } from "theme";
 import { describeApiReason } from "utils/apiError";
 import { isCodeRefused } from "utils/authErrors";
 import { confirmError, passwordError, phoneError as phoneErrorOf } from "utils/authValidation";
@@ -21,7 +23,7 @@ import { Box, Button, Typography } from "@mui/material";
 
 type Step = "phone" | "code" | "newpass" | "success";
 
-const submitSx = { height: 46, fontSize: 15, borderRadius: "10px" } as const;
+const submitSx = { height: 46, fontSize: 15, borderRadius: `${radius.md}px` } as const;
 
 /**
  * «Забыли пароль или входите впервые?» — phone → SMS code → new password. It is
@@ -30,6 +32,7 @@ const submitSx = { height: 46, fontSize: 15, borderRadius: "10px" } as const;
  */
 const ResetPasswordPage: React.FC = observer(() => {
 	const { t } = useTranslation();
+	useDocumentTitle(t("auth.reset.documentTitle"));
 	const navigate = useNavigate();
 	const { authStore, notificationStore } = useStore();
 	const challenge = useCodeChallenge();

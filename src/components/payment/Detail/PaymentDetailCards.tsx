@@ -1,24 +1,28 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import EmployeeLink from "components/employee/Link/EmployeeLink";
+import PartnerLink from "components/partner/Links/PartnerLink";
+import { PaymentDirectionBadge, PaymentTypeBadge } from "components/payment/PaymentPresentation";
 import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
-import DetailCard from "components/shared/Detail/DetailCard";
-import UzsUnit from "components/shared/Money/UzsUnit";
+import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
+import { FactList, FactRow } from "components/shared/Detail/FactRow";
+import HeroAmountCard from "components/shared/Detail/HeroAmountCard";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { PaymentRecord } from "models/payment";
-import { designTokens, numericSx } from "theme";
+import { designTokens } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
+import { paymentDirectionColor } from "utils/paymentUtils";
 import { formatPeriod } from "utils/payrollUtils";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
-import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
-import SouthEastIcon from "@mui/icons-material/SouthEast";
 import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
 import { Box, Typography } from "@mui/material";
 
@@ -27,72 +31,41 @@ export const PaymentWithdrawalCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 	const { t } = useTranslation();
 	return (
 		<DetailCard
-			icon={<UndoOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<UndoOutlinedIcon sx={detailCardIconSx} />}
 			title={t("payment.detail.withdrawal")}
 		>
-			<Box
-				sx={{
-					p: "16px 18px",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-				}}
-			>
-				<Typography sx={{ fontWeight: 600 }}>{t("payment.detail.advanceReturned")}</Typography>
-				<Box
-					component="span"
-					sx={{ ...numericSx, fontWeight: 700, fontSize: 17, color: "error.main" }}
-				>
-					{formatCurrency(payment.amount)}
-					<UzsUnit />
-				</Box>
-			</Box>
+			<FactList>
+				<FactRow label={t("payment.detail.advanceReturned")} money={payment.amount} />
+			</FactList>
 		</DetailCard>
 	);
 };
 
-/** Payroll grid — employee / position / period / salary / paid. */
+/** Payroll — employee / position / period / salary / paid, side by side. */
 export const PaymentPayrollCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
-	const item = (label: string, value: React.ReactNode) => (
-		<Box sx={{ p: "15px 18px" }}>
-			<Typography sx={{ fontSize: 12, color: "text.secondary", mb: "5px" }}>{label}</Typography>
-			<Typography sx={{ fontSize: 15, fontWeight: 600 }}>{value}</Typography>
-		</Box>
-	);
 	return (
 		<DetailCard
-			icon={<PersonOutlineIcon sx={{ fontSize: 17 }} />}
+			icon={<PersonOutlineIcon sx={detailCardIconSx} />}
 			title={t("payment.type.payroll")}
 		>
-			<Box
-				sx={{
-					display: "grid",
-					gridTemplateColumns: "1fr 1fr",
-					"& > *": { borderBottom: "1px solid", borderColor: "divider" },
-					"& > *:nth-of-type(odd)": { borderRight: "1px solid", borderRightColor: "divider" },
-				}}
-			>
-				{item(t("payment.detail.employee"), payment.employeeName)}
-				{item(t("payment.detail.position"), payment.employeePosition)}
-				{item(t("payment.detail.period"), payment.period && formatPeriod(t, payment.period))}
-				{item(
-					t("payment.detail.salary"),
-					<Box component="span" sx={numericSx}>
-						{formatCurrency(payment.salary ?? 0)}
-						<UzsUnit />
-					</Box>,
-				)}
-				<Box sx={{ p: "15px 18px", gridColumn: "1 / -1", borderRight: "none !important" }}>
-					<Typography sx={{ fontSize: 12, color: "text.secondary", mb: "5px" }}>
-						{t("payment.detail.paid")}
-					</Typography>
-					<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 600, color: "success.main" }}>
-						{formatCurrency(payment.amount)}
-						<UzsUnit />
-					</Typography>
-				</Box>
-			</Box>
+			<FactList grid>
+				<FactRow stacked label={t("payment.detail.employee")}>
+					{payment.employeeId != null && payment.employeeName ? (
+						<EmployeeLink id={payment.employeeId} name={payment.employeeName} />
+					) : (
+						payment.employeeName
+					)}
+				</FactRow>
+				<FactRow stacked label={t("payment.detail.position")}>
+					{payment.employeePosition}
+				</FactRow>
+				<FactRow stacked label={t("payment.detail.period")}>
+					{payment.period && formatPeriod(t, payment.period)}
+				</FactRow>
+				<FactRow stacked label={t("payment.detail.salary")} money={payment.salary ?? null} />
+				<FactRow stacked label={t("payment.detail.paid")} money={payment.amount} />
+			</FactList>
 		</DetailCard>
 	);
 };
@@ -102,11 +75,11 @@ export const PaymentGeneralCard: React.FC<{ payment: PaymentRecord }> = ({ payme
 	const { t } = useTranslation();
 	return (
 		<DetailCard
-			icon={<SellOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<SellOutlinedIcon sx={detailCardIconSx} />}
 			title={t("payment.detail.description")}
 		>
 			<Box sx={{ p: "16px 18px" }}>
-				<Typography sx={{ fontSize: 14.5, lineHeight: 1.55 }}>{payment.description}</Typography>
+				<Typography sx={{ lineHeight: 1.55 }}>{payment.description}</Typography>
 			</Box>
 		</DetailCard>
 	);
@@ -124,7 +97,7 @@ export const PaymentAttachmentsCard: React.FC<{ payment: PaymentRecord }> = ({ p
 
 	return (
 		<DetailCard
-			icon={<AttachFileOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<AttachFileOutlinedIcon sx={detailCardIconSx} />}
 			title={t("payment.detail.attachments")}
 			count={attachments.length}
 		>
@@ -146,21 +119,16 @@ export const PaymentAttachmentsCard: React.FC<{ payment: PaymentRecord }> = ({ p
 						}
 					>
 						<Typography
-							sx={{
-								fontSize: 11.5,
-								fontWeight: 600,
-								color: "text.secondary",
-								textTransform: "uppercase",
-								letterSpacing: "0.04em",
-								mb: "8px",
-							}}
+							variant="overline"
+							component="div"
+							sx={{ color: "text.secondary", mb: "8px" }}
 						>
 							{t("payment.detail.fromTransaction")}
 						</Typography>
 						{transactionNotes && (
 							<Typography
+								variant="body2"
 								sx={{
-									fontSize: 13.5,
 									lineHeight: 1.6,
 									color: designTokens.gray700,
 									mb: transactionAttachments.length > 0 ? "10px" : 0,
@@ -183,94 +151,72 @@ export const PaymentAttachmentsCard: React.FC<{ payment: PaymentRecord }> = ({ p
 	);
 };
 
-/** Right-column metadata (the «Информация» card). */
-export const PaymentInfoCard: React.FC<{
-	payment: PaymentRecord;
-	onOpenPartner?: () => void;
-}> = ({ payment, onOpenPartner }) => {
+/**
+ * The rail's money hero: the served amount, coloured by the money direction,
+ * with the Приход / Расход badge under it.
+ */
+export const PaymentAmountCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
 	const { t } = useTranslation();
-	const income = payment.direction === "Income";
-
-	const row = (icon: React.ReactNode, key: string, value: React.ReactNode) => (
-		<Box
-			sx={{
-				display: "flex",
-				gap: "12px",
-				py: "12px",
-				borderBottom: "1px solid",
-				borderColor: "divider",
-				"&:last-of-type": { borderBottom: "none" },
-			}}
-		>
-			<Box sx={{ color: "text.disabled", mt: "1px", display: "inline-flex" }}>{icon}</Box>
-			<Box sx={{ minWidth: 0 }}>
-				<Typography sx={{ fontSize: 12, fontWeight: 600, color: "text.secondary" }}>
-					{key}
-				</Typography>
-				<Box sx={{ fontSize: 14, fontWeight: 600, mt: "2px" }}>{value}</Box>
-			</Box>
-		</Box>
-	);
-
 	return (
-		<DetailCard icon={<InfoOutlinedIcon sx={{ fontSize: 17 }} />} title={t("payment.detail.info")}>
-			<Box sx={{ px: "18px", py: "4px" }}>
-				{payment.partnerName &&
-					row(
-						<PersonOutlineIcon sx={{ fontSize: 16 }} />,
-						t("payment.detail.partner"),
-						<>
-							<Box
-								component="span"
-								onClick={onOpenPartner}
-								sx={{
-									color: "primary.main",
-									cursor: onOpenPartner ? "pointer" : "default",
-									"&:hover": onOpenPartner ? { textDecoration: "underline" } : undefined,
-								}}
-							>
-								{payment.partnerName}
+		<HeroAmountCard
+			caption={t("payment.detail.amount")}
+			value={formatCurrency(payment.amount)}
+			valueColor={paymentDirectionColor(payment.direction)}
+			status={<PaymentDirectionBadge direction={payment.direction} />}
+		/>
+	);
+};
+
+/** Right-column metadata (the «Информация» card); the direction lives in the hero. */
+export const PaymentInfoCard: React.FC<{ payment: PaymentRecord }> = ({ payment }) => {
+	const { t } = useTranslation();
+	return (
+		<DetailCard icon={<InfoOutlinedIcon sx={detailCardIconSx} />} title={t("payment.detail.info")}>
+			<FactList>
+				{payment.partnerName && (
+					<FactRow icon={<PersonOutlineIcon />} label={t("payment.detail.partner")}>
+						{payment.partnerId != null ? (
+							<PartnerLink id={payment.partnerId} name={payment.partnerName} />
+						) : (
+							payment.partnerName
+						)}
+					</FactRow>
+				)}
+				{payment.employeeName && (
+					<FactRow icon={<PersonOutlineIcon />} label={t("payment.detail.employee")}>
+						{payment.employeeId != null ? (
+							<EmployeeLink id={payment.employeeId} name={payment.employeeName} />
+						) : (
+							payment.employeeName
+						)}
+						{payment.employeePosition && (
+							<Box component="span" sx={{ color: "text.secondary" }}>
+								{" "}
+								· {payment.employeePosition}
 							</Box>
-						</>,
-					)}
-				{payment.employeeName &&
-					row(
-						<PersonOutlineIcon sx={{ fontSize: 16 }} />,
-						t("payment.detail.employee"),
-						`${payment.employeeName}${payment.employeePosition ? ` · ${payment.employeePosition}` : ""}`,
-					)}
-				{row(
-					<LayersOutlinedIcon sx={{ fontSize: 16 }} />,
-					t("payment.detail.typeLabel"),
-					t(`payment.type.${payment.type.toLowerCase()}`),
+						)}
+					</FactRow>
 				)}
-				{row(
-					income ? (
-						<SouthEastIcon sx={{ fontSize: 16 }} />
-					) : (
-						<NorthEastIcon sx={{ fontSize: 16 }} />
-					),
-					t("payment.detail.directionLabel"),
-					t(income ? "payment.direction.income" : "payment.direction.expense"),
-				)}
-				{row(
-					<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 16 }} />,
-					t("payment.detail.walletLabel"),
-					<WalletLink id={payment.walletId} name={payment.walletName} />,
-				)}
-				{row(
-					<PersonOutlineIcon sx={{ fontSize: 16 }} />,
-					t("payment.detail.createdBy"),
-					payment.createdBy || t("common.dash"),
-				)}
-				{row(
-					<ScheduleOutlinedIcon sx={{ fontSize: 16 }} />,
-					t("payment.detail.date"),
-					<Box component="span" sx={numericSx}>
-						{formatDateTime(payment.date)}
-					</Box>,
-				)}
-			</Box>
+				<FactRow icon={<LayersOutlinedIcon />} label={t("payment.detail.typeLabel")}>
+					<PaymentTypeBadge type={payment.type} />
+				</FactRow>
+				<FactRow
+					icon={<AccountBalanceWalletOutlinedIcon />}
+					label={t("payment.detail.walletLabel")}
+				>
+					<WalletLink id={payment.walletId} name={payment.walletName} />
+				</FactRow>
+				<FactRow icon={<BadgeOutlinedIcon />} label={t("payment.detail.createdBy")}>
+					{payment.createdBy}
+				</FactRow>
+				<FactRow
+					icon={<ScheduleOutlinedIcon />}
+					label={t("payment.detail.date")}
+					figures="proportional"
+				>
+					{formatDateTime(payment.date)}
+				</FactRow>
+			</FactList>
 		</DetailCard>
 	);
 };

@@ -17,8 +17,9 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isReady } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { orderInvoicePath, partnerDetailPath, PATHS, saleDetailPath } from "routing/paths";
+import { orderInvoicePath, PATHS, saleDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { formatOptionalNumber } from "utils/formatEntityId";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
@@ -50,8 +51,6 @@ const OrderDetailPage: React.FC = observer(() => {
 			/>
 		);
 	}
-
-	const openCustomer = () => navigate(partnerDetailPath(order.customerId));
 
 	const twoColSx = {
 		display: "grid",
@@ -85,7 +84,7 @@ const OrderDetailPage: React.FC = observer(() => {
 					<EntityHistory kind="Order" id={order.id} refreshKey={order} variant="card" />
 				</Box>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-					<OrderSidebar order={order} onOpenCustomer={openCustomer} />
+					<OrderSidebar order={order} />
 				</Box>
 			</Box>
 
@@ -112,7 +111,10 @@ const OrderDetailPage: React.FC = observer(() => {
 				icon={<UndoOutlinedIcon sx={{ fontSize: 22 }} />}
 				iconTone="warning"
 				title={t("order.confirm.cancel.title", {
-					number: dialog.kind === "cancel" ? dialog.order.orderNumber : "",
+					number:
+						dialog.kind === "cancel"
+							? formatOptionalNumber(dialog.order.orderNumber, t("common.noNumberInline"))
+							: "",
 				})}
 				content={t("order.confirm.cancel.body", {
 					customer: dialog.kind === "cancel" ? dialog.order.customerName : "",
@@ -129,7 +131,10 @@ const OrderDetailPage: React.FC = observer(() => {
 				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
 				iconTone="warning"
 				title={t("order.confirm.reject.title", {
-					number: dialog.kind === "reject" ? dialog.order.orderNumber : "",
+					number:
+						dialog.kind === "reject"
+							? formatOptionalNumber(dialog.order.orderNumber, t("common.noNumberInline"))
+							: "",
 				})}
 				content={t("order.confirm.reject.body")}
 				confirmLabel={t("order.confirm.reject.confirm")}
@@ -144,7 +149,10 @@ const OrderDetailPage: React.FC = observer(() => {
 				icon={<DeleteOutlineIcon sx={{ fontSize: 22 }} />}
 				iconTone="warning"
 				title={t("order.confirm.return.title", {
-					number: dialog.kind === "return" ? dialog.order.orderNumber : "",
+					number:
+						dialog.kind === "return"
+							? formatOptionalNumber(dialog.order.orderNumber, t("common.noNumberInline"))
+							: "",
 				})}
 				content={t("order.confirm.return.body")}
 				confirmLabel={t("order.confirm.return.confirm")}

@@ -15,11 +15,14 @@ import { DateRangeValue } from "utils/dateRange";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import { Box } from "@mui/material";
 
 import { PAYMENT_TYPE_META } from "../PaymentPresentation";
 
 interface PaymentHeaderProps {
+	/** The direction cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	typeFilter: PaymentTypeFilter;
 	walletFilter: number | "all";
@@ -38,9 +41,11 @@ interface PaymentHeaderProps {
 /**
  * Payments page header. Per locked pattern 11: dataset-level actions (create,
  * «Экспорт») sit on the title row; the view-shaping search + type + wallet
- * filters and the shared period filter sit on the filter row below.
+ * filters and the shared period filter sit on the filter row below. The
+ * direction is picked on the cards in the `summary` slot, not in this row.
  */
 const PaymentHeader: React.FC<PaymentHeaderProps> = ({
+	summary,
 	searchValue,
 	typeFilter,
 	walletFilter,
@@ -73,6 +78,8 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("payment.title")}
+				icon={PaymentsOutlinedIcon}
+				subtitle={t("page.intro.payments")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
@@ -83,6 +90,8 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 				}
 			/>
 
+			{summary}
+
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
 					value={searchValue}
@@ -90,17 +99,18 @@ const PaymentHeader: React.FC<PaymentHeaderProps> = ({
 					placeholder={t("payment.searchPlaceholder")}
 				/>
 				<EntityFilterSelect<PaymentTypeFilter>
+					label={t("payment.filter.typeLabel")}
 					icon={<LayersOutlinedIcon />}
 					value={typeFilter}
 					options={typeOptions}
 					onChange={onTypeChange}
 				/>
 				<EntityFilterSelect
+					label={t("payment.filter.walletLabel")}
 					icon={<AccountBalanceWalletOutlinedIcon />}
 					value={String(walletFilter)}
 					options={walletFilterOptions}
 					onChange={(v) => onWalletChange(v === "all" ? "all" : Number(v))}
-					width={210}
 				/>
 				<Box sx={{ flexGrow: 1 }} />
 				<DateRangeFilter value={dateRange} onChange={onDateRangeChange} />

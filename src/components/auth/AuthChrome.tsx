@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -35,7 +35,7 @@ export const AuthLink: React.FC<{ onClick: () => void; children: React.ReactNode
 			font: "inherit",
 			verticalAlign: "baseline",
 			p: 0,
-			borderRadius: "2px",
+			borderRadius: `${radius.xs}px`,
 			"&:hover": { textDecoration: "underline" },
 		}}
 	>
@@ -45,7 +45,7 @@ export const AuthLink: React.FC<{ onClick: () => void; children: React.ReactNode
 
 /** Centered «prompt <link>» line under the actions. */
 export const AuthAltLine: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-	<Typography sx={{ textAlign: "center", fontSize: 13.5, color: "text.secondary" }}>
+	<Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary" }}>
 		{children}
 	</Typography>
 );
@@ -64,7 +64,7 @@ export const AuthBackLink: React.FC<{ onClick: () => void; children: React.React
 			mx: "auto",
 			color: "primary.main",
 			fontWeight: 600,
-			fontSize: 13.5,
+			fontSize: 13,
 			"&:hover": { textDecoration: "underline" },
 		}}
 	>

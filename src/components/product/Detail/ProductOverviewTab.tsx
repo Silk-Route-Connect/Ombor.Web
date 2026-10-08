@@ -2,8 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import { Product } from "models/product";
-import { numericSx } from "theme";
-import { productStockLevel } from "utils/productFilters";
+import { numericSx, radius } from "theme";
 import { getImageFullUrl } from "utils/productUtils";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -12,7 +11,6 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 
 import ProductImage from "../ProductImage";
-import StockLevelPill from "../StockLevelPill";
 import ProductStockTable from "./ProductStockTable";
 
 interface ProductOverviewTabProps {
@@ -25,7 +23,6 @@ interface ProductOverviewTabProps {
  */
 export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product }) => {
 	const { t } = useTranslation();
-	const level = productStockLevel(product);
 
 	return (
 		<Stack sx={{ gap: "16px" }}>
@@ -40,8 +37,9 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								<ProductImage
 									src={getImageFullUrl(image.thumbnailUrl ?? image.originalUrl)}
 									alt={image.name}
+									name={product.name}
 									size={132}
-									radius={8}
+									radius={radius.md}
 									muted={product.isArchived}
 									sx={{
 										display: "grid",
@@ -53,7 +51,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 								<Typography
 									sx={{
 										...numericSx,
-										fontSize: 11.5,
+										fontSize: 12,
 										fontWeight: 600,
 										color: "text.secondary",
 										mt: "6px",
@@ -69,7 +67,7 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 						))}
 					</Box>
 				) : (
-					<Typography sx={{ p: "16px 18px", fontSize: 13.5, color: "text.disabled" }}>
+					<Typography variant="body2" sx={{ p: "16px 18px", color: "text.disabled" }}>
 						{t("product.detail.imagesEmpty")}
 					</Typography>
 				)}
@@ -95,7 +93,6 @@ export const ProductOverviewTab: React.FC<ProductOverviewTabProps> = ({ product 
 			<DetailCard
 				title={t("product.detail.stockByWarehouse")}
 				icon={<WarehouseOutlinedIcon sx={detailCardIconSx} />}
-				headerExtra={level === "ok" ? undefined : <StockLevelPill level={level} />}
 			>
 				<ProductStockTable product={product} />
 			</DetailCard>

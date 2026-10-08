@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import { layout } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -39,15 +40,22 @@ export default function AppLayout() {
 				</Box>
 				<Box
 					component="main"
+					// Focusable by script only: a header popover that vanishes hands focus here.
+					tabIndex={-1}
 					sx={{
 						flex: 1,
 						overflow: "auto",
 						scrollbarGutter: "stable",
 						p: 3,
+						outline: "none",
 						"@media print": { overflow: "visible", p: 0 },
 					}}
 				>
-					<Outlet />
+					<Box
+						sx={{ maxWidth: layout.contentMax, mx: "auto", "@media print": { maxWidth: "none" } }}
+					>
+						<Outlet />
+					</Box>
 				</Box>
 			</Box>
 		</Box>

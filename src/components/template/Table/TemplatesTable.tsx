@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Template } from "models/template";
 
-import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
+import ShoppingBasketOutlinedIcon from "@mui/icons-material/ShoppingBasketOutlined";
 
 import TemplateItemsTable from "./TemplateItemsTable";
 import { buildTemplateColumns, TemplateColumnHandlers } from "./templateTableConfigs";
@@ -60,7 +60,7 @@ export const TemplatesTable: React.FC<TemplatesTableProps> = ({
 			expandedMaxHeight={480}
 			empty={
 				<TableEmptyState
-					icon={<LayersOutlinedIcon />}
+					icon={<ShoppingBasketOutlinedIcon />}
 					title={firstRun ? t("template.empty.title") : t("template.empty.searchTitle")}
 					hint={firstRun ? t("template.empty.body") : t("template.empty.searchBody")}
 					action={firstRun ? { label: t("template.create"), onClick: onCreate } : undefined}

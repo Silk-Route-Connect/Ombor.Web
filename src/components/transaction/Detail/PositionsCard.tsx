@@ -31,13 +31,12 @@ const LineQuantity: React.FC<{ line: TransactionLine }> = ({ line }) => {
 
 /**
  * The document's lines — Товар · Кол-во · Цена · Скидка · Сумма — on the shared
- * detail table, with the document's summary footer below.
+ * detail table. The totals live in the rail's money hero.
  */
 export const PositionsCard: React.FC<{
 	lines: TransactionLine[];
-	footer?: React.ReactNode;
 	count: number;
-}> = ({ lines, footer, count }) => {
+}> = ({ lines, count }) => {
 	const { t } = useTranslation();
 
 	const columns = useMemo<Column<TransactionLine>[]>(
@@ -96,7 +95,6 @@ export const PositionsCard: React.FC<{
 			count={count}
 		>
 			<DetailTable<TransactionLine> rows={lines} columns={columns} />
-			{footer}
 		</DetailCard>
 	);
 };

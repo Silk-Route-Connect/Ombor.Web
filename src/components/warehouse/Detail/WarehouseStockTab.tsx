@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
-import StockQuantityCell from "components/product/StockQuantityCell";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
 import EntityFilterSelect from "components/shared/EntityFilterSelect/EntityFilterSelect";
@@ -11,12 +10,15 @@ import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { useTableOrder } from "components/shared/Table/tableOrder";
+import StockQuantityCell from "components/warehouse/Stock/StockQuantityCell";
+import StockThresholdCell from "components/warehouse/Stock/StockThresholdCell";
+import { ALL_CATEGORIES, WarehouseStockFilters } from "hooks/warehouse/useWarehouseStockFilters";
 import { Warehouse, WarehouseStockItem } from "models/warehouse";
 import { numericSx } from "theme";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatCurrency, formatQuantity } from "utils/formatCurrency";
-import { matchesStockFilter, StockFilter, StockLevel, stockLevel } from "utils/productFilters";
+import { formatCurrency } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
+import { matchesStockFilter, STOCK_FILTERS, StockFilter, stockRowLevel } from "utils/stockLevel";
 import { matchesSearch } from "utils/stringUtils";
 
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -28,34 +30,33 @@ interface WarehouseStockTabProps {
 	stock: WarehouseStockItem[];
 	/** Shown in the empty state of a warehouse with no stock yet (omit when archived). */
 	onAddOpeningStock?: () => void;
-	/** Each product's «Минимальный остаток» by id; a missing one alerts only at zero. */
-	lowStockThresholds: Map<number, number>;
+	/** Search, category and «Остаток» — held by the page (the «Заканчивается» KPI sets them). */
+	filters: WarehouseStockFilters;
+	/** Opens a row's «Порог» dialog. */
+	onEditThreshold: (row: WarehouseStockItem) => void;
 }
 
-type StockRow = WarehouseStockItem & { id: number; level: StockLevel };
-
-const ALL_CATEGORIES = "__all__";
-const STOCK_FILTERS: StockFilter[] = ["all", "low", "out"];
+type StockRow = WarehouseStockItem & { id: number };
 
 /**
- * «Остатки»: the warehouse's on-hand products — Товар · Артикул · Категория ·
- * Количество · Сред. себест. · Стоимость — searchable, filterable by category
- * and by the low-stock alert, with the served «Итого по складу» band on the
- * unfiltered view. The alert compares this warehouse's quantity with the
- * product's «Минимальный остаток».
+ * «Остатки»: every stock row of the warehouse, emptied ones included — Товар ·
+ * Артикул · Категория · Остаток · Порог · Сред. себест. · Стоимость — searchable,
+ * filterable by category and «Остаток», with the served «Итого по складу» band
+ * on the unfiltered view. «Заканчивается» is the row's served `isLowStock`
+ * (DR-41), so it lists exactly the rows the KPI counts; «Нет в наличии» is
+ * every row at zero, tracked or not.
  */
 export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	warehouse,
 	stock,
 	onAddOpeningStock,
-	lowStockThresholds,
+	filters,
+	onEditThreshold,
 }) => {
 	const { t } = useTranslation();
 	const tableOrder = useTableOrder<StockRow>();
-	const [query, setQuery] = useState("");
-	const [category, setCategory] = useState(ALL_CATEGORIES);
-	const [stockFilter, setStockFilter] = useState<StockFilter>("all");
-	const isFiltering = query.trim() !== "" || category !== ALL_CATEGORIES || stockFilter !== "all";
+	const { query, setQuery, category, setCategory, stockFilter, setStockFilter, isFiltering } =
+		filters;
 
 	const categories = useMemo(() => {
 		const names = new Set<string>();
@@ -66,20 +67,16 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 	const rows = useMemo<StockRow[]>(
 		() =>
 			stock
-				.map((item) => ({
-					...item,
-					id: item.productId,
-					level: stockLevel(item.quantity, lowStockThresholds.get(item.productId)),
-				}))
+				.map((item) => ({ ...item, id: item.productId }))
 				.filter(
 					(item) =>
 						(category === ALL_CATEGORIES || item.categoryName === category) &&
-						matchesStockFilter(item.level, stockFilter) &&
+						matchesStockFilter(item, stockFilter) &&
 						(!query.trim() ||
 							matchesSearch(item.productName, query) ||
 							matchesSearch(item.sku, query)),
 				),
-		[stock, query, category, stockFilter, lowStockThresholds],
+		[stock, query, category, stockFilter],
 	);
 
 	const columns = useMemo<Column<StockRow>[]>(
@@ -108,8 +105,20 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				align: "right",
 				sortValue: (i) => i.quantity,
 				renderCell: (i) => (
-					<StockQuantityCell quantity={i.quantity} measurement={i.measurement} level={i.level} />
+					<StockQuantityCell
+						quantity={i.quantity}
+						measurement={i.measurement}
+						level={stockRowLevel(i)}
+					/>
 				),
+			},
+			{
+				key: "threshold",
+				headerName: t("warehouse.stock.threshold"),
+				headerTooltip: t("warehouse.stock.thresholdHint"),
+				align: "right",
+				sortValue: (i) => i.lowStockThreshold ?? -1,
+				renderCell: (i) => <StockThresholdCell row={i} onEdit={onEditThreshold} />,
 			},
 			{
 				key: "averageCost",
@@ -127,7 +136,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				renderCell: (i) => <MoneyCell value={i.value} main />,
 			},
 		],
-		[t],
+		[t, onEditThreshold],
 	);
 
 	const handleExport = () => {
@@ -140,9 +149,13 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				{ header: t("warehouse.stock.quantity"), value: (i) => i.quantity },
 				{ header: t("warehouse.stock.unit"), value: (i) => measurementShort(t, i.measurement) },
 				{
-					header: t("product.table.stockLevel"),
-					value: (i) => (i.level === "ok" ? "" : t(`product.stockLevel.${i.level}`)),
+					header: t("warehouse.stock.level"),
+					value: (i) => {
+						const level = stockRowLevel(i);
+						return level === "ok" ? "" : t(`warehouse.stockLevel.${level}`);
+					},
 				},
+				{ header: t("warehouse.stock.threshold"), value: (i) => i.lowStockThreshold ?? "" },
 				{ header: t("warehouse.stock.wac"), value: (i) => i.averageCost },
 				{ header: t("warehouse.stock.value"), value: (i) => i.value },
 			],
@@ -160,6 +173,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 			filters={
 				<Stack direction="row" sx={{ gap: "10px", flexWrap: "wrap" }}>
 					<EntityFilterSelect
+						label={t("warehouse.stock.categoryLabel")}
 						value={category}
 						allValue={ALL_CATEGORIES}
 						allLabel={t("warehouse.stock.allCategories")}
@@ -168,12 +182,12 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 						icon={<LocalOfferOutlinedIcon />}
 					/>
 					<EntityFilterSelect<StockFilter>
-						label={t("product.filter.stock.label")}
+						label={t("warehouse.stockFilter.label")}
 						icon={<Inventory2OutlinedIcon />}
 						value={stockFilter}
 						options={STOCK_FILTERS.map((filter) => ({
 							value: filter,
-							label: t(`product.filter.stock.${filter}`),
+							label: t(`warehouse.stockFilter.${filter}`),
 						}))}
 						onChange={setStockFilter}
 					/>
@@ -187,6 +201,7 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "value", order: "desc" }}
 				pagination
+				storageKey="stock"
 				empty={
 					isFiltering ? (
 						<TableEmptyState
@@ -212,9 +227,9 @@ export const WarehouseStockTab: React.FC<WarehouseStockTabProps> = ({
 					!isFiltering && (
 						<tr className="total">
 							<td colSpan={3}>{t("warehouse.stock.total")}</td>
-							<Box component="td" className="r" sx={numericSx}>
-								{formatQuantity(warehouse.totalUnits)}
-							</Box>
+							{/* No quantity total: rows mix kg, pieces and tonnes (owner decision 2026-10-07). */}
+							<td />
+							<td />
 							<td />
 							<Box component="td" className="r" sx={numericSx}>
 								{formatCurrency(warehouse.stockValue)}

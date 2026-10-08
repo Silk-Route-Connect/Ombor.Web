@@ -1,14 +1,15 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ProductLink from "components/product/Links/ProductLink";
-import StockLevelPill from "components/product/StockLevelPill";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import StockLevelPill from "components/warehouse/Stock/StockLevelPill";
 import { isReady, Loadable } from "helpers/Loading";
-import { Product } from "models/product";
-import { radius } from "theme";
+import { StockReport, StockReportRow } from "models/report";
+import { figuresSx, radius } from "theme";
 import { formatQuantity } from "utils/formatCurrency";
 import { measurementShort } from "utils/productUtils";
-import { stockAlerts } from "utils/stockAlerts";
+import { lowStockRows, stockRowLevel } from "utils/stockLevel";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, ButtonBase, Paper, Typography } from "@mui/material";
@@ -17,24 +18,27 @@ import { Box, ButtonBase, Paper, Typography } from "@mui/material";
 const SHOWN = 6;
 
 interface LowStockPanelProps {
-	products: Loadable<Product[]>;
+	/** Today's stock report over every warehouse (served flags and count). */
+	report: Loadable<StockReport>;
 	onRetry: () => void;
-	/** Products filtered by «Остаток: Заканчивается». */
+	/** The stock report filtered «Остаток: Заканчивается» over every warehouse. */
 	onAll: () => void;
 }
 
 /**
- * «Заканчивается» — products at or below their «Минимальный остаток» or out of
- * stock, the emptiest first: the same set as Products «Остаток: Заканчивается»,
- * which «Все» opens. Each name opens the product.
+ * «Заканчивается» — the warehouse rows the server flags (a threshold set on the
+ * product in that warehouse, quantity at or below it — DR-41), the emptiest
+ * first: product · warehouse · left · threshold. «Все» opens the same rows in
+ * the stock report. Until a threshold is set anywhere, the panel says where
+ * thresholds are set instead of «all is well».
  */
-const LowStockPanel: React.FC<LowStockPanelProps> = ({ products, onRetry, onAll }) => {
+const LowStockPanel: React.FC<LowStockPanelProps> = ({ report, onRetry, onAll }) => {
 	const { t } = useTranslation();
-	const alerts = useMemo(() => (isReady(products) ? stockAlerts(products) : []), [products]);
-	const outCount = alerts.filter((a) => a.level === "out").length;
+	const rows = useMemo(() => (isReady(report) ? lowStockRows(report.rows) : []), [report]);
+	const tracksAny = isReady(report) && report.rows.some((row) => row.lowStockThreshold != null);
 
-	const unitQty = (value: number, product: Product) =>
-		`${formatQuantity(value)} ${measurementShort(t, product.measurement)}`.trim();
+	const unitQty = (value: number, row: StockReportRow) =>
+		`${formatQuantity(value)} ${measurementShort(t, row.measurement)}`.trim();
 
 	return (
 		<Paper
@@ -56,12 +60,15 @@ const LowStockPanel: React.FC<LowStockPanelProps> = ({ products, onRetry, onAll 
 					p: "16px 20px",
 				}}
 			>
-				<Typography sx={{ fontSize: 15, fontWeight: 600 }}>
+				<Typography variant="h3" component="h2">
 					{t("dashboard.lowStock.title")}
 				</Typography>
-				{alerts.length > 0 && (
-					<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-						{t("dashboard.lowStock.summary", { out: outCount, low: alerts.length - outCount })}
+				{isReady(report) && report.totals.lowStockCount > 0 && (
+					<Typography variant="body2" sx={{ color: "text.secondary" }}>
+						{t("dashboard.lowStock.summary", {
+							count: report.totals.lowStockCount,
+							formatted: formatQuantity(report.totals.lowStockCount),
+						})}
 					</Typography>
 				)}
 				<ButtonBase
@@ -83,53 +90,76 @@ const LowStockPanel: React.FC<LowStockPanelProps> = ({ products, onRetry, onAll 
 				</ButtonBase>
 			</Box>
 
-			{!isReady(products) ? (
+			{!isReady(report) ? (
 				<LoadStateView
-					state={products}
+					state={report}
 					size="section"
 					onRetry={onRetry}
-					errorTitle={t("product.error.getAll")}
+					errorTitle={t("report.error.load.stock")}
 				/>
-			) : alerts.length === 0 ? (
-				<Typography sx={{ p: "0 20px 18px", fontSize: 13, color: "text.secondary" }}>
-					{t("dashboard.lowStock.empty")}
+			) : rows.length === 0 ? (
+				<Typography variant="body2" sx={{ p: "0 20px 18px", color: "text.secondary" }}>
+					{t(tracksAny ? "dashboard.lowStock.empty" : "dashboard.lowStock.untracked")}
 				</Typography>
 			) : (
 				<Box
 					sx={{
 						display: "grid",
-						gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+						// Three tiles a row on a wide screen, two on a laptop: the six alerts fill
+						// whole rows, and a tile is wide enough for the product name.
+						gridTemplateColumns: {
+							xs: "minmax(0, 1fr)",
+							md: "repeat(2, minmax(0, 1fr))",
+							xl: "repeat(3, minmax(0, 1fr))",
+						},
 						borderTop: 1,
 						borderColor: "divider",
+						// The last row's hairline sits under the panel's own border.
+						mb: "-1px",
 					}}
 				>
-					{alerts.slice(0, SHOWN).map(({ product, level }) => (
+					{rows.slice(0, SHOWN).map((row) => (
 						<Box
-							key={product.id}
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: "10px",
-								p: "12px 20px",
-								minWidth: 0,
-								borderBottom: 1,
-								borderColor: "divider",
-							}}
+							key={`${row.warehouseId}-${row.productId}`}
+							sx={{ p: "12px 20px", minWidth: 0, borderBottom: 1, borderColor: "divider" }}
 						>
-							<Box sx={{ flex: 1, minWidth: 0, overflow: "hidden", whiteSpace: "nowrap" }}>
-								<Box sx={{ overflow: "hidden", textOverflow: "ellipsis", fontSize: 14 }}>
-									<ProductLink id={product.id} name={product.name} />
-								</Box>
-								<Typography sx={{ fontSize: 12, color: "text.secondary", mt: "2px" }}>
-									{(product.lowStockThreshold ?? 0) > 0
-										? t("dashboard.lowStock.leftOfMin", {
-												qty: unitQty(product.totalStock, product),
-												min: unitQty(product.lowStockThreshold ?? 0, product),
-											})
-										: t("dashboard.lowStock.left", { qty: unitQty(product.totalStock, product) })}
+							<Box
+								sx={{
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									whiteSpace: "nowrap",
+									typography: "body1",
+								}}
+							>
+								<ProductLink id={row.productId} name={row.productName} />
+							</Box>
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									mt: "6px",
+									minWidth: 0,
+								}}
+							>
+								<StockLevelPill level={stockRowLevel(row)} />
+								<Typography
+									variant="caption"
+									noWrap
+									sx={{ ...figuresSx, color: "text.secondary", minWidth: 0 }}
+								>
+									<WarehouseLink
+										id={row.warehouseId}
+										name={row.warehouseName}
+										variant="secondary"
+									/>
+									{" · "}
+									{t("dashboard.lowStock.leftOfThreshold", {
+										qty: unitQty(row.quantity, row),
+										threshold: unitQty(row.lowStockThreshold ?? 0, row),
+									})}
 								</Typography>
 							</Box>
-							<StockLevelPill level={level} />
 						</Box>
 					))}
 				</Box>

@@ -1,17 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { CategoryFormPayload, useCategoryForm } from "hooks/category/useCategoryForm";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { Category } from "models/category";
-import { dialogPaperSx } from "theme";
-import { dialogTranslation } from "utils/translationUtils";
 
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import { Box, Dialog, DialogContent, LinearProgress, TextField } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 
 interface CategoryFormModalProps {
 	isOpen: boolean;
@@ -43,32 +41,32 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 		formState: { errors },
 	} = form;
 
-	const title = t(category ? "category.title.edit" : "category.title.create");
-
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-			>
-				<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
-
-				{isSaving && (
-					<Box sx={{ position: "relative", height: 4 }}>
-						<LinearProgress sx={{ position: "absolute", inset: 0 }} />
-					</Box>
-				)}
-
-				<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+		<FormDialog
+			open={isOpen}
+			size="sm"
+			title={t(category ? "category.title.edit" : "category.title.create")}
+			subtitle={category?.name}
+			tile={recordTile("Category")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
+				<FormDialogFooter
+					loading={isSaving}
+					canSave={canSave}
+					onSave={submit}
+					onCancel={requestClose}
+					submitLabel={category ? undefined : t("category.form.submitCreate")}
+				/>
+			}
+		>
+			<Stack sx={{ gap: "16px" }}>
+				<FormField label={t("category.form.nameLabel")} required>
 					<TextField
 						id="category-name"
-						label={t("category.form.nameLabel")}
 						placeholder={t("category.form.namePlaceholder")}
-						required
 						fullWidth
 						autoFocus
 						disabled={isSaving}
@@ -76,9 +74,10 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 						helperText={errors.name?.message}
 						{...register("name")}
 					/>
+				</FormField>
 
+				<FormField label={t("category.form.descriptionLabel")}>
 					<TextField
-						label={t("category.form.descriptionLabel")}
 						placeholder={t("category.form.descriptionPlaceholder")}
 						fullWidth
 						multiline
@@ -89,29 +88,9 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 						helperText={errors.description?.message}
 						{...register("description")}
 					/>
-				</DialogContent>
-
-				<FormDialogFooter
-					loading={isSaving}
-					canSave={canSave}
-					onSave={submit}
-					onCancel={requestClose}
-				/>
-			</Dialog>
-
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={dialogTranslation("title")}
-				content={dialogTranslation("body")}
-				confirmLabel={dialogTranslation("confirm")}
-				cancelLabel={dialogTranslation("cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+				</FormField>
+			</Stack>
+		</FormDialog>
 	);
 };
 

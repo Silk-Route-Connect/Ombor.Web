@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaymentCreateModal from "components/payment/Form/PaymentCreateModal";
 import PaymentHeader from "components/payment/Header/PaymentHeader";
+import PaymentDirectionCards from "components/payment/List/PaymentDirectionCards";
 import PaymentListTotals from "components/payment/List/PaymentListTotals";
-import PaymentSummaryStrip from "components/payment/List/PaymentSummaryStrip";
 import { PAYMENT_TYPE_META } from "components/payment/PaymentPresentation";
 import { PaymentsTable } from "components/payment/Table/PaymentsTable";
 import { useTableOrder } from "components/shared/Table/tableOrder";
@@ -84,6 +84,13 @@ const PaymentPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<PaymentHeader
+				summary={
+					<PaymentDirectionCards
+						counts={isReady(paymentStore.filteredPayments) ? paymentStore.directionCounts : null}
+						value={paymentStore.directionFilter}
+						onChange={paymentStore.setDirectionFilter}
+					/>
+				}
 				searchValue={paymentStore.searchTerm}
 				typeFilter={paymentStore.typeFilter}
 				walletFilter={paymentStore.walletFilter}
@@ -96,12 +103,6 @@ const PaymentPage: React.FC = observer(() => {
 				onCreate={paymentStore.openCreate}
 				onExport={handleExport}
 				exportCount={readyOr(paymentStore.filteredPayments, []).length}
-			/>
-
-			<PaymentSummaryStrip
-				summary={isReady(paymentStore.filteredPayments) ? paymentStore.summary : null}
-				directionFilter={paymentStore.directionFilter}
-				onToggle={paymentStore.setDirectionFilter}
 			/>
 
 			<PaymentsTable

@@ -14,8 +14,6 @@ import { TransactionRecord } from "models/transaction";
 import TransactionApi from "services/api/TransactionApi";
 import { isFullyRefunded } from "utils/refundUtils";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface ISelectedTransactionStore {
 	/** The open transaction (sale / supply / refund), loaded by id for the detail route. */
 	transaction: Loadable<TransactionRecord | null>;
@@ -41,7 +39,6 @@ export interface ISelectedTransactionStore {
  * side, for which the lean records suffice (docs/mocking.md).
  */
 export class SelectedTransactionStore implements ISelectedTransactionStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	/** The open transaction, from the rich detail endpoint. */
@@ -50,8 +47,7 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 	private all: Loadable<TransactionRecord[]> = "loading";
 	private currentId: number | null = null;
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -101,10 +97,6 @@ export class SelectedTransactionStore implements ISelectedTransactionStore {
 		]);
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (detailResult.status === "fail") {
-			this.notificationStore.notifyLoadError(detailResult, "transactions.errors.getById");
 		}
 
 		runInAction(() => {

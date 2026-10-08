@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { RefundLine, RefundRowCheck, RefundRowDraft } from "hooks/transactions/useRefundForm";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { isQuantityDraft } from "utils/quantityInput";
 
@@ -50,7 +50,7 @@ const RefundLineRow: React.FC<RefundLineRowProps> = ({
 						sx={{
 							width: 20,
 							height: 20,
-							borderRadius: "6px",
+							borderRadius: `${radius.sm}px`,
 							border: "1.5px solid",
 							color: "common.white",
 							...(draft.checked
@@ -110,7 +110,7 @@ const RefundLineRow: React.FC<RefundLineRowProps> = ({
 								ml: "auto",
 								maxWidth: 104,
 								border: "1px solid",
-								borderRadius: "6px",
+								borderRadius: `${radius.sm}px`,
 								bgcolor: flagged ? designTokens.errorBg : "background.paper",
 								borderColor: flagged ? "error.main" : designTokens.gray300,
 								"&:focus-within": { borderColor: flagged ? "error.main" : "primary.main" },

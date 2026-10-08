@@ -3,12 +3,15 @@ import { useTranslation } from "react-i18next";
 import PartnerLink from "components/partner/Links/PartnerLink";
 import AttachmentChip from "components/shared/AttachmentChip/AttachmentChip";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
+import { FactList, FactRow } from "components/shared/Detail/FactRow";
+import WarehouseLink from "components/warehouse/Links/WarehouseLink";
 import { TransactionRecord } from "models/transaction";
-import { designTokens, numericSx, radius } from "theme";
+import { designTokens, figuresSx, iconSize, radius } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 import { formatEntityId } from "utils/formatEntityId";
 import { directionOf, TransactionDirection } from "utils/transactionUtils";
 
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -49,78 +52,49 @@ export const AuditCard: React.FC<{ tx: TransactionRecord; isRefund: boolean }> =
 }) => {
 	const { t } = useTranslation();
 	const direction = directionOf(tx.type);
-	const rows: Array<{ icon: React.ReactNode; k: string; v: React.ReactNode }> = [
-		{
-			icon: <PersonOutlineIcon sx={{ fontSize: 16 }} />,
-			k: t(`transaction.detail.partnerType.${direction}`),
-			v: tx.partnerId ? <PartnerLink id={tx.partnerId} name={tx.partnerName} /> : tx.partnerName,
-		},
-		{
-			icon: <EventOutlinedIcon sx={{ fontSize: 16 }} />,
-			k: isRefund ? t("transaction.detail.createdRefund") : t("transaction.detail.createdSale"),
-			v: (
-				<>
-					<Box component="span" sx={numericSx}>
-						{formatDateTime(tx.date)}
-					</Box>
-					{tx.createdBy ? ` · ${tx.createdBy}` : null}
-				</>
-			),
-		},
-	];
-	// The lean backend DTO may omit the warehouse — drop the row rather than
-	// render an empty value.
-	if (tx.warehouseName) {
-		rows.push({
-			icon: <WarehouseOutlinedIcon sx={{ fontSize: 16 }} />,
-			k: isRefund
-				? t("transaction.detail.warehouse.refund")
-				: t(`transaction.detail.warehouse.${direction}`),
-			v: tx.warehouseName,
-		});
-	}
 	return (
 		<DetailCard
 			title={t("transaction.detail.infoTitle")}
 			icon={<InfoOutlinedIcon sx={detailCardIconSx} />}
 		>
-			{rows.map((r) => (
-				<Box
-					key={r.k}
-					sx={{
-						display: "flex",
-						alignItems: "flex-start",
-						gap: "12px",
-						p: "13px 18px",
-						borderBottom: 1,
-						borderColor: "divider",
-						"&:last-of-type": { borderBottom: "none" },
-					}}
+			<FactList>
+				<FactRow
+					icon={<PersonOutlineIcon />}
+					label={t(`transaction.detail.partnerType.${direction}`)}
 				>
-					<Box
-						sx={{
-							width: 30,
-							height: 30,
-							borderRadius: `${radius.md}px`,
-							display: "grid",
-							placeItems: "center",
-							flex: "0 0 auto",
-							bgcolor: "grey.50",
-							border: 1,
-							borderColor: "divider",
-							color: "text.secondary",
-						}}
+					{tx.partnerId ? <PartnerLink id={tx.partnerId} name={tx.partnerName} /> : tx.partnerName}
+				</FactRow>
+				<FactRow
+					icon={<EventOutlinedIcon />}
+					label={
+						isRefund ? t("transaction.detail.createdRefund") : t("transaction.detail.createdSale")
+					}
+					figures="proportional"
+				>
+					{formatDateTime(tx.date)}
+				</FactRow>
+				<FactRow icon={<BadgeOutlinedIcon />} label={t("transaction.detail.createdBy")}>
+					{tx.createdBy}
+				</FactRow>
+				{/* The lean backend DTO may omit the warehouse — drop the row rather than
+				    render an empty value. */}
+				{tx.warehouseName && (
+					<FactRow
+						icon={<WarehouseOutlinedIcon />}
+						label={
+							isRefund
+								? t("transaction.detail.warehouse.refund")
+								: t(`transaction.detail.warehouse.${direction}`)
+						}
 					>
-						{r.icon}
-					</Box>
-					<Box>
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>{r.k}</Typography>
-						<Typography component="div" sx={{ fontSize: 13, fontWeight: 500, mt: "2px" }}>
-							{r.v}
-						</Typography>
-					</Box>
-				</Box>
-			))}
+						{tx.warehouseId ? (
+							<WarehouseLink id={tx.warehouseId} name={tx.warehouseName} />
+						) : (
+							tx.warehouseName
+						)}
+					</FactRow>
+				)}
+			</FactList>
 		</DetailCard>
 	);
 };
@@ -130,7 +104,7 @@ export const ReasonCard: React.FC<{ reason: string }> = ({ reason }) => {
 	return (
 		<DetailCard
 			title={t("transaction.detail.reasonTitle")}
-			icon={<UndoOutlinedIcon sx={{ fontSize: 16, color: designTokens.saffron600 }} />}
+			icon={<UndoOutlinedIcon sx={{ ...detailCardIconSx, color: designTokens.saffron600 }} />}
 		>
 			<Box sx={{ p: "16px 18px" }}>
 				<Typography
@@ -179,10 +153,10 @@ export const RefundReferenceBanner: React.FC<{
 				"&:hover": { borderColor: designTokens.primaryLine, bgcolor: "primary.light" },
 			}}
 		>
-			<UndoOutlinedIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+			<UndoOutlinedIcon sx={{ fontSize: iconSize.md, color: "text.secondary" }} />
 			<Box component="span">
 				{t(`transaction.detail.refundOfBanner.${direction}`)}{" "}
-				<Box component="b" sx={{ ...numericSx, color: "primary.main" }}>
+				<Box component="b" sx={{ ...figuresSx, color: "primary.main" }}>
 					{number ? formatEntityId(number) : ""}
 				</Box>
 			</Box>

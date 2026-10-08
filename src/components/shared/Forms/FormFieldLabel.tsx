@@ -5,6 +5,26 @@ import { Box, Typography } from "@mui/material";
 
 import { linkLabelToControl } from "./labelLink";
 
+/** The field label: 13px/600 gray-700, sentence case. */
+export const fieldLabelSx = {
+	fontSize: 13,
+	lineHeight: "18px",
+	fontWeight: 600,
+	color: designTokens.gray700,
+} as const;
+
+/**
+ * The caption above a control inside a dense line item (qty / price / discount
+ * of a line row): 12px/600 secondary, sentence case — never an uppercase
+ * micro-label. For a caption that is not a `<label>`, spread it on the text.
+ */
+export const fieldCaptionSx = {
+	fontSize: 12,
+	lineHeight: "16px",
+	fontWeight: 600,
+	color: "text.secondary",
+} as const;
+
 export interface FormFieldLabelProps {
 	label: string;
 	required?: boolean;
@@ -12,6 +32,8 @@ export interface FormFieldLabelProps {
 	hint?: string;
 	/** The input's id, where the field is not the first control after the label. */
 	htmlFor?: string;
+	/** `caption` — the smaller label of a field inside a line item (`fieldCaptionSx`). */
+	variant?: "field" | "caption";
 }
 
 /**
@@ -26,6 +48,7 @@ export const FormFieldLabel: React.FC<FormFieldLabelProps> = ({
 	required,
 	hint,
 	htmlFor,
+	variant = "field",
 }) => {
 	const labelId = useId();
 	const ref = useRef<HTMLLabelElement>(null);
@@ -55,9 +78,7 @@ export const FormFieldLabel: React.FC<FormFieldLabelProps> = ({
 				display: "inline-flex",
 				alignItems: "center",
 				gap: "4px",
-				fontSize: 13,
-				fontWeight: 600,
-				color: designTokens.gray700,
+				...(variant === "caption" ? fieldCaptionSx : fieldLabelSx),
 			}}
 		>
 			{label}

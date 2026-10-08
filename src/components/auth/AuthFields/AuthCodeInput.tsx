@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 import { onlyDigits } from "utils/authValidation";
 
 import { Box } from "@mui/material";
@@ -98,7 +98,7 @@ export const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
 								: c
 									? designTokens.primaryLine
 									: designTokens.borderControl,
-							borderRadius: "8px",
+							borderRadius: `${radius.md}px`,
 							outline: "none",
 							transition: "border-color .14s, box-shadow .14s",
 							"&:focus": {

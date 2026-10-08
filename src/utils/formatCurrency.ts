@@ -36,20 +36,23 @@ const fractionalMoneyFormatter = new Intl.NumberFormat("ru-RU", {
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 });
-const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
+// Three places: stock is stored at decimal(18,3), and a weight threshold may use them («0,125 т»).
+const quantityFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 3 });
 
 /**
  * Canonical money formatter (UZS, no currency symbol): whole sums without
  * decimals («1 250 000»), anything fractional with exactly two («702,01»,
  * «1 190 434,20») — never one decimal place. All money display routes through
  * this, KPIs included — never hand-assemble separators or round before calling.
+ * A negative sum reads with a true minus («−3 683 000»), never `Intl`'s hyphen.
  */
 export function formatCurrency(value: number): string {
 	// Round to the cent first so 702,004 reads «702», and `|| 0` drops a -0.
 	const cents = Math.round(value * 100) || 0;
-	return cents % 100 === 0
-		? wholeMoneyFormatter.format(cents / 100)
-		: fractionalMoneyFormatter.format(cents / 100);
+	const abs = Math.abs(cents) / 100;
+	const text =
+		cents % 100 === 0 ? wholeMoneyFormatter.format(abs) : fractionalMoneyFormatter.format(abs);
+	return cents < 0 ? `−${text}` : text;
 }
 
 /**
@@ -74,12 +77,27 @@ export function formatPercent(value: number): string {
 	return value < 0 && text !== "0" ? `−${text}` : text;
 }
 
+const exactPercentFormatter = new Intl.NumberFormat("ru-RU", {
+	maximumFractionDigits: 2,
+	useGrouping: false,
+});
+
+/**
+ * A percent as booked — a line discount, stored at two decimals (rule 37) — with
+ * the ru decimal comma and nothing rounded away: 1.5 → «1,5», 12.25 → «12,25»
+ * (no «%» sign). `formatPercent` keeps one place, for derived shares.
+ */
+export function formatExactPercent(value: number): string {
+	return exactPercentFormatter.format(value);
+}
+
 /**
  * Money that may be negative, with a true minus: «−18 000» (a refund row and
- * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned.
+ * the net «Сумма» of Sales / Supplies, D12); positives stay unsigned. Same output
+ * as `formatCurrency` — the name marks call sites where a negative is expected.
  */
 export function formatCurrencyMinus(value: number): string {
-	return value < 0 ? `−${formatCurrency(-value)}` : formatCurrency(value);
+	return formatCurrency(value);
 }
 
 /** Signed money for ledger/balance figures: "+1 250 000" / "−800 000" / "0". */

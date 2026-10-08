@@ -125,6 +125,38 @@ export function toPrintTotalsRow<Row>(
 	return { key: "total", label: t("report.total"), cells, strong: true };
 }
 
+/**
+ * The «Итого» band of the on-screen table — the same figures as the print and
+ * CSV totals row, on the shared total-band chrome. A loss total reads red, as
+ * its column does.
+ */
+export function toTableTotalsRow<Row>(
+	columns: ReportColumn<Row>[],
+	totals: Partial<Record<string, number>>,
+	t: TFunction,
+): Partial<Record<string, React.ReactNode>> {
+	const cells: Partial<Record<string, React.ReactNode>> = {};
+	columns.forEach((column, index) => {
+		const value = totals[column.key];
+		if (index === 0) {
+			cells[column.key] = t("report.total");
+		} else if (value !== undefined) {
+			cells[column.key] = (
+				<Box
+					component="span"
+					sx={{
+						whiteSpace: "nowrap",
+						color: column.signed && value < 0 ? "error.main" : undefined,
+					}}
+				>
+					{formatReportValue(column.kind, value, t)}
+				</Box>
+			);
+		}
+	});
+	return cells;
+}
+
 type CsvLine = Record<string, string | number | null>;
 
 /**

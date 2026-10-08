@@ -1,6 +1,8 @@
-import { isReady, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
+import { StockReport } from "models/report";
+import ReportApi from "services/api/ReportApi";
 import { matchesSearch } from "utils/stringUtils";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -13,6 +15,7 @@ import {
 } from "../models/warehouse";
 import WarehouseApi from "../services/api/WarehouseApi";
 import { NotificationStore } from "./NotificationStore";
+import { ReportLoadOptions, ReportResource } from "./ReportResource";
 
 export type WarehouseDialogMode =
 	| { kind: "form"; warehouse?: Warehouse }
@@ -23,18 +26,12 @@ export type WarehouseDialogMode =
 	| { kind: "opening"; warehouse: Warehouse }
 	| { kind: "none" };
 
-/** Aggregate totals across the currently shown warehouses (the list total row). */
-export type WarehouseTotals = {
-	productCount: number;
-	totalUnits: number;
-	stockValue: number;
-};
-
 export interface IWarehouseStore {
 	allWarehouses: Loadable<Warehouse[]>;
 	filteredWarehouses: Loadable<Warehouse[]>;
 	activeWarehouses: Loadable<Warehouse[]>;
-	totals: WarehouseTotals;
+	/** Today's stock report over every warehouse — the list strip's served totals. */
+	stockReport: ReportResource<StockReport>;
 	archivedCount: number;
 
 	searchTerm: string;
@@ -42,7 +39,8 @@ export interface IWarehouseStore {
 	isSaving: boolean;
 	dialogMode: WarehouseDialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
+	loadStockReport(options?: ReportLoadOptions): Promise<void>;
 	create(request: CreateWarehouseRequest): Promise<void>;
 	update(request: UpdateWarehouseRequest): Promise<Warehouse | null>;
 	archive(warehouse: Warehouse): Promise<Warehouse | null>;
@@ -71,6 +69,7 @@ export class WarehouseStore implements IWarehouseStore {
 	showArchived = false;
 	isSaving = false;
 	dialogMode: WarehouseDialogMode = { kind: "none" };
+	readonly stockReport = new ReportResource<StockReport>();
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -118,36 +117,21 @@ export class WarehouseStore implements IWarehouseStore {
 		return warehouses;
 	}
 
-	/**
-	 * Inventory totals across ALL warehouses — including archived ones that still
-	 * hold stock (business-rules rule 31) — for the list summary strip. A global
-	 * figure (not tied to the active/archive view), so it answers "how much stock
-	 * do I hold in total".
-	 */
-	get totals(): WarehouseTotals {
-		if (!isReady(this.allWarehouses)) {
-			return { productCount: 0, totalUnits: 0, stockValue: 0 };
-		}
-		return this.allWarehouses.reduce(
-			(acc, w) => ({
-				productCount: acc.productCount + w.productCount,
-				totalUnits: acc.totalUnits + w.totalUnits,
-				stockValue: acc.stockValue + w.stockValue,
-			}),
-			{ productCount: 0, totalUnits: 0, stockValue: 0 },
-		);
-	}
-
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allWarehouses = "loading"));
 
 		const result = await tryRun(() => WarehouseApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "warehouse.error.getAll");
 		}
 
 		runInAction(() => (this.allWarehouses = toLoadable(result)));
+	}
+
+	/** Today's stock over every warehouse, archived ones included (rule 31) — served, never summed from the list. */
+	loadStockReport(options?: ReportLoadOptions): Promise<void> {
+		return this.stockReport.load(() => ReportApi.getStock({}), options);
 	}
 
 	async create(request: CreateWarehouseRequest): Promise<void> {

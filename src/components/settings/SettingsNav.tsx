@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -43,9 +43,9 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 						fontFamily: "inherit",
 						display: "flex",
 						alignItems: "center",
-						gap: "11px",
-						p: "10px 13px",
-						borderRadius: "8px",
+						gap: "12px",
+						p: "10px 12px",
+						borderRadius: `${radius.md}px`,
 						fontSize: 14,
 						fontWeight: on ? 600 : 500,
 						cursor: "pointer",
@@ -56,6 +56,7 @@ const SettingsNav: React.FC<Props> = ({ sections, activeKey, onJump }) => (
 						"& .set-nav-ic": {
 							color: on ? "primary.main" : "text.disabled",
 							display: "inline-flex",
+							"& .MuiSvgIcon-root": { fontSize: 18 },
 						},
 					}}
 				>

@@ -11,9 +11,9 @@ export const typography: TypographyVariantsOptions = {
 	fontFamily: UI_FONT_FAMILY,
 	h1: { fontSize: 26, lineHeight: "32px", fontWeight: 700, letterSpacing: "-0.02em" }, // page title
 	h2: { fontSize: 20, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em" }, // section
-	h3: { fontSize: 16, lineHeight: "22px", fontWeight: 600 }, // card title
+	h3: { fontSize: 16, lineHeight: "22px", fontWeight: 600, letterSpacing: "-0.01em" }, // card title
 	h4: { fontSize: 18, lineHeight: "24px", fontWeight: 700, letterSpacing: "-0.01em" }, // dialog title
-	h5: { fontSize: 16, lineHeight: "22px", fontWeight: 600 }, // = h3
+	h5: { fontSize: 16, lineHeight: "22px", fontWeight: 600, letterSpacing: "-0.01em" }, // = h3
 	h6: { fontSize: 18, lineHeight: "24px", fontWeight: 700, letterSpacing: "-0.01em" }, // = h4 (DialogTitle)
 	subtitle1: { fontSize: 14, lineHeight: "20px", fontWeight: 600 },
 	subtitle2: { fontSize: 13, lineHeight: "18px", fontWeight: 600 },

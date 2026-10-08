@@ -1,9 +1,13 @@
-import { Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
+import { isPresent, isReady, Loadable, toDetailLoadable, toLoadable } from "helpers/Loading";
 import { LoadSequence } from "helpers/LoadSequence";
 import { tryRun } from "helpers/TryRun";
+import { withSaving } from "helpers/WithSaving";
+import i18next from "i18n/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Warehouse, WarehouseMovement, WarehouseStockItem } from "models/warehouse";
 import WarehouseApi from "services/api/WarehouseApi";
+import { formatQuantity } from "utils/formatCurrency";
+import { measurementShort } from "utils/productUtils";
 
 import { NotificationStore } from "./NotificationStore";
 
@@ -11,27 +15,42 @@ export interface ISelectedWarehouseStore {
 	warehouse: Loadable<Warehouse | null>;
 	stock: Loadable<WarehouseStockItem[]>;
 	movements: Loadable<WarehouseMovement[]>;
+	/** The stock row whose «Порог» dialog is open; null while closed. */
+	thresholdRow: WarehouseStockItem | null;
+	/** A threshold save is in flight. */
+	isSaving: boolean;
 
 	load(warehouseId: number): Promise<void>;
 	/** Reflect a successful edit / archive / restore / opening stock in place. */
 	applyWarehouse(warehouse: Warehouse): void;
-	/** Reload the stock + movements ledgers (after an opening-stock event). */
+	/** Reload the stock + movements ledgers (after an opening-stock event, an archive or a restore). */
 	reloadLedgers(warehouseId: number): Promise<void>;
+	openThreshold(row: WarehouseStockItem): void;
+	closeThreshold(): void;
+	/**
+	 * Set (a number) or clear (null) the open row's threshold. On success the row
+	 * (with its recomputed flag) and the warehouse's served «Заканчивается» count
+	 * refresh in place and the dialog closes; false on a failure (toasted).
+	 */
+	saveThreshold(value: number | null): Promise<boolean>;
 	clear(): void;
 }
 
 /**
- * State for the routed warehouse detail page: the open warehouse plus its child
- * collections (the stock view and the movements ledger), loaded explicitly by
- * id when the route mounts.
+ * State for the routed warehouse detail page: the open warehouse (with its
+ * served «Заканчивается» count) plus its child collections — the stock rows
+ * (each with its served threshold and flag) and the movements ledger — loaded
+ * explicitly by id when the route mounts.
  */
 export class SelectedWarehouseStore implements ISelectedWarehouseStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
+	private readonly notificationStore: NotificationStore;
 
 	warehouse: Loadable<Warehouse | null> = "loading";
 	stock: Loadable<WarehouseStockItem[]> = "loading";
 	movements: Loadable<WarehouseMovement[]> = "loading";
+	thresholdRow: WarehouseStockItem | null = null;
+	isSaving = false;
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
@@ -53,14 +72,6 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 		]);
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (warehouse.status === "fail") {
-			this.notificationStore.notifyLoadError(warehouse, "warehouse.error.getById");
-		} else if (stock.status === "fail") {
-			this.notificationStore.notifyLoadError(stock, "warehouse.error.getStock");
-		} else if (movements.status === "fail") {
-			this.notificationStore.notifyLoadError(movements, "warehouse.error.getStock");
 		}
 
 		runInAction(() => {
@@ -94,8 +105,72 @@ export class SelectedWarehouseStore implements ISelectedWarehouseStore {
 		});
 	}
 
+	openThreshold(row: WarehouseStockItem): void {
+		this.thresholdRow = row;
+	}
+
+	closeThreshold(): void {
+		this.thresholdRow = null;
+	}
+
+	async saveThreshold(value: number | null): Promise<boolean> {
+		const row = this.thresholdRow;
+		const warehouse = this.warehouse;
+		if (!row || !isPresent(warehouse)) {
+			return false;
+		}
+
+		// The re-read stays inside the saving window: until the served count is back
+		// the dialog's buttons stay disabled, so a second click cannot send another PUT.
+		const result = await withSaving(this, async () => {
+			const updated = await WarehouseApi.setLowStockThreshold(warehouse.id, row.productId, {
+				lowStockThreshold: value,
+			});
+			// The KPI reads the warehouse's served `lowStockCount`, never a count of the rows here.
+			const refreshed = await tryRun(() => WarehouseApi.getById(warehouse.id));
+			return { updated, refreshed };
+		});
+		if (result.status === "fail") {
+			this.notificationStore.notifyApiError(result, "warehouse.error.threshold");
+			return false;
+		}
+
+		const { updated, refreshed } = result.data;
+		runInAction(() => {
+			if (this.thresholdRow === row) {
+				this.thresholdRow = null;
+			}
+			// The user may have left for another warehouse while the save was in flight.
+			if (!isPresent(this.warehouse) || this.warehouse.id !== warehouse.id) {
+				return;
+			}
+			if (isReady(this.stock)) {
+				this.stock = this.stock.map((r) => (r.productId === updated.productId ? updated : r));
+			}
+			if (refreshed.status === "success") {
+				this.warehouse = refreshed.data;
+			}
+		});
+
+		const unit = measurementShort(i18next.t, row.measurement);
+		this.notificationStore.success(
+			value === null
+				? i18next.t("warehouse.success.thresholdCleared", { name: row.productName })
+				: i18next.t("warehouse.success.threshold", {
+						name: row.productName,
+						threshold: `${formatQuantity(value)} ${unit}`.trim(),
+					}),
+		);
+		// Saved, but the warehouse's «Заканчивается» count could not be re-read.
+		if (refreshed.status === "fail") {
+			this.notificationStore.notifyLoadError(refreshed, "warehouse.error.getById");
+		}
+		return true;
+	}
+
 	clear(): void {
 		this.loads.invalidate();
+		this.thresholdRow = null;
 		this.warehouse = "loading";
 		this.stock = "loading";
 		this.movements = "loading";

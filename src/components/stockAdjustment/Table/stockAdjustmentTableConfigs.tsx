@@ -2,6 +2,7 @@ import React from "react";
 import ProductLink from "components/product/Links/ProductLink";
 import DateCell from "components/shared/Table/cells/DateCell";
 import DocNumberCell from "components/shared/Table/cells/DocNumberCell";
+import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
@@ -52,13 +53,19 @@ export function buildStockAdjustmentColumns(
 			key: "product",
 			headerName: t("adjustment.table.product"),
 			sortValue: (a) => a.productName,
-			renderCell: (a) => <ProductLink id={a.productId} name={a.productName} />,
+			renderCell: (a) => (
+				<EntityCell>
+					<ProductLink id={a.productId} name={a.productName} />
+				</EntityCell>
+			),
 		},
 		{
 			key: "warehouse",
 			headerName: t("adjustment.table.warehouse"),
 			sortValue: (a) => a.warehouseName,
-			renderCell: (a) => <WarehouseLink id={a.warehouseId} name={a.warehouseName} />,
+			renderCell: (a) => (
+				<WarehouseLink id={a.warehouseId} name={a.warehouseName} variant="secondary" />
+			),
 		},
 		{
 			key: "direction",

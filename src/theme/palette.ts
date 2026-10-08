@@ -8,9 +8,10 @@
 /** Core hues — single source for the MUI palette and the chip tokens. */
 export const TEAL_500 = "#12676B"; // PRIMARY (6.6:1)
 export const TEAL_600 = "#0D5256"; // hover / pressed
+export const TEAL_700 = "#0E4448"; // the navigation panel (white text 10.8:1)
 export const SAFFRON_500 = "#D88A1E"; // ACCENT — fills and icons only, never small text
 export const SAFFRON_700 = "#8F5A0C"; // accent text / filled accent button bg (white 5.8:1)
-export const SUCCESS = "#17835A"; // 4.7:1
+export const SUCCESS = "#157A54"; // 5.3:1 (4.8:1 on the canvas)
 export const WARNING = "#C57E14"; // 3.3:1 — icons and fills only; text uses WARNING_FG
 export const ERROR = "#C53D31"; // 5.1:1
 export const INFO = "#2A6F97";
@@ -19,31 +20,33 @@ export const INK = "#1C2625"; // fg-1, primary text
 /** Text on the semantic tints (chips, tinted tiles) — all ≥5:1 on their own tint. */
 export const SUCCESS_FG = "#1C5C40"; // 6.9:1 on successBg
 export const DANGER_FG = "#8F2A1F"; // 7.2:1 on errorBg
-export const WARNING_FG = "#8A5A0E"; // 5.2:1 on warningBg
+export const WARNING_FG = "#6D5706"; // 6.2:1 on warningBg
 export const INFO_FG = "#245F82"; // 6.0:1 on infoBg
 
 /**
  * The ONE neutral ramp. `designTokens.grayN` and the MUI `palette.grey[N]` both
- * resolve from it, so a step name always means the same colour. Surfaces and
- * borders are warm stone; the text steps (500+) are the cool ink family.
+ * resolve from it, so a step name always means the same colour. Surfaces,
+ * borders and text are one cool ink-grey family (hue ≈ 199°, the ink and teal) so the canvas
+ * no longer fights the ink: the earlier warm-stone surfaces (#F4F1EA) read as a
+ * yellowish, tiring field against the cool text (owner feedback 2026-10-06).
  */
 export const NEUTRAL = {
 	0: "#FFFFFF", // surface
-	25: "#FAF8F4", // bg-subtle — zebra rows, subtle fills
-	50: "#F4F1EA", // canvas — page background
-	100: "#ECE8DF", // divider inside panes / sunken fill / neutral chip fill
-	200: "#E4DFD5", // border — card and table hairlines (decorative)
-	300: "#D4CDBF", // border-strong — ghost buttons, dividers on tints (decorative)
-	400: "#B8AF9F", // DECORATION — icons, dots, hairlines. Never text (2.2:1)
-	500: "#6B7473", // fg-3 — tertiary / placeholder / meta text (4.8:1; 4.5:1 on bg-subtle)
+	25: "#F7F9F9", // bg-subtle — table header / footer bands, subtle fills
+	50: "#F1F4F4", // canvas — page background
+	100: "#E9EDED", // divider inside panes / sunken fill / neutral chip fill
+	200: "#DDE2E2", // border — card and table hairlines (decorative)
+	300: "#C8CFCF", // border-strong — ghost buttons, dividers on tints (decorative)
+	400: "#A6B0B0", // DECORATION — icons, dots, hairlines. Never text (2.2:1)
+	500: "#646C6B", // fg-3 — tertiary / placeholder / meta text (5.4:1; 4.9:1 on the canvas)
 	600: "#565F5E", // fg-2 — secondary data text (6.4:1)
 	700: "#3E4A4A", // strong secondary text / neutral chip text
 	800: "#28302F",
 	900: INK, // fg-1
 } as const;
 
-/** Input / control outline — stone-500 (3.7:1, meets WCAG 1.4.11 for field edges). */
-export const BORDER_CONTROL = "#8C8576";
+/** Input / control outline (3.7:1 on white, 3.3:1 on the canvas — WCAG 1.4.11 for field edges). */
+export const BORDER_CONTROL = "#7D8787";
 
 /**
  * Design-token values for slots the MUI palette has no home for. Prefer the
@@ -89,12 +92,15 @@ export const designTokens = {
 	primaryLine: "#C3DEDE", // hairline on teal tints
 	primarySoft: "#E1EEEE", // selected row / active nav / sale chip fill
 	// semantic tints (soft chip fills + outlines)
-	warningBg: "#FBF0DC",
-	warningBorder: "#EDD3A4",
+	// Butter-yellow, apart from the saffron Supply chip (accentSoft): «Поставка» and
+	// «Частично» sat side by side in the same colour.
+	warningBg: "#FFF2C8",
+	warningBorder: "#ECD388",
 	errorBg: "#FBEAE8",
 	errorBorder: "#EFC9C4",
-	successBg: "#E5F2EC",
-	successBorder: "#C2E0D2",
+	// Leaning yellow-green so «Оплачено» separates from the teal «Продажа» chip.
+	successBg: "#E6F3E6",
+	successBorder: "#C4DEC5",
 	infoBg: "#E7F0F6",
 	infoBorder: "#C5DBEA",
 	purpleBg: "#ECE7F7", // payroll badge fill (app extension)
@@ -105,7 +111,12 @@ export const designTokens = {
 	onDarkLine: "rgba(255,255,255,0.14)", // hairline on teal / ink
 	onDarkFill: "rgba(255,255,255,0.13)", // chip fill on teal
 	onDarkGrid: "rgba(255,255,255,0.10)", // decorative grid on the teal brand panel
+	onDarkHover: "rgba(255,255,255,0.08)", // hover wash on teal / ink
+	// The sidebar is the brand's one large teal surface (owner feedback 2026-10-06:
+	// the all-white chrome read as plain); content surfaces stay light.
+	navBg: TEAL_700,
 	scrim: "rgba(255,255,255,0.72)", // frosted card over the auth backdrop
 	primaryWash: "rgba(18,103,107,0.05)", // chart hover cursor
-	loadingVeil: "rgba(244,241,234,0.55)", // canvas-tinted veil over content while it reloads
+	scrimModal: "rgba(28,38,37,0.42)", // ink-tinted modal backdrop (MUI's 50% black turned the page flat grey)
+	loadingVeil: "rgba(241,244,244,0.6)", // canvas-tinted veil over content while it reloads
 } as const;

@@ -9,6 +9,8 @@ export type PresetOption = "week" | "month" | "alltime";
 export const DATE_FORMAT = "dd.MM.yyyy";
 export const DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
 export const TIME_FORMAT = "HH:mm";
+/** A calendar day as forms and the API carry it («yyyy-MM-dd», a `DateOnly`). */
+export const DAY_VALUE_FORMAT = "yyyy-MM-dd";
 
 export type DateFilter =
 	| { type: "preset"; preset: PresetOption }

@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens, numericSx } from "theme";
+import { designTokens, iconSize, numericSx, radius } from "theme";
 import { formatBytes } from "utils/formatBytes";
 import { getImageFullUrl } from "utils/productUtils";
 
@@ -42,7 +42,7 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 				p: "9px 13px 9px 10px",
 				border: "1px solid",
 				borderColor: designTokens.gray300,
-				borderRadius: "8px",
+				borderRadius: `${radius.md}px`,
 				cursor: "pointer",
 				textDecoration: "none",
 				color: "inherit",
@@ -53,7 +53,7 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 				sx={{
 					width: 32,
 					height: 32,
-					borderRadius: "7px",
+					borderRadius: `${radius.md}px`,
 					display: "grid",
 					placeItems: "center",
 					flex: "0 0 auto",
@@ -63,9 +63,9 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ name, contentType, size
 				}}
 			>
 				{isImage ? (
-					<ImageOutlinedIcon sx={{ fontSize: 17 }} />
+					<ImageOutlinedIcon sx={{ fontSize: iconSize.md }} />
 				) : (
-					<DescriptionOutlinedIcon sx={{ fontSize: 17 }} />
+					<DescriptionOutlinedIcon sx={{ fontSize: iconSize.md }} />
 				)}
 			</Box>
 			<Box>

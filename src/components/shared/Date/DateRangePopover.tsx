@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormField from "components/shared/Forms/FormField";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { addDays, format, startOfMonth } from "date-fns";
 import { customDateRange, DateRangeValue, resolveDateRange } from "utils/dateRange";
+import { DAY_VALUE_FORMAT } from "utils/dateUtils";
 
-import { Box, Popover, Stack, TextField, Typography } from "@mui/material";
+import { Box, Popover, Stack, Typography } from "@mui/material";
+
+import DateField from "./DateField";
 
 interface DateRangePopoverProps {
 	anchorEl: HTMLElement | null;
@@ -16,10 +20,8 @@ interface DateRangePopoverProps {
 	onClose: () => void;
 }
 
-const ISO_DAY = "yyyy-MM-dd";
-
 /**
- * «Период…» of the shared date filter: two calendar fields (С / По). The range
+ * «Период…» of the shared date filter: two date fields (С / По). The range
  * is applied only on «Применить»; days typed in reverse order are swapped.
  */
 const DateRangePopover: React.FC<DateRangePopoverProps> = ({
@@ -40,8 +42,8 @@ const DateRangePopover: React.FC<DateRangePopoverProps> = ({
 		}
 		const today = new Date();
 		const range = resolveDateRange(current, today);
-		setFrom(format(range ? range.start : startOfMonth(today), ISO_DAY));
-		setTo(format(range ? addDays(range.end, -1) : today, ISO_DAY));
+		setFrom(format(range ? range.start : startOfMonth(today), DAY_VALUE_FORMAT));
+		setTo(format(range ? addDays(range.end, -1) : today, DAY_VALUE_FORMAT));
 		setError(false);
 	}, [open, current]);
 
@@ -73,27 +75,14 @@ const DateRangePopover: React.FC<DateRangePopoverProps> = ({
 				<Typography variant="h3" sx={{ mb: "12px" }}>
 					{t("common.dateRange.customTitle")}
 				</Typography>
-				<Stack direction="row" sx={{ gap: "12px" }}>
-					<TextField
-						type="date"
-						size="small"
-						autoFocus
-						label={t("common.dateRange.from")}
-						value={from}
-						onChange={(e) => setFrom(e.target.value)}
-						error={error && !from}
-						slotProps={{ inputLabel: { shrink: true } }}
-					/>
-					<TextField
-						type="date"
-						size="small"
-						label={t("common.dateRange.to")}
-						value={to}
-						onChange={(e) => setTo(e.target.value)}
-						error={error && !to}
-						slotProps={{ inputLabel: { shrink: true } }}
-					/>
-				</Stack>
+				<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+					<FormField label={t("common.dateRange.from")}>
+						<DateField autoFocus value={from} onChange={setFrom} error={error && !from} />
+					</FormField>
+					<FormField label={t("common.dateRange.to")}>
+						<DateField value={to} onChange={setTo} error={error && !to} />
+					</FormField>
+				</Box>
 				{error && (
 					<Typography sx={{ mt: "6px", fontSize: 12, color: "error.main" }}>
 						{t("common.dateRange.bothRequired")}

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { designTokens, radius } from "theme";
+import { iconSquareSx } from "components/shared/Buttons/iconSquareSx";
+import { designTokens } from "theme";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+
+import { menuItemSx, menuSlotProps } from "./menuPaper";
 
 /**
  * DSN-1 row-menu item tone — the only way a menu row gets colour (icons are
@@ -65,18 +68,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) =>
 				size="medium"
 				onClick={openMenu}
 				aria-label={t("common.actions")}
-				sx={
-					bordered
-						? {
-								width: 38,
-								height: 38,
-								borderRadius: `${radius.sm}px`,
-								border: "1px solid",
-								borderColor: designTokens.gray300,
-								color: designTokens.gray600,
-							}
-						: undefined
-				}
+				sx={bordered ? iconSquareSx : undefined}
 			>
 				<MoreVertIcon />
 			</IconButton>
@@ -86,44 +78,13 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, bordered = false }) =>
 				open={isOpen}
 				onClose={closeMenu}
 				onClick={(e) => e.stopPropagation()}
-				slotProps={{
-					paper: {
-						// DSN-1 menu surface: hairline, soft elevation, rounded, padded.
-						sx: {
-							minWidth: 176,
-							borderRadius: `${radius.md}px`,
-							border: 1,
-							borderColor: "divider",
-							boxShadow: 8,
-							p: 0.5,
-						},
-					},
-					// Drop MUI's default 8px MenuList padding so the only gap between the
-					// menu border and the items is the 4px paper padding (matches the
-					// design's tight spacing).
-					list: { sx: { py: 0 } },
-				}}
+				slotProps={menuSlotProps}
 			>
 				{actions.map((action) => {
 					const { icon: iconColor, label: labelColor } = TONE_COLORS[action.tone ?? "normal"];
 					return [
 						action.dividerBefore && <Divider key={`${action.key}-divider`} sx={{ my: 0.25 }} />,
-						<MenuItem
-							key={action.key}
-							onClick={(e) => handle(action.onClick, e)}
-							sx={{
-								borderRadius: `${radius.sm}px`,
-								px: 1.25,
-								py: "4px",
-								gap: 1,
-								fontSize: 14,
-								// MUI's MenuItem forces `.MuiListItemIcon-root { min-width: 36px }`,
-								// which left ~16px of dead space beside the 20px glyph. Collapse the
-								// icon box to its content so the gap above is the *only* icon↔text space.
-								"& .MuiListItemIcon-root": { minWidth: 0 },
-								"&:hover": { bgcolor: "action.hover" },
-							}}
-						>
+						<MenuItem key={action.key} onClick={(e) => handle(action.onClick, e)} sx={menuItemSx}>
 							<ListItemIcon sx={{ color: iconColor }}>{action.icon}</ListItemIcon>
 							<ListItemText
 								primary={action.label}

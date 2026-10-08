@@ -6,7 +6,8 @@ import { ISelectedEmployeeStore, SelectedEmployeeStore } from "stores/SelectedEm
 import { ActivityLogStore, IActivityLogStore } from "./ActivityLogStore";
 import { AlertStore, IAlertStore } from "./AlertStore";
 import { CategoryStore, ICategoryStore } from "./CategoryStore";
-import { ConnectivityStore, IConnectivityStore } from "./ConnectivityStore";
+import { ConnectivityStore } from "./ConnectivityStore";
+import { IConnectivityStore } from "./connectivityTypes";
 import { DashboardStore, IDashboardStore } from "./DashboardStore";
 import { DebtReminderStore, IDebtReminderStore } from "./DebtReminderStore";
 import { DebtStore, IDebtStore } from "./DebtStore";
@@ -83,7 +84,7 @@ export class RootStore {
 		this.authStore = new AuthStore();
 		// Registers the ConnectivityBridge reporters used by the http error
 		// interceptor — construct it so the wiring exists before any request.
-		this.connectivityStore = new ConnectivityStore(this.notificationStore);
+		this.connectivityStore = new ConnectivityStore();
 		this.createDataStores();
 	}
 
@@ -96,13 +97,13 @@ export class RootStore {
 		this.categoryStore = new CategoryStore(this.notificationStore);
 		this.productStore = new ProductStore(this.notificationStore);
 		this.partnerStore = new PartnerStore(this.notificationStore);
-		this.partnerLedgerStore = new PartnerLedgerStore(this.notificationStore);
+		this.partnerLedgerStore = new PartnerLedgerStore();
 		this.templateStore = new TemplateStore(this.notificationStore);
 		this.transactionStore = new TransactionStore(this.notificationStore);
-		this.selectedTransactionStore = new SelectedTransactionStore(this.notificationStore);
-		this.selectedProductStore = new SelectedProductStore(this.notificationStore);
+		this.selectedTransactionStore = new SelectedTransactionStore();
+		this.selectedProductStore = new SelectedProductStore();
 		this.paymentStore = new PaymentStore(this.notificationStore);
-		this.selectedPaymentStore = new SelectedPaymentStore(this.notificationStore);
+		this.selectedPaymentStore = new SelectedPaymentStore();
 		this.warehouseStore = new WarehouseStore(this.notificationStore);
 		this.selectedWarehouseStore = new SelectedWarehouseStore(this.notificationStore);
 		this.stockAdjustmentStore = new StockAdjustmentStore(this.notificationStore);
@@ -110,21 +111,18 @@ export class RootStore {
 		this.movementSourceStore = new MovementSourceStore(this.notificationStore);
 		this.orderStore = new OrderStore(this.notificationStore);
 		this.employeeStore = new EmployeeStore(this.notificationStore);
-		this.selectedEmployeeStore = new SelectedEmployeeStore(
-			this.employeeStore,
-			this.notificationStore,
-		);
+		this.selectedEmployeeStore = new SelectedEmployeeStore(this.employeeStore);
 		this.payrollStore = new PayrollStore(this.notificationStore);
 		this.walletStore = new WalletStore(this.notificationStore);
-		this.selectedWalletStore = new SelectedWalletStore(this.notificationStore);
+		this.selectedWalletStore = new SelectedWalletStore();
 		this.debtStore = new DebtStore(this.notificationStore);
-		this.dashboardStore = new DashboardStore(this.notificationStore);
+		this.dashboardStore = new DashboardStore();
 		this.onboardingStore = new OnboardingStore(this.authStore);
 		this.settingsStore = new SettingsStore(this.notificationStore);
 		this.activityLogStore = new ActivityLogStore(this.notificationStore);
 		this.reportStore = new ReportStore(this.notificationStore);
 		this.entityHistoryStore = new EntityHistoryStore(this.notificationStore);
-		this.invoicePrintStore = new InvoicePrintStore(this.notificationStore);
+		this.invoicePrintStore = new InvoicePrintStore();
 		this.debtReminderStore = new DebtReminderStore(this.settingsStore, this.notificationStore);
 		this.searchStore = new SearchStore();
 		this.alertStore = new AlertStore(this.authStore);

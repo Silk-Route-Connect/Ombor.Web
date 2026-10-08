@@ -93,7 +93,7 @@ const RecentTransactionsTable: React.FC<Props> = ({ rows, onOpen }) => {
 			}}
 		>
 			<Box sx={{ p: "16px 20px" }}>
-				<Typography sx={{ fontSize: 15, fontWeight: 600 }}>
+				<Typography variant="h3" component="h2">
 					{t("dashboard.recent.title")}
 				</Typography>
 			</Box>

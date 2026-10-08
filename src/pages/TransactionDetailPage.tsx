@@ -16,7 +16,6 @@ import {
 } from "components/transaction/Detail/InfoCards";
 import PaymentsCard from "components/transaction/Detail/PaymentsCard";
 import PositionsCard from "components/transaction/Detail/PositionsCard";
-import RefundFooter from "components/transaction/Detail/PositionsFooter";
 import RefundHistoryCard from "components/transaction/Detail/RefundHistoryCard";
 import TransactionDetailHeader from "components/transaction/Detail/TransactionDetailHeader";
 import { transactionDetailPath } from "components/transaction/List/transactionTableConfigs";
@@ -34,6 +33,7 @@ import {
 	supplyInvoicePath,
 } from "routing/paths";
 import { useStore } from "stores/StoreContext";
+import { radius } from "theme";
 import {
 	isRefundType,
 	TransactionDirection,
@@ -116,14 +116,10 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 				<Stack sx={{ gap: "16px", minWidth: 0 }}>
 					{refund && tx.refundReason && <ReasonCard reason={tx.refundReason} />}
 
-					<PositionsCard
-						lines={tx.lines}
-						count={tx.lines.length}
-						footer={refund ? <RefundFooter lines={tx.lines} /> : undefined}
-					/>
+					<PositionsCard lines={tx.lines} count={tx.lines.length} />
 
 					{relationsError && (
-						<Paper variant="outlined" sx={{ borderRadius: 1.5 }}>
+						<Paper variant="outlined" sx={{ borderRadius: `${radius.lg}px` }}>
 							<LoadStateView
 								state={relationsError}
 								size="section"
@@ -144,9 +140,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 					<EntityHistory kind={tx.type} id={tx.id} refreshKey={tx} variant="card" />
 				</Stack>
 
+				{/* Rail order of every detail page: the money hero, «Информация», then related records. */}
 				<Box sx={sideSx}>
-					<AuditCard tx={tx} isRefund={refund} />
-
 					{refund ? (
 						<RefundFinancialCard
 							direction={direction}
@@ -166,6 +161,8 @@ const TransactionDetailPage: React.FC<TransactionDetailPageProps> = observer(({ 
 							status={tx.status}
 						/>
 					)}
+
+					<AuditCard tx={tx} isRefund={refund} />
 
 					{!refund && (
 						<PaymentsCard

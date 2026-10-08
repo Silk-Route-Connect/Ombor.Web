@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Order } from "models/order";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 import { ORDER_FLOW } from "utils/orderUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -31,7 +31,7 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 				bgcolor: "background.paper",
 				border: "1px solid",
 				borderColor: "divider",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				boxShadow: 1,
 				p: "20px 26px",
 				mb: "18px",
@@ -104,7 +104,7 @@ export const OrderStepper: React.FC<{ order: Order }> = ({ order }) => {
 									flex: 1,
 									height: 2,
 									mt: "14px",
-									borderRadius: "2px",
+									borderRadius: `${radius.pill}px`,
 									minWidth: 24,
 									bgcolor: lineDone ? "primary.main" : designTokens.gray300,
 								}}

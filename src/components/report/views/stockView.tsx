@@ -1,13 +1,12 @@
 import React from "react";
 import ProductLink from "components/product/Links/ProductLink";
-import StockQuantityCell from "components/product/StockQuantityCell";
 import EntityCell from "components/shared/Table/cells/EntityCell";
 import SkuCell from "components/shared/Table/cells/SkuCell";
 import WarehouseLink from "components/warehouse/Links/WarehouseLink";
+import StockQuantityCell from "components/warehouse/Stock/StockQuantityCell";
 import { TFunction } from "i18next";
 import { StockReport, StockReportRow } from "models/report";
-import { StockFilter } from "utils/productFilters";
-import { stockRowLevel } from "utils/report/reportStock";
+import { StockFilter, stockRowLevel } from "utils/stockLevel";
 
 import { ReportView } from "../View/types";
 
@@ -171,7 +170,7 @@ function stockDetails({ warehouseLabel, search, level }: StockViewFilters, t: TF
 		t("report.stock.print.warehouse", { name: warehouseLabel }),
 		...(level === "all"
 			? []
-			: [t("report.stock.print.level", { level: t(`product.filter.stock.${level}`) })]),
+			: [t("report.stock.print.level", { level: t(`warehouse.stockFilter.${level}`) })]),
 		...(query ? [t("report.stock.print.search", { query })] : []),
 	];
 }

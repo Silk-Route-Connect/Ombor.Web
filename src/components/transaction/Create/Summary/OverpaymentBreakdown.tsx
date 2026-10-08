@@ -1,12 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
-import { designTokens } from "theme";
+import { OverpaymentDisposition } from "models/transaction";
+import { controlSize, designTokens, radius } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatOptionalNumber } from "utils/formatEntityId";
 
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
-import { Box, ButtonBase } from "@mui/material";
+import { ButtonBase } from "@mui/material";
 
 import OutstandingDebtsError from "../OutstandingDebtsError";
 import { summaryTextButtonSx } from "./styles";
@@ -95,62 +97,33 @@ const OverpaymentBreakdown: React.FC<OverpaymentBreakdownProps> = ({ entry, onOp
 				<ButtonBase
 					onClick={onOpenSettle}
 					sx={{
-						mt: "3px",
-						gap: "7px",
+						gap: "8px",
 						width: "100%",
-						py: "9px",
+						minHeight: controlSize.md.height,
 						fontSize: 13,
 						fontWeight: 600,
 						border: "1px solid",
 						borderColor: "primary.main",
-						borderRadius: "8px",
+						borderRadius: `${radius.md}px`,
 						bgcolor: designTokens.primarySoft,
 						color: "primary.main",
 						"&:hover": { bgcolor: "primary.main", color: "primary.contrastText" },
 					}}
 				>
-					<BalanceOutlinedIcon sx={{ fontSize: 15 }} />
+					<BalanceOutlinedIcon sx={{ fontSize: 16 }} />
 					{t("transaction.new.totals.settleDebtsBtn")}
 				</ButtonBase>
 			)}
 			{allDebtsSettled && (
-				<Box
-					sx={{
-						display: "flex",
-						mt: "3px",
-						p: "3px",
-						gap: "2px",
-						border: "1px solid",
-						borderColor: "divider",
-						borderRadius: "6px",
-					}}
-				>
-					{(["change", "advance"] as const).map((choice) => {
-						const selected = overChoice === choice;
-						return (
-							<ButtonBase
-								key={choice}
-								aria-pressed={selected}
-								onClick={() => setOverChoice(choice)}
-								sx={{
-									flex: 1,
-									py: "6px",
-									fontSize: 12,
-									fontWeight: 600,
-									borderRadius: "4px",
-									color: selected ? "info.main" : "text.secondary",
-									bgcolor: selected ? designTokens.infoBg : "transparent",
-								}}
-							>
-								{t(
-									choice === "change"
-										? "transaction.new.totals.change"
-										: "transaction.new.totals.advanceToggle",
-								)}
-							</ButtonBase>
-						);
-					})}
-				</Box>
+				<SegmentedControl<OverpaymentDisposition>
+					fullWidth
+					value={overChoice}
+					onChange={setOverChoice}
+					options={[
+						{ value: "change", label: t("transaction.new.totals.change") },
+						{ value: "advance", label: t("transaction.new.totals.advanceToggle") },
+					]}
+				/>
 			)}
 		</>
 	);

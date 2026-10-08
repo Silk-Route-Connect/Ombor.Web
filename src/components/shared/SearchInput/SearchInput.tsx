@@ -1,4 +1,5 @@
 import React from "react";
+import { iconSize } from "theme";
 
 import SearchIcon from "@mui/icons-material/Search";
 import { SxProps } from "@mui/material";
@@ -27,7 +28,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 	dense = false,
 	sx,
 }) => {
-	const widthSx = sx ?? { width: { xs: "100%", sm: dense ? 280 : 350 } };
+	// A list search grows with the room its row leaves (up to 420px) so a long
+	// hint such as «Поиск по названию, артикулу или штрих-коду…» is never cut.
+	const widthSx = sx ?? {
+		width: { xs: "100%", sm: dense ? 280 : "auto" },
+		...(!dense && { flex: { sm: "1 1 280px" }, minWidth: { sm: 240 }, maxWidth: { sm: 420 } }),
+	};
 	return (
 		<TextField
 			className={className}
@@ -41,10 +47,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 			value={value}
 			onChange={(e) => onChange(e.target.value)}
 			slotProps={{
+				// A hint the box cuts short still reads in full on hover.
+				htmlInput: { title: placeholder },
 				input: {
 					startAdornment: (
 						<InputAdornment position="start">
-							<SearchIcon />
+							<SearchIcon sx={{ fontSize: iconSize.md, color: "text.disabled" }} />
 						</InputAdornment>
 					),
 				},

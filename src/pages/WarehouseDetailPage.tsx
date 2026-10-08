@@ -1,28 +1,29 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EntityHistory from "components/activity/History/EntityHistory";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import Callout from "components/shared/Callout/Callout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
-import WarehouseArchivedBanner from "components/warehouse/Detail/WarehouseArchivedBanner";
 import WarehouseEmptyStock from "components/warehouse/Detail/WarehouseEmptyStock";
 import WarehouseKpis from "components/warehouse/Detail/WarehouseKpis";
 import WarehouseMovementsTab from "components/warehouse/Detail/WarehouseMovementsTab";
 import WarehouseStockTab from "components/warehouse/Detail/WarehouseStockTab";
 import OpeningStockModal from "components/warehouse/Form/OpeningStockModal";
 import WarehouseFormModal from "components/warehouse/Form/WarehouseFormModal";
+import StockThresholdDialog from "components/warehouse/Stock/StockThresholdDialog";
 import { buildWarehouseActionRows } from "components/warehouse/Table/ActionMenu/WarehouseActionMenu";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isLoadError, isPresent, isReady, readyOr } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
+import { useWarehouseStockFilters } from "hooks/warehouse/useWarehouseStockFilters";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { PATHS } from "routing/paths";
 import { OpeningStockFormValues, WarehouseFormValues } from "schemas/WarehouseSchema";
 import { useStore } from "stores/StoreContext";
-import { lowStockThresholds } from "utils/productFilters";
 
 import AddIcon from "@mui/icons-material/Add";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -34,28 +35,24 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const warehouseId = useRouteEntityId();
-	const { warehouseStore, selectedWarehouseStore, productStore } = useStore();
+	const { warehouseStore, selectedWarehouseStore } = useStore();
 
 	const [tab, setTab] = useState<WarehouseDetailTab>("stock");
-
-	// Products carry the «Минимальный остаток» the stock tab's low-stock alert compares with.
-	useEffect(() => {
-		void productStore.getAll();
-	}, [productStore]);
-	const thresholds = useMemo(
-		() => lowStockThresholds(readyOr(productStore.allProducts, [])),
-		[productStore.allProducts],
-	);
+	const stockFilters = useWarehouseStockFilters();
+	const resetStockFilters = stockFilters.reset;
 
 	useEffect(() => {
 		if (warehouseId !== null) {
 			void selectedWarehouseStore.load(warehouseId);
 		}
 		setTab("stock");
+		resetStockFilters();
 		return () => selectedWarehouseStore.clear();
-	}, [warehouseId, selectedWarehouseStore]);
+	}, [warehouseId, selectedWarehouseStore, resetStockFilters]);
 
-	const goBack = () => navigate(PATHS.warehouses);
+	const goBack = () => {
+		void navigate(PATHS.warehouses);
+	};
 
 	const warehouse = warehouseId === null ? null : selectedWarehouseStore.warehouse;
 	const dialogMode = warehouseStore.dialogMode;
@@ -81,8 +78,10 @@ const WarehouseDetailPage: React.FC = observer(() => {
 		}
 	};
 
-	const reflect = (updated: Warehouse): void => {
+	// Archiving clears every row's served flag (and the count); restoring brings them back.
+	const reflectLifecycle = (updated: Warehouse): void => {
 		selectedWarehouseStore.applyWarehouse(updated);
+		void selectedWarehouseStore.reloadLedgers(updated.id);
 	};
 
 	const handleDelete = (): void => {
@@ -110,13 +109,18 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	const stock = readyOr(stockState, []);
 	const movements = readyOr(movementsState, []);
 	const ledgersReady = isReady(stockState) && isReady(movementsState);
-	const ledgersState = isLoadError(stockState)
-		? stockState
-		: isLoadError(movementsState)
-			? movementsState
-			: "loading";
+	const ledgersState =
+		[stockState, movementsState].find((state) => isLoadError(state)) ?? "loading";
 
-	const empty = warehouse.productCount === 0;
+	// A row emptied to 0 is not in `productCount` but stays in «Остатки» (it can be
+	// tracked, and «Нет в наличии» lists it), so the tabs show while any row exists.
+	const empty = isReady(stockState) ? stock.length === 0 : warehouse.productCount === 0;
+	const showsTabs = !empty || warehouse.isArchived;
+
+	const openLowStock = (): void => {
+		stockFilters.showLowStock();
+		setTab("stock");
+	};
 
 	const actions = buildWarehouseActionRows(t, {
 		warehouse,
@@ -130,10 +134,7 @@ const WarehouseDetailPage: React.FC = observer(() => {
 	// kept as a standalone header button beside the lifecycle ⋮ kebab. Hidden on
 	// archived warehouses (no new operations until restored).
 	const primaryAction = warehouse.isArchived ? undefined : (
-		<GhostButton
-			icon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-			onClick={() => warehouseStore.openOpeningStock(warehouse)}
-		>
+		<GhostButton icon={<AddIcon />} onClick={() => warehouseStore.openOpeningStock(warehouse)}>
 			{t("warehouse.opening.action")}
 		</GhostButton>
 	);
@@ -171,11 +172,15 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				archivedLabel={t("warehouse.table.archivedBadge")}
 			/>
 
-			{warehouse.isArchived && <WarehouseArchivedBanner />}
+			{warehouse.isArchived && (
+				<Callout tone="archived" title={t("warehouse.detail.archived.title")} sx={{ mb: 2 }}>
+					{t("warehouse.detail.archived.body")}
+				</Callout>
+			)}
 
-			<WarehouseKpis warehouse={warehouse} />
+			<WarehouseKpis warehouse={warehouse} onLowStock={showsTabs ? openLowStock : undefined} />
 
-			{empty && !warehouse.isArchived ? (
+			{!showsTabs ? (
 				<WarehouseEmptyStock onOpeningStock={() => warehouseStore.openOpeningStock(warehouse)} />
 			) : (
 				<Stack sx={{ gap: "16px" }}>
@@ -197,7 +202,8 @@ const WarehouseDetailPage: React.FC = observer(() => {
 							onAddOpeningStock={
 								warehouse.isArchived ? undefined : () => warehouseStore.openOpeningStock(warehouse)
 							}
-							lowStockThresholds={thresholds}
+							filters={stockFilters}
+							onEditThreshold={selectedWarehouseStore.openThreshold}
 						/>
 					) : (
 						<WarehouseMovementsTab warehouseName={warehouse.name} movements={movements} />
@@ -222,7 +228,19 @@ const WarehouseDetailPage: React.FC = observer(() => {
 				onSave={handleOpeningSave}
 			/>
 
-			<WarehouseDialogs onArchived={reflect} onRestored={reflect} onDeleted={goBack} />
+			<StockThresholdDialog
+				row={selectedWarehouseStore.thresholdRow}
+				warehouseName={warehouse.name}
+				isSaving={selectedWarehouseStore.isSaving}
+				onSave={(value) => void selectedWarehouseStore.saveThreshold(value)}
+				onClose={selectedWarehouseStore.closeThreshold}
+			/>
+
+			<WarehouseDialogs
+				onArchived={reflectLifecycle}
+				onRestored={reflectLifecycle}
+				onDeleted={goBack}
+			/>
 		</Box>
 	);
 });

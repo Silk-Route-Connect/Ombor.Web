@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import EntityAutocomplete from "components/shared/Autocomplete/Autocomplete";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import NumericField from "components/shared/Inputs/NumericField";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { isReady } from "helpers/Loading";
 import { useDirtyClose } from "hooks/shared/useDirtyClose";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
@@ -16,29 +14,15 @@ import { Product } from "models/product";
 import { Warehouse } from "models/warehouse";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
-import { designTokens, dialogPaperSx, numericSx } from "theme";
-import { formatQuantity } from "utils/formatCurrency";
+import { numericSx } from "theme";
 import { measurementShort } from "utils/productUtils";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import {
-	Box,
-	Button,
-	Dialog,
-	DialogContent,
-	InputAdornment,
-	LinearProgress,
-	MenuItem,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
 
-import TransferProductOption from "./TransferProductOption";
+import TransferLineRow from "./TransferLineRow";
 
 export interface TransferFormModalProps {
 	isOpen: boolean;
@@ -154,246 +138,17 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 	const noCompleteLines = completeLines === 0;
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{ paper: { sx: dialogPaperSx("md") } }}
-			>
-				<FormDialogHeader
-					title={t("transfer.title.create")}
-					subtitle={t("transfer.form.subtitle")}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ pt: 2 }}>
-					{/* route: from → to */}
-					<Box
-						sx={{
-							display: "grid",
-							gridTemplateColumns: "1fr 36px 1fr",
-							gap: "10px",
-							alignItems: "end",
-							mb: sameWarehouse ? "6px" : "20px",
-						}}
-					>
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("transfer.field.from")} required />
-							<Controller
-								name="fromWarehouseId"
-								control={control}
-								render={({ field }) => (
-									<WarehouseSelect
-										value={field.value}
-										warehouses={warehouses}
-										disabled={isSaving}
-										onChange={field.onChange}
-									/>
-								)}
-							/>
-						</Stack>
-						<Box sx={{ height: 40, display: "grid", placeItems: "center", color: "primary.main" }}>
-							<ChevronRightIcon sx={{ fontSize: 20 }} />
-						</Box>
-						<Stack sx={{ gap: "7px" }}>
-							<FormFieldLabel label={t("transfer.field.to")} required />
-							<Controller
-								name="toWarehouseId"
-								control={control}
-								render={({ field }) => (
-									<WarehouseSelect
-										value={field.value}
-										warehouses={warehouses}
-										disabled={isSaving}
-										error={sameWarehouse}
-										onChange={field.onChange}
-									/>
-								)}
-							/>
-						</Stack>
-					</Box>
-					{sameWarehouse && (
-						<Typography sx={{ fontSize: 12, color: "error.main", mb: "16px" }}>
-							{t("transfer.form.sameWarehouseField")}
-						</Typography>
-					)}
-
-					{/* lines */}
-					<FormFieldLabel label={t("transfer.field.lines")} required />
-					<Stack sx={{ gap: "10px", mt: "10px" }}>
-						{lines.fields.map((fieldRow, index) => {
-							const line = watchedLines?.[index];
-							const productId = line?.productId ?? 0;
-							const quantity = line?.quantity ?? 0;
-							const product = productById.get(productId) ?? null;
-							const unit = product
-								? measurementShort(t, product.measurement)
-								: t("transfer.unitFallback");
-							const avail = availFor(productId);
-							const over = lineIsOver(productId, quantity);
-							const pickedElsewhere = (watchedLines ?? [])
-								.filter((_, i) => i !== index)
-								.map((l) => l.productId);
-							const options = activeProducts.filter(
-								(p) => p.id === productId || !pickedElsewhere.includes(p.id),
-							);
-							const onlyLine = lines.fields.length === 1;
-
-							return (
-								<Box key={fieldRow.key}>
-									<Box
-										sx={{
-											display: "grid",
-											gridTemplateColumns: "1fr 150px 38px",
-											gap: "10px",
-											alignItems: "start",
-										}}
-									>
-										<Controller
-											name={`lines.${index}.productId` as const}
-											control={control}
-											render={({ field, fieldState }) => (
-												<EntityAutocomplete<Product>
-													label=""
-													placeholder={t("transfer.form.productPlaceholder")}
-													size="small"
-													options={options}
-													value={product}
-													error={!!fieldState.error}
-													additionalFilter={(p, text) => p.sku.toLowerCase().includes(text)}
-													onChange={(p) => field.onChange(p?.id ?? 0)}
-													renderOption={(optionProps, option) => {
-														const { key, ...liProps } =
-															optionProps as React.HTMLAttributes<HTMLLIElement> & {
-																key?: React.Key;
-															};
-														return (
-															<Box component="li" key={option.id} {...liProps} sx={{ gap: "12px" }}>
-																<TransferProductOption
-																	product={option}
-																	stock={availFor(option.id)}
-																/>
-															</Box>
-														);
-													}}
-												/>
-											)}
-										/>
-										<Controller
-											name={`lines.${index}.quantity` as const}
-											control={control}
-											render={({ field, fieldState }) => (
-												<NumericField
-													{...field}
-													size="small"
-													disabled={isSaving}
-													error={!!fieldState.error || over}
-													slotProps={{
-														input: {
-															endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
-														},
-													}}
-												/>
-											)}
-										/>
-										<Button
-											onClick={() => !onlyLine && lines.remove(index)}
-											disabled={onlyLine}
-											aria-label={t("common.delete")}
-											sx={{
-												minWidth: 0,
-												width: 38,
-												height: 40,
-												p: 0,
-												border: "1px solid",
-												borderColor: designTokens.gray300,
-												color: "text.disabled",
-												"&:hover": {
-													color: "error.main",
-													borderColor: designTokens.errorBorder,
-													bgcolor: designTokens.errorBg,
-												},
-											}}
-										>
-											<DeleteOutlineIcon sx={{ fontSize: 18 }} />
-										</Button>
-									</Box>
-									{productId > 0 && (
-										<Typography
-											sx={{
-												fontSize: 12,
-												mt: "6px",
-												color: over ? "error.main" : "text.secondary",
-											}}
-										>
-											{t("transfer.form.available", { warehouse: fromName })}{" "}
-											<Box
-												component="span"
-												sx={{
-													...numericSx,
-													fontWeight: 700,
-													color: over ? "error.main" : designTokens.gray700,
-												}}
-											>
-												{formatQuantity(avail)} {unit}
-											</Box>
-											{over &&
-												` ${t("transfer.form.overStockSuffix", { requested: formatQuantity(quantity), unit })}`}
-										</Typography>
-									)}
-								</Box>
-							);
-						})}
-					</Stack>
-
-					{anyOver && (
-						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
-							{t("transfer.form.overStockBanner")}
-						</Typography>
-					)}
-					{formState.isSubmitted && noCompleteLines && (
-						<Typography sx={{ color: "error.main", fontSize: 12.5, mt: "8px" }}>
-							{t("transfer.form.noLinesBanner")}
-						</Typography>
-					)}
-
-					<Button
-						onClick={() => lines.append(emptyLine())}
-						startIcon={<AddIcon sx={{ fontSize: "18px !important" }} />}
-						sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
-					>
-						{t("transfer.form.addLine")}
-					</Button>
-
-					<Stack sx={{ gap: "7px", mt: "20px" }}>
-						<FormFieldLabel label={t("transfer.field.note")} />
-						<Controller
-							name="note"
-							control={control}
-							render={({ field, fieldState }) => (
-								<TextField
-									{...field}
-									value={field.value ?? ""}
-									size="small"
-									fullWidth
-									multiline
-									minRows={2}
-									placeholder={t("transfer.form.notePlaceholder")}
-									disabled={isSaving}
-									error={!!fieldState.error}
-									helperText={fieldState.error?.message}
-								/>
-							)}
-						/>
-					</Stack>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="md"
+			title={t("transfer.title.create")}
+			subtitle={t("transfer.form.subtitle")}
+			tile={recordTile("Transfer")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					canSave={canSave}
 					loading={isSaving}
@@ -403,7 +158,7 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 					submitIcon={<CheckIcon />}
 					commitNote={t("transfer.form.commitNote")}
 					summary={
-						<Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+						<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
 							{t("transfer.form.positionsCount")}{" "}
 							<Box component="b" sx={numericSx}>
 								{completeLines}
@@ -411,21 +166,134 @@ const TransferFormModal: React.FC<TransferFormModalProps> = ({
 						</Typography>
 					}
 				/>
-			</Dialog>
+			}
+		>
+			{/* route: from → to */}
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: "1fr 36px 1fr",
+					gap: "10px",
+					alignItems: "end",
+					mb: sameWarehouse ? "6px" : "20px",
+				}}
+			>
+				<FormField label={t("transfer.field.from")} required>
+					<Controller
+						name="fromWarehouseId"
+						control={control}
+						render={({ field }) => (
+							<WarehouseSelect
+								value={field.value}
+								warehouses={warehouses}
+								disabled={isSaving}
+								onChange={field.onChange}
+							/>
+						)}
+					/>
+				</FormField>
+				<Box sx={{ height: 38, display: "grid", placeItems: "center", color: "primary.main" }}>
+					<ChevronRightIcon sx={{ fontSize: 20 }} />
+				</Box>
+				<FormField label={t("transfer.field.to")} required>
+					<Controller
+						name="toWarehouseId"
+						control={control}
+						render={({ field }) => (
+							<WarehouseSelect
+								value={field.value}
+								warehouses={warehouses}
+								disabled={isSaving}
+								error={sameWarehouse}
+								onChange={field.onChange}
+							/>
+						)}
+					/>
+				</FormField>
+			</Box>
+			{sameWarehouse && (
+				<Typography sx={{ fontSize: 12, color: "error.main", mb: "16px" }}>
+					{t("transfer.form.sameWarehouseField")}
+				</Typography>
+			)}
 
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
-			/>
-		</>
+			<FormField label={t("transfer.field.lines")} required>
+				<Stack sx={{ gap: "10px", mt: "4px" }}>
+					{lines.fields.map((fieldRow, index) => {
+						const line = watchedLines?.[index];
+						const productId = line?.productId ?? 0;
+						const quantity = line?.quantity ?? 0;
+						const product = productById.get(productId) ?? null;
+						const pickedElsewhere = (watchedLines ?? [])
+							.filter((_, i) => i !== index)
+							.map((l) => l.productId);
+						return (
+							<TransferLineRow
+								key={fieldRow.key}
+								index={index}
+								control={control}
+								product={product}
+								picked={productId > 0}
+								options={activeProducts.filter(
+									(p) => p.id === productId || !pickedElsewhere.includes(p.id),
+								)}
+								quantity={quantity}
+								unit={
+									product ? measurementShort(t, product.measurement) : t("transfer.unitFallback")
+								}
+								avail={availFor(productId)}
+								over={lineIsOver(productId, quantity)}
+								fromName={fromName}
+								onlyLine={lines.fields.length === 1}
+								disabled={isSaving}
+								availFor={availFor}
+								onRemove={() => lines.remove(index)}
+							/>
+						);
+					})}
+				</Stack>
+			</FormField>
+
+			{anyOver && (
+				<Typography sx={{ color: "error.main", fontSize: 12, mt: "8px" }}>
+					{t("transfer.form.overStockBanner")}
+				</Typography>
+			)}
+			{formState.isSubmitted && noCompleteLines && (
+				<Typography sx={{ color: "error.main", fontSize: 12, mt: "8px" }}>
+					{t("transfer.form.noLinesBanner")}
+				</Typography>
+			)}
+
+			<Button
+				onClick={() => lines.append(emptyLine())}
+				startIcon={<AddIcon />}
+				sx={{ mt: "8px", color: "primary.main", fontWeight: 600, px: 1 }}
+			>
+				{t("transfer.form.addLine")}
+			</Button>
+
+			<FormField label={t("transfer.field.note")} sx={{ mt: "20px" }}>
+				<Controller
+					name="note"
+					control={control}
+					render={({ field, fieldState }) => (
+						<TextField
+							{...field}
+							value={field.value ?? ""}
+							size="small"
+							fullWidth
+							multiline
+							minRows={2}
+							placeholder={t("transfer.form.notePlaceholder")}
+							disabled={isSaving}
+							error={!!fieldState.error}
+							helperText={fieldState.error?.message}
+						/>
+					)}
+				/>
+			</FormField>
+		</FormDialog>
 	);
 };
 

@@ -5,15 +5,14 @@ import DetailTable from "components/shared/Detail/DetailTable";
 import QuantityCell from "components/shared/Table/cells/QuantityCell";
 import SkuCell from "components/shared/Table/cells/SkuCell";
 import { Column } from "components/shared/Table/DataTable/DataTable";
-import { Transfer, TransferLine, transferUnits } from "models/transfer";
-import { numericSx, radius } from "theme";
-import { formatQuantity } from "utils/formatCurrency";
+import { Transfer, TransferLine } from "models/transfer";
+import { radius } from "theme";
 
 import { Box } from "@mui/material";
 
 type LineRow = TransferLine & { id: number };
 
-/** The transfer's lines (товар · артикул · количество) with the positions / units band. */
+/** The transfer's lines (товар · артикул · количество) with the positions band. */
 export const TransferLinesTable: React.FC<{ transfer: Transfer }> = ({ transfer }) => {
 	const { t } = useTranslation();
 	const rows = useMemo<LineRow[]>(
@@ -60,12 +59,10 @@ export const TransferLinesTable: React.FC<{ transfer: Transfer }> = ({ transfer 
 				columns={columns}
 				footer={
 					<tr className="total">
-						<td colSpan={2}>
+						{/* Positions only — a quantity total would add kg, pieces and tonnes. */}
+						<td colSpan={3}>
 							{t("transfer.detail.totalPositions", { positions: transfer.lines.length })}
 						</td>
-						<Box component="td" className="r" sx={numericSx}>
-							{formatQuantity(transferUnits(transfer))}
-						</Box>
 					</tr>
 				}
 			/>

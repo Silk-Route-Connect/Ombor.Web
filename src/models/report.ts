@@ -109,8 +109,9 @@ export type StockReportRow = {
 	value: number;
 	salePrice: number;
 	saleValue: number;
-	lowStockThreshold: number;
-	/** quantity ≤ threshold in this warehouse (the warehouse stock tab's rule). */
+	/** The row's own threshold (DR-41); omitted (null) when the row is not tracked. */
+	lowStockThreshold?: number | null;
+	/** Tracked and quantity ≤ threshold; false for an archived product or warehouse (the «Остатки» rule). */
 	isLowStock: boolean;
 };
 

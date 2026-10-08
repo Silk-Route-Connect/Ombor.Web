@@ -1,25 +1,33 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import SaveIcon from "@mui/icons-material/Save";
-import { Box, Button, Tooltip } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import { Button } from "@mui/material";
+
+import BlockedAction from "./BlockedAction";
 
 interface SaveButtonProps {
 	disabled?: boolean;
 	loading?: boolean;
 	fullWidth?: boolean;
-	tooltip?: string;
+	/**
+	 * Why the submit cannot run right now (the offline gate). Unlike `disabled` the
+	 * button stays focusable (`aria-disabled`), so keyboard and screen-reader users
+	 * reach the reason: it is the tooltip and the button's accessible description.
+	 */
+	blockedReason?: string;
 	/** Overrides «Сохранить» — immutable events name what happens («Провести …»). */
 	label?: string;
 	icon?: React.ReactNode;
-	onSave: () => void;
+	/** Sync or async; a returned promise is not awaited — the store reports its own outcome. */
+	onSave: () => unknown;
 }
 
 const SaveButton: React.FC<SaveButtonProps> = ({
 	disabled = false,
 	loading = false,
 	fullWidth = false,
-	tooltip,
+	blockedReason,
 	label,
 	icon,
 	onSave,
@@ -27,22 +35,25 @@ const SaveButton: React.FC<SaveButtonProps> = ({
 	const { t } = useTranslation();
 
 	return (
-		<Tooltip title={disabled && !loading && tooltip} placement="top">
-			<Box component="span" sx={{ display: "inline-flex", width: fullWidth ? "100%" : "auto" }}>
+		<BlockedAction reason={loading ? undefined : blockedReason} fullWidth={fullWidth}>
+			{(blocked, blockedProps) => (
 				<Button
 					variant="contained"
-					startIcon={icon ?? <SaveIcon />}
+					// The commit tick every submit shares (the filled floppy disk was the one
+					// filled glyph among outlined icons, and «Провести …» already used ✓).
+					startIcon={icon ?? <CheckIcon />}
 					color="primary"
-					disabled={disabled}
+					disabled={disabled && !blocked}
 					loading={loading}
 					fullWidth={fullWidth}
-					onClick={onSave}
+					onClick={blocked ? undefined : () => void onSave()}
 					sx={{ whiteSpace: "nowrap" }}
+					{...blockedProps}
 				>
 					{label ?? t("common.save")}
 				</Button>
-			</Box>
-		</Tooltip>
+			)}
+		</BlockedAction>
 	);
 };
 

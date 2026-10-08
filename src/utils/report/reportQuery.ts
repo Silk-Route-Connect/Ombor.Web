@@ -7,7 +7,7 @@ import {
 	DateRangeValue,
 	toDayParams,
 } from "utils/dateRange";
-import type { StockFilter } from "utils/productFilters";
+import { STOCK_FILTERS, StockFilter } from "utils/stockLevel";
 
 /** The reports of the «Отчёты» section, in hub order («Долги» is its own page). */
 export const REPORT_KINDS = [
@@ -68,8 +68,6 @@ export interface ReportQuery {
 	level?: StockFilter;
 }
 
-const STOCK_LEVELS: readonly StockFilter[] = ["all", "low", "out"];
-
 /** The query as URL parameters — a preset by name (`period=month`), a custom range by its days. */
 export function reportQueryParams(query: ReportQuery): Record<string, string> {
 	const params: Record<string, string> = {};
@@ -115,6 +113,6 @@ export function parseReportQuery(params: URLSearchParams): Partial<ReportQuery> 
 	}
 	query.search = params.get("q") ?? "";
 	const level = params.get("level");
-	query.level = STOCK_LEVELS.find((value) => value === level) ?? "all";
+	query.level = STOCK_FILTERS.find((value) => value === level) ?? "all";
 	return query;
 }

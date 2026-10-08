@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ExportButton from "components/shared/Buttons/ExportButton";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import Callout from "components/shared/Callout/Callout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { DataTable } from "components/shared/Table/DataTable/DataTable";
@@ -15,10 +16,9 @@ import { exportToCsv } from "utils/exportToCsv";
 
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
-import { Alert } from "@mui/material";
 
 import ReportChart from "../Chart/ReportChart";
-import { toCsv, toTableColumns } from "../View/reportColumns";
+import { toCsv, toTableColumns, toTableTotalsRow } from "../View/reportColumns";
 import { ReportView } from "../View/types";
 import ReportKpiRow from "./ReportKpiRow";
 
@@ -55,6 +55,10 @@ export function ReportScreen<Row extends { id: string }>({
 	const tableOrder = useTableOrder<Row>();
 	const ready = isReady(view) ? view : null;
 	const columns = useMemo(() => (ready ? toTableColumns(ready.columns) : []), [ready]);
+	const totalRow = useMemo(
+		() => (ready ? toTableTotalsRow(ready.columns, ready.totals, t) : undefined),
+		[ready, t],
+	);
 
 	const handleExport = () => {
 		if (!ready) {
@@ -69,6 +73,7 @@ export function ReportScreen<Row extends { id: string }>({
 			<DetailPageHeader
 				backTo={PATHS.reports}
 				title={title}
+				documentTitle={t("report.documentTitle", { title })}
 				meta={periodLabel ?? undefined}
 				primaryAction={
 					<>
@@ -90,9 +95,9 @@ export function ReportScreen<Row extends { id: string }>({
 			) : (
 				<>
 					{ready.costIsEstimated && (
-						<Alert severity="info" sx={{ mb: "16px" }}>
+						<Callout tone="info" sx={{ mb: 2 }}>
 							{t("report.estimatedCost")}
-						</Alert>
+						</Callout>
 					)}
 					<ReportKpiRow kpis={ready.kpis} />
 					{ready.chart && <ReportChart spec={ready.chart} />}
@@ -101,6 +106,7 @@ export function ReportScreen<Row extends { id: string }>({
 						columns={columns}
 						exportOrder={tableOrder}
 						summary={<TableTotals count={ready.countLabel(ready.rows.length)} />}
+						totalRow={totalRow}
 						empty={
 							<TableEmptyState
 								icon={<AssessmentOutlinedIcon />}

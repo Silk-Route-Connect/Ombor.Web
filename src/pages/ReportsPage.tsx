@@ -7,6 +7,7 @@ import { PATHS, reportPath } from "routing/paths";
 import { ReportKind } from "utils/report/reportQuery";
 
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
@@ -38,7 +39,11 @@ const ReportsPage: React.FC = () => {
 
 	return (
 		<Box>
-			<PageHeader title={t("report.hub.title")} subtitle={t("report.hub.subtitle")} />
+			<PageHeader
+				title={t("report.hub.title")}
+				icon={AssessmentOutlinedIcon}
+				subtitle={t("report.hub.subtitle")}
+			/>
 			<Box
 				sx={{
 					display: "grid",

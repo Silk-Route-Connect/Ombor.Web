@@ -20,7 +20,7 @@ import { PATHS, saleDetailPath, supplyDetailPath } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { csvDateStamp, exportToCsv } from "utils/exportToCsv";
-import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { isRefundType, TransactionDirection } from "utils/transactionUtils";
 
 import { Box } from "@mui/material";
@@ -63,7 +63,7 @@ const TransactionPage: React.FC<TransactionPageProps> = observer(({ mode }) => {
 			[
 				{
 					header: t("transaction.col.number"),
-					value: (tx) => formatEntityId(transactionDisplayNumber(tx)),
+					value: (tx) => formatOptionalNumber(transactionDisplayNumber(tx), t("common.noNumber")),
 				},
 				{ header: t("transaction.col.date"), value: (tx) => formatDate(tx.date) },
 				{ header: t("transaction.col.partner"), value: (tx) => tx.partnerName },

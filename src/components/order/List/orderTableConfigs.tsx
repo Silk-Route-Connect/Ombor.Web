@@ -50,17 +50,17 @@ export function buildOrderColumns(t: TFunction): Column<Order>[] {
 			renderCell: (o) => <OrderSourceChip source={o.source} />,
 		},
 		{
+			key: "delivery",
+			headerName: t("order.col.delivery"),
+			sortValue: (o) => o.deliveryDate ?? null,
+			renderCell: (o) => <OrderDeliveryCell order={o} />,
+		},
+		{
 			key: "positions",
 			headerName: t("order.col.positions"),
 			align: "right",
 			sortValue: (o) => o.lines.length,
 			renderCell: (o) => <QuantityCell value={o.lines.length} />,
-		},
-		{
-			key: "delivery",
-			headerName: t("order.col.delivery"),
-			sortValue: (o) => o.deliveryDate ?? null,
-			renderCell: (o) => <OrderDeliveryCell order={o} />,
 		},
 		{
 			key: "total",

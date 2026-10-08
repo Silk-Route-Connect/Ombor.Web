@@ -103,10 +103,6 @@ export class TransferStore implements ITransferStore {
 
 		const result = await tryRun(() => TransferApi.getAll());
 
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "transfer.error.getAll");
-		}
-
 		runInAction(() => (this.allTransfers = toLoadable(result)));
 	}
 

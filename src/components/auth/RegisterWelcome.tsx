@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ONBOARDING_STEPS } from "components/onboarding/onboardingSteps";
-import { designTokens } from "theme";
+import { designTokens, iconSize, radius } from "theme";
 
 import { Box, Button, Typography } from "@mui/material";
 
@@ -37,7 +37,7 @@ const RegisterWelcome: React.FC<RegisterWelcomeProps> = ({ company, onStart }) =
 							alignItems: "center",
 							gap: "13px",
 							p: "12px 13px",
-							borderRadius: "8px",
+							borderRadius: `${radius.md}px`,
 							border: "1px solid",
 							borderColor: "divider",
 							bgcolor: designTokens.gray25,
@@ -48,14 +48,14 @@ const RegisterWelcome: React.FC<RegisterWelcomeProps> = ({ company, onStart }) =
 								width: 38,
 								height: 38,
 								flex: "0 0 auto",
-								borderRadius: "8px",
+								borderRadius: `${radius.md}px`,
 								bgcolor: designTokens.primarySoft,
 								color: "primary.main",
 								display: "grid",
 								placeItems: "center",
 							}}
 						>
-							<Icon sx={{ fontSize: 19 }} />
+							<Icon sx={{ fontSize: iconSize.lg }} />
 						</Box>
 						<Box>
 							<Typography sx={{ fontSize: 14, fontWeight: 600 }}>
@@ -73,7 +73,7 @@ const RegisterWelcome: React.FC<RegisterWelcomeProps> = ({ company, onStart }) =
 					variant="contained"
 					fullWidth
 					onClick={onStart}
-					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+					sx={{ height: 46, fontSize: 15, borderRadius: `${radius.md}px` }}
 				>
 					{t("auth.welcome.start")}
 				</Button>

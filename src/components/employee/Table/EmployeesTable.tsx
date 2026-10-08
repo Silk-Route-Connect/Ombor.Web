@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Employee } from "models/employee";
 
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 
 import { buildEmployeeColumns, EmployeeColumnHandlers } from "./employeeTableConfigs";
 
@@ -59,7 +59,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
 			onRowClick={onOpen}
 			empty={
 				<TableEmptyState
-					icon={<PeopleOutlineIcon />}
+					icon={<BadgeOutlinedIcon />}
 					title={isFiltering ? t("employee.empty.searchTitle") : t("employee.empty.title")}
 					hint={isFiltering ? t("employee.empty.searchBody") : t("employee.empty.body")}
 					action={isFiltering ? undefined : { label: t("employee.create"), onClick: onCreate }}

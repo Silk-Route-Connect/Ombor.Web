@@ -1,6 +1,6 @@
 ﻿import { Order, OrderLine, OrderStatus } from "models/order";
 import { ChipTokenKey, chipTokens, designTokens } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatExactPercent } from "utils/formatCurrency";
 
 export interface OrderStatusMeta {
 	/** Chip colour semantics (`chipTokens` key). */
@@ -83,7 +83,7 @@ export function isOrderDueToday(order: DeliveryFields): boolean {
 export const shortDeliveryTime = (time: string): string => time.slice(0, 5);
 
 /**
- * Request form of a delivery time picked in an «HH:mm» time input. The API binds
+ * Request form of a delivery time picked in the «HH:mm» TimeField. The API binds
  * `TimeOnly` only from «HH:mm:ss» — a bare «HH:mm» fails the whole body binding.
  */
 export const toApiDeliveryTime = (time: string): string | null =>
@@ -133,7 +133,7 @@ export function discountShortLabel(
 		return null;
 	}
 	return line.discountType === "Percentage"
-		? `−${line.discount}%`
+		? `−${formatExactPercent(line.discount)}%`
 		: `−${formatCurrency(line.discount)}`;
 }
 

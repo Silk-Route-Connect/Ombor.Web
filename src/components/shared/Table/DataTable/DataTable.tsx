@@ -3,21 +3,19 @@ import { useTranslation } from "react-i18next";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import TableEmptyState from "components/shared/Table/TableEmptyState";
 import { isReady, Loadable } from "helpers/Loading";
-import { numericSx } from "theme";
 
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
+import { Box, Paper, TableContainer } from "@mui/material";
 
+import { FOOTER_SX } from "../tableChrome";
 import { TableOrder } from "../tableOrder";
 import TablePager from "../TablePager";
-import { isSortableColumn, useTableSort } from "../useTableSort";
-import DataTableHead from "./DataTableHead";
+import { useRowsPerPage } from "../useRowsPerPage";
+import { useTableSort } from "../useTableSort";
+import DataTableGrid from "./DataTableGrid";
+import { DataTableTotalRow } from "./DataTableRow";
 import {
-	BODY_CELL_SX,
-	DEFAULT_ROWS_PER_PAGE,
 	fixedTableSx,
-	FOOTER_SX,
-	ROW_SX,
 	ROWS_PER_PAGE_OPTIONS,
 	TABLE_CONTAINER_SX,
 	TABLE_SCROLL_SX,
@@ -68,13 +66,14 @@ export interface DataTableProps<T extends { id: string | number }> {
 	rows: Loadable<T[]>;
 	columns: Column<T>[];
 	className?: string;
-	/** 10/25/50 pager; on by default — pass `false` only with a documented reason. */
+	/** 25/50/100 pager; on by default — pass `false` only with a documented reason. */
 	pagination?: boolean;
-	rowsPerPageOptions?: number[];
-	/** Initial page size; defaults to the first entry of rowsPerPageOptions. */
+	rowsPerPageOptions?: readonly number[];
+	/** Initial page size; defaults to 25 (or the smallest of `rowsPerPageOptions`). */
 	defaultRowsPerPage?: number;
 	/** Initial sort column + direction (see {@link DefaultSort}). */
 	defaultSort?: DefaultSort;
+	/** Opens a row (click, Enter, Space). Without it rows are static — no hover wash, no pointer. */
 	onRowClick?: (row: T) => void;
 	/** The page's `useTableOrder()` — its CSV export then writes rows in this table's order. */
 	exportOrder?: TableOrder<T>;
@@ -87,10 +86,20 @@ export interface DataTableProps<T extends { id: string | number }> {
 	/** Totals of the filtered rows (`TableTotals`) in the footer band, left of the pager. */
 	summary?: React.ReactNode;
 	/**
+	 * A pinned «Итого» band after the last row, by column key (e.g. a report's
+	 * served totals) — not sorted or paged with the rows.
+	 */
+	totalRow?: Partial<Record<string, React.ReactNode>>;
+	/**
 	 * Fixed column widths (`COLUMN_WIDTH` on the narrow columns, names share the
 	 * rest): a search or filter that narrows the rows never re-flows the columns.
 	 */
 	fixedLayout?: boolean;
+	/**
+	 * Names this table among several on one page, so each remembers its own page
+	 * size (`useRowsPerPage`); a page with one table leaves it out.
+	 */
+	storageKey?: string;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -107,13 +116,17 @@ export function DataTable<T extends { id: string | number }>({
 	onRetry,
 	errorTitle,
 	summary,
+	totalRow,
 	fixedLayout = false,
+	storageKey,
 }: Readonly<DataTableProps<T>>) {
 	const { t } = useTranslation();
 	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(
-		defaultRowsPerPage ?? rowsPerPageOptions[0] ?? DEFAULT_ROWS_PER_PAGE,
-	);
+	const [rowsPerPage, setRowsPerPage] = useRowsPerPage("list", {
+		options: rowsPerPageOptions,
+		initial: defaultRowsPerPage,
+		tableKey: storageKey,
+	});
 	const { sortKey, order, requestSort, sortRows } = useTableSort(columns, defaultSort, exportOrder);
 
 	const sortedRows = useMemo<Loadable<T[]>>(
@@ -147,41 +160,9 @@ export function DataTable<T extends { id: string | number }>({
 		[fixedLayout, columns],
 	);
 
-	const isSelectable = Boolean(onRowClick);
-
-	const handleRequestSort = (col: Column<T>) => {
-		if (isSortableColumn(col)) {
-			requestSort(col.key);
-		}
-	};
-
 	const handleRowsPerPageChange = (next: number) => {
 		setRowsPerPage(next);
 		setPage(0);
-	};
-
-	const handleRowClick = (row: T) => onRowClick?.(row);
-
-	// Only a key pressed on the row itself opens it — Enter on a link or button
-	// inside the row belongs to that control.
-	const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTableRowElement>, row: T) => {
-		if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) {
-			return;
-		}
-		e.preventDefault();
-		onRowClick?.(row);
-	};
-
-	const renderCell = (row: T, col: Column<T>) => {
-		if (col.renderCell) {
-			return col.renderCell(row);
-		}
-
-		if (col.field != null) {
-			return row[col.field] as unknown as React.ReactNode;
-		}
-
-		return null;
 	};
 
 	if (isReady(rows) && rows.length === 0) {
@@ -210,40 +191,18 @@ export function DataTable<T extends { id: string | number }>({
 	return (
 		<Paper elevation={1} className={className} sx={TABLE_CONTAINER_SX}>
 			<TableContainer sx={TABLE_SCROLL_SX}>
-				<Table stickyHeader size="small" sx={tableSx}>
-					<DataTableHead
-						columns={columns}
-						sortKey={sortKey}
-						order={order}
-						isSortable={isSortableColumn}
-						onSort={handleRequestSort}
-					/>
-
-					<TableBody>
-						{displayedRows.map((row) => (
-							<TableRow
-								key={row.id}
-								onClick={() => handleRowClick(row)}
-								tabIndex={onRowClick ? 0 : undefined}
-								onKeyDown={(e) => handleOnKeyDown(e, row)}
-								sx={{
-									...ROW_SX,
-									cursor: isSelectable ? "pointer" : "default",
-								}}
-							>
-								{columns.map((col) => (
-									<TableCell
-										key={`${row.id}-${col.key}`}
-										align={col.align ?? "left"}
-										sx={col.align === "right" ? { ...BODY_CELL_SX, ...numericSx } : BODY_CELL_SX}
-									>
-										{renderCell(row, col)}
-									</TableCell>
-								))}
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
+				<DataTableGrid<T>
+					rows={displayedRows}
+					columns={columns}
+					sortKey={sortKey}
+					order={order}
+					onSort={requestSort}
+					openerOf={onRowClick && ((row) => () => onRowClick(row))}
+					stickyHeader
+					sx={tableSx}
+				>
+					{totalRow && <DataTableTotalRow columns={columns} cells={totalRow} />}
+				</DataTableGrid>
 			</TableContainer>
 
 			{pagination && isReady(rows) ? (

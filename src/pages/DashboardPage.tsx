@@ -23,7 +23,7 @@ import { OnboardingStepKey } from "components/onboarding/onboardingSteps";
 import ChartPanel from "components/shared/Chart/ChartPanel";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
-import { useOpenLowStock } from "hooks/product/useOpenLowStock";
+import { useOpenLowStock } from "hooks/warehouse/useOpenLowStock";
 import { observer } from "mobx-react-lite";
 import { DashboardRecentTransaction } from "models/dashboard";
 import {
@@ -56,7 +56,7 @@ const DashboardPage: React.FC = observer(() => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const theme = useTheme();
-	const { dashboardStore, debtStore, onboardingStore, productStore } = useStore();
+	const { dashboardStore, debtStore, onboardingStore, warehouseStore } = useStore();
 
 	const [salesType, setSalesType] = useState<ChartKind>("line");
 	const [paymentsType, setPaymentsType] = useState<ChartKind>("bar");
@@ -66,8 +66,8 @@ const DashboardPage: React.FC = observer(() => {
 
 	useEffect(() => {
 		dashboardStore.load();
-		void productStore.getAll();
-	}, [dashboardStore, productStore]);
+		void warehouseStore.loadStockReport({ refresh: true });
+	}, [dashboardStore, warehouseStore]);
 
 	const { data, isLoading } = dashboardStore;
 
@@ -195,7 +195,6 @@ const DashboardPage: React.FC = observer(() => {
 								aging={data.aging}
 								receivableTotal={data.receivable.value}
 								overdue={data.overdue.value}
-								overdueCount={data.overdue.count}
 							/>
 
 							<ChartPanel<ChartKind>
@@ -233,8 +232,8 @@ const DashboardPage: React.FC = observer(() => {
 							}
 						>
 							<LowStockPanel
-								products={productStore.allProducts}
-								onRetry={() => void productStore.getAll()}
+								report={warehouseStore.stockReport.data}
+								onRetry={() => void warehouseStore.loadStockReport()}
 								onAll={openLowStock}
 							/>
 							<RecentTransactionsTable rows={data.recentTransactions} onOpen={onRecentRow} />

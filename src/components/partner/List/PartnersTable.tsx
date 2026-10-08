@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { Partner } from "models/partner";
 
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
 
 interface PartnersTableProps {
 	rows: Loadable<Partner[]>;
@@ -53,7 +53,7 @@ export const PartnersTable: React.FC<PartnersTableProps> = ({
 			onRowClick={onOpen}
 			empty={
 				<TableEmptyState
-					icon={<PeopleOutlineIcon />}
+					icon={<HandshakeOutlinedIcon />}
 					title={firstRun ? t("partner.empty.title") : t("partner.empty.searchTitle")}
 					hint={firstRun ? t("partner.empty.body") : t("partner.empty.searchBody")}
 					action={firstRun ? { label: t("partner.list.create"), onClick: onCreate } : undefined}

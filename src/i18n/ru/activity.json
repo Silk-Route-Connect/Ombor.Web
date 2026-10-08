@@ -9,7 +9,7 @@
   "activity.filter.allWho": "Все",
   "activity.filter.deactivated": "{{name}} (деактивирован)",
   "activity.filter.what": "Что",
-  "activity.filter.allWhat": "Все записи",
+  "activity.filter.allWhat": "Все",
   "activity.filter.action": "Действие",
   "activity.filter.allActions": "Все",
 
@@ -65,6 +65,7 @@
   "activity.sentence.OpeningStockCreated": "Начальный остаток {{ref}} внесён",
   "activity.sentence.WalletTransferCreated": "Перевод между кассами {{ref}} проведён",
   "activity.sentence.StockChanged": "Остаток {{ref}} изменён",
+  "activity.sentence.StockChanged.threshold": "Порог «Заканчивается» для {{ref}} изменён",
   "activity.sentence.OrderCreated": "Заказ {{ref}} создан",
   "activity.sentence.OrderUpdated": "Заказ {{ref}} изменён",
   "activity.sentence.OrderStatusChanged": "Статус заказа {{ref}} изменён",
@@ -243,6 +244,7 @@
   "activity.field.Adjustment.direction": "Вид",
   "activity.field.Organization.isActive": "Активна",
   "activity.field.Stock.quantity": "Остаток",
+  "activity.field.Stock.lowStockThreshold": "Порог «Заканчивается»",
   "activity.field.PaymentAllocation.type": "Назначение",
 
   "activity.empty.title": "Действий пока нет",

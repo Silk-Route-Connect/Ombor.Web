@@ -20,9 +20,12 @@ export interface ISettingsStore {
 	saving: boolean;
 
 	load(): Promise<void>;
-	/** The business profile for documents (print header, debt reminder) — loaded once, kept current by saves. */
-	/** `quiet`: a background load (the sidebar logo) that must not toast when it fails. */
-	ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>>;
+	/**
+	 * The business profile for documents (print header, debt reminder) — loaded
+	 * once, kept current by saves. A failure raises no toast: the print view and
+	 * the reminder show it inline, and the sidebar logo simply waits.
+	 */
+	ensureOrganization(): Promise<Loadable<Organization | null>>;
 	saveOrganization(org: Organization, logoFile?: File | null): Promise<boolean>;
 	updateLanguage(code: string): Promise<void>;
 	inviting: boolean;
@@ -71,29 +74,19 @@ export class SettingsStore implements ISettingsStore {
 			tryRun(() => SettingsApi.getUsers()),
 		]);
 
-		if (org.status === "fail") {
-			this.notificationStore.notifyLoadError(org, "settings.error.load");
-		} else if (users.status === "fail") {
-			this.notificationStore.notifyLoadError(users, "settings.error.load");
-		}
-
 		runInAction(() => {
 			this.organization = toLoadable(org);
 			this.users = toLoadable(users);
 		});
 	}
 
-	async ensureOrganization(options?: { quiet?: boolean }): Promise<Loadable<Organization | null>> {
+	async ensureOrganization(): Promise<Loadable<Organization | null>> {
 		if (isReady(this.organization)) {
 			return this.organization;
 		}
 		runInAction(() => (this.organization = "loading"));
 
 		const result = await tryRun(() => SettingsApi.getOrganization());
-		if (result.status === "fail" && !options?.quiet) {
-			this.notificationStore.notifyLoadError(result, "settings.error.loadOrganization");
-		}
-
 		runInAction(() => (this.organization = toLoadable(result)));
 		return this.organization;
 	}

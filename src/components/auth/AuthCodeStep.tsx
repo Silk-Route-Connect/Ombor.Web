@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { CodeChallenge } from "hooks/auth/useCodeChallenge";
+import { radius } from "theme";
 
 import { Box, Button } from "@mui/material";
 
@@ -57,7 +58,7 @@ const AuthCodeStep: React.FC<AuthCodeStepProps> = ({
 					fullWidth
 					disabled={busy}
 					onClick={onSubmit}
-					sx={{ height: 46, fontSize: 15, borderRadius: "10px" }}
+					sx={{ height: 46, fontSize: 15, borderRadius: `${radius.md}px` }}
 				>
 					{submitLabel}
 				</Button>

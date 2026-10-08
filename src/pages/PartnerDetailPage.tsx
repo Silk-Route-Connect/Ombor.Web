@@ -8,7 +8,6 @@ import {
 	ledgerSourcePath,
 } from "components/partner/Detail/ledgerHelpers";
 import LedgerTab from "components/partner/Detail/LedgerTab";
-import PartnerArchivedBanner from "components/partner/Detail/PartnerArchivedBanner";
 import PartnerDetailRail from "components/partner/Detail/PartnerDetailRail";
 import PaymentsTab from "components/partner/Detail/PaymentsTab";
 import TransactionsTab from "components/partner/Detail/TransactionsTab";
@@ -18,6 +17,7 @@ import PartnerDialogs from "components/partner/PartnerDialogs";
 import { buildPartnerDocumentRows } from "components/partner/PartnerDocumentActions";
 import PartnerTypeChip from "components/partner/PartnerTypeChip";
 import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
+import Callout from "components/shared/Callout/Callout";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTableCard from "components/shared/Detail/DetailTableCard";
@@ -232,7 +232,11 @@ const PartnerDetailPage: React.FC = observer(() => {
 				isArchived={partner.isArchived}
 			/>
 
-			{partner.isArchived && <PartnerArchivedBanner />}
+			{partner.isArchived && (
+				<Callout tone="archived" title={t("partner.detail.archived.title")} sx={{ mb: 2 }}>
+					{t("partner.detail.archived.body")}
+				</Callout>
+			)}
 
 			<Box
 				sx={{

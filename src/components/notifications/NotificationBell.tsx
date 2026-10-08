@@ -9,6 +9,7 @@ import { useOpenAlert } from "hooks/notifications/useOpenAlert";
 import { observer } from "mobx-react-lite";
 import { NotificationKind } from "models/notification";
 import { useStore } from "stores/StoreContext";
+import { iconSize, radius } from "theme";
 
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
@@ -19,7 +20,7 @@ import AlertBlock from "./AlertBlock";
 /**
  * The topbar bell: a badge with the alerts that grew since the user last
  * marked them read, and a popover with each alert in plain words («Заканчиваются
- * 7 товаров») leading to the list narrowed to it. Re-read on open, on window
+ * 7 позиций») leading to the list narrowed to it. Re-read on open, on window
  * focus and every 5 minutes.
  */
 const NotificationBell: React.FC = observer(() => {
@@ -57,10 +58,10 @@ const NotificationBell: React.FC = observer(() => {
 							: t("topbar.notifications")
 					}
 					aria-haspopup="true"
-					sx={{ width: 38, height: 38, borderRadius: 1, color: "text.secondary" }}
+					sx={{ width: 38, height: 38, borderRadius: `${radius.md}px`, color: "text.secondary" }}
 				>
 					<Badge badgeContent={unseenCount} color="error" max={9}>
-						<NotificationsNoneOutlinedIcon sx={{ fontSize: 19 }} />
+						<NotificationsNoneOutlinedIcon sx={{ fontSize: iconSize.lg }} />
 					</Badge>
 				</IconButton>
 			</Tooltip>

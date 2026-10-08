@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Order } from "models/order";
-import { numericSx } from "theme";
+import { iconSize, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { isOrderOverdue, shortDeliveryTime } from "utils/orderUtils";
 
@@ -42,9 +42,9 @@ export const OrderDeliveryCell: React.FC<{ order: Order }> = ({ order }) => {
 			}}
 		>
 			{overdue ? (
-				<ErrorOutlineIcon sx={{ fontSize: 13, color: "error.main" }} />
+				<ErrorOutlineIcon sx={{ fontSize: iconSize.xs, color: "error.main" }} />
 			) : (
-				<CalendarTodayOutlinedIcon sx={{ fontSize: 13, color: "text.secondary" }} />
+				<CalendarTodayOutlinedIcon sx={{ fontSize: iconSize.xs, color: "text.secondary" }} />
 			)}
 			{formatDate(order.deliveryDate)}
 			{order.deliveryTime && (

@@ -1,4 +1,4 @@
-import { isReady, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { matchesSearch } from "utils/stringUtils";
@@ -45,7 +45,7 @@ export interface IWalletStore {
 	isSaving: boolean;
 	dialogMode: WalletDialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	create(request: CreateWalletRequest): Promise<void>;
 	update(request: UpdateWalletRequest): Promise<Wallet | null>;
 	archive(wallet: Wallet): Promise<Wallet | null>;
@@ -135,12 +135,12 @@ export class WalletStore implements IWalletStore {
 		);
 	}
 
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allWallets = "loading"));
 
 		const result = await tryRun(() => WalletApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "wallet.error.getAll");
 		}
 

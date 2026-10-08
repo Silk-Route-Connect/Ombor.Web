@@ -54,12 +54,13 @@ export class NotificationStore {
 	}
 
 	/**
-	 * Error toast for a failed load whose page renders the error state itself.
-	 * No connection (incl. a gateway 502–504) is already announced once by the
-	 * connectivity toast, a 404 is the page's not-found state, and a 401 means the
-	 * session ended (the app is on its way to /login), so those stay silent here.
-	 * A 500 does toast: nothing else announces it, and a picker fed by the failed
-	 * list would otherwise just look empty.
+	 * Error toast for a failed load that no surface shows as an error state — a
+	 * picker fed by the failed list, «Показать ещё», a summary refresh. A load
+	 * whose page renders its own `LoadStateView` raises no toast (its store skips
+	 * this, or the page passes `{ quiet: true }`), so one failure is one message.
+	 * No connection (incl. a gateway 502–504) is already shown by the header's
+	 * connectivity status, a 404 is a not-found state, and a 401 means the session
+	 * ended (the app is on its way to /login), so those stay silent here too.
 	 */
 	notifyLoadError(failed: FailedCall, fallbackKey: string, params?: Record<string, unknown>) {
 		const { kind } = parseApiError(failed.cause);

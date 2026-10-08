@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import NotFoundDialog from "components/shared/LoadState/NotFoundDialog";
 import { useTableOrder } from "components/shared/Table/tableOrder";
 import TableTotals from "components/shared/Table/TableTotals";
@@ -12,7 +13,7 @@ import TransfersTable from "components/transfer/Table/TransfersTable";
 import { isPresent, isReady, readyOr } from "helpers/Loading";
 import { useListDetailRoute } from "hooks/shared/useListDetailRoute";
 import { observer } from "mobx-react-lite";
-import { CreateTransferRequest, Transfer, transferUnits } from "models/transfer";
+import { CreateTransferRequest, Transfer } from "models/transfer";
 import { PATHS, transferDetailPath } from "routing/paths";
 import { TransferFormValues } from "schemas/TransferSchema";
 import { useStore } from "stores/StoreContext";
@@ -70,7 +71,6 @@ const TransferPage: React.FC = observer(() => {
 			{ header: t("transfer.table.to"), value: (tr) => tr.toWarehouseName },
 			{ header: t("transfer.table.createdBy"), value: (tr) => tr.createdBy },
 			{ header: t("transfer.table.positions"), value: (tr) => tr.lines.length },
-			{ header: t("transfer.table.units"), value: (tr) => transferUnits(tr) },
 		];
 
 		exportToCsv(`transfers_${csvDateStamp()}`, columns, tableOrder.apply(rows));
@@ -151,6 +151,7 @@ const TransferPage: React.FC = observer(() => {
 			<NotFoundDialog
 				open={opened === null}
 				title={t("transfer.detail.title")}
+				tile={recordTile("Transfer")}
 				notFound={{ title: t("transfer.detail.notFound"), backTo: PATHS.transfers }}
 				onClose={detailRoute.close}
 			/>

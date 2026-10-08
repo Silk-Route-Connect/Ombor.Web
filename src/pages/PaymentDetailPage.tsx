@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import PaymentAllocationCard from "components/payment/Detail/PaymentAllocationCard";
 import {
+	PaymentAmountCard,
 	PaymentAttachmentsCard,
 	PaymentGeneralCard,
 	PaymentInfoCard,
@@ -16,7 +16,7 @@ import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isPresent } from "helpers/Loading";
 import { useRouteEntityId } from "hooks/shared/useRouteEntityId";
 import { observer } from "mobx-react-lite";
-import { partnerDetailPath, PATHS } from "routing/paths";
+import { PATHS } from "routing/paths";
 import { useStore } from "stores/StoreContext";
 import { formatEntityId, hasEntityNumber } from "utils/formatEntityId";
 
@@ -24,7 +24,6 @@ import { Box, Stack } from "@mui/material";
 
 const PaymentDetailPage: React.FC = observer(() => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const paymentId = useRouteEntityId();
 	const { selectedPaymentStore } = useStore();
 
@@ -63,7 +62,14 @@ const PaymentDetailPage: React.FC = observer(() => {
 				}
 			/>
 
-			<Box sx={{ display: "grid", gridTemplateColumns: DETAIL_RAIL_COLUMNS, gap: "20px" }}>
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: DETAIL_RAIL_COLUMNS,
+					gap: "20px",
+					alignItems: "start",
+				}}
+			>
 				<Stack sx={{ gap: "16px", minWidth: 0 }}>
 					{isPayroll && <PaymentPayrollCard payment={payment} />}
 					{isGeneral && <PaymentGeneralCard payment={payment} />}
@@ -82,16 +88,10 @@ const PaymentDetailPage: React.FC = observer(() => {
 					)}
 				</Stack>
 
-				<Box>
-					<PaymentInfoCard
-						payment={payment}
-						onOpenPartner={
-							payment.partnerId != null
-								? () => navigate(partnerDetailPath(payment.partnerId as number))
-								: undefined
-						}
-					/>
-				</Box>
+				<Stack sx={{ gap: "16px" }}>
+					<PaymentAmountCard payment={payment} />
+					<PaymentInfoCard payment={payment} />
+				</Stack>
 			</Box>
 		</Box>
 	);

@@ -1,4 +1,5 @@
 import React from "react";
+import StatusPill from "components/shared/Chip/StatusPill";
 import EntityCell from "components/shared/Table/cells/EntityCell";
 import MoneyCell from "components/shared/Table/cells/MoneyCell";
 import MutedTextCell from "components/shared/Table/cells/MutedTextCell";
@@ -10,7 +11,9 @@ import { WarehouseActionMenu } from "components/warehouse/Table/ActionMenu/Wareh
 import { TFunction } from "i18next";
 import { Warehouse } from "models/warehouse";
 import { designTokens, radius } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
@@ -39,9 +42,19 @@ const WarehouseAvatar: React.FC<{ archived: boolean }> = ({ archived }) => (
 	</Box>
 );
 
+/** «Заканчивается» cell: the low-stock pill look when any row runs low, a plain «0» when none. */
+const LowStockCountCell: React.FC<{ count: number }> = ({ count }) =>
+	count > 0 ? (
+		<StatusPill token="warning" icon={TrendingDownIcon} label={formatQuantity(count)} />
+	) : (
+		<QuantityCell value={0} />
+	);
+
 /**
  * Warehouse list columns in the canonical order (conventions.md → Tables):
- * Склад · Адрес · Товаров · Единиц · Стоимость · ⋮.
+ * Склад · Адрес · Товаров · Заканчивается · Стоимость · ⋮. «Заканчивается» is
+ * the served `lowStockCount` — the warehouse's rows with a threshold at or below
+ * it (DR-41), what its «Остатки» tab lists under that filter.
  */
 export function buildWarehouseColumns(
 	t: TFunction,
@@ -72,11 +85,12 @@ export function buildWarehouseColumns(
 			renderCell: (w) => <QuantityCell value={w.productCount} />,
 		},
 		{
-			key: "units",
-			headerName: t("warehouse.table.units"),
+			key: "lowStock",
+			headerName: t("warehouse.lowStock.title"),
+			headerTooltip: t("warehouse.lowStock.hint"),
 			align: "right",
-			sortValue: (w) => w.totalUnits,
-			renderCell: (w) => <QuantityCell value={w.totalUnits} />,
+			sortValue: (w) => w.lowStockCount,
+			renderCell: (w) => <LowStockCountCell count={w.lowStockCount} />,
 		},
 		{
 			key: "stockValue",

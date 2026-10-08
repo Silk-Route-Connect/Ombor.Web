@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { UI_LANGUAGES } from "i18n/languages";
-import { designTokens } from "theme";
+import { designTokens, radius } from "theme";
 
 import { Box, ButtonBase } from "@mui/material";
 
@@ -26,7 +26,7 @@ const AuthLangFooter: React.FC = () => {
 				alignItems: "center",
 				justifyContent: "center",
 				gap: "4px",
-				fontSize: 12.5,
+				fontSize: 12,
 			}}
 		>
 			{UI_LANGUAGES.map((lang, i) => {
@@ -43,8 +43,8 @@ const AuthLangFooter: React.FC = () => {
 							sx={{
 								px: "6px",
 								py: "2px",
-								borderRadius: "4px",
-								fontSize: 12.5,
+								borderRadius: `${radius.xs}px`,
+								fontSize: 12,
 								fontWeight: active ? 700 : 400,
 								color: active ? "primary.main" : "text.disabled",
 								"&:hover": { color: active ? "primary.main" : "text.secondary" },

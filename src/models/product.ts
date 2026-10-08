@@ -65,8 +65,6 @@ export type Product = {
 	measurement: Measurement;
 	type: ProductType;
 
-	lowStockThreshold?: number | null;
-	isLowStock: boolean;
 	isArchived: boolean;
 	/** Served: false once any stock movement or document references the product (DELETE then returns 409). */
 	isDeletable: boolean;
@@ -96,8 +94,6 @@ export type CreateProductRequest = {
 
 	measurement: Measurement;
 	type: ProductType;
-
-	lowStockThreshold?: number | null;
 
 	packaging?: ProductPackaging;
 	attachments?: File[];

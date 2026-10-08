@@ -5,7 +5,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 
 import CheckIcon from "@mui/icons-material/Check";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface Props {
 	dirty: boolean;
@@ -15,58 +15,46 @@ interface Props {
 }
 
 /**
- * Bottom save bar for the organization form. Buttons stay enabled (hard rule 5);
- * the status note communicates whether there are unsaved changes. Language /
- * users actions apply immediately and are not governed by this bar.
+ * The organization card's footer: whether there are unsaved changes, «Отмена»
+ * and «Сохранить». The buttons stay enabled (hard rule 5) except while the save
+ * is in flight, as in every form footer. Language / users actions apply at once
+ * and are not governed by it.
  */
 const SettingsSaveBar: React.FC<Props> = ({ dirty, saving, onSave, onReset }) => {
 	const { t } = useTranslation();
 
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: "12px",
-				mt: "6px",
-				pt: "18px",
-				borderTop: "1px solid",
-				borderColor: "divider",
-			}}
-		>
-			<Box
+		<>
+			<Typography
+				variant="caption"
 				sx={{
 					display: "inline-flex",
 					alignItems: "center",
-					gap: "7px",
-					fontSize: 12.5,
-					color: dirty ? "text.secondary" : "text.disabled",
+					gap: "6px",
+					color: "text.secondary",
+					"& .MuiSvgIcon-root": { fontSize: 16 },
 				}}
 			>
 				{dirty ? (
 					<>
-						<InfoOutlinedIcon sx={{ fontSize: 14 }} />
+						<InfoOutlinedIcon sx={{ color: "warning.main" }} />
 						{t("settings.save.dirty")}
 					</>
 				) : (
 					<>
-						<CheckIcon sx={{ fontSize: 14, color: "success.main" }} />
+						<CheckIcon sx={{ color: "success.main" }} />
 						{t("settings.save.clean")}
 					</>
 				)}
-			</Box>
+			</Typography>
 			<Box sx={{ flex: 1 }} />
 			<GhostButton onClick={onReset} disabled={saving}>
-				{t("settings.save.reset")}
+				{t("common.cancel")}
 			</GhostButton>
-			<PrimaryButton
-				icon={<CheckIcon sx={{ fontSize: "18px !important" }} />}
-				disabled={saving}
-				onClick={onSave}
-			>
+			<PrimaryButton icon={<CheckIcon />} loading={saving} onClick={onSave}>
 				{t("settings.save.save")}
 			</PrimaryButton>
-		</Box>
+		</>
 	);
 };
 

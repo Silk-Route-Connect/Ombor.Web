@@ -9,7 +9,6 @@ import PayrollApi from "services/api/PayrollApi";
 import { DateFilter, isWithinDateRange, PresetOption } from "utils/dateUtils";
 
 import { IEmployeeStore } from "./EmployeeStore";
-import { NotificationStore } from "./NotificationStore";
 
 export interface ISelectedEmployeeStore {
 	/** The employee-detail route's subject: loading, failed, `null` when it does not exist. */
@@ -33,7 +32,6 @@ export interface ISelectedEmployeeStore {
 export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 	private selectedEmployee: Employee | null = null;
 	private readonly employeeStore: IEmployeeStore;
-	private readonly notificationStore: NotificationStore;
 	private readonly employeeLoads = new LoadSequence();
 	private readonly historyLoads = new LoadSequence();
 
@@ -43,9 +41,8 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 	// on arrival — a week/month window hid the only payout (live-ui-27).
 	dateFilter: DateFilter = { type: "preset", preset: "alltime" };
 
-	constructor(employeeStore: IEmployeeStore, notificationStore: NotificationStore) {
+	constructor(employeeStore: IEmployeeStore) {
 		this.employeeStore = employeeStore;
-		this.notificationStore = notificationStore;
 
 		makeAutoObservable(this, {}, { autoBind: true });
 		this.registerReactions();
@@ -70,10 +67,6 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 		const result = await tryRun(() => EmployeeApi.getById({ id: employeeId }));
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "employees.error.getById");
 		}
 
 		runInAction(() => (this.employee = toDetailLoadable(result)));
@@ -109,10 +102,6 @@ export class SelectedEmployeeStore implements ISelectedEmployeeStore {
 		const result = await tryRun(() => PayrollApi.getHistory({ employeeId: selectedEmployee.id }));
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "payroll.error.getHistory");
 		}
 
 		runInAction(() => (this.payrollHistory = toLoadable(result)));

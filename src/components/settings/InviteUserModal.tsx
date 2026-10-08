@@ -1,13 +1,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { useInviteUserForm, UseInviteUserFormOptions } from "hooks/settings/useInviteUserForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
-import { dialogPaperSx } from "theme";
 
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
-import { Dialog, DialogContent } from "@mui/material";
+import { Stack } from "@mui/material";
 
 import InviteUserFields from "./InviteUserFields";
 import InviteUserSuccess from "./InviteUserSuccess";
@@ -36,27 +36,25 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 	};
 
 	return (
-		<Dialog
+		<FormDialog
 			open={isOpen}
+			size="sm"
+			title={invited ? t("settings.invite.doneTitle") : t("settings.invite.title")}
+			subtitle={invited ? undefined : t("settings.invite.subtitle")}
+			tile={recordTile("User")}
+			busy={saving}
 			onClose={close}
-			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
-			disableEscapeKeyDown={saving}
 			onKeyDown={onKeyDown}
-		>
-			<FormDialogHeader
-				title={invited ? t("settings.invite.doneTitle") : t("settings.invite.title")}
-				subtitle={invited ? undefined : t("settings.invite.subtitle")}
-				disabled={saving}
-				onClose={close}
-			/>
-
-			{invited ? (
-				<InviteUserSuccess user={invited} onDone={close} />
-			) : (
-				<>
-					<DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-						<InviteUserFields form={form} disabled={saving} />
-					</DialogContent>
+			restoreFocus
+			footer={
+				invited ? (
+					<FormDialogFooter
+						variant="close"
+						emphasis="primary"
+						closeLabel={t("settings.invite.done")}
+						onClose={close}
+					/>
+				) : (
 					<FormDialogFooter
 						canSave={!saving}
 						loading={saving}
@@ -65,9 +63,17 @@ const InviteUserModal: React.FC<Props> = ({ isOpen, saving, onClose, onInvite })
 						submitLabel={t("settings.invite.send")}
 						submitIcon={<PersonAddAltOutlinedIcon />}
 					/>
-				</>
+				)
+			}
+		>
+			{invited ? (
+				<InviteUserSuccess user={invited} />
+			) : (
+				<Stack sx={{ gap: "16px" }}>
+					<InviteUserFields form={form} disabled={saving} />
+				</Stack>
 			)}
-		</Dialog>
+		</FormDialog>
 	);
 };
 

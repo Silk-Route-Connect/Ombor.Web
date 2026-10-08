@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import GhostButton from "components/shared/Buttons/GhostButton";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
-import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
-import { dialogPaperSx } from "theme";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
+import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
+import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 
-import CheckIcon from "@mui/icons-material/Check";
-import { Dialog, DialogActions, DialogContent, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 
 interface SaveTemplateModalProps {
 	isOpen: boolean;
@@ -43,46 +43,40 @@ export const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 	};
 
 	const nameError = tried && !name.trim();
+	const onKeyDown = useFormKeyboardSubmit(handleSave, isSaving);
 
 	return (
-		<Dialog
+		<FormDialog
 			open={isOpen}
+			size="sm"
+			title={t("transaction.new.tpl.title")}
+			subtitle={t("transaction.new.tpl.subtitle")}
+			tile={recordTile("Template")}
+			busy={isSaving}
 			onClose={handleClose}
-			disableRestoreFocus
-			slotProps={{ paper: { sx: dialogPaperSx("sm") } }}
+			onKeyDown={onKeyDown}
+			footer={
+				<FormDialogFooter
+					canSave={!isSaving}
+					loading={isSaving}
+					onCancel={handleClose}
+					onSave={handleSave}
+					submitLabel={t("transaction.new.tpl.save")}
+				/>
+			}
 		>
-			<FormDialogHeader
-				title={t("transaction.new.tpl.title")}
-				subtitle={t("transaction.new.tpl.subtitle")}
-				disabled={isSaving}
-				onClose={handleClose}
-			/>
-			<DialogContent dividers>
+			<FormField label={t("transaction.new.tpl.nameLabel")} required>
 				<TextField
 					autoFocus
 					fullWidth
-					label={t("transaction.new.tpl.nameLabel")}
 					placeholder={t("transaction.new.tpl.namePlaceholder")}
 					value={name}
 					onChange={(e) => setName(e.target.value)}
 					error={nameError}
-					helperText={nameError ? t("transaction.new.tpl.nameRequired") : " "}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") {
-							handleSave();
-						}
-					}}
+					helperText={nameError ? t("transaction.new.tpl.nameRequired") : undefined}
 				/>
-			</DialogContent>
-			<DialogActions sx={{ px: "24px", py: "14px", gap: "10px" }}>
-				<GhostButton onClick={handleClose} disabled={isSaving}>
-					{t("transaction.new.tpl.cancel")}
-				</GhostButton>
-				<PrimaryButton icon={<CheckIcon />} onClick={handleSave} disabled={isSaving}>
-					{t("transaction.new.tpl.save")}
-				</PrimaryButton>
-			</DialogActions>
-		</Dialog>
+			</FormField>
+		</FormDialog>
 	);
 };
 

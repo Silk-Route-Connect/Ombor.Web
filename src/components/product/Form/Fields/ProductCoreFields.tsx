@@ -2,7 +2,7 @@ import React from "react";
 import { Control, Controller, UseFormSetValue, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import CategoryAutocomplete from "components/category/Autocomplete/CategoryAutocomplete";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
 import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsAdornment from "components/shared/Money/UzsAdornment";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
@@ -10,15 +10,9 @@ import { ProductType } from "models/product";
 import { ProductFormInputs } from "schemas/ProductSchema";
 
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import {
-	Box,
-	IconButton,
-	InputAdornment,
-	MenuItem,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
+import { Box, IconButton, InputAdornment, Stack, TextField, Typography } from "@mui/material";
+
+import ProductMeasurementField from "./ProductMeasurementField";
 
 export interface ProductFormCoreFieldsProps {
 	control: Control<ProductFormInputs>;
@@ -30,28 +24,16 @@ export interface ProductFormCoreFieldsProps {
 	skuAutofill?: boolean;
 }
 
-const MEASUREMENTS = ["Gram", "Kilogram", "Ton", "Piece", "Box", "None"] as const;
 const TYPES: ProductType[] = ["Sale", "Supply", "All"];
 
 const uzsSuffix = {
 	input: { endAdornment: <UzsAdornment /> },
 };
 
-/** Label-above-input row per the bundle's `.frow` (7px gap). */
-const Field: React.FC<{ label: string; required?: boolean; children: React.ReactNode }> = ({
-	label,
-	required,
-	children,
-}) => (
-	<Stack sx={{ gap: "7px" }}>
-		<FormFieldLabel label={label} required={required} />
-		{children}
-	</Stack>
-);
-
 /**
  * Core fields laid out per the bundle's dialog: a 196px/1fr top grid (images
- * left; name + category/unit right), then full-width rows — артикул/штрих-код,
+ * left; name, category, unit — no low-stock threshold: it is set per warehouse,
+ * DR-41), then full-width rows — артикул/штрих-код,
  * «Тип товара» segmented control, and the type-dependent price pair. Labels sit
  * above the inputs (`.flabel`); inputs are 40px (`.tinput`, MUI small).
  */
@@ -85,7 +67,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 
 				{/* prod-fields: column, gap 14 */}
 				<Stack sx={{ gap: "14px" }}>
-					<Field label={t("product.name")} required>
+					<FormField label={t("product.name")} required>
 						<Controller
 							name="name"
 							control={control}
@@ -101,61 +83,37 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								/>
 							)}
 						/>
-					</Field>
+					</FormField>
 
-					<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-						<Field label={t("product.category")} required>
-							<Controller
-								name="categoryId"
-								control={control}
-								render={({ field, fieldState }) => (
-									<CategoryAutocomplete
-										mode="id"
-										value={field.value ?? null}
-										size="small"
-										label=""
-										placeholder={t("product.form.categoryPlaceholder")}
-										disabled={disabled}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-										onChange={(id) =>
-											setValue("categoryId", id, { shouldDirty: true, shouldValidate: true })
-										}
-									/>
-								)}
-							/>
-						</Field>
-						<Field label={t("product.measurement")}>
-							<Controller
-								name="measurement"
-								control={control}
-								render={({ field, fieldState }) => (
-									<TextField
-										select
-										size="small"
-										fullWidth
-										value={field.value}
-										onChange={(e) => field.onChange(e.target.value)}
-										disabled={disabled}
-										error={!!fieldState.error}
-										helperText={fieldState.error?.message}
-									>
-										{MEASUREMENTS.map((m) => (
-											<MenuItem key={m} value={m}>
-												{t(`product.measurement.${m}`)}
-											</MenuItem>
-										))}
-									</TextField>
-								)}
-							/>
-						</Field>
-					</Box>
+					<FormField label={t("product.category")} required>
+						<Controller
+							name="categoryId"
+							control={control}
+							render={({ field, fieldState }) => (
+								<CategoryAutocomplete
+									mode="id"
+									value={field.value ?? null}
+									size="small"
+									label=""
+									placeholder={t("product.form.categoryPlaceholder")}
+									disabled={disabled}
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+									onChange={(id) =>
+										setValue("categoryId", id, { shouldDirty: true, shouldValidate: true })
+									}
+								/>
+							)}
+						/>
+					</FormField>
+
+					<ProductMeasurementField control={control} disabled={disabled} />
 				</Stack>
 			</Box>
 
 			{/* артикул + штрих-код, gap 16, mb 16 */}
 			<Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", mb: "16px" }}>
-				<Field label={t("product.form.skuLabel")} required>
+				<FormField label={t("product.form.skuLabel")} required>
 					<Controller
 						name="sku"
 						control={control}
@@ -190,8 +148,8 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							/>
 						)}
 					/>
-				</Field>
-				<Field label={t("product.barcode")}>
+				</FormField>
+				<FormField label={t("product.barcode")}>
 					<Controller
 						name="barcode"
 						control={control}
@@ -208,13 +166,12 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 							/>
 						)}
 					/>
-				</Field>
+				</FormField>
 			</Box>
 
 			{/* тип товара: flabel + seg-full, mb 16 */}
 			<Box sx={{ mb: "16px" }}>
-				<Stack sx={{ gap: "7px" }}>
-					<FormFieldLabel label={t("product.type")} />
+				<FormField label={t("product.type")}>
 					<Controller
 						name="type"
 						control={control}
@@ -227,6 +184,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 								value={field.value as ProductType}
 								onChange={field.onChange}
 								fullWidth
+								variant="form"
 								disabled={disabled}
 							/>
 						)}
@@ -236,7 +194,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					<Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.45 }}>
 						{t(`product.form.typeHint.${type}`)}
 					</Typography>
-				</Stack>
+				</FormField>
 			</Box>
 
 			{/* prices (conditional by type), gap 14, mb 4 */}
@@ -250,7 +208,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 					}}
 				>
 					{showSale && (
-						<Field label={t("product.salePrice")}>
+						<FormField label={t("product.salePrice")} required>
 							<Controller
 								name="salePrice"
 								control={control}
@@ -269,10 +227,10 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									/>
 								)}
 							/>
-						</Field>
+						</FormField>
 					)}
 					{showSupply && (
-						<Field label={t("product.supplyPrice")}>
+						<FormField label={t("product.supplyPrice")} required>
 							<Controller
 								name="supplyPrice"
 								control={control}
@@ -291,7 +249,7 @@ const ProductFormCoreFields: React.FC<ProductFormCoreFieldsProps> = ({
 									/>
 								)}
 							/>
-						</Field>
+						</FormField>
 					)}
 				</Box>
 			)}

@@ -1,5 +1,6 @@
 import React from "react";
-import { designTokens } from "theme";
+import IconTile from "components/shared/IconTile/IconTile";
+import { designTokens, radius } from "theme";
 
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -11,21 +12,46 @@ interface Props {
 	subtitle?: string;
 	/** Right-aligned header action (e.g. «Пригласить пользователя»). */
 	action?: React.ReactNode;
+	/** The section's save row — a band at the card's foot, the same place in every section. */
+	footer?: React.ReactNode;
+	/** Makes the card a form, so Enter in a field submits through the footer's submit button. */
+	onSubmit?: () => void;
 	children: React.ReactNode;
 }
 
+/** The 24px side gutter of every settings card — the same as a modal's. */
+const GUTTER = "24px";
+
 /**
- * Section card per the bundle's `.set-card`: a bordered surface with a header
- * (tinted icon tile + title/subtitle + optional action) and a padded body.
+ * A settings section: a bordered card with a header (tinted icon tile, title,
+ * subtitle, optional action), a padded body and an optional footer band that
+ * holds the section's own save action.
  */
-const SettingsSectionCard: React.FC<Props> = ({ id, icon, title, subtitle, action, children }) => (
+const SettingsSectionCard: React.FC<Props> = ({
+	id,
+	icon,
+	title,
+	subtitle,
+	action,
+	footer,
+	onSubmit,
+	children,
+}) => (
 	<Paper
 		id={`settings-${id}`}
 		elevation={1}
+		{...(onSubmit && {
+			component: "form",
+			noValidate: true,
+			onSubmit: (e: React.FormEvent) => {
+				e.preventDefault();
+				onSubmit();
+			},
+		})}
 		sx={{
 			border: "1px solid",
 			borderColor: "divider",
-			borderRadius: "12px",
+			borderRadius: `${radius.lg}px`,
 			overflow: "hidden",
 			scrollMarginTop: "16px",
 		}}
@@ -35,43 +61,43 @@ const SettingsSectionCard: React.FC<Props> = ({ id, icon, title, subtitle, actio
 				display: "flex",
 				alignItems: "center",
 				gap: "12px",
-				p: "16px 22px",
+				px: GUTTER,
+				py: "16px",
 				borderBottom: "1px solid",
 				borderColor: "divider",
 			}}
 		>
-			<Box
-				sx={{
-					width: 30,
-					height: 30,
-					flex: "0 0 auto",
-					borderRadius: "8px",
-					display: "grid",
-					placeItems: "center",
-					bgcolor: designTokens.primarySoft,
-					color: "primary.main",
-				}}
-			>
-				{icon}
-			</Box>
+			<IconTile icon={icon} token="teal" size={32} />
 			<Box sx={{ minWidth: 0 }}>
-				<Typography sx={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em" }}>
+				<Typography variant="h3" component="h2">
 					{title}
 				</Typography>
 				{subtitle && (
-					<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "2px" }}>
+					<Typography variant="caption" component="p" sx={{ color: "text.secondary", mt: "2px" }}>
 						{subtitle}
 					</Typography>
 				)}
 			</Box>
-			{action && (
-				<>
-					<Box sx={{ flex: 1 }} />
-					{action}
-				</>
-			)}
+			{action && <Box sx={{ ml: "auto", flex: "0 0 auto" }}>{action}</Box>}
 		</Box>
-		<Box sx={{ p: "22px" }}>{children}</Box>
+		<Box sx={{ px: GUTTER, py: "20px" }}>{children}</Box>
+		{footer && (
+			<Box
+				sx={{
+					display: "flex",
+					alignItems: "center",
+					gap: "12px",
+					flexWrap: "wrap",
+					px: GUTTER,
+					py: "12px",
+					borderTop: "1px solid",
+					borderColor: "divider",
+					bgcolor: designTokens.bgSubtle,
+				}}
+			>
+				{footer}
+			</Box>
+		)}
 	</Paper>
 );
 

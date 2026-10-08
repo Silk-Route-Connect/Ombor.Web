@@ -23,9 +23,23 @@ import { typography } from "./typography";
 
 export type { ChipToken, ChipTokenKey } from "./chipTokens";
 export { chipTokens } from "./chipTokens";
+export type { IdentityTone } from "./identityPalette";
+export { identityTone } from "./identityPalette";
 export { designTokens } from "./palette";
 export type { DialogSize } from "./tokens";
-export { controlSize, dialogPaperSx, dialogWidth, numericSx, radius, typeScale } from "./tokens";
+export {
+	controlSize,
+	dialogBelowHeaderSx,
+	dialogPaperSx,
+	dialogWidth,
+	figuresSx,
+	iconSize,
+	layout,
+	numericSx,
+	radius,
+	typeScale,
+	visuallyHiddenSx,
+} from "./tokens";
 
 // Elevation (border-first, restrained).
 const ELEVATION_1 = "0 1px 2px rgba(22,42,43,.05), 0 1px 3px rgba(22,42,43,.06)";
@@ -79,7 +93,10 @@ const theme = createTheme({
 			paper: NEUTRAL[0],
 		},
 		action: {
-			hover: "rgba(18,103,107,0.04)",
+			// 6% teal wash: 4% sat at the edge of perception on white rows and nav.
+			hover: "rgba(18,103,107,0.06)",
+			// Default icon buttons (pager, expanders) in the ink-grey ramp, not 54% black.
+			active: designTokens.fg2,
 			selected: designTokens.primarySoft,
 		},
 	},

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import EntityHistory from "components/activity/History/EntityHistory";
-import ProductArchivedBanner from "components/product/Detail/ProductArchivedBanner";
 import ProductDetailRail from "components/product/Detail/ProductDetailRail";
 import ProductMovementsTab from "components/product/Detail/ProductMovementsTab";
 import ProductOverviewTab from "components/product/Detail/ProductOverviewTab";
@@ -10,6 +9,7 @@ import ProductTransactionsTab from "components/product/Detail/ProductTransaction
 import ProductFormModal from "components/product/Form/ProductFormModal";
 import ProductDialogs from "components/product/ProductDialogs";
 import { buildProductActionRows } from "components/product/Table/ActionMenu/ProductActionMenu";
+import Callout from "components/shared/Callout/Callout";
 import { DETAIL_RAIL_COLUMNS } from "components/shared/Detail/detailLayout";
 import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
@@ -114,7 +114,11 @@ const ProductDetailPage: React.FC = observer(() => {
 				isArchived={product.isArchived}
 			/>
 
-			{product.isArchived && <ProductArchivedBanner />}
+			{product.isArchived && (
+				<Callout tone="archived" title={t("product.detail.archived.title")} sx={{ mb: 2 }}>
+					{t("product.detail.archived.body")}
+				</Callout>
+			)}
 
 			{/* sale-detail: tabbed main column + persistent 372px rail */}
 			<Box

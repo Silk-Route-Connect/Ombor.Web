@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
 import { Order, OrderStatus } from "models/order";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 import { formatDateTime } from "utils/dateUtils";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -56,7 +56,7 @@ export const TerminalBanner: React.FC<{ order: Order; onOpenSale: (saleId: numbe
 				gap: "14px",
 				p: "14px 18px",
 				mb: "18px",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				border: "1px solid",
 				borderColor: tone.border,
 				bgcolor: tone.bg,
@@ -66,7 +66,7 @@ export const TerminalBanner: React.FC<{ order: Order; onOpenSale: (saleId: numbe
 				sx={{
 					width: 38,
 					height: 38,
-					borderRadius: "10px",
+					borderRadius: `${radius.md}px`,
 					display: "grid",
 					placeItems: "center",
 					flex: "0 0 auto",
@@ -81,10 +81,10 @@ export const TerminalBanner: React.FC<{ order: Order; onOpenSale: (saleId: numbe
 				)}
 			</Box>
 			<Box sx={{ minWidth: 0 }}>
-				<Typography sx={{ fontSize: 14.5, fontWeight: 700, color: tone.title }}>
+				<Typography sx={{ fontSize: 14, fontWeight: 700, color: tone.title }}>
 					{t(`order.terminal.${order.status}.title`)}
 				</Typography>
-				<Typography sx={{ fontSize: 12.5, mt: "2px", lineHeight: 1.45, color: tone.color }}>
+				<Typography variant="body2" sx={{ mt: "2px", color: tone.color }}>
 					{t(`order.terminal.${order.status}.body`)}
 				</Typography>
 				{order.status === "Returned" && order.saleId != null && (

@@ -1,15 +1,15 @@
 import React from "react";
 import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
-import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
+import FormField from "components/shared/Forms/FormField";
+import MoneyField from "components/shared/Inputs/MoneyField";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { PartnerFormInputs } from "schemas/PartnerSchema";
-import { designTokens, numericSx } from "theme";
+import { numericSx } from "theme";
 import { formatPartnerBalance, partnerBalanceColor } from "utils/partnerUtils";
 
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface PartnerOpeningBalanceFieldsProps {
 	form: UseFormReturn<PartnerFormInputs>;
@@ -34,13 +34,13 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 
 	return (
 		<Box>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "7px", mb: "14px" }}>
-				<FormFieldLabel label={t("partner.form.openingType")} />
+			<FormField label={t("partner.form.openingType")} sx={{ mb: "16px" }}>
 				<Controller
 					name="openingType"
 					control={control}
 					render={({ field }) => (
 						<SegmentedControl<"receivable" | "payable">
+							variant="form"
 							fullWidth
 							value={field.value}
 							onChange={field.onChange}
@@ -52,63 +52,28 @@ const PartnerOpeningBalanceFields: React.FC<PartnerOpeningBalanceFieldsProps> = 
 						/>
 					)}
 				/>
-			</Box>
+			</FormField>
 
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-				<FormFieldLabel label={t("partner.form.openingAmount")} />
+			<FormField label={t("partner.form.openingAmount")}>
 				<Controller
 					name="openingAmount"
 					control={control}
 					render={({ field }) => (
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: "10px",
-								px: "14px",
-								py: "9px",
-								minHeight: 44,
-								border: "1px solid",
-								borderColor: designTokens.borderControl,
-								borderRadius: "8px",
-								bgcolor: "background.paper",
-								"&:focus-within": { borderColor: "primary.main" },
-							}}
-						>
-							<Box
-								component="span"
-								sx={{
-									...numericSx,
-									fontWeight: 700,
-									fontSize: 20,
-									color: partnerBalanceColor(signedOpening),
-								}}
-							>
-								{openingType === "receivable" ? "−" : "+"}
-							</Box>
-							<MoneyInputBase
-								value={field.value ?? 0}
-								onChange={field.onChange}
-								onBlur={field.onBlur}
-								placeholder="0"
-								disabled={isSaving}
-								sx={{
-									...numericSx,
-									flex: 1,
-									minWidth: 0,
-									fontWeight: 700,
-									fontSize: 20,
-									letterSpacing: "-0.01em",
-								}}
-							/>
-							<UzsUnit />
-						</Box>
+						<MoneyField
+							value={field.value ?? 0}
+							onChange={field.onChange}
+							onBlur={field.onBlur}
+							name={field.name}
+							inputRef={field.ref}
+							placeholder="0"
+							disabled={isSaving}
+							error={!!amountError}
+							helperText={amountError}
+							sign={openingType === "receivable" ? "−" : "+"}
+						/>
 					)}
 				/>
-				{amountError && (
-					<Typography sx={{ fontSize: 12, color: "error.main" }}>{amountError}</Typography>
-				)}
-			</Box>
+			</FormField>
 
 			{openingAmount > 0 && (
 				<Box

@@ -1,6 +1,6 @@
 import { PaymentDirection } from "models/payment";
 import { TransactionLine, TransactionStatus, TransactionType } from "models/transaction";
-import { formatCurrency } from "utils/formatCurrency";
+import { formatCurrency, formatExactPercent } from "utils/formatCurrency";
 
 /** A page direction: Sales (goods out, partner owes us) or Supplies (goods in, we owe). */
 export type TransactionDirection = "Sale" | "Supply";
@@ -54,7 +54,7 @@ export const discountLabel = (
 		return null;
 	}
 	return line.discountType === "Percentage"
-		? `−${line.discount}%`
+		? `−${formatExactPercent(line.discount)}%`
 		: `−${formatCurrency(line.discount)}`;
 };
 

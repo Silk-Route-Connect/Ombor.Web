@@ -12,7 +12,7 @@ import {
 import TransactionApi from "services/api/TransactionApi";
 import { analytics } from "services/telemetry";
 import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
-import { formatEntityId, formatOptionalNumber } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { isFullyRefunded, refundsByOriginal } from "utils/refundUtils";
 import { matchesSearch } from "utils/stringUtils";
 import { DIRECTION_TYPES, isRefundType, TransactionDirection } from "utils/transactionUtils";
@@ -129,10 +129,6 @@ export class TransactionStore implements ITransactionStore {
 
 		const result = await tryRun(() => TransactionApi.getAll());
 
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "transactions.errors.getAll");
-		}
-
 		runInAction(() => (this.allTransactions = toLoadable(result)));
 	}
 
@@ -157,7 +153,10 @@ export class TransactionStore implements ITransactionStore {
 		});
 		this.notificationStore.success(
 			i18next.t(`transaction.new.success.${request.type}`, {
-				number: formatOptionalNumber(result.data.transactionNumber, i18next.t("common.noNumber")),
+				number: formatOptionalNumber(
+					result.data.transactionNumber,
+					i18next.t("common.noNumberInline"),
+				),
 			}),
 		);
 		return result.data;
@@ -201,7 +200,10 @@ export class TransactionStore implements ITransactionStore {
 		this.closeDialog();
 		this.notificationStore.success(
 			i18next.t("transaction.refund.success", {
-				number: formatEntityId(transaction.transactionNumber ?? transaction.id),
+				number: formatOptionalNumber(
+					transaction.transactionNumber,
+					i18next.t("common.noNumberInline"),
+				),
 			}),
 		);
 		analytics.capture("transaction_refunded", {

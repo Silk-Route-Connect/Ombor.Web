@@ -2,18 +2,17 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import EmployeeAutocomplete from "components/employee/Autocomplete/EmployeeAutocomplete";
 import PayrollFormFields from "components/payroll/Form/PayrollFormFields";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import FormField from "components/shared/Forms/FormField";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { PayrollFormMode, PayrollFormPayload, usePayrollForm } from "hooks/payroll/usePayrollForm";
 import { useFormKeyboardSubmit } from "hooks/shared/useFormKeyboardSubmit";
 import { observer } from "mobx-react-lite";
-import { dialogPaperSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
-import { dialogTranslation } from "utils/translationUtils";
 
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import { Box, Dialog, DialogContent, LinearProgress, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 interface PayrollFormModalProps {
 	isOpen: boolean;
@@ -57,58 +56,16 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 			: t("payroll.createTitle");
 
 		return (
-			<>
-				<Dialog
-					open={isOpen}
-					onClose={requestClose}
-					slotProps={{ paper: { sx: dialogPaperSx("md") } }}
-					disableEscapeKeyDown={isSaving}
-					disableRestoreFocus
-					onKeyDown={onKeyDown}
-				>
-					<FormDialogHeader title={title} onClose={requestClose} disabled={isSaving} />
-
-					{isSaving && (
-						<Box sx={{ position: "relative", height: 4 }}>
-							<LinearProgress sx={{ position: "absolute", inset: 0 }} />
-						</Box>
-					)}
-
-					<DialogContent dividers sx={{ pt: 2 }}>
-						{isEmployeeLocked ? (
-							<Box mb={2}>
-								<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-									{[
-										selectedEmployee?.position,
-										selectedEmployee &&
-											t("payroll.form.salaryLine", {
-												amount: formatCurrency(selectedEmployee.salary),
-											}),
-									]
-										.filter(Boolean)
-										.join(" · ")}
-								</Typography>
-							</Box>
-						) : (
-							<Box mb={2}>
-								<EmployeeAutocomplete
-									value={selectedEmployee}
-									onChange={(e) => setEmployeeId(e?.id ?? 0)}
-									required
-									error={!!form.formState.errors.employeeId}
-									helperText={form.formState.errors.employeeId?.message}
-								/>
-							</Box>
-						)}
-						<PayrollFormFields
-							form={form}
-							wallets={wallets}
-							walletAvailable={walletAvailable}
-							salary={selectedEmployee?.salary ?? null}
-							disabled={isSaving}
-						/>
-					</DialogContent>
-
+			<FormDialog
+				open={isOpen}
+				size="md"
+				title={title}
+				tile={recordTile("Payroll")}
+				busy={isSaving}
+				onClose={requestClose}
+				onKeyDown={onKeyDown}
+				discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+				footer={
 					<FormDialogFooter
 						onCancel={requestClose}
 						onSave={submit}
@@ -118,18 +75,42 @@ const PayrollFormModal: React.FC<PayrollFormModalProps> = observer(
 						submitIcon={<PaymentsOutlinedIcon />}
 						commitNote={t("payroll.form.commitNote")}
 					/>
-				</Dialog>
-
-				<ConfirmDialog
-					isOpen={discardOpen}
-					title={dialogTranslation("title")}
-					content={dialogTranslation("body")}
-					confirmLabel={dialogTranslation("confirm")}
-					cancelLabel={dialogTranslation("cancel")}
-					onConfirm={confirmDiscard}
-					onCancel={cancelDiscard}
+				}
+			>
+				{isEmployeeLocked ? (
+					<Box mb={2}>
+						<Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+							{[
+								selectedEmployee?.position,
+								selectedEmployee &&
+									t("payroll.form.salaryLine", {
+										amount: formatCurrency(selectedEmployee.salary),
+									}),
+							]
+								.filter(Boolean)
+								.join(" · ")}
+						</Typography>
+					</Box>
+				) : (
+					<FormField label={t("payroll.employee")} required sx={{ mb: 2 }}>
+						<EmployeeAutocomplete
+							size="small"
+							value={selectedEmployee}
+							onChange={(e) => setEmployeeId(e?.id ?? 0)}
+							required
+							error={!!form.formState.errors.employeeId}
+							helperText={form.formState.errors.employeeId?.message}
+						/>
+					</FormField>
+				)}
+				<PayrollFormFields
+					form={form}
+					wallets={wallets}
+					walletAvailable={walletAvailable}
+					salary={selectedEmployee?.salary ?? null}
+					disabled={isSaving}
 				/>
-			</>
+			</FormDialog>
 		);
 	},
 );

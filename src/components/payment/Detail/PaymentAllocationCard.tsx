@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import StatusPill from "components/shared/Chip/StatusPill";
 import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import DetailTable from "components/shared/Detail/DetailTable";
 import DetailLink from "components/shared/Link/DetailLink";
@@ -8,7 +9,7 @@ import { Column } from "components/shared/Table/DataTable/DataTable";
 import { TFunction } from "i18next";
 import { PaymentAllocationEntry, PaymentAllocationKind, PaymentRecord } from "models/payment";
 import { transactionDetailPath } from "routing/paths";
-import { designTokens, radius } from "theme";
+import { designTokens, iconSize } from "theme";
 import { formatOptionalNumber } from "utils/formatEntityId";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -39,7 +40,7 @@ const AllocationTarget: React.FC<{ allocation: PaymentAllocationEntry; t: TFunct
 	if (a.transactionId == null) {
 		return <>{t("payment.alloc.settlement")}</>;
 	}
-	const number = formatOptionalNumber(a.transactionNumber, t("common.noNumber"));
+	const number = formatOptionalNumber(a.transactionNumber, t("common.noNumberInline"));
 	if (a.transactionType == null) {
 		return <>{t("payment.alloc.txRef", { number })}</>;
 	}
@@ -83,21 +84,8 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 					<>
 						<MoneyCell value={a.amount} main />
 						{a.allocationType === "ChangeReturn" && (
-							<Box
-								component="span"
-								sx={{
-									ml: 1,
-									fontSize: 11,
-									fontWeight: 700,
-									textTransform: "uppercase",
-									color: "text.secondary",
-									bgcolor: designTokens.gray100,
-									borderRadius: `${radius.xs}px`,
-									px: "6px",
-									py: "1px",
-								}}
-							>
-								{t("payment.detail.memoTag")}
+							<Box component="span" sx={{ ml: 1 }}>
+								<StatusPill token="neutral" uppercase label={t("payment.detail.memoTag")} />
 							</Box>
 						)}
 					</>
@@ -114,7 +102,9 @@ export const PaymentAllocationCard: React.FC<{ payment: PaymentRecord }> = ({ pa
 			count={payment.allocations.length}
 			headerExtra={
 				<Tooltip title={t("payment.detail.allocationTooltip")} placement="top">
-					<InfoOutlinedIcon sx={{ fontSize: 15, color: "text.disabled", cursor: "help" }} />
+					<InfoOutlinedIcon
+						sx={{ fontSize: iconSize.xs, color: "text.disabled", cursor: "help" }}
+					/>
 				</Tooltip>
 			}
 		>

@@ -75,7 +75,7 @@ export function buildPaymentColumns(t: TFunction): Column<PaymentRecord>[] {
 			key: "wallet",
 			headerName: t("payment.table.wallet"),
 			sortValue: (p) => p.walletName,
-			renderCell: (p) => <WalletLink id={p.walletId} name={p.walletName} />,
+			renderCell: (p) => <WalletLink id={p.walletId} name={p.walletName} variant="secondary" />,
 		},
 		{
 			key: "amount",

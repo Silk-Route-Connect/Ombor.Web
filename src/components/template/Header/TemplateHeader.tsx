@@ -10,6 +10,7 @@ import SegmentedControl, {
 import { TemplateTypeFilter } from "stores/TemplateStore";
 
 import AddIcon from "@mui/icons-material/Add";
+import ShoppingBasketOutlinedIcon from "@mui/icons-material/ShoppingBasketOutlined";
 import { Box } from "@mui/material";
 
 interface TemplateHeaderProps {
@@ -50,6 +51,8 @@ const TemplateHeader: React.FC<TemplateHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
+				icon={ShoppingBasketOutlinedIcon}
+				subtitle={t("page.intro.templates")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />

@@ -1,17 +1,18 @@
 import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
+import FormField from "components/shared/Forms/FormField";
+import FormSection from "components/shared/Forms/FormSection";
 import { useFilePreviews } from "hooks/product/useFilePreviews";
 import { UseProductFormResult } from "hooks/product/useProductForm";
 import { observer } from "mobx-react-lite";
 import { getImageFullUrl } from "utils/productUtils";
 
-import { Box, Divider, Stack, TextField } from "@mui/material";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
+import { Stack, TextField } from "@mui/material";
 
 import ProductFormCoreFields from "./Fields/ProductCoreFields";
 import ProductFormPackaging from "./Fields/ProductFormPackaging";
-import ProductStockAlertField from "./Fields/ProductStockAlertField";
 import ProductFormImages from "./Images/ProductFormImages";
 
 export interface ProductFormFieldsProps {
@@ -25,8 +26,9 @@ export interface ProductFormFieldsProps {
 
 /**
  * Dialog body per the bundle: core fields (with the image block in the top
- * grid's left column), a section divider (20px margins), «Фасовка», the
- * «Минимальный остаток» alert threshold and the description textarea.
+ * grid's left column and the «Минимальный остаток» beside the unit), then two
+ * `FormSection`s — «Фасовка» (its switch on the heading line) and
+ * «Дополнительно» (the description).
  */
 const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	api,
@@ -74,7 +76,7 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 	};
 
 	return (
-		<Box>
+		<Stack sx={{ gap: "20px" }}>
 			<ProductFormCoreFields
 				control={control}
 				setValue={setValue}
@@ -99,8 +101,6 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 				}
 			/>
 
-			<Divider sx={{ my: "20px" }} />
-
 			<ProductFormPackaging
 				control={control}
 				disabled={disabled}
@@ -110,30 +110,29 @@ const ProductFormFields: React.FC<ProductFormFieldsProps> = ({
 				disablePackaging={disablePackaging}
 			/>
 
-			<ProductStockAlertField control={control} disabled={disabled} />
-
-			<Stack sx={{ gap: "7px", mt: "20px" }}>
-				<FormFieldLabel label={t("product.description")} />
-				<Controller
-					name="description"
-					control={control}
-					render={({ field, fieldState }) => (
-						<TextField
-							{...field}
-							value={field.value ?? ""}
-							size="small"
-							fullWidth
-							multiline
-							minRows={3}
-							placeholder={t("product.form.descriptionPlaceholder")}
-							error={!!fieldState.error}
-							helperText={fieldState.error?.message}
-							disabled={disabled}
-						/>
-					)}
-				/>
-			</Stack>
-		</Box>
+			<FormSection title={t("product.form.moreSection")} icon={<TuneOutlinedIcon />}>
+				<FormField label={t("product.description")}>
+					<Controller
+						name="description"
+						control={control}
+						render={({ field, fieldState }) => (
+							<TextField
+								{...field}
+								value={field.value ?? ""}
+								size="small"
+								fullWidth
+								multiline
+								minRows={3}
+								placeholder={t("product.form.descriptionPlaceholder")}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+								disabled={disabled}
+							/>
+						)}
+					/>
+				</FormField>
+			</FormSection>
+		</Stack>
 	);
 };
 

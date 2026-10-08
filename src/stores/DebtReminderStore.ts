@@ -84,10 +84,6 @@ export class DebtReminderStore implements IDebtReminderStore {
 			return;
 		}
 
-		const failed = partner.status === "fail" ? partner : debts.status === "fail" ? debts : null;
-		if (failed) {
-			this.notificationStore.notifyLoadError(failed, "partner.reminder.error.load");
-		}
 		runInAction(() => (this.facts = toFacts(partner, debts, organization)));
 	}
 

@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Loadable } from "helpers/Loading";
 import { StockAdjustment } from "models/stockAdjustment";
 
-import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import { Theme, useMediaQuery } from "@mui/material";
 
 import { buildStockAdjustmentColumns } from "./stockAdjustmentTableConfigs";
@@ -62,7 +62,7 @@ export const StockAdjustmentsTable: React.FC<StockAdjustmentsTableProps> = ({
 			summary={summary}
 			empty={
 				<TableEmptyState
-					icon={<ScaleOutlinedIcon />}
+					icon={<TuneOutlinedIcon />}
 					title={firstRun ? t("adjustment.empty.title") : t("adjustment.empty.searchTitle")}
 					hint={firstRun ? t("adjustment.empty.body") : t("adjustment.empty.searchBody")}
 					action={firstRun ? { label: t("adjustment.create"), onClick: onCreate } : undefined}

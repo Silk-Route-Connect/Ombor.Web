@@ -5,7 +5,9 @@ import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
+import { formatQuantity } from "utils/formatCurrency";
 
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import AddIcon from "@mui/icons-material/Add";
 import { Box } from "@mui/material";
 
@@ -13,6 +15,8 @@ import { Box } from "@mui/material";
 type ArchiveView = "active" | "archived";
 
 interface WalletHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	showArchived: boolean;
 	archivedCount: number;
@@ -30,6 +34,7 @@ interface WalletHeaderProps {
  * Архив» segmented control sit on the filter row below (archived-only, D1).
  */
 const WalletHeader: React.FC<WalletHeaderProps> = ({
+	summary,
 	searchValue,
 	showArchived,
 	archivedCount,
@@ -45,6 +50,8 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("wallet.title")}
+				icon={AccountBalanceWalletOutlinedIcon}
+				subtitle={t("page.intro.wallets")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
@@ -54,6 +61,8 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
@@ -73,7 +82,7 @@ const WalletHeader: React.FC<WalletHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("wallet.filter.archive")} (${archivedCount})`
+									? `${t("wallet.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("wallet.filter.archive"),
 						},
 					]}

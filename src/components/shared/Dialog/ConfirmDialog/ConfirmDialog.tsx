@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
-import { designTokens, dialogPaperSx } from "theme";
+import IconTile from "components/shared/IconTile/IconTile";
+import { ChipTokenKey, designTokens, dialogPaperSx, radius } from "theme";
 
 import { Box, Button, Dialog, Typography } from "@mui/material";
 
@@ -15,19 +16,21 @@ interface ConfirmDialogProps {
 	isOpen: boolean;
 	title: string;
 	content?: React.ReactNode;
-	/** Optional leading icon rendered in a 46×46 tinted tile. */
+	/** Optional leading icon rendered in a tinted tile (the shared `IconTile`). */
 	icon?: React.ReactNode;
 	iconTone?: ConfirmIconTone;
 	confirmLabel?: string;
 	cancelLabel?: string;
+	/** An acknowledgement («Понятно»): the confirm is the only button. */
+	hideCancel?: boolean;
 	confirmVariant?: ConfirmVariant;
 	onConfirm: () => void;
 	onCancel: () => void;
 }
 
-const ICON_TILE_SX: Record<ConfirmIconTone, object> = {
-	warning: { bgcolor: designTokens.warningBg, color: "warning.dark" },
-	info: { bgcolor: designTokens.primarySoft, color: "primary.main" },
+const ICON_TILE_TOKEN: Record<ConfirmIconTone, ChipTokenKey> = {
+	warning: "warning",
+	info: "teal",
 };
 
 /** Bundle button styles: btn-danger is an error-outlined surface button. */
@@ -65,6 +68,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	iconTone = "warning",
 	confirmLabel,
 	cancelLabel,
+	hideCancel = false,
 	confirmVariant = "danger",
 	onConfirm,
 	onCancel,
@@ -82,21 +86,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			}}
 		>
 			<Box sx={{ p: "24px 24px 4px", display: "flex", alignItems: "flex-start", gap: "16px" }}>
-				{icon && (
-					<Box
-						sx={{
-							width: 46,
-							height: 46,
-							flex: "0 0 auto",
-							borderRadius: "13px",
-							display: "grid",
-							placeItems: "center",
-							...ICON_TILE_SX[iconTone],
-						}}
-					>
-						{icon}
-					</Box>
-				)}
+				{icon && <IconTile icon={icon} token={ICON_TILE_TOKEN[iconTone]} size={44} />}
 
 				<Box sx={{ minWidth: 0, pt: "1px" }}>
 					<Typography variant="h6" component="h2" sx={{ mb: 1 }}>
@@ -110,11 +100,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 			</Box>
 
 			<Box sx={{ display: "flex", justifyContent: "flex-end", gap: "10px", p: "22px 24px" }}>
-				<GhostButton onClick={onCancel}>{cancelLabel ?? t("common.cancel")}</GhostButton>
+				{!hideCancel && (
+					<GhostButton onClick={onCancel}>{cancelLabel ?? t("common.cancel")}</GhostButton>
+				)}
 				<Button
 					onClick={onConfirm}
 					sx={{
-						borderRadius: "8px",
+						borderRadius: `${radius.md}px`,
 						fontSize: 14,
 						fontWeight: 600,
 						px: "16px",

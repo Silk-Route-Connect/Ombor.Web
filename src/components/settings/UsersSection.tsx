@@ -31,15 +31,11 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 	return (
 		<SettingsSectionCard
 			id="users"
-			icon={<PeopleAltOutlinedIcon sx={{ fontSize: 17 }} />}
+			icon={<PeopleAltOutlinedIcon />}
 			title={t("settings.users.title")}
 			subtitle={subtitle}
 			action={
-				<PrimaryButton
-					size="small"
-					icon={<PersonAddAltOutlinedIcon sx={{ fontSize: "18px !important" }} />}
-					onClick={onInvite}
-				>
+				<PrimaryButton size="small" icon={<PersonAddAltOutlinedIcon />} onClick={onInvite}>
 					{t("settings.users.invite")}
 				</PrimaryButton>
 			}
@@ -56,7 +52,7 @@ const UsersSection: React.FC<Props> = ({ users, onInvite, onDeactivate, onReacti
 				))}
 			</Box>
 
-			<Typography sx={{ mt: "18px", fontSize: 12, color: "text.disabled", lineHeight: 1.5 }}>
+			<Typography variant="caption" component="p" sx={{ mt: "16px", color: "text.secondary" }}>
 				{t("settings.users.footnote")}
 			</Typography>
 		</SettingsSectionCard>

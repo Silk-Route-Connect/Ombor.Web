@@ -133,7 +133,7 @@
   "transaction.detail.refundsTitle.Sale": "Возвраты по этой продаже",
   "transaction.detail.refundsTitle.Supply": "Возвраты по этой поставке",
   "transaction.detail.refundCol.date": "Дата",
-  "transaction.detail.refundCol.number": "Номер",
+  "transaction.detail.refundCol.number": "№",
   "transaction.detail.refundCol.positions": "Позиций",
   "transaction.detail.refundCol.reason": "Причина",
   "transaction.detail.refundCol.amount": "Сумма",
@@ -141,6 +141,7 @@
   "transaction.detail.infoTitle": "Информация",
   "transaction.detail.createdSale": "Проведено",
   "transaction.detail.createdRefund": "Проведено",
+  "transaction.detail.createdBy": "Создал",
   "transaction.detail.warehouse.Sale": "Склад отгрузки",
   "transaction.detail.warehouse.Supply": "Склад приёмки",
   "transaction.detail.warehouse.refund": "Склад поступления",
@@ -150,8 +151,6 @@
   "transaction.detail.fin.amount.Supply": "Сумма поставки",
   "transaction.detail.fin.paid": "Оплачено",
   "transaction.detail.fin.remaining": "Остаток",
-  "transaction.detail.fin.paidFull": "Оплачено полностью",
-  "transaction.detail.fin.status": "Статус оплаты",
   "transaction.detail.paymentsTitle": "Платежи",
   "transaction.detail.paymentsEmpty.Sale": "Платежей по этой продаже ещё нет",
   "transaction.detail.paymentsEmpty.Supply": "Платежей по этой поставке ещё нет",
@@ -163,7 +162,6 @@
   "transaction.detail.openOriginal.Supply": "Открыть поставку",
   "transaction.detail.reasonTitle": "Причина возврата",
   "transaction.detail.refundAmount": "Сумма возврата",
-  "transaction.detail.positionsToRefund": "Позиций к возврату",
   "transaction.detail.original.Sale": "Исходная продажа",
   "transaction.detail.original.Supply": "Исходная поставка",
   "transaction.detail.positionsReturned": "Позиций возвращено",
@@ -274,7 +272,7 @@
   "transaction.new.line.over": "Превышает остаток · доступно {{count}} {{unit}}",
   "transaction.new.line.remove": "Удалить позицию",
   "transaction.new.line.errOver": "Недостаточно товара: доступно {{count}} {{unit}}. Оформите поставку или начальный остаток.",
-  "transaction.new.line.fixedHint": "Фиксированная сумма за единицу",
+  "transaction.new.line.fixedHint": "Фиксированная сумма скидки на всю позицию",
   "transaction.new.line.packShort": "упак",
   "transaction.new.line.packTotal": "= {{count}} {{unit}}",
   "transaction.new.line.packTooltip": "Упаковка · {{size}} {{unit}}",
@@ -284,6 +282,7 @@
   "transaction.new.bulk.apply": "Применить",
 
   "transaction.new.notes.toggle": "Примечание и вложения",
+  "transaction.new.notes.label": "Примечание",
   "transaction.new.notes.placeholder.Sale": "Примечание к продаже — условия доставки, договорённости…",
   "transaction.new.notes.placeholder.Supply": "Примечание к поставке — условия приёмки, договорённости…",
 
@@ -299,7 +298,7 @@
   "transaction.new.totals.subtotal": "Подытог",
   "transaction.new.totals.discount": "Скидка",
   "transaction.new.totals.total": "Итого",
-  "transaction.new.totals.payment": "Оплата",
+  "transaction.new.totals.payment": "Оплачено",
   "transaction.new.totals.remaining.Sale": "Долг",
   "transaction.new.totals.remaining.Supply": "Мы должны",
   "transaction.new.totals.forThis.Sale": "Из них за эту продажу",
@@ -348,6 +347,5 @@
   "transaction.new.tpl.partnerRequired.Sale": "Сначала выберите партнёра",
   "transaction.new.tpl.partnerRequired.Supply": "Сначала выберите поставщика",
   "transaction.new.tpl.linesRequired": "Добавьте хотя бы одну позицию",
-  "transaction.new.tpl.save": "Сохранить шаблон",
-  "transaction.new.tpl.cancel": "Отмена"
+  "transaction.new.tpl.save": "Сохранить шаблон"
 }

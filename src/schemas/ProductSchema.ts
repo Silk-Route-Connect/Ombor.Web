@@ -121,14 +121,6 @@ export const ProductSchema = z
 		supplyPrice: z.number().min(0, i18next.t("product.validation.supplyPriceNonNegative")),
 		salePrice: z.number().min(0, i18next.t("product.validation.salePriceNonNegative")),
 
-		// NaN is a typed «1,5» (ProductStockAlertField), refused with the same message.
-		lowStockThreshold: z
-			.number({ error: i18next.t("product.validation.lowStockInvalid") })
-			.int(i18next.t("product.validation.lowStockInvalid"))
-			.min(0, i18next.t("product.validation.lowStockInvalid"))
-			.nullable()
-			.optional(),
-
 		// packaging is optional; when provided, size is required by ProductPackagingSchema
 		packaging: ProductPackagingSchema.optional(),
 

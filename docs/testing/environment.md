@@ -5,7 +5,7 @@ How a Claude QA session gets a working, authenticated app and what it is allowed
 ## Stack under test
 
 - **Frontend:** Vite dev server on **`http://localhost:3000`** — start/reuse via the Browser pane (`preview_start {name: "ombor-web"}`, defined in `.claude/launch.json`). The port is mandatory: the backend CORS allowlist only accepts `:3000`; on any other port login fails in the browser as `net::ERR_FAILED` (not a 401). If the owner's own dev server occupies `:3000` outside the preview system, ask them to stop it — never kill it.
-- **Backend:** real Ombor.API at **`http://localhost:5062`** (`VITE_OMBOR_API_BASE_URL` in `.env.development`); mocks are off (`VITE_ENABLE_MOCKS=false`). If the backend is down the app shows the offline banner and blocks submits — ask the owner to start it. Never test against MSW mocks; `src/mocks/` is dead code.
+- **Backend:** real Ombor.API at **`http://localhost:5062`** (`VITE_OMBOR_API_BASE_URL` in `.env.development`); mocks are off (`VITE_ENABLE_MOCKS=false`). If the backend is down the header shows «Нет связи с сервером» and submits are blocked (so they are with «Нет интернета» when the machine itself is offline) — ask the owner to start it. Never test against MSW mocks; `src/mocks/` is dead code.
 - **Quirk:** the dev server may bind IPv6-only. If `http://localhost:3000` refuses connections while the server is demonstrably running, use `http://[::1]:3000`.
 
 ## QA organization (the test tenant)

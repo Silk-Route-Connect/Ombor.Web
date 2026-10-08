@@ -3,16 +3,17 @@ import { useTranslation } from "react-i18next";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { UseTransactionEntry } from "hooks/transactions/useTransactionEntry";
 import { Wallet } from "models/wallet";
-import { numericSx } from "theme";
 import { formatCurrency } from "utils/formatCurrency";
 
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
+import { POS_CARD_PADDING, posSummaryCardSx } from "./posStyles";
 import OverpaymentBreakdown from "./Summary/OverpaymentBreakdown";
 import PartnerBalanceBlock from "./Summary/PartnerBalanceBlock";
 import PaymentTender from "./Summary/PaymentTender";
 import SummaryRow from "./Summary/SummaryRow";
 import SummarySubmit from "./Summary/SummarySubmit";
+import SummaryTotal from "./Summary/SummaryTotal";
 
 interface TransactionSummaryCardProps {
 	entry: UseTransactionEntry;
@@ -43,17 +44,7 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 	const remainingColor = direction === "Sale" ? "warning.dark" : "error.main";
 
 	return (
-		<Box
-			sx={{
-				bgcolor: "background.paper",
-				border: "1px solid",
-				borderColor: "divider",
-				borderRadius: "12px",
-				boxShadow: 1,
-				position: "sticky",
-				top: 16,
-			}}
-		>
+		<Box sx={posSummaryCardSx}>
 			<PartnerBalanceBlock
 				direction={direction}
 				partner={partner}
@@ -61,34 +52,18 @@ export const TransactionSummaryCard: React.FC<TransactionSummaryCardProps> = ({
 				showAfter={hasItems}
 			/>
 
-			<Box sx={{ p: "16px 18px", display: "flex", flexDirection: "column", gap: "11px" }}>
+			<Box sx={{ p: POS_CARD_PADDING, display: "flex", flexDirection: "column", gap: "12px" }}>
 				<SummaryRow label={t("transaction.new.totals.subtotal")} value={formatCurrency(subtotal)} />
 				<SummaryRow
 					label={t("transaction.new.totals.discount")}
 					value={discTotal > 0 ? `−${formatCurrency(discTotal)}` : "—"}
 					valueColor={discTotal > 0 ? "error.main" : "text.disabled"}
 				/>
-				<Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-					<Typography sx={{ fontSize: 15, fontWeight: 700 }}>
-						{t("transaction.new.totals.total")}
-					</Typography>
-					<Typography
-						sx={{
-							...numericSx,
-							fontSize: 20,
-							fontWeight: 700,
-							color: "primary.main",
-							letterSpacing: "-0.02em",
-						}}
-					>
-						{formatCurrency(total)}
-						<UzsUnit />
-					</Typography>
-				</Box>
+				<SummaryTotal label={t("transaction.new.totals.total")} total={total} />
 
 				{hasItems && (
 					<>
-						<Box sx={{ borderTop: "1px solid", borderColor: "divider", my: "3px" }} />
+						<Box sx={{ borderTop: "1px solid", borderColor: "divider", my: "4px" }} />
 						<SummaryRow
 							label={t("transaction.new.totals.payment")}
 							value={

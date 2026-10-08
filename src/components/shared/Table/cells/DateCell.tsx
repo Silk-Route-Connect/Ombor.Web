@@ -1,5 +1,5 @@
 import React from "react";
-import { numericSx } from "theme";
+import { figuresSx } from "theme";
 import { formatDate, formatDateTime } from "utils/dateUtils";
 
 import { Box } from "@mui/material";
@@ -12,13 +12,13 @@ interface DateCellProps {
 	kind?: "dateTime" | "date";
 }
 
-/** Date column cell: secondary, tabular, never wraps. */
+/** Date column cell: secondary, proportional lining figures (`figuresSx`), never wraps. */
 export const DateCell: React.FC<DateCellProps> = ({ value, kind = "dateTime" }) => {
 	if (value == null || value === "") {
 		return <NoValue />;
 	}
 	return (
-		<Box component="span" sx={{ ...numericSx, color: "text.secondary", whiteSpace: "nowrap" }}>
+		<Box component="span" sx={{ ...figuresSx, color: "text.secondary", whiteSpace: "nowrap" }}>
 			{kind === "dateTime" ? formatDateTime(value) : formatDate(value)}
 		</Box>
 	);

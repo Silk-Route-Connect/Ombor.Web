@@ -1,5 +1,5 @@
 import React from "react";
-import { numericSx } from "theme";
+import { figuresSx } from "theme";
 
 import { CopyableCell } from "../CopyableCell";
 import NoValue from "./NoValue";
@@ -10,7 +10,7 @@ export const SkuCell: React.FC<{ sku: string | null | undefined }> = ({ sku }) =
 		<CopyableCell
 			value={sku}
 			sx={{
-				...numericSx,
+				...figuresSx,
 				fontSize: 13,
 				fontWeight: 500,
 				color: "text.secondary",

@@ -6,7 +6,7 @@ import { TableOrder } from "components/shared/Table/tableOrder";
 import { Debt } from "models/debt";
 import { DebtPartnerRow } from "stores/DebtStore";
 
-import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
+import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 
 import { buildPartnerDebtColumns, PartnerDebtRowHandlers } from "./partnerDebtTableConfigs";
 import { buildTransactionDebtColumns, DebtRow, toDebtRows } from "./transactionDebtTableConfigs";
@@ -15,7 +15,7 @@ const DebtEmptyState: React.FC<{ anyFilter: boolean }> = ({ anyFilter }) => {
 	const { t } = useTranslation();
 	return (
 		<TableEmptyState
-			icon={<ReplayOutlinedIcon />}
+			icon={<RequestQuoteOutlinedIcon />}
 			title={anyFilter ? t("debt.empty.filteredTitle") : t("debt.empty.title")}
 			hint={anyFilter ? t("debt.empty.filteredBody") : t("debt.empty.body")}
 		/>
@@ -44,6 +44,7 @@ export const PartnerDebtTable: React.FC<PartnerDebtTableProps> = ({
 
 	return (
 		<DataTable<DebtPartnerRow>
+			storageKey="partners"
 			rows={rows}
 			columns={columns}
 			defaultSort={{ key: "amount", order: "desc" }}
@@ -77,6 +78,7 @@ export const TransactionDebtTable: React.FC<TransactionDebtTableProps> = ({
 
 	return (
 		<DataTable<DebtRow>
+			storageKey="transactions"
 			rows={dataRows}
 			exportOrder={exportOrder}
 			columns={columns}

@@ -25,7 +25,7 @@ const WalletPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Wallet>();
 
 	useEffect(() => {
-		walletStore.getAll();
+		void walletStore.getAll({ quiet: true });
 	}, [walletStore]);
 
 	const dialogMode = walletStore.dialogMode;
@@ -71,6 +71,7 @@ const WalletPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WalletHeader
+				summary={all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
 				searchValue={walletStore.searchTerm}
 				showArchived={walletStore.showArchived}
 				archivedCount={walletStore.archivedCount}
@@ -81,11 +82,9 @@ const WalletPage: React.FC = observer(() => {
 				exportCount={readyOr(walletStore.filteredWallets, []).length}
 			/>
 
-			{all !== null && <WalletSummaryStrip summary={walletStore.summary} />}
-
 			<WalletsTable
 				exportOrder={tableOrder}
-				onRetry={() => void walletStore.getAll()}
+				onRetry={() => void walletStore.getAll({ quiet: true })}
 				errorTitle={t("wallet.error.getAll")}
 				rows={walletStore.filteredWallets}
 				showArchived={walletStore.showArchived}

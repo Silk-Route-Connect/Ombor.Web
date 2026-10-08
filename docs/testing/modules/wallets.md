@@ -28,7 +28,7 @@ Run in order — later cases consume earlier data. All numeric oracles use the r
 
 ### T-WAL-01 · Create Cash wallet — opening balance is an event [happy] ✍
 Pre: none.
-Steps: 1. `/wallets` → «Новая касса». 2. Name «QA-<MMDD> Касса А», type «Наличные», opening 500 000. 3. Save.
+Steps: 1. `/wallets` → «Новая касса». 2. Name «QA-<MMDD> Касса А», type «Наличные» (a segmented control with icons, keyboard-reachable), opening 500 000 (right-aligned, «UZS» after the figure). 3. «Создать кассу».
 Expect: toast «Касса «QA-<MMDD> Касса А» создана»; row: Баланс 500 000 · Авансы 0 · Наши средства 500 000 (R15). Open detail: meta line «Начальный остаток: 500 000 UZS»; Операции has exactly one row — «Начальный остаток» · «Приход» · 500 000 · Баланс после 500 000 (R16 — an auditable event, not a raw number). No raw balance input exists anywhere on the page.
 
 ### T-WAL-02 · Create Bank wallet [happy] ✍
@@ -49,7 +49,7 @@ Expect: title «Редактировать кассу», subtitle «Тип и н
 ### T-WAL-05 · Inter-wallet transfer updates both wallets, immutable [happy] ✍
 Pre: T-WAL-01, T-WAL-02. Record strip «Общий баланс» first.
 Steps: 1. Касса А detail → «Новый перевод» (source pre-set = А). 2. To: Касса Б, amount 150 000, note «QA перевод». 3. «Перевести».
-Expect: toast «Перевод проведён: QA-<MMDD> Касса А → QA-<MMDD> Касса Б». А: Баланс 350 000; Операции top row «Перевод» · «Расход» · 150 000 · Баланс после 350 000; Переводы tab shows the row (Из кассы А → В кассу Б). Б detail: Баланс 350 000; same transfer in its Переводы; Операции row «Приход» · 150 000 · Баланс после 350 000. Row click opens the read-only detail modal with «Перевод записан окончательно.» and zero edit/delete affordances (R1, R16). Strip «Общий баланс» unchanged (internal move).
+Expect: toast «Перевод проведён: QA-<MMDD> Касса А → QA-<MMDD> Касса Б». А: Баланс 350 000; Операции top row «Перевод» · «Расход» · 150 000 · Баланс после 350 000; Переводы tab shows the row (Из кассы А → В кассу Б). Б detail: Баланс 350 000; same transfer in its Переводы; Операции row «Приход» · 150 000 · Баланс после 350 000. Row click opens the read-only detail modal titled «Перевод №N» (the transfer's id, as the Переводы tab shows it) with «Перевод записан окончательно.», a single «Закрыть» button and zero edit/delete affordances (R1, R16). Strip «Общий баланс» unchanged (internal move).
 
 ### T-WAL-06 · Deposit raises balance AND advances; «Наши средства» flat [happy] ✍
 Pre: T-WAL-05 (Б at 350 000). Create partner «QA-<MMDD> Партнёр Кас» (Клиент, opening 0) via `/partners`.

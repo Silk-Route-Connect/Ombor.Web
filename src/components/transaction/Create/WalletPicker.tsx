@@ -48,11 +48,8 @@ export const WalletPicker: React.FC<WalletPickerProps> = ({ value, wallets, onCh
 						title={wallet ? `${wallet.name} · ${t(WALLET_TYPE_KEY[wallet.type])}` : undefined}
 						sx={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}
 					>
-						<Icon sx={{ fontSize: 16, color: "text.disabled" }} />
-						<Box
-							component="span"
-							sx={{ fontSize: 13.5, overflow: "hidden", textOverflow: "ellipsis" }}
-						>
+						<Icon sx={{ fontSize: 18, color: "text.disabled" }} />
+						<Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
 							{wallet?.name ?? ""}
 						</Box>
 					</Box>
@@ -63,7 +60,7 @@ export const WalletPicker: React.FC<WalletPickerProps> = ({ value, wallets, onCh
 				const Icon = WALLET_ICON[w.type];
 				return (
 					<MenuItem key={w.id} value={String(w.id)} sx={{ gap: "10px" }}>
-						<Icon sx={{ fontSize: 17, color: "primary.main" }} />
+						<Icon sx={{ fontSize: 18, color: "primary.main" }} />
 						<ListItemText
 							primary={w.name}
 							secondary={

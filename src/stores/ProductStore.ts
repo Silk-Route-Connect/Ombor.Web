@@ -1,15 +1,14 @@
-import { isReady, toLoadable } from "helpers/Loading";
+import { isReady, LoadOptions, toLoadable } from "helpers/Loading";
 import { withSaving } from "helpers/WithSaving";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Category } from "models/category";
 import { ServerErrorHandler } from "utils/formServerErrors";
 import {
+	isOutOfStock,
 	matchesProductSearch,
-	matchesStockFilter,
 	matchesType,
-	productStockLevel,
+	ProductStockFilter,
 	ProductTypeFilter,
-	StockFilter,
 } from "utils/productFilters";
 
 import { Loadable, tryRun } from "../helpers/helpers";
@@ -18,7 +17,7 @@ import { CreateProductRequest, Product, UpdateProductRequest } from "../models/p
 import ProductApi from "../services/api/ProductApi";
 import { NotificationStore } from "./NotificationStore";
 
-export type { ProductTypeFilter, StockFilter } from "utils/productFilters";
+export type { ProductStockFilter, ProductTypeFilter } from "utils/productFilters";
 
 export type DialogMode =
 	| { kind: "form"; product?: Product }
@@ -38,12 +37,12 @@ export interface IProductStore {
 	searchTerm: string;
 	categoryFilter: Category | null;
 	typeFilter: ProductTypeFilter;
-	stockFilter: StockFilter;
+	stockFilter: ProductStockFilter;
 	showArchived: boolean;
 	isSaving: boolean;
 	dialogMode: DialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	/** Resolve with the created product, or null on failure. */
 	create(
 		request: CreateProductRequest,
@@ -61,7 +60,7 @@ export interface IProductStore {
 	setSearch(term: string): void;
 	setCategoryFilter(category: Category | null): void;
 	setTypeFilter(filter: ProductTypeFilter): void;
-	setStockFilter(filter: StockFilter): void;
+	setStockFilter(filter: ProductStockFilter): void;
 	setShowArchived(show: boolean): void;
 
 	openCreate(): void;
@@ -79,7 +78,7 @@ export class ProductStore implements IProductStore {
 	searchTerm = "";
 	categoryFilter: Category | null = null;
 	typeFilter: ProductTypeFilter = "all";
-	stockFilter: StockFilter = "all";
+	stockFilter: ProductStockFilter = "all";
 	showArchived = false;
 	isSaving = false;
 	dialogMode: DialogMode = { kind: "none" };
@@ -117,8 +116,8 @@ export class ProductStore implements IProductStore {
 			products = products.filter((p) => matchesType(p.type, this.typeFilter));
 		}
 
-		if (this.stockFilter !== "all") {
-			products = products.filter((p) => matchesStockFilter(productStockLevel(p), this.stockFilter));
+		if (this.stockFilter === "out") {
+			products = products.filter(isOutOfStock);
 		}
 
 		if (this.searchTerm.trim()) {
@@ -144,12 +143,12 @@ export class ProductStore implements IProductStore {
 		return this.allProducts.filter((p) => !p.isArchived && p.type !== "Sale");
 	}
 
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allProducts = "loading"));
 
 		const result = await tryRun(() => ProductApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "product.error.getAll");
 		}
 
@@ -263,7 +262,7 @@ export class ProductStore implements IProductStore {
 		this.typeFilter = filter;
 	}
 
-	setStockFilter(filter: StockFilter): void {
+	setStockFilter(filter: ProductStockFilter): void {
 		this.stockFilter = filter;
 	}
 

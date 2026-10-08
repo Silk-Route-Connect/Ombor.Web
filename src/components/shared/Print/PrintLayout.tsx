@@ -6,7 +6,7 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import { Box, GlobalStyles } from "@mui/material";
 
-import { PRINT_PAGE_MARGIN, printSheetSx } from "./printStyles";
+import { PRINT_PAGE_MARGIN, printSheetLandscapeSx, printSheetSx } from "./printStyles";
 
 interface PrintLayoutProps {
 	/** Screen title of the print view («Накладная на продажу №12»). */
@@ -20,6 +20,11 @@ interface PrintLayoutProps {
 	backTo: string;
 	/** Screen-only controls left of «Печать» — e.g. the statement period. */
 	toolbar?: React.ReactNode;
+	/**
+	 * Paper orientation; `landscape` for a table too wide for a portrait A4 (a
+	 * report with many columns). The preview sheet turns with the paper.
+	 */
+	orientation?: "portrait" | "landscape";
 	/** The document itself, drawn on the A4 sheet. */
 	children: React.ReactNode;
 }
@@ -35,6 +40,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 	documentTitle = title,
 	backTo,
 	toolbar,
+	orientation = "portrait",
 	children,
 }) => {
 	const { t } = useTranslation();
@@ -51,7 +57,10 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 		<Box>
 			<GlobalStyles
 				styles={(theme) => ({
-					"@page": { size: "A4", margin: PRINT_PAGE_MARGIN },
+					"@page": {
+						size: orientation === "landscape" ? "A4 landscape" : "A4",
+						margin: PRINT_PAGE_MARGIN,
+					},
 					"@media print": { body: { backgroundColor: theme.palette.common.white } },
 				})}
 			/>
@@ -60,6 +69,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 				<DetailPageHeader
 					backTo={backTo}
 					title={title}
+					documentTitle={null}
 					meta={t("print.pdfHint")}
 					primaryAction={
 						<>
@@ -73,7 +83,10 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({
 			</Box>
 
 			<Box sx={{ overflowX: "auto", pb: 3, "@media print": { overflow: "visible", pb: 0 } }}>
-				<Box component="article" sx={printSheetSx}>
+				<Box
+					component="article"
+					sx={[printSheetSx, orientation === "landscape" && printSheetLandscapeSx]}
+				>
 					{children}
 				</Box>
 			</Box>

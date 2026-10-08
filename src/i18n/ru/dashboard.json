@@ -59,7 +59,7 @@
   "dashboard.chart.allWallets": "Все кассы",
 
   "dashboard.aging.title": "Нам должны — по давности",
-  "dashboard.aging.overdueLabel": "Старше 30 дней",
+  "dashboard.aging.overdueShare": "{{pct}}% старше 30 дней",
   "dashboard.aging.bucket.0-7": "0–7 дней",
   "dashboard.aging.bucket.8-30": "8–30 дней",
   "dashboard.aging.bucket.31-60": "31–60 дней",
@@ -71,11 +71,14 @@
   "dashboard.topDebtors.allPartners": "Все партнёры",
 
   "dashboard.lowStock.title": "Заканчивается",
-  "dashboard.lowStock.summary": "Нет в наличии: {{out}} · мало: {{low}}",
+  "dashboard.lowStock.summary_one": "{{formatted}} позиция на складах",
+  "dashboard.lowStock.summary_few": "{{formatted}} позиции на складах",
+  "dashboard.lowStock.summary_many": "{{formatted}} позиций на складах",
+  "dashboard.lowStock.summary_other": "{{formatted}} позиций на складах",
   "dashboard.lowStock.all": "Все",
-  "dashboard.lowStock.left": "Осталось {{qty}}",
-  "dashboard.lowStock.leftOfMin": "Осталось {{qty}} · минимум {{min}}",
-  "dashboard.lowStock.empty": "Всё в наличии — ничего не заканчивается",
+  "dashboard.lowStock.leftOfThreshold": "осталось {{qty}} · порог {{threshold}}",
+  "dashboard.lowStock.empty": "Ничего не заканчивается — остатки выше заданных порогов",
+  "dashboard.lowStock.untracked": "Пороги пока не заданы. Укажите порог товара на складе — во вкладке «Остатки» или в начальном остатке, — и товар появится здесь, когда начнёт заканчиваться.",
 
   "dashboard.recent.title": "Последние продажи и поставки",
   "dashboard.recent.number": "№",
@@ -84,5 +87,5 @@
   "dashboard.recent.type": "Тип",
   "dashboard.recent.total": "Сумма",
   "dashboard.recent.paid": "Оплачено",
-  "dashboard.recent.statusCol": "Статус"
+  "dashboard.recent.statusCol": "Статус оплаты"
 }

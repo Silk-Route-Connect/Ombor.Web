@@ -5,14 +5,18 @@ import PageHeader from "components/shared/PageHeader/PageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
+import { formatQuantity } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
 /** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
 type ArchiveView = "active" | "archived";
 
 interface WarehouseHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	showArchived: boolean;
 	archivedCount: number;
@@ -30,6 +34,7 @@ interface WarehouseHeaderProps {
  * segmented control sit on the filter row below (mirrors PartnerListHeader).
  */
 const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
+	summary,
 	searchValue,
 	showArchived,
 	archivedCount,
@@ -47,6 +52,8 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
+				icon={WarehouseOutlinedIcon}
+				subtitle={t("page.intro.warehouses")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
@@ -56,6 +63,8 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
@@ -75,7 +84,7 @@ const WarehouseHeader: React.FC<WarehouseHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("warehouse.filter.archive")} (${archivedCount})`
+									? `${t("warehouse.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("warehouse.filter.archive"),
 						},
 					]}

@@ -8,11 +8,11 @@
 
   "settings.org.title": "Организация",
   "settings.org.subtitle": "Данные компании в системе",
-  "settings.org.optional": "необязательно",
   "settings.org.name": "Название компании",
   "settings.org.address": "Адрес",
   "settings.org.addressPlaceholder": "Город, улица, дом",
   "settings.org.phone": "Телефон",
+  "settings.org.emailPlaceholder": "info@company.uz",
   "settings.org.phonePlaceholder": "+998 71 200 00 00",
   "settings.org.email": "Email",
   "settings.org.logo": "Логотип",
@@ -64,7 +64,7 @@
   "settings.invite.title": "Пригласить пользователя",
   "settings.invite.subtitle": "Сотрудник будет входить по своему номеру телефона",
   "settings.invite.firstName": "Имя",
-  "settings.invite.lastName": "Фамилия (необязательно)",
+  "settings.invite.lastName": "Фамилия",
   "settings.invite.phone": "Телефон",
   "settings.invite.phoneHint": "По этому номеру сотрудник будет входить в Ombor",
   "settings.invite.role": "Роль",
@@ -92,6 +92,5 @@
 
   "settings.save.dirty": "Есть несохранённые изменения",
   "settings.save.clean": "Все изменения сохранены",
-  "settings.save.reset": "Отменить",
   "settings.save.save": "Сохранить"
 }

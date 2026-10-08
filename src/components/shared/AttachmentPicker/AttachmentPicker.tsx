@@ -8,6 +8,7 @@ import { Box, Chip, Grid } from "@mui/material";
 
 export interface AttachmentPickerProps {
 	files: File[];
+	/** The file list's maximum height before it scrolls; no space is kept while it is empty. */
 	listHeight?: number;
 	label?: string;
 	disabled?: boolean;
@@ -49,28 +50,31 @@ const AttachmentPicker: React.FC<AttachmentPickerProps> = ({
 				/>
 			</Grid>
 
-			<Grid size={{ xs: 12 }}>
-				<Box
-					display="flex"
-					flexWrap="wrap"
-					gap={1}
-					sx={{
-						height: listHeight,
-						overflowY: "auto",
-						mt: 1,
-						pr: 1,
-					}}
-				>
-					{files.map((f, idx) => (
-						<Chip
-							key={`${f.name}-${idx}`}
-							label={f.name}
-							onDelete={() => onRemove(idx)}
-							deleteIcon={<CloseIcon />}
-						/>
-					))}
-				</Box>
-			</Grid>
+			{/* The list takes room only once there is a file — an empty band read as a broken form. */}
+			{files.length > 0 && (
+				<Grid size={{ xs: 12 }}>
+					<Box
+						display="flex"
+						flexWrap="wrap"
+						gap={1}
+						sx={{
+							maxHeight: listHeight,
+							overflowY: "auto",
+							mt: 1,
+							pr: 1,
+						}}
+					>
+						{files.map((f, idx) => (
+							<Chip
+								key={`${f.name}-${idx}`}
+								label={f.name}
+								onDelete={() => onRemove(idx)}
+								deleteIcon={<CloseIcon />}
+							/>
+						))}
+					</Box>
+				</Grid>
+			)}
 		</Grid>
 	);
 };

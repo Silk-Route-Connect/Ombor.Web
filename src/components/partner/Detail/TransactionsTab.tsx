@@ -36,6 +36,9 @@ interface TransactionsTabProps {
 
 const isRefund = (e: PartnerLedgerEntry) => e.type === "refund-sale" || e.type === "refund-supply";
 
+/** The document's amount as its «Сумма» cell reads it: a refund below zero. */
+const signedAmount = (e: PartnerLedgerEntry) => (isRefund(e) ? -1 : 1) * Math.abs(e.delta);
+
 /** A status chip only for a document that carries one (refunds and done rows do not). */
 const hasStatus = (e: PartnerLedgerEntry) => !isRefund(e) && !!e.status && e.status !== "done";
 
@@ -125,8 +128,9 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				key: "amount",
 				headerName: t("partner.txns.col.amount"),
 				align: "right",
-				sortValue: (tx) => Math.abs(tx.delta),
-				renderCell: (tx) => <MoneyCell value={Math.abs(tx.delta)} main />,
+				sortValue: (tx) => signedAmount(tx),
+				// A refund reads «−…» as on /sales and /supplies (D12).
+				renderCell: (tx) => <MoneyCell value={Math.abs(tx.delta)} main negative={isRefund(tx)} />,
 			},
 		],
 		[t],
@@ -147,7 +151,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 					value: (tx) => (hasStatus(tx) ? t(`partner.txns.status.${tx.status}`) : ""),
 				},
 				{ header: t("partner.txns.col.positions"), value: (tx) => tx.itemCount ?? "" },
-				{ header: t("partner.txns.col.amount"), value: (tx) => Math.abs(tx.delta) },
+				{ header: t("partner.txns.col.amount"), value: (tx) => signedAmount(tx) },
 			],
 			tableOrder.apply(filtered),
 		);
@@ -193,6 +197,7 @@ export const TransactionsTab: React.FC<TransactionsTabProps> = ({
 				columns={columns}
 				defaultSort={{ key: "date", order: "desc" }}
 				pagination
+				storageKey="transactions"
 				onRowClick={onOpen}
 				empty={
 					<TableEmptyState

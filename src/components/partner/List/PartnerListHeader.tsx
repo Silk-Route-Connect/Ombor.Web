@@ -6,14 +6,18 @@ import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { SearchInput } from "components/shared/SearchInput/SearchInput";
 import SegmentedControl from "components/shared/SegmentedControl/SegmentedControl";
 import { PartnerTypeFilter } from "stores/PartnerStore";
+import { formatQuantity } from "utils/formatCurrency";
 
 import AddIcon from "@mui/icons-material/Add";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
 import { Box } from "@mui/material";
 
 /** Archive view: the «Активные | Архив» segmented control swaps the whole list. */
 type ArchiveView = "active" | "archived";
 
 interface PartnerListHeaderProps {
+	/** The page's summary cards — under the title row, above the filters (pattern 11). */
+	summary?: React.ReactNode;
 	searchValue: string;
 	typeFilter: PartnerTypeFilter;
 	showArchived: boolean;
@@ -29,6 +33,7 @@ interface PartnerListHeaderProps {
 
 /** Partners list header (locked pattern 11): create/export on the title row, search/type/archive below. */
 export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
+	summary,
 	searchValue,
 	typeFilter,
 	showArchived,
@@ -46,6 +51,8 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 		<>
 			<PageHeader
 				title={t("partner.title")}
+				icon={HandshakeOutlinedIcon}
+				subtitle={t("page.intro.partners")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
@@ -55,6 +62,8 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 					</>
 				}
 			/>
+
+			{summary}
 
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
 				<SearchInput
@@ -81,7 +90,7 @@ export const PartnerListHeader: React.FC<PartnerListHeaderProps> = ({
 							value: "archived",
 							label:
 								archivedCount > 0
-									? `${t("partner.filter.archive")} (${archivedCount})`
+									? `${t("partner.filter.archive")} (${formatQuantity(archivedCount)})`
 									: t("partner.filter.archive"),
 						},
 					]}

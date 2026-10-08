@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import { readyOr } from "helpers/Loading";
 import { useProductForm } from "hooks/product/useProductForm";
 import { useSkuAutofill } from "hooks/product/useSkuAutofill";
@@ -12,15 +12,16 @@ import { observer } from "mobx-react-lite";
 import { Product } from "models/product";
 import { ProductFormInputs, ProductFormValues } from "schemas/ProductSchema";
 import { useStore } from "stores/StoreContext";
-import { dialogPaperSx } from "theme";
 import { ServerErrorHandler } from "utils/formServerErrors";
-
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import { Dialog, DialogContent, LinearProgress } from "@mui/material";
 
 import ProductFormFields from "./ProductFormFields";
 
-const CONTENT_HEIGHT = 620;
+/**
+ * The body keeps one height while «Фасовка» opens and the type swaps the price
+ * row, so the dialog never jumps; it fits the closed form and scrolls once the
+ * packaging card opens (and shrinks to a short viewport).
+ */
+const BODY_HEIGHT = 850;
 
 export interface ProductFormModalProps {
 	isOpen: boolean;
@@ -85,57 +86,34 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 	}, [isOpen, product, firstCategoryId]);
 
 	return (
-		<>
-			<Dialog
-				open={isOpen}
-				onClose={requestClose}
-				disableEscapeKeyDown={isSaving}
-				disableRestoreFocus
-				onKeyDown={onKeyDown}
-				slotProps={{
-					// Bundle .fcard/.prod-dialog: 720px wide, r-lg corners.
-					paper: { sx: dialogPaperSx("lg") },
-				}}
-			>
-				<FormDialogHeader
-					title={t(product ? "product.title.edit" : "product.title.create")}
-					subtitle={product?.sku}
-					disabled={isSaving}
-					onClose={requestClose}
-				/>
-
-				{isSaving && <LinearProgress />}
-
-				<DialogContent dividers sx={{ maxHeight: CONTENT_HEIGHT, overflowY: "auto", pt: 2 }}>
-					<ProductFormFields
-						api={form}
-						onGenerateSku={sku.regenerate}
-						skuAutofill={!product}
-						disabled={isSaving}
-					/>
-				</DialogContent>
-
+		<FormDialog
+			open={isOpen}
+			size="lg"
+			title={t(product ? "product.title.edit" : "product.title.create")}
+			subtitle={product?.sku}
+			tile={recordTile("Product")}
+			busy={isSaving}
+			onClose={requestClose}
+			onKeyDown={onKeyDown}
+			bodyHeight={BODY_HEIGHT}
+			discard={{ open: discardOpen, onConfirm: confirmDiscard, onCancel: cancelDiscard }}
+			footer={
 				<FormDialogFooter
 					onCancel={requestClose}
 					onSave={form.submit}
 					canSave={form.canSave}
 					loading={isSaving}
+					submitLabel={product ? undefined : t("product.form.submitCreate")}
 				/>
-			</Dialog>
-
-			<ConfirmDialog
-				isOpen={discardOpen}
-				icon={<ReportProblemOutlinedIcon sx={{ fontSize: 22 }} />}
-				iconTone="warning"
-				title={t("common.dialog.discardChanges.title")}
-				content={t("common.dialog.discardChanges.body")}
-				confirmLabel={t("common.dialog.discardChanges.confirm")}
-				cancelLabel={t("common.dialog.discardChanges.cancel")}
-				confirmVariant="danger"
-				onConfirm={confirmDiscard}
-				onCancel={cancelDiscard}
+			}
+		>
+			<ProductFormFields
+				api={form}
+				onGenerateSku={sku.regenerate}
+				skuAutofill={!product}
+				disabled={isSaving}
 			/>
-		</>
+		</FormDialog>
 	);
 };
 

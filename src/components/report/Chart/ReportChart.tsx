@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { CHART_AXIS_TICK, valueAxisWidth } from "components/shared/Chart/chartAxis";
 import ChartPanel from "components/shared/Chart/ChartPanel";
 import ChartTooltip from "components/shared/Chart/ChartTooltip";
 import {
@@ -21,7 +22,6 @@ import { ReportChartPoint, ReportChartSpec } from "../View/types";
 
 const TIME_HEIGHT = 240;
 const RANK_ROW = 34;
-const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: designTokens.gray600 } as const;
 const NAME_TICK_CHARS = 22;
 
 const shorten = (text: string): string =>
@@ -70,9 +70,10 @@ const ReportChart: React.FC<{ spec: ReportChartSpec }> = ({ spec }) => {
 	const valueAxis = {
 		tickLine: false,
 		axisLine: false,
-		tick: AXIS_TICK,
+		tick: CHART_AXIS_TICK,
 		tickFormatter: (v: number) => formatShortNumber(v),
 	} as const;
+	const valueWidth = valueAxisWidth(spec.points.flatMap((p) => Object.values(p.values)));
 
 	return (
 		<Box sx={{ mb: "16px" }}>
@@ -111,7 +112,7 @@ const ReportChart: React.FC<{ spec: ReportChartSpec }> = ({ spec }) => {
 									interval={Math.max(0, Math.ceil(spec.points.length / 12) - 1)}
 									tickLine={false}
 									axisLine={false}
-									tick={AXIS_TICK}
+									tick={CHART_AXIS_TICK}
 									tickMargin={8}
 									tickFormatter={tickOf}
 								/>
@@ -124,11 +125,11 @@ const ReportChart: React.FC<{ spec: ReportChartSpec }> = ({ spec }) => {
 									interval={0}
 									tickLine={false}
 									axisLine={false}
-									tick={AXIS_TICK}
+									tick={CHART_AXIS_TICK}
 									tickFormatter={tickOf}
 								/>
 							) : (
-								<YAxis width={60} {...valueAxis} />
+								<YAxis width={valueWidth} {...valueAxis} />
 							)}
 							{hasNegative && (
 								<ReferenceLine {...(ranking ? { x: 0 } : { y: 0 })} stroke={designTokens.gray400} />

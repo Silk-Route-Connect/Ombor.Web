@@ -29,7 +29,11 @@ const ActivityLogPage: React.FC = observer(() => {
 
 	return (
 		<>
-			<PageHeader title={t("page.activityLog.title")} subtitle={t("activity.page.subtitle")} />
+			<PageHeader
+				title={t("page.activityLog.title")}
+				icon={HistoryOutlinedIcon}
+				subtitle={t("activity.page.subtitle")}
+			/>
 			<ActivityFilters store={activityLogStore} />
 			<Paper
 				elevation={1}

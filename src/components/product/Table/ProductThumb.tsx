@@ -11,6 +11,7 @@ export const ProductThumb: React.FC<{ product: Product }> = ({ product }) => {
 		<ProductImage
 			src={image ? getImageFullUrl(image.thumbnailUrl ?? image.originalUrl) : undefined}
 			alt=""
+			name={product.name}
 			size={34}
 			radius={radius.md}
 			muted={product.isArchived}

@@ -5,7 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { tryRun } from "../helpers/helpers";
 import { DashboardData, DashboardPeriod } from "../models/dashboard";
 import DashboardApi from "../services/api/DashboardApi";
-import { NotificationStore } from "./NotificationStore";
 
 export interface IDashboardStore {
 	/** The snapshot for the current period; null before the first load and after a failed one. */
@@ -30,7 +29,6 @@ export interface IDashboardStore {
  * under the new period label. Its debt figures reconcile with «Долги» (rule 12).
  */
 export class DashboardStore implements IDashboardStore {
-	private readonly notificationStore: NotificationStore;
 	private readonly loads = new LoadSequence();
 
 	data: DashboardData | null = null;
@@ -38,8 +36,7 @@ export class DashboardStore implements IDashboardStore {
 	loadError: LoadError | null = null;
 	period: DashboardPeriod = "month";
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -56,7 +53,6 @@ export class DashboardStore implements IDashboardStore {
 		}
 
 		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "dashboard.error.load");
 			runInAction(() => {
 				this.data = null;
 				this.loadError = new LoadError(result.cause);

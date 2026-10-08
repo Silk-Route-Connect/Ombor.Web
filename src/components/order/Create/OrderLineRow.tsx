@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React, { useId } from "react";
 import { useTranslation } from "react-i18next";
-import MoneyInputBase from "components/shared/Inputs/MoneyInputBase";
+import FormField from "components/shared/Forms/FormField";
+import QtyStepper from "components/shared/Inputs/QtyStepper";
+import LineDiscountField from "components/transaction/Create/LineDiscountField";
+import LineMoneyInput from "components/transaction/Create/LineMoneyInput";
+import LineRemoveButton from "components/transaction/Create/LineRemoveButton";
+import LineRowHead from "components/transaction/Create/LineRowHead";
+import { LINE_PRICE_WIDTH, POS_CARD_PADDING } from "components/transaction/Create/posStyles";
 import { CartItem, stockAt } from "hooks/transactions/useTransactionEntry";
-import { designTokens, numericSx } from "theme";
-import { formatCurrency } from "utils/formatCurrency";
 import { measurementShort, measurementShortLabel } from "utils/productUtils";
 
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import RemoveIcon from "@mui/icons-material/Remove";
-import { Box, ButtonBase, IconButton, InputBase, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface OrderLineRowProps {
 	item: CartItem;
@@ -22,38 +22,9 @@ interface OrderLineRowProps {
 	onRemove: () => void;
 }
 
-const fieldLabelSx = {
-	fontSize: 10.5,
-	fontWeight: 600,
-	letterSpacing: "0.04em",
-	textTransform: "uppercase",
-	color: "text.disabled",
-} as const;
-
-const boxedInputSx = {
-	height: 36,
-	border: "1px solid",
-	borderColor: designTokens.gray300,
-	borderRadius: "6px",
-	bgcolor: "background.paper",
-	display: "inline-flex",
-	alignItems: "center",
-	px: "10px",
-	gap: "6px",
-	"&:focus-within": { borderColor: "primary.main" },
-} as const;
-
-const numInputSx = {
-	...numericSx,
-	fontWeight: 600,
-	fontSize: 14,
-	textAlign: "right",
-	"& input": { textAlign: "right", p: 0 },
-} as const;
-
 /**
  * One editable order line: quantity stepper, editable unit price, line discount
- * (% or fixed currency), and live line total + discount amount. Unlike the
+ * (% or a fixed sum), and live line total + discount amount. Unlike the
  * sale/supply cart line, stock is shown only as GUIDANCE — an order is a pending
  * intent, so an over-stock quantity is flagged but never blocks creation (the
  * real stock check happens at delivery).
@@ -67,207 +38,88 @@ export const OrderLineRow: React.FC<OrderLineRowProps> = ({
 	onRemove,
 }) => {
 	const { t } = useTranslation();
+	const id = useId();
 	const unit = measurementShort(t, item.product.measurement);
 	const unitLabel = measurementShortLabel(t, item.product.measurement);
 	const stock = stockAt(item.product, warehouseId);
 	const over = warehouseId != null && item.quantity > stock;
 
-	// Free-form editing buffer for the quantity (mirrors CartLineRow): the field can
-	// go empty while retyping (clear «32» → type «55») instead of snapping to the min
-	// on each keystroke; only a valid value (≥ 1) commits, blur/stepper revert.
-	const [qtyDraft, setQtyDraft] = useState<string | null>(null);
-	const qtyValue = qtyDraft ?? String(item.quantity);
-	const setQty = (next: number) => {
-		setQtyDraft(null);
-		onChange({ quantity: Math.max(1, next) });
-	};
-	const onQtyChange = (raw: string) => {
-		setQtyDraft(raw);
-		const n = parseInt(raw.replace(/[^\d]/g, ""), 10);
-		if (!Number.isNaN(n) && n >= 1) {
-			onChange({ quantity: n });
-		}
-	};
-
 	return (
 		<Box
 			sx={{
-				p: "14px 18px",
+				p: POS_CARD_PADDING,
 				borderBottom: "1px solid",
 				borderColor: "divider",
 				"&:last-of-type": { borderBottom: "none" },
 			}}
 		>
-			<Box sx={{ display: "flex", justifyContent: "space-between", gap: "18px" }}>
-				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontSize: 14, fontWeight: 600 }}>{item.product.name}</Typography>
-					<Typography sx={{ ...numericSx, fontSize: 12, color: "text.disabled", mt: "2px" }}>
-						{item.product.sku}
-					</Typography>
-					<Box
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "5px",
-							mt: "5px",
-							fontSize: 11.5,
-							fontWeight: 600,
-							color: over ? "warning.dark" : "text.secondary",
-						}}
-					>
-						<Inventory2OutlinedIcon sx={{ fontSize: 12 }} />
-						{warehouseId == null
-							? t("order.new.line.noWarehouse")
-							: t("order.new.line.inStock", { count: stock, unit })}
-						{over && (
-							<Box component="span" sx={{ fontWeight: 600 }}>
-								{t("order.new.line.overStock")}
-							</Box>
-						)}
-					</Box>
-				</Box>
-				<Box sx={{ textAlign: "right", flex: "0 0 auto" }}>
-					<Typography sx={{ ...numericSx, fontSize: 15, fontWeight: 700 }}>
-						{formatCurrency(lineTotal)}
-					</Typography>
-					{lineDiscount > 0 && (
-						<Typography sx={{ ...numericSx, fontSize: 11.5, fontWeight: 600, color: "error.main" }}>
-							−{formatCurrency(lineDiscount)}
-						</Typography>
-					)}
-				</Box>
-			</Box>
+			<LineRowHead
+				name={item.product.name}
+				sku={item.product.sku}
+				status={{
+					icon: <Inventory2OutlinedIcon />,
+					text:
+						warehouseId == null ? (
+							t("order.new.line.noWarehouse")
+						) : (
+							<>
+								{t("order.new.line.inStock", { count: stock, unit })}
+								{over && <> {t("order.new.line.overStock")}</>}
+							</>
+						),
+					color: over ? "warning.dark" : "text.secondary",
+				}}
+				lineTotal={lineTotal}
+				lineDiscount={lineDiscount}
+			/>
 
 			<Box
-				sx={{ display: "flex", alignItems: "flex-end", gap: "14px", flexWrap: "wrap", mt: "10px" }}
+				sx={{
+					display: "flex",
+					alignItems: "flex-start",
+					gap: "16px",
+					flexWrap: "wrap",
+					mt: "12px",
+				}}
 			>
-				{/* quantity stepper */}
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>{t("order.new.line.qty", { unit: unitLabel })}</Typography>
-					<Box
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							height: 36,
-							border: "1px solid",
-							borderColor: designTokens.gray300,
-							borderRadius: "6px",
-							overflow: "hidden",
-						}}
-					>
-						<IconButton
-							size="small"
-							disabled={item.quantity <= 1}
-							onClick={() => setQty(item.quantity - 1)}
-							sx={{ borderRadius: 0, width: 32, height: 36, color: designTokens.gray600 }}
-						>
-							<RemoveIcon sx={{ fontSize: 16 }} />
-						</IconButton>
-						<InputBase
-							value={qtyValue}
-							onFocus={(e) => e.currentTarget.select()}
-							onChange={(e) => onQtyChange(e.target.value)}
-							onBlur={() => setQtyDraft(null)}
-							sx={{
-								width: 44,
-								height: 36,
-								borderLeft: "1px solid",
-								borderRight: "1px solid",
-								borderColor: "divider",
-								"& input": {
-									textAlign: "center",
-									...numericSx,
-									fontWeight: 600,
-									fontSize: 14,
-									p: 0,
-								},
-							}}
-						/>
-						<IconButton
-							size="small"
-							onClick={() => setQty(item.quantity + 1)}
-							sx={{ borderRadius: 0, width: 32, height: 36, color: designTokens.gray600 }}
-						>
-							<AddIcon sx={{ fontSize: 16 }} />
-						</IconButton>
-					</Box>
-				</Box>
-
-				{/* unit price */}
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>
-						{t("order.new.line.price", { unit: unitLabel })}
-					</Typography>
-					<Box sx={boxedInputSx}>
-						<Box component="span" sx={{ color: "text.disabled", fontSize: 13 }}>
-							×
-						</Box>
-						<MoneyInputBase
-							value={item.unitPrice}
-							onChange={(unitPrice) => onChange({ unitPrice })}
-							placeholder="0"
-							sx={{ width: 104, ...numInputSx }}
-						/>
-					</Box>
-				</Box>
-
-				{/* discount + type toggle */}
-				<Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-					<Typography sx={fieldLabelSx}>{t("order.new.line.discount")}</Typography>
-					<Box sx={{ display: "flex", gap: "6px" }}>
-						<Box sx={boxedInputSx}>
-							<MoneyInputBase
-								value={item.discountValue}
-								onChange={(discountValue) => onChange({ discountValue })}
-								placeholder="0"
-								sx={{ width: 72, ...numInputSx }}
-							/>
-						</Box>
-						<Box
-							sx={{
-								display: "inline-flex",
-								height: 36,
-								border: "1px solid",
-								borderColor: designTokens.gray300,
-								borderRadius: "6px",
-								overflow: "hidden",
-							}}
-						>
-							{(["Percentage", "Fixed"] as const).map((type) => {
-								const selected = item.discountType === type;
-								return (
-									<ButtonBase
-										key={type}
-										onClick={() => onChange({ discountType: type })}
-										title={type === "Fixed" ? t("order.new.line.fixedHint") : undefined}
-										sx={{
-											px: "9px",
-											fontSize: 12,
-											fontWeight: 600,
-											color: selected ? "primary.main" : "text.secondary",
-											bgcolor: selected ? designTokens.primarySoft : "background.paper",
-										}}
-									>
-										{type === "Percentage" ? "%" : <PaymentsOutlinedIcon sx={{ fontSize: 15 }} />}
-									</ButtonBase>
-								);
-							})}
-						</Box>
-					</Box>
-				</Box>
-
-				<Box sx={{ ml: "auto", alignSelf: "flex-end" }}>
-					<IconButton
-						onClick={onRemove}
-						aria-label={t("order.new.line.remove")}
-						sx={{
-							color: designTokens.fg3,
-							"&:hover": { color: "error.main", bgcolor: designTokens.errorBg },
-						}}
-					>
-						<DeleteOutlineIcon sx={{ fontSize: 19 }} />
-					</IconButton>
-				</Box>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.qty", { unit: unitLabel })}
+					htmlFor={`${id}-qty`}
+				>
+					<QtyStepper
+						id={`${id}-qty`}
+						value={item.quantity}
+						onChange={(quantity) => onChange({ quantity })}
+					/>
+				</FormField>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.price", { unit: unitLabel })}
+					htmlFor={`${id}-price`}
+				>
+					<LineMoneyInput
+						id={`${id}-price`}
+						value={item.unitPrice}
+						onChange={(unitPrice) => onChange({ unitPrice })}
+						prefix="×"
+						width={LINE_PRICE_WIDTH}
+					/>
+				</FormField>
+				<FormField
+					variant="caption"
+					label={t("order.new.line.discount")}
+					htmlFor={`${id}-discount`}
+				>
+					<LineDiscountField
+						id={`${id}-discount`}
+						value={item.discountValue}
+						type={item.discountType}
+						onValueChange={(discountValue) => onChange({ discountValue })}
+						onTypeChange={(discountType) => onChange({ discountType })}
+					/>
+				</FormField>
+				<LineRemoveButton label={t("order.new.line.remove")} onClick={onRemove} />
 			</Box>
 		</Box>
 	);

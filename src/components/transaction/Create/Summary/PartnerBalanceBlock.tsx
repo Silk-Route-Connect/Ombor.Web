@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import EntityAvatar from "components/shared/EntityAvatar/EntityAvatar";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import { Partner } from "models/partner";
 import { designTokens, numericSx } from "theme";
@@ -8,9 +9,10 @@ import { TransactionDirection } from "utils/transactionUtils";
 
 import NorthEastIcon from "@mui/icons-material/NorthEast";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { Avatar, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
-import { balancePresentation, initialsOf } from "../saleBalance";
+import { POS_CARD_PADDING } from "../posStyles";
+import { balancePresentation } from "../saleBalance";
 
 interface PartnerBalanceBlockProps {
 	direction: TransactionDirection;
@@ -36,13 +38,13 @@ const PartnerBalanceBlock: React.FC<PartnerBalanceBlockProps> = ({
 		return (
 			<Box
 				sx={{
-					p: "16px 18px",
+					p: POS_CARD_PADDING,
 					borderBottom: "1px solid",
 					borderColor: "divider",
-					bgcolor: designTokens.gray25,
+					bgcolor: designTokens.bgSubtle,
 					display: "flex",
 					alignItems: "center",
-					gap: "11px",
+					gap: "12px",
 					color: "text.secondary",
 					fontSize: 13,
 				}}
@@ -57,22 +59,11 @@ const PartnerBalanceBlock: React.FC<PartnerBalanceBlockProps> = ({
 	const afterTone = balancePresentation(balanceAfter);
 
 	return (
-		<Box sx={{ p: "16px 18px", borderBottom: "1px solid", borderColor: "divider" }}>
-			<Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-				<Avatar
-					sx={{
-						width: 40,
-						height: 40,
-						fontSize: 14,
-						fontWeight: 700,
-						bgcolor: designTokens.primarySoft,
-						color: "primary.main",
-					}}
-				>
-					{initialsOf(partner.name)}
-				</Avatar>
+		<Box sx={{ p: POS_CARD_PADDING, borderBottom: "1px solid", borderColor: "divider" }}>
+			<Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
+				<EntityAvatar name={partner.name} size={40} />
 				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontSize: 15, fontWeight: 700 }} noWrap>
+					<Typography variant="h3" component="p" noWrap>
 						{partner.name}
 					</Typography>
 					{partner.companyName && (
@@ -82,8 +73,10 @@ const PartnerBalanceBlock: React.FC<PartnerBalanceBlockProps> = ({
 					)}
 				</Box>
 			</Box>
-			<Box sx={{ mt: "14px" }}>
-				<Typography sx={{ fontSize: 12, color: "text.secondary" }}>{t(tone.labelKey)}</Typography>
+			<Box sx={{ mt: "12px" }}>
+				<Typography variant="caption" component="p" sx={{ color: "text.secondary" }}>
+					{t(tone.labelKey)}
+				</Typography>
 				<Typography
 					sx={{ ...numericSx, fontSize: 20, fontWeight: 700, color: tone.color, lineHeight: 1.1 }}
 				>

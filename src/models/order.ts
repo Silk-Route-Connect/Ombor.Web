@@ -61,7 +61,8 @@ export type OrderStatusEvent = {
 
 export type Order = {
 	id: number;
-	orderNumber: string;
+	/** Bare per-organization number; null on a legacy row without one. */
+	orderNumber: string | null;
 	customerId: number;
 	customerName: string;
 	/** Customer partner type label (for the partner-mini chip). */

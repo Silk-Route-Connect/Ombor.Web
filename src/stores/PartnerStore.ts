@@ -1,4 +1,4 @@
-import { isReady, Loadable, toLoadable } from "helpers/Loading";
+import { isReady, Loadable, LoadOptions, toLoadable } from "helpers/Loading";
 import { tryRun } from "helpers/TryRun";
 import { withSaving } from "helpers/WithSaving";
 import i18next from "i18n/config";
@@ -36,7 +36,7 @@ export interface IPartnerStore {
 	isSaving: boolean;
 	dialogMode: PartnerDialogMode;
 
-	getAll(): Promise<void>;
+	getAll(options?: LoadOptions): Promise<void>;
 	/** The created partner, or null when the create failed (already toasted). */
 	create(request: CreatePartnerRequest): Promise<Partner | null>;
 	update(request: UpdatePartnerRequest): Promise<Partner | null>;
@@ -127,12 +127,12 @@ export class PartnerStore implements IPartnerStore {
 		return isReady(this.allPartners) ? this.allPartners.filter((p) => !p.isArchived).length : 0;
 	}
 
-	async getAll(): Promise<void> {
+	async getAll(options?: LoadOptions): Promise<void> {
 		runInAction(() => (this.allPartners = "loading"));
 
 		const result = await tryRun(() => PartnerApi.getAll());
 
-		if (result.status === "fail") {
+		if (result.status === "fail" && !options?.quiet) {
 			this.notificationStore.notifyLoadError(result, "partner.error.getAll");
 		}
 

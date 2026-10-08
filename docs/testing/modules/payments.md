@@ -6,9 +6,9 @@ Run-scoped entities are named «QA-<MMDD> …» — substitute the run date. Cas
 
 ## Surfaces
 
-- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт», search «Поиск по номеру, партнёру или сотруднику…», type dropdown «Все типы», wallet dropdown «Все кассы», the shared date filter «Дата: Весь период …»), `PaymentSummaryStrip` (clickable «Приход»/«Расход» toggle cards + «Платежей» count — they follow the date filter), `PaymentsTable` (row click → detail; no actions column; totals band «N платежей · Приход · Расход» left of the pager).
-- `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Куда пошли деньги» allocation table; rail: «Информация» card.
-- `PaymentCreateModal` (type picker + per-type fields) and `PaymentSettlementModal` («Какие долги закрыть») — both launched from the list page.
+- `/payments` — list: `PaymentHeader` («Новый платёж», «Экспорт»; under the title row `PaymentDirectionCards` — the direction filter as three toggle cards «Все платежи» · «Приход» · «Расход», each a payment **count** (space-grouped, «1 181») under the other filters, the pressed one with a ✓ and its accent border, no ↗; no direction segmented control; then search «Поиск по номеру, партнёру или сотруднику…», «Тип: Все», «Касса: Все», the shared date filter «Дата: Весь период …»), `PaymentsTable` (row click → detail; no actions column; totals band «N платежей · Приход · Расход» left of the pager).
+- `/payments/:id` — detail: right-rail layout (#20g). Main column: per-type card (payroll/general/withdrawal) + «Касса» source card + «Куда пошли деньги» allocation table; rail: the «Сумма платежа» hero (green / red by direction, the «Приход»/«Расход» chip under it), then «Информация» (Партнёр or Сотрудник as a link, «Тип» as the payment-type chip, «Касса», «Создал», «Дата»). The tab reads «Платёж №N · Ombor».
+- `PaymentCreateModal` (the shared modal shell: record tile + «Новый платёж», «Тип платежа» segmented control + per-type fields, a partner line «<тип> · Баланс: … · Аванс: …» under the partner picker, footer «Провести платёж» / «Далее: какие долги закрыть» with the lock line) and `PaymentSettlementModal` («Какие долги закрыть») — both launched from the list page.
 - `/payments/new` — the topbar «Создать → Оплата» target: redirects to `/payments` and opens `PaymentCreateModal` (never a placeholder page). The modal preselects the first active wallet.
 - Payroll payments created on employee detail also land in this list (type «Зарплата») — the list rendering is in scope here; the employee-side flow is T-EMP.
 
@@ -41,7 +41,7 @@ Expect: sale created; status chip «Не оплачено» in `/sales`; partner
 ### T-PAY-03 · Worked example (a): overpayment → settlement + advance [happy] ✍
 Pre: T-PAY-02 (open 600 000 debt).
 Steps: 1. `/payments` → «Новый платёж»: type «Оплата», partner «QA-<MMDD> Плательщик», wallet «QA-<MMDD> Касса-П», amount 1 000 000. 2. Submit «Далее: какие долги закрыть». 3. In «Какие долги закрыть»: verify auto-FIFO preallocated 600 000 to the sale; «Сумма платежа» 1 000 000, «Закрыто долгов» 600 000, «В аванс» 400 000 + note «Зачислится как аванс партнёра». 4. «Провести платёж».
-Expect: the footer carries the lock line «После проведения изменить нельзя — ошибку исправляют платежом в обратную сторону.»; success toast «Платёж №N проведён — 1 000 000 UZS»; new row in the list. Detail: «Касса» card = «QA-<MMDD> Касса-П» 1 000 000 (single source, R9); «Куда пошли деньги» rows: «Продажа №…» / «Погашение долга» 600 000 and «Аванс партнёра» / «Зачисление аванса» 400 000 — settling allocations sum = source sum (R8); «Информация»: Тип «Оплата», Направление «Приход» (derived, R14).
+Expect: the footer carries the lock line «После проведения изменить нельзя — ошибку исправляют платежом в обратную сторону.»; success toast «Платёж №N проведён — 1 000 000 UZS»; new row in the list. Detail: «Касса» card = «QA-<MMDD> Касса-П» 1 000 000 (single source, R9); «Куда пошли деньги» rows: «Продажа №…» / «Погашение долга» 600 000 and «Аванс партнёра» / «Зачисление аванса» 400 000 — settling allocations sum = source sum (R8); rail: «Сумма платежа» 1 000 000 green with the «Приход» chip (direction derived, R14), «Информация» «Тип» = the «Оплата» chip.
 Known: F9 — if the «Куда пошли деньги» block crashes on an unexpected allocationType, report KNOWN. F18 — no notes/attachments sections.
 
 ### T-PAY-04 · Worked example (c): change return — memo only [happy] ✍
@@ -52,12 +52,12 @@ Expect: sale Closed («Оплачено»). In `/payments` the generated «Оп�
 ### T-PAY-05 · «Возврат аванса» — return the advance [happy] ✍
 Pre: T-PAY-03 gave the partner a 400 000 advance. Wallet = 2 400 000.
 Steps: 1. «Новый платёж»: type «Возврат аванса», partner «QA-<MMDD> Плательщик» — the hint row shows «Аванс: 400 000 UZS». 2. Wallet «QA-<MMDD> Касса-П», amount 400 000. 3. «Провести платёж» (no settlement step).
-Expect: no direction control (Customer → derived Expense, R14). Detail: «Возврат аванса» card with «Возврат аванса партнёру» 400 000 (red); «Информация» Направление «Расход». Wallet = 2 000 000; reopening the create modal, selecting type «Возврат аванса» and picking the partner shows «Аванс: 0 UZS» (the advance segment of the hint renders only for type «Возврат аванса» once the advance is 0).
+Expect: no direction control (Customer → derived Expense, R14). Detail: «Возврат аванса» card with «Возврат аванса партнёру» 400 000; rail hero «Сумма платежа» 400 000 red with the «Расход» chip. Wallet = 2 000 000; reopening the create modal, selecting type «Возврат аванса» and picking the partner shows «Аванс: 0 UZS» (the advance segment of the hint renders only for type «Возврат аванса» once the advance is 0).
 
 ### T-PAY-06 · «Аванс» — create an advance [happy] ✍
 Pre: T-PAY-05. Wallet = 2 000 000, partner advance 0.
 Steps: 1. «Новый платёж»: type «Аванс», partner «QA-<MMDD> Плательщик», wallet «QA-<MMDD> Касса-П», amount 150 000. 2. Submit.
-Expect: no direction control (single-type partner → derived, R14). Wallet = 2 150 000. Create-modal hint for the partner now «Баланс: 0 UZS · Аванс: 150 000 UZS» (advance is a claim on cash in the wallet, R11). Detail «Куда пошли деньги» shows «Аванс партнёра» / «Зачисление аванса» 150 000 (verify against canon R10/R11 — served allocation shape for deposits).
+Expect: no direction control (single-type partner → derived, R14). Wallet = 2 150 000. Create-modal partner line now «Клиент · Баланс: 0 UZS · Аванс: 150 000 UZS» (advance is a claim on cash in the wallet, R11). Detail «Куда пошли деньги» shows «Аванс партнёра» / «Зачисление аванса» 150 000 (verify against canon R10/R11 — served allocation shape for deposits).
 
 ### T-PAY-07 · «Прочее» — direction user-set, description required [happy] ✍
 Pre: T-PAY-06. Wallet = 2 150 000.
@@ -72,12 +72,12 @@ Expect: no direction control (Payroll → always Expense, R14). «Период»
 ### T-PAY-09 · List anatomy and the five type labels [happy]
 Pre: T-PAY-03…08 created one payment of each type.
 Steps: 1. Open `/payments`; sort default date-desc. 2. Scan the run's rows.
-Expect: columns «№» (the number opens the payment; copy button on row hover; «Без номера» for legacy rows) · «Дата» (date+time) · «Партнёр / Сотрудник» (partner rows link to the partner, payroll rows to the employee) · «Тип операции» with the real localized type — «Оплата», «Аванс», «Возврат аванса», «Зарплата», «Прочее» all present (#17) · «Направление» («Приход» green / «Расход» red pills) · «Касса» (wallet link) · «Сумма» right-aligned, unsigned, green/red by direction (#4). No `⋮` column (R1 — see Traps).
+Expect: columns «№» (the number opens the payment; copy button on row hover; «Без номера» for legacy rows) · «Дата» (date+time) · «Партнёр / сотрудник» (partner rows link to the partner, payroll rows to the employee) · «Тип операции» with the real localized type — «Оплата», «Аванс», «Возврат аванса», «Зарплата», «Прочее» all present (#17) · «Направление» («Приход» green / «Расход» red pills) · «Касса» (wallet link) · «Сумма» right-aligned, unsigned, green/red by direction (#4). No `⋮` column (R1 — see Traps).
 
-### T-PAY-10 · Filters and summary-card toggle [happy]
+### T-PAY-10 · Filters and the direction cards [happy]
 Pre: T-PAY-09.
-Steps: 1. Search «QA-<MMDD> Плательщик». 2. Clear; type filter «Аванс». 3. Clear; wallet filter «QA-<MMDD> Касса-П». 4. Click the «Расход» summary card; click it again. 5. Combine search with a non-matching type.
-Expect: 1 → only this run's partner's payments. 2 → all visible rows are type «Аванс» and the run's 150 000 deposit is among them (the filter is org-wide and may include deposits from earlier runs). 3 → only the run wallet's payments. 4 → first click filters to Expense rows and highlights the card; second click clears; «Приход»/«Расход» card totals do NOT change when the direction toggle flips (they total the scoped view). 5 → empty state «Платежи не найдены» / «Измените запрос поиска или фильтры по типу и кассе.»
+Steps: 1. Search «QA-<MMDD> Плательщик». 2. Clear; type filter «Аванс». 3. Clear; wallet filter «QA-<MMDD> Касса-П». 4. Click the «Расход» card; click it again; then Tab to «Приход» and press Space. 5. Combine search with a non-matching type.
+Expect: 1 → only this run's partner's payments; the three cards count them. 2 → all visible rows are type «Аванс» and the run's 150 000 deposit is among them (the filter is org-wide and may include deposits from earlier runs). 3 → only the run wallet's payments. 4 → first click filters to Expense rows: «Расход» shows a ✓ and its red border (`aria-pressed=true`), the band's «N платежей» (and the pager's «из N» when there is one) = the «Расход» count; second click returns to «Все платежи» (pressed); Space selects «Приход» the same way. The card counts do NOT change when the direction flips — each counts what it would show under the other filters; «Все платежи» = «Приход» + «Расход». No money on the cards — sums live only in the totals band. 5 → empty state «Платежи не найдены» / «Измените поиск, тип, кассу или период.»
 
 ### T-PAY-11 · Attachments upload + display (F18) [happy] ✍
 Pre: wallet «QA-<MMDD> Касса-П» (from T-PAY-01).
@@ -105,7 +105,7 @@ Expect: inline error «Доступно только 1 900 000 UZS — нель�
 ### T-PAY-33 · Direction control appears only for «Both» [edge]
 Pre: fixtures «QA Универсал» (Both), «QA Клиент», «QA Поставщик».
 Steps: 1. «Новый платёж» → «Аванс», partner «QA Универсал». 2. Switch partner to «QA Клиент», then «QA Поставщик». 3. Type «Возврат аванса», partner «QA Универсал». 4. Close without saving.
-Expect: 1 and 3 → segmented «Приход | Расход» labeled «Направление (партнёр типа «Оба»)» (R14 — user-set for Both). 2 → control absent for both single types (derived). No writes.
+Expect: 1 and 3 → segmented «Приход | Расход» labeled «Направление (партнёр «Клиент + Поставщик»)» (R14 — user-set for Both; «Оба» is never shown). 2 → control absent for both single types (derived). No writes.
 
 ### T-PAY-34 · Per-type required-field messages [negative]
 Pre: create modal open.
@@ -131,10 +131,15 @@ Expect: 1 → sale flips to «Оплачено» (Closed); wallet = 2 200 000. 2
 Steps: 1. Block `GET /api/payments/outstanding` (DevTools → Network request blocking). 2. «Новый платёж»: «Оплата», a partner with open debt, amount 100 → «Далее: какие долги закрыть». 3. «Провести платёж». 4. Unblock, «Повторить».
 Expect: 2 → «Не удалось загрузить открытые долги» + reason + «Повторить» where the debt table goes; «Закрыто долгов» and «В аванс» read «—», never 0 / the whole amount. 3 → no `POST /api/payments` (confirming blind would book the whole amount as an advance). 4 → the debt rows load and the FIFO split fills the figures.
 
-### T-PAY-39 · Date filter drives the summary cards and the totals band [edge]
+### T-PAY-39 · Date filter drives the direction cards and the totals band [edge]
 
-Steps: 1. `/payments`: note the «Приход» / «Расход» cards. 2. «Дата» → «Сегодня». 3. Click the «Приход» card. 4. «Дата» → «Прошлый месяц», then «Весь период».
-Expect: 2 → only today's payments; the cards and «Платежей» now total today only; the band reads «N платежей · Приход … UZS (green) · Расход … UZS (red)» and equals the cards. 3 → the table and the band show income only; the cards stay (PAY-3). 4 → last calendar month, then everything again — the cards return to the step-1 values.
+Steps: 1. `/payments`: note the three cards. 2. «Дата» → «Сегодня». 3. Click the «Приход» card. 4. «Дата» → «Прошлый месяц», then «Весь период».
+Expect: 2 → only today's payments; the cards count today only; the band reads «N платежей · Приход … UZS (green) · Расход … UZS (red)» and N equals «Все платежи». 3 → the table and the band show income only (the band's N = the «Приход» count; it still reads «Расход 0 UZS» — open owner question, not a FAIL); the counts on the cards stay. 4 → last calendar month, then everything again — the cards return to the step-1 values.
+
+### T-PAY-40 · Create modal: shell, keyboard, partner balance sign [edge]
+Pre: T-PAY-02 state or any partner who owes us, and one we owe (e.g. fixture «QA Поставщик» after an unpaid supply).
+Steps: 1. «Новый платёж»: read the header and footer. 2. Type «Оплата», pick the partner who owes us; read the line under the picker. 3. Pick the partner we owe. 4. Type an amount, press Enter in the field; then Ctrl+Enter. 5. Back out of the settlement step, close with ✕. 6. Type «Зарплата», submit empty, then pick «QA Сотрудник». 7. Narrow the window to ~560px; read the type control.
+Expect: 1 → the shared modal: record tile before «Новый платёж», labels above every field, a grey footer band with «Далее: какие долги закрыть» (other types: «Провести платёж» with ✓) and the lock line «После проведения изменить нельзя — …». 2 → e.g. «Клиент · Баланс: −600 000 UZS» (T-PAY-02 state) in red — the partner's side, the same sign and colour as the partner page (DR-27); never a red figure where the partner list shows green. 3 → «+…» in green. 4 → a bare Enter does nothing; Ctrl+Enter submits (to the settlement step for «Оплата»). 5 → «Закрыть форму?» — «Несохранённые изменения будут потеряны.» with «Продолжить» / «Закрыть»; nothing is created. 6 → «Введите сумму платежа» appears, then picking the employee fills the salary and the error clears. 7 → the type options stay on one line and scroll sideways; no label wraps. No writes.
 
 ## Reconciliation
 
@@ -152,7 +157,7 @@ Known: F10 — if direction pills render all-red or a row misses a party link, r
 ### T-PAY-62 · Partner balance agrees everywhere [reconcile]
 Pre: all prior cases. Expected end state: debt 0, advance 150 000.
 Steps: 1. Partner detail: balance card + «Платежи» tab. 2. «Новый платёж» modal → pick the partner, read the hint row. 3. `/payments` filtered to the partner (search).
-Expect: balance card «0» neutral + «Баланс закрыт — обязательств нет» (partner-POV signed display, modules/partners.md Traps; #4 amendment pending); modal hint «Баланс: 0 UZS · Аванс: 150 000 UZS»; the partner's «Платежи» tab lists the same payments («№N», amounts, dates) as the filtered `/payments` list — no row present in one and missing in the other; amounts identical to each payment detail's «Касса» sum.
+Expect: balance card «0» neutral + «Баланс закрыт — обязательств нет» (partner-POV signed display, modules/partners.md Traps; #4 amendment pending); modal partner line «Клиент · Баланс: 0 UZS · Аванс: 150 000 UZS»; the partner's «Платежи» tab lists the same payments («№N», amounts, dates) as the filtered `/payments` list — no row present in one and missing in the other; amounts identical to each payment detail's «Касса» sum.
 Note: F20 resolved (2026-07-19) — sale/supply/refund rows in the partner ledger now show «№…» in the number column (was «—»); if any such row still shows «—», that is a regression.
 
 ### T-PAY-63 · Payment ↔ transaction cross-links and numbers [reconcile]

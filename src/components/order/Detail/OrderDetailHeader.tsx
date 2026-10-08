@@ -6,8 +6,9 @@ import DetailPageHeader from "components/shared/Detail/DetailPageHeader";
 import { PrimaryButton } from "components/shared/PrimaryButton/PrimaryButton";
 import { Order } from "models/order";
 import { PATHS, saleDetailPath } from "routing/paths";
-import { designTokens, numericSx } from "theme";
+import { designTokens, iconSize, numericSx, radius } from "theme";
 import { formatEntityId } from "utils/formatEntityId";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import { isOrderEditable, ORDER_NEXT_STEP, PRE_DELIVERY } from "utils/orderUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -57,7 +58,7 @@ const SaleLink: React.FC<{
 			alignItems: "center",
 			gap: "11px",
 			p: "7px 12px",
-			borderRadius: "8px",
+			borderRadius: `${radius.md}px`,
 			cursor: "pointer",
 			border: "1px solid",
 			textDecoration: "none",
@@ -75,12 +76,12 @@ const SaleLink: React.FC<{
 					}),
 		}}
 	>
-		<ReceiptLongOutlinedIcon sx={{ fontSize: 17 }} />
+		<ReceiptLongOutlinedIcon sx={{ fontSize: iconSize.md }} />
 		<Box>
 			<Typography sx={{ fontSize: 11, lineHeight: 1.2 }}>{caption}</Typography>
 			<Typography
 				className="sale-link-num"
-				sx={{ ...numericSx, fontWeight: 700, fontSize: 13.5, lineHeight: 1.3 }}
+				sx={{ ...numericSx, fontWeight: 700, fontSize: 14, lineHeight: 1.3 }}
 			>
 				{formatEntityId(saleId)}
 			</Typography>
@@ -170,7 +171,9 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 	return (
 		<DetailPageHeader
 			backTo={PATHS.orders}
-			title={t("order.detail.title", { number: formatEntityId(order.orderNumber) })}
+			title={t("order.detail.title", {
+				number: formatOptionalNumber(order.orderNumber, t("common.noNumberInline")),
+			})}
 			primaryAction={
 				<>
 					{step && (

@@ -27,11 +27,14 @@ export type NotificationItem = {
 	detail?: string | null;
 	/** A sale's remaining amount; an order's total. */
 	amount?: number | null;
-	/** `LowStock`: stock over all warehouses. */
+	/** `LowStock`: the product's stock in that one warehouse. */
 	quantity?: number | null;
-	/** `LowStock`: the product's «Минимальный остаток». */
+	/** `LowStock`: that warehouse row's threshold (DR-41). */
 	threshold?: number | null;
 	measurement?: Measurement | null;
+	/** `LowStock`: the warehouse the row is in — one item per product per warehouse. */
+	warehouseId?: number | null;
+	warehouseName?: string | null;
 	/** A sale's due date or an order's delivery date («YYYY-MM-DD»). */
 	date?: string | null;
 	/** Days past that date (0 = today). */

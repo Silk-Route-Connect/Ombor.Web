@@ -12,6 +12,7 @@ import { DirectionFilter } from "stores/StockAdjustmentStore";
 import { DateRangeValue } from "utils/dateRange";
 
 import AddIcon from "@mui/icons-material/Add";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { Box } from "@mui/material";
 
@@ -61,6 +62,8 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 		<>
 			<PageHeader
 				title={title}
+				icon={TuneOutlinedIcon}
+				subtitle={t("page.intro.adjustments")}
 				actions={
 					<>
 						<ExportButton onExport={onExport} rowCount={exportCount} />
@@ -79,6 +82,7 @@ const StockAdjustmentHeader: React.FC<StockAdjustmentHeaderProps> = ({
 				/>
 
 				<EntityFilterSelect
+					label={t("adjustment.filter.warehouseLabel")}
 					value={warehouseFilter == null ? ALL_WAREHOUSES : String(warehouseFilter)}
 					allValue={ALL_WAREHOUSES}
 					allLabel={t("adjustment.filter.allWarehouses")}

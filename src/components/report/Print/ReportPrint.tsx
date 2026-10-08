@@ -22,6 +22,9 @@ export interface ReportPrintProps<Row extends { id: string }> {
 	errorTitle: string;
 }
 
+/** More columns than this do not fit a portrait A4 at 12px — the report prints landscape. */
+const PORTRAIT_MAX_COLUMNS = 6;
+
 const kpiValue = (kpi: ReportKpi, uzs: string): string => {
 	if (kpi.format === "count") {
 		return formatQuantity(kpi.value);
@@ -66,6 +69,7 @@ export function ReportPrint<Row extends { id: string }>({
 					title={title}
 					documentTitle={periodLabel ? `${title} — ${periodLabel}` : title}
 					backTo={backTo}
+					orientation={columns.length > PORTRAIT_MAX_COLUMNS ? "landscape" : "portrait"}
 				>
 					<PrintDocHeader organization={organization} title={title} subtitle={subtitle} />
 					<PrintTotals

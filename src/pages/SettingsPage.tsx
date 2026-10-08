@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CurrencySection from "components/settings/CurrencySection";
 import InviteUserModal from "components/settings/InviteUserModal";
@@ -6,7 +6,6 @@ import LanguageSection from "components/settings/LanguageSection";
 import OrganizationSection from "components/settings/OrganizationSection";
 import SecuritySection from "components/settings/SecuritySection";
 import SettingsNav, { SettingsSectionDef } from "components/settings/SettingsNav";
-import SettingsSaveBar from "components/settings/SettingsSaveBar";
 import UsersSection from "components/settings/UsersSection";
 import ConfirmDialog from "components/shared/Dialog/ConfirmDialog/ConfirmDialog";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
@@ -22,6 +21,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { Box } from "@mui/material";
 
@@ -36,6 +36,8 @@ const SettingsPage: React.FC = observer(() => {
 	const [active, setActive] = useState<string>("org");
 	const [inviteOpen, setInviteOpen] = useState(false);
 	const [confirmUser, setConfirmUser] = useState<TenantUser | null>(null);
+	/** The section a nav click is scrolling to — the spy holds it until the scroll settles. */
+	const jumpTarget = useRef<string | null>(null);
 
 	useEffect(() => {
 		settingsStore.load();
@@ -57,7 +59,18 @@ const SettingsPage: React.FC = observer(() => {
 		if (!root) {
 			return;
 		}
+		let settle: number | undefined;
 		const onScroll = (): void => {
+			// A nav click keeps its section lit until the smooth scroll stops: a short
+			// last section never reaches the top, and the end-of-page rule below would
+			// otherwise light «Безопасность» for a click on «Пользователи».
+			if (jumpTarget.current) {
+				window.clearTimeout(settle);
+				settle = window.setTimeout(() => {
+					jumpTarget.current = null;
+				}, 150);
+				return;
+			}
 			const ct = root.getBoundingClientRect().top + 90;
 			let current: string = SECTION_KEYS[0];
 			for (const key of SECTION_KEYS) {
@@ -71,33 +84,34 @@ const SettingsPage: React.FC = observer(() => {
 				root.scrollTop > 0 && root.scrollTop + root.clientHeight >= root.scrollHeight - 2;
 			setActive(atEnd ? SECTION_KEYS[SECTION_KEYS.length - 1] : current);
 		};
+		// Scrolling by hand ends a nav jump at once — wheel, touch, a scrollbar drag
+		// (pointerdown) or a key. A jump that had nothing to scroll fires no scroll
+		// event, so without these the spy stayed frozen on the clicked section.
+		const release = (): void => {
+			jumpTarget.current = null;
+		};
 		root.addEventListener("scroll", onScroll, { passive: true });
+		root.addEventListener("wheel", release, { passive: true });
+		root.addEventListener("touchmove", release, { passive: true });
+		root.addEventListener("pointerdown", release);
+		window.addEventListener("keydown", release);
 		onScroll();
-		return () => root.removeEventListener("scroll", onScroll);
+		return () => {
+			window.clearTimeout(settle);
+			root.removeEventListener("scroll", onScroll);
+			root.removeEventListener("wheel", release);
+			root.removeEventListener("touchmove", release);
+			root.removeEventListener("pointerdown", release);
+			window.removeEventListener("keydown", release);
+		};
 	}, [draft]);
 
 	const sections: SettingsSectionDef[] = [
-		{
-			key: "org",
-			label: t("settings.org.title"),
-			icon: <BusinessOutlinedIcon sx={{ fontSize: 18 }} />,
-		},
-		{ key: "lang", label: t("settings.lang.title"), icon: <LanguageIcon sx={{ fontSize: 18 }} /> },
-		{
-			key: "currency",
-			label: t("settings.currency.title"),
-			icon: <PaymentsOutlinedIcon sx={{ fontSize: 18 }} />,
-		},
-		{
-			key: "users",
-			label: t("settings.users.title"),
-			icon: <PeopleAltOutlinedIcon sx={{ fontSize: 18 }} />,
-		},
-		{
-			key: "security",
-			label: t("settings.security.title"),
-			icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />,
-		},
+		{ key: "org", label: t("settings.org.title"), icon: <BusinessOutlinedIcon /> },
+		{ key: "lang", label: t("settings.lang.title"), icon: <LanguageIcon /> },
+		{ key: "currency", label: t("settings.currency.title"), icon: <PaymentsOutlinedIcon /> },
+		{ key: "users", label: t("settings.users.title"), icon: <PeopleAltOutlinedIcon /> },
+		{ key: "security", label: t("settings.security.title"), icon: <LockOutlinedIcon /> },
 	];
 
 	const dirty = useMemo(
@@ -113,6 +127,8 @@ const SettingsPage: React.FC = observer(() => {
 	const failed = isLoadError(storeOrg) ? storeOrg : isLoadError(storeUsers) ? storeUsers : null;
 
 	const jump = (key: string): void => {
+		jumpTarget.current = key;
+		setActive(key);
 		document
 			.getElementById(`settings-${key}`)
 			?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -144,7 +160,11 @@ const SettingsPage: React.FC = observer(() => {
 
 	return (
 		<Box>
-			<PageHeader title={t("settings.title")} />
+			<PageHeader
+				title={t("settings.title")}
+				icon={SettingsOutlinedIcon}
+				subtitle={t("page.intro.settings")}
+			/>
 
 			{loading || !draft ? (
 				<LoadStateView
@@ -157,7 +177,7 @@ const SettingsPage: React.FC = observer(() => {
 					sx={{
 						display: "grid",
 						gridTemplateColumns: { xs: "1fr", md: "210px 1fr" },
-						gap: "30px",
+						gap: "32px",
 						alignItems: "start",
 					}}
 				>
@@ -169,13 +189,17 @@ const SettingsPage: React.FC = observer(() => {
 							maxWidth: 760,
 							display: "flex",
 							flexDirection: "column",
-							gap: "18px",
+							gap: "20px",
 						}}
 					>
 						<OrganizationSection
 							org={draft}
 							onChange={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
 							onLogoFile={setLogoFile}
+							dirty={dirty}
+							saving={settingsStore.saving}
+							onSave={onSave}
+							onReset={onReset}
 						/>
 						<LanguageSection
 							currentCode={i18n.language}
@@ -194,13 +218,6 @@ const SettingsPage: React.FC = observer(() => {
 						<SecuritySection
 							saving={settingsStore.changingPassword}
 							onChangePassword={settingsStore.changePassword}
-						/>
-
-						<SettingsSaveBar
-							dirty={dirty}
-							saving={settingsStore.saving}
-							onSave={onSave}
-							onReset={onReset}
 						/>
 					</Box>
 				</Box>

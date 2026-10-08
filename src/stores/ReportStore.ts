@@ -14,7 +14,6 @@ import {
 } from "models/report";
 import ReportApi from "services/api/ReportApi";
 import { DateRangeValue, toDayParams } from "utils/dateRange";
-import { matchesStockFilter, StockFilter } from "utils/productFilters";
 import {
 	GroupedReportKind,
 	isGroupedReport,
@@ -24,7 +23,7 @@ import {
 	ReportKind,
 	ReportQuery,
 } from "utils/report/reportQuery";
-import { stockRowLevel } from "utils/report/reportStock";
+import { matchesStockFilter, StockFilter } from "utils/stockLevel";
 import { matchesSearch } from "utils/stringUtils";
 
 import { NotificationStore } from "./NotificationStore";
@@ -61,6 +60,8 @@ export interface IReportStore {
 	setStockWarehouse(warehouseId: number | null): void;
 	setStockSearch(value: string): void;
 	setStockLevel(value: StockFilter): void;
+	/** Narrows the stock report to one warehouse (or all) and one «Остаток» level, search off — a link from another page; refetches when the stock report is already open. */
+	presetStock(warehouseId: number | null, level: StockFilter): void;
 	/** The filters of a report, for its print URL. */
 	queryOf(kind: ReportKind): ReportQuery;
 	/** Takes the filters a print URL carries (a reload or a shared link reopens the same report). */
@@ -97,15 +98,13 @@ export class ReportStore implements IReportStore {
 
 	constructor(notificationStore: NotificationStore) {
 		this.notificationStore = notificationStore;
-		const resource = <T>(kind: ReportKind) =>
-			new ReportResource<T>(notificationStore, `report.error.load.${kind}`);
-		this.sales = resource("sales");
-		this.profit = resource("profit");
-		this.purchases = resource("purchases");
-		this.stock = resource("stock");
-		this.cashFlow = resource("cashFlow");
-		this.expenses = resource("expenses");
-		this.losses = resource("losses");
+		this.sales = new ReportResource<SalesReport>();
+		this.profit = new ReportResource<ProfitReport>();
+		this.purchases = new ReportResource<PurchasesReport>();
+		this.stock = new ReportResource<StockReport>();
+		this.cashFlow = new ReportResource<CashFlowReport>();
+		this.expenses = new ReportResource<ExpensesReport>();
+		this.losses = new ReportResource<LossesReport>();
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -117,7 +116,7 @@ export class ReportStore implements IReportStore {
 		const term = this.stockSearch.trim();
 		return data.rows.filter(
 			(row) =>
-				matchesStockFilter(stockRowLevel(row), this.stockLevel) &&
+				matchesStockFilter(row, this.stockLevel) &&
 				(!term || matchesSearch(row.productName, term) || matchesSearch(row.sku, term)),
 		);
 	}
@@ -183,6 +182,17 @@ export class ReportStore implements IReportStore {
 
 	setStockLevel(value: StockFilter): void {
 		this.stockLevel = value;
+	}
+
+	presetStock(warehouseId: number | null, level: StockFilter): void {
+		this.stockWarehouseId = warehouseId;
+		this.stockSearch = "";
+		this.stockLevel = level;
+		// The bell can preset the stock report while it is the page on screen: the
+		// route stays the same, so the report never remounts to refetch.
+		if (this.active === "stock") {
+			void this.reload();
+		}
 	}
 
 	queryOf(kind: ReportKind): ReportQuery {

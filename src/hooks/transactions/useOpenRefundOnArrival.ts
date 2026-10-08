@@ -29,7 +29,7 @@ export function useOpenRefundOnArrival(): void {
 		if (fullyRefunded) {
 			notificationStore.info(
 				t(`transaction.refund.nothingLeft.${directionOf(tx.type)}`, {
-					number: formatOptionalNumber(tx.transactionNumber, t("common.noNumber")),
+					number: formatOptionalNumber(tx.transactionNumber, t("common.noNumberInline")),
 				}),
 			);
 			return;

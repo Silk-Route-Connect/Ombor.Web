@@ -27,7 +27,7 @@ const PartnerPage: React.FC = observer(() => {
 	const tableOrder = useTableOrder<Partner>();
 
 	useEffect(() => {
-		void partnerStore.getAll();
+		void partnerStore.getAll({ quiet: true });
 	}, [partnerStore]);
 
 	// The strip's totals are served; a partner create / edit / delete (a new list) can move them.
@@ -102,6 +102,14 @@ const PartnerPage: React.FC = observer(() => {
 	return (
 		<Box>
 			<PartnerListHeader
+				summary={
+					partnerStore.activeCount > 0 && (
+						<PartnerSummaryStrip
+							summary={debtStore.summary}
+							activeCount={partnerStore.activeCount}
+						/>
+					)
+				}
 				searchValue={partnerStore.searchTerm}
 				typeFilter={partnerStore.typeFilter}
 				showArchived={partnerStore.showArchived}
@@ -114,13 +122,9 @@ const PartnerPage: React.FC = observer(() => {
 				exportCount={readyOr(partnerStore.filteredPartners, []).length}
 			/>
 
-			{partnerStore.activeCount > 0 && (
-				<PartnerSummaryStrip summary={debtStore.summary} activeCount={partnerStore.activeCount} />
-			)}
-
 			<PartnersTable
 				exportOrder={tableOrder}
-				onRetry={() => void partnerStore.getAll()}
+				onRetry={() => void partnerStore.getAll({ quiet: true })}
 				errorTitle={t("partner.error.getAll")}
 				rows={partnerStore.filteredPartners}
 				columns={columns}

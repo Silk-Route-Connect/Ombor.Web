@@ -5,8 +5,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Partner, PartnerLedgerEntry } from "models/partner";
 import PartnerApi from "services/api/PartnerApi";
 
-import { NotificationStore } from "./NotificationStore";
-
 export interface IPartnerLedgerStore {
 	partner: Loadable<Partner | null>;
 	ledger: Loadable<PartnerLedgerEntry[]>;
@@ -24,16 +22,13 @@ export interface IPartnerLedgerStore {
  * ledger (mocking.md — all list ops are client-side in v1).
  */
 export class PartnerLedgerStore implements IPartnerLedgerStore {
-	private readonly notificationStore: NotificationStore;
-
 	partner: Loadable<Partner | null> = "loading";
 	ledger: Loadable<PartnerLedgerEntry[]> = "loading";
 
 	/** Guards against partner A's response landing on partner B's page. */
 	private readonly loads = new LoadSequence();
 
-	constructor(notificationStore: NotificationStore) {
-		this.notificationStore = notificationStore;
+	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
 	}
 
@@ -51,12 +46,6 @@ export class PartnerLedgerStore implements IPartnerLedgerStore {
 
 		if (!isCurrent()) {
 			return;
-		}
-
-		if (partner.status === "fail") {
-			this.notificationStore.notifyLoadError(partner, "partner.error.getById");
-		} else if (ledger.status === "fail") {
-			this.notificationStore.notifyLoadError(ledger, "partner.error.getLedger");
 		}
 
 		runInAction(() => {

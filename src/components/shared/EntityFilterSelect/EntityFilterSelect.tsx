@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { designTokens } from "theme";
 
 import { Box, MenuItem, SxProps, TextField, Theme } from "@mui/material";
@@ -20,8 +21,11 @@ export interface EntityFilterSelectProps<T extends string = string> {
 	/** «Все …» first option (the unfiltered state) for entity lists (warehouses, categories). */
 	allValue?: T;
 	allLabel?: string;
-	/** Short name shown before the value («Тип: Продажи») where the value alone is ambiguous. */
-	label?: string;
+	/**
+	 * The filter's name, always shown before the value: «Тип: Продажа», and
+	 * «Тип: Все» while the filter is off (the unfiltered option reads «Все»).
+	 */
+	label: string;
 	/** Leading glyph (e.g. a warehouse/category icon); styled by the component. */
 	icon?: React.ReactNode;
 	/** Shown in the closed control instead of the option label (a picked custom period). */
@@ -51,13 +55,16 @@ export function EntityFilterSelect<T extends string = string>({
 	width,
 	sx,
 }: Readonly<EntityFilterSelectProps<T>>) {
+	const { t } = useTranslation();
 	const choices: FilterOption<T>[] =
-		allValue !== undefined ? [{ value: allValue, label: allLabel ?? "" }, ...options] : options;
+		allValue !== undefined
+			? [{ value: allValue, label: allLabel ?? t("common.all") }, ...options]
+			: options;
 	const isActive = value !== choices[0]?.value;
 
 	const renderValue = (selected: unknown) => {
 		const current = valueLabel ?? choices.find((o) => o.value === selected)?.label ?? "";
-		return label ? `${label}: ${current}` : current;
+		return `${label}: ${current}`;
 	};
 
 	return (

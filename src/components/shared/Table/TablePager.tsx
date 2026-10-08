@@ -1,9 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, TablePagination } from "@mui/material";
 
-import { FOOTER_SX } from "./DataTable/tableConfigs";
+import { ROWS_PER_PAGE_OPTIONS } from "./DataTable/tableConfigs";
+import { FOOTER_SX } from "./tableChrome";
 
 interface TablePagerProps {
 	count: number;
@@ -11,16 +13,16 @@ interface TablePagerProps {
 	rowsPerPage: number;
 	onPageChange: (page: number) => void;
 	onRowsPerPageChange: (rowsPerPage: number) => void;
-	rowsPerPageOptions?: number[];
+	rowsPerPageOptions?: readonly number[];
 	/** Left of the pager in the same band — the list's `TableTotals`. */
 	summary?: React.ReactNode;
 }
 
-const DEFAULT_OPTIONS = [10, 25, 50];
-
 /**
- * The footer band of every table: the 10/25/50 pager (ru-localized via common
- * keys), with an optional totals summary on its left.
+ * The footer band of every table: the 25/50/100 pager (ru-localized via common
+ * keys), with an optional totals summary on its left. A list that fits on its
+ * smallest page shows no pager — only its totals band, if it has one — instead
+ * of dead «1–1 из 1 ‹ ›» controls under a short table.
  */
 export const TablePager: React.FC<TablePagerProps> = ({
 	count,
@@ -28,10 +30,14 @@ export const TablePager: React.FC<TablePagerProps> = ({
 	rowsPerPage,
 	onPageChange,
 	onRowsPerPageChange,
-	rowsPerPageOptions = DEFAULT_OPTIONS,
+	rowsPerPageOptions = ROWS_PER_PAGE_OPTIONS,
 	summary,
 }) => {
 	const { t } = useTranslation();
+
+	if (count <= Math.min(...rowsPerPageOptions)) {
+		return summary ? <Box sx={FOOTER_SX}>{summary}</Box> : null;
+	}
 
 	const pager = (
 		<TablePagination
@@ -44,7 +50,11 @@ export const TablePager: React.FC<TablePagerProps> = ({
 			onRowsPerPageChange={(e) => onRowsPerPageChange(parseInt(e.target.value, 10))}
 			labelRowsPerPage={t("common.table.rowsPerPage")}
 			labelDisplayedRows={({ from, to, count: total }) =>
-				t("common.table.displayedRows", { from, to, total })
+				t("common.table.displayedRows", {
+					from: formatQuantity(from),
+					to: formatQuantity(to),
+					total: formatQuantity(total),
+				})
 			}
 			sx={summary ? { ml: "auto" } : FOOTER_SX}
 		/>

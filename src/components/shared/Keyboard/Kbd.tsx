@@ -1,5 +1,5 @@
 import React from "react";
-import { designTokens, numericSx } from "theme";
+import { designTokens, numericSx, radius } from "theme";
 
 import { Box } from "@mui/material";
 
@@ -23,7 +23,7 @@ export const Kbd: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 			bgcolor: "background.paper",
 			border: "1px solid",
 			borderColor: designTokens.gray300,
-			borderRadius: "5px",
+			borderRadius: `${radius.xs}px`,
 			boxShadow: `0 1px 0 ${designTokens.border}`,
 		}}
 	>

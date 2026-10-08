@@ -1,9 +1,11 @@
 import React from "react";
+import { iconSize, radius } from "theme";
+import { formatQuantity } from "utils/formatCurrency";
 
 import { Box, Paper, Typography } from "@mui/material";
 
 /** Leading icon of a card title (`.sd-card-title` icon). */
-export const detailCardIconSx = { fontSize: 17, color: "text.secondary" } as const;
+export const detailCardIconSx = { fontSize: iconSize.md, color: "text.secondary" } as const;
 
 export interface DetailCardProps {
 	/** Card title with its leading icon; omit for chrome-less cards. */
@@ -29,7 +31,7 @@ export const DetailCard: React.FC<DetailCardProps> = ({
 }) => (
 	<Paper
 		elevation={1}
-		sx={{ border: 1, borderColor: "divider", borderRadius: "12px", overflow: "hidden" }}
+		sx={{ border: 1, borderColor: "divider", borderRadius: `${radius.lg}px`, overflow: "hidden" }}
 	>
 		{title && (
 			<Box
@@ -45,9 +47,8 @@ export const DetailCard: React.FC<DetailCardProps> = ({
 			>
 				<Typography
 					component="span"
+					variant="h3"
 					sx={{
-						fontSize: 15,
-						fontWeight: 600,
 						display: "inline-flex",
 						alignItems: "center",
 						gap: "9px",
@@ -58,7 +59,7 @@ export const DetailCard: React.FC<DetailCardProps> = ({
 					{title}
 					{count != null && (
 						<Box component="span" sx={{ color: "text.disabled", fontWeight: 500 }}>
-							· {count}
+							· {formatQuantity(count)}
 						</Box>
 					)}
 				</Typography>

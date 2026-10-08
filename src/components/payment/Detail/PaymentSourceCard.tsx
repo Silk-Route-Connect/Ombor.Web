@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import DetailCard from "components/shared/Detail/DetailCard";
+import DetailCard, { detailCardIconSx } from "components/shared/Detail/DetailCard";
 import UzsUnit from "components/shared/Money/UzsUnit";
 import WalletLink from "components/wallet/Links/WalletLink";
 import { WALLET_TYPE_META } from "components/wallet/WalletPresentation";
@@ -16,7 +16,7 @@ export const PaymentSourceCard: React.FC<{ payment: PaymentRecord }> = ({ paymen
 	const { t } = useTranslation();
 	return (
 		<DetailCard
-			icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 18 }} />}
+			icon={<AccountBalanceWalletOutlinedIcon sx={detailCardIconSx} />}
 			title={t("payment.detail.source")}
 		>
 			<Box sx={{ p: "16px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>

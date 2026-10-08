@@ -9,6 +9,7 @@ import WarehouseSummaryStrip from "components/warehouse/Table/WarehouseSummarySt
 import { buildWarehouseColumns } from "components/warehouse/Table/warehouseTableConfigs";
 import WarehouseDialogs from "components/warehouse/WarehouseDialogs";
 import { isReady, readyOr } from "helpers/Loading";
+import { useOpenLowStock } from "hooks/warehouse/useOpenLowStock";
 import { observer } from "mobx-react-lite";
 import { CreateWarehouseRequest, Warehouse } from "models/warehouse";
 import { warehouseDetailPath } from "routing/paths";
@@ -23,10 +24,15 @@ const WarehousePage: React.FC = observer(() => {
 	const navigate = useNavigate();
 	const { warehouseStore } = useStore();
 	const tableOrder = useTableOrder<Warehouse>();
+	const openLowStock = useOpenLowStock();
 
 	useEffect(() => {
-		warehouseStore.getAll();
+		void warehouseStore.getAll({ quiet: true });
+		void warehouseStore.loadStockReport();
 	}, [warehouseStore]);
+
+	// Archiving takes a warehouse's rows out of the report's «Заканчивается» (and its empty rows out of the report).
+	const refreshStockReport = (): void => void warehouseStore.loadStockReport({ refresh: true });
 
 	const dialogMode = warehouseStore.dialogMode;
 	const editingWarehouse = dialogMode.kind === "form" ? (dialogMode.warehouse ?? null) : null;
@@ -68,7 +74,7 @@ const WarehousePage: React.FC = observer(() => {
 			{ header: t("warehouse.table.name"), value: (w) => w.name },
 			{ header: t("warehouse.table.address"), value: (w) => w.location ?? "" },
 			{ header: t("warehouse.table.products"), value: (w) => w.productCount },
-			{ header: t("warehouse.table.units"), value: (w) => w.totalUnits },
+			{ header: t("warehouse.lowStock.title"), value: (w) => w.lowStockCount },
 			{ header: t("warehouse.table.stockValue"), value: (w) => w.stockValue },
 			{
 				header: t("warehouse.table.status"),
@@ -88,6 +94,14 @@ const WarehousePage: React.FC = observer(() => {
 	return (
 		<Box>
 			<WarehouseHeader
+				summary={
+					hasAny && (
+						<WarehouseSummaryStrip
+							report={warehouseStore.stockReport.data}
+							onLowStock={openLowStock}
+						/>
+					)
+				}
 				searchValue={warehouseStore.searchTerm}
 				showArchived={warehouseStore.showArchived}
 				archivedCount={warehouseStore.archivedCount}
@@ -98,11 +112,9 @@ const WarehousePage: React.FC = observer(() => {
 				exportCount={readyOr(warehouseStore.filteredWarehouses, []).length}
 			/>
 
-			{hasAny && <WarehouseSummaryStrip totals={warehouseStore.totals} />}
-
 			<WarehousesTable
 				exportOrder={tableOrder}
-				onRetry={() => void warehouseStore.getAll()}
+				onRetry={() => void warehouseStore.getAll({ quiet: true })}
 				errorTitle={t("warehouse.error.getAll")}
 				rows={warehouseStore.filteredWarehouses}
 				columns={columns}
@@ -122,7 +134,7 @@ const WarehousePage: React.FC = observer(() => {
 				onSave={handleFormSave}
 			/>
 
-			<WarehouseDialogs />
+			<WarehouseDialogs onArchived={refreshStockReport} onRestored={refreshStockReport} />
 		</Box>
 	);
 });

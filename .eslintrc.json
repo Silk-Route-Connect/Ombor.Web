@@ -113,6 +113,18 @@
       {
         "selector": "JSXText[value=/[А-Яа-яЁё]/]",
         "message": "Hardcoded Russian UI text — add an i18n key with its ru value (CLAUDE.md hard rule 2)."
+      },
+      {
+        "selector": "Property[key.name='fontSize'] Literal[raw=/^[\"']?[1-9][0-9]?\\.[0-9]+(px)?[\"']?$/], JSXAttribute[name.name='fontSize'] Literal[raw=/^[\"']?[1-9][0-9]?\\.[0-9]+(px)?[\"']?$/]",
+        "message": "Fractional font size — snap to the type scale (11/12/13/14/15/16/18/20/26…) or use a Typography variant (src/theme/typography.ts)."
+      },
+      {
+        "selector": "Property[key.name=/[rR]adius$/] Literal[value=/^[0-9. ]*[0-9]px[0-9px. ]*$/], Property[key.name=/[rR]adius$/] TemplateElement[value.raw=/^[0-9. ]*[0-9]px/]",
+        "message": "Raw px radius — use the radius tokens from src/theme (`${radius.md}px`; xs 4 / sm 6 / md 8 / lg 12 / xl 16 / pill)."
+      },
+      {
+        "selector": "Literal[value=/!important/], TemplateElement[value.raw=/!important/]",
+        "message": "!important in styles — fix the specificity in the theme override instead (e.g. MuiButton icon sizes come from the theme)."
       }
     ],
     "no-restricted-imports": [

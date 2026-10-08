@@ -6,12 +6,9 @@ export const PRINT_PAGE_MARGIN = "12mm";
 /** The one rule colour on paper: table grid, signature lines, header divider. */
 export const PRINT_RULE_COLOR = designTokens.borderControl;
 
-/** Small uppercase caption above a block («Отправитель», «Получатель»). */
+/** Overline caption above a block («Отправитель», «Получатель»). */
 export const printCaptionSx = {
-	fontSize: 11,
-	fontWeight: 600,
-	textTransform: "uppercase",
-	letterSpacing: "0.04em",
+	typography: "overline",
 	color: "text.secondary",
 } as const;
 
@@ -42,4 +39,11 @@ export const printSheetSx = {
 		border: 0,
 		boxShadow: "none",
 	},
+} as const;
+
+/** A landscape A4 sheet (laid over {@link printSheetSx}) for a table too wide for portrait. */
+export const printSheetLandscapeSx = {
+	width: "297mm",
+	minHeight: "210mm",
+	"@media print": { width: "auto", minHeight: 0 },
 } as const;

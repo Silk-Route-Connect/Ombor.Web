@@ -25,6 +25,21 @@ export type WarehouseFormInputs = z.input<typeof WarehouseSchema>;
 export type WarehouseFormValues = z.output<typeof WarehouseSchema>;
 
 /**
+ * A warehouse row's «Заканчивается» threshold (DR-41): null = not tracked, else
+ * ≥ 0. The field refuses more than 3 decimals and 15 whole digits as you type
+ * (decimal(18,3) on the server); NaN is a «,» typed for a counted unit.
+ */
+export const lowStockThresholdSchema = z
+	.number({ error: i18next.t("warehouse.threshold.wholeOnly") })
+	.min(0, i18next.t("warehouse.threshold.nonNegative"))
+	.nullable();
+
+export const StockThresholdSchema = z.object({ lowStockThreshold: lowStockThresholdSchema });
+
+export type StockThresholdFormInputs = z.input<typeof StockThresholdSchema>;
+export type StockThresholdFormValues = z.output<typeof StockThresholdSchema>;
+
+/**
  * One opening-stock line. A product is required; quantity and unit cost are
  * **non-negative** — unit cost may legitimately be 0 (free / sample stock, per
  * canon), and a negative value is the real failure (rule 18/22). A line only
@@ -38,6 +53,8 @@ export const OpeningStockLineSchema = z.object({
 		.number({ error: i18next.t("common.quantity.wholeOnly") })
 		.min(0, i18next.t("warehouse.opening.validation.nonNegative")),
 	unitCost: z.number().min(0, i18next.t("warehouse.opening.validation.nonNegative")),
+	/** The new row's «Заканчивается» threshold (DR-41); null = not tracked. */
+	lowStockThreshold: lowStockThresholdSchema,
 });
 
 /**

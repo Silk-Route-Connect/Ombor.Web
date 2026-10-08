@@ -73,8 +73,6 @@ const DEFAULT_VALUES: ProductFormInputs = {
 	supplyPrice: 0,
 	salePrice: 0,
 
-	lowStockThreshold: null,
-
 	packaging: undefined,
 
 	attachments: undefined,

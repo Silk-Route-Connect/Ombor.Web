@@ -7,6 +7,7 @@ import { CreateOrderRequest, Order, UpdateOrderRequest } from "models/order";
 import OrderApi from "services/api/OrderApi";
 import { analytics } from "services/telemetry";
 import { ALL_DATES, DateRangeValue, filterByDateRange, isDateRangeActive } from "utils/dateRange";
+import { formatOptionalNumber } from "utils/formatEntityId";
 import {
 	countByStatus,
 	matchesDeliveryFilter,
@@ -85,9 +86,6 @@ export class OrderStore {
 		runInAction(() => (this.allOrders = "loading"));
 
 		const result = await tryRun(() => OrderApi.getAll());
-		if (result.status === "fail") {
-			this.notificationStore.notifyLoadError(result, "order.error.getAll");
-		}
 
 		runInAction(() => (this.allOrders = toLoadable(result)));
 	}
@@ -136,7 +134,10 @@ export class OrderStore {
 			}
 		});
 		this.notificationStore.success(
-			i18next.t(successKey, { number: result.data.orderNumber, saleId: result.data.saleId ?? "" }),
+			i18next.t(successKey, {
+				number: formatOptionalNumber(result.data.orderNumber, i18next.t("common.noNumberInline")),
+				saleId: result.data.saleId ?? "",
+			}),
 		);
 		analytics.capture("order_status_changed", {
 			from_status: fromStatus,
@@ -215,7 +216,9 @@ export class OrderStore {
 			}
 		});
 		this.notificationStore.success(
-			i18next.t("order.toast.created", { number: result.data.orderNumber }),
+			i18next.t("order.toast.created", {
+				number: formatOptionalNumber(result.data.orderNumber, i18next.t("common.noNumberInline")),
+			}),
 		);
 		analytics.capture("order_created", {
 			source: request.source,
@@ -237,7 +240,9 @@ export class OrderStore {
 			this.dialogMode = { kind: "none" };
 		});
 		this.notificationStore.success(
-			i18next.t("order.toast.updated", { number: result.data.orderNumber }),
+			i18next.t("order.toast.updated", {
+				number: formatOptionalNumber(result.data.orderNumber, i18next.t("common.noNumberInline")),
+			}),
 		);
 	}
 

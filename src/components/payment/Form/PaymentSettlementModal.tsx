@@ -1,19 +1,20 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GhostButton from "components/shared/Buttons/GhostButton";
+import FormDialog from "components/shared/Dialog/Form/FormDialog";
 import FormDialogFooter from "components/shared/Dialog/Form/FormDialogFooter";
-import FormDialogHeader from "components/shared/Dialog/Form/FormDialogHeader";
+import { recordTile } from "components/shared/IconTile/recordTile";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import { isReady, Loadable, readyOr } from "helpers/Loading";
 import { OutstandingTransaction, SettlementInput } from "models/payment";
-import { designTokens, dialogPaperSx, numericSx } from "theme";
+import { designTokens, numericSx } from "theme";
 import { formatDate } from "utils/dateUtils";
 import { formatCurrency } from "utils/formatCurrency";
 import { formatOptionalNumber } from "utils/formatEntityId";
 
 import CheckIcon from "@mui/icons-material/Check";
 import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
-import { Box, Checkbox, Dialog, DialogContent, TextField, Typography } from "@mui/material";
+import { Box, Checkbox, TextField, Typography } from "@mui/material";
 
 import SettlementSummary from "./SettlementSummary";
 
@@ -55,7 +56,7 @@ const cellSx = {
 const headSx = {
 	...cellSx,
 	textAlign: "left",
-	fontSize: 11.5,
+	fontSize: 12,
 	fontWeight: 600,
 	color: "text.secondary",
 	bgcolor: designTokens.gray25,
@@ -132,175 +133,161 @@ export const PaymentSettlementModal: React.FC<PaymentSettlementModalProps> = ({
 	};
 
 	return (
-		<Dialog
+		<FormDialog
 			open={isOpen}
+			size="lg"
+			busy={isSaving}
 			onClose={onBack}
-			disableEscapeKeyDown={isSaving}
-			disableRestoreFocus
-			slotProps={{ paper: { sx: dialogPaperSx("lg") } }}
-		>
-			<FormDialogHeader
-				title={t("payment.settlement.title")}
-				subtitle={t(
-					applyOnly ? "payment.settlement.subtitleApply" : "payment.settlement.subtitle",
-					{
-						amount: formatCurrency(amount),
-						wallet: walletName,
-						partner: partnerName,
-						kind: t(
-							direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
-						),
-					},
-				)}
-				disabled={isSaving}
-				onClose={onBack}
-			/>
-
-			<DialogContent dividers sx={{ pt: 2 }}>
-				<Box sx={{ mb: "12px" }}>
-					<GhostButton
-						icon={<SortByAlphaIcon sx={{ fontSize: "16px !important" }} />}
-						onClick={() => setRows(buildFifo())}
-						sx={{ fontSize: 13, py: "6px" }}
-					>
-						{t("payment.settlement.auto")}
-					</GhostButton>
-				</Box>
-
-				{!isReady(outstanding) ? (
-					<LoadStateView
-						state={outstanding}
-						size="section"
-						onRetry={onRetry}
-						errorTitle={t("payment.settlement.loadFailed")}
-					/>
-				) : rowsData.length === 0 ? (
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: "14px",
-							p: "22px 4px",
-						}}
-					>
-						<CheckIcon sx={{ fontSize: 22, color: "success.main" }} />
-						<Box>
-							<Typography sx={{ fontWeight: 700 }}>{t("payment.settlement.emptyTitle")}</Typography>
-							<Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: "3px" }}>
-								{t("payment.settlement.emptyBody")}
+			tile={recordTile("Payment")}
+			title={t("payment.settlement.title")}
+			subtitle={t(applyOnly ? "payment.settlement.subtitleApply" : "payment.settlement.subtitle", {
+				amount: formatCurrency(amount),
+				wallet: walletName,
+				partner: partnerName,
+				kind: t(
+					direction === "Expense" ? "payment.settlement.supplies" : "payment.settlement.debts",
+				),
+			})}
+			footer={
+				<FormDialogFooter
+					canSave={!isSaving}
+					loading={isSaving}
+					onCancel={onBack}
+					onSave={confirm}
+					cancelLabel={t("payment.settlement.back")}
+					submitLabel={t(applyOnly ? "payment.settlement.apply" : "payment.settlement.confirm")}
+					submitIcon={<CheckIcon />}
+					commitNote={applyOnly ? undefined : t("payment.form.commitNote")}
+					summary={
+						applyOnly ? (
+							<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+								{t("payment.settlement.applyHint")}
 							</Typography>
-						</Box>
+						) : undefined
+					}
+				/>
+			}
+		>
+			<Box sx={{ mb: "12px" }}>
+				<GhostButton
+					icon={<SortByAlphaIcon />}
+					onClick={() => setRows(buildFifo())}
+					sx={{ fontSize: 13, py: "6px" }}
+				>
+					{t("payment.settlement.auto")}
+				</GhostButton>
+			</Box>
+
+			{!isReady(outstanding) ? (
+				<LoadStateView
+					state={outstanding}
+					size="section"
+					onRetry={onRetry}
+					errorTitle={t("payment.settlement.loadFailed")}
+				/>
+			) : rowsData.length === 0 ? (
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						gap: "14px",
+						p: "22px 4px",
+					}}
+				>
+					<CheckIcon sx={{ fontSize: 22, color: "success.main" }} />
+					<Box>
+						<Typography sx={{ fontWeight: 700 }}>{t("payment.settlement.emptyTitle")}</Typography>
+						<Typography sx={{ fontSize: 13, color: "text.secondary", mt: "3px" }}>
+							{t("payment.settlement.emptyBody")}
+						</Typography>
 					</Box>
-				) : (
-					<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
-						<thead>
-							<tr>
-								<Box component="th" sx={{ ...headSx, width: 40 }} />
-								<Box component="th" sx={headSx}>
-									{t("payment.settlement.date")}
-								</Box>
-								<Box component="th" sx={headSx}>
-									{t("payment.settlement.transaction")}
-								</Box>
-								<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
-									{t("payment.settlement.total")}
-								</Box>
-								<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
-									{t("payment.settlement.paid")}
-								</Box>
-								<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
-									{t("payment.settlement.remaining")}
-								</Box>
-								<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
-									{t("payment.settlement.allocate")}
-								</Box>
-							</tr>
-						</thead>
-						<tbody>
-							{rowsData.map((r, i) => {
-								const on = rows[i]?.on ?? false;
-								return (
-									<Box component="tr" key={r.id} sx={{ opacity: on ? 1 : 0.5 }}>
-										<Box component="td" sx={cellSx}>
-											<Checkbox
-												size="small"
-												checked={on}
-												onChange={() => toggle(i)}
-												sx={{ p: 0 }}
-											/>
-										</Box>
-										<Box component="td" sx={{ ...cellSx, ...numericSx, color: "text.secondary" }}>
-											{formatDate(r.date)}
-										</Box>
-										<Box component="td" sx={cellSx}>
-											<Box
-												component="span"
-												sx={{ ...numericSx, fontWeight: 600, color: "primary.main" }}
-											>
-												{formatOptionalNumber(r.number, t("common.noNumber"))}
-											</Box>{" "}
-											<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
-												{t(`common.movementKind.${r.type}`)}
-											</Box>
-										</Box>
-										<Box component="td" sx={{ ...cellSx, textAlign: "right", ...numericSx }}>
-											{formatCurrency(r.total)}
-										</Box>
+				</Box>
+			) : (
+				<Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+					<thead>
+						<tr>
+							<Box component="th" sx={{ ...headSx, width: 40 }} />
+							<Box component="th" sx={headSx}>
+								{t("payment.settlement.date")}
+							</Box>
+							<Box component="th" sx={headSx}>
+								{t("payment.settlement.transaction")}
+							</Box>
+							<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
+								{t("payment.settlement.total")}
+							</Box>
+							<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
+								{t("payment.settlement.paid")}
+							</Box>
+							<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
+								{t("payment.settlement.remaining")}
+							</Box>
+							<Box component="th" sx={{ ...headSx, textAlign: "right" }}>
+								{t("payment.settlement.allocate")}
+							</Box>
+						</tr>
+					</thead>
+					<tbody>
+						{rowsData.map((r, i) => {
+							const on = rows[i]?.on ?? false;
+							return (
+								<Box component="tr" key={r.id} sx={{ opacity: on ? 1 : 0.5 }}>
+									<Box component="td" sx={cellSx}>
+										<Checkbox size="small" checked={on} onChange={() => toggle(i)} sx={{ p: 0 }} />
+									</Box>
+									<Box component="td" sx={{ ...cellSx, ...numericSx, color: "text.secondary" }}>
+										{formatDate(r.date)}
+									</Box>
+									<Box component="td" sx={cellSx}>
 										<Box
-											component="td"
-											sx={{ ...cellSx, textAlign: "right", ...numericSx, color: "text.secondary" }}
+											component="span"
+											sx={{ ...numericSx, fontWeight: 600, color: "primary.main" }}
 										>
-											{r.paid ? formatCurrency(r.paid) : "—"}
-										</Box>
-										<Box
-											component="td"
-											sx={{ ...cellSx, textAlign: "right", ...numericSx, color: "error.main" }}
-										>
-											{formatCurrency(r.remaining)}
-										</Box>
-										<Box component="td" sx={{ ...cellSx, textAlign: "right" }}>
-											<TextField
-												size="small"
-												value={rows[i]?.amt ? rows[i].amt.toLocaleString("ru-RU") : "0"}
-												disabled={!on}
-												onChange={(e) => setAmt(i, e.target.value)}
-												sx={{ width: 130, "& input": { textAlign: "right", ...numericSx } }}
-											/>
+											{formatOptionalNumber(r.number, t("common.noNumber"))}
+										</Box>{" "}
+										<Box component="span" sx={{ color: "text.secondary", fontSize: 12 }}>
+											{t(`common.movementKind.${r.type}`)}
 										</Box>
 									</Box>
-								);
-							})}
-						</tbody>
-					</Box>
-				)}
+									<Box component="td" sx={{ ...cellSx, textAlign: "right", ...numericSx }}>
+										{formatCurrency(r.total)}
+									</Box>
+									<Box
+										component="td"
+										sx={{ ...cellSx, textAlign: "right", ...numericSx, color: "text.secondary" }}
+									>
+										{r.paid ? formatCurrency(r.paid) : "—"}
+									</Box>
+									<Box
+										component="td"
+										sx={{ ...cellSx, textAlign: "right", ...numericSx, color: "error.main" }}
+									>
+										{formatCurrency(r.remaining)}
+									</Box>
+									<Box component="td" sx={{ ...cellSx, textAlign: "right" }}>
+										<TextField
+											size="small"
+											value={rows[i]?.amt ? rows[i].amt.toLocaleString("ru-RU") : "0"}
+											disabled={!on}
+											onChange={(e) => setAmt(i, e.target.value)}
+											sx={{ width: 130, "& input": { textAlign: "right", ...numericSx } }}
+										/>
+									</Box>
+								</Box>
+							);
+						})}
+					</tbody>
+				</Box>
+			)}
 
-				<SettlementSummary
-					amount={amount}
-					distributed={distributed}
-					advance={advance}
-					debtsReady={debtsReady}
-					restGoesToAdvance={!applyOnly}
-				/>
-			</DialogContent>
-
-			<FormDialogFooter
-				canSave={!isSaving}
-				loading={isSaving}
-				onCancel={onBack}
-				onSave={confirm}
-				cancelLabel={t("payment.settlement.back")}
-				submitLabel={t(applyOnly ? "payment.settlement.apply" : "payment.settlement.confirm")}
-				submitIcon={<CheckIcon />}
-				commitNote={applyOnly ? undefined : t("payment.form.commitNote")}
-				summary={
-					applyOnly ? (
-						<Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-							{t("payment.settlement.applyHint")}
-						</Typography>
-					) : undefined
-				}
+			<SettlementSummary
+				amount={amount}
+				distributed={distributed}
+				advance={advance}
+				debtsReady={debtsReady}
+				restGoesToAdvance={!applyOnly}
 			/>
-		</Dialog>
+		</FormDialog>
 	);
 };
 

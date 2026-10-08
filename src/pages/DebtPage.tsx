@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DebtFilters from "components/debt/DebtFilters";
+import DebtSignLegend from "components/debt/DebtSignLegend";
 import DebtSummaryCards from "components/debt/DebtSummaryCards";
-import DebtTabs from "components/debt/DebtTabs";
 import { PartnerDebtTable, TransactionDebtTable } from "components/debt/Table/DebtTables";
 import {
 	debtDocumentPath,
@@ -12,6 +12,7 @@ import {
 } from "components/debt/Table/transactionDebtTableConfigs";
 import DebtReminderDialog from "components/partner/Reminder/DebtReminderDialog";
 import ExportButton from "components/shared/Buttons/ExportButton";
+import DetailTabs, { DetailTabSpec } from "components/shared/Detail/DetailTabs";
 import LoadStateView from "components/shared/LoadState/LoadStateView";
 import PageHeader from "components/shared/PageHeader/PageHeader";
 import { useTableOrder } from "components/shared/Table/tableOrder";
@@ -20,12 +21,14 @@ import { isLoadError, isReady } from "helpers/Loading";
 import { observer } from "mobx-react-lite";
 import { Debt } from "models/debt";
 import { partnerDebtPath, partnerStatementPath } from "routing/paths";
+import { DebtTab } from "stores/DebtStore";
 import { useStore } from "stores/StoreContext";
 import { formatDate } from "utils/dateUtils";
 import { CsvColumn, csvDateStamp, exportToCsv } from "utils/exportToCsv";
 import { formatOptionalNumber } from "utils/formatEntityId";
 import { directionOf, isRefundType } from "utils/transactionUtils";
 
+import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import { Box } from "@mui/material";
 
 const DebtPage: React.FC = observer(() => {
@@ -73,6 +76,15 @@ const DebtPage: React.FC = observer(() => {
 		exportToCsv(`debts_${csvDateStamp()}`, columns, rows);
 	};
 
+	const tabs: DetailTabSpec<DebtTab>[] = [
+		{ key: "partners", label: t("debt.tabs.partners"), count: debtStore.partnerRows.length },
+		{
+			key: "transactions",
+			label: t("debt.tabs.transactions"),
+			count: debtStore.transactionRows.length,
+		},
+	];
+
 	const openTransaction = (d: Debt): void => {
 		void navigate(debtDocumentPath(d));
 	};
@@ -81,6 +93,8 @@ const DebtPage: React.FC = observer(() => {
 		<Box>
 			<PageHeader
 				title={t("debt.title")}
+				icon={RequestQuoteOutlinedIcon}
+				subtitle={t("page.intro.debts")}
 				actions={
 					<ExportButton onExport={handleExport} rowCount={debtStore.transactionRows.length} />
 				}
@@ -95,14 +109,22 @@ const DebtPage: React.FC = observer(() => {
 				/>
 			) : (
 				<>
-					<DebtSummaryCards summary={summary} onCard={debtStore.applyCard} />
-
-					<DebtTabs
-						value={debtStore.tab}
-						partnersCount={debtStore.partnerRows.length}
-						transactionsCount={debtStore.transactionRows.length}
-						onChange={debtStore.setTab}
+					<DebtSummaryCards
+						summary={summary}
+						direction={debtStore.directionFilter}
+						onlyOverdue={debtStore.onlyOverdue}
+						onToggleDirection={debtStore.toggleDirection}
+						onToggleOverdue={debtStore.toggleOverdue}
 					/>
+
+					<Box sx={{ mb: "18px" }}>
+						<DetailTabs
+							tabs={tabs}
+							active={debtStore.tab}
+							onChange={debtStore.setTab}
+							trailing={<DebtSignLegend />}
+						/>
+					</Box>
 
 					<TableToolbar
 						search={{
@@ -111,14 +133,7 @@ const DebtPage: React.FC = observer(() => {
 							placeholder: t("debt.searchPlaceholder"),
 						}}
 						filters={
-							<DebtFilters
-								ageBucket={debtStore.ageBucket}
-								directionFilter={debtStore.directionFilter}
-								onlyOverdue={debtStore.onlyOverdue}
-								onAgeChange={debtStore.setAgeBucket}
-								onDirectionChange={debtStore.setDirectionFilter}
-								onClearOverdue={() => debtStore.setOnlyOverdue(false)}
-							/>
+							<DebtFilters ageBucket={debtStore.ageBucket} onAgeChange={debtStore.setAgeBucket} />
 						}
 					/>
 
@@ -131,10 +146,10 @@ const DebtPage: React.FC = observer(() => {
 							onStatement={(g) => navigate(partnerStatementPath(g.partnerId))}
 						/>
 					) : (
-						// Keyed by the preset nonce so any summary-card click re-seeds the
-						// table's sort — even re-clicking the same card after a manual
-						// header re-sort (defaultSort is initial-state only, and a same-value
-						// preset write wouldn't change a value-based key).
+						// Keyed by the preset nonce so any preset from another page (dashboard,
+						// bell) re-seeds the table's sort — even the same preset again after a
+						// manual header re-sort (defaultSort is initial-state only, and a
+						// same-value preset write wouldn't change a value-based key).
 						<TransactionDebtTable
 							key={debtStore.txPresetNonce}
 							rows={debtStore.transactionRows}

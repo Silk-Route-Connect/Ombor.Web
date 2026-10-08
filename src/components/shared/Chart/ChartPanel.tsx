@@ -2,8 +2,11 @@ import React from "react";
 import SegmentedControl, {
 	SegmentedOption,
 } from "components/shared/SegmentedControl/SegmentedControl";
+import { radius } from "theme";
 
 import { Box, Paper, Typography } from "@mui/material";
+
+import { LegendKey } from "./LegendSwatch";
 
 export type LegendItem = { label: string; color: string };
 
@@ -45,7 +48,7 @@ export function ChartPanel<T extends string = string>({
 			sx={{
 				border: "1px solid",
 				borderColor: "divider",
-				borderRadius: "12px",
+				borderRadius: `${radius.lg}px`,
 				display: "flex",
 				flexDirection: "column",
 				minWidth: 0,
@@ -61,7 +64,7 @@ export function ChartPanel<T extends string = string>({
 				}}
 			>
 				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>
+					<Typography variant="h3" component="h2">
 						{title}
 					</Typography>
 					{subtitle && (
@@ -94,19 +97,7 @@ export function ChartPanel<T extends string = string>({
 				}}
 			>
 				{legend.map((l) => (
-					<Box
-						key={l.label}
-						sx={{
-							display: "inline-flex",
-							alignItems: "center",
-							gap: "8px",
-							fontSize: 12,
-							color: "text.secondary",
-						}}
-					>
-						<Box sx={{ width: 11, height: 11, borderRadius: "3px", bgcolor: l.color }} />
-						{l.label}
-					</Box>
+					<LegendKey key={l.label} color={l.color} label={l.label} />
 				))}
 			</Box>
 

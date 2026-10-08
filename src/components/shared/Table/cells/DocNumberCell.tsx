@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import DetailLink, { detailLinkSx } from "components/shared/Link/DetailLink";
-import { numericSx } from "theme";
+import { figuresSx } from "theme";
 import { formatEntityId, hasEntityNumber } from "utils/formatEntityId";
 
 import { Box, Link } from "@mui/material";
@@ -37,7 +37,7 @@ export const DocNumberCell: React.FC<DocNumberCellProps> = ({ number, to, onOpen
 	}
 
 	const label = (
-		<Box component="span" sx={numericSx}>
+		<Box component="span" sx={figuresSx}>
 			{formatEntityId(number)}
 		</Box>
 	);

@@ -1,8 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import DateField from "components/shared/Date/DateField";
+import FormFieldLabel from "components/shared/Forms/FormFieldLabel";
 import { defaultStatementPeriod, StatementPeriod } from "utils/partnerStatement";
 
-import { Box, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface StatementPeriodFieldsProps {
 	period: StatementPeriod;
@@ -10,9 +12,10 @@ interface StatementPeriodFieldsProps {
 }
 
 /**
- * «С … по …» day pickers of the Акт сверки (screen toolbar only). A cleared
- * field keeps the previous day; reversed ends are swapped and a future day is
- * capped at today by the page — the pickers offer no day after today.
+ * «С … по …» day fields of the Акт сверки (screen toolbar only), each labelled
+ * on its left so the toolbar keeps one row. A cleared or half-typed field keeps
+ * the previous day; reversed ends are swapped and a future day is capped at today
+ * by the page — the calendars offer no day after today.
  */
 export const StatementPeriodFields: React.FC<StatementPeriodFieldsProps> = ({
 	period,
@@ -22,19 +25,20 @@ export const StatementPeriodFields: React.FC<StatementPeriodFieldsProps> = ({
 	const today = defaultStatementPeriod().to;
 
 	const field = (side: keyof StatementPeriod, label: string) => (
-		<TextField
-			type="date"
-			size="small"
-			label={label}
-			value={period[side]}
-			onChange={(e) => e.target.value && onChange({ ...period, [side]: e.target.value })}
-			slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: today } }}
-			sx={{ width: 160 }}
-		/>
+		<Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+			<FormFieldLabel label={label} />
+			<DateField
+				value={period[side]}
+				maxDate={today}
+				fullWidth={false}
+				onChange={(day) => day && onChange({ ...period, [side]: day })}
+				sx={{ width: 156 }}
+			/>
+		</Box>
 	);
 
 	return (
-		<Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+		<Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
 			{field("from", t("print.statement.periodFrom"))}
 			{field("to", t("print.statement.periodTo"))}
 		</Box>
